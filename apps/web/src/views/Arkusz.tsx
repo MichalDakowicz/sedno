@@ -2,12 +2,14 @@ import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutE
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Check, ChevronDown, FileText, Headphones, Pencil, RotateCcw, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
-import { pustyPostep, usePostep, type Postep } from "../arkusze/postep";
-import { policz, policzPytania, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
+import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Postep } from "../arkusze/postep";
+import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
+  nazwaPrzedmiotu,
   type Arkusz as ArkuszDane,
   type Blok,
+  type Obraz,
   type Opcja,
   type Pytanie,
   type PytanieOtwarte,
@@ -15,14 +17,17 @@ import {
   type Wypowiedz,
   type Zadanie,
 } from "../arkusze/typy";
+import { Brudnopis } from "../components/Brudnopis";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import styles from "./Arkusz.module.css";
 
 type Kontekst = {
+  arkusz: ArkuszDane;
   postep: Postep;
   ustaw: (nr: string, wartosc: string) => void;
-  ocen: (nr: string, zaliczone: boolean) => void;
+  ocen: (nr: string, ocena: boolean | number) => void;
+  ustawBrudnopis: (zadanie: number, zapis: ZapisBrudnopisu | null) => void;
   pytania: Map<string, Pytanie>;
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
   opcjeDla: (nr: string) => Opcja[] | undefined;
@@ -57,6 +62,7 @@ export function Arkusz() {
       }
     }
     return {
+      arkusz: dane,
       postep,
       pytania,
       wBloku,
@@ -69,7 +75,15 @@ export function Arkusz() {
       },
       ustaw: (nr, wartosc) =>
         zmien((p) => (p.sprawdzony || p.sprawdzoneZadania.includes(nrZadania(nr)) ? p : { ...p, odpowiedzi: { ...p.odpowiedzi, [nr]: wartosc } })),
-      ocen: (nr, zaliczone) => zmien((p) => ({ ...p, samoocena: { ...p.samoocena, [nr]: zaliczone } })),
+      ocen: (nr, ocena) => zmien((p) => ({ ...p, samoocena: { ...p.samoocena, [nr]: ocena } })),
+      // Brudnopis to pomoc, więc działa także po sprawdzeniu zadania.
+      ustawBrudnopis: (zadanie, zapis) =>
+        zmien((p) => {
+          const brudnopisy = { ...p.brudnopisy };
+          if (zapis) brudnopisy[zadanie] = zapis;
+          else delete brudnopisy[zadanie];
+          return { ...p, brudnopisy };
+        }),
     };
   }, [dane, postep, zmien, sprawdzone, otwartaLuka]);
 
@@ -177,7 +191,7 @@ function Naglowek({ arkusz }: { arkusz: ArkuszDane }) {
         <ArrowLeft size={16} aria-hidden="true" /> Arkusze
       </Link>
       <span className="label">
-        Język angielski · {nazwaPoziomu[arkusz.poziom]} · formuła {arkusz.formula ?? "2023"} · {arkusz.symbol}
+        {nazwaPrzedmiotu[arkusz.przedmiot] ?? arkusz.przedmiot} · {nazwaPoziomu[arkusz.poziom]} · formuła {arkusz.formula ?? "2023"} · {arkusz.symbol}
       </span>
       <h1 className="h1">
         Matura {arkusz.sesja} {arkusz.rok}
@@ -207,15 +221,15 @@ function Podsumowanie({ wynik, odNowa }: { wynik: ReturnType<typeof policz>; odN
   const procent = wynik.mozliwe ? Math.round((wynik.zdobyte / wynik.mozliwe) * 100) : 0;
   return (
     <section className={styles.summary} aria-live="polite">
-      <span className="label">Wynik bez wypowiedzi pisemnej</span>
+      <span className="label">{wynik.wypowiedzi ? "Wynik bez wypowiedzi pisemnej" : "Wynik"}</span>
       <p className={styles.bigScore}>
         {wynik.zdobyte} <span className="muted">/ {wynik.mozliwe} pkt</span> <span className={styles.percent}>{procent}%</span>
       </p>
       <p className="muted">
         {wynik.doOceny > 0
-          ? `${wynik.doOceny} ${wynik.doOceny === 1 ? "odpowiedź otwarta czeka" : "odpowiedzi otwarte czekają"} na twoją ocenę: są poprawne inaczej, niż przewiduje lista CKE, albo całkiem źle. Porównaj z kluczem przy pytaniu.`
-          : "Wszystkie odpowiedzi ocenione."}{" "}
-        Wypowiedź pisemna ({wynik.wypowiedzi} pkt) wymaga oceny według kryteriów, na razie bez punktów.
+          ? `${wynik.doOceny} ${wynik.doOceny === 1 ? "odpowiedź otwarta czeka" : "odpowiedzi otwarte czekają"} na twoją ocenę. Porównaj z kluczem albo schematem oceniania przy pytaniu.`
+          : "Wszystkie odpowiedzi ocenione."}
+        {wynik.wypowiedzi > 0 && ` Wypowiedź pisemna (${wynik.wypowiedzi} pkt) wymaga oceny według kryteriów, na razie bez punktów.`}
       </p>
       <button type="button" className="btn btn-ghost btn-sm" onClick={odNowa}>
         <RotateCcw size={16} aria-hidden="true" /> Rozwiąż od nowa
@@ -225,7 +239,7 @@ function Podsumowanie({ wynik, odNowa }: { wynik: ReturnType<typeof policz>; odN
 }
 
 function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSprawdz: () => void; onPopraw: () => void }) {
-  const { postep, wBloku, sprawdzone } = useCtx();
+  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis } = useCtx();
   const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
@@ -269,6 +283,15 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
             <Informacja key={p.nr} pytanie={p} zNumerem />
           ))}
         </div>
+      )}
+      {arkusz.przedmiot === "matematyka" && (
+        <Brudnopis
+          plik={`${arkusz.id}-${zadanie.nr}`}
+          zadanie={zadanie.nr}
+          rysunek={zadanie.rysunek}
+          zapis={postep.brudnopisy?.[zadanie.nr]}
+          onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
+        />
       )}
       {!pisemna && !postep.sprawdzony && (
         <div className={styles.taskActions}>
@@ -327,8 +350,21 @@ function rozbierzPolecenie(z: Zadanie): Pisanie {
 
 function werdyktPytania(p: Pytanie, postep: Postep): Werdykt {
   const w = werdykt(p, postep.odpowiedzi[p.nr]);
-  if (w === "do-oceny" && postep.samoocena[p.nr] !== undefined) return postep.samoocena[p.nr] ? "dobrze" : "zle";
-  return w;
+  const ocena = postep.samoocena[p.nr];
+  if (w !== "do-oceny" || ocena === undefined) return w;
+  // Część punktów zostaje „do oceny”: ani w pełni dobrze, ani źle.
+  const punkty = punktyZSamooceny(p, ocena);
+  return punkty === p.punkty ? "dobrze" : punkty === 0 ? "zle" : "do-oceny";
+}
+
+function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
+  // Kadry są renderowane w skali 2 px na punkt PDF; 1,5 px na punkt daje tekst
+  // zbliżony wielkością do reszty strony, a na wąskim ekranie obraz się zwęża.
+  return (
+    <figure className={styles.kadr}>
+      <img src={`/dane/arkusze/${obraz.src}`} alt={tekst} width={Math.round(obraz.szer * 1.5)} height={Math.round(obraz.wys * 1.5)} loading="lazy" />
+    </figure>
+  );
 }
 
 function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
@@ -344,6 +380,8 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
       return <h3 className={styles.textTitle}>{blok.tekst}</h3>;
     case "zrodlo":
       return <p className={`small muted ${styles.source}`}>{blok.tekst}</p>;
+    case "kadr":
+      return <Kadr obraz={blok.obraz} tekst={blok.tekst} />;
     case "opcje":
       return <OpcjeZadania opcje={blok.opcje} zadanie={zadanie} />;
     case "pytanie": {
@@ -497,7 +535,9 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
         {p.tresc && <Tekst tekst={p.tresc} wlasny={p.nr} />}
       </div>
       {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Suwak pytanie={p} />)}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && <LukaTekst pytanie={p} blok />}
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && (
+        <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
+      )}
       <Informacja pytanie={p} />
     </div>
   );
@@ -677,7 +717,7 @@ function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   );
 }
 
-function LukaTekst({ pytanie: p, blok, bezNumeru }: { pytanie: PytanieOtwarte; blok?: boolean; bezNumeru?: boolean }) {
+function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: PytanieOtwarte; blok?: boolean; bezNumeru?: boolean; placeholder?: string }) {
   const { postep, ustaw, sprawdzone } = useCtx();
   const gotowe = sprawdzone(p.nr);
   const w = gotowe ? werdyktPytania(p, postep) : undefined;
@@ -694,7 +734,8 @@ function LukaTekst({ pytanie: p, blok, bezNumeru }: { pytanie: PytanieOtwarte; b
         autoCapitalize="off"
         spellCheck={false}
         onChange={(e) => ustaw(p.nr, e.target.value)}
-        aria-label={`Luka ${p.nr}`}
+        placeholder={placeholder}
+        aria-label={placeholder ? `Odpowiedź ${p.nr}` : `Luka ${p.nr}`}
       />
     </span>
   );
@@ -730,14 +771,21 @@ function WypowiedzWidok({ pytanie: p, pisanie }: { pytanie: Wypowiedz; pisanie: 
   );
 }
 
+function opisSamooceny(p: Pytanie, ocena: boolean | number | undefined, zLista: boolean) {
+  if (ocena === undefined) return zLista ? "Spoza listy CKE: oceń sam" : "Oceń sam według schematu CKE";
+  if (p.punkty > 1) return `Przyznane przez ciebie: ${punktyZSamooceny(p, ocena)} z ${p.punkty} pkt`;
+  return ocena ? "Zaliczona przez ciebie" : "Niezaliczona przez ciebie";
+}
+
 // Informacja zwrotna pod pytaniem po sprawdzeniu.
 function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boolean }) {
-  const { postep, ocen, sprawdzone, opcjeDla } = useCtx();
+  const { arkusz, postep, ocen, sprawdzone, opcjeDla } = useCtx();
   if (!sprawdzone(p.nr) || p.typ === "wypowiedz") return null;
   const surowy = werdykt(p, postep.odpowiedzi[p.nr]);
   const w = werdyktPytania(p, postep);
   const odp = postep.odpowiedzi[p.nr]?.trim();
   const nr: ReactNode = zNumerem ? <strong>{p.nr}. </strong> : null;
+  const schemat = p.zasadyStrona && arkusz.pdf?.zasady ? `${arkusz.pdf.zasady}#page=${p.zasadyStrona}` : null;
 
   if (p.typ === "zamkniete") {
     const zdanie = opcjeDla(p.nr)?.find((o) => o.litera === p.poprawna)?.tresc;
@@ -761,10 +809,17 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
         {surowy === "dobrze" && "Zgodne z kluczem CKE"}
         {surowy === "zle" && "Ta odpowiedź jest w kluczu jako niepoprawna"}
         {surowy === "pusto" && "Brak odpowiedzi"}
-        {surowy === "do-oceny" && (postep.samoocena[p.nr] === undefined ? "Spoza listy CKE: oceń sam" : postep.samoocena[p.nr] ? "Zaliczona przez ciebie" : "Niezaliczona przez ciebie")}
+        {surowy === "do-oceny" && opisSamooceny(p, postep.samoocena[p.nr], !!(p.oczekiwane?.length || p.akceptowane?.length))}
       </p>
       {surowy !== "dobrze" && (
         <div className={styles.key}>
+          {schemat && (
+            <p>
+              <a className="link" href={schemat} target="_blank" rel="noreferrer">
+                Rozwiązanie i schemat oceniania CKE (strona {p.zasadyStrona})
+              </a>
+            </p>
+          )}
           {p.oczekiwane?.length ? (
             <p>
               <span className="label">Oczekiwana</span> {p.oczekiwane.slice(0, 6).join(" / ")}
@@ -784,16 +839,26 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
           ) : null}
         </div>
       )}
-      {surowy === "do-oceny" && (
-        <div className={styles.selfCheck}>
-          <button type="button" className="btn btn-sm btn-secondary" aria-pressed={postep.samoocena[p.nr] === true} onClick={() => ocen(p.nr, true)}>
-            Zaliczam
-          </button>
-          <button type="button" className="btn btn-sm btn-ghost" aria-pressed={postep.samoocena[p.nr] === false} onClick={() => ocen(p.nr, false)}>
-            Nie zaliczam
-          </button>
-        </div>
-      )}
+      {surowy === "do-oceny" &&
+        (p.punkty > 1 ? (
+          // Zadanie wielopunktowe: uczeń przyznaje sobie punkty według schematu.
+          <div className={styles.selfCheck} role="group" aria-label={`Twoje punkty za ${p.nr}`}>
+            {Array.from({ length: p.punkty + 1 }, (_, n) => (
+              <button key={n} type="button" className={`btn btn-sm ${n ? "btn-secondary" : "btn-ghost"}`} aria-pressed={postep.samoocena[p.nr] === n} onClick={() => ocen(p.nr, n)}>
+                {n} pkt
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className={styles.selfCheck}>
+            <button type="button" className="btn btn-sm btn-secondary" aria-pressed={postep.samoocena[p.nr] === true} onClick={() => ocen(p.nr, true)}>
+              Zaliczam
+            </button>
+            <button type="button" className="btn btn-sm btn-ghost" aria-pressed={postep.samoocena[p.nr] === false} onClick={() => ocen(p.nr, false)}>
+              Nie zaliczam
+            </button>
+          </div>
+        ))}
     </div>
   );
 }

@@ -859,3 +859,18 @@
     width: 40px;
   }
 }
+
+/* Kadr z arkusza (matematyka): treść zadania jako obraz na białym tle. */
+
+.kadr {
+  margin: 0;
+  padding: 12px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+
+.kadr img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
