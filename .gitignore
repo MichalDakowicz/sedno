@@ -7,3 +7,6 @@ dist/
 .DS_Store
 *.tsbuildinfo
 .vite/
+
+# Pobrane materiały CKE (prawa autorskie, nie commitujemy)
+data/

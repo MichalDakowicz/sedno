@@ -18,7 +18,9 @@ npm run build
 | `/przedmiot/:id` | Pulpit zawężony do przedmiotu (`polski`, `matematyka`, `angielski`) z mapą umiejętności |
 | `/tutor` | Pełny widok rozmowy z Pestką |
 | `/profil` | Przedmioty, ponowne uruchomienie przewodnika, wylogowanie |
-| `/nauka`, `/arkusze`, `/umiejetnosci`, `/powtorki` | Zaślepki |
+| `/arkusze` | Lista arkuszy CKE z angielskiego według poziomu |
+| `/arkusze/:id` | Rozwiązywanie arkusza i sprawdzanie z kluczem CKE |
+| `/nauka`, `/umiejetnosci`, `/powtorki` | Zaślepki |
 
 ## Pestka (tutor AI)
 
@@ -30,6 +32,17 @@ Pestka jest zawsze widoczna, ale nie ma stałego miejsca w treści (`TutorGuide.
 - **Przewodnik:** przy pierwszym wejściu na pulpit (`tourHints`). Ostatni krok czeka na przywołanie. Ponownie z `/profil`.
 - **Przywołanie:** prawy przycisk (na telefonie przytrzymanie) w dowolnym miejscu poza polami tekstowymi. Jeśli element pod kursorem ma `data-tutor-about="…"`, Pestka wyjaśnia go w dymku.
 - **Odprawienie:** krzyżyk w dymku albo Escape: dymek gaśnie, Pestka skacze na spoczynek. Kliknięcie w avatar otwiera rozmowę w panelu bocznym (`TutorDock.tsx`).
+
+## Arkusze
+
+Dane arkuszy nie są w repo. Najpierw `npm run pobierz` i `npm run importuj` (opis w `services/arkusze/README.md`); wtedy serwer dev serwuje `data/arkusze/*.json` pod `/dane/arkusze/`, a build kopiuje je do `dist/dane/arkusze`.
+
+- `src/arkusze/typy.ts`: format danych z importu.
+- `src/arkusze/sprawdz.ts`: sprawdzanie bez AI. Zamknięte z klucza; otwarte zgodne z listą CKE są zaliczone, z listy niepoprawnych niezaliczone, reszta idzie do samooceny.
+- `src/arkusze/postep.ts`: odpowiedzi i wynik w `localStorage` (`sedno.arkusz.<id>`), dopóki nie ma backendu.
+- Widok arkusza (`src/views/Arkusz.tsx`): linki do PDF arkusza i zasad oceniania na stronie CKE, sprawdzanie pojedynczego zadania z możliwością poprawy, luki na brakujące zdania rozwijane pod luką, suwak liter przy dopasowaniach.
+- `src/components/Nagranie.tsx`: odtwarzacz nagrania; po starcie przypina się do dołu ekranu.
+- `src/components/Wypracowanie.tsx`: edytor wypowiedzi pisemnej: wybór tematu, lista elementów treści, licznik słów względem zakresu z polecenia, tryb skupienia.
 
 Logowanie i odpowiedzi Pestki są na niby (`src/auth.ts`, `TutorContext.tsx`), dane w `src/data/demo.ts`.
 

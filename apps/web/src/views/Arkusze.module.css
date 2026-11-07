@@ -1,0 +1,157 @@
+.page {
+  display: grid;
+  gap: 32px;
+  padding-top: 32px;
+  padding-bottom: 120px;
+}
+
+.head {
+  display: grid;
+  gap: 16px;
+  max-width: 640px;
+}
+
+.levels {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: -8px;
+  padding: 8px;
+  scrollbar-width: none;
+}
+
+.level {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 8px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.level:hover {
+  color: var(--fg);
+  background: var(--surface);
+}
+
+.levelActive {
+  color: var(--fg);
+  background: var(--surface);
+  border-color: transparent;
+  box-shadow: var(--shadow-float);
+}
+
+.levelCount {
+  margin-left: 8px;
+  font-size: 13px;
+  color: var(--subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.group {
+  display: grid;
+  gap: 12px;
+}
+
+.groupHead {
+  display: grid;
+  gap: 4px;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.row:hover .title {
+  color: var(--primary);
+}
+
+.year {
+  flex-shrink: 0;
+  width: 64px;
+  font-size: 28px;
+  letter-spacing: -0.03em;
+  color: var(--subtle);
+}
+
+.info {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--subtle);
+}
+
+.score {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.empty {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  max-width: 560px;
+  padding: 32px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+}
+
+.code {
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .year {
+    width: 48px;
+    font-size: 22px;
+  }
+}
