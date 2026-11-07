@@ -36,6 +36,7 @@ for (const strona of lata) {
   const katalog = join(KATALOG_CKE, rok);
   await mkdir(katalog, { recursive: true });
   const nagrania = {};
+  const adresy = {}; // nazwa pliku → adres na stronie CKE (link „otwórz PDF” w aplikacji)
   for (const url of linki) {
     const nazwa = url.split("/").pop();
     if (nazwa.endsWith(".mp3")) {
@@ -44,6 +45,7 @@ for (const strona of lata) {
       if (poziom) nagrania[poziom] ??= url;
       continue;
     }
+    adresy[nazwa] = url;
     const cel = join(katalog, nazwa);
     if (await istnieje(cel)) continue;
     const odp = await fetch(url);
@@ -55,5 +57,6 @@ for (const strona of lata) {
     console.log(`  ${rok}/${nazwa}`);
   }
   await writeFile(join(katalog, "nagrania.json"), JSON.stringify(nagrania, null, 2));
+  await writeFile(join(katalog, "adresy.json"), JSON.stringify(adresy, null, 2));
   console.log(`${rok}: ${linki.filter((u) => u.endsWith(".pdf")).length} PDF, nagrania: ${Object.keys(nagrania).join(", ") || "brak"}`);
 }

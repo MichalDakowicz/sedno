@@ -18,6 +18,7 @@ for (const rok of (await readdir(KATALOG_CKE)).sort()) {
   const katalog = join(KATALOG_CKE, rok);
   const pliki = await readdir(katalog);
   const nagrania = JSON.parse(await readFile(join(katalog, "nagrania.json"), "utf8").catch(() => "{}"));
+  const adresy = JSON.parse(await readFile(join(katalog, "adresy.json"), "utf8").catch(() => "{}"));
   for (const plik of pliki.filter((p) => /^MJA[PA]-[PRD]0-100(-A)?-\d{4}(-arkusz)?\.pdf$/.test(p))) {
     const [, kodPoziomu, sesja] = plik.match(/^MJA[PA]-([PRD])0-100(?:-A)?-(\d{4})/);
     const poziom = POZIOMY[kodPoziomu];
@@ -47,6 +48,7 @@ for (const rok of (await readdir(KATALOG_CKE)).sort()) {
       punkty: metadane.punkty ?? sumaPunktow,
       ...(nagrania[poziom] ? { nagranie: nagrania[poziom] } : {}),
       zrodlo: { arkusz: plik, zasady: plikKlucza ?? null },
+      pdf: { arkusz: adresy[plik] ?? null, zasady: (plikKlucza && adresy[plikKlucza]) ?? null },
       ostrzezenia,
       zadania,
     };

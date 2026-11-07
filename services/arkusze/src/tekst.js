@@ -24,8 +24,10 @@ export async function tekstPdf(sciezka) {
     const linie = wiersze
       .sort((a, b) => b.y - a.y)
       .map((w) => {
-        const seg = segmenty(w.czesci.sort((a, b) => a.x - b.x));
-        return { strona: n, y: w.y, x: seg[0].x, seg, s: seg.map((g) => g.s).join(" ") };
+        const czesci = w.czesci.sort((a, b) => a.x - b.x);
+        const seg = segmenty(czesci);
+        // Surowe kawałki zostają do dzielenia tekstu w kolumnach (patrz arkusz.js).
+        return { strona: n, y: w.y, x: seg[0].x, seg, czesci, s: seg.map((g) => g.s).join(" ") };
       });
     strony.push(linie);
   }

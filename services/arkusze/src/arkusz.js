@@ -60,7 +60,52 @@ function przygotujLinie(strony) {
       wynik.push({ ...l, seg, x: seg[0].x, s: seg.map((g) => g.s).join(" "), poczatekLuki });
     }
   }
+  return rozwinKolumny(wynik);
+}
+
+// Tekst w kolumnach (np. ulotka z nagłówkami „WHAT WE EXPECT | WHAT YOU WILL LEARN”).
+// Wiersz samych nagłówków WIELKIMI literami wyznacza kolumny; kolejne linie
+// dzielimy po współrzędnej x i wypisujemy kolumna po kolumnie.
+const NAGLOWEK_KOLUMNY = /^[A-Z][A-Z0-9 ’'?&,-]{2,}$/;
+
+function rozwinKolumny(linie) {
+  const wynik = [];
+  for (let i = 0; i < linie.length; i++) {
+    const l = linie[i];
+    const naglowki = l.seg.length >= 2 && l.seg.every((g) => NAGLOWEK_KOLUMNY.test(g.s)) ? l.seg : null;
+    if (!naglowki) {
+      wynik.push(l);
+      continue;
+    }
+    const kolumny = naglowki.map((g) => ({ naglowek: g.s, x: g.x, tekst: [] }));
+    let ost = l;
+    let j = i + 1;
+    for (; j < linie.length; j++) {
+      const m = linie[j];
+      if (m.strona !== ost.strona || ost.y - m.y > 30 || NAGLOWEK_ZADANIA.test(m.s)) break;
+      if (m.seg.length >= 2 && m.seg.every((g) => NAGLOWEK_KOLUMNY.test(g.s))) break;
+      for (const c of m.czesci ?? []) {
+        if (!c.s.trim()) continue;
+        const kol = [...kolumny].reverse().find((k) => k.x <= c.x + 5) ?? kolumny[0];
+        kol.tekst.push(c.s.trim());
+      }
+      ost = m;
+    }
+    // Sztuczne linie z dużym odstępem w pionie, żeby każda kolumna była osobnym akapitem.
+    let y = l.y;
+    for (const k of kolumny) {
+      wynik.push(sztucznaLinia(l, y, k.naglowek));
+      y -= 14;
+      if (k.tekst.length) wynik.push(sztucznaLinia(l, y, k.tekst.join(" ").replace(/\s+/g, " ")));
+      y -= 100;
+    }
+    i = j - 1;
+  }
   return wynik;
+}
+
+function sztucznaLinia(wzor, y, s) {
+  return { strona: wzor.strona, y, x: wzor.x, seg: [{ x: wzor.x, s }], s, poczatekLuki: false };
 }
 
 // Etykieta pytania na początku segmentu, np. „2.1. The man…” albo samo „4.1.”.
@@ -248,7 +293,8 @@ function parsujZadanie({ nr, punkty, linie }) {
     polecenie,
     bloki: bloki.map(czyscBlok),
     pytania: pytania
-      .map(({ x, sekcja, ostatnia, odstep, opcje, ...q }) => ({
+      .map(({ x, sekcja, ostatnia, odstep, opcje, tresc, ...q }) => ({
+        tresc: bezResztekLuk(tresc ?? ""),
         ...q,
         ...(opcje?.length ? { opcje: opcje.map(({ x, ...o }) => o) } : {}),
       }))
@@ -317,7 +363,13 @@ function wydzielPolecenie(bloki) {
 
 function czyscBlok({ x, ostatnia, odstep, ...b }) {
   if (b.opcje) b.opcje = b.opcje.map(({ x, ...o }) => o);
+  if (b.tekst) b.tekst = bezResztekLuk(b.tekst);
   return b;
+}
+
+// Luka zawinięta do następnej linii zostawia za znacznikiem samo „_____”.
+function bezResztekLuk(tekst) {
+  return tekst.replace(/(\{\{[\d.]+\}\})\s*_____/g, "$1").replace(/(\{\{[\d.]+\}\})\s*_____/g, "$1");
 }
 
 // Treść pytania zachowuje podział na wiersze tam, gdzie to coś znaczy
