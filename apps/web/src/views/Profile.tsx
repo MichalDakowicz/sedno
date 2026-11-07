@@ -1,18 +1,22 @@
 import { useNavigate } from "react-router-dom";
 import { LogOut, Map as MapIcon } from "lucide-react";
-import { logout } from "../auth";
+import { logout, useProfil, useSession } from "../auth";
+import { KontoAI } from "../components/KontoAI";
 import { resetTour } from "../components/TutorContext";
 import { SubjectIcon } from "../components/icons";
 import { formatDate, student, subjects } from "../data/demo";
 
 export function Profile() {
   const navigate = useNavigate();
+  const session = useSession();
+  const profil = useProfil();
 
   return (
     <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
       <div style={{ display: "grid", gap: 12 }}>
         <span className="label">Profil</span>
-        <h1 className="display">{student.name}</h1>
+        <h1 className="display">{profil?.display_name ?? student.name}</h1>
+        {session && <p className="muted">{session.user.email}</p>}
       </div>
 
       <section style={{ display: "grid", gap: 16 }}>
@@ -30,6 +34,8 @@ export function Profile() {
         </ul>
       </section>
 
+      <KontoAI />
+
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <button
           type="button"
@@ -46,8 +52,7 @@ export function Profile() {
           type="button"
           className="btn btn-ghost"
           onClick={() => {
-            logout();
-            navigate("/logowanie");
+            void logout().then(() => navigate("/logowanie"));
           }}
         >
           <LogOut size={18} aria-hidden="true" />
