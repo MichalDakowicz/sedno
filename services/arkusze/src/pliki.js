@@ -1,5 +1,10 @@
-// Rozpoznaje pliki CKE z języka angielskiego po nazwie. Nazewnictwo
-// zmieniało się między latami:
+// Rozpoznaje pliki CKE po nazwie: język angielski (wszystkie poziomy)
+// i matematyka na poziomie podstawowym (formuła 2023).
+//
+// Matematyka: MMAP-P0-100-2305.pdf (2023), od 2024 MMAP-P0-100-A-2405-arkusz.pdf
+// i MMAP-P0-100-2405-zasady.pdf. Z dwóch wersji arkusza bierzemy wersję A.
+//
+// Nazewnictwo angielskiego zmieniało się między latami:
 //   formuła 2023:        MJAP-P0-100-A-2505-arkusz.pdf, MJAP-P0-100-…-2505-zasady.pdf
 //   formuła 2015 od 2021: EJAP-P0-100-2105.pdf, EJAP-P0-100-2105-zasady.pdf
 //   formuła 2015 do 2020: MJA-P1_1P-192.pdf, MJA-P1-192-zasady_oceniania.pdf,
@@ -10,6 +15,22 @@
 const POZIOM = { P: "podstawowy", R: "rozszerzony", D: "dwujezyczny" };
 
 export function klasyfikuj(nazwa) {
+  const k = matematyka(nazwa) ?? angielski(nazwa);
+  return k && { przedmiot: "angielski", ...k };
+}
+
+function matematyka(nazwa) {
+  let m;
+  if ((m = nazwa.match(/^MMAP-P0-100(?:-A)?-(\d{2})(\d{2})(?:-arkusz)?\.pdf$/))) {
+    return { typ: "arkusz", przedmiot: "matematyka", formula: "2023", poziom: POZIOM.P, rok: 2000 + Number(m[1]), miesiac: m[2] };
+  }
+  if ((m = nazwa.match(/^MMAP-P0-100-(\d{2})\d{2}-zasady\.pdf$/))) {
+    return { typ: "zasady", przedmiot: "matematyka", formula: "2023", poziom: POZIOM.P, rok: 2000 + Number(m[1]) };
+  }
+  return null;
+}
+
+function angielski(nazwa) {
   let m;
 
   // Formuła 2023 (MJAP/MJAA) i formuła 2015 w nowym nazewnictwie (EJAP/EJAA).

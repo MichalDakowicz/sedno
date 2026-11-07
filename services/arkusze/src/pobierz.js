@@ -1,5 +1,6 @@
 // Pobiera ze strony CKE arkusze i zasady oceniania z języka angielskiego
-// (formuła 2015 i 2023, wszystkie dostępne lata) do data/cke/<rok>/
+// (formuła 2015 i 2023, wszystkie dostępne lata) i z matematyki na poziomie
+// podstawowym (formuła 2023) do data/cke/<rok>/
 // i zapisuje katalog.json z listą arkuszy, kluczy i adresów nagrań.
 // Pliki CKE nie trafiają do repozytorium (prawa autorskie), patrz .gitignore.
 import { mkdir, writeFile, access } from "node:fs/promises";
@@ -30,11 +31,11 @@ async function istnieje(sciezka) {
 // Część linków na stronie CKE jest względna („/images/…”), więc składamy pełny adres.
 const linki = (html, baza) => [...new Set([...html.matchAll(/href="([^"]+)"/g)].map((m) => new URL(m[1], baza).href.replace(/^http:/, "https:")))];
 
-// Arkusz z kluczem i nagraniem to jeden wpis katalogu: formuła, rok, poziom.
+// Arkusz z kluczem i nagraniem to jeden wpis katalogu: przedmiot, formuła, rok, poziom.
 const katalog = new Map();
 const wpis = (k) => {
-  const id = `${k.formula}-${k.rok}-${k.poziom}`;
-  if (!katalog.has(id)) katalog.set(id, { formula: k.formula, rok: k.rok, poziom: k.poziom });
+  const id = `${k.przedmiot}-${k.formula}-${k.rok}-${k.poziom}`;
+  if (!katalog.has(id)) katalog.set(id, { przedmiot: k.przedmiot, formula: k.formula, rok: k.rok, poziom: k.poziom });
   return katalog.get(id);
 };
 
@@ -75,8 +76,8 @@ for (const stronaFormuly of STRONY_FORMUL) {
   }
 }
 
-const lista = [...katalog.values()].sort((a, b) => b.rok - a.rok || b.formula.localeCompare(a.formula) || a.poziom.localeCompare(b.poziom));
+const lista = [...katalog.values()].sort((a, b) => a.przedmiot.localeCompare(b.przedmiot) || b.rok - a.rok || b.formula.localeCompare(a.formula) || a.poziom.localeCompare(b.poziom));
 await writeFile(join(KATALOG_CKE, "katalog.json"), JSON.stringify(lista, null, 1));
-const braki = lista.filter((w) => !w.arkusz || !w.zasady).map((w) => `${w.formula}/${w.rok}/${w.poziom}${w.arkusz ? "" : " bez arkusza"}${w.zasady ? "" : " bez klucza"}`);
+const braki = lista.filter((w) => !w.arkusz || !w.zasady).map((w) => `${w.przedmiot}/${w.formula}/${w.rok}/${w.poziom}${w.arkusz ? "" : " bez arkusza"}${w.zasady ? "" : " bez klucza"}`);
 console.log(`Katalog: ${lista.length} wpisów`);
 for (const b of braki) console.log(`  ! ${b}`);
