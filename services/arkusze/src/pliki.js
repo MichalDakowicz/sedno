@@ -27,6 +27,10 @@ function matematyka(nazwa) {
   if ((m = nazwa.match(/^MMAP-P0-100-(\d{2})\d{2}-zasady\.pdf$/))) {
     return { typ: "zasady", przedmiot: "matematyka", formula: "2023", poziom: POZIOM.P, rok: 2000 + Number(m[1]) };
   }
+  // Forma 660 (dla osób niewidomych) w DOCX: te same zadania, wzory jako równania Office.
+  if ((m = nazwa.match(/^MMAP-P0-660(?:-A)?-(\d{2})\d{2}(?:-arkusz)?\.docx$/))) {
+    return { typ: "tresc", przedmiot: "matematyka", formula: "2023", poziom: POZIOM.P, rok: 2000 + Number(m[1]) };
+  }
   return null;
 }
 
