@@ -1,0 +1,166 @@
+.closed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Karta: brudnopis to osobne narzędzie, musi odcinać się od treści zadania.
+   Na szerokim ekranie wychodzi poza kolumnę tekstu, żeby było więcej miejsca. */
+.panel {
+  --szerokosc: max(100%, min(1100px, calc(100vw - 64px)));
+  display: grid;
+  gap: 12px;
+  width: var(--szerokosc);
+  margin-left: calc((100% - var(--szerokosc)) / 2);
+  padding: 16px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.loading {
+  display: grid;
+  place-items: center;
+  height: clamp(420px, 75vh, 760px);
+}
+
+/* Pasek narzędzi obok płótna, nie na nim. */
+.workspace {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  height: clamp(420px, 75vh, 760px);
+}
+
+/* Dwie kolumny przycisków, żeby wszystko mieściło się bez przewijania. */
+.toolbar {
+  display: grid;
+  grid-template-columns: repeat(2, 36px);
+  align-content: start;
+  gap: 2px;
+  padding: 6px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  scrollbar-width: none;
+}
+
+.tool,
+.swatch {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.tool:hover,
+.swatch:hover {
+  color: var(--fg);
+  background: var(--surface);
+}
+
+.tool[aria-pressed="true"] {
+  color: var(--primary-fg);
+  background: var(--primary);
+}
+
+.swatch span {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+/* Kropka grubości: rozmiar i kolor ustawia komponent. */
+.swatch span.width {
+  border-radius: 50%;
+}
+
+.swatch[aria-pressed="true"] span {
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--fg);
+}
+
+.sep {
+  grid-column: 1 / -1;
+  height: 1px;
+  margin: 4px 4px;
+  background: var(--line);
+}
+
+.grow {
+  grid-column: 1 / -1;
+}
+
+.canvas {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+
+/* Wbudowane UI Excalidraw (pasek narzędzi, panel stylu, menu, biblioteka,
+   stopka z zoomem) zastępuje nasz pasek; zostaje samo płótno. Na wąskim
+   ekranie Excalidraw ma osobny układ mobilny (górny i dolny pasek). */
+.canvas :global(.excalidraw) :global(.layer-ui__wrapper),
+.canvas :global(.excalidraw) :global(.App-top-bar),
+.canvas :global(.excalidraw) :global(.App-bottom-bar) {
+  display: none;
+}
+
+.canvas :global(.excalidraw) {
+  --color-primary: var(--primary);
+  --color-primary-darker: var(--primary-hover);
+  --color-primary-darkest: #d94a1f;
+  --color-primary-light: var(--primary-soft);
+  --color-primary-light-darker: #ffd3c2;
+  --color-primary-hover: var(--primary-hover);
+  --ui-font: var(--font);
+  --border-radius-lg: var(--r-sm);
+}
+
+/* Telefon: pasek nad płótnem, zawijany w kilka rzędów. */
+@media (max-width: 640px) {
+  .panel {
+    padding: 12px;
+  }
+
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 78vh;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  .sep,
+  .grow {
+    display: none;
+  }
+}

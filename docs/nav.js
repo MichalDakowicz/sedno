@@ -584,6 +584,10 @@
     "title": "Potok przetwarzania"
    },
    {
+    "id": "cke-matematyka",
+    "title": "Matematyka: wzory i brudnopis"
+   },
+   {
     "id": "cke-mapowanie",
     "title": "Mapowanie w kluczu"
    },

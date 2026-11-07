@@ -3,10 +3,24 @@ import { Link } from "react-router-dom";
 import { ChevronRight, Clock, Headphones } from "lucide-react";
 import { useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
-import type { ArkuszWpis, Poziom } from "../arkusze/typy";
+import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
 import { useProfil } from "../auth";
 import styles from "./Arkusze.module.css";
 
+const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string; lead: string }[] = [
+  {
+    id: "angielski",
+    nazwa: "Angielski",
+    opis: "Język angielski · matura od 2015",
+    lead: "Arkusze maturalne CKE do rozwiązania w przeglądarce. Zadania zamknięte sprawdzam od razu z kluczem, otwarte porównuję z zasadami oceniania.",
+  },
+  {
+    id: "matematyka",
+    nazwa: "Matematyka",
+    opis: "Matematyka · poziom podstawowy · matura od 2023",
+    lead: "Zadania wyglądają jak w arkuszu CKE. Przy każdym masz brudnopis do obliczeń i szkiców, a przy zadaniach z rysunkiem możesz rysować po figurze.",
+  },
+];
 const POZIOMY: Poziom[] = ["podstawowy", "rozszerzony", "dwujezyczny"];
 const NAZWY: Record<Poziom, string> = { podstawowy: "Podstawowy", rozszerzony: "Rozszerzony", dwujezyczny: "Dwujęzyczny" };
 
@@ -18,32 +32,58 @@ const FORMULY = [
 export function Arkusze() {
   const { dane, blad, laduje } = useListaArkuszy();
   const profil = useProfil();
-  // Domyślnie poziom, który konto zdaje z angielskiego.
-  const [poziom, setPoziom] = useState<Poziom>(() => profil?.subjects.find((p) => p.id === "angielski")?.poziom ?? "podstawowy");
+  // Domyślnie przedmiot i poziom, które konto zdaje (angielski, jeśli zdaje oba).
+  const poziomKonta = (p: Przedmiot) => profil?.subjects.find((s) => s.id === p)?.poziom as Poziom | undefined;
+  const [przedmiot, setPrzedmiot] = useState<Przedmiot>(() => (!poziomKonta("angielski") && poziomKonta("matematyka") ? "matematyka" : "angielski"));
+  const [wybranyPoziom, setPoziom] = useState<Poziom>(() => poziomKonta(przedmiot) ?? "podstawowy");
+  const opis = PRZEDMIOTY.find((p) => p.id === przedmiot)!;
+  const zPrzedmiotu = dane?.filter((a) => (a.przedmiot ?? "angielski") === przedmiot);
+  // Poziomy, dla których są arkusze (matematyka na razie tylko podstawowa).
+  const poziomy = POZIOMY.filter((p) => !zPrzedmiotu || zPrzedmiotu.some((a) => a.poziom === p));
+  const poziom = poziomy.includes(wybranyPoziom) ? wybranyPoziom : (poziomy[0] ?? "podstawowy");
 
   return (
     <main className={`container ${styles.page}`}>
       <header className={styles.head}>
-        <span className="label">Język angielski · matura od 2015</span>
+        <span className="label">{opis.opis}</span>
         <h1 className="display">Arkusze</h1>
-        <p className="lead">Arkusze maturalne CKE do rozwiązania w przeglądarce. Zadania zamknięte sprawdzam od razu z kluczem, otwarte porównuję z zasadami oceniania.</p>
+        <p className="lead">{opis.lead}</p>
       </header>
 
-      <nav className={styles.levels} aria-label="Poziom">
-        {POZIOMY.map((p) => (
-          <button key={p} type="button" className={`${styles.level} ${poziom === p ? styles.levelActive : ""}`} onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
-            {NAZWY[p]}
-            {dane && <span className={styles.levelCount}>{dane.filter((a) => a.poziom === p).length}</span>}
+      <nav className={styles.levels} aria-label="Przedmiot">
+        {PRZEDMIOTY.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            className={`${styles.level} ${przedmiot === p.id ? styles.levelActive : ""}`}
+            onClick={() => {
+              setPrzedmiot(p.id);
+              setPoziom(poziomKonta(p.id) ?? "podstawowy");
+            }}
+            aria-pressed={przedmiot === p.id}
+          >
+            {p.nazwa}
           </button>
         ))}
       </nav>
 
+      {poziomy.length > 1 && (
+        <nav className={styles.levels} aria-label="Poziom">
+          {poziomy.map((p) => (
+            <button key={p} type="button" className={`${styles.level} ${poziom === p ? styles.levelActive : ""}`} onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
+              {NAZWY[p]}
+              {zPrzedmiotu && <span className={styles.levelCount}>{zPrzedmiotu.filter((a) => a.poziom === p).length}</span>}
+            </button>
+          ))}
+        </nav>
+      )}
+
       {laduje && <p className="muted">Wczytuję listę…</p>}
       {blad && <BrakDanych blad={blad} />}
 
-      {dane &&
+      {zPrzedmiotu &&
         FORMULY.map((f) => {
-          const arkusze = dane.filter((a) => a.poziom === poziom && (a.formula ?? "2023") === f.id);
+          const arkusze = zPrzedmiotu.filter((a) => a.poziom === poziom && (a.formula ?? "2023") === f.id);
           if (!arkusze.length) return null;
           return (
             <section key={f.id} className={styles.group}>
@@ -81,9 +121,11 @@ function Wiersz({ arkusz: a }: { arkusz: ArkuszWpis }) {
                 <Clock size={13} aria-hidden="true" /> {a.czas} min
               </span>
             )}
-            <span>
-              <Headphones size={13} aria-hidden="true" /> z nagraniem
-            </span>
+            {a.przedmiot === "angielski" && (
+              <span>
+                <Headphones size={13} aria-hidden="true" /> z nagraniem
+              </span>
+            )}
             <span>{a.punkty} pkt</span>
           </span>
         </span>

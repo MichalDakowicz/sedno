@@ -7,7 +7,13 @@ import type { Arkusz, Pytanie } from "./typy";
 export type Werdykt = "dobrze" | "zle" | "pusto" | "do-oceny";
 
 export type Odpowiedzi = Record<string, string>;
-export type Samoocena = Record<string, boolean>;
+// true/false: zaliczone albo nie; liczba: punkty przyznane przez ucznia
+// za zadanie wielopunktowe (matematyka, ocena według schematu CKE).
+export type Samoocena = Record<string, boolean | number>;
+
+export function punktyZSamooceny(p: Pytanie, ocena: boolean | number): number {
+  return typeof ocena === "number" ? Math.max(0, Math.min(p.punkty, ocena)) : ocena ? p.punkty : 0;
+}
 
 export function normalizuj(s: string): string {
   return s
@@ -56,7 +62,7 @@ export function policzPytania(pytania: Pytanie[], odpowiedzi: Odpowiedzi, samooc
     if (w === "dobrze") wynik.zdobyte += p.punkty;
     if (w === "do-oceny") {
       if (samoocena[p.nr] === undefined) wynik.doOceny++;
-      else if (samoocena[p.nr]) wynik.zdobyte += p.punkty;
+      else wynik.zdobyte += punktyZSamooceny(p, samoocena[p.nr]);
     }
   }
   return wynik;

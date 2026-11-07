@@ -1,0 +1,17 @@
+/* Wzór w linii tekstu: bez zawijania w środku wyrażenia. */
+.inline :global(.katex) {
+  font-size: 1.12em;
+  white-space: nowrap;
+}
+
+/* Wzór w osobnej linii: długi przewija się w poziomie zamiast rozpychać stronę na telefonie. */
+.blok {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0;
+}
+
+.blok :global(.katex-display) {
+  margin: 0;
+}
