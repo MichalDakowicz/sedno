@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "pobierz": "node src/pobierz.js",
-    "importuj": "node src/importuj.js"
+    "importuj": "node src/importuj.js",
+    "kontrola": "node src/kontrola.js"
   },
   "dependencies": {
     "pdfjs-dist": "^4.10.38"

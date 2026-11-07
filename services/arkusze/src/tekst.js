@@ -19,8 +19,9 @@ export async function tekstPdf(sciezka) {
       const y = it.transform[5];
       let w = wiersze.find((r) => Math.abs(r.y - y) <= 2.5);
       if (!w) wiersze.push((w = { y, czesci: [] }));
-      w.czesci.push({ x: it.transform[4], s: it.str, w: it.width });
+      w.czesci.push({ x: it.transform[4], s: it.str, w: it.width, h: it.height });
     }
+    dolaczIndeksyGorne(wiersze);
     const linie = wiersze
       .sort((a, b) => b.y - a.y)
       .map((w) => {
@@ -32,6 +33,22 @@ export async function tekstPdf(sciezka) {
     strony.push(linie);
   }
   return strony;
+}
+
+// Indeks górny („12th”, „19th century”) leży kilka punktów wyżej niż jego
+// linia i drobniejszym pismem, więc trafiał do osobnego wiersza. Wiersz
+// samych drobnych fragmentów tuż nad inną linią doklejamy do niej.
+function dolaczIndeksyGorne(wiersze) {
+  const wysokosci = wiersze.flatMap((w) => w.czesci.map((c) => c.h)).filter(Boolean).sort((a, b) => a - b);
+  const typowa = wysokosci[Math.floor(wysokosci.length / 2)];
+  if (!typowa) return;
+  for (const w of [...wiersze]) {
+    if (!w.czesci.every((c) => c.h && c.h < typowa * 0.8)) continue;
+    const pod = wiersze.filter((v) => v !== w && w.y - v.y > 0 && w.y - v.y <= 8).sort((a, b) => b.y - a.y)[0];
+    if (!pod) continue;
+    pod.czesci.push(...w.czesci);
+    wiersze.splice(wiersze.indexOf(w), 1);
+  }
 }
 
 function segmenty(czesci) {

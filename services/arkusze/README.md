@@ -11,6 +11,7 @@ Z katalogu głównego repo:
 ```bash
 npm run pobierz    # PDF-y ze strony CKE do data/cke/<rok>/
 npm run importuj   # JSON-y do data/arkusze/
+npm run kontrola   # spójność danych: klucze, luki, punkty
 ```
 
 Aplikacja webowa w trybie dev czyta `data/arkusze/` (patrz `apps/web/vite.config.ts`). Nagrań nie pobieramy: JSON ma adres pliku mp3 na stronie CKE.

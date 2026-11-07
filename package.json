@@ -11,6 +11,7 @@
     "build": "npm run build -w @sedno/web",
     "typecheck": "npm run typecheck -w @sedno/web",
     "pobierz": "npm run pobierz -w @sedno/arkusze",
-    "importuj": "npm run importuj -w @sedno/arkusze"
+    "importuj": "npm run importuj -w @sedno/arkusze",
+    "kontrola": "npm run kontrola -w @sedno/arkusze"
   }
 }
