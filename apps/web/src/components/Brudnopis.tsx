@@ -4,6 +4,7 @@ import { lazy, Suspense, useState } from "react";
 import { PenLine, X } from "lucide-react";
 import type { Brudnopis as Zapis } from "../arkusze/postep";
 import type { Obraz } from "../arkusze/typy";
+import { Ladowanie } from "./Ladowanie";
 import styles from "./Brudnopis.module.css";
 
 // Fonty Excalidraw serwujemy sami (vite.config.ts), zamiast pobierać je z CDN.
@@ -51,7 +52,7 @@ export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana }: Props) {
           <X size={16} aria-hidden="true" /> Zamknij
         </button>
       </header>
-      <Suspense fallback={<p className={`muted ${styles.loading}`}>Wczytuję brudnopis…</p>}>
+      <Suspense fallback={<Ladowanie ksztalt="blok" etykieta="Wczytuję brudnopis" />}>
         <Edytor
           plik={plik}
           rysunek={rysunek}

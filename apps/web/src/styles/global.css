@@ -317,3 +317,21 @@ textarea {
     transition: none !important;
   }
 }
+
+/* Treść, która dochodzi po wczytaniu danych, wchodzi łagodnie zamiast wskakiwać. */
+.wejscie {
+  animation: wejscie 0.25s ease-out;
+}
+
+@keyframes wejscie {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wejscie {
+    animation: none;
+  }
+}

@@ -5,6 +5,7 @@ import { useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
 import { useProfil } from "../auth";
+import { Ladowanie } from "../components/Ladowanie";
 import styles from "./Arkusze.module.css";
 
 const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string; lead: string }[] = [
@@ -78,7 +79,7 @@ export function Arkusze() {
         </nav>
       )}
 
-      {laduje && <p className="muted">Wczytuję listę…</p>}
+      {laduje && <Ladowanie ksztalt="wiersze" ile={5} etykieta="Wczytuję listę arkuszy" />}
       {blad && <BrakDanych blad={blad} />}
 
       {zPrzedmiotu &&
@@ -86,7 +87,7 @@ export function Arkusze() {
           const arkusze = zPrzedmiotu.filter((a) => a.poziom === poziom && (a.formula ?? "2023") === f.id);
           if (!arkusze.length) return null;
           return (
-            <section key={f.id} className={styles.group}>
+            <section key={f.id} className={`${styles.group} wejscie`}>
               <header className={styles.groupHead}>
                 <h2 className="h3">{f.nazwa}</h2>
                 <p className="small muted">{f.opis}</p>
