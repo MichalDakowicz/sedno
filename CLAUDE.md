@@ -12,7 +12,8 @@ Myślenie o aplikacji (pomysły, decyzje, kierunek, funkcje, UX) dzieje się w r
 - Inne pliki `.md` w repo: `CLAUDE.md`, `README.md`, `NASTEPNE.md` (lista następnych kroków i pomysłów), `docs/konkurs.md` (dane o konkursie).
 - Dokument wizualny = samodzielny plik `.html` (inline CSS/JS, bez builda), czytelny na telefonie, jasny i ciemny motyw. Diagramy jako inline SVG.
 - `docs/index.html` to okładka z spisem rozdziałów. Każdy rozdział to osobna strona w `docs/`. Treść dzielimy na wiele małych stron, po jednym temacie na stronę (ok. jednego ekranu, nie ściana tekstu). Pasek boczny, numeracja rozdziałów, spis stron rozdziału i przyciski „wstecz / dalej” generuje `docs/nav.js` z listy `CHAPTERS`. Nowa strona: plik `rozdzial-temat.html` (h1, `<p class="sub">`, treść, bez własnej nawigacji), wpis w `CHAPTERS` w `nav.js` i, jeśli to nowy rozdział, wiersz w spisie na okładce. W pliku dołącz `style.css` i `<script src="nav.js" defer></script>`. Stare nazwy plików (`koncepcja.html` itd.) są przekierowaniami.
-- Styl: tło zawsze czarne (`#000`), sekcje rozdzielają linie, nie kolory ani wypełnienia. Kolor tylko jako akcent tekstu lub obrysu.
+- Rozdziały są w grupach: Pomysł, Jak uczymy, Trzy główne formaty, Aplikacja, Podstawy, Projekt. Każdy format ma jeden rozdział: najpierw przepływ i mechanika (`formaty-*`), potem szczegółowy projekt.
+- Styl: dokumenty wyglądają jak aplikacja (kremowe tło z siatką, biały pływający panel, pomarańczowy akcent, nagłówki w wadze 400). Kolory w `docs/style.css` odpowiadają `packages/ui/src/tokens.css`; przy zmianie tokenów zaktualizuj oba. Ciemny wariant przez `prefers-color-scheme`. Sekcje rozdzielają linie, karta tylko tam, gdzie treść musi się wyróżnić. W SVG kolory przez zmienne CSS (`var(--text)`, `var(--accent)` itd.), nie wpisane na sztywno.
 - Gdy decyzja z rozmowy zmienia zarys, zaktualizuj odpowiedni HTML w tym samym PR.
 - Nie zgaduj faktów o CKE, arkusze.pl itp. Rzeczy niezweryfikowane oznaczaj w dokumentach jako „do weryfikacji”.
 
@@ -33,7 +34,7 @@ Myślenie o aplikacji (pomysły, decyzje, kierunek, funkcje, UX) dzieje się w r
 - Przed zmianą przeczytaj otoczenie i dopasuj się do istniejącego stylu, nazw i poziomu komentarzy. Komentarze tylko tam, gdzie „dlaczego” nie jest oczywiste.
 - Monorepo na workspace'ach npm: `apps/web` (React + TypeScript + Vite), `packages/ui` (wspólne tokeny wizualne dla web i mobile), `apps/mobile` (miejsce na Expo, osobny projekt), `services/` (backend).
 - Komendy z katalogu głównego: `npm install`, `npm run dev` (http://localhost:5173), `npm run typecheck`, `npm run build`. Testów i lintu jeszcze nie ma.
-- Aplikacja ma własny styl (jasne kremowe tło, pomarańczowy akcent), inny niż czarne dokumenty w `docs/`. Zasady w `apps/web/README.md`.
+- Aplikacja ma własny styl (jasne kremowe tło, pomarańczowy akcent). Dokumenty w `docs/` używają tych samych kolorów. Zasady w `apps/web/README.md`.
 - Weryfikuj zmianę uruchomieniem lub testem, zanim uznasz ją za gotową. Jeśli czegoś nie dało się sprawdzić, powiedz o tym wprost.
 - Dane z zewnątrz (arkusze, nagrania, klucze odpowiedzi) mają prawa autorskie. Nie wrzucaj ich do repo, dopóki nie ustalimy warunków użycia.
 
