@@ -4,30 +4,6 @@ import { cpSync, existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, extname, join, normalize, resolve } from "node:path";
 
-// Arkusze CKE po imporcie (npm run importuj) leżą w data/arkusze poza repo:
-// JSON-y i kadry z arkuszy matematyki (obrazy/<id>/*.png).
-// W dev serwujemy je pod /dane/arkusze, przy buildzie kopiujemy do dist.
-const KATALOG_ARKUSZY = resolve(__dirname, "../../data/arkusze");
-const TYPY: Record<string, string> = { ".json": "application/json; charset=utf-8", ".png": "image/png" };
-
-function arkuszeCke(): Plugin {
-  return {
-    name: "sedno-arkusze",
-    configureServer(server) {
-      server.middlewares.use("/dane/arkusze", (req, res, next) => {
-        const plik = normalize(join(KATALOG_ARKUSZY, decodeURIComponent((req.url ?? "/").split("?")[0])));
-        const typ = TYPY[extname(plik)];
-        if (!plik.startsWith(KATALOG_ARKUSZY) || !typ || !existsSync(plik)) return next();
-        res.setHeader("Content-Type", typ);
-        res.end(readFileSync(plik));
-      });
-    },
-    writeBundle(options) {
-      if (existsSync(KATALOG_ARKUSZY) && options.dir) cpSync(KATALOG_ARKUSZY, join(options.dir, "dane/arkusze"), { recursive: true });
-    },
-  };
-}
-
 // Fonty Excalidraw (brudnopis) z własnego serwera zamiast z CDN esm.sh:
 // bez zapytań do obcych serwerów z przeglądarki ucznia. Ścieżkę ustawia
 // window.EXCALIDRAW_ASSET_PATH w components/Brudnopis.tsx.
@@ -53,7 +29,10 @@ function fontyExcalidraw(): Plugin {
   };
 }
 
+// Arkusze CKE nie trafiają do builda: aplikacja pobiera je z Supabase po zalogowaniu (npm run wgraj).
 export default defineConfig({
-  plugins: [react(), arkuszeCke(), fontyExcalidraw()],
+  plugins: [react(), fontyExcalidraw()],
+  // Jeden plik .env w katalogu głównym repo dla aplikacji i skryptów.
+  envDir: resolve(__dirname, "../.."),
   server: { port: 5173 },
 });

@@ -61,19 +61,10 @@
   background: var(--line);
 }
 
-.labelRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-
-.forgot {
+.error {
+  margin: 0;
   font-size: 14px;
-  color: var(--muted);
-}
-
-.forgot:hover {
-  color: var(--fg);
+  color: var(--danger);
 }
 
 .footer {

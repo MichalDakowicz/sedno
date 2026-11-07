@@ -20,8 +20,7 @@ export function TopNav() {
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
   function signOut() {
-    logout();
-    navigate("/logowanie");
+    void logout().then(() => navigate("/logowanie"));
   }
 
   // Pulpit przedmiotu też należy do „Pulpitu”.

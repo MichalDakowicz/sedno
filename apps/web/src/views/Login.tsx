@@ -1,24 +1,41 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { TutorAvatar } from "../components/TutorAvatar";
-import { isLoggedIn, login } from "../auth";
+import { loginGoogle, loginPassword, useSession } from "../auth";
 import styles from "./Login.module.css";
+
+// Konto demo dla jury pokazujemy tylko, gdy build dostał jego dane.
+const DEMO_EMAIL = import.meta.env.VITE_DEMO_EMAIL as string | undefined;
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD as string | undefined;
 
 export function Login() {
   const navigate = useNavigate();
+  const session = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  if (isLoggedIn()) return <Navigate to="/" replace />;
+  if (session) return <Navigate to="/" replace />;
 
-  function enter() {
-    login();
-    navigate("/");
+  async function google() {
+    setError(null);
+    const err = await loginGoogle();
+    if (err) setError(err);
+  }
+
+  async function withPassword(mail: string, pass: string) {
+    setBusy(true);
+    setError(null);
+    const err = await loginPassword(mail, pass);
+    setBusy(false);
+    if (err) setError(err);
+    else navigate("/");
   }
 
   function submit(e: FormEvent) {
     e.preventDefault();
-    enter();
+    void withPassword(email, password);
   }
 
   return (
@@ -38,7 +55,7 @@ export function Login() {
         </div>
 
         <form className={styles.form} onSubmit={submit}>
-          <button type="button" className={`btn btn-ghost ${styles.google}`} onClick={enter}>
+          <button type="button" className={`btn btn-ghost ${styles.google}`} onClick={google}>
             <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
               <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z" />
               <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
@@ -66,12 +83,7 @@ export function Login() {
             />
           </div>
           <div className="field">
-            <div className={styles.labelRow}>
-              <label htmlFor="password">Hasło</label>
-              <a href="#" className={styles.forgot}>
-                Nie pamiętasz?
-              </a>
-            </div>
+            <label htmlFor="password">Hasło</label>
             <input
               id="password"
               className="input"
@@ -83,25 +95,31 @@ export function Login() {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary">
+          {error && (
+            <p className={styles.error} role="alert">
+              {error}
+            </p>
+          )}
+
+          <button type="submit" className="btn btn-primary" disabled={busy}>
             Zaloguj się
           </button>
 
-          <p className={styles.footer}>
-            Nie masz konta? <a href="#">Załóż konto</a>
-          </p>
+          <p className={styles.footer}>Nowe konto zakładasz przez Google. Hasło mają konta testowe.</p>
         </form>
       </main>
 
-      <aside className={`container ${styles.demo}`}>
-        <p>
-          <span className="label">Dla jury</span>
-          <span className="muted"> Konto demo ma wypełnioną mapę umiejętności i historię.</span>
-        </p>
-        <button type="button" className="btn btn-secondary btn-sm" onClick={enter}>
-          Wejdź na konto demo
-        </button>
-      </aside>
+      {DEMO_EMAIL && DEMO_PASSWORD && (
+        <aside className={`container ${styles.demo}`}>
+          <p>
+            <span className="label">Dla jury</span>
+            <span className="muted"> Konto demo ma wypełnioną mapę umiejętności i historię.</span>
+          </p>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => void withPassword(DEMO_EMAIL, DEMO_PASSWORD)} disabled={busy}>
+            Wejdź na konto demo
+          </button>
+        </aside>
+      )}
     </div>
   );
 }
