@@ -18,7 +18,7 @@ npm run build
 | `/przedmiot/:id` | Pulpit zawężony do przedmiotu (`polski`, `matematyka`, `angielski`) z mapą umiejętności |
 | `/tutor` | Pełny widok rozmowy z Pestką |
 | `/profil` | Przedmioty, ponowne uruchomienie przewodnika, wylogowanie |
-| `/arkusze` | Lista arkuszy CKE z angielskiego według poziomu |
+| `/arkusze` | Lista arkuszy CKE: angielski według poziomu, matematyka (poziom podstawowy) |
 | `/arkusze/:id` | Rozwiązywanie arkusza i sprawdzanie z kluczem CKE |
 | `/nauka`, `/umiejetnosci`, `/powtorki` | Zaślepki |
 
@@ -39,7 +39,9 @@ Dane arkuszy nie są w repo. Najpierw `npm run pobierz` i `npm run importuj` (op
 
 - `src/arkusze/typy.ts`: format danych z importu.
 - `src/arkusze/sprawdz.ts`: sprawdzanie bez AI. Zamknięte z klucza; otwarte zgodne z listą CKE są zaliczone, z listy niepoprawnych niezaliczone, reszta idzie do samooceny.
-- `src/arkusze/postep.ts`: odpowiedzi i wynik w `localStorage` (`sedno.arkusz.<id>`), dopóki nie ma backendu.
+- `src/arkusze/postep.ts`: odpowiedzi, wynik i szkice z brudnopisu (`brudnopisy`, elementy sceny Excalidraw per zadanie) w `localStorage` (`sedno.arkusz.<id>`), dopóki nie ma backendu.
+- Matematyka: treść zadania to kadr z arkusza (blok `kadr`, PNG z `data/arkusze/obrazy/`). Zadania wielopunktowe uczeń ocenia sam (0–N pkt) z linkiem do strony schematu w zasadach CKE.
+- `src/components/Brudnopis.tsx`: brudnopis przy zadaniu z matematyki. Excalidraw (`BrudnopisEdytor.tsx`) ładuje się leniwie po otwarciu. Rysunek bazowy z arkusza jest zablokowanym obrazem o id `rysunek-bazowy`, dokładanym przy każdym otwarciu, więc w postępie zostają same elementy (bez pliku obrazu). Fonty Excalidraw serwuje Vite pod `/excalidraw/fonts` (z `node_modules`, przy buildzie kopia bez fontów CJK), żeby nie pobierać ich z CDN.
 - Widok arkusza (`src/views/Arkusz.tsx`): linki do PDF arkusza i zasad oceniania na stronie CKE, sprawdzanie pojedynczego zadania z możliwością poprawy, luki na brakujące zdania rozwijane pod luką, suwak liter przy dopasowaniach.
 - `src/components/Nagranie.tsx`: odtwarzacz nagrania; po starcie przypina się do dołu ekranu.
 - `src/components/Wypracowanie.tsx`: edytor wypowiedzi pisemnej: wybór tematu, lista elementów treści, licznik słów względem zakresu z polecenia, tryb skupienia.

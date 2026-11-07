@@ -1,6 +1,6 @@
 # arkusze
 
-Import arkuszy maturalnych CKE (język angielski, formuła 2015 i 2023, wszystkie lata dostępne na stronie CKE) do JSON dla aplikacji. Na razie bez AI: parser oparty na regułach i układzie tekstu w PDF.
+Import arkuszy maturalnych CKE do JSON dla aplikacji: język angielski (formuła 2015 i 2023, wszystkie lata dostępne na stronie CKE) i matematyka na poziomie podstawowym (formuła 2023). Na razie bez AI: parser oparty na regułach i układzie tekstu w PDF.
 
 Pliki CKE i wynikowe JSON-y lądują w `data/` w katalogu głównym, który jest w `.gitignore`. Materiały CKE mają prawa autorskie i nie trafiają do repozytorium, dopóki nie ustalimy warunków użycia.
 
@@ -33,11 +33,20 @@ node src/podglad-klucz.js ../../data/cke/2025/MJAP-R0-100-200-660-2505-zasady.pd
 node src/zrzut.js <plik.pdf>   # surowe linie z pozycjami do pliku .pdfjs.txt
 ```
 
+## Matematyka
+
+`matematyka.js`. Tekst z PDF gubi ułamki, potęgi i pierwiastki, więc treść zadania to kadr: wycinek wyrenderowanej strony (pdfjs + `@napi-rs/canvas`, 2 px na punkt) w `data/arkusze/obrazy/<id>/<nr>.png`. W JSON-ie zadanie ma bloki `{ typ: "kadr", obraz, tekst }` (tekst jako opis obrazka) i bloki pytań.
+
+- Fragment to nagłówek „Zadanie N.” albo „Zadanie N.M.” z treścią do następnego nagłówka lub etykiety „Brudnopis”. Treść przechodząca na kolejną stronę jest drugą częścią (`<nr>-2.png`). Dół kadru to ostatni wiersz z ciemnym tuszem, więc jasna kratka na rozwiązanie zostaje poza nim. W zadaniach bez podpunktów obcinamy pasek nagłówka.
+- Rysunek bazowy (`<nr>-rysunek.png`, pole `rysunek` zadania) to najwyższy pas tuszu bez linii akapitu, co najmniej 70 × 80 pt. Tabele „A albo B oraz 1–3” pomijamy. Ramkę poprawia się ręcznie w `rysunki.json`: `{ "<id arkusza>": { "<nr>": null | { "strona": n, "ramka": [x0, y0, x1, y1] } } }` (punkty PDF, początek w lewym dolnym rogu; `null` wyłącza rysunek).
+- Klucz (`kluczMatematyki`): kolumna „Wersja A” tabeli rozwiązań. Pojedyncza litera A–D przy zadaniu „Wybierz właściwą odpowiedź” daje pytanie zamknięte; kod (PF, A2, CE) albo krótki wynik daje pytanie otwarte z `oczekiwane`; resztę uczeń ocenia według schematu ze strony `zasadyStrona` w PDF zasad.
+- Import tylko matematyki: `node src/importuj.js matematyka`.
+
 ## Znane ograniczenia
 
 - Wszystkie 39 arkuszy importują się bez ostrzeżeń, a suma punktów zgadza się z arkuszem. Wyjątek znany ręcznie: w dwujęzycznym 2018 klucz pytania 3.4 skleja kilka krótkich odpowiedzi z sąsiednich komórek; uczeń ocenia je sam.
 - Tabele kluczy mają różne układy: etykieta pytania na środku komórki (granice liczone w `granice()`) albo u góry; nagłówek „Inne akceptowane odpowiedzi:” w środku komórki; odpowiedzi w punktach; odpowiedzi pełnymi zdaniami łamanymi w kolumnie. Nowy rocznik warto sprawdzić skanem jakości (długie wpisy, polski tekst w odpowiedziach).
-- Import części katalogu do testów: `node src/importuj.js 2015` (prefiks formuła-rok-poziom).
+- Import części katalogu do testów: `node src/importuj.js 2015` (prefiks formuła-rok-poziom albo przedmiot-formuła-rok-poziom, np. `matematyka-2023`).
 
 - Teksty w kilku kolumnach (np. ulotka w zadaniu 6 rozszerzenia 2025) wychodzą jako wymieszane linie.
 - Klucz zadań otwartych bywa przypisany do sąsiedniego pytania na granicy wierszy tabeli. Sprawdzanie w aplikacji traktuje go jako pomoc: pewne „dobrze” tylko przy zgodności z listą, poza nią uczeń porównuje sam.

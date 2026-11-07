@@ -44,6 +44,18 @@ Do uzupełnienia w istniejących formatach:
 - **Estymator wewnętrzny opanowania:** metoda (np. rozkład Beta lub Elo), miara pewności.
 - **Baza wektorowa:** co dokładnie trzyma (zadania, odpowiedzi, mapowanie na umiejętności).
 
+## 3a. Matematyka: arkusze i brudnopis (stan po pierwszej iteracji)
+
+Działa: matura podstawowa 2023–2026 jako kadry z arkusza, klucz z zasad (litery, kody, krótkie wyniki, strona schematu), brudnopis w Excalidraw przy każdym zadaniu, rysunek bazowy do dorysowania. Dalej:
+
+- **Ocena rozwiązań otwartych:** podpiąć OCR pisma ze zdjęcia (repozytorium kolegi) i połączyć z tanimi metodami sprawdzania. Brudnopis da się wyeksportować do PNG (`exportToBlob`), więc OCR może czytać też szkic z aplikacji.
+- **Zadania z kodem (PF, A2, CE):** zamiast pola tekstowego przełączniki P/F i wybór „A albo B oraz 1–3”, częściowe punkty przy dwupunktowych kodach (np. BF).
+- **Czytelność kadrów na telefonie:** tekst w obrazie jest drobny przy 375 px; powiększanie po dotknięciu albo kadr na pełną szerokość ekranu.
+- **Rysunki bazowe:** przejrzeć 2026, przenieść zadania z figurą tylko w opcjach A–D (np. 2024 14.4) do jednego rysunku z kilku stron; ewentualnie zamiana prostych osi i figur na wektorowe elementy Excalidraw.
+- **Poziom rozszerzony** i sesje dodatkowe (czerwiec, sierpień).
+- **Rozmiar postępu:** odręczne szkice mają dużo punktów; przy synchronizacji z kontem sprawdzić limit i ewentualnie upraszczać kreski.
+- **Pestka przy brudnopisie:** podpowiedź na podstawie szkicu (eksport sceny do obrazu dla modelu).
+
 ## 4. Research do zrobienia
 
 - Sprawozdania CKE z biologii, fizyki i geografii: zawartość nieprzejrzana.
