@@ -35,11 +35,12 @@ const KOLORY = [
 
 // Grubość kreski. Zakreślacz to gruba, półprzezroczysta kreska do oznaczania
 // fragmentów wykresu bez zasłaniania go.
+// Cienka służy do precyzyjnego rysowania po wykresach, średnia (domyślna) do pisania.
 const GRUBOSCI = [
-  { id: "cienka", nazwa: "Cienka kreska", szerokosc: 1, krycie: 100, kropka: 4 },
-  { id: "srednia", nazwa: "Średnia kreska", szerokosc: 2, krycie: 100, kropka: 7 },
-  { id: "gruba", nazwa: "Gruba kreska", szerokosc: 4, krycie: 100, kropka: 11 },
-  { id: "zakreslacz", nazwa: "Zakreślacz", szerokosc: 12, krycie: 35, kropka: 16 },
+  { id: "cienka", nazwa: "Cienka kreska", szerokosc: 0.5, krycie: 100, kropka: 4 },
+  { id: "srednia", nazwa: "Średnia kreska", szerokosc: 1, krycie: 100, kropka: 7 },
+  { id: "gruba", nazwa: "Gruba kreska", szerokosc: 2, krycie: 100, kropka: 11 },
+  { id: "zakreslacz", nazwa: "Zakreślacz", szerokosc: 8, krycie: 35, kropka: 16 },
 ] as const;
 type Grubosc = (typeof GRUBOSCI)[number];
 const gruboscZ = (szerokosc: number, krycie: number) => GRUBOSCI.find((g) => g.szerokosc === szerokosc && g.krycie === krycie)?.id;
@@ -116,7 +117,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
           viewBackgroundColor: "#ffffff",
           currentItemStrokeColor: KOLORY[0].wartosc,
           currentItemRoughness: 0,
-          currentItemStrokeWidth: 1, // cienka: odręczne pismo jak długopisem, nie markerem
+          currentItemStrokeWidth: 1, // średnia: odręczne pismo jak długopisem, nie markerem
           currentItemOpacity: 100,
           // W brudnopisie zaczyna się od pisania, nie od zaznaczania.
           activeTool: { type: "freedraw", customType: null, lastActiveTool: null, locked: false },
@@ -152,7 +153,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
   // Stan paska narzędzi odbija stan edytora (skróty klawiszowe też zmieniają narzędzie).
   const [narzedzie, setNarzedzie] = useState<Narzedzie>("freedraw");
   const [kolor, setKolor] = useState(KOLORY[0].wartosc);
-  const [grubosc, setGrubosc] = useState<Grubosc["id"] | undefined>("cienka");
+  const [grubosc, setGrubosc] = useState<Grubosc["id"] | undefined>("srednia");
 
   const wybierz = (typ: Narzedzie) => api.current?.setActiveTool({ type: typ });
 
@@ -194,19 +195,23 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
     }
     const els = a.getSceneElements().filter((e) => !e.isDeleted);
     let z = ZOOM_START;
-    let srodek = [0, 0];
+    let [scrollX, scrollY] = [s.width / (2 * z), s.height / (2 * z)];
     if (els.length) {
       const [x1, y1, x2, y2] = getCommonBounds(els);
-      // Na wąskim płótnie (telefon) miejsce na notatki jest nad i pod figurą, więc zajmuje ona prawie całą szerokość.
+      // Na wąskim płótnie (telefon) miejsce na notatki jest pod figurą, więc zajmuje ona prawie całą szerokość.
       const udzial = s.width < 500 ? 0.9 : 0.6;
       z = Math.min(ZOOM_START, (s.width * udzial) / Math.max(1, x2 - x1), (s.height * udzial) / Math.max(1, y2 - y1));
-      srodek = [(x1 + x2) / 2, (y1 + y2) / 2];
+      if (start) {
+        // Na start figura w prawym górnym rogu: lewa strona i dół zostają na obliczenia.
+        const margines = 16;
+        scrollX = (s.width - margines) / z - x2;
+        scrollY = margines / z - y1;
+      } else {
+        scrollX = s.width / (2 * z) - (x1 + x2) / 2;
+        scrollY = s.height / (2 * z) - (y1 + y2) / 2;
+      }
     }
-    const widok: Partial<AppState> = {
-      zoom: { value: z as NormalizedZoomValue },
-      scrollX: s.width / (2 * z) - srodek[0],
-      scrollY: s.height / (2 * z) - srodek[1],
-    };
+    const widok: Partial<AppState> = { zoom: { value: z as NormalizedZoomValue }, scrollX, scrollY };
     // Tekst ma na ekranie wyglądać jak zwykłe pismo (ok. 16 px) przy startowym przybliżeniu.
     if (start) widok.currentItemFontSize = Math.min(36, Math.max(16, Math.round(16 / z)));
     a.updateScene({ appState: widok as AppState });
