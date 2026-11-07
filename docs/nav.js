@@ -585,7 +585,7 @@
    },
    {
     "id": "cke-matematyka",
-    "title": "Matematyka: kadry i brudnopis"
+    "title": "Matematyka: wzory i brudnopis"
    },
    {
     "id": "cke-mapowanie",
