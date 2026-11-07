@@ -26,5 +26,7 @@ function arkuszeCke(): Plugin {
 
 export default defineConfig({
   plugins: [react(), arkuszeCke()],
+  // Jeden plik .env w katalogu głównym repo dla aplikacji i skryptów.
+  envDir: resolve(__dirname, "../.."),
   server: { port: 5173 },
 });
