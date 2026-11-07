@@ -20,8 +20,9 @@ Backend Sedno: samodzielnie hostowany Supabase na serwerze domowym, publicznie p
 | `ai_credential` | dostawca AI konta, klucz zaszyfrowany | odczyt bez `key_cipher`, usuwanie; zapis tylko przez `ai-klucz` |
 | `ai_routing` | który dostawca (i opcjonalnie model) obsługuje `wazne` / `lekkie` | pełny na własnych wierszach |
 | `ai_usage` | log wywołań: dostawca, model, poziom, czas, tokeny | odczyt własnego |
+| `sheets` | arkusze CKE (`entry` do listy, `data` cały arkusz), wgrywa `npm run wgraj` | odczyt dla zalogowanych |
 
-Profil powstaje triggerem przy rejestracji. Wszystko za RLS.
+Profil powstaje triggerem przy rejestracji; `profiles.onboarded_at` mówi, czy konto przeszło onboarding (`/witaj`). Wszystko za RLS. Arkusze są w bazie, a nie na hostingu, żeby widzieli je tylko zalogowani.
 
 ## AI per konto
 
@@ -45,5 +46,7 @@ Projekt `~/supabase-hosting/projects/sedno` (port API 8007, podsieć Dockera `17
 Google OAuth: projekt Google Cloud `sedno-514016`, klient „Sedno web”, redirect `https://sedno-api.dakowicz.xyz/auth/v1/callback`. Aplikacja jest w trybie testowym: logować się mogą tylko konta dodane jako test users.
 
 ## Aplikacja web
+
+Produkcja: `https://trafwsedno.web.app` (Firebase Hosting, projekt `trafwsedno`, konfiguracja w `firebase.json`). Deploy: `npm run build`, potem `firebase deploy --only hosting`. Ten adres jest w Supabase jako `SITE_URL`.
 
 `.env` w katalogu głównym repo (wzór `.env.example`): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. Konta testowe zakłada administrator przez Admin API; dane konta testowego są w `.env` (nie w repo).
