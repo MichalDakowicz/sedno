@@ -6,6 +6,7 @@ import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Postep 
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
+  adresObrazu,
   nazwaPrzedmiotu,
   type Arkusz as ArkuszDane,
   type Blok,
@@ -363,7 +364,7 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
   // zbliżony wielkością do reszty strony, a na wąskim ekranie obraz się zwęża.
   return (
     <figure className={styles.kadr}>
-      <img src={`/dane/arkusze/${obraz.src}`} alt={tekst} width={Math.round(obraz.szer * 1.5)} height={Math.round(obraz.wys * 1.5)} loading="lazy" />
+      <img src={adresObrazu(obraz.src)} alt={tekst} width={Math.round(obraz.szer * 1.5)} height={Math.round(obraz.wys * 1.5)} loading="lazy" />
     </figure>
   );
 }

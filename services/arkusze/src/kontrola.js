@@ -36,7 +36,7 @@ for (const plik of pliki.sort()) {
   if (!a.pdf?.arkusz || !a.pdf?.zasady) problemy.push("brak adresu PDF");
   if (a.przedmiot === "angielski" && !a.nagranie) problemy.push("brak nagrania");
   const obrazy = a.zadania.flatMap((z) => [...z.bloki.filter((b) => b.typ === "kadr" || b.typ === "rysunek").map((b) => b.obraz.src), ...(z.rysunek ? [z.rysunek.src] : [])]);
-  for (const src of obrazy) await access(join(KATALOG_ARKUSZY, src)).catch(() => problemy.push(`brak pliku ${src}`));
+  for (const src of obrazy) if (!src.startsWith("data:image/")) await access(join(KATALOG_ARKUSZY, src)).catch(() => problemy.push(`brak pliku ${src.slice(0, 60)}`));
 
   const suma = a.zadania.reduce((s, z) => s + z.pytania.reduce((t, q) => t + q.punkty, 0), 0);
   if (suma !== a.punkty) problemy.push(`suma punktów ${suma} ≠ ${a.punkty}`);

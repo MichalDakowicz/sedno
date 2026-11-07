@@ -6,7 +6,7 @@ import type { AppState, BinaryFileData, DataURL, ExcalidrawImperativeAPI, Excali
 import type { ExcalidrawElement, FileId } from "@excalidraw/excalidraw/element/types";
 import "@excalidraw/excalidraw/index.css";
 import { Circle, Eraser, Hand, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Square, Trash2, Type, Undo2, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
-import type { Obraz } from "../arkusze/typy";
+import { adresObrazu, type Obraz } from "../arkusze/typy";
 import styles from "./Brudnopis.module.css";
 
 export const ID_RYSUNKU = "rysunek-bazowy";
@@ -79,7 +79,9 @@ function elementyBazowe(plik: string, rysunek?: Obraz): ExcalidrawElement[] {
 
 async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileData | null> {
   try {
-    const odp = await fetch(`/dane/arkusze/${rysunek.src}`);
+    // Data URL z importu idzie wprost do Excalidraw; fetch obsłuży też starszą ścieżkę.
+    if (rysunek.src.startsWith("data:")) return { id: plik as FileId, dataURL: rysunek.src as DataURL, mimeType: "image/png", created: Date.now() };
+    const odp = await fetch(adresObrazu(rysunek.src));
     if (!odp.ok) return null;
     const blob = await odp.blob();
     const dataURL = await new Promise<string>((ok, blad) => {

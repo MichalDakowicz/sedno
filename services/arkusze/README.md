@@ -12,9 +12,10 @@ Z katalogu głównego repo:
 npm run pobierz    # PDF-y ze strony CKE do data/cke/<rok>/
 npm run importuj   # JSON-y do data/arkusze/
 npm run kontrola   # spójność danych: klucze, luki, punkty
+npm run wgraj      # data/arkusze/ do tabeli sheets w Supabase (ssh na serwer)
 ```
 
-Aplikacja webowa w trybie dev czyta `data/arkusze/` (patrz `apps/web/vite.config.ts`). Nagrań nie pobieramy: JSON ma adres pliku mp3 na stronie CKE.
+Aplikacja webowa czyta arkusze z tabeli `sheets` w Supabase (tylko zalogowani), więc po każdym imporcie trzeba je wgrać (`wgraj.js`). Na hosting nie trafiają. Nagrań nie pobieramy: JSON ma adres pliku mp3 na stronie CKE.
 
 ## Jak to działa
 
@@ -39,7 +40,7 @@ Tekst z PDF gubi ułamki, potęgi i pierwiastki. Treść ze wzorami bierzemy wi�
 
 - `docx.js`: fragmenty „Zadanie N.” z blokami `akapit` (wzory inline w `\( … \)`), `wzor` (osobna linia), `opcja`, `tabelaTresci`, `miejsceRysunku`. Polecenia „Zapisz właściwą odpowiedź” zamienia na „Wybierz…”, a legendę kolumn („Oc – ocena”) wstawia z powrotem do nagłówka tabeli.
 - `omml.js`: OMML na LaTeX (ułamki, potęgi i indeksy, pierwiastki, nawiasy, funkcje, układy w klamrze, akcenty). Zmienne idą kursywą mimo stylu „plain” w Wordzie, słowa („dla”) jako `\text`, przecinek dziesiętny jako `{,}`.
-- `matematyka.js`, PDF: fragment to nagłówek „Zadanie N.” albo „Zadanie N.M.” z treścią do następnego nagłówka lub etykiety „Brudnopis”, z częściami na kolejnych stronach. Każdy fragment ma kadr, czyli wycinek wyrenderowanej strony (pdfjs + `@napi-rs/canvas`, 2 px na punkt, `data/arkusze/obrazy/<id>/<nr>.png`).
+- `matematyka.js`, PDF: fragment to nagłówek „Zadanie N.” albo „Zadanie N.M.” z treścią do następnego nagłówka lub etykiety „Brudnopis”, z częściami na kolejnych stronach. Każdy fragment ma kadr, czyli wycinek wyrenderowanej strony (pdfjs + `@napi-rs/canvas`, 2 px na punkt, `data/arkusze/obrazy/<id>/<nr>.png`). Na koniec `osadzObrazy` wstawia PNG-i do JSON-a jako data URL, bo arkusz trafia do bazy (`npm run wgraj`) jako jeden wiersz; matematyka waży przez to 0,5–1,2 MB na arkusz.
 - Składanie (`zadaniaMatematyki`): treść z DOCX, gdy zgadza się z PDF (podobieństwo 2·LCS/(|a|+|b|) ≥ 0,8 na samych literach i cyfrach; dla tabel także udział wspólnych znaków ≥ 0,9). Inaczej blok `kadr`, bo forma 660 bywa przerobiona (inne opcje, opis zamiast figury). Import wypisuje kadry z powodem. Podpunkty dostają nagłówek, zdania-polecenia flagę `polecenie`.
 - Rysunek bazowy (`<nr>-rysunek.png`, pole `rysunek` zadania i blok `rysunek` w miejscu rysunku z DOCX) to najwyższy pas tuszu bez linii akapitu, co najmniej 70 × 80 pt, a 20 pt tam, gdzie DOCX ma rysunek. Tabele „A albo B oraz 1–3” pomijamy. Ramkę poprawia się ręcznie w `rysunki.json`: `{ "<id arkusza>": { "<nr>": null | { "strona": n, "ramka": [x0, y0, x1, y1] } } }` (punkty PDF, początek w lewym dolnym rogu; `null` wyłącza rysunek).
 - Klucz (`kluczMatematyki`): kolumna „Wersja A” tabeli rozwiązań. Pojedyncza litera A–D przy zadaniu „Wybierz właściwą odpowiedź” daje pytanie zamknięte (z opcjami z DOCX); kod (PF, A2, CE) albo krótki wynik daje pytanie otwarte z `oczekiwane`; resztę uczeń ocenia według schematu ze strony `zasadyStrona` w PDF zasad.

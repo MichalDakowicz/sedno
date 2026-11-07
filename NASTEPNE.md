@@ -51,6 +51,7 @@ Działa: matura podstawowa 2023–2026 jako tekst ze wzorami (z formy DOCX, KaTe
 - **Ocena rozwiązań otwartych:** podpiąć OCR pisma ze zdjęcia (repozytorium kolegi) i połączyć z tanimi metodami sprawdzania. Brudnopis da się wyeksportować do PNG (`exportToBlob`), więc OCR może czytać też szkic z aplikacji.
 - **Zadania z kodem (PF, A2, CE):** zamiast pola tekstowego przełączniki P/F i wybór „A albo B oraz 1–3”, częściowe punkty przy dwupunktowych kodach (np. BF).
 - **Pozostałe kadry (12 zadań):** odbudować tekst z PDF dla zadań przerobionych w formie 660 (na tekście z PDF i ze wzorami zgadywanymi z położenia znaków albo ręcznie), w tym opcje z osiami liczbowymi jako obrazy opcji. Do tego czasu tekst w kadrze jest drobny przy 375 px.
+- **Obrazy w Supabase Storage:** kadry i rysunki jadą dziś w JSON-ie arkusza jako data URL (0,5–1,2 MB na arkusz matematyki). Przenieść do prywatnego bucketa z RLS dla zalogowanych, gdy arkuszy przybędzie.
 - **Arkusze bez formy DOCX** (starsze sesje, poziom rozszerzony): sprawdzić, czy CKE publikuje formę 660; jeśli nie, zostaje kadr.
 - **Rysunki bazowe:** przejrzeć 2026, przenieść zadania z figurą tylko w opcjach A–D (np. 2024 14.4) do jednego rysunku z kilku stron; ewentualnie zamiana prostych osi i figur na wektorowe elementy Excalidraw.
 - **Poziom rozszerzony** i sesje dodatkowe (czerwiec, sierpień).
@@ -69,7 +70,8 @@ Działa: matura podstawowa 2023–2026 jako tekst ze wzorami (z formy DOCX, KaTe
 ## 5. Architektura i konkurs (jeszcze nie ruszone)
 
 - Stack: strona webowa, backend, baza (osobna per przedmiot), model AI, koszty, hosting.
-- Konta: logowanie e-mailem i przez Google, konto demo dla jury z wypełnionymi danymi i resetem.
+- Konta: logowanie Google i e-mail działa (Supabase na serwerze, `services/supabase`). Zostało: konto demo dla jury z wypełnionymi danymi i resetem, publikacja aplikacji OAuth z trybu testowego, hosting aplikacji web.
+- AI: bramka per konto gotowa (`ai`, `ai-klucz`). Zostało: podpiąć Pestkę i ocenę wypracowań do `askAi`/`streamAi`, prompty per format.
 - Zapasowe odpowiedzi AI dla konta demo, gdyby model był niedostępny.
 - Praca offline: które formaty działają bez internetu.
 - Zgłoszenie: kod źródłowy z instrukcją kompilacji, „wersja binarna” z instrukcją uruchomienia, instrukcja użytkownika, film do 5 minut (AVI lub MP4), opis do 1 strony, Karta Zgłoszenia, Klauzula Informacyjna. Wysłać link na `informatyka_konkurs@uwb.edu.pl`.

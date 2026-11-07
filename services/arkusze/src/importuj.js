@@ -7,7 +7,7 @@ import { tekstPdf } from "./tekst.js";
 import { parsujArkusz } from "./arkusz.js";
 import { parsujKlucz } from "./klucz.js";
 import { scal } from "./scal.js";
-import { fragmentyMatematyki, kadruj, kluczMatematyki, otworzPdf, zadaniaMatematyki } from "./matematyka.js";
+import { fragmentyMatematyki, kadruj, kluczMatematyki, osadzObrazy, otworzPdf, zadaniaMatematyki } from "./matematyka.js";
 import { czytajDocx, fragmentyDocx } from "./docx.js";
 
 const MIESIACE = { "05": "maj", "06": "czerwiec", "08": "sierpień" };
@@ -47,6 +47,8 @@ for (const w of katalog) {
       const klucz = w.zasady ? kluczMatematyki(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
       let kadry;
       ({ zadania, ostrzezenia, kadry } = zadaniaMatematyki(fragmenty, klucz, docx));
+      // Arkusz trafia do bazy (npm run wgraj) jako jeden JSON, więc obrazy jadą w nim jako data URL.
+      await osadzObrazy(zadania, KATALOG_ARKUSZY);
       if (kadry.length) process.stdout.write(`kadry: ${kadry.join("; ")} … `);
     } else {
       zadania = parsujArkusz(strony);

@@ -20,8 +20,12 @@ export type ArkuszWpis = {
 
 export type Opcja = { litera: string; tresc: string };
 
-// Wycinek arkusza CKE jako PNG. src względem /dane/arkusze/, wymiary w punktach PDF.
+// Wycinek arkusza CKE jako PNG. src to data URL osadzony przy imporcie (arkusz
+// przychodzi z bazy jako jeden JSON), wymiary w punktach PDF.
 export type Obraz = { src: string; szer: number; wys: number };
+
+// Starsze importy miały ścieżkę względem data/arkusze zamiast data URL.
+export const adresObrazu = (src: string) => (src.startsWith("data:") ? src : `/dane/arkusze/${src}`);
 
 // Teksty matematyki mają wzory LaTeX w \( … \) (renderuje je KaTeX).
 export type Blok =

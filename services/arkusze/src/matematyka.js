@@ -233,6 +233,21 @@ export function kluczMatematyki(strony) {
   return klucz;
 }
 
+// Zamienia ścieżki PNG (kadry, rysunki) na data URL. Pliki zostają w data/
+// do podglądu, a aplikacja dostaje wszystko w jednym JSON-ie z bazy.
+export async function osadzObrazy(zadania, katalog) {
+  const cache = new Map();
+  const osadz = async (obraz) => {
+    if (!obraz || obraz.src.startsWith("data:")) return;
+    if (!cache.has(obraz.src)) cache.set(obraz.src, `data:image/png;base64,${(await readFile(join(katalog, obraz.src))).toString("base64")}`);
+    obraz.src = cache.get(obraz.src);
+  };
+  for (const z of zadania) {
+    await osadz(z.rysunek);
+    for (const b of z.bloki) await osadz(b.obraz);
+  }
+}
+
 // Zdania-polecenia, które w arkuszu są pogrubione.
 const POLECENIE = /^(Dokończ zdanie|Oceń prawdziwość|Uzupełnij|Wybierz|Wpisz|Zapisz obliczenia|Oblicz|Wyznacz|Rozwiąż|Wykaż|Udowodnij|Podaj|Zaznacz)/;
 
