@@ -106,7 +106,10 @@ export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {} }
       let ostatni = c.gora;
       for (const [y, ciemny] of tusz) if (ciemny) ostatni = Math.min(ostatni, y);
       const plik = i ? `${f.nr}-${i + 1}.png` : `${f.nr}.png`;
-      f.kadry.push(await zapiszWycinek(s, [KADR_X[0], Math.max(dol, ostatni - 6), KADR_X[1], c.gora + 13], katalog, prefiks, plik));
+      // Pasek „Zadanie N. (0–X)” dubluje nagłówek w aplikacji, więc go obcinamy.
+      // Zostaje tylko przy podpunktach (12.2), bo tam niesie numer i punktację.
+      const gora = c.naglowek && !f.nr.includes(".") ? c.gora - 6 : c.gora + 13;
+      f.kadry.push(await zapiszWycinek(s, [KADR_X[0], Math.max(dol, ostatni - 6), KADR_X[1], gora], katalog, prefiks, plik));
 
       if (f.rysunek || poprawka === null || (poprawka && poprawka.strona !== c.strona)) continue;
       const rysunek = poprawka ? { ramka: poprawka.ramka } : tabelaWyboru ? null : znajdzRysunek(s, c, tusz);
