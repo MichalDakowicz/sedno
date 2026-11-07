@@ -57,6 +57,7 @@ export type Zadanie = {
 export type Arkusz = Omit<ArkuszWpis, "zadan" | "pytan" | "ostrzezen"> & {
   data?: string;
   nagranie?: string;
+  pdf?: { arkusz: string | null; zasady: string | null };
   ostrzezenia: string[];
   zadania: Zadanie[];
 };

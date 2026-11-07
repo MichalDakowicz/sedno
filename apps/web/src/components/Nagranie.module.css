@@ -1,0 +1,141 @@
+.slot {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  min-height: 60px;
+  margin-top: 8px;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 14px 8px 8px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+}
+
+/* Przypięty do dołu ekranu; prawy margines zostawia miejsce na Pestkę. */
+.pinned {
+  position: fixed;
+  z-index: 40;
+  bottom: 16px;
+  left: 50%;
+  width: min(760px, calc(100vw - 112px));
+  transform: translateX(calc(-50% - 36px));
+  box-shadow:
+    0 12px 40px rgba(15, 21, 29, 0.16),
+    0 0 0 1px var(--line);
+  animation: wjazd 0.25s ease-out;
+}
+
+@keyframes wjazd {
+  from {
+    opacity: 0;
+    transform: translate(calc(-50% - 36px), 16px);
+  }
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.play {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-fg);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.play:hover {
+  background: var(--primary-hover);
+}
+
+.small {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.small:hover {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.time {
+  flex-shrink: 0;
+  min-width: 38px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  text-align: center;
+}
+
+.seek {
+  flex: 1;
+  min-width: 40px;
+  height: 6px;
+  appearance: none;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--primary) var(--postep), var(--line) var(--postep));
+  cursor: pointer;
+}
+
+.seek::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  appearance: none;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+.seek::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+@media (max-width: 640px) {
+  .icon {
+    display: none;
+  }
+
+  .player {
+    gap: 6px;
+  }
+
+  .pinned {
+    width: calc(100vw - 96px);
+    transform: translateX(calc(-50% - 32px));
+  }
+}

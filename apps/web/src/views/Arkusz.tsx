@@ -1,10 +1,22 @@
-import { createContext, Fragment, useContext, useEffect, useMemo } from "react";
+import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, Headphones, RotateCcw, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, FileText, Headphones, Pencil, RotateCcw, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
-import { usePostep, type Postep } from "../arkusze/postep";
-import { policz, werdykt, type Werdykt } from "../arkusze/sprawdz";
-import { nazwaPoziomu, type Arkusz as ArkuszDane, type Blok, type Pytanie, type PytanieOtwarte, type PytanieZamkniete, type Zadanie } from "../arkusze/typy";
+import { pustyPostep, usePostep, type Postep } from "../arkusze/postep";
+import { policz, policzPytania, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
+import {
+  nazwaPoziomu,
+  type Arkusz as ArkuszDane,
+  type Blok,
+  type Opcja,
+  type Pytanie,
+  type PytanieOtwarte,
+  type PytanieZamkniete,
+  type Wypowiedz,
+  type Zadanie,
+} from "../arkusze/typy";
+import { Nagranie } from "../components/Nagranie";
+import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import styles from "./Arkusz.module.css";
 
 type Kontekst = {
@@ -13,35 +25,67 @@ type Kontekst = {
   ocen: (nr: string, zaliczone: boolean) => void;
   pytania: Map<string, Pytanie>;
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
+  opcjeDla: (nr: string) => Opcja[] | undefined;
+  sprawdzone: (nr: string) => boolean;
+  otwartaLuka: string | null;
+  setOtwartaLuka: (nr: string | null) => void;
 };
 
 const Ctx = createContext<Kontekst | null>(null);
 const useCtx = () => useContext(Ctx)!;
+const nrZadania = (nrPytania: string) => Number(nrPytania.split(".")[0]);
 
 export function Arkusz() {
   const { id = "" } = useParams();
   const { dane, blad, laduje } = useArkusz(id);
   const [postep, zmien] = usePostep(id);
+  const [otwartaLuka, setOtwartaLuka] = useState<string | null>(null);
+
+  const sprawdzone = useCallback((nr: string) => postep.sprawdzony || postep.sprawdzoneZadania.includes(nrZadania(nr)), [postep]);
 
   const kontekst = useMemo<Kontekst | null>(() => {
     if (!dane) return null;
     const pytania = new Map<string, Pytanie>();
     const wBloku = new Set<string>();
+    const opcjeZadan = new Map<number, Opcja[]>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
       for (const b of z.bloki) {
         if (b.typ === "pytanie") wBloku.add(b.nr);
         if (b.typ === "pytania" || b.typ === "tabela") b.nr.forEach((n) => wBloku.add(n));
+        if (b.typ === "opcje" && !opcjeZadan.has(z.nr)) opcjeZadan.set(z.nr, b.opcje);
       }
     }
     return {
       postep,
       pytania,
       wBloku,
-      ustaw: (nr, wartosc) => zmien((p) => (p.sprawdzony ? p : { ...p, odpowiedzi: { ...p.odpowiedzi, [nr]: wartosc } })),
+      sprawdzone,
+      otwartaLuka,
+      setOtwartaLuka,
+      opcjeDla: (nr) => {
+        const p = pytania.get(nr);
+        return p?.typ === "zamkniete" ? (p.opcje ?? opcjeZadan.get(nrZadania(nr))) : undefined;
+      },
+      ustaw: (nr, wartosc) =>
+        zmien((p) => (p.sprawdzony || p.sprawdzoneZadania.includes(nrZadania(nr)) ? p : { ...p, odpowiedzi: { ...p.odpowiedzi, [nr]: wartosc } })),
       ocen: (nr, zaliczone) => zmien((p) => ({ ...p, samoocena: { ...p.samoocena, [nr]: zaliczone } })),
     };
-  }, [dane, postep, zmien]);
+  }, [dane, postep, zmien, sprawdzone, otwartaLuka]);
+
+  // Lista zdań pod luką zamyka się kliknięciem obok albo klawiszem Escape.
+  useEffect(() => {
+    if (!otwartaLuka) return;
+    const zamknij = (e: Event) => {
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !(e.target as Element).closest("[data-luka]")) setOtwartaLuka(null);
+    };
+    document.addEventListener("keydown", zamknij);
+    document.addEventListener("pointerdown", zamknij);
+    return () => {
+      document.removeEventListener("keydown", zamknij);
+      document.removeEventListener("pointerdown", zamknij);
+    };
+  }, [otwartaLuka]);
 
   const wynik = dane ? policz(dane, postep.odpowiedzi, postep.samoocena) : null;
   // Zapisany wynik aktualizujemy, gdy uczeń ocenia odpowiedzi otwarte.
@@ -51,27 +95,42 @@ export function Arkusz() {
     zmien((p) => (p.sprawdzony && p.wynik && p.wynik.zdobyte !== zdobyte ? { ...p, wynik: { ...p.wynik, zdobyte } } : p));
   }, [zdobyte, zmien]);
 
-  if (laduje) return <main className={`container ${styles.page}`}><p className="muted">Wczytuję arkusz…</p></main>;
+  if (laduje)
+    return (
+      <main className={`container ${styles.page}`}>
+        <p className="muted">Wczytuję arkusz…</p>
+      </main>
+    );
   if (blad || !dane || !kontekst || !wynik) {
     return (
       <main className={`container ${styles.page}`}>
         <h1 className="h1">Nie ma takiego arkusza</h1>
-        <Link to="/arkusze" className="link">Wróć do listy</Link>
+        <Link to="/arkusze" className="link">
+          Wróć do listy
+        </Link>
       </main>
     );
   }
 
-  const sprawdz = () => {
+  const sprawdzCaly = () => {
     zmien((p) => ({ ...p, sprawdzony: true, wynik: { zdobyte: wynik.zdobyte, mozliwe: wynik.mozliwe, kiedy: new Date().toISOString() } }));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const odNowa = () => {
-    zmien(() => ({ odpowiedzi: {}, samoocena: {}, sprawdzony: false }));
+    zmien(() => pustyPostep);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  const sprawdzZadanie = (nr: number) => zmien((p) => ({ ...p, sprawdzoneZadania: [...new Set([...p.sprawdzoneZadania, nr])] }));
+  // Poprawa zadania: odpowiedzi zostają, znika ocena i samoocena jego pytań.
+  const poprawZadanie = (z: Zadanie) =>
+    zmien((p) => {
+      const samoocena = { ...p.samoocena };
+      for (const q of z.pytania) delete samoocena[q.nr];
+      const sprawdzoneZadania = p.sprawdzony ? dane.zadania.map((x) => x.nr) : p.sprawdzoneZadania;
+      return { ...p, samoocena, sprawdzony: false, wynik: undefined, sprawdzoneZadania: sprawdzoneZadania.filter((n) => n !== z.nr) };
+    });
 
-  const odpowiedziane = Object.values(postep.odpowiedzi).filter((v) => v.trim()).length;
-  const wszystkie = kontekst.pytania.size;
+  const odpowiedziane = [...kontekst.pytania.keys()].filter((nr) => postep.odpowiedzi[nr]?.trim()).length;
 
   return (
     <Ctx.Provider value={kontekst}>
@@ -81,7 +140,7 @@ export function Arkusz() {
         {postep.sprawdzony && <Podsumowanie wynik={wynik} odNowa={odNowa} />}
 
         {dane.zadania.map((z) => (
-          <ZadanieWidok key={z.nr} zadanie={z} />
+          <ZadanieWidok key={z.nr} zadanie={z} onSprawdz={() => sprawdzZadanie(z.nr)} onPopraw={() => poprawZadanie(z)} />
         ))}
 
         <footer className={styles.footer}>
@@ -92,15 +151,15 @@ export function Arkusz() {
           ) : (
             <>
               <p className="muted small">
-                Odpowiedzi: {odpowiedziane} z {wszystkie}. Zapisują się na bieżąco w tej przeglądarce.
+                Odpowiedzi: {odpowiedziane} z {kontekst.pytania.size}. Zapisują się na bieżąco w tej przeglądarce.
               </p>
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={sprawdz}
+                onClick={sprawdzCaly}
                 data-tutor-about="Po sprawdzeniu zobaczysz klucz przy każdym pytaniu. Odpowiedzi otwarte spoza listy CKE ocenisz sam, z kluczem przed oczami."
               >
-                <Check size={18} aria-hidden="true" /> Sprawdź arkusz
+                <Check size={18} aria-hidden="true" /> Sprawdź cały arkusz
               </button>
             </>
           )}
@@ -123,17 +182,22 @@ function Naglowek({ arkusz }: { arkusz: ArkuszDane }) {
       <h1 className="h1">
         Matura {arkusz.sesja} {arkusz.rok}
       </h1>
-      <p className="muted">
-        {[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}
-      </p>
-      {maSluchanie && arkusz.nagranie && (
-        <div className={styles.audio} data-tutor-about="Nagranie do zadań ze słuchu, odtwarzane ze strony CKE. Na maturze każdy tekst słyszysz dwa razy.">
-          <Headphones size={18} aria-hidden="true" />
-          <audio controls preload="none" src={arkusz.nagranie}>
-            Twoja przeglądarka nie odtwarza nagrań.
-          </audio>
+      <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>
+      {(arkusz.pdf?.arkusz || arkusz.pdf?.zasady) && (
+        <div className={styles.pdfs}>
+          {arkusz.pdf.arkusz && (
+            <a className="btn btn-secondary btn-sm" href={arkusz.pdf.arkusz} target="_blank" rel="noreferrer">
+              <FileText size={16} aria-hidden="true" /> Arkusz PDF
+            </a>
+          )}
+          {arkusz.pdf.zasady && (
+            <a className="btn btn-ghost btn-sm" href={arkusz.pdf.zasady} target="_blank" rel="noreferrer">
+              <FileText size={16} aria-hidden="true" /> Zasady oceniania PDF
+            </a>
+          )}
         </div>
       )}
+      {maSluchanie && arkusz.nagranie && <Nagranie src={arkusz.nagranie} />}
       <p className="small muted">Źródło: Centralna Komisja Egzaminacyjna, cke.gov.pl.</p>
     </header>
   );
@@ -160,19 +224,23 @@ function Podsumowanie({ wynik, odNowa }: { wynik: ReturnType<typeof policz>; odN
   );
 }
 
-function ZadanieWidok({ zadanie }: { zadanie: Zadanie }) {
-  const { postep, wBloku } = useCtx();
+function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSprawdz: () => void; onPopraw: () => void }) {
+  const { postep, wBloku, sprawdzone } = useCtx();
+  const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
+  const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
-  const zdobyte = zadanie.pytania.reduce((s, p) => s + (werdyktPytania(p, postep) === "dobrze" ? p.punkty : 0), 0);
+  const wynik = policzPytania(zadanie.pytania, postep.odpowiedzi, postep.samoocena);
+  const odpowiedziane = zadanie.pytania.filter((p) => postep.odpowiedzi[p.nr]?.trim()).length;
+
+  // Wypowiedź pisemna: tematy do wyboru i elementy treści trafiają do edytora.
+  const pisanie = useMemo(() => (pisemna ? rozbierzPolecenie(zadanie) : null), [pisemna, zadanie]);
+  const bloki = pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki;
 
   return (
     <section className={styles.task} id={`zadanie-${zadanie.nr}`}>
       <header className={styles.taskHead}>
         <h2 className="h3">Zadanie {zadanie.nr}.</h2>
-        <span className="small muted">
-          {postep.sprawdzony && zadanie.pytania[0]?.typ !== "wypowiedz" ? `${zdobyte} / ` : "0–"}
-          {zadanie.punkty} pkt
-        </span>
+        <span className="small muted">{gotowe && !pisemna ? `${wynik.zdobyte} / ${zadanie.punkty} pkt` : `0–${zadanie.punkty} pkt`}</span>
         {zadanie.sluchanie && (
           <span className={`small ${styles.listen}`}>
             <Headphones size={14} aria-hidden="true" /> nagranie
@@ -185,19 +253,70 @@ function ZadanieWidok({ zadanie }: { zadanie: Zadanie }) {
         </p>
       ))}
       <div className={styles.content}>
-        {zadanie.bloki.map((b, i) => (
-          <BlokWidok key={i} blok={b} />
-        ))}
+        {bloki.map((b, i) =>
+          b.typ === "pytanie" && pisanie ? <WypowiedzWidok key={i} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} /> : <BlokWidok key={i} blok={b} zadanie={zadanie.nr} />,
+        )}
       </div>
-      {postep.sprawdzony && wTekscie.length > 0 && (
+      {gotowe && wTekscie.length > 0 && (
         <div className={styles.keyList}>
           {wTekscie.map((p) => (
             <Informacja key={p.nr} pytanie={p} zNumerem />
           ))}
         </div>
       )}
+      {!pisemna && !postep.sprawdzony && (
+        <div className={styles.taskActions}>
+          {gotowe ? (
+            <>
+              <span className={styles.taskScore}>
+                {wynik.zdobyte} / {wynik.mozliwe} pkt
+                {wynik.doOceny > 0 && <span className="small muted"> · {wynik.doOceny} do twojej oceny</span>}
+              </span>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={onPopraw}>
+                <Pencil size={15} aria-hidden="true" /> Popraw odpowiedzi
+              </button>
+            </>
+          ) : (
+            <button type="button" className="btn btn-secondary btn-sm" onClick={onSprawdz} disabled={!odpowiedziane}>
+              <Check size={16} aria-hidden="true" /> Sprawdź zadanie {zadanie.nr}.
+            </button>
+          )}
+        </div>
+      )}
+      {!pisemna && postep.sprawdzony && (
+        <div className={styles.taskActions}>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={onPopraw}>
+            <Pencil size={15} aria-hidden="true" /> Popraw odpowiedzi w tym zadaniu
+          </button>
+        </div>
+      )}
     </section>
   );
+}
+
+type Pisanie = { tematy: Temat[]; punkty: string[]; zakres: [number, number] | null; ukryte: Set<Blok> };
+
+// Z bloków zadania z wypowiedzią wyciąga tematy („1. …”, „2. …”) z ich
+// punktami oraz punkty polecenia („• …”) i zakres długości.
+function rozbierzPolecenie(z: Zadanie): Pisanie {
+  const tematy: Temat[] = [];
+  const punkty: string[] = [];
+  const ukryte = new Set<Blok>();
+  for (const b of z.bloki) {
+    if (b.typ !== "akapit") continue;
+    const t = b.tekst.match(/^(\d)\.\s+(.*)$/s);
+    if (t) {
+      tematy.push({ nr: Number(t[1]), tekst: t[2], punkty: [] });
+      ukryte.add(b);
+    } else if (/^•\s/.test(b.tekst)) {
+      if (tematy.length) {
+        tematy[tematy.length - 1].punkty.push(b.tekst.replace(/^•\s*/, ""));
+        ukryte.add(b);
+      } else punkty.push(b.tekst);
+    }
+  }
+  const caly = [...z.polecenie, ...z.bloki.map((b) => ("tekst" in b ? b.tekst : ""))].join(" ");
+  return { tematy: tematy.length > 1 ? tematy : [], punkty, zakres: zakresSlow(caly), ukryte: tematy.length > 1 ? ukryte : new Set() };
 }
 
 function werdyktPytania(p: Pytanie, postep: Postep): Werdykt {
@@ -206,30 +325,21 @@ function werdyktPytania(p: Pytanie, postep: Postep): Werdykt {
   return w;
 }
 
-function BlokWidok({ blok }: { blok: Blok }) {
+function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
   const { pytania } = useCtx();
   switch (blok.typ) {
     case "akapit":
       return (
-        <p className={styles.para}>
+        <div className={styles.para}>
           <Tekst tekst={blok.tekst} />
-        </p>
+        </div>
       );
     case "naglowek":
       return <h3 className={styles.textTitle}>{blok.tekst}</h3>;
     case "zrodlo":
       return <p className={`small muted ${styles.source}`}>{blok.tekst}</p>;
     case "opcje":
-      return (
-        <dl className={styles.options}>
-          {blok.opcje.map((o) => (
-            <div key={o.litera}>
-              <dt>{o.litera}</dt>
-              <dd>{o.tresc}</dd>
-            </div>
-          ))}
-        </dl>
-      );
+      return <OpcjeZadania opcje={blok.opcje} zadanie={zadanie} />;
     case "pytanie": {
       const p = pytania.get(blok.nr);
       return p ? <PytanieWidok pytanie={p} /> : null;
@@ -248,11 +358,28 @@ function BlokWidok({ blok }: { blok: Blok }) {
         <div className={styles.table}>
           {blok.nr.map((nr) => {
             const p = pytania.get(nr);
-            return p?.typ === "zamkniete" ? <Litery key={nr} pytanie={p} zNumerem /> : null;
+            return p?.typ === "zamkniete" ? <WierszTabeli key={nr} pytanie={p} /> : null;
           })}
         </div>
       );
   }
+}
+
+// Opcje wspólne dla zadania (zdania A–F, teksty A–D). Opcje użyte już
+// w lukach są przygaszone, żeby było widać, co zostało.
+function OpcjeZadania({ opcje, zadanie }: { opcje: Opcja[]; zadanie: number }) {
+  const { postep } = useCtx();
+  const uzyte = new Set(Object.entries(postep.odpowiedzi).filter(([nr]) => nrZadania(nr) === zadanie).map(([, l]) => l));
+  return (
+    <dl className={styles.options}>
+      {opcje.map((o) => (
+        <div key={o.litera} data-uzyta={uzyte.has(o.litera) || undefined}>
+          <dt>{o.litera}</dt>
+          <dd>{o.tresc}</dd>
+        </div>
+      ))}
+    </dl>
+  );
 }
 
 // Tekst ze znacznikami luk {{3.1}}.
@@ -265,8 +392,13 @@ function Tekst({ tekst, wlasny }: { tekst: string; wlasny?: string }) {
         if (i % 2 === 0) return <Fragment key={i}>{c}</Fragment>;
         const p = pytania.get(c);
         // Pytanie z własnym blokiem odpowiada tam; w tekście zostaje sam znacznik.
-        if (!p || (wBloku.has(c) && c !== wlasny)) return <span key={i} className={styles.gapMark}>{c}. _____</span>;
-        if (p.typ === "zamkniete") return <LukaLitera key={i} pytanie={p} />;
+        if (!p || (wBloku.has(c) && c !== wlasny))
+          return (
+            <span key={i} className={styles.gapMark}>
+              {c}. _____
+            </span>
+          );
+        if (p.typ === "zamkniete") return <LukaZdanie key={i} pytanie={p} />;
         if (p.typ === "otwarte") return <LukaTekst key={i} pytanie={p} bezNumeru={c === wlasny} />;
         return null;
       })}
@@ -275,47 +407,65 @@ function Tekst({ tekst, wlasny }: { tekst: string; wlasny?: string }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
-  if (p.typ === "wypowiedz") return <WypowiedzWidok pytanie={p} />;
-  const tresc = p.tresc ? (
-    <div className={styles.stem}>
-      <Tekst tekst={p.tresc} wlasny={p.nr} />
-    </div>
-  ) : null;
+  if (p.typ === "wypowiedz") return null;
   return (
     <div className={styles.question}>
-      <span className={styles.qnr}>{p.nr}.</span>
-      <div className={styles.qbody}>
-        {tresc}
-        {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Litery pytanie={p} />)}
-        {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && <LukaTekst pytanie={p} blok />}
-        <Informacja pytanie={p} />
+      <div className={styles.stem}>
+        <span className={styles.qnr}>{p.nr}.</span>
+        {p.tresc && <Tekst tekst={p.tresc} wlasny={p.nr} />}
       </div>
+      {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Suwak pytanie={p} />)}
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && <LukaTekst pytanie={p} blok />}
+      <Informacja pytanie={p} />
     </div>
   );
 }
 
-function stanOpcji(p: PytanieZamkniete, litera: string, postep: Postep) {
+function stanOpcji(p: PytanieZamkniete, litera: string, postep: Postep, sprawdzone: boolean) {
   const wybrana = postep.odpowiedzi[p.nr] === litera;
-  if (!postep.sprawdzony) return wybrana ? "wybrana" : undefined;
+  if (!sprawdzone) return wybrana ? "wybrana" : undefined;
   // „trafiona”: wybrana i poprawna; „poprawna”: poprawna, ale uczeń jej nie wybrał.
   if (litera === p.poprawna) return wybrana ? "trafiona" : "poprawna";
   return wybrana ? "bledna" : undefined;
 }
 
+// Pozycja podświetlenia pod wybraną opcją, mierzona z DOM, żeby mogło
+// płynnie przesuwać się między opcjami jak suwak.
+function usePodswietlenie(wybrana: string | undefined) {
+  const kontener = useRef<HTMLDivElement>(null);
+  const [ramka, setRamka] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  useLayoutEffect(() => {
+    const zmierz = () => {
+      const el = wybrana ? kontener.current?.querySelector<HTMLElement>(`[data-litera="${wybrana}"]`) : null;
+      setRamka(el ? { top: el.offsetTop, left: el.offsetLeft, width: el.offsetWidth, height: el.offsetHeight } : null);
+    };
+    zmierz();
+    const ro = new ResizeObserver(zmierz);
+    if (kontener.current) ro.observe(kontener.current);
+    return () => ro.disconnect();
+  }, [wybrana]);
+  return { kontener, ramka };
+}
+
 function Opcje({ pytanie: p }: { pytanie: PytanieZamkniete }) {
-  const { postep, ustaw } = useCtx();
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const wybrana = postep.odpowiedzi[p.nr] || undefined;
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
   return (
-    <div className={styles.choices} role="radiogroup" aria-label={`Pytanie ${p.nr}`}>
+    <div ref={kontener} className={styles.choices} role="radiogroup" aria-label={`Pytanie ${p.nr}`}>
+      {ramka && <span className={styles.highlight} style={ramka} aria-hidden="true" />}
       {p.opcje!.map((o) => (
         <button
           key={o.litera}
           type="button"
           role="radio"
-          aria-checked={postep.odpowiedzi[p.nr] === o.litera}
+          data-litera={o.litera}
+          aria-checked={wybrana === o.litera}
           className={styles.choice}
-          data-stan={stanOpcji(p, o.litera, postep)}
-          disabled={postep.sprawdzony}
-          onClick={() => ustaw(p.nr, postep.odpowiedzi[p.nr] === o.litera ? "" : o.litera)}
+          data-stan={stanOpcji(p, o.litera, postep, gotowe)}
+          disabled={gotowe}
+          onClick={() => ustaw(p.nr, wybrana === o.litera ? "" : o.litera)}
         >
           <span className={styles.letter}>{o.litera}</span>
           <span>{o.tresc}</span>
@@ -325,55 +475,130 @@ function Opcje({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   );
 }
 
-function Litery({ pytanie: p, zNumerem }: { pytanie: PytanieZamkniete; zNumerem?: boolean }) {
-  const { postep, ustaw } = useCtx();
+// Same litery (dopasowanie): segmentowy suwak z przesuwanym wskaźnikiem.
+function Suwak({ pytanie: p }: { pytanie: PytanieZamkniete }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const wybrana = postep.odpowiedzi[p.nr] || undefined;
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
   return (
-    <div className={styles.letters} role="radiogroup" aria-label={`Pytanie ${p.nr}`}>
-      {zNumerem && <span className={styles.qnr}>{p.nr}.</span>}
+    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={`Pytanie ${p.nr}`}>
+      {ramka && <span className={styles.thumb} style={ramka} aria-hidden="true" />}
       {p.litery.map((l) => (
         <button
           key={l}
           type="button"
           role="radio"
-          aria-checked={postep.odpowiedzi[p.nr] === l}
-          className={styles.letterBtn}
-          data-stan={stanOpcji(p, l, postep)}
-          disabled={postep.sprawdzony}
-          onClick={() => ustaw(p.nr, postep.odpowiedzi[p.nr] === l ? "" : l)}
+          data-litera={l}
+          aria-checked={wybrana === l}
+          className={styles.segment}
+          data-stan={stanOpcji(p, l, postep, gotowe)}
+          disabled={gotowe}
+          onClick={() => ustaw(p.nr, wybrana === l ? "" : l)}
         >
           {l}
         </button>
       ))}
-      {zNumerem && postep.sprawdzony && (
-        <span className={styles.rowVerdict} data-werdykt={werdykt(p, postep.odpowiedzi[p.nr])}>
-          {werdykt(p, postep.odpowiedzi[p.nr]) === "dobrze" ? <Check size={16} aria-label="dobrze" /> : <X size={16} aria-label="źle" />}
+    </div>
+  );
+}
+
+function WierszTabeli({ pytanie: p }: { pytanie: PytanieZamkniete }) {
+  const { postep, sprawdzone } = useCtx();
+  const w = werdykt(p, postep.odpowiedzi[p.nr]);
+  return (
+    <div className={styles.row}>
+      <span className={styles.qnr}>{p.nr}.</span>
+      <Suwak pytanie={p} />
+      {sprawdzone(p.nr) && (
+        <span className={styles.rowVerdict} data-werdykt={w}>
+          {w === "dobrze" ? <Check size={16} aria-label="dobrze" /> : <X size={16} aria-label="źle" />}
+          {w !== "dobrze" && <span className="small">poprawna: {p.poprawna}</span>}
         </span>
       )}
     </div>
   );
 }
 
-function LukaLitera({ pytanie: p }: { pytanie: PytanieZamkniete }) {
-  const { postep, ustaw } = useCtx();
-  const w = postep.sprawdzony ? werdyktPytania(p, postep) : undefined;
+// Luka na brakujące zdanie: kliknięcie rozwija pod nią listę zdań, wybrane
+// zdanie wchodzi w tekst. Bez treści opcji zostaje mały wybór liter.
+function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
+  const { postep, ustaw, sprawdzone, opcjeDla, otwartaLuka, setOtwartaLuka } = useCtx();
+  const opcje = opcjeDla(p.nr);
+  const gotowe = sprawdzone(p.nr);
+  const wybrana = postep.odpowiedzi[p.nr] || "";
+  const otwarta = otwartaLuka === p.nr && !gotowe;
+  const w = gotowe ? werdyktPytania(p, postep) : undefined;
+  const tresc = opcje?.find((o) => o.litera === wybrana)?.tresc;
+  // Które zdania są już wstawione w inne luki tego zadania.
+  const zajete = new Map<string, string>();
+  for (const [nr, l] of Object.entries(postep.odpowiedzi)) if (nr !== p.nr && nrZadania(nr) === nrZadania(p.nr) && l) zajete.set(l, nr);
+
   return (
-    <span className={styles.inlineGap} data-werdykt={w}>
-      <span className={styles.gapNr}>{p.nr}.</span>
-      <select value={postep.odpowiedzi[p.nr] ?? ""} disabled={postep.sprawdzony} onChange={(e) => ustaw(p.nr, e.target.value)} aria-label={`Luka ${p.nr}`}>
-        <option value="">…</option>
-        {p.litery.map((l) => (
-          <option key={l} value={l}>
-            {l}
-          </option>
-        ))}
-      </select>
+    <span className={styles.sentenceGap} data-luka>
+      <button
+        type="button"
+        className={styles.gapChip}
+        data-wybrana={wybrana ? "" : undefined}
+        data-werdykt={w}
+        data-otwarta={otwarta || undefined}
+        aria-expanded={otwarta}
+        disabled={gotowe}
+        onClick={() => setOtwartaLuka(otwarta ? null : p.nr)}
+      >
+        <span className={styles.gapNr}>{p.nr}.</span>
+        {wybrana ? (
+          <>
+            <strong>{wybrana}</strong>
+            {tresc && <span className={styles.gapText}>{tresc}</span>}
+          </>
+        ) : (
+          <span className={styles.gapPrompt}>{opcje ? "wybierz zdanie" : "wybierz"}</span>
+        )}
+        {!gotowe && <ChevronDown size={14} aria-hidden="true" className={styles.gapChevron} />}
+      </button>
+      {otwarta && (
+        <span className={styles.picker} role="listbox" aria-label={`Zdania do luki ${p.nr}`}>
+          {(opcje ?? p.litery.map((l) => ({ litera: l, tresc: "" }))).map((o) => (
+            <button
+              key={o.litera}
+              type="button"
+              role="option"
+              aria-selected={wybrana === o.litera}
+              className={styles.pickerOption}
+              data-zajeta={zajete.has(o.litera) || undefined}
+              onClick={() => {
+                ustaw(p.nr, o.litera);
+                setOtwartaLuka(null);
+              }}
+            >
+              <span className={styles.letter}>{o.litera}</span>
+              <span>{o.tresc || `Litera ${o.litera}`}</span>
+              {zajete.has(o.litera) && <span className={styles.badge}>w {zajete.get(o.litera)}</span>}
+            </button>
+          ))}
+          {wybrana && (
+            <button
+              type="button"
+              className={styles.pickerClear}
+              onClick={() => {
+                ustaw(p.nr, "");
+                setOtwartaLuka(null);
+              }}
+            >
+              Wyczyść lukę
+            </button>
+          )}
+        </span>
+      )}
     </span>
   );
 }
 
 function LukaTekst({ pytanie: p, blok, bezNumeru }: { pytanie: PytanieOtwarte; blok?: boolean; bezNumeru?: boolean }) {
-  const { postep, ustaw } = useCtx();
-  const w = postep.sprawdzony ? werdyktPytania(p, postep) : undefined;
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const w = gotowe ? werdyktPytania(p, postep) : undefined;
   const wartosc = postep.odpowiedzi[p.nr] ?? "";
   return (
     <span className={blok ? styles.blockGap : styles.inlineGap} data-werdykt={w}>
@@ -382,7 +607,7 @@ function LukaTekst({ pytanie: p, blok, bezNumeru }: { pytanie: PytanieOtwarte; b
         type="text"
         value={wartosc}
         size={Math.max(blok ? 30 : 12, wartosc.length + 2)}
-        readOnly={postep.sprawdzony}
+        readOnly={gotowe}
         autoComplete="off"
         autoCapitalize="off"
         spellCheck={false}
@@ -393,23 +618,27 @@ function LukaTekst({ pytanie: p, blok, bezNumeru }: { pytanie: PytanieOtwarte; b
   );
 }
 
-function WypowiedzWidok({ pytanie: p }: { pytanie: Pytanie & { typ: "wypowiedz" } }) {
-  const { postep, ustaw } = useCtx();
-  const tekst = postep.odpowiedzi[p.nr] ?? "";
-  const slowa = tekst.trim() ? tekst.trim().split(/\s+/).length : 0;
+function WypowiedzWidok({ pytanie: p, pisanie }: { pytanie: Wypowiedz; pisanie: Pisanie }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const klucz = (pole: string) => `${p.nr}:${pole}`;
+  const temat = Number(postep.odpowiedzi[klucz("temat")]) || null;
+  const odhaczone = (postep.odpowiedzi[klucz("lista")] ?? "").split(",").filter(Boolean).map(Number);
   return (
     <div className={styles.essay}>
-      {p.poczatek && <p className={styles.essayStart}>{p.poczatek}</p>}
-      <textarea
-        value={tekst}
-        rows={14}
-        readOnly={postep.sprawdzony}
-        onChange={(e) => ustaw(p.nr, e.target.value)}
-        aria-label="Twoja wypowiedź"
-        placeholder="Napisz swoją wypowiedź po angielsku…"
+      <Wypracowanie
+        tekst={postep.odpowiedzi[p.nr] ?? ""}
+        poczatek={p.poczatek}
+        tematy={pisanie.tematy}
+        punkty={pisanie.punkty}
+        zakres={pisanie.zakres}
+        temat={temat}
+        odhaczone={odhaczone}
+        tylkoOdczyt={sprawdzone(p.nr)}
+        onTekst={(t) => ustaw(p.nr, t)}
+        onTemat={(n) => ustaw(klucz("temat"), String(n))}
+        onOdhacz={(i) => ustaw(klucz("lista"), (odhaczone.includes(i) ? odhaczone.filter((x) => x !== i) : [...odhaczone, i]).join(","))}
       />
-      <span className="small muted">Słowa: {slowa}</span>
-      {postep.sprawdzony && (
+      {sprawdzone(p.nr) && (
         <p className={`small ${styles.note}`}>
           Wypowiedź oceniasz na razie sam według kryteriów z polecenia (treść, spójność, zakres i poprawność środków językowych). Automatyczna ocena przyjdzie razem z AI.
         </p>
@@ -420,20 +649,24 @@ function WypowiedzWidok({ pytanie: p }: { pytanie: Pytanie & { typ: "wypowiedz" 
 
 // Informacja zwrotna pod pytaniem po sprawdzeniu.
 function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boolean }) {
-  const { postep, ocen } = useCtx();
-  if (!postep.sprawdzony || p.typ === "wypowiedz") return null;
+  const { postep, ocen, sprawdzone, opcjeDla } = useCtx();
+  if (!sprawdzone(p.nr) || p.typ === "wypowiedz") return null;
   const surowy = werdykt(p, postep.odpowiedzi[p.nr]);
   const w = werdyktPytania(p, postep);
   const odp = postep.odpowiedzi[p.nr]?.trim();
-  const nr = zNumerem ? <strong>{p.nr}. </strong> : null;
+  const nr: ReactNode = zNumerem ? <strong>{p.nr}. </strong> : null;
 
   if (p.typ === "zamkniete") {
+    const zdanie = opcjeDla(p.nr)?.find((o) => o.litera === p.poprawna)?.tresc;
     return (
-      <p className={styles.feedback} data-werdykt={w}>
-        {nr}
-        {w === "dobrze" ? <Check size={16} aria-hidden="true" /> : <X size={16} aria-hidden="true" />}
-        {w === "dobrze" ? "Dobrze" : `${odp ? `Twoja: ${odp}. ` : "Brak odpowiedzi. "}Poprawna: ${p.poprawna}`}
-      </p>
+      <div className={styles.feedback} data-werdykt={w}>
+        <p className={styles.feedbackHead}>
+          {nr}
+          {w === "dobrze" ? <Check size={16} aria-hidden="true" /> : <X size={16} aria-hidden="true" />}
+          {w === "dobrze" ? "Dobrze" : `${odp ? `Twoja: ${odp}. ` : "Brak odpowiedzi. "}Poprawna: ${p.poprawna}`}
+        </p>
+        {w !== "dobrze" && zdanie && !p.opcje?.length && <p className={`small muted ${styles.correctText}`}>{zdanie}</p>}
+      </div>
     );
   }
 
@@ -476,4 +709,3 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
     </div>
   );
 }
-

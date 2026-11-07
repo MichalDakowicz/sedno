@@ -41,21 +41,36 @@ export type Wynik = {
 };
 
 export function policz(arkusz: Arkusz, odpowiedzi: Odpowiedzi, samoocena: Samoocena): Wynik {
+  return policzPytania(arkusz.zadania.flatMap((z) => z.pytania), odpowiedzi, samoocena);
+}
+
+export function policzPytania(pytania: Pytanie[], odpowiedzi: Odpowiedzi, samoocena: Samoocena): Wynik {
   const wynik: Wynik = { zdobyte: 0, mozliwe: 0, doOceny: 0, wypowiedzi: 0 };
-  for (const z of arkusz.zadania) {
-    for (const p of z.pytania) {
-      if (p.typ === "wypowiedz") {
-        wynik.wypowiedzi += p.punkty;
-        continue;
-      }
-      wynik.mozliwe += p.punkty;
-      const w = werdykt(p, odpowiedzi[p.nr]);
-      if (w === "dobrze") wynik.zdobyte += p.punkty;
-      if (w === "do-oceny") {
-        if (samoocena[p.nr] === undefined) wynik.doOceny++;
-        else if (samoocena[p.nr]) wynik.zdobyte += p.punkty;
-      }
+  for (const p of pytania) {
+    if (p.typ === "wypowiedz") {
+      wynik.wypowiedzi += p.punkty;
+      continue;
+    }
+    wynik.mozliwe += p.punkty;
+    const w = werdykt(p, odpowiedzi[p.nr]);
+    if (w === "dobrze") wynik.zdobyte += p.punkty;
+    if (w === "do-oceny") {
+      if (samoocena[p.nr] === undefined) wynik.doOceny++;
+      else if (samoocena[p.nr]) wynik.zdobyte += p.punkty;
     }
   }
   return wynik;
+}
+
+// Zakres długości wypowiedzi z polecenia, np. „od 100 do 150 wyrazów”,
+// „between 300 and 350 words”.
+export function zakresSlow(tekst: string): [number, number] | null {
+  const m = tekst.match(/od (\d+) do (\d+) (?:wyrazów|słów)|between (\d+) and (\d+) words|(\d+)\s*[–-]\s*(\d+) (?:wyrazów|words)/i);
+  if (!m) return null;
+  const [a, b] = m.slice(1).filter(Boolean).map(Number);
+  return [a, b];
+}
+
+export function liczSlowa(tekst: string): number {
+  return tekst.trim() ? tekst.trim().split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length : 0;
 }

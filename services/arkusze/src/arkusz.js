@@ -333,7 +333,10 @@ function wypowiedzPisemna(nr, punkty, linie) {
   const bloki = [];
   let akt = null;
   for (const l of tresc) {
-    const nowy = !akt || !blisko(akt, l) || /^([•●]|\d+\.)\s/.test(l.s);
+    // Ciąg dalszy punktu zaczyna się małą literą; zdanie od wielkiej po
+    // punkcie („Napisz swoją wypowiedź…”) to już osobny akapit polecenia.
+    const poPunkcie = akt && /^[•●]/.test(akt.tekst) && /^[A-ZĄĆĘŁŃÓŚŹŻ]/.test(l.s);
+    const nowy = !akt || !blisko(akt, l) || /^([•●]|\d+\.)\s/.test(l.s) || poPunkcie;
     if (nowy) bloki.push((akt = { typ: "akapit", tekst: l.s, ostatnia: l }));
     else {
       akt.tekst = polacz(akt.tekst, l.s);
@@ -348,8 +351,14 @@ function wypowiedzPisemna(nr, punkty, linie) {
     sluchanie: false,
     polecenie,
     bloki: bloki.map(czyscBlok),
-    pytania: [{ nr: String(nr), typ: "wypowiedz", tresc: "", ...(poczatek.length ? { poczatek: poczatek.join("\n") } : {}) }],
+    pytania: [{ nr: String(nr), typ: "wypowiedz", tresc: "", ...(poczatek.length ? { poczatek: zlozPoczatek(poczatek) } : {}) }],
   };
+}
+
+// Początek wypowiedzi z arkusza: łamiemy wiersz tylko po znaku interpunkcyjnym
+// („Hi everybody,”), resztę łamań z PDF składamy w zdania.
+function zlozPoczatek(linie) {
+  return linie.reduce((acc, l) => (!acc ? l : /[,.:!?]$/.test(acc) ? `${acc}\n${l}` : `${acc} ${l}`), "");
 }
 
 // Pierwszy akapit (i ewentualna „Uwaga”) to polecenie zadania.

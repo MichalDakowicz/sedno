@@ -5,11 +5,13 @@ import type { Odpowiedzi, Samoocena } from "./sprawdz";
 export type Postep = {
   odpowiedzi: Odpowiedzi;
   samoocena: Samoocena;
-  sprawdzony: boolean;
+  sprawdzony: boolean; // cały arkusz
+  sprawdzoneZadania: number[]; // pojedyncze zadania sprawdzone przed końcem
   wynik?: { zdobyte: number; mozliwe: number; kiedy: string };
 };
 
-const pusty: Postep = { odpowiedzi: {}, samoocena: {}, sprawdzony: false };
+export const pustyPostep: Postep = { odpowiedzi: {}, samoocena: {}, sprawdzony: false, sprawdzoneZadania: [] };
+const pusty = pustyPostep;
 const klucz = (id: string) => `sedno.arkusz.${id}`;
 
 export function wczytajPostep(id: string): Postep {

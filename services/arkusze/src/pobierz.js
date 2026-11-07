@@ -32,7 +32,8 @@ console.log(`Strony lat: ${lata.length}`);
 for (const strona of lata) {
   const rok = strona.match(/(\d{4})-2\/$/)[1];
   const html = await pobierzTekst(strona);
-  const linki = [...new Set([...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1].replace(/^http:/, "https:")))].filter((h) => PLIK.test(h));
+  // Część linków na stronie CKE jest względna („/images/…”), więc składamy pełny adres.
+  const linki = [...new Set([...html.matchAll(/href="([^"]+)"/g)].map((m) => new URL(m[1], strona).href.replace(/^http:/, "https:")))].filter((h) => PLIK.test(h));
   const katalog = join(KATALOG_CKE, rok);
   await mkdir(katalog, { recursive: true });
   const nagrania = {};
