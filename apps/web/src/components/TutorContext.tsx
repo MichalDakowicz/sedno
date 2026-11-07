@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import type { AvatarState } from "./TutorAvatar";
-import { topPick } from "../data/demo";
 import { aiErrorText, AiError, streamAi } from "../ai";
 import { rozmowa } from "../pestka";
 
@@ -82,8 +81,8 @@ export const tourHints: Hint[] = [
     text: "Tak wyglądają moje sugestie: przychodzę do przycisku, który polecam, i mówię dlaczego. Ty decydujesz, czy w niego klikasz.",
   },
   {
-    target: "reviews",
-    text: "Przypominam też o powtórkach, zanim coś zacznie ci uciekać.",
+    target: "results",
+    text: "Tu widzisz wyniki z arkuszy. Z nich wybieram, co polecić na dziś.",
   },
   {
     target: "hero",
@@ -94,38 +93,28 @@ export const tourHints: Hint[] = [
 
 const shownHints = new Set<string>();
 
-function greeting() {
-  const s = topPick();
-  return (
-    `Cześć, tu Pestka! Widzę, że ${s.recommendation.skill.toLowerCase()} (${s.name.toLowerCase()}) to dziś twój najsłabszy punkt. ` +
-    "Zanim cokolwiek wyjaśnię: jak myślisz, skąd biorą się twoje błędy w tym temacie?"
-  );
+function greeting(przedmioty: string) {
+  return przedmioty
+    ? `Cześć, tu Pestka! Pracujemy nad maturą: ${przedmioty}. Od czego zaczynamy? Możesz wkleić zadanie albo opisać, co sprawia ci kłopot.`
+    : "Cześć, tu Pestka! Od czego zaczynamy? Możesz wkleić zadanie albo opisać, co sprawia ci kłopot.";
 }
 
-// Sokratejskie odpowiedzi na sztywno dla konta bez AI (Pestka i tak pojawia się dopiero po podpięciu AI).
-const scripted = [
-  "Dobry trop. A co się dzieje z czasem gramatycznym, gdy przechodzisz od przykładu do wniosku? Spójrz na swoje ostatnie zakończenie.",
-  "Właśnie. Masz tam present simple w tezie i nagle past simple we wniosku. Jak przeredagowałabyś to jedno zdanie, żeby czas był spójny?",
-  "Brzmi spójnie. Sprawdźmy to na nowym przykładzie: krótki mini-test, 3 zdania, ok. 2 minuty. Gotowa?",
-];
+// Bez AI na koncie Pestki nie ma w aplikacji; gdyby rozmowa jednak ruszyła, mówi wprost, czego brakuje.
+const noAi = "Żeby odpowiadać, potrzebuję AI podpiętego do konta. Zrobisz to w profilu, w sekcji „AI na koncie”.";
 
-const fallback = "Dobrze. Pokażę ci to na zadaniu, zamiast tłumaczyć regułę. Otwórz „Napraw błąd” z pulpitu, a ja będę obok.";
-
-export function TutorProvider({ children, ai = false }: { children: ReactNode; ai?: boolean }) {
-  const [messages, setMessages] = useState<Message[]>(() => [{ id: 0, from: "tutor", text: greeting() }]);
+/** przedmioty: opis przedmiotów konta do kontekstu rozmowy, np. „polski (podstawowy), angielski (rozszerzony)”. */
+export function TutorProvider({ children, ai = false, przedmioty = "" }: { children: ReactNode; ai?: boolean; przedmioty?: string }) {
+  const [messages, setMessages] = useState<Message[]>(() => [{ id: 0, from: "tutor", text: greeting(przedmioty) }]);
   const [state, setState] = useState<AvatarState>("idle");
   const [isOpen, setOpen] = useState(false);
   const [guide, setGuide] = useState<Guide | null>(null);
   const [summon, setSummon] = useState<Summon | null>(null);
-  const turn = useRef(0);
   const nextId = useRef(1);
   const history = useRef<Message[]>([]);
   history.current = messages;
 
   // Odpowiedź modelu z konta: dopisujemy ją do jednej wiadomości w miarę, jak przychodzi.
   const askModel = useCallback(async (all: Message[]) => {
-    const pick = topPick();
-    const skill = pick.skills.find((k) => k.name === pick.recommendation.skill);
     const id = nextId.current++;
     let started = false;
     // Flagę czytamy przed setMessages: updater wykonuje się dopiero przy renderze.
@@ -142,7 +131,7 @@ export function TutorProvider({ children, ai = false }: { children: ReactNode; a
           task: "pestka-czat",
           maxTokens: 1500,
           messages: rozmowa(
-            { przedmiot: pick.name, umiejetnosc: pick.recommendation.skill, typowyBlad: skill?.note },
+            { przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura" },
             all.map((m) => ({ od: m.from === "tutor" ? "tutor" : "uczen", tekst: m.text })),
           ),
         },
@@ -157,7 +146,7 @@ export function TutorProvider({ children, ai = false }: { children: ReactNode; a
       write(aiErrorText(e instanceof AiError ? e.code : "server_error"));
     }
     setState("idle");
-  }, []);
+  }, [przedmioty]);
 
   const send = useCallback((text: string) => {
     const clean = text.trim();
@@ -171,14 +160,10 @@ export function TutorProvider({ children, ai = false }: { children: ReactNode; a
       return;
     }
 
-    const reply = scripted[turn.current] ?? fallback;
-    turn.current += 1;
-
     window.setTimeout(() => {
-      setState("talking");
-      setMessages((m) => [...m, { id: nextId.current++, from: "tutor", text: reply }]);
-      window.setTimeout(() => setState("idle"), Math.min(2400, reply.length * 22));
-    }, 900);
+      setMessages((m) => [...m, { id: nextId.current++, from: "tutor", text: noAi }]);
+      setState("idle");
+    }, 500);
   }, [ai, askModel]);
 
   const showHints = useCallback((key: string, hints: Hint[]) => {
@@ -237,8 +222,8 @@ export function TutorProvider({ children, ai = false }: { children: ReactNode; a
       send,
       suggestions:
         messages.length <= 1
-          ? ["Nie wiem, podpowiedz", "Pokaż mi przykład", "Chyba z pośpiechu"]
-          : ["Spróbuję przeredagować", "Daj wskazówkę", "Gotowa"],
+          ? ["Co powtórzyć przed maturą?", "Wyjaśnij mi zadanie", "Sprawdź, czy rozumiem temat"]
+          : ["Daj wskazówkę", "Pokaż przykład", "Spróbuję jeszcze raz"],
       guide,
       summon,
       showHints,

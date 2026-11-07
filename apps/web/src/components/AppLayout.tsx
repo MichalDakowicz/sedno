@@ -7,6 +7,7 @@ import { TutorProvider } from "./TutorContext";
 import { useProfil, useSession } from "../auth";
 import { useAiReady } from "../ai";
 import { pobierzPostepy } from "../arkusze/postep";
+import { opisPrzedmiotow } from "../konto/przedmioty";
 
 export function AppLayout() {
   const location = useLocation();
@@ -31,7 +32,7 @@ export function AppLayout() {
 
   // Pestka pojawia się dopiero, gdy konto ma podpięte AI.
   return (
-    <TutorProvider ai={ai === true}>
+    <TutorProvider ai={ai === true} przedmioty={opisPrzedmiotow(profil?.subjects ?? [])}>
       <TopNav />
       <Outlet />
       {ai === true && location.pathname !== "/tutor" && (

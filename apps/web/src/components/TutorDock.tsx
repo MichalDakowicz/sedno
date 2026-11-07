@@ -3,13 +3,11 @@ import { Link } from "react-router-dom";
 import { TutorAvatar } from "./TutorAvatar";
 import { TutorChat } from "./TutorChat";
 import { useTutor } from "./TutorContext";
-import { topPick } from "../data/demo";
 import styles from "./TutorDock.module.css";
 
 // Wysuwany panel rozmowy z Pestką. Otwiera się kliknięciem w wędrującego avatara albo z jego dymka.
 export function TutorDock() {
   const { isOpen, close, state } = useTutor();
-  const pick = topPick();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -28,9 +26,7 @@ export function TutorDock() {
               <TutorAvatar size={40} state={state} />
               <div className={styles.headerText}>
                 <p className={styles.title}>Pestka</p>
-                <p className={styles.context}>
-                  tutor · {pick.name} · {pick.recommendation.skill}
-                </p>
+                <p className={styles.context}>tutor · pyta, zamiast podawać odpowiedź</p>
               </div>
               <Link to="/tutor" className={styles.iconBtn} onClick={close} aria-label="Otwórz na pełnym ekranie">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
