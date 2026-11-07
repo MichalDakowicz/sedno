@@ -9,6 +9,9 @@
     "kontrola": "node src/kontrola.js"
   },
   "dependencies": {
+    "@xmldom/xmldom": "^0.8.10",
+    "fflate": "^0.8.2",
+    "katex": "^0.16.47",
     "pdfjs-dist": "^4.10.38"
   }
 }
