@@ -7,28 +7,46 @@ import { tekstPdf } from "./tekst.js";
 import { parsujArkusz } from "./arkusz.js";
 import { parsujKlucz } from "./klucz.js";
 import { scal } from "./scal.js";
+import { fragmentyMatematyki, kadruj, kluczMatematyki, otworzPdf, zadaniaMatematyki } from "./matematyka.js";
 
 const MIESIACE = { "05": "maj", "06": "czerwiec", "08": "sierpień" };
+// Ręczne poprawki ramek rysunków bazowych (matematyka.js).
+const POPRAWKI_RYSUNKOW = JSON.parse(await readFile(new URL("../rysunki.json", import.meta.url), "utf8"));
 
 await mkdir(KATALOG_ARKUSZY, { recursive: true });
 const katalog = JSON.parse(await readFile(join(KATALOG_CKE, "katalog.json"), "utf8"));
-const tylko = process.argv[2]; // np. „2015” albo „2015-2019”: tylko pasujące wpisy (do testów)
+// Np. „2015”, „angielski-2015” albo „matematyka”: tylko pasujące wpisy (do testów).
+const tylko = process.argv[2];
 const indeks = [];
 
 for (const w of katalog) {
   if (!w.arkusz) continue;
-  if (tylko && !`${w.formula}-${w.rok}-${w.poziom}`.startsWith(tylko)) continue;
+  const przedmiot = w.przedmiot ?? "angielski";
+  if (tylko && ![`${przedmiot}-${w.formula}-${w.rok}-${w.poziom}`, `${w.formula}-${w.rok}-${w.poziom}`].some((k) => k.startsWith(tylko))) continue;
   const sesja = MIESIACE[w.miesiac ?? "05"] ?? "maj";
   // Identyfikatory formuły 2023 zostają bez dopisku, żeby nie zgubić zapisanych postępów.
-  const id = `angielski-${w.poziom}-${w.rok}-${sesja}${w.formula === "2015" ? "-formula-2015" : ""}`;
+  const id = `${przedmiot}-${w.poziom}-${w.rok}-${sesja}${w.formula === "2015" ? "-formula-2015" : ""}`;
   process.stdout.write(`${id} … `);
 
   try {
     const strony = await tekstPdf(join(KATALOG_CKE, w.arkusz.plik));
     const metadane = czytajMetadane(strony.slice(0, 2));
-    const zadania = parsujArkusz(strony);
-    const klucz = w.zasady ? parsujKlucz(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
-    const { ostrzezenia } = scal(zadania, klucz);
+    let zadania, ostrzezenia;
+    if (przedmiot === "matematyka") {
+      const fragmenty = fragmentyMatematyki(strony);
+      // Kadry i rysunki to wycinki arkusza CKE, więc lądują obok JSON-ów w data/.
+      await kadruj(await otworzPdf(join(KATALOG_CKE, w.arkusz.plik)), fragmenty, {
+        katalog: join(KATALOG_ARKUSZY, "obrazy", id),
+        prefiks: `obrazy/${id}`,
+        poprawki: POPRAWKI_RYSUNKOW[id],
+      });
+      const klucz = w.zasady ? kluczMatematyki(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
+      ({ zadania, ostrzezenia } = zadaniaMatematyki(fragmenty, klucz));
+    } else {
+      zadania = parsujArkusz(strony);
+      const klucz = w.zasady ? parsujKlucz(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
+      ({ ostrzezenia } = scal(zadania, klucz));
+    }
     if (!w.zasady) ostrzezenia.unshift("brak pliku zasad oceniania");
 
     const pytania = zadania.flatMap((z) => z.pytania);
@@ -38,7 +56,7 @@ for (const w of katalog) {
     const plik = w.arkusz.plik.split("/").pop();
     const arkusz = {
       id,
-      przedmiot: "angielski",
+      przedmiot,
       formula: w.formula,
       poziom: w.poziom,
       rok: w.rok,

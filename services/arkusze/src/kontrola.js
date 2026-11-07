@@ -1,8 +1,9 @@
 // Kontrola spójności zaimportowanych arkuszy (data/arkusze/*.json):
 // każde pytanie ma klucz i miejsce w treści, luki wskazują istniejące
-// pytania, litery klucza są wśród możliwych odpowiedzi.
+// pytania, litery klucza są wśród możliwych odpowiedzi. Matematyka: kadry
+// i rysunki bazowe istnieją, zadanie otwarte bez wyniku ma stronę w zasadach.
 // Użycie: node src/kontrola.js  (kod wyjścia 1, gdy są błędy)
-import { readdir, readFile } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { KATALOG_ARKUSZY } from "./sciezki.js";
 
@@ -16,7 +17,9 @@ for (const plik of pliki.sort()) {
   const problemy = [];
   if (!indeks.some((w) => w.id === a.id)) problemy.push("brak w index.json");
   if (!a.pdf?.arkusz || !a.pdf?.zasady) problemy.push("brak adresu PDF");
-  if (!a.nagranie) problemy.push("brak nagrania");
+  if (a.przedmiot === "angielski" && !a.nagranie) problemy.push("brak nagrania");
+  const obrazy = a.zadania.flatMap((z) => [...z.bloki.filter((b) => b.typ === "kadr").map((b) => b.obraz.src), ...(z.rysunek ? [z.rysunek.src] : [])]);
+  for (const src of obrazy) await access(join(KATALOG_ARKUSZY, src)).catch(() => problemy.push(`brak pliku ${src}`));
 
   const suma = a.zadania.reduce((s, z) => s + z.pytania.reduce((t, q) => t + q.punkty, 0), 0);
   if (suma !== a.punkty) problemy.push(`suma punktów ${suma} ≠ ${a.punkty}`);
@@ -36,7 +39,7 @@ for (const plik of pliki.sort()) {
         if (!q.litery?.includes(q.poprawna)) problemy.push(`${q.nr}: poprawna ${q.poprawna} spoza ${q.litery?.join("")}`);
         if (q.opcje && q.opcje.length !== q.litery.length) problemy.push(`${q.nr}: ${q.opcje.length} opcji, ${q.litery.length} liter`);
       } else if (q.typ === "otwarte") {
-        if (!q.oczekiwane?.length && !q.akceptowane?.length) problemy.push(`${q.nr}: brak odpowiedzi w kluczu`);
+        if (!q.oczekiwane?.length && !q.akceptowane?.length && !q.zasadyStrona) problemy.push(`${q.nr}: brak odpowiedzi w kluczu`);
         // Pytanie otwarte z własnym blokiem musi mieć gdzie wpisać odpowiedź.
         const doklejone = (q.akceptowane ?? []).concat(q.oczekiwane ?? []).filter((s) => s.split(" ").length > 14);
         if (doklejone.length) problemy.push(`${q.nr}: podejrzanie długa odpowiedź w kluczu`);
