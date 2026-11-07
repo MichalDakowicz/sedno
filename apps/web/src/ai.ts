@@ -1,5 +1,6 @@
 // Klient bramki AI. Aplikacja nie ma własnego klucza: zapytanie idzie przez dostawcę z konta
 // użytkownika, a konto wybiera dostawcę osobno dla zadań ważnych i lekkich.
+import { useEffect, useState } from "react";
 import { functionsUrl, supabase } from "./supabase";
 
 export type Tier = "wazne" | "lekkie";
@@ -71,6 +72,36 @@ export async function streamAi(r: AiRequest, onText: (delta: string) => void, si
 export async function aiKey(payload: { action: "save"; provider: string; base_url: string; model: string; key?: string } | { action: "test"; provider: string }) {
   const res = await fetch(`${functionsUrl}/ai-klucz`, { method: "POST", headers: await headers(), body: JSON.stringify(payload) });
   return (await res.json().catch(() => ({ error: "server_error" }))) as Record<string, unknown>;
+}
+
+// Czy konto ma podpięte AI. Pestka pojawia się w aplikacji dopiero wtedy.
+// Gotowe = ustawiony dostawca dla zadań lekkich albo dokładnie jeden dostawca (bramka wybierze go sama).
+let ready: { user: string; value: boolean } | null = null;
+const readyListeners = new Set<() => void>();
+
+export async function refreshAiReady(): Promise<void> {
+  const { data } = await supabase.auth.getSession();
+  const user = data.session?.user.id;
+  if (!user) return;
+  const [creds, route] = await Promise.all([
+    supabase.from("ai_credential").select("provider").limit(2),
+    supabase.from("ai_routing").select("tier").eq("tier", "lekkie").maybeSingle(),
+  ]);
+  ready = { user, value: !!route.data || creds.data?.length === 1 };
+  readyListeners.forEach((l) => l());
+}
+
+/** undefined w trakcie sprawdzania. */
+export function useAiReady(userId: string | null): boolean | undefined {
+  const [, rerender] = useState(0);
+  useEffect(() => {
+    const l = () => rerender((n) => n + 1);
+    readyListeners.add(l);
+    if (userId && ready?.user !== userId) void refreshAiReady();
+    return () => void readyListeners.delete(l);
+  }, [userId]);
+  if (!userId) return false;
+  return ready?.user === userId ? ready.value : undefined;
 }
 
 /** Komunikat dla użytkownika zamiast kodu błędu. */

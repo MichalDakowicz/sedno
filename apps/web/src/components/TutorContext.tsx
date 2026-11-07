@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import type { AvatarState } from "./TutorAvatar";
 import { topPick } from "../data/demo";
+import { aiErrorText, AiError, streamAi } from "../ai";
+import { rozmowa } from "../pestka";
 
 export type Message = { id: number; from: "tutor" | "student"; text: string };
 
@@ -100,7 +102,7 @@ function greeting() {
   );
 }
 
-// Sokratejskie odpowiedzi na sztywno, dopóki nie ma backendu z modelem.
+// Sokratejskie odpowiedzi na sztywno dla konta bez AI (Pestka i tak pojawia się dopiero po podpięciu AI).
 const scripted = [
   "Dobry trop. A co się dzieje z czasem gramatycznym, gdy przechodzisz od przykładu do wniosku? Spójrz na swoje ostatnie zakończenie.",
   "Właśnie. Masz tam present simple w tezie i nagle past simple we wniosku. Jak przeredagowałabyś to jedno zdanie, żeby czas był spójny?",
@@ -109,7 +111,7 @@ const scripted = [
 
 const fallback = "Dobrze. Pokażę ci to na zadaniu, zamiast tłumaczyć regułę. Otwórz „Napraw błąd” z pulpitu, a ja będę obok.";
 
-export function TutorProvider({ children }: { children: ReactNode }) {
+export function TutorProvider({ children, ai = false }: { children: ReactNode; ai?: boolean }) {
   const [messages, setMessages] = useState<Message[]>(() => [{ id: 0, from: "tutor", text: greeting() }]);
   const [state, setState] = useState<AvatarState>("idle");
   const [isOpen, setOpen] = useState(false);
@@ -117,12 +119,57 @@ export function TutorProvider({ children }: { children: ReactNode }) {
   const [summon, setSummon] = useState<Summon | null>(null);
   const turn = useRef(0);
   const nextId = useRef(1);
+  const history = useRef<Message[]>([]);
+  history.current = messages;
+
+  // Odpowiedź modelu z konta: dopisujemy ją do jednej wiadomości w miarę, jak przychodzi.
+  const askModel = useCallback(async (all: Message[]) => {
+    const pick = topPick();
+    const skill = pick.skills.find((k) => k.name === pick.recommendation.skill);
+    const id = nextId.current++;
+    let started = false;
+    // Flagę czytamy przed setMessages: updater wykonuje się dopiero przy renderze.
+    const write = (text: string) => {
+      const first = !started;
+      started = true;
+      setMessages((m) => (first ? [...m, { id, from: "tutor", text }] : m.map((x) => (x.id === id ? { ...x, text } : x))));
+    };
+    let text = "";
+    try {
+      await streamAi(
+        {
+          tier: "lekkie",
+          task: "pestka-czat",
+          maxTokens: 1500,
+          messages: rozmowa(
+            { przedmiot: pick.name, umiejetnosc: pick.recommendation.skill, typowyBlad: skill?.note },
+            all.map((m) => ({ od: m.from === "tutor" ? "tutor" : "uczen", tekst: m.text })),
+          ),
+        },
+        (delta) => {
+          text += delta;
+          if (!started) setState("talking");
+          write(text);
+        },
+      );
+      if (!text.trim()) write("Zamyśliłam się i nic nie napisałam. Zapytaj jeszcze raz?");
+    } catch (e) {
+      write(aiErrorText(e instanceof AiError ? e.code : "server_error"));
+    }
+    setState("idle");
+  }, []);
 
   const send = useCallback((text: string) => {
     const clean = text.trim();
     if (!clean) return;
-    setMessages((m) => [...m, { id: nextId.current++, from: "student", text: clean }]);
+    const student: Message = { id: nextId.current++, from: "student", text: clean };
+    setMessages((m) => [...m, student]);
     setState("thinking");
+
+    if (ai) {
+      void askModel([...history.current, student]);
+      return;
+    }
 
     const reply = scripted[turn.current] ?? fallback;
     turn.current += 1;
@@ -132,7 +179,7 @@ export function TutorProvider({ children }: { children: ReactNode }) {
       setMessages((m) => [...m, { id: nextId.current++, from: "tutor", text: reply }]);
       window.setTimeout(() => setState("idle"), Math.min(2400, reply.length * 22));
     }, 900);
-  }, []);
+  }, [ai, askModel]);
 
   const showHints = useCallback((key: string, hints: Hint[]) => {
     if (shownHints.has(key) || hints.length === 0) return;

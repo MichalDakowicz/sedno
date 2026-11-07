@@ -4,17 +4,20 @@ import { TopNav } from "./TopNav";
 import { TutorDock } from "./TutorDock";
 import { TutorGuide } from "./TutorGuide";
 import { TutorProvider } from "./TutorContext";
-import { useSession } from "../auth";
+import { useProfil, useSession } from "../auth";
+import { useAiReady } from "../ai";
 import { pobierzPostepy } from "../arkusze/postep";
 
 export function AppLayout() {
   const location = useLocation();
   const session = useSession();
   const userId = session ? session.user.id : null;
+  const profil = useProfil();
+  const ai = useAiReady(userId);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
+    if (!location.hash) window.scrollTo(0, 0);
+  }, [location.pathname, location.hash]);
 
   // Po zalogowaniu ściągamy postęp z konta, żeby lista arkuszy pokazała go od razu.
   useEffect(() => {
@@ -23,12 +26,15 @@ export function AppLayout() {
 
   if (session === null) return null;
   if (!session) return <Navigate to="/logowanie" replace />;
+  if (profil === undefined) return null;
+  if (profil && !profil.onboarded_at) return <Navigate to="/witaj" replace />;
 
+  // Pestka pojawia się dopiero, gdy konto ma podpięte AI.
   return (
-    <TutorProvider>
+    <TutorProvider ai={ai === true}>
       <TopNav />
       <Outlet />
-      {location.pathname !== "/tutor" && (
+      {ai === true && location.pathname !== "/tutor" && (
         <>
           <TutorGuide />
           <TutorDock />

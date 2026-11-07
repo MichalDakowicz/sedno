@@ -1,7 +1,8 @@
 // Dostawcy AI przypisani do konta: klucze, wybór dostawcy dla zadań ważnych i lekkich, zużycie.
 // Klucz trafia tylko do funkcji ai-klucz; aplikacja widzi potem 4 ostatnie znaki.
-import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { aiKey, type Tier } from "../ai";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { useLocation } from "react-router-dom";
+import { aiKey, refreshAiReady, type Tier } from "../ai";
 import { useProfil } from "../auth";
 import { supabase } from "../supabase";
 import styles from "./KontoAI.module.css";
@@ -52,9 +53,17 @@ export function KontoAI() {
     setCreds(c.data ?? []);
     setRouting((r.data ?? []) as Routing[]);
     setUsage(u.data ?? []);
+    // Pestka pojawia się i znika razem z dostawcą, więc stan „AI gotowe” odświeżamy po każdej zmianie.
+    void refreshAiReady();
   }, []);
 
   useEffect(() => void load(), [load]);
+
+  const { hash } = useLocation();
+  const sectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (hash === "#ai") sectionRef.current?.scrollIntoView({ block: "start" });
+  }, [hash]);
 
   function choose(id: PresetId) {
     setPreset(id);
@@ -120,7 +129,7 @@ export function KontoAI() {
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} id="ai" ref={sectionRef}>
       <div className={styles.head}>
         <h2 className="h3">AI na koncie</h2>
         <p className="muted small">Sedno nie ma wspólnego klucza. Pestka używa dostawców zapisanych na tym koncie.</p>

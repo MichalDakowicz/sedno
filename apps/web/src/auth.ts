@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 
-export type Profil = { id: string; display_name: string | null; avatar_url: string | null; server_ollama: boolean };
+export type Profil = { id: string; display_name: string | null; avatar_url: string | null; server_ollama: boolean; onboarded_at: string | null };
 
 let current: Session | null = null;
 let ready = false;
@@ -64,22 +64,41 @@ export async function logout(): Promise<void> {
   }
 }
 
-export function useProfil(): Profil | null {
+// Profil wspólny dla całej aplikacji: jedno zapytanie na konto, zmiany widzą wszystkie widoki.
+let profil: { id: string; data: Profil | null } | null = null;
+let loading: string | null = null;
+const profilListeners = new Set<() => void>();
+
+async function loadProfil(id: string) {
+  if (loading === id) return;
+  loading = id;
+  const { data } = await supabase.from("profiles").select("id, display_name, avatar_url, server_ollama, onboarded_at").eq("id", id).maybeSingle();
+  loading = null;
+  profil = { id, data };
+  profilListeners.forEach((l) => l());
+}
+
+/** undefined w trakcie wczytywania, null gdy nie ma sesji albo profilu. */
+export function useProfil(): Profil | null | undefined {
   const session = useSession();
-  const [profil, setProfil] = useState<Profil | null>(null);
   const id = session ? session.user.id : null;
+  const [, rerender] = useState(0);
   useEffect(() => {
-    if (!id) return setProfil(null);
-    let live = true;
-    supabase
-      .from("profiles")
-      .select("id, display_name, avatar_url, server_ollama")
-      .eq("id", id)
-      .maybeSingle()
-      .then(({ data }) => live && setProfil(data));
-    return () => {
-      live = false;
-    };
+    const l = () => rerender((n) => n + 1);
+    profilListeners.add(l);
+    if (id && profil?.id !== id) void loadProfil(id);
+    return () => void profilListeners.delete(l);
   }, [id]);
-  return profil;
+  if (session === null) return undefined;
+  if (!id) return null;
+  return profil?.id === id ? profil.data : undefined;
+}
+
+export async function markOnboarded(): Promise<void> {
+  const id = currentUserId();
+  if (!id) return;
+  const onboarded_at = new Date().toISOString();
+  await supabase.from("profiles").update({ onboarded_at }).eq("id", id);
+  if (profil?.id === id && profil.data) profil = { id, data: { ...profil.data, onboarded_at } };
+  profilListeners.forEach((l) => l());
 }
