@@ -177,7 +177,7 @@ function Naglowek({ arkusz }: { arkusz: ArkuszDane }) {
         <ArrowLeft size={16} aria-hidden="true" /> Arkusze
       </Link>
       <span className="label">
-        Język angielski · {nazwaPoziomu[arkusz.poziom]} · {arkusz.symbol}
+        Język angielski · {nazwaPoziomu[arkusz.poziom]} · formuła {arkusz.formula ?? "2023"} · {arkusz.symbol}
       </span>
       <h1 className="h1">
         Matura {arkusz.sesja} {arkusz.rok}
@@ -253,8 +253,14 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
         </p>
       ))}
       <div className={styles.content}>
-        {bloki.map((b, i) =>
-          b.typ === "pytanie" && pisanie ? <WypowiedzWidok key={i} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} /> : <BlokWidok key={i} blok={b} zadanie={zadanie.nr} />,
+        {grupujPrawdaFalsz(bloki, zadanie).map((b, i) =>
+          Array.isArray(b) ? (
+            <PrawdaFalsz key={i} pytania={b} />
+          ) : b.typ === "pytanie" && pisanie ? (
+            <WypowiedzWidok key={i} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} />
+          ) : (
+            <BlokWidok key={i} blok={b} zadanie={zadanie.nr} />
+          ),
         )}
       </div>
       {gotowe && wTekscie.length > 0 && (
@@ -403,6 +409,82 @@ function Tekst({ tekst, wlasny }: { tekst: string; wlasny?: string }) {
         return null;
       })}
     </>
+  );
+}
+
+const czyPrawdaFalsz = (p?: Pytanie): p is PytanieZamkniete => p?.typ === "zamkniete" && p.litery.join("") === "TF";
+// Nagłówek kolumn z tabeli w arkuszu („T F”) — w widoku zastępują go przełączniki.
+const NAGLOWEK_PF = /^(T\s*F|P\s*F|True\s+False)$/i;
+
+// Kolejne pytania prawda/fałsz łączymy w jedną kartę z wierszami.
+function grupujPrawdaFalsz(bloki: Blok[], z: Zadanie): (Blok | PytanieZamkniete[])[] {
+  const wynik: (Blok | PytanieZamkniete[])[] = [];
+  for (const b of bloki) {
+    if (b.typ === "akapit" && NAGLOWEK_PF.test(b.tekst.trim())) continue;
+    const p = b.typ === "pytanie" ? z.pytania.find((q) => q.nr === b.nr) : undefined;
+    if (czyPrawdaFalsz(p)) {
+      const ost = wynik[wynik.length - 1];
+      if (Array.isArray(ost)) ost.push(p);
+      else wynik.push([p]);
+    } else wynik.push(b);
+  }
+  return wynik;
+}
+
+const PF = [
+  { litera: "T", nazwa: "True", ikona: Check },
+  { litera: "F", nazwa: "False", ikona: X },
+];
+
+function PrawdaFalsz({ pytania }: { pytania: PytanieZamkniete[] }) {
+  return (
+    <div className={styles.tf} role="list">
+      {pytania.map((p) => (
+        <WierszPrawdaFalsz key={p.nr} pytanie={p} />
+      ))}
+    </div>
+  );
+}
+
+function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const wybrana = postep.odpowiedzi[p.nr] || undefined;
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  const w = gotowe ? werdykt(p, wybrana) : undefined;
+  return (
+    <div className={styles.tfRow} role="listitem" data-werdykt={w}>
+      <p className={styles.tfStatement}>
+        <span className={styles.qnr}>{p.nr}.</span>
+        {p.tresc}
+      </p>
+      <div className={styles.tfSide}>
+        <div ref={kontener} className={styles.tfToggle} role="radiogroup" aria-label={`Pytanie ${p.nr}: prawda czy fałsz`}>
+          {ramka && <span className={styles.tfThumb} style={ramka} aria-hidden="true" />}
+          {PF.map(({ litera, nazwa, ikona: Ikona }) => (
+            <button
+              key={litera}
+              type="button"
+              role="radio"
+              data-litera={litera}
+              aria-checked={wybrana === litera}
+              className={styles.tfOption}
+              data-stan={stanOpcji(p, litera, postep, gotowe)}
+              disabled={gotowe}
+              onClick={() => ustaw(p.nr, wybrana === litera ? "" : litera)}
+            >
+              <Ikona size={15} strokeWidth={2.4} aria-hidden="true" />
+              {nazwa}
+            </button>
+          ))}
+        </div>
+        {gotowe && (
+          <span className={styles.tfVerdict} data-werdykt={w}>
+            {w === "dobrze" ? "Dobrze" : w === "pusto" ? "Brak" : "Źle"}
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -686,6 +768,11 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
           {p.oczekiwane?.length ? (
             <p>
               <span className="label">Oczekiwana</span> {p.oczekiwane.slice(0, 6).join(" / ")}
+            </p>
+          ) : p.akceptowane?.length ? (
+            // Starsze klucze nie mają odpowiedzi oczekiwanej, tylko przykłady na 1 pkt.
+            <p>
+              <span className="label">Przykłady na 1 pkt</span> {p.akceptowane.slice(0, 4).join(" / ")}
             </p>
           ) : null}
           {p.opis && <p className="small muted">{p.opis}</p>}

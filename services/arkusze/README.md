@@ -1,6 +1,6 @@
 # arkusze
 
-Import arkuszy maturalnych CKE (język angielski, formuła 2023) do JSON dla aplikacji. Na razie bez AI: parser oparty na regułach i układzie tekstu w PDF.
+Import arkuszy maturalnych CKE (język angielski, formuła 2015 i 2023, wszystkie lata dostępne na stronie CKE) do JSON dla aplikacji. Na razie bez AI: parser oparty na regułach i układzie tekstu w PDF.
 
 Pliki CKE i wynikowe JSON-y lądują w `data/` w katalogu głównym, który jest w `.gitignore`. Materiały CKE mają prawa autorskie i nie trafiają do repozytorium, dopóki nie ustalimy warunków użycia.
 
@@ -17,6 +17,7 @@ Aplikacja webowa w trybie dev czyta `data/arkusze/` (patrz `apps/web/vite.config
 
 ## Jak to działa
 
+- `pobierz.js` przechodzi po stronach lat obu formuł, `pliki.js` rozpoznaje pliki po nazwie (nazewnictwo zmieniało się trzy razy, opis w pliku). Wynik to `data/cke/katalog.json`: formuła, rok, poziom, arkusz, klucz i adres nagrania.
 - `tekst.js` wyciąga tekst przez pdfjs. Linia to fragmenty o tym samym `y`; fragmenty oddzielone dużą przerwą są osobnymi segmentami (kolumny tabel).
 - `arkusz.js` dzieli arkusz na zadania („Zadanie N. (0–X)” / „TASK N.”), a zadanie na bloki w kolejności z arkusza: akapit, nagłówek, źródło, opcje, pytanie, tabela odpowiedzi. Luki w tekście zamienia na znaczniki `{{3.1}}`. Akapity rozpoznaje po odstępach w pionie.
 - `klucz.js` czyta zasady oceniania: litery z kolumny „Poprawna odpowiedź” (przy dwóch wersjach arkusza bierze wersję A) oraz listy odpowiedzi oczekiwanych, akceptowanych i niepoprawnych dla zadań otwartych. Zapis typu `healthy food / dishes` rozwija na warianty.
@@ -32,6 +33,9 @@ node src/zrzut.js <plik.pdf>   # surowe linie z pozycjami do pliku .pdfjs.txt
 ```
 
 ## Znane ograniczenia
+
+- Formuła 2015: klucze do zadania 8 dwujęzycznego z lat 2015–2020 i kilku pytań rozszerzenia 2016–2021 nie parsują się w całości (lista w `ostrzezenia` każdego arkusza). Dwa arkusze dwujęzyczne (2016, 2017) mają mniej pytań niż punktów.
+- Import części katalogu do testów: `node src/importuj.js 2015` (prefiks formuła-rok-poziom).
 
 - Teksty w kilku kolumnach (np. ulotka w zadaniu 6 rozszerzenia 2025) wychodzą jako wymieszane linie.
 - Klucz zadań otwartych bywa przypisany do sąsiedniego pytania na granicy wierszy tabeli. Sprawdzanie w aplikacji traktuje go jako pomoc: pewne „dobrze” tylko przy zgodności z listą, poza nią uczeń porównuje sam.

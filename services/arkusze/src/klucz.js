@@ -2,10 +2,20 @@
 // Wynik: dla każdego pytania litera poprawnej odpowiedzi (zadania zamknięte)
 // albo listy odpowiedzi oczekiwanych, akceptowanych i niepoprawnych (otwarte).
 
-const ZADANIE = /^Zadanie (\d+)\.$/;
+const ZADANIE = /^Zadanie (\d+)\.?(?: \(0[–-]\d+\))?$/;
 const PYTANIE_SZCZEGOLY = /^Zadanie (\d+\.\d+)\.$/;
-const ETYKIETA = /^(\d+\.\d+)\.$/;
-const LITERA = /^[A-H]$/;
+// Kropka na końcu bywa pominięta (np. „9.5” w kluczu z 2018).
+const ETYKIETA = /^(\d+\.\d+)\.?$/;
+// T/F: zadania prawda/fałsz w formule 2015.
+const LITERA = /^[A-HT]$/;
+// Etykiety pytań stoją pod nagłówkiem kolumny „Zadanie”, którego położenie
+// zmienia się między latami (formuła 2023: przy lewej krawędzi, 2015–2020:
+// w środku tabeli). Bez nagłówka przyjmujemy lewą część strony.
+const NAGLOWEK_KOLUMNY = /^Zadanie(?: (?!\d).*)?$/;
+const MAKS_X_ETYKIETY = 200;
+function czyEtykieta(g, kolumna) {
+  return kolumna == null ? g.x < MAKS_X_ETYKIETY : Math.abs(g.x - kolumna) < 40;
+}
 const SZUM = [/^Egzamin maturalny z języka/, /^Zasady oceniania rozwiązań zadań$/, /Strona \d+ z \d+/];
 const POMIN_OPIS = /^(Akceptowane są wszystkie odpowiedzi nieujęte|merytorycznie poprawne i spełniają)/;
 const KOLUMNA_ODPOWIEDZI = 250; // w sekcjach szczegółowych dalej są tylko komentarze
@@ -42,11 +52,13 @@ export function parsujKlucz(strony) {
 function zamkniete(z, pyt) {
   const etykiety = [];
   const wiersze = [];
+  let kolumna = null;
   for (const l of z.linie) {
     if (l.seg.some((g) => /^Uszczegółowienia/.test(g.s))) break;
     for (const g of l.seg) {
+      if (NAGLOWEK_KOLUMNY.test(g.s)) kolumna = g.x;
       const e = g.s.match(ETYKIETA);
-      if (e && g.x < 120 && e[1].startsWith(`${z.nr}.`)) etykiety.push({ nr: e[1], y: l.y, strona: l.strona });
+      if (e && czyEtykieta(g, kolumna) && e[1].startsWith(`${z.nr}.`)) etykiety.push({ nr: e[1], y: l.y, strona: l.strona });
     }
     const litery = l.seg.filter((g) => LITERA.test(g.s) && g.x > 380);
     if (litery.length) wiersze.push({ litera: litery.sort((a, b) => a.x - b.x)[0].s, y: l.y, strona: l.strona });
@@ -90,8 +102,9 @@ function otwarte(z, pyt) {
       tryb = kolumny[0].tryb;
       if (!szczegoly) {
         // Sama „Poprawna” to kolumna tabeli wymagań: odpowiedzi leżą tylko pod nią.
-        const wymagania = kolumny.length === 1 && kolumny[0].s === "Poprawna";
-        tabela = { kolumny, wymagania, etykiety: [], fragmenty: [] };
+        const wymagania = kolumny.length === 1 && (kolumny[0].s === "Poprawna" || kolumny[0].s === "Rozwiązanie");
+        const naglowekZadania = l.seg.find((g) => NAGLOWEK_KOLUMNY.test(g.s));
+        tabela = { kolumny, wymagania, kolumnaEtykiet: naglowekZadania?.x ?? null, etykiety: [], fragmenty: [] };
       }
       continue;
     }
@@ -120,9 +133,9 @@ function otwarte(z, pyt) {
 }
 
 function trybNaglowka(s) {
-  if (/nieakceptowane|niepoprawne odpowiedzi|odpowiedzi niepoprawnych/i.test(s)) return "odrzucone";
-  if (/akceptowane odpowiedzi/i.test(s)) return "akceptowane";
-  if (/Odpowied(ź|zi) oczekiwan|(Poprawna|Poprawne) odpowied|Odpowiedzi poprawne|^Poprawna$/.test(s)) return "oczekiwane";
+  if (/nieakceptowane|niepoprawne odpowiedzi|odpowiedzi niepoprawnych|odpowiedzi na 0 p|^0 pkt$/i.test(s)) return "odrzucone";
+  if (/akceptowane odpowiedzi|odpowiedzi na 1 p|^1 pkt$/i.test(s)) return "akceptowane";
+  if (/Odpowied(ź|zi) oczekiwan|(Poprawna|Poprawne) odpowied|Odpowiedzi poprawne|^Poprawna$|^Rozwiązanie$/.test(s)) return "oczekiwane";
   return null;
 }
 
@@ -131,10 +144,28 @@ const NAGLOWEK_RESZTA = /^(odpowied(ź|zi)|\(?\d pkt\)|odpowiedzi \(\d pkt\)|-)$
 // angielsku, więc polskie znaki i słownictwo wymagań je odróżniają.
 const TEKST_WYMAGAN = /[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]|\[…\]|Zdający|Wymagani|gramatycznych|ortograficznych|leksykalnych|frazeologicznych|^[IVX]+\.\s/;
 
+// Odpowiedzi w punktach („• knows what…”) z sąsiednich kolumn bywają tak
+// blisko, że zlewają się w jeden segment. Dzielimy je na każdym „•”.
+function segmentyPunktow(l) {
+  if (!l.czesci || !l.s.includes("•")) return l.seg;
+  const wynik = [];
+  for (const c of l.czesci) {
+    const s = c.s.trim();
+    if (!s) continue;
+    const ost = wynik[wynik.length - 1];
+    if (!ost || s.startsWith("•") || c.x - ost.koniec > 12) wynik.push({ x: c.x, s, koniec: c.x + c.w });
+    else {
+      ost.s += (c.x - ost.koniec > 1 ? " " : "") + s;
+      ost.koniec = c.x + c.w;
+    }
+  }
+  return wynik.map(({ x, s }) => ({ x, s: s.replace(/\s+/g, " ") }));
+}
+
 function zbierzWierszTabeli(t, l, nrZadania) {
-  for (const g of l.seg) {
+  for (const g of segmentyPunktow(l)) {
     const e = g.s.match(ETYKIETA);
-    if (e && g.x < 120) {
+    if (e && czyEtykieta(g, t.kolumnaEtykiet)) {
       if (e[1].startsWith(`${nrZadania}.`)) t.etykiety.push({ nr: e[1], y: l.y, strona: l.strona });
       continue;
     }
@@ -188,6 +219,8 @@ function przypiszTabele(t, pyt) {
 // literą (np. „promised (that) he would” + „repair”).
 function zawinieta(poprz, nast) {
   if (/\/$/.test(poprz) || /^\//.test(nast)) return true;
+  // W listach z punktorami nowa odpowiedź zaczyna się od „•”.
+  if (poprz.startsWith("•")) return !nast.startsWith("•");
   const slowa = nast.split(" ");
   return slowa.length <= 2 && /^[a-z]/.test(nast) && poprz.split(" ").length >= 2 && !/[.!?]$/.test(poprz);
 }
@@ -197,7 +230,7 @@ function zawinieta(poprz, nast) {
 // „would be flagged/deleted” → would be flagged, would be deleted
 // „(a/the) healthy meal” → healthy meal, a healthy meal, the healthy meal
 export function warianty(zapis) {
-  const czesci = zapis.replace(/\s+\/\s*|\s*\/\s+/g, " / ").split(" / ").map((s) => s.trim()).filter(Boolean);
+  const czesci = zapis.replace(/^•\s*/, "").replace(/\s+\/\s*|\s*\/\s+/g, " / ").split(" / ").map((s) => s.trim()).filter(Boolean);
   if (!czesci.length) return [];
   // Gdy pierwsza alternatywa jest najdłuższa, krótsze podmieniają jej
   // końcowe słowa („healthy food / dishes”, „promised to repair / fix”).

@@ -5,6 +5,7 @@ export type Poziom = "podstawowy" | "rozszerzony" | "dwujezyczny";
 export type ArkuszWpis = {
   id: string;
   przedmiot: string;
+  formula?: "2015" | "2023";
   poziom: Poziom;
   rok: number;
   sesja: string;

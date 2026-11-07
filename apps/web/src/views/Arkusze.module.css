@@ -48,6 +48,23 @@
   box-shadow: var(--shadow-float);
 }
 
+.levelCount {
+  margin-left: 8px;
+  font-size: 13px;
+  color: var(--subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.group {
+  display: grid;
+  gap: 12px;
+}
+
+.groupHead {
+  display: grid;
+  gap: 4px;
+}
+
 .list {
   margin: 0;
   padding: 0;

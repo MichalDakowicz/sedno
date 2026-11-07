@@ -19,12 +19,15 @@ export function scal(zadania, klucz) {
       }
       if (k.litera) {
         const wlasne = q.opcje?.map((o) => o.litera);
-        const mozliwe = wlasne ?? opcjeZadania?.map((o) => o.litera) ?? literyZakresu ?? ["A", "B", "C", "D"];
+        // Prawda/fałsz (formuła 2015): klucz ma T albo F, arkusz nie ma opcji.
+        const prawdaFalsz = !wlasne && (k.litera === "T" || z.pytania.some((x) => klucz[x.nr]?.litera === "T"));
+        const mozliwe = prawdaFalsz ? ["T", "F"] : (wlasne ?? opcjeZadania?.map((o) => o.litera) ?? literyZakresu ?? ["A", "B", "C", "D"]);
         if (!mozliwe.includes(k.litera)) ostrzezenia.push(`${q.nr}: litera ${k.litera} spoza ${mozliwe.join("")}`);
         return { ...q, typ: "zamkniete", litery: mozliwe, poprawna: k.litera, punkty: 1 };
       }
       const { nr, litera, ...reszta } = k;
-      if (!reszta.oczekiwane?.length) ostrzezenia.push(`${q.nr}: brak odpowiedzi oczekiwanej`);
+      // Starsze klucze podają tylko przykłady na 1 pkt, bez odpowiedzi oczekiwanej.
+      if (!reszta.oczekiwane?.length && !reszta.akceptowane?.length) ostrzezenia.push(`${q.nr}: brak odpowiedzi w kluczu`);
       let tresc = q.tresc;
       // Luka w treści pytania bez numeru („Since we (be / not / inform) _____”).
       if (!q.wTekscie && tresc && !tresc.includes("{{")) tresc = tresc.replace(/_____(\s*_____)*/, `{{${q.nr}}}`);

@@ -1,14 +1,16 @@
-// Pobiera ze strony CKE arkusze, zasady oceniania i adresy nagrań
-// z języka angielskiego (formuła 2023) do data/cke/<rok>/.
+// Pobiera ze strony CKE arkusze i zasady oceniania z języka angielskiego
+// (formuła 2015 i 2023, wszystkie dostępne lata) do data/cke/<rok>/
+// i zapisuje katalog.json z listą arkuszy, kluczy i adresów nagrań.
 // Pliki CKE nie trafiają do repozytorium (prawa autorskie), patrz .gitignore.
 import { mkdir, writeFile, access } from "node:fs/promises";
 import { join } from "node:path";
 import { KATALOG_CKE } from "./sciezki.js";
+import { klasyfikuj } from "./pliki.js";
 
-const STRONA = "https://cke.gov.pl/egzamin-maturalny/egzamin-maturalny-w-formule-2023/arkusze/";
-// Podstawowa forma arkusza: MJAP-P0-100, MJAP-R0-100, MJAA-D0-100 (wersja A).
-// Nazwy plików różnią się między latami (np. MJAP-P0-100-2305.pdf, MJAP-P0-100-A-2405-arkusz.pdf).
-const PLIK = /\/(MJA[PA]-[PRD]0-100(?:-A)?-\d{4}(?:-arkusz)?\.pdf|MJA[PA]-[PRD]0-100[-\w]*-\d{4}(?:_[-\w]+)?-zasady\.pdf|MJA[PA]?-[PRD]0?-100[-\w]*\.mp3)$/;
+const STRONY_FORMUL = [
+  "https://cke.gov.pl/egzamin-maturalny/egzamin-maturalny-w-formule-2023/arkusze/",
+  "https://cke.gov.pl/egzamin-maturalny/egzamin-maturalny-w-formule-2015/arkusze/",
+];
 
 async function pobierzTekst(url) {
   const odp = await fetch(url);
@@ -25,39 +27,56 @@ async function istnieje(sciezka) {
   }
 }
 
-const glowna = await pobierzTekst(STRONA);
-const lata = [...new Set([...glowna.matchAll(/href="([^"]*\/arkusze\/(\d{4})-2\/)"/g)].map((m) => m[1].replace(/^http:/, "https:")))];
-console.log(`Strony lat: ${lata.length}`);
+// Część linków na stronie CKE jest względna („/images/…”), więc składamy pełny adres.
+const linki = (html, baza) => [...new Set([...html.matchAll(/href="([^"]+)"/g)].map((m) => new URL(m[1], baza).href.replace(/^http:/, "https:")))];
 
-for (const strona of lata) {
-  const rok = strona.match(/(\d{4})-2\/$/)[1];
-  const html = await pobierzTekst(strona);
-  // Część linków na stronie CKE jest względna („/images/…”), więc składamy pełny adres.
-  const linki = [...new Set([...html.matchAll(/href="([^"]+)"/g)].map((m) => new URL(m[1], strona).href.replace(/^http:/, "https:")))].filter((h) => PLIK.test(h));
-  const katalog = join(KATALOG_CKE, rok);
-  await mkdir(katalog, { recursive: true });
-  const nagrania = {};
-  const adresy = {}; // nazwa pliku → adres na stronie CKE (link „otwórz PDF” w aplikacji)
-  for (const url of linki) {
-    const nazwa = url.split("/").pop();
-    if (nazwa.endsWith(".mp3")) {
-      // Nagrań nie pobieramy, aplikacja odtwarza je ze strony CKE.
-      const poziom = url.match(/poziom_(podstawowy|rozszerzony|dwujezyczny)/)?.[1];
-      if (poziom) nagrania[poziom] ??= url;
-      continue;
+// Arkusz z kluczem i nagraniem to jeden wpis katalogu: formuła, rok, poziom.
+const katalog = new Map();
+const wpis = (k) => {
+  const id = `${k.formula}-${k.rok}-${k.poziom}`;
+  if (!katalog.has(id)) katalog.set(id, { formula: k.formula, rok: k.rok, poziom: k.poziom });
+  return katalog.get(id);
+};
+
+for (const stronaFormuly of STRONY_FORMUL) {
+  const formula = stronaFormuly.match(/formule-(\d{4})/)[1];
+  const lata = linki(await pobierzTekst(stronaFormuly), stronaFormuly).filter((u) => u.startsWith(stronaFormuly) && /\/\d{4}-2\/?$/.test(u));
+  for (const strona of lata) {
+    const rokStrony = Number(strona.match(/(\d{4})-2\/?$/)[1]);
+    let pliki = 0;
+    for (const url of linki(await pobierzTekst(strona), strona)) {
+      const nazwa = decodeURIComponent(url.split("/").pop());
+      const k = klasyfikuj(nazwa);
+      if (!k) continue;
+      const w = wpis({ ...k, rok: k.rok ?? rokStrony });
+      if (k.typ === "nagranie") {
+        // Nagrań nie pobieramy, aplikacja odtwarza je ze strony CKE.
+        w.nagranie ??= url;
+        continue;
+      }
+      if (w[k.typ]) continue; // pierwsza forma arkusza wygrywa (np. wersja A)
+      if (k.miesiac) w.miesiac = k.miesiac;
+      const katalogRoku = join(KATALOG_CKE, String(w.rok));
+      await mkdir(katalogRoku, { recursive: true });
+      const cel = join(katalogRoku, nazwa);
+      if (!(await istnieje(cel))) {
+        const odp = await fetch(url);
+        if (!odp.ok) {
+          console.warn(`  ! ${odp.status} ${url}`);
+          continue;
+        }
+        await writeFile(cel, Buffer.from(await odp.arrayBuffer()));
+        console.log(`  ${w.rok}/${nazwa}`);
+      }
+      w[k.typ] = { plik: `${w.rok}/${nazwa}`, url };
+      pliki++;
     }
-    adresy[nazwa] = url;
-    const cel = join(katalog, nazwa);
-    if (await istnieje(cel)) continue;
-    const odp = await fetch(url);
-    if (!odp.ok) {
-      console.warn(`  ! ${odp.status} ${url}`);
-      continue;
-    }
-    await writeFile(cel, Buffer.from(await odp.arrayBuffer()));
-    console.log(`  ${rok}/${nazwa}`);
+    console.log(`formuła ${formula}, ${rokStrony}: ${pliki} plików`);
   }
-  await writeFile(join(katalog, "nagrania.json"), JSON.stringify(nagrania, null, 2));
-  await writeFile(join(katalog, "adresy.json"), JSON.stringify(adresy, null, 2));
-  console.log(`${rok}: ${linki.filter((u) => u.endsWith(".pdf")).length} PDF, nagrania: ${Object.keys(nagrania).join(", ") || "brak"}`);
 }
+
+const lista = [...katalog.values()].sort((a, b) => b.rok - a.rok || b.formula.localeCompare(a.formula) || a.poziom.localeCompare(b.poziom));
+await writeFile(join(KATALOG_CKE, "katalog.json"), JSON.stringify(lista, null, 1));
+const braki = lista.filter((w) => !w.arkusz || !w.zasady).map((w) => `${w.formula}/${w.rok}/${w.poziom}${w.arkusz ? "" : " bez arkusza"}${w.zasady ? "" : " bez klucza"}`);
+console.log(`Katalog: ${lista.length} wpisów`);
+for (const b of braki) console.log(`  ! ${b}`);

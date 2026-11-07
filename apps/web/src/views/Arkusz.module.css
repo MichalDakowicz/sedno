@@ -346,6 +346,164 @@
   gap: 8px;
 }
 
+/* Prawda / fałsz: karta z wierszami, przełącznik z przesuwanym wskaźnikiem */
+
+.tf {
+  display: grid;
+  overflow: clip;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1px var(--line),
+    var(--shadow-float);
+}
+
+.tfRow {
+  display: flex;
+  align-items: center;
+  gap: 16px 24px;
+  padding: 14px 16px 14px 20px;
+  transition: background-color 0.2s ease;
+}
+
+.tfRow + .tfRow {
+  border-top: 1px solid var(--line);
+}
+
+.tfRow[data-werdykt="dobrze"] {
+  background: color-mix(in srgb, var(--success) 6%, transparent);
+}
+
+.tfRow[data-werdykt="zle"],
+.tfRow[data-werdykt="pusto"] {
+  background: color-mix(in srgb, var(--danger) 5%, transparent);
+}
+
+.tfStatement {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.6;
+}
+
+.tfSide {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.tfToggle {
+  position: relative;
+  display: inline-flex;
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.tfThumb {
+  position: absolute;
+  z-index: 0;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1.5px var(--primary),
+    0 4px 12px rgba(255, 116, 72, 0.22);
+  transition: left 0.25s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+
+.tfOption {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 92px;
+  height: 38px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.tfOption svg {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+.tfOption:hover:not(:disabled) {
+  color: var(--fg);
+}
+
+.tfOption:disabled {
+  cursor: default;
+}
+
+.tfOption[data-stan="wybrana"] {
+  color: var(--primary);
+}
+
+.tfOption[data-stan="wybrana"] svg {
+  opacity: 1;
+}
+
+.tfOption[data-stan="trafiona"] {
+  background: var(--success);
+  color: #fff;
+}
+
+.tfOption[data-stan="bledna"] {
+  background: var(--danger);
+  color: #fff;
+}
+
+.tfOption[data-stan="poprawna"] {
+  box-shadow: inset 0 0 0 2px var(--success);
+  color: var(--success);
+}
+
+.tfOption[data-stan] svg {
+  opacity: 1;
+}
+
+.tfVerdict {
+  min-width: 44px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.tfVerdict[data-werdykt="dobrze"] {
+  color: var(--success);
+}
+
+@media (max-width: 640px) {
+  .tfRow {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px;
+  }
+
+  .tfSide {
+    justify-content: space-between;
+  }
+
+  .tfToggle {
+    flex: 1;
+    max-width: 260px;
+  }
+
+  .tfOption {
+    flex: 1;
+    width: auto;
+  }
+}
+
 .row {
   display: flex;
   flex-wrap: wrap;
