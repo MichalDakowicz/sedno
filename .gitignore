@@ -10,3 +10,6 @@ dist/
 
 # Pobrane materiały CKE (prawa autorskie, nie commitujemy)
 data/
+
+# Cache Firebase CLI
+.firebase/
