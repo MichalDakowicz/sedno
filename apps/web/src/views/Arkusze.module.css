@@ -81,7 +81,7 @@
 }
 
 .row:hover .title {
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .year {

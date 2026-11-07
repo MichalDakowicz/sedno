@@ -58,7 +58,7 @@
 .percent {
   margin-left: 8px;
   font-size: 0.5em;
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 /* Zadanie */
@@ -82,7 +82,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .instruction {
@@ -150,7 +150,7 @@
 
 .options dt {
   font-weight: 600;
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .options dd {
@@ -445,7 +445,7 @@
 }
 
 .tfOption[data-stan="wybrana"] {
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .tfOption[data-stan="wybrana"] svg {
@@ -639,7 +639,7 @@
 
 .gapChip strong {
   margin-right: 6px;
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .gapText {
@@ -647,14 +647,14 @@
 }
 
 .gapPrompt {
-  color: var(--primary);
+  color: var(--primary-text);
   font-weight: 500;
 }
 
 .gapChevron {
   margin-left: 4px;
   vertical-align: -2px;
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .gapChip[data-werdykt="dobrze"] {

@@ -242,7 +242,7 @@
 .where svg {
   flex: none;
   margin-top: 2px;
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 @media (max-width: 640px) {
