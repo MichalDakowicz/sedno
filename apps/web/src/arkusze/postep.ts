@@ -2,12 +2,19 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Odpowiedzi, Samoocena } from "./sprawdz";
 
+// Szkic ucznia w Excalidraw przy jednym zadaniu. Elementy sceny w formacie
+// Excalidraw (JSON), bez plików: rysunek bazowy aplikacja dokleja z arkusza
+// przy otwarciu, a własnych obrazków brudnopis nie przyjmuje. Zwykłe dane,
+// więc synchronizują się razem z resztą postępu.
+export type Brudnopis = { elementy: readonly unknown[]; zmieniony: string };
+
 export type Postep = {
   odpowiedzi: Odpowiedzi;
   samoocena: Samoocena;
   sprawdzony: boolean; // cały arkusz
   sprawdzoneZadania: number[]; // pojedyncze zadania sprawdzone przed końcem
   wynik?: { zdobyte: number; mozliwe: number; kiedy: string };
+  brudnopisy?: Record<string, Brudnopis>; // klucz: numer zadania
 };
 
 export const pustyPostep: Postep = { odpowiedzi: {}, samoocena: {}, sprawdzony: false, sprawdzoneZadania: [] };
