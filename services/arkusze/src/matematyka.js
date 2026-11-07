@@ -303,6 +303,8 @@ export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
       kadry.push(`${f.nr}: ${powod}`);
       f.czesci.forEach((c, i) => z.bloki.push({ typ: "kadr", obraz: f.kadry[i], tekst: c.linie.map((l) => l.s).join(" ") }));
     } else {
+      // Podpunkt (12.2) dostaje nagłówek jak pasek w arkuszu; całe zadanie ma go w aplikacji.
+      if (f.nr.includes(".")) z.bloki.push({ typ: "naglowek", tekst: `Zadanie ${f.nr} (0–${f.punkty} pkt)` });
       for (const b of d.bloki) {
         if (b.typ === "opcja") opcje.push({ litera: b.litera, tresc: b.tresc });
         else if (b.typ === "miejsceRysunku") z.bloki.push({ typ: "rysunek", obraz: f.rysunek });
