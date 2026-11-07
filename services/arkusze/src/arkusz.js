@@ -112,7 +112,10 @@ function parsujZadanie({ nr, punkty, linie }) {
       tekst = null;
       return;
     }
-    const nowy = !tekst || !blisko(tekst, l) || /^[•●]\s/.test(s) || (l.x - tekst.x > 8 && !l.poczatekLuki);
+    // Linia zaczynająca się od luki to dalszy ciąg zdania, nawet jeśli jest wcięta.
+    const odLuki = l.poczatekLuki || s.startsWith("{{");
+    // Kwestia w dialogu („X: …”) zawsze zaczyna nowy wiersz.
+    const nowy = !tekst || !blisko(tekst, l) || /^([•●]|[A-Z]:)\s/.test(s) || (l.x - tekst.x > 8 && !odLuki);
     if (nowy) {
       tekst = { typ: "akapit", tekst: s, x: l.x, ostatnia: l };
       bloki.push(tekst);

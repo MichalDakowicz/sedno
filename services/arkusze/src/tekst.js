@@ -47,6 +47,8 @@ function segmenty(czesci) {
     akt.s += c.s;
     koniec = c.x + c.w;
   }
-  for (const g of wynik) g.s = g.s.replace(/\s+/g, " ").trim();
+  // Znaki z prywatnego obszaru Unicode to symbole z fontów typu Wingdings
+  // (w arkuszach CKE: punktory w notatkach), więc zamieniamy je na „•”.
+  for (const g of wynik) g.s = g.s.replace(/[-]/g, "•").replace(/\s+/g, " ").trim();
   return wynik.filter((g) => g.s);
 }
