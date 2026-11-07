@@ -56,7 +56,8 @@ Do uzupełnienia w istniejących formatach:
 ## 5. Architektura i konkurs (jeszcze nie ruszone)
 
 - Stack: strona webowa, backend, baza (osobna per przedmiot), model AI, koszty, hosting.
-- Konta: logowanie e-mailem i przez Google, konto demo dla jury z wypełnionymi danymi i resetem.
+- Konta: logowanie Google i e-mail działa (Supabase na serwerze, `services/supabase`). Zostało: konto demo dla jury z wypełnionymi danymi i resetem, publikacja aplikacji OAuth z trybu testowego, hosting aplikacji web.
+- AI: bramka per konto gotowa (`ai`, `ai-klucz`). Zostało: podpiąć Pestkę i ocenę wypracowań do `askAi`/`streamAi`, prompty per format.
 - Zapasowe odpowiedzi AI dla konta demo, gdyby model był niedostępny.
 - Praca offline: które formaty działają bez internetu.
 - Zgłoszenie: kod źródłowy z instrukcją kompilacji, „wersja binarna” z instrukcją uruchomienia, instrukcja użytkownika, film do 5 minut (AVI lub MP4), opis do 1 strony, Karta Zgłoszenia, Klauzula Informacyjna. Wysłać link na `informatyka_konkurs@uwb.edu.pl`.

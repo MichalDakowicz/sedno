@@ -22,8 +22,12 @@
 <h2>AI</h2>
 <div class="card"><ul class="q">
   <li>Jak dokładnie mierzyć zgodność oceny AI z kluczami CKE, zwłaszcza dla wypracowań, gdzie klucz podaje kryteria i przykłady, a nie pełne ocenione prace.</li>
-  <li>Który model i jaki koszt na użytkownika; czy jury musi mieć własny klucz API.</li>
+  <li>Który model i jaki koszt na użytkownika; czy jury dostaje konto demo z podpiętym dostawcą, czy podaje własny klucz.</li>
 </ul></div>
+
+<h2>Ustalone: AI przypisane do konta</h2>
+<p>Aplikacja nie ma wspólnego klucza AI. Każde konto zapisuje własnych dostawców (OpenAI, Ollama albo inny zgodny z OpenAI), a Sedno woła ich przez bramkę na serwerze. Klucz jest szyfrowany i nigdy nie wraca do przeglądarki.</p>
+<p>Konto wybiera dostawcę osobno dla dwóch poziomów zadań: <strong>ważne</strong> (ocena wypracowań, wyjaśnienia błędów) i <strong>lekkie</strong> (podpowiedzi, krótkie pytania). Każde zapytanie zapisuje dostawcę, model, czas i tokeny, więc na koncie testowym porównujemy modele lokalne z płatnymi na tych samych zadaniach.</p>
 </main>
 <script src="nav.js" defer></script>
 </body>
