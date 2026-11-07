@@ -21,16 +21,16 @@
 /* Krawędź po stronie celu rusza od razu, druga z opóźnieniem: pigułka się rozciąga i dociąga. */
 .prawo {
   transition:
-    right 0.32s cubic-bezier(0.3, 1.25, 0.5, 1),
-    left 0.42s cubic-bezier(0.3, 1.25, 0.5, 1) 0.08s,
+    right 0.24s cubic-bezier(0.3, 1.2, 0.5, 1),
+    left 0.28s cubic-bezier(0.3, 1.2, 0.5, 1) 0.03s,
     top 0.3s ease,
     height 0.3s ease;
 }
 
 .lewo {
   transition:
-    left 0.32s cubic-bezier(0.3, 1.25, 0.5, 1),
-    right 0.42s cubic-bezier(0.3, 1.25, 0.5, 1) 0.08s,
+    left 0.24s cubic-bezier(0.3, 1.2, 0.5, 1),
+    right 0.28s cubic-bezier(0.3, 1.2, 0.5, 1) 0.03s,
     top 0.3s ease,
     height 0.3s ease;
 }
