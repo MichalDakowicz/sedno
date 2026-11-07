@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { TutorAvatar } from "./TutorAvatar";
+import { Markdown } from "./Markdown";
 import { useTutor } from "./TutorContext";
 import styles from "./TutorChat.module.css";
 
@@ -25,7 +26,7 @@ export function TutorChat() {
           m.from === "tutor" ? (
             <div key={m.id} className={styles.tutorRow}>
               <TutorAvatar size={28} />
-              <p className={styles.tutorText}>{m.text}</p>
+              <Markdown className={styles.tutorText}>{m.text}</Markdown>
             </div>
           ) : (
             <p key={m.id} className={styles.studentText}>
