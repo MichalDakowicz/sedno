@@ -294,7 +294,7 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
   );
 }
 
-type Pisanie = { tematy: Temat[]; punkty: string[]; zakres: [number, number] | null; ukryte: Set<Blok> };
+type Pisanie = { tematy: Temat[]; punkty: string[]; polecenie: string; zakres: [number, number] | null; ukryte: Set<Blok> };
 
 // Z bloków zadania z wypowiedzią wyciąga tematy („1. …”, „2. …”) z ich
 // punktami oraz punkty polecenia („• …”) i zakres długości.
@@ -316,7 +316,7 @@ function rozbierzPolecenie(z: Zadanie): Pisanie {
     }
   }
   const caly = [...z.polecenie, ...z.bloki.map((b) => ("tekst" in b ? b.tekst : ""))].join(" ");
-  return { tematy: tematy.length > 1 ? tematy : [], punkty, zakres: zakresSlow(caly), ukryte: tematy.length > 1 ? ukryte : new Set() };
+  return { tematy: tematy.length > 1 ? tematy : [], punkty, polecenie: z.polecenie.join(" "), zakres: zakresSlow(caly), ukryte: tematy.length > 1 ? ukryte : new Set() };
 }
 
 function werdyktPytania(p: Pytanie, postep: Postep): Werdykt {
@@ -630,6 +630,7 @@ function WypowiedzWidok({ pytanie: p, pisanie }: { pytanie: Wypowiedz; pisanie: 
         poczatek={p.poczatek}
         tematy={pisanie.tematy}
         punkty={pisanie.punkty}
+        polecenie={pisanie.polecenie}
         zakres={pisanie.zakres}
         temat={temat}
         odhaczone={odhaczone}
