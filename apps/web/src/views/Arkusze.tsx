@@ -6,6 +6,7 @@ import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
 import { useProfil } from "../auth";
 import { Ladowanie } from "../components/Ladowanie";
+import { Plywak } from "../components/Plywak";
 import styles from "./Arkusze.module.css";
 
 const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string; lead: string }[] = [
@@ -52,6 +53,7 @@ export function Arkusze() {
       </header>
 
       <nav className={styles.levels} aria-label="Przedmiot">
+        <Plywak zalezy={przedmiot} />
         {PRZEDMIOTY.map((p) => (
           <button
             key={p.id}
@@ -70,6 +72,7 @@ export function Arkusze() {
 
       {poziomy.length > 1 && (
         <nav className={styles.levels} aria-label="Poziom">
+          <Plywak zalezy={`${przedmiot}-${poziom}-${poziomy.length}`} />
           {poziomy.map((p) => (
             <button key={p} type="button" className={`${styles.level} ${poziom === p ? styles.levelActive : ""}`} onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
               {NAZWY[p]}

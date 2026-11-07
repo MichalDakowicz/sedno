@@ -33,6 +33,7 @@
 }
 
 .links {
+  position: relative;
   display: flex;
   gap: 4px;
   margin: 0 auto;

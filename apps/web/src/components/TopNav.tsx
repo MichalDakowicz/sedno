@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { FileText, GraduationCap, LayoutGrid, Menu, RotateCcw, Target, X } from "lucide-react";
 import { logout } from "../auth";
+import { Plywak } from "./Plywak";
 import styles from "./TopNav.module.css";
 
 const links = [
@@ -34,11 +35,13 @@ export function TopNav() {
         </Link>
 
         <ul className={styles.links} data-tutor="nav-links">
+          <Plywak jako="li" zalezy={location.pathname} />
           {links.map(({ to, label, icon: Icon, end }) => (
             <li key={to}>
               <NavLink
                 to={to}
                 end={end}
+                data-aktywny={end ? onDashboard : location.pathname === to || location.pathname.startsWith(`${to}/`)}
                 className={({ isActive }) => `${styles.link} ${isActive || (end && onDashboard) ? styles.active : ""}`}
               >
                 <Icon size={16} strokeWidth={2} aria-hidden="true" />

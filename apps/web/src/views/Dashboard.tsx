@@ -9,6 +9,7 @@ import { useAiReady } from "../ai";
 import { dniDoMatury, nazwaPoziomu, przedmiot, type MojPrzedmiot } from "../konto/przedmioty";
 import { propozycja, useWynikiKonta, type Podsumowanie, type Propozycja, type Wynik } from "../konto/wyniki";
 import type { ArkuszWpis } from "../arkusze/typy";
+import { Plywak } from "../components/Plywak";
 import { Ladowanie } from "../components/Ladowanie";
 import styles from "./Dashboard.module.css";
 
@@ -32,7 +33,8 @@ function SubjectBar({ moje, active }: { moje: MojPrzedmiot[]; active?: string })
       data-tutor="subjects"
       data-tutor-about="Tu wybierasz przedmiot. „Wszystkie” to pulpit ogólny, a przedmiot zawęża pulpit tylko do jego danych."
     >
-      <NavLink to="/" end className={({ isActive }) => `${styles.chip} ${isActive ? styles.chipActive : ""}`}>
+      <Plywak zalezy={`${active ?? "wszystkie"}-${moje.length}`} />
+      <NavLink to="/" end data-aktywny={!active} className={({ isActive }) => `${styles.chip} ${isActive ? styles.chipActive : ""}`}>
         <span className={styles.chipIcon}>
           <LayoutGrid size={14} aria-hidden="true" />
         </span>
@@ -41,7 +43,7 @@ function SubjectBar({ moje, active }: { moje: MojPrzedmiot[]; active?: string })
       {moje.map((m) => {
         const p = przedmiot(m.id)!;
         return (
-          <NavLink key={m.id} to={`/przedmiot/${m.id}`} className={`${styles.chip} ${active === m.id ? styles.chipActive : ""}`}>
+          <NavLink key={m.id} to={`/przedmiot/${m.id}`} data-aktywny={active === m.id} className={`${styles.chip} ${active === m.id ? styles.chipActive : ""}`}>
             <SubjectIcon subject={p} size="sm" />
             {p.nazwa}
           </NavLink>

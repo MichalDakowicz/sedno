@@ -8,6 +8,7 @@
 /* Pasek przedmiotów */
 
 .subjectBar {
+  position: relative;
   display: flex;
   gap: 8px;
   width: fit-content;
