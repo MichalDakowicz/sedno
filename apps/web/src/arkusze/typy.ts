@@ -23,9 +23,13 @@ export type Opcja = { litera: string; tresc: string };
 // Wycinek arkusza CKE jako PNG. src względem /dane/arkusze/, wymiary w punktach PDF.
 export type Obraz = { src: string; szer: number; wys: number };
 
+// Teksty matematyki mają wzory LaTeX w \( … \) (renderuje je KaTeX).
 export type Blok =
-  | { typ: "akapit" | "naglowek" | "zrodlo"; tekst: string }
-  // Matematyka: treść zadania jako obraz (wzory nie przechodzą przez tekst PDF),
+  | { typ: "akapit" | "naglowek" | "zrodlo"; tekst: string; polecenie?: boolean }
+  | { typ: "wzor"; tex: string } // wzór w osobnej linii
+  | { typ: "rysunek"; obraz: Obraz } // figura wycięta z arkusza PDF
+  | { typ: "tabelaTresci"; wiersze: string[][] } // tabela danych w treści zadania
+  // Matematyka: zadanie jako obraz, gdy treści nie dało się wziąć z formy DOCX;
   // tekst zostaje jako opis alternatywny.
   | { typ: "kadr"; obraz: Obraz; tekst: string }
   | { typ: "opcje"; opcje: Opcja[] }

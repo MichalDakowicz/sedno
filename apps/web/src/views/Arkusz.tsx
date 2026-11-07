@@ -1,4 +1,4 @@
-import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Check, ChevronDown, FileText, Headphones, Pencil, RotateCcw, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
@@ -18,6 +18,7 @@ import {
   type Zadanie,
 } from "../arkusze/typy";
 import { Brudnopis } from "../components/Brudnopis";
+import { TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import styles from "./Arkusz.module.css";
@@ -372,8 +373,36 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
   switch (blok.typ) {
     case "akapit":
       return (
-        <div className={styles.para}>
+        <div className={blok.polecenie ? `${styles.para} ${styles.command}` : styles.para}>
           <Tekst tekst={blok.tekst} />
+        </div>
+      );
+    case "wzor":
+      return <WzorMat tex={blok.tex} blok />;
+    case "rysunek":
+      return <Kadr obraz={blok.obraz} tekst="Rysunek do zadania" />;
+    case "tabelaTresci":
+      return (
+        <div className={styles.dataTableWrap}>
+          <table className={styles.dataTable}>
+            <tbody>
+              {blok.wiersze.map((w, i) => (
+                <tr key={i}>
+                  {w.map((k, j) =>
+                    i === 0 ? (
+                      <th key={j} scope="col">
+                        <Tekst tekst={k} />
+                      </th>
+                    ) : (
+                      <td key={j}>
+                        <Tekst tekst={k} />
+                      </td>
+                    ),
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       );
     case "naglowek":
@@ -419,7 +448,9 @@ function OpcjeZadania({ opcje, zadanie }: { opcje: Opcja[]; zadanie: number }) {
       {opcje.map((o) => (
         <div key={o.litera} data-uzyta={uzyte.has(o.litera) || undefined}>
           <dt>{o.litera}</dt>
-          <dd>{o.tresc}</dd>
+          <dd>
+            <Tekst tekst={o.tresc} />
+          </dd>
         </div>
       ))}
     </dl>
@@ -433,7 +464,7 @@ function Tekst({ tekst, wlasny }: { tekst: string; wlasny?: string }) {
   return (
     <>
       {czesci.map((c, i) => {
-        if (i % 2 === 0) return <Fragment key={i}>{c}</Fragment>;
+        if (i % 2 === 0) return <TekstMat key={i} tekst={c} />;
         const p = pytania.get(c);
         // Pytanie z własnym blokiem odpowiada tam; w tekście zostaje sam znacznik.
         if (!p || (wBloku.has(c) && c !== wlasny))
@@ -590,7 +621,9 @@ function Opcje({ pytanie: p }: { pytanie: PytanieZamkniete }) {
           onClick={() => ustaw(p.nr, wybrana === o.litera ? "" : o.litera)}
         >
           <span className={styles.letter}>{o.litera}</span>
-          <span>{o.tresc}</span>
+          <span>
+            <Tekst tekst={o.tresc} />
+          </span>
         </button>
       ))}
     </div>
@@ -796,7 +829,7 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
           {w === "dobrze" ? <Check size={16} aria-hidden="true" /> : <X size={16} aria-hidden="true" />}
           {w === "dobrze" ? "Dobrze" : `${odp ? `Twoja: ${odp}. ` : "Brak odpowiedzi. "}Poprawna: ${p.poprawna}`}
         </p>
-        {w !== "dobrze" && zdanie && !p.opcje?.length && <p className={`small muted ${styles.correctText}`}>{zdanie}</p>}
+        {w !== "dobrze" && zdanie && !p.opcje?.length && <p className={`small muted ${styles.correctText}`}><Tekst tekst={zdanie} /></p>}
       </div>
     );
   }

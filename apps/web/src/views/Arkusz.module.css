@@ -874,3 +874,31 @@
   max-width: 100%;
   height: auto;
 }
+
+/* Matematyka: zdania-polecenia są w arkuszu pogrubione. */
+.command {
+  font-weight: 600;
+}
+
+/* Tabela danych w treści zadania (np. wyniki sprawdzianu). */
+.dataTableWrap {
+  overflow-x: auto;
+}
+
+.dataTable {
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.dataTable th,
+.dataTable td {
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  text-align: center;
+}
+
+.dataTable th {
+  font-weight: 500;
+  color: var(--muted);
+  background: var(--surface);
+}
