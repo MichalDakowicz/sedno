@@ -6,7 +6,9 @@ const ZAKRES_LITER = /\(?\b([A-H])\s*[–-]\s*([A-H])\)?/;
 export function scal(zadania, klucz) {
   const ostrzezenia = [];
   for (const z of zadania) {
-    const opcjeZadania = z.bloki.find((b) => b.typ === "opcje")?.opcje;
+    // Teksty A–C bywają rozdzielone akapitami, więc litery zbieramy ze wszystkich bloków opcji.
+    const wszystkieOpcje = z.bloki.filter((b) => b.typ === "opcje").flatMap((b) => b.opcje);
+    const opcjeZadania = wszystkieOpcje.length ? wszystkieOpcje : undefined;
     const zakres = [...z.polecenie, ...z.bloki.filter((b) => b.typ === "akapit").map((b) => b.tekst)].join(" ").match(ZAKRES_LITER);
     const literyZakresu = zakres ? litery(zakres[1], zakres[2]) : null;
 

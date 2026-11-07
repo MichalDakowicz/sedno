@@ -34,7 +34,8 @@ node src/zrzut.js <plik.pdf>   # surowe linie z pozycjami do pliku .pdfjs.txt
 
 ## Znane ograniczenia
 
-- Formuła 2015: klucze do zadania 8 dwujęzycznego z lat 2015–2020 i kilku pytań rozszerzenia 2016–2021 nie parsują się w całości (lista w `ostrzezenia` każdego arkusza). Dwa arkusze dwujęzyczne (2016, 2017) mają mniej pytań niż punktów.
+- Wszystkie 39 arkuszy importują się bez ostrzeżeń, a suma punktów zgadza się z arkuszem. Wyjątek znany ręcznie: w dwujęzycznym 2018 klucz pytania 3.4 skleja kilka krótkich odpowiedzi z sąsiednich komórek; uczeń ocenia je sam.
+- Tabele kluczy mają różne układy: etykieta pytania na środku komórki (granice liczone w `granice()`) albo u góry; nagłówek „Inne akceptowane odpowiedzi:” w środku komórki; odpowiedzi w punktach; odpowiedzi pełnymi zdaniami łamanymi w kolumnie. Nowy rocznik warto sprawdzić skanem jakości (długie wpisy, polski tekst w odpowiedziach).
 - Import części katalogu do testów: `node src/importuj.js 2015` (prefiks formuła-rok-poziom).
 
 - Teksty w kilku kolumnach (np. ulotka w zadaniu 6 rozszerzenia 2025) wychodzą jako wymieszane linie.

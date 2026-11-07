@@ -96,13 +96,22 @@ function otwarte(z, pyt) {
       tryb = "opis";
       continue;
     }
+    // „Inne akceptowane odpowiedzi:” w środku komórki (klucze 2016–2017) to nie
+    // nowa tabela, tylko przełącznik: dalsze odpowiedzi pytania są akceptowane.
+    const podtytul = tabela && l.seg.find((g) => PODTYTUL_KOMORKI.test(g.s));
+    if (podtytul) {
+      zbierzWierszTabeli(tabela, { ...l, seg: l.seg.filter((g) => g !== podtytul), czesci: null }, z.nr);
+      tabela.fragmenty.push({ znacznik: "akceptowane", s: "", y: l.y, strona: l.strona, kol: najblizszaKolumna(tabela, podtytul) });
+      continue;
+    }
     const kolumny = l.seg.map((g) => ({ tryb: trybNaglowka(g.s), x: g.x, s: g.s })).filter((k) => k.tryb);
     if (kolumny.length) {
       zamknijTabele();
       tryb = kolumny[0].tryb;
       if (!szczegoly) {
         // Sama „Poprawna” to kolumna tabeli wymagań: odpowiedzi leżą tylko pod nią.
-        const wymagania = kolumny.length === 1 && (kolumny[0].s === "Poprawna" || kolumny[0].s === "Rozwiązanie");
+        // Tak samo, gdy jedyna kolumna odpowiedzi stoi po prawej stronie tabeli.
+        const wymagania = kolumny.length === 1 && (kolumny[0].s === "Poprawna" || kolumny[0].s === "Rozwiązanie" || kolumny[0].x > 300);
         const naglowekZadania = l.seg.find((g) => NAGLOWEK_KOLUMNY.test(g.s));
         tabela = { kolumny, wymagania, kolumnaEtykiet: naglowekZadania?.x ?? null, etykiety: [], fragmenty: [] };
       }
@@ -127,7 +136,8 @@ function otwarte(z, pyt) {
       continue;
     }
     const odp = l.seg.find((g) => g.x < KOLUMNA_ODPOWIEDZI);
-    if (odp) (q[tryb] ??= []).push(...warianty(odp.s));
+    // Polski tekst w kolumnie odpowiedzi to uwagi egzaminatora, nie odpowiedź.
+    if (odp && !TEKST_WYMAGAN.test(odp.s)) (q[tryb] ??= []).push(...warianty(odp.s));
   }
   zamknijTabele();
 }
@@ -162,7 +172,26 @@ function segmentyPunktow(l) {
   return wynik.map(({ x, s }) => ({ x, s: s.replace(/\s+/g, " ") }));
 }
 
+const PODTYTUL_KOMORKI = /^Inne akceptowane odpowiedzi:$/;
+const najblizszaKolumna = (t, g) => t.kolumny.reduce((a, b) => (Math.abs(b.x - g.x) < Math.abs(a.x - g.x) ? b : a));
+
 function zbierzWierszTabeli(t, l, nrZadania) {
+  // Nagłówek „Zadanie” bywa w linii pod nagłówkiem kolumny odpowiedzi.
+  const naglowek = t.etykiety.length ? null : l.seg.find((g) => NAGLOWEK_KOLUMNY.test(g.s));
+  if (naglowek) {
+    t.kolumnaEtykiet = naglowek.x;
+    return;
+  }
+  // Odpowiedź bywa sklejona z tekstem wymagań w jednym fragmencie PDF
+  // („…ortograficznych), apart”); w kolumnie po prawej bierzemy tylko jej kawałki.
+  if (t.wymagania && l.czesci) {
+    const prog = t.kolumny[0].x - 45;
+    const wKolumnie = l.czesci.filter((c) => c.x >= prog && c.s.trim());
+    if (wKolumnie.length && !l.seg.some((g) => g.x >= prog)) {
+      const s = wKolumnie.map((c) => c.s.trim()).join(" ");
+      l = { ...l, seg: [...l.seg, { x: wKolumnie[0].x, s }] };
+    }
+  }
   for (const g of segmentyPunktow(l)) {
     const e = g.s.match(ETYKIETA);
     if (e && czyEtykieta(g, t.kolumnaEtykiet)) {
@@ -179,7 +208,7 @@ function zbierzWierszTabeli(t, l, nrZadania) {
 // Każda linia trafia do najbliższej w pionie etykiety (etykieta stoi
 // zwykle w połowie wysokości swojego wiersza). Linie jednej komórki
 // sklejamy, gdy odpowiedź jest zawinięta.
-const ODSTEP_W_KOMORCE = 16.5;
+const ODSTEP_W_KOMORCE = 17;
 
 function przypiszTabele(t, pyt) {
   if (!t.etykiety.length) return;
@@ -187,31 +216,91 @@ function przypiszTabele(t, pyt) {
   for (const kol of t.kolumny) {
     // 1. Sklejamy linie, które na pewno są jedną odpowiedzią.
     const kawalki = [];
-    for (const f of t.fragmenty.filter((x) => x.kol === kol)) {
-      const k = { s: f.s, ys: [f.y], strona: f.strona };
+    const wKolumnie = t.fragmenty.filter((x) => x.kol === kol);
+    // Kolumna z odpowiedziami pełnymi zdaniami (kończą się kropką): zdanie
+    // łamane w środku ciągnie się, dopóki linia nie kończy się kropką.
+    const zKropka = wKolumnie.filter((x) => /\.$/.test(x.s) && x.s.split(" ").length >= 3).length;
+    const zdaniowa = wKolumnie.length >= 4 && zKropka / wKolumnie.length >= 0.3;
+    for (const f of wKolumnie) {
+      const k = { s: f.s, ys: [f.y], strona: f.strona, znacznik: f.znacznik };
       const ost = kawalki[kawalki.length - 1];
-      if (ost && blisko(ost, k) && zawinieta(ost.s, k.s)) {
+      // Złamane zdanie: poprzednia linia jest długa (pełna szerokość kolumny) i bez kropki.
+      const dalszyCiag = (a, b) => zawinieta(a, b) || (zdaniowa && a.length >= 30 && !/[.!?)]$/.test(a) && /^[a-z]/.test(b));
+      if (ost && !ost.znacznik && !k.znacznik && blisko(ost, k) && dalszyCiag(ost.s, k.s)) {
         ost.s += " " + k.s;
         ost.ys.push(f.y);
       } else kawalki.push(k);
     }
-    // 2. Kawałek należy do etykiety najbliższej jego środka.
+    // 2. Kawałek należy do komórki pytania (patrz granice()), a gdy granic
+    //    nie da się wyznaczyć — do etykiety najbliższej jego środka.
+    let komorki = granice(t.etykiety, kawalki, t.fragmenty);
+    // Model komórek jest zły, jeśli któreś pytanie nie dostaje żadnej linii.
+    const sr = (k) => k.ys.reduce((a, b) => a + b, 0) / k.ys.length;
+    if (komorki && kawalki.length >= komorki.length && komorki.some((c) => !kawalki.some((k) => !k.znacznik && k.strona === c.strona && sr(k) <= c.gora && sr(k) > c.dol))) komorki = null;
     for (const k of kawalki) {
       const y = k.ys.reduce((a, b) => a + b, 0) / k.ys.length;
       const kandydaci = t.etykiety.filter((e) => e.strona === k.strona);
-      k.nr = kandydaci.length ? kandydaci.reduce((a, b) => (Math.abs(b.y - y) < Math.abs(a.y - y) ? b : a)).nr : null;
+      const komorka = komorki?.find((c) => c.strona === k.strona && y <= c.gora && y > c.dol);
+      k.nr = komorka ? komorka.nr : kandydaci.length ? kandydaci.reduce((a, b) => (Math.abs(b.y - y) < Math.abs(a.y - y) ? b : a)).nr : null;
     }
     // 3. Lista wariantów ze „/” zawinięta w połowie wariantu.
     const odpowiedzi = [];
     for (const k of kawalki.filter((x) => x.nr)) {
       const ost = odpowiedzi[odpowiedzi.length - 1];
-      if (ost && ost.nr === k.nr && blisko(ost, k) && ost.s.includes(" / ") && k.s.includes(" / ")) {
+      if (ost && !ost.znacznik && !k.znacznik && ost.nr === k.nr && blisko(ost, k) && ost.s.includes(" / ") && k.s.includes(" / ")) {
         ost.s += " " + k.s;
         ost.ys.push(...k.ys);
       } else odpowiedzi.push(k);
     }
-    for (const o of odpowiedzi) (pyt(o.nr)[kol.tryb] ??= []).push(...warianty(o.s));
+    // Po podtytule „Inne akceptowane odpowiedzi:” odpowiedzi pytania idą do akceptowanych.
+    const trybPytania = {};
+    for (const o of odpowiedzi) {
+      if (o.znacznik) {
+        trybPytania[o.nr] = o.znacznik;
+        continue;
+      }
+      (pyt(o.nr)[trybPytania[o.nr] ?? kol.tryb] ??= []).push(...warianty(o.s));
+    }
   }
+}
+
+// Etykieta stoi w pionie na środku swojej komórki, a komórki mają różną
+// wysokość. Znając górę pierwszej komórki (pierwsza linia odpowiedzi),
+// kolejne granice wynikają z dol = 2·y_etykiety − gora. Jeśli wynik jest
+// sprzeczny (granica poza przedziałem między etykietami), zwracamy null.
+function granice(etykiety, kawalki, fragmenty) {
+  const wynik = [];
+  for (const strona of new Set(etykiety.map((e) => e.strona))) {
+    const naStronie = etykiety.filter((e) => e.strona === strona).sort((a, b) => b.y - a.y);
+    const ys = kawalki.filter((k) => k.strona === strona).flatMap((k) => k.ys);
+    if (!ys.length) continue;
+    // Gdy przy każdej etykiecie w tej samej linii zaczyna się odpowiedź,
+    // etykiety stoją u góry komórek: komórka sięga do następnej etykiety.
+    // Sprawdzamy wszystkie kolumny tabeli: w jednej pierwsza linia komórki bywa polskim opisem.
+    const ysTabeli = fragmenty.filter((f) => f.strona === strona && !f.znacznik).map((f) => f.y);
+    // Nad pierwszą etykietą nie może stać żadna odpowiedź (wtedy etykiety są na środku komórek).
+    const uGory =
+      naStronie.length > 1 &&
+      naStronie.every((e) => ysTabeli.some((y) => Math.abs(y - e.y) < 3)) &&
+      !ysTabeli.some((y) => y > naStronie[0].y + 3);
+    if (uGory) {
+      naStronie.forEach((e, i) => {
+        const nast = naStronie[i + 1];
+        wynik.push({ nr: e.nr, strona, gora: i ? e.y + 3 : Infinity, dol: nast ? nast.y + 3 : -Infinity });
+      });
+      continue;
+    }
+    let gora = Math.max(...ys, naStronie[0].y) + 8;
+    for (let i = 0; i < naStronie.length; i++) {
+      const e = naStronie[i];
+      const nast = naStronie[i + 1];
+      const dol = nast ? 2 * e.y - gora : -Infinity;
+      if (nast && !(dol < e.y && dol > nast.y)) return null;
+      wynik.push({ nr: e.nr, strona, gora, dol });
+      gora = dol;
+    }
+  }
+  return wynik;
 }
 
 // Odpowiedź zawinięta do następnej linii: poprzednia kończy się „/”,

@@ -118,13 +118,17 @@ function etykietaNaPoczatku(tekst, nrZadania) {
 
 // Zamienia „3.1. ______” na znacznik luki {{3.1}} i usuwa resztki podkreśleń.
 // Podpowiedź przed luką zostaje: „8.1. (SHORT) ____” → „(SHORT) {{8.1}}”.
+// Bywa też „3.1 ____” (bez kropki) i „8.5. (PRECEDENCE)” na końcu linii,
+// z podkreśleniem dopiero w następnej.
 function oznaczLuki(tekst, nrZadania, luki) {
+  const znacznik = (cale, a, b, podpowiedz) => {
+    if (Number(a) !== nrZadania) return cale;
+    luki.add(`${a}.${b}`);
+    return `${podpowiedz ?? ""}{{${a}.${b}}}`;
+  };
   return tekst
-    .replace(/(\d+)\.(\d+)\.\s*(\([^)]*\)\s*)?_{2,}/g, (cale, a, b, podpowiedz) => {
-      if (Number(a) !== nrZadania) return cale;
-      luki.add(`${a}.${b}`);
-      return `${podpowiedz ?? ""}{{${a}.${b}}}`;
-    })
+    .replace(/(\d+)\.(\d+)\.?\s*(\([^)]*\)\s*)?_{2,}/g, znacznik)
+    .replace(/(\d+)\.(\d+)\.\s*(\([A-Z]+\))\s*$/, znacznik)
     .replace(/(\}\})\s*_{2,}/g, "$1")
     .replace(/_{2,}/g, "_____");
 }
@@ -136,7 +140,7 @@ function parsujZadanie({ nr, punkty, linie }) {
   const sluchanie = /Usłyszysz|You are going to hear|You will hear/i.test(linie.slice(0, 4).map((l) => l.s).join(" "));
 
   // Wypowiedź pisemna: brak etykiet pytań i luk w całym zadaniu.
-  const luka = new RegExp(`(^|\\s)${nr}\\.\\d+\\.\\s*(\\([^)]*\\)\\s*)?_{2,}`);
+  const luka = new RegExp(`(^|\\s)${nr}\\.\\d+\\.?\\s*((\\([^)]*\\)\\s*)?_{2,}|\\([A-Z]+\\)\\s*$)`);
   const maEtykiety = linie.some((l) => l.seg.some((g) => etykietaNaPoczatku(g.s, nr)) || luka.test(l.s));
   if (!maEtykiety) return wypowiedzPisemna(nr, punkty, linie);
 
@@ -160,7 +164,9 @@ function parsujZadanie({ nr, punkty, linie }) {
     // Linia zaczynająca się od luki to dalszy ciąg zdania, nawet jeśli jest wcięta.
     const odLuki = l.poczatekLuki || s.startsWith("{{");
     // Kwestia w dialogu („X: …”) zawsze zaczyna nowy wiersz.
-    const nowy = !tekst || !blisko(tekst, l) || /^([•●]|[A-Z]:)\s/.test(s) || (l.x - tekst.x > 8 && !odLuki);
+    // Ciąg dalszy punktu („• … telling” / „him the truth.”) ma wcięcie wiszące.
+    const wPunkcie = tekst && /^[•●]/.test(tekst.tekst) && l.x > tekst.x;
+    const nowy = !tekst || !blisko(tekst, l) || /^([•●]|[A-Z]:)\s/.test(s) || (l.x - tekst.x > 8 && !odLuki && !wPunkcie);
     if (nowy) {
       tekst = { typ: "akapit", tekst: s, x: l.x, ostatnia: l };
       bloki.push(tekst);
@@ -235,7 +241,9 @@ function parsujZadanie({ nr, punkty, linie }) {
     const opcja = l.seg.length === 1 ? l.s.match(OPCJA) : null;
 
     if (p) {
-      if (opcja && !p.sekcja) {
+      // „A. MULHOLLAND DRIVE” to tytuł tekstu A, a nie opcja pytania.
+      const tytulTekstu = opcja && opcja[2] === opcja[2].toUpperCase() && /[A-Z]{3}/.test(opcja[2]);
+      if (opcja && !p.sekcja && !tytulTekstu) {
         p.opcje.push({ litera: opcja[1], tresc: opcja[2], x: l.x });
         p.ostatnia = l;
         p.odstep = null;
