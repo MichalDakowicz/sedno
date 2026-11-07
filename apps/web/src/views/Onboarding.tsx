@@ -13,12 +13,12 @@ import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import { SubjectIcon } from "../components/icons";
 import { markOnboarded, saveSubjects, useProfil, useSession } from "../auth";
 import { streamAi, useAiReady } from "../ai";
-import { rozmowa } from "../pestka";
+import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
 import { przedmiot, type MojPrzedmiot, type PrzedmiotId } from "../konto/przedmioty";
 import styles from "./Onboarding.module.css";
 
 type Litera = "A" | "B" | "C" | "D";
-type Wpis = { od: "tutor" | "uczen"; tekst: string; przygotowane?: boolean };
+type Wpis = { od: "tutor" | "uczen"; tekst: string; przygotowane?: boolean; powtorzenie?: boolean };
 
 type Pokazowe = {
   opis: string;
@@ -29,6 +29,8 @@ type Pokazowe = {
   reakcja: Record<Litera, string>;
   druga: string;
 };
+
+const KONIEC_POKAZU = "Dobrze, to wystarczy na pokaz. Przejdźmy dalej.";
 
 // Własne zadania pokazowe (nie z arkuszy CKE): zamknięte, z typowymi pułapkami w dystraktorach.
 const ZADANIA: Record<PrzedmiotId, Pokazowe> = {
@@ -254,10 +256,18 @@ function Pokaz({ ai, przedmioty, onDalej }: { ai: boolean; przedmioty: MojPrzedm
             const dodaj = pierwszy;
             pierwszy = false;
             setStan("talking");
-            setWpisy((w) => (dodaj ? [...w, { od: "tutor", tekst }] : w.map((x, i) => (i === w.length - 1 ? { ...x, tekst } : x))));
+            const widoczny = bezEmoji(tekst);
+            setWpisy((w) => (dodaj ? [...w, { od: "tutor", tekst: widoczny }] : w.map((x, i) => (i === w.length - 1 ? { ...x, tekst: widoczny } : x))));
           },
         );
-        if (tekst.trim()) return setStan("idle");
+        if (tekst.trim()) {
+          // Model potrafi zadać to samo pytanie po poprawnej odpowiedzi: wtedy zamiast powtórki pokazujemy przygotowane zdanie.
+          if (powtarzaTutora(bezEmoji(tekst), historia)) {
+            const zastepcza = powtarzaTutora(zapas, historia) ? KONIEC_POKAZU : zapas;
+            setWpisy((w) => w.map((x, i) => (i === w.length - 1 ? { od: "tutor", tekst: zastepcza, powtorzenie: true } : x)));
+          }
+          return setStan("idle");
+        }
       } catch {
         // model nie odpowiedział: niżej przygotowana odpowiedź
       }
@@ -337,6 +347,7 @@ function Pokaz({ ai, przedmioty, onDalej }: { ai: boolean; przedmioty: MojPrzedm
                 <div>
                   <Markdown className={styles.tutorText}>{w.tekst}</Markdown>
                   {w.przygotowane && <p className={styles.note}>Odpowiedź przygotowana na pokaz. Po podpięciu AI odpowiem naprawdę.</p>}
+                  {w.powtorzenie && <p className={styles.note}>Model powtórzył poprzednią odpowiedź, więc pokazuję przygotowaną.</p>}
                 </div>
               </div>
             ) : (

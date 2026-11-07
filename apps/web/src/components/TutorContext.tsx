@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import type { AvatarState } from "./TutorAvatar";
 import { aiErrorText, AiError, streamAi } from "../ai";
-import { rozmowa } from "../pestka";
+import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
 
 export type Message = { id: number; from: "tutor" | "student"; text: string };
 
@@ -124,24 +124,23 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
       setMessages((m) => (first ? [...m, { id, from: "tutor", text }] : m.map((x) => (x.id === id ? { ...x, text } : x))));
     };
     let text = "";
+    const historia = all.map((m) => ({ od: m.from === "tutor" ? ("tutor" as const) : ("uczen" as const), tekst: m.text }));
     try {
       await streamAi(
         {
           tier: "lekkie",
           task: "pestka-czat",
           maxTokens: 1500,
-          messages: rozmowa(
-            { przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura" },
-            all.map((m) => ({ od: m.from === "tutor" ? "tutor" : "uczen", tekst: m.text })),
-          ),
+          messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura" }, historia),
         },
         (delta) => {
           text += delta;
           if (!started) setState("talking");
-          write(text);
+          write(bezEmoji(text));
         },
       );
       if (!text.trim()) write("Zamyśliłam się i nic nie napisałam. Zapytaj jeszcze raz?");
+      else if (powtarzaTutora(bezEmoji(text), historia)) write("Powtarzam się. Napisz własnymi słowami, co jest dla ciebie niejasne, a wyjaśnię to inaczej.");
     } catch (e) {
       write(aiErrorText(e instanceof AiError ? e.code : "server_error"));
     }
