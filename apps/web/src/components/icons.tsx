@@ -9,7 +9,9 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import type { Format, Subject } from "../data/demo";
+import type { Ton } from "../konto/przedmioty";
+
+export type Format = "Napraw błąd" | "Szybkie rundy" | "Uczeń uczy AI" | "Krok po kroku" | "Tutor";
 import styles from "./icons.module.css";
 
 const subjectIcons: Record<string, LucideIcon> = {
@@ -26,7 +28,7 @@ export const formatIcons: Record<Format, LucideIcon> = {
   Tutor: MessagesSquare,
 };
 
-type SubjectIconProps = { subject: Pick<Subject, "id" | "tone">; size?: "sm" | "md" | "lg" };
+type SubjectIconProps = { subject: { id: string; tone: Ton }; size?: "sm" | "md" | "lg" };
 
 // Ikona przedmiotu w kółku w kolorze przedmiotu. Kolor pomaga rozpoznać przedmiot bez czytania nazwy.
 export function SubjectIcon({ subject, size = "md" }: SubjectIconProps) {

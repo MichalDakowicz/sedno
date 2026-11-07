@@ -1,0 +1,67 @@
+.md {
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.md > :first-child {
+  margin-top: 0;
+}
+
+.md > :last-child {
+  margin-bottom: 0;
+}
+
+.md p,
+.md ul,
+.md ol {
+  margin: 0 0 0.6em;
+}
+
+.md ul,
+.md ol {
+  padding-left: 1.3em;
+}
+
+.md li + li {
+  margin-top: 0.2em;
+}
+
+.md code {
+  padding: 0.1em 0.35em;
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 0.92em;
+}
+
+.md pre {
+  margin: 0 0 0.6em;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  overflow-x: auto;
+}
+
+.md pre code {
+  padding: 0;
+  background: none;
+}
+
+.md table {
+  border-collapse: collapse;
+  margin: 0 0 0.6em;
+  font-size: 0.95em;
+}
+
+.md th,
+.md td {
+  padding: 4px 10px 4px 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+/* Długi wzór blokowy przewija się w dymku zamiast go rozpychać. */
+.md :global(.katex-display) {
+  margin: 0.5em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}

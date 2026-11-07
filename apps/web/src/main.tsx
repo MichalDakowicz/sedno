@@ -12,12 +12,14 @@ import { Placeholder } from "./views/Placeholder";
 import { Profile } from "./views/Profile";
 import { Arkusze } from "./views/Arkusze";
 import { Arkusz } from "./views/Arkusz";
+import { Onboarding } from "./views/Onboarding";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/logowanie" element={<Login />} />
+        <Route path="/witaj" element={<Onboarding />} />
         <Route element={<AppLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="przedmiot/:id" element={<Dashboard />} />

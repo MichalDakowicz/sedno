@@ -1,3 +1,6 @@
 # services
 
-Kod backendowy: API, silnik AI, przetwarzanie danych. Każda usługa w osobnym podkatalogu. Na razie pusto: widoki w `apps/web` używają danych z `apps/web/src/data/demo.ts`.
+Kod backendowy. Każda usługa w osobnym podkatalogu.
+
+- `arkusze` – pobieranie i import arkuszy CKE.
+- `supabase` – baza, konta, zapis postępu i bramka AI per konto (Supabase na serwerze).

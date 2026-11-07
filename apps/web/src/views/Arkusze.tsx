@@ -4,6 +4,7 @@ import { ChevronRight, Clock, Headphones } from "lucide-react";
 import { useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom } from "../arkusze/typy";
+import { useProfil } from "../auth";
 import styles from "./Arkusze.module.css";
 
 const POZIOMY: Poziom[] = ["podstawowy", "rozszerzony", "dwujezyczny"];
@@ -16,7 +17,9 @@ const FORMULY = [
 
 export function Arkusze() {
   const { dane, blad, laduje } = useListaArkuszy();
-  const [poziom, setPoziom] = useState<Poziom>("podstawowy");
+  const profil = useProfil();
+  // Domyślnie poziom, który konto zdaje z angielskiego.
+  const [poziom, setPoziom] = useState<Poziom>(() => profil?.subjects.find((p) => p.id === "angielski")?.poziom ?? "podstawowy");
 
   return (
     <main className={`container ${styles.page}`}>
@@ -101,7 +104,7 @@ function BrakDanych({ blad }: { blad: string }) {
   return (
     <section className={styles.empty}>
       <h2 className="h3">{blad === "brak-danych" ? "Nie ma jeszcze zaimportowanych arkuszy" : "Nie udało się wczytać arkuszy"}</h2>
-      <p className="muted">Arkusze CKE nie są częścią repozytorium. Pobierz je i przetwórz z katalogu głównego projektu, a potem odśwież stronę:</p>
+      <p className="muted">Arkusze CKE nie są częścią repozytorium. Pobierz je, przetwórz i wgraj do bazy z katalogu głównego projektu, a potem odśwież stronę:</p>
       <pre className={styles.code}>npm run pobierz{"\n"}npm run importuj</pre>
       {blad !== "brak-danych" && <p className="small muted">Szczegóły: {blad}</p>}
     </section>
