@@ -1,7 +1,7 @@
 // Edytor brudnopisu: Excalidraw z opcjonalnym rysunkiem bazowym z arkusza.
 // Ładowany leniwie (Brudnopis.tsx), bo Excalidraw waży kilkaset kB.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CaptureUpdateAction, convertToExcalidrawElements, Excalidraw, hashElementsVersion, newElementWith } from "@excalidraw/excalidraw";
+import { CaptureUpdateAction, convertToExcalidrawElements, Excalidraw, getCommonBounds, hashElementsVersion, newElementWith } from "@excalidraw/excalidraw";
 import type { AppState, BinaryFileData, DataURL, ExcalidrawImperativeAPI, ExcalidrawInitialDataState, NormalizedZoomValue } from "@excalidraw/excalidraw/types";
 import type { ExcalidrawElement, FileId } from "@excalidraw/excalidraw/element/types";
 import "@excalidraw/excalidraw/index.css";
@@ -46,6 +46,10 @@ const gruboscZ = (szerokosc: number, krycie: number) => GRUBOSCI.find((g) => g.s
 // Kadry mają wymiary w punktach PDF; w brudnopisie rysunek jest nieco większy,
 // żeby domyślna grubość kreski pasowała do skali figury.
 const SKALA_RYSUNKU = 1.5;
+// Startowe (i największe przy dopasowaniu) przybliżenie. Odręczna kreska
+// Excalidraw ma ok. 4× „grubości” średnicy, więc przy 100% pismo wygląda jak
+// pisane markerem; 75% z cienką kreską daje ok. 3 px, jak długopis.
+const ZOOM_START = 0.75;
 
 type Props = {
   plik: string; // identyfikator pliku rysunku, unikalny w arkuszu
@@ -112,12 +116,12 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
           viewBackgroundColor: "#ffffff",
           currentItemStrokeColor: KOLORY[0].wartosc,
           currentItemRoughness: 0,
-          currentItemStrokeWidth: 2,
+          currentItemStrokeWidth: 1, // cienka: odręczne pismo jak długopisem, nie markerem
           currentItemOpacity: 100,
           // W brudnopisie zaczyna się od pisania, nie od zaznaczania.
           activeTool: { type: "freedraw", customType: null, lastActiveTool: null, locked: false },
+          zoom: { value: ZOOM_START as NormalizedZoomValue },
         },
-        scrollToContent: true,
       };
     },
     // Scena startowa liczy się raz na otwarcie; dalej prowadzi ją Excalidraw.
@@ -148,7 +152,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
   // Stan paska narzędzi odbija stan edytora (skróty klawiszowe też zmieniają narzędzie).
   const [narzedzie, setNarzedzie] = useState<Narzedzie>("freedraw");
   const [kolor, setKolor] = useState(KOLORY[0].wartosc);
-  const [grubosc, setGrubosc] = useState<Grubosc["id"] | undefined>("srednia");
+  const [grubosc, setGrubosc] = useState<Grubosc["id"] | undefined>("cienka");
 
   const wybierz = (typ: Narzedzie) => api.current?.setActiveTool({ type: typ });
 
@@ -176,12 +180,36 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
       appState: { zoom: { value: nowy as NormalizedZoomValue }, scrollX: s.scrollX + cx / nowy - cx / z, scrollY: s.scrollY + cy / nowy - cy / z },
     });
   };
-  // Treść zajmuje część widoku, żeby wokół figury było miejsce na obliczenia.
-  const dopasuj = (animacja = true) => {
+  // Treść zajmuje część widoku, żeby wokół figury było miejsce na obliczenia,
+  // ale przybliżenie nie przekracza startowego: mała figura (sama oś liczbowa)
+  // nie może powiększyć płótna tak, że pismo wychodzi grube jak marker.
+  const dopasuj = (start = false, proba = 0) => {
     const a = api.current;
-    const els = a?.getSceneElements() ?? [];
-    // Na wąskim płótnie (telefon) miejsce na notatki jest nad i pod figurą, więc zajmuje ona prawie całą szerokość.
-    if (a && els.length) a.scrollToContent(els, { fitToViewport: true, viewportZoomFactor: a.getAppState().width < 500 ? 0.9 : 0.6, animate: animacja });
+    if (!a) return;
+    const s = a.getAppState();
+    // Tuż po wczytaniu płótno może nie mieć jeszcze zmierzonych wymiarów.
+    if ((s.width < 50 || s.height < 50) && proba < 30) {
+      requestAnimationFrame(() => dopasuj(start, proba + 1));
+      return;
+    }
+    const els = a.getSceneElements().filter((e) => !e.isDeleted);
+    let z = ZOOM_START;
+    let srodek = [0, 0];
+    if (els.length) {
+      const [x1, y1, x2, y2] = getCommonBounds(els);
+      // Na wąskim płótnie (telefon) miejsce na notatki jest nad i pod figurą, więc zajmuje ona prawie całą szerokość.
+      const udzial = s.width < 500 ? 0.9 : 0.6;
+      z = Math.min(ZOOM_START, (s.width * udzial) / Math.max(1, x2 - x1), (s.height * udzial) / Math.max(1, y2 - y1));
+      srodek = [(x1 + x2) / 2, (y1 + y2) / 2];
+    }
+    const widok: Partial<AppState> = {
+      zoom: { value: z as NormalizedZoomValue },
+      scrollX: s.width / (2 * z) - srodek[0],
+      scrollY: s.height / (2 * z) - srodek[1],
+    };
+    // Tekst ma na ekranie wyglądać jak zwykłe pismo (ok. 16 px) przy startowym przybliżeniu.
+    if (start) widok.currentItemFontSize = Math.min(36, Math.max(16, Math.round(16 / z)));
+    a.updateScene({ appState: widok as AppState });
   };
 
   // Cofanie i ponawianie nie mają API w Excalidraw 0.18, więc wysyłamy skrót
@@ -253,12 +281,15 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
             if (!wczytana.current) return; // pusta scena przed initialData
             const h = hashElementsVersion(els);
             if (wersja.current === null) {
+              // initialData już rozwiązane, ale elementy mogą wejść dopiero w kolejnym wywołaniu.
+              const oczekiwane = rysunek ? els.some((e) => e.id === ID_RYSUNKU) : !elementy?.length || els.length > 0;
+              if (!oczekiwane) return;
               // Pierwsze wywołanie po wczytaniu to scena startowa, nie zmiana.
               // Ustawiamy wtedy ołówek i widok z zapasem miejsca wokół treści.
               wersja.current = h;
               requestAnimationFrame(() => {
                 wybierz("freedraw");
-                dopasuj(false);
+                dopasuj(true);
               });
               return;
             }
