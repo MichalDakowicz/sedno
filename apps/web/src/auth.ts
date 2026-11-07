@@ -2,8 +2,16 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
+import { poprawne, type MojPrzedmiot } from "./konto/przedmioty";
 
-export type Profil = { id: string; display_name: string | null; avatar_url: string | null; server_ollama: boolean; onboarded_at: string | null };
+export type Profil = {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  server_ollama: boolean;
+  onboarded_at: string | null;
+  subjects: MojPrzedmiot[];
+};
 
 let current: Session | null = null;
 let ready = false;
@@ -72,9 +80,9 @@ const profilListeners = new Set<() => void>();
 async function loadProfil(id: string) {
   if (loading === id) return;
   loading = id;
-  const { data } = await supabase.from("profiles").select("id, display_name, avatar_url, server_ollama, onboarded_at").eq("id", id).maybeSingle();
+  const { data } = await supabase.from("profiles").select("id, display_name, avatar_url, server_ollama, onboarded_at, subjects").eq("id", id).maybeSingle();
   loading = null;
-  profil = { id, data };
+  profil = { id, data: data ? { ...data, subjects: poprawne(data.subjects) } : null };
   profilListeners.forEach((l) => l());
 }
 
@@ -101,4 +109,14 @@ export async function markOnboarded(): Promise<void> {
   await supabase.from("profiles").update({ onboarded_at }).eq("id", id);
   if (profil?.id === id && profil.data) profil = { id, data: { ...profil.data, onboarded_at } };
   profilListeners.forEach((l) => l());
+}
+
+export async function saveSubjects(subjects: MojPrzedmiot[]): Promise<boolean> {
+  const id = currentUserId();
+  if (!id) return false;
+  const { error } = await supabase.from("profiles").update({ subjects }).eq("id", id);
+  if (error) return false;
+  if (profil?.id === id && profil.data) profil = { id, data: { ...profil.data, subjects } };
+  profilListeners.forEach((l) => l());
+  return true;
 }

@@ -15,7 +15,7 @@ Backend Sedno: samodzielnie hostowany Supabase na serwerze domowym, publicznie p
 
 | Tabela | Do czego | Dostęp z aplikacji |
 | --- | --- | --- |
-| `profiles` | nazwa, avatar, `server_ollama` (dostęp do Ollamy serwera) | odczyt własnego, zmiana nazwy i avatara |
+| `profiles` | nazwa, avatar, `subjects` (przedmioty i poziomy maturalne), `server_ollama` (dostęp do Ollamy serwera) | odczyt własnego, zmiana nazwy, avatara, przedmiotów |
 | `sheet_progress` | postęp w arkuszu (`sheet_id`, `data` jsonb) | pełny na własnych wierszach |
 | `ai_credential` | dostawca AI konta, klucz zaszyfrowany | odczyt bez `key_cipher`, usuwanie; zapis tylko przez `ai-klucz` |
 | `ai_routing` | który dostawca (i opcjonalnie model) obsługuje `wazne` / `lekkie` | pełny na własnych wierszach |

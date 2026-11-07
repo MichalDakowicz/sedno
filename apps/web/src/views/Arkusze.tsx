@@ -4,6 +4,7 @@ import { ChevronRight, Clock, Headphones } from "lucide-react";
 import { useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom } from "../arkusze/typy";
+import { useProfil } from "../auth";
 import styles from "./Arkusze.module.css";
 
 const POZIOMY: Poziom[] = ["podstawowy", "rozszerzony", "dwujezyczny"];
@@ -16,7 +17,9 @@ const FORMULY = [
 
 export function Arkusze() {
   const { dane, blad, laduje } = useListaArkuszy();
-  const [poziom, setPoziom] = useState<Poziom>("podstawowy");
+  const profil = useProfil();
+  // Domyślnie poziom, który konto zdaje z angielskiego.
+  const [poziom, setPoziom] = useState<Poziom>(() => profil?.subjects.find((p) => p.id === "angielski")?.poziom ?? "podstawowy");
 
   return (
     <main className={`container ${styles.page}`}>
