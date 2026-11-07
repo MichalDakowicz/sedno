@@ -8,6 +8,7 @@ import { parsujArkusz } from "./arkusz.js";
 import { parsujKlucz } from "./klucz.js";
 import { scal } from "./scal.js";
 import { fragmentyMatematyki, kadruj, kluczMatematyki, otworzPdf, zadaniaMatematyki } from "./matematyka.js";
+import { czytajDocx, fragmentyDocx } from "./docx.js";
 
 const MIESIACE = { "05": "maj", "06": "czerwiec", "08": "sierpień" };
 // Ręczne poprawki ramek rysunków bazowych (matematyka.js).
@@ -34,14 +35,19 @@ for (const w of katalog) {
     let zadania, ostrzezenia;
     if (przedmiot === "matematyka") {
       const fragmenty = fragmentyMatematyki(strony);
+      // Treść ze wzorami z formy DOCX; kadry zostają dla zadań, których nie da się z niej wziąć.
+      const docx = w.tresc ? fragmentyDocx(await czytajDocx(join(KATALOG_CKE, w.tresc.plik))) : null;
       // Kadry i rysunki to wycinki arkusza CKE, więc lądują obok JSON-ów w data/.
       await kadruj(await otworzPdf(join(KATALOG_CKE, w.arkusz.plik)), fragmenty, {
         katalog: join(KATALOG_ARKUSZY, "obrazy", id),
         prefiks: `obrazy/${id}`,
         poprawki: POPRAWKI_RYSUNKOW[id],
+        zRysunkiem: new Set((docx ?? []).filter((d) => d.bloki.some((b) => b.typ === "miejsceRysunku")).map((d) => d.nr)),
       });
       const klucz = w.zasady ? kluczMatematyki(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
-      ({ zadania, ostrzezenia } = zadaniaMatematyki(fragmenty, klucz));
+      let kadry;
+      ({ zadania, ostrzezenia, kadry } = zadaniaMatematyki(fragmenty, klucz, docx));
+      if (kadry.length) process.stdout.write(`kadry: ${kadry.join("; ")} … `);
     } else {
       zadania = parsujArkusz(strony);
       const klucz = w.zasady ? parsujKlucz(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};

@@ -1,11 +1,28 @@
 // Kontrola spójności zaimportowanych arkuszy (data/arkusze/*.json):
 // każde pytanie ma klucz i miejsce w treści, luki wskazują istniejące
 // pytania, litery klucza są wśród możliwych odpowiedzi. Matematyka: kadry
-// i rysunki bazowe istnieją, zadanie otwarte bez wyniku ma stronę w zasadach.
+// i rysunki bazowe istnieją, zadanie otwarte bez wyniku ma stronę w zasadach,
+// każdy wzór LaTeX daje się wyrenderować przez KaTeX.
 // Użycie: node src/kontrola.js  (kod wyjścia 1, gdy są błędy)
 import { access, readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
+import katex from "katex";
 import { KATALOG_ARKUSZY } from "./sciezki.js";
+
+// Wszystkie wzory zadania: bloki „wzor” i \( … \) w tekstach, tabelach i opcjach.
+function wzory(z) {
+  const teksty = [];
+  const wynik = [];
+  for (const b of z.bloki) {
+    if (b.typ === "wzor") wynik.push(b.tex);
+    else if (b.typ === "akapit") teksty.push(b.tekst);
+    else if (b.typ === "tabelaTresci") teksty.push(...b.wiersze.flat());
+    else if (b.typ === "opcje") teksty.push(...b.opcje.map((o) => o.tresc));
+  }
+  for (const q of z.pytania) teksty.push(...(q.opcje ?? []).map((o) => o.tresc));
+  for (const t of teksty) for (const m of t.matchAll(/\\\((.*?)\\\)/gs)) wynik.push(m[1]);
+  return wynik;
+}
 
 const pliki = (await readdir(KATALOG_ARKUSZY)).filter((p) => p.endsWith(".json") && p !== "index.json");
 const indeks = JSON.parse(await readFile(join(KATALOG_ARKUSZY, "index.json"), "utf8"));
@@ -18,13 +35,20 @@ for (const plik of pliki.sort()) {
   if (!indeks.some((w) => w.id === a.id)) problemy.push("brak w index.json");
   if (!a.pdf?.arkusz || !a.pdf?.zasady) problemy.push("brak adresu PDF");
   if (a.przedmiot === "angielski" && !a.nagranie) problemy.push("brak nagrania");
-  const obrazy = a.zadania.flatMap((z) => [...z.bloki.filter((b) => b.typ === "kadr").map((b) => b.obraz.src), ...(z.rysunek ? [z.rysunek.src] : [])]);
+  const obrazy = a.zadania.flatMap((z) => [...z.bloki.filter((b) => b.typ === "kadr" || b.typ === "rysunek").map((b) => b.obraz.src), ...(z.rysunek ? [z.rysunek.src] : [])]);
   for (const src of obrazy) await access(join(KATALOG_ARKUSZY, src)).catch(() => problemy.push(`brak pliku ${src}`));
 
   const suma = a.zadania.reduce((s, z) => s + z.pytania.reduce((t, q) => t + q.punkty, 0), 0);
   if (suma !== a.punkty) problemy.push(`suma punktów ${suma} ≠ ${a.punkty}`);
 
   for (const z of a.zadania) {
+    for (const tex of wzory(z)) {
+      try {
+        katex.renderToString(tex, { throwOnError: true, strict: "ignore" });
+      } catch (e) {
+        problemy.push(`zad. ${z.nr}: wzór ${tex.slice(0, 40)}: ${e.message.slice(0, 60)}`);
+      }
+    }
     const nr = new Set(z.pytania.map((q) => q.nr));
     if (nr.size !== z.pytania.length) problemy.push(`zad. ${z.nr}: powtórzone numery pytań`);
     const wBlokach = new Set(z.bloki.flatMap((b) => (b.typ === "pytanie" ? [b.nr] : b.typ === "pytania" || b.typ === "tabela" ? b.nr : [])));

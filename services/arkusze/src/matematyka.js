@@ -76,7 +76,9 @@ export function fragmentyMatematyki(strony) {
 // samej litery opcji („A.”) czy liczby na osi; na takich liniach nie ma rysunku.
 const akapitowa = (l) => l.seg[0].x <= 90 && l.seg[0].s.length >= 4;
 
-export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {} }) {
+// zRysunkiem: numery fragmentów, w których forma DOCX ma rysunek; tam szukamy
+// figury z niższym progiem wysokości (pojedyncza oś liczbowa ma ok. 26 pt).
+export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {}, zRysunkiem = new Set() }) {
   await mkdir(katalog, { recursive: true });
   const strony = new Map();
   const strona = async (n) => {
@@ -112,7 +114,7 @@ export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {} }
       f.kadry.push(await zapiszWycinek(s, [KADR_X[0], Math.max(dol, ostatni - 6), KADR_X[1], gora], katalog, prefiks, plik));
 
       if (f.rysunek || poprawka === null || (poprawka && poprawka.strona !== c.strona)) continue;
-      const rysunek = poprawka ? { ramka: poprawka.ramka } : tabelaWyboru ? null : znajdzRysunek(s, c, tusz);
+      const rysunek = poprawka ? { ramka: poprawka.ramka } : tabelaWyboru ? null : znajdzRysunek(s, c, tusz, zRysunkiem.has(f.nr) ? 20 : MIN_RYSUNEK.wys);
       if (rysunek) f.rysunek = await zapiszWycinek(s, rysunek.ramka, katalog, prefiks, `${f.nr}-rysunek.png`);
     }
   }
@@ -137,7 +139,7 @@ function wierszeTuszu(s, gora, dol, wysStrony) {
   return wynik;
 }
 
-function znajdzRysunek(s, c, tusz) {
+function znajdzRysunek(s, c, tusz, minWys) {
   const zajete = (y) => (c.naglowek && y >= c.gora - 6) || c.linie.some((l) => akapitowa(l) && y >= l.y - 4 && y <= l.y + 11);
   // Pasy tuszu między liniami akapitów. Linia akapitu zamyka pas (tabela
   // z tekstem w wierszach to nie rysunek), a puste przerwy (odstęp między
@@ -155,7 +157,7 @@ function znajdzRysunek(s, c, tusz) {
     else pasy.push({ gora: y, dol: y });
     otwarty = true;
   }
-  const kandydaci = pasy.filter((p) => p.gora - p.dol >= MIN_RYSUNEK.wys);
+  const kandydaci = pasy.filter((p) => p.gora - p.dol >= minWys);
   if (!kandydaci.length) return null;
   const p = kandydaci.sort((a, b) => b.gora - b.dol - (a.gora - a.dol))[0];
   const [lewo, prawo] = zakresPoziomy(s, p.gora, p.dol);
@@ -231,25 +233,98 @@ export function kluczMatematyki(strony) {
   return klucz;
 }
 
+// Zdania-polecenia, które w arkuszu są pogrubione.
+const POLECENIE = /^(Dokończ zdanie|Oceń prawdziwość|Uzupełnij|Wybierz|Wpisz|Zapisz obliczenia|Oblicz|Wyznacz|Rozwiąż|Wykaż|Udowodnij|Podaj|Zaznacz)/;
+
+// Forma 660 bywa przerobiona (w zad. 6 z 2025 zamiast czterech osi liczbowych
+// są przedziały do wyboru). Wtedy pokazujemy kadr, żeby uczeń ćwiczył na
+// zadaniu z prawdziwego arkusza i żeby pasował klucz wersji A.
+const PROG_PODOBIENSTWA = 0.8;
+
+function powodKadru(f, d, tekstPdf) {
+  if (d.obiekty) return "osadzony obiekt w DOCX";
+  if (d.bloki.some((b) => b.typ === "miejsceRysunku") && !f.rysunek) return "rysunek bez wycinka z PDF";
+  const a = normalizuj(tekstPdf);
+  const b = normalizuj(d.porownanie);
+  const p = podobienstwo(a, b);
+  if (p >= PROG_PODOBIENSTWA) return null;
+  // Tabela bywa w formie 660 obrócona (wiersze zamiast kolumn): te same znaki, inna kolejność.
+  if (d.bloki.some((x) => x.typ === "tabelaTresci") && zbiezneZnaki(a, b) >= 0.9) return null;
+  return `treść różni się od arkusza (${Math.round(p * 100) / 100})`;
+}
+
+// Udział wspólnych znaków bez względu na kolejność (tabela obrócona w formie 660).
+function zbiezneZnaki(a, b) {
+  const licz = new Map();
+  for (const z of a) licz.set(z, (licz.get(z) ?? 0) + 1);
+  let wspolne = 0;
+  for (const z of b) if (licz.get(z) > 0) (licz.set(z, licz.get(z) - 1), wspolne++);
+  return (2 * wspolne) / (a.length + b.length);
+}
+
+// Do porównania zostają same litery i cyfry; NFKC zamienia kursywę
+// matematyczną z PDF (𝑥) na zwykłe litery. Wycinamy słowa, którymi forma 660
+// różni się zawsze („zapisz” zamiast „wybierz”, „jak na rysunku”).
+function normalizuj(s) {
+  return s
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/zapisz|wybierz|wpisz|po numerach zdań|jak na rysunku|na rysunku|zobacz rysunek|w wykropkowanych miejscach|brudnopis/g, "")
+    .replace(/[^a-z0-9ąćęłńóśźż]/g, "");
+}
+
+// 2·LCS / (|a| + |b|): 1 dla identycznych, odporne na pojedyncze wtrącenia.
+function podobienstwo(a, b) {
+  if (!a.length || !b.length) return 0;
+  let poprz = new Uint16Array(b.length + 1);
+  let akt = new Uint16Array(b.length + 1);
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) akt[j] = a[i - 1] === b[j - 1] ? poprz[j - 1] + 1 : Math.max(poprz[j], akt[j - 1]);
+    [poprz, akt] = [akt, poprz];
+  }
+  return (2 * poprz[b.length]) / (a.length + b.length);
+}
+
 // Fragmenty z kluczem składamy w zadania w formacie aplikacji (apps/web/src/arkusze/typy.ts).
-export function zadaniaMatematyki(fragmenty, klucz) {
+export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
   const ostrzezenia = [];
   const zadania = [];
+  const kadry = []; // fragmenty pokazane jako obraz, z powodem
   for (const f of fragmenty) {
     let z = zadania.find((x) => x.nr === f.zadanie);
     if (!z) zadania.push((z = { nr: f.zadanie, punkty: 0, sluchanie: false, polecenie: [], bloki: [], pytania: [] }));
-    f.czesci.forEach((c, i) => z.bloki.push({ typ: "kadr", obraz: f.kadry[i], tekst: c.linie.map((l) => l.s).join(" ") }));
     const tekst = f.czesci.flatMap((c) => c.linie.map((l) => l.s)).join(" ");
     if (f.rysunek && !z.rysunek) z.rysunek = f.rysunek;
+
+    const d = docx?.find((x) => x.nr === f.nr);
+    const powod = d ? powodKadru(f, d, tekst) : "brak DOCX";
+    const opcje = [];
+    if (powod) {
+      kadry.push(`${f.nr}: ${powod}`);
+      f.czesci.forEach((c, i) => z.bloki.push({ typ: "kadr", obraz: f.kadry[i], tekst: c.linie.map((l) => l.s).join(" ") }));
+    } else {
+      for (const b of d.bloki) {
+        if (b.typ === "opcja") opcje.push({ litera: b.litera, tresc: b.tresc });
+        else if (b.typ === "miejsceRysunku") z.bloki.push({ typ: "rysunek", obraz: f.rysunek });
+        else if (b.typ === "akapit" && POLECENIE.test(b.tekst)) z.bloki.push({ ...b, polecenie: true });
+        else z.bloki.push(b);
+      }
+      // Figura z PDF, której forma 660 nie ma jako rysunku, stoi na końcu treści.
+      if (f.rysunek && !d.bloki.some((b) => b.typ === "miejsceRysunku")) z.bloki.push({ typ: "rysunek", obraz: f.rysunek });
+    }
+
+    const k = f.punkty ? klucz[f.nr] : null;
+    const pelneOpcje = opcje.length === 4 && opcje.map((o) => o.litera).join("") === "ABCD";
+    const zamkniete = f.punkty && k?.kod && /^[A-D]$/.test(k.kod) && /Wybierz właściwą odpowiedź spośród podanych/.test(tekst);
+    // Opcje zamkniętego zadania renderuje pytanie; pozostałe (np. we wstępie) to zwykły blok.
+    if (opcje.length && !(zamkniete && pelneOpcje)) z.bloki.push({ typ: "opcje", opcje });
     if (!f.punkty) continue; // wspólny wstęp do podpunktów
 
-    const k = klucz[f.nr];
     if (!k) ostrzezenia.push(`${f.nr}: brak w kluczu`);
     else if (k.punkty !== f.punkty) ostrzezenia.push(`${f.nr}: ${f.punkty} pkt w arkuszu, ${k.punkty} w kluczu`);
     const baza = { nr: f.nr, tresc: "", punkty: f.punkty, ...(k ? { zasadyStrona: k.strona } : {}) };
-    const zamkniete = /Wybierz właściwą odpowiedź spośród podanych/.test(tekst);
-    if (k?.kod && /^[A-D]$/.test(k.kod) && zamkniete) {
-      z.pytania.push({ ...baza, typ: "zamkniete", litery: ["A", "B", "C", "D"], poprawna: k.kod });
+    if (zamkniete) {
+      z.pytania.push({ ...baza, typ: "zamkniete", litery: ["A", "B", "C", "D"], poprawna: k.kod, ...(pelneOpcje ? { opcje } : {}) });
     } else if (k?.kod || k?.odpowiedz) {
       // Kod (PF, A2, CE) albo krótki wynik: uczeń wpisuje go w pole, a przy
       // niezgodności ocenia sam, bo zapis może się różnić (np. przedział).
@@ -260,5 +335,6 @@ export function zadaniaMatematyki(fragmenty, klucz) {
     z.bloki.push({ typ: "pytanie", nr: f.nr });
     z.punkty += f.punkty;
   }
-  return { zadania, ostrzezenia };
+  return { zadania, ostrzezenia, kadry };
 }
+
