@@ -4,8 +4,8 @@
  {
   "id": "koncepcja",
   "title": "Koncepcja",
-  "group": "Produkt",
-  "desc": "Teza, pętla główna, pięć filarów i funkcje.",
+  "group": "Pomysł",
+  "desc": "Problem, teza, pętla główna, pięć filarów i funkcje.",
   "pages": [
    {
     "id": "koncepcja-teza",
@@ -34,65 +34,61 @@
   ]
  },
  {
-  "id": "struktura",
-  "title": "Struktura produktu",
-  "group": "Produkt",
-  "desc": "Pięć warstw, katalog funkcji, zależności i model danych.",
+  "id": "nauka",
+  "title": "Interaktywna nauka",
+  "group": "Jak uczymy",
+  "desc": "Siedem formatów nauki i trzy główne: serce aplikacji.",
   "pages": [
    {
-    "id": "struktura-warstwy",
-    "title": "Pięć warstw"
+    "id": "nauka-teza",
+    "title": "Trening zamiast sprawdzianu"
    },
    {
-    "id": "struktura-tresc",
-    "title": "Warstwa A: treść i dane"
+    "id": "nauka-fundament",
+    "title": "Zakotwiczenie w materiałach CKE"
    },
    {
-    "id": "struktura-uczenie",
-    "title": "Warstwa B: silnik uczenia"
+    "id": "formaty-przeglad",
+    "title": "Trzy główne formaty"
    },
    {
-    "id": "struktura-silnik-ai",
-    "title": "Warstwa C: silnik AI"
+    "id": "nauka-napraw-blad",
+    "title": "Napraw błąd"
    },
    {
-    "id": "struktura-aplikacja",
-    "title": "Warstwa D: aplikacja ucznia"
+    "id": "nauka-uczen-uczy",
+    "title": "Uczeń uczy AI"
    },
    {
-    "id": "struktura-moduly",
-    "title": "Warstwa E: moduły przedmiotowe"
+    "id": "nauka-krok-po-kroku",
+    "title": "Budowanie krok po kroku"
    },
    {
-    "id": "struktura-dodatki",
-    "title": "Dodatki ponad rdzeń"
+    "id": "nauka-tutor",
+    "title": "Tutor sokratejski"
    },
    {
-    "id": "struktura-zaleznosci",
-    "title": "Zależności i kolejność budowy"
+    "id": "nauka-rundy",
+    "title": "Szybkie rundy i powtórki"
    },
    {
-    "id": "struktura-model",
-    "title": "Model danych"
+    "id": "nauka-wizualizacje",
+    "title": "Wizualizacje per przedmiot"
    },
    {
-    "id": "struktura-dane-ucznia",
-    "title": "Dane ucznia i personalizacja"
+    "id": "nauka-mapa-wiedzy",
+    "title": "Mapa wiedzy"
    },
    {
-    "id": "struktura-jakosc",
-    "title": "Jak mierzymy jakość AI"
-   },
-   {
-    "id": "struktura-pytania",
-    "title": "Pytania do struktury"
+    "id": "nauka-pytania",
+    "title": "Do ustalenia"
    }
   ]
  },
  {
   "id": "mapa",
   "title": "Mapa umiejętności",
-  "group": "Produkt",
+  "group": "Jak uczymy",
   "desc": "Dwa poziomy umiejętności i dowody opanowania.",
   "pages": [
    {
@@ -124,7 +120,7 @@
  {
   "id": "tryby",
   "title": "Tryby i pomoc",
-  "group": "Produkt",
+  "group": "Jak uczymy",
   "desc": "Nauka i egzamin, drabina podpowiedzi, warianty zadań.",
   "pages": [
    {
@@ -150,63 +146,67 @@
   ]
  },
  {
-  "id": "nauka",
-  "title": "Interaktywna nauka",
-  "group": "Produkt",
-  "desc": "Siedem formatów nauki: główna wartość aplikacji.",
+  "id": "ocena",
+  "title": "Ocena AI",
+  "group": "Jak uczymy",
+  "desc": "Rubryka CKE jako dane, sześć typów błędu, AI klasyfikuje, kod liczy.",
   "pages": [
    {
-    "id": "nauka-teza",
-    "title": "Trening zamiast sprawdzianu"
+    "id": "ocena-ustalone",
+    "title": "Ustalone"
    },
    {
-    "id": "nauka-fundament",
-    "title": "Zakotwiczenie w materiałach CKE"
+    "id": "ocena-zasada",
+    "title": "Zasada: AI klasyfikuje, kod liczy"
    },
    {
-    "id": "nauka-napraw-blad",
-    "title": "Napraw błąd"
+    "id": "ocena-rubryka",
+    "title": "Rubryka jako dane"
    },
    {
-    "id": "nauka-tutor",
-    "title": "Tutor sokratejski"
+    "id": "ocena-angielski",
+    "title": "Analiza rubryki: angielski dwujęzyczny"
    },
    {
-    "id": "nauka-krok-po-kroku",
-    "title": "Budowanie krok po kroku"
+    "id": "ocena-kaskady",
+    "title": "Reguły kaskadowe"
    },
    {
-    "id": "nauka-uczen-uczy",
-    "title": "Uczeń uczy AI"
+    "id": "ocena-podzial",
+    "title": "Co robi kod, a co AI"
    },
    {
-    "id": "nauka-rundy",
-    "title": "Szybkie rundy i powtórki"
+    "id": "ocena-niepewnosc",
+    "title": "Punkty i opis"
    },
    {
-    "id": "nauka-wizualizacje",
-    "title": "Wizualizacje per przedmiot"
+    "id": "ocena-kalibracja",
+    "title": "Kalibracja i uczciwość"
    },
    {
-    "id": "nauka-mapa-wiedzy",
-    "title": "Mapa wiedzy"
+    "id": "ocena-feedback",
+    "title": "Poziom szczegółowości feedbacku"
    },
    {
-    "id": "nauka-pytania",
+    "id": "ocena-typy",
+    "title": "Sześć typów błędu"
+   },
+   {
+    "id": "ocena-informatyka",
+    "title": "Informatyka: sprawdzanie kodu"
+   },
+   {
+    "id": "ocena-pytania",
     "title": "Do ustalenia"
    }
   ]
  },
  {
-  "id": "formaty",
-  "title": "Trzy główne formaty",
-  "group": "Produkt",
-  "desc": "Napraw błąd, uczeń uczy AI, budowanie krok po kroku.",
+  "id": "blad",
+  "title": "Napraw błąd",
+  "group": "Trzy główne formaty",
+  "desc": "Uczeń znajduje i poprawia błędy w cudzej pracy: przepływ, dane, ocena, rozbiór.",
   "pages": [
-   {
-    "id": "formaty-przeglad",
-    "title": "Trzy formaty, jedna droga"
-   },
    {
     "id": "formaty-blad-przeplyw",
     "title": "Napraw błąd: przepływ"
@@ -219,42 +219,6 @@
     "id": "formaty-blad-poziomy",
     "title": "Napraw błąd: poziomy i dowody"
    },
-   {
-    "id": "formaty-uczen-przeplyw",
-    "title": "Uczeń uczy AI: przepływ"
-   },
-   {
-    "id": "formaty-uczen-mechanika",
-    "title": "Uczeń uczy AI: mechanika i AI"
-   },
-   {
-    "id": "formaty-uczen-ocena",
-    "title": "Uczeń uczy AI: ocena i dowody"
-   },
-   {
-    "id": "formaty-krok-przeplyw",
-    "title": "Budowanie krok po kroku: przepływ"
-   },
-   {
-    "id": "formaty-krok-mechanika",
-    "title": "Budowanie krok po kroku: mechanika i AI"
-   },
-   {
-    "id": "formaty-krok-wygaszanie",
-    "title": "Budowanie krok po kroku: wygaszanie pomocy"
-   },
-   {
-    "id": "formaty-pytania",
-    "title": "Do ustalenia"
-   }
-  ]
- },
- {
-  "id": "blad",
-  "title": "Napraw błąd: projekt",
-  "group": "Produkt",
-  "desc": "Szczegółowy projekt formatu: dane, generowanie, ocena, rozbiór.",
-  "pages": [
    {
     "id": "blad-przyklad",
     "title": "Pełny przykład pracy"
@@ -307,10 +271,22 @@
  },
  {
   "id": "uczen",
-  "title": "Uczeń uczy AI: projekt",
-  "group": "Produkt",
-  "desc": "Szczegółowy projekt formatu: scenariusz, dwa agenty, ocena, bezpieczeństwo.",
+  "title": "Uczeń uczy AI",
+  "group": "Trzy główne formaty",
+  "desc": "Uczeń tłumaczy zasadę AI, które się myli: scenariusz, dwa agenty, ocena, bezpieczeństwo.",
   "pages": [
+   {
+    "id": "formaty-uczen-przeplyw",
+    "title": "Uczeń uczy AI: przepływ"
+   },
+   {
+    "id": "formaty-uczen-mechanika",
+    "title": "Uczeń uczy AI: mechanika i AI"
+   },
+   {
+    "id": "formaty-uczen-ocena",
+    "title": "Uczeń uczy AI: ocena i dowody"
+   },
    {
     "id": "uczen-przyklad",
     "title": "Pełny przykład rozmowy"
@@ -367,10 +343,22 @@
  },
  {
   "id": "krok",
-  "title": "Krok po kroku: projekt",
-  "group": "Produkt",
-  "desc": "Szczegółowy projekt formatu: etapy, lista kontrolna z rubryki, wygaszanie pomocy.",
+  "title": "Krok po kroku",
+  "group": "Trzy główne formaty",
+  "desc": "Uczeń buduje własną pracę z malejącą pomocą: etapy, lista z rubryki, ocena.",
   "pages": [
+   {
+    "id": "formaty-krok-przeplyw",
+    "title": "Budowanie krok po kroku: przepływ"
+   },
+   {
+    "id": "formaty-krok-mechanika",
+    "title": "Budowanie krok po kroku: mechanika i AI"
+   },
+   {
+    "id": "formaty-krok-wygaszanie",
+    "title": "Budowanie krok po kroku: wygaszanie pomocy"
+   },
    {
     "id": "krok-przyklad",
     "title": "Pełny przykład sesji"
@@ -426,18 +414,18 @@
   ]
  },
  {
-  "id": "dashboard",
-  "title": "Dashboard i nawigacja",
-  "group": "Produkt",
-  "desc": "Główny panel, widgety, nawigacja i wejścia do nauki.",
+  "id": "pulpit",
+  "title": "Pulpit i nawigacja",
+  "group": "Aplikacja",
+  "desc": "Centrum aplikacji: ekran główny, sekcje, wejścia do nauki, telefon.",
   "pages": [
    {
     "id": "dashboard-rola",
-    "title": "Dashboard jako centrum"
+    "title": "Pulpit jako centrum"
    },
    {
-    "id": "dashboard-widgety",
-    "title": "Widgety i dostosowanie"
+    "id": "dash-ekran",
+    "title": "Ekran główny"
    },
    {
     "id": "dashboard-nawigacja",
@@ -448,28 +436,36 @@
     "title": "Wejścia do nauki"
    },
    {
+    "id": "dash-start",
+    "title": "Pierwsze uruchomienie"
+   },
+   {
+    "id": "dash-szukaj",
+    "title": "Wyszukiwanie i szybkie akcje"
+   },
+   {
     "id": "dashboard-ustawienia",
     "title": "Ustawienia"
    },
    {
-    "id": "dashboard-pytania",
-    "title": "Do ustalenia"
+    "id": "dash-telefon",
+    "title": "Pulpit na telefonie"
+   },
+   {
+    "id": "dash-dostepnosc",
+    "title": "Dostępność i język"
    }
   ]
  },
  {
-  "id": "dash",
-  "title": "Dashboard: projekt",
-  "group": "Produkt",
-  "desc": "Szczegółowy projekt: ekran, widgety, rekomendacje, układ, stany, demo.",
+  "id": "widgety",
+  "title": "Widgety pulpitu",
+  "group": "Aplikacja",
+  "desc": "Dziś warto, mapa, powtórki, arkusze, układ, stany i konto demo.",
   "pages": [
    {
-    "id": "dash-ekran",
-    "title": "Ekran główny"
-   },
-   {
-    "id": "dash-start",
-    "title": "Pierwsze uruchomienie"
+    "id": "dashboard-widgety",
+    "title": "Widgety i dostosowanie"
    },
    {
     "id": "dash-dzis",
@@ -500,24 +496,12 @@
     "title": "Dostosowanie układu"
    },
    {
-    "id": "dash-szukaj",
-    "title": "Wyszukiwanie i szybkie akcje"
-   },
-   {
     "id": "dash-stany",
     "title": "Stany ekranu"
    },
    {
-    "id": "dash-telefon",
-    "title": "Dashboard na telefonie"
-   },
-   {
-    "id": "dash-dostepnosc",
-    "title": "Dostępność i język"
-   },
-   {
     "id": "dash-dane",
-    "title": "Dane dashboardu"
+    "title": "Dane pulpitu"
    },
    {
     "id": "dash-demo",
@@ -530,58 +514,58 @@
   ]
  },
  {
-  "id": "ocena",
-  "title": "Typ błędu i ocena AI",
-  "group": "Produkt",
-  "desc": "Rubryka CKE jako dane, AI klasyfikuje, kod liczy.",
+  "id": "struktura",
+  "title": "Struktura produktu",
+  "group": "Podstawy",
+  "desc": "Pięć warstw, zależności, model danych i jakość AI.",
   "pages": [
    {
-    "id": "ocena-ustalone",
-    "title": "Ustalone"
+    "id": "struktura-warstwy",
+    "title": "Pięć warstw"
    },
    {
-    "id": "ocena-zasada",
-    "title": "Zasada: AI klasyfikuje, kod liczy"
+    "id": "struktura-tresc",
+    "title": "Warstwa A: treść i dane"
    },
    {
-    "id": "ocena-rubryka",
-    "title": "Rubryka jako dane"
+    "id": "struktura-uczenie",
+    "title": "Warstwa B: silnik uczenia"
    },
    {
-    "id": "ocena-angielski",
-    "title": "Analiza rubryki: angielski dwujęzyczny"
+    "id": "struktura-silnik-ai",
+    "title": "Warstwa C: silnik AI"
    },
    {
-    "id": "ocena-kaskady",
-    "title": "Reguły kaskadowe"
+    "id": "struktura-aplikacja",
+    "title": "Warstwa D: aplikacja ucznia"
    },
    {
-    "id": "ocena-podzial",
-    "title": "Co robi kod, a co AI"
+    "id": "struktura-moduly",
+    "title": "Warstwa E: moduły przedmiotowe"
    },
    {
-    "id": "ocena-niepewnosc",
-    "title": "Punkty i opis"
+    "id": "struktura-dodatki",
+    "title": "Dodatki ponad rdzeń"
    },
    {
-    "id": "ocena-kalibracja",
-    "title": "Kalibracja i uczciwość"
+    "id": "struktura-zaleznosci",
+    "title": "Zależności i kolejność budowy"
    },
    {
-    "id": "ocena-feedback",
-    "title": "Poziom szczegółowości feedbacku"
+    "id": "struktura-model",
+    "title": "Model danych"
    },
    {
-    "id": "ocena-typy",
-    "title": "Sześć typów błędu"
+    "id": "struktura-dane-ucznia",
+    "title": "Dane ucznia i personalizacja"
    },
    {
-    "id": "ocena-informatyka",
-    "title": "Informatyka: sprawdzanie kodu"
+    "id": "struktura-jakosc",
+    "title": "Jak mierzymy jakość AI"
    },
    {
-    "id": "ocena-pytania",
-    "title": "Do ustalenia"
+    "id": "struktura-pytania",
+    "title": "Pytania do struktury"
    }
   ]
  },
@@ -621,7 +605,7 @@
   "id": "przedmioty",
   "title": "Przedmioty",
   "group": "Podstawy",
-  "desc": "Specyfika przedmiotów.",
+  "desc": "Od czego zaczynamy i jak dochodzą kolejne.",
   "pages": [
    {
     "id": "przedmioty-start",
@@ -686,7 +670,7 @@
   ]
  }
 ];
-  var GROUPS = ['Produkt', 'Podstawy', 'Projekt'];
+  var GROUPS = ['Pomysł', 'Jak uczymy', 'Trzy główne formaty', 'Aplikacja', 'Podstawy', 'Projekt'];
 
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   var PAGES = [];
