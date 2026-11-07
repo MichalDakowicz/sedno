@@ -6,7 +6,8 @@
   "scripts": {
     "pobierz": "node src/pobierz.js",
     "importuj": "node src/importuj.js",
-    "kontrola": "node src/kontrola.js"
+    "kontrola": "node src/kontrola.js",
+    "wgraj": "node src/wgraj.js"
   },
   "dependencies": {
     "pdfjs-dist": "^4.10.38"

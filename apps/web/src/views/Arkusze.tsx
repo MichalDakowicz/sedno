@@ -101,7 +101,7 @@ function BrakDanych({ blad }: { blad: string }) {
   return (
     <section className={styles.empty}>
       <h2 className="h3">{blad === "brak-danych" ? "Nie ma jeszcze zaimportowanych arkuszy" : "Nie udało się wczytać arkuszy"}</h2>
-      <p className="muted">Arkusze CKE nie są częścią repozytorium. Pobierz je i przetwórz z katalogu głównego projektu, a potem odśwież stronę:</p>
+      <p className="muted">Arkusze CKE nie są częścią repozytorium. Pobierz je, przetwórz i wgraj do bazy z katalogu głównego projektu, a potem odśwież stronę:</p>
       <pre className={styles.code}>npm run pobierz{"\n"}npm run importuj</pre>
       {blad !== "brak-danych" && <p className="small muted">Szczegóły: {blad}</p>}
     </section>

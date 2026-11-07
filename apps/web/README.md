@@ -35,7 +35,7 @@ Pestka jest zawsze widoczna, ale nie ma stałego miejsca w treści (`TutorGuide.
 
 ## Arkusze
 
-Dane arkuszy nie są w repo. Najpierw `npm run pobierz` i `npm run importuj` (opis w `services/arkusze/README.md`); wtedy serwer dev serwuje `data/arkusze/*.json` pod `/dane/arkusze/`, a build kopiuje je do `dist/dane/arkusze`.
+Dane arkuszy nie są w repo ani w buildzie. `npm run pobierz`, `npm run importuj`, a potem `npm run wgraj` (opis w `services/arkusze/README.md`) wgrywa je do tabeli `sheets` w Supabase; aplikacja czyta je stamtąd po zalogowaniu (RLS).
 
 - `src/arkusze/typy.ts`: format danych z importu.
 - `src/arkusze/sprawdz.ts`: sprawdzanie bez AI. Zamknięte z klucza; otwarte zgodne z listą CKE są zaliczone, z listy niepoprawnych niezaliczone, reszta idzie do samooceny.
