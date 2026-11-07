@@ -381,6 +381,12 @@ function Pokaz({ ai, przedmioty, onDalej }: { ai: boolean; przedmioty: MojPrzedm
         </form>
       )}
 
+      {wybor && tury < 3 && (
+        <p className={styles.note}>
+          Możesz napisać jeszcze {3 - tury} {3 - tury === 1 ? "odpowiedź" : "odpowiedzi"} albo przejść dalej.
+        </p>
+      )}
+
       {tury >= 2 && stan === "idle" && (
         <button type="button" className="btn btn-primary" onClick={onDalej}>
           Dalej
