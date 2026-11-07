@@ -309,9 +309,23 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
               </button>
             </>
           ) : (
-            <button type="button" className="btn btn-secondary btn-sm" onClick={onSprawdz} disabled={!odpowiedziane}>
-              <Check size={16} aria-hidden="true" /> Sprawdź zadanie {zadanie.nr}.
-            </button>
+            <>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={onSprawdz}
+                disabled={!odpowiedziane}
+                aria-describedby={odpowiedziane ? undefined : `zadanie-${zadanie.nr}-czeka`}
+              >
+                <Check size={16} aria-hidden="true" /> Sprawdź zadanie {zadanie.nr}.
+              </button>
+              {/* Wyszarzony przycisk sam nie mówi, czego brakuje. */}
+              {!odpowiedziane && (
+                <span id={`zadanie-${zadanie.nr}-czeka`} className="small muted">
+                  Odpowiedz na co najmniej jedno pytanie, żeby sprawdzić.
+                </span>
+              )}
+            </>
           )}
         </div>
       )}
