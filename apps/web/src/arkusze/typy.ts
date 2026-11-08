@@ -42,11 +42,15 @@ export type Blok = { strona?: number } & (
   | { typ: "pytania" | "tabela"; nr: string[] }
 );
 
+// Kawałek nagrania, w którym pada odpowiedź na pytanie ze słuchania (sekundy od początku pliku).
+export type CzescNagrania = { od: number; do: number; tekst: string };
+
 type PytanieBaza = {
   nr: string;
   tresc: string;
   punkty: number;
   wTekscie?: boolean;
+  fragment?: CzescNagrania; // dopasowany skryptem services/arkusze/nagrania
   zasadyStrona?: number; // strona zadania w PDF zasad oceniania (schemat punktowania)
 };
 

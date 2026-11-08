@@ -24,6 +24,7 @@ import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
 import { OmowienieBledow } from "../components/OmowienieBledow";
+import { FragmentNagrania } from "../components/FragmentNagrania";
 import { useTutor } from "../components/TutorContext";
 import { doOmowienia } from "../arkusze/omowienie";
 import { useSession } from "../auth";
@@ -1241,6 +1242,7 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
           {w === "dobrze" ? "Dobrze" : `${odp ? `Twoja: ${odp}. ` : "Brak odpowiedzi. "}Poprawna: ${p.poprawna}`}
         </p>
         {w !== "dobrze" && zdanie && !p.opcje?.length && <p className={`small muted ${styles.correctText}`}><Tekst tekst={zdanie} /></p>}
+        {p.fragment && arkusz.nagranie && <FragmentNagrania src={arkusz.nagranie} fragment={p.fragment} />}
       </div>
     );
   }
@@ -1255,6 +1257,7 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
         {surowy === "pusto" && "Brak odpowiedzi"}
         {surowy === "do-oceny" && opisSamooceny(p, postep.samoocena[p.nr], !!(p.oczekiwane?.length || p.akceptowane?.length))}
       </p>
+      {p.fragment && arkusz.nagranie && <FragmentNagrania src={arkusz.nagranie} fragment={p.fragment} />}
       {surowy !== "dobrze" && (
         <div className={styles.key}>
           {schemat && (
