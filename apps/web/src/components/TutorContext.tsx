@@ -130,7 +130,6 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
         {
           tier: "lekkie",
           task: "pestka-czat",
-          maxTokens: 1500,
           messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura" }, historia),
         },
         (delta) => {

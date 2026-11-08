@@ -248,7 +248,6 @@ function Pokaz({ ai, przedmioty, onDalej }: { ai: boolean; przedmioty: MojPrzedm
           {
             tier: "lekkie",
             task: "onboarding-pokaz",
-            maxTokens: 1500,
             messages: rozmowa({ przedmiot: przedmiot(ktory)!.nazwa.toLowerCase(), umiejetnosc: zadanie.umiejetnosc, zadanie: tekstZadania() }, historia),
           },
           (d) => {
