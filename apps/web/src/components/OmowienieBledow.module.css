@@ -144,6 +144,6 @@
   padding: 10px 16px 14px;
 }
 
-.akcje :global(.btn-soft) {
+.akcje :global(.btn-dark) {
   margin-left: auto;
 }

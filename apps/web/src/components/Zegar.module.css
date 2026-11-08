@@ -61,64 +61,19 @@
   white-space: nowrap;
 }
 
-/* Jak Dynamic Island: pełny zegar wyrasta z wyspy (ciemny, jej rozmiaru, na jej miejscu) i rośnie
-   w dół do białego zegara; chowanie to ta sama droga z powrotem. Treść pojawia się, gdy kształt jest już duży. */
+/* Pełny zegar pod wyspą. Kształt (z wyspy w pełny zegar) animuje Zegar.tsx przez Web Animations API. */
 .wyspa .panel {
   position: absolute;
   top: calc(100% + 14px);
   left: 50%;
   z-index: 40;
   translate: -50% 0;
-  transform-origin: 50% 0;
-  animation: wyrosnij 0.5s cubic-bezier(0.3, 1.25, 0.45, 1) both;
+  overflow: hidden;
 }
 
-.wyspa .panel > * {
-  animation: pokaz 0.5s ease both;
-}
-
-.wyspa .zamyka {
-  animation: schowaj 0.32s cubic-bezier(0.5, 0, 0.75, 0) both;
-}
-
-.wyspa .zamyka > * {
-  animation: ukryj 0.12s ease both;
-}
-
-@keyframes wyrosnij {
-  from {
-    transform: translateY(calc(-100% * var(--sy, 0.8) - 14px)) scale(var(--sx, 0.45), var(--sy, 0.8));
-    background: var(--fg);
-    box-shadow: none;
-  }
-  45% {
-    background: var(--fg);
-  }
-}
-
-@keyframes schowaj {
-  55% {
-    background: var(--fg);
-  }
-  to {
-    transform: translateY(calc(-100% * var(--sy, 0.8) - 14px)) scale(var(--sx, 0.45), var(--sy, 0.8));
-    background: var(--fg);
-    box-shadow: none;
-    opacity: 0;
-  }
-}
-
-@keyframes pokaz {
-  0%,
-  45% {
-    opacity: 0;
-  }
-}
-
-@keyframes ukryj {
-  to {
-    opacity: 0;
-  }
+/* Wyspa na czas wysunięcia: niewidoczna, ale zajmuje miejsce, żeby menu nie skakało. */
+.ukryta {
+  visibility: hidden;
 }
 
 .samodzielny {
@@ -170,14 +125,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wyspa,
-  .wyspa .panel,
-  .wyspa .panel > * {
+  .wyspa {
     animation: none;
-  }
-
-  .wyspa .zamyka {
-    display: none;
   }
 }
 
