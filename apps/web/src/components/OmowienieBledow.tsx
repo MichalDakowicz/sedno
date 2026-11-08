@@ -23,7 +23,9 @@ const zuzyteWejscia = new Set<number>();
 
 /** Skąd Pestka wskakuje do karty: z miejsca podziału (pierwszy błąd) albo z góry (null, kolejne błędy). */
 export type Wejscie = { z: DOMRect | null; id: number };
-type StanPrzykladu = { stan: "laduje" } | { stan: "brak" } | { stan: "gotowy"; zadanie: Przyklad; wybrana?: string };
+// `po`: ile wiadomości było w rozmowie, gdy uczeń poprosił o przykład. Przykład stoi w tym miejscu osi rozmowy,
+// a to, co uczeń napisze później, pojawia się pod nim, nie nad nim.
+type StanPrzykladu = { po: number } & ({ stan: "laduje" } | { stan: "brak" } | { stan: "gotowy"; zadanie: Przyklad; wybrana?: string });
 
 // Pierwsza wiadomość ucznia nie jest pokazywana: tylko uruchamia omówienie.
 const START = "Omówmy to zadanie.";
@@ -233,15 +235,28 @@ export function OmowienieBledow({
   }
 
   async function dajPrzyklad() {
-    setPrzyklad({ stan: "laduje" });
+    const po = rozmowa.length;
+    setPrzyklad({ po, stan: "laduje" });
     const zadanie = await zrobPrzyklad(arkusz, d, postep).catch(() => null);
-    setPrzyklad(zadanie ? { stan: "gotowy", zadanie } : { stan: "brak" });
+    setPrzyklad(zadanie ? { po, stan: "gotowy", zadanie } : { po, stan: "brak" });
   }
 
   function wybierz(litera: string) {
     if (przyklad?.stan !== "gotowy" || przyklad.wybrana) return;
     setPrzyklad({ ...przyklad, wybrana: litera });
     onWynikPrzykladu(nr, litera === przyklad.zadanie.poprawna ? "dobrze" : "zle");
+  }
+
+  function wiadomosc(m: Wiadomosc, i: number) {
+    return m.od === "tutor" ? (
+      <Markdown key={i} className={chat.tutorText}>
+        {m.tekst}
+      </Markdown>
+    ) : (
+      <p key={i} className={chat.studentText}>
+        {m.tekst}
+      </p>
+    );
   }
 
   return (
@@ -267,25 +282,7 @@ export function OmowienieBledow({
             ))}
           </div>
         )}
-        {rozmowa.map((m, i) =>
-          m.od === "tutor" ? (
-            <Markdown key={i} className={chat.tutorText}>
-              {m.tekst}
-            </Markdown>
-          ) : (
-            <p key={i} className={chat.studentText}>
-              {m.tekst}
-            </p>
-          ),
-        )}
-        {mysli && (rozmowa.at(-1)?.od !== "tutor" || !rozmowa.at(-1)?.tekst) && (
-          <span className={chat.typing} aria-label="Pestka pisze">
-            <i />
-            <i />
-            <i />
-          </span>
-        )}
-
+        {rozmowa.slice(0, przyklad?.po ?? rozmowa.length).map(wiadomosc)}
         {/* Przygotowanie przykładu trwa kilka sekund (model układa zadanie i je sprawdza), więc widać, że coś się dzieje. */}
         {przyklad?.stan === "laduje" && (
           <div className={styles.laduje} role="status">
@@ -319,6 +316,14 @@ export function OmowienieBledow({
               </Markdown>
             )}
           </div>
+        )}
+        {przyklad && rozmowa.slice(przyklad.po).map((m, i) => wiadomosc(m, przyklad.po + i))}
+        {mysli && (rozmowa.at(-1)?.od !== "tutor" || !rozmowa.at(-1)?.tekst) && (
+          <span className={chat.typing} aria-label="Pestka pisze">
+            <i />
+            <i />
+            <i />
+          </span>
         )}
       </div>
 
