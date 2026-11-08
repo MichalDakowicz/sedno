@@ -1,6 +1,6 @@
-// Panel omawiania błędów: Pestka przechodzi z uczniem po zadaniach z błędem, jedno po drugim.
-// Przewija do zadania i je podświetla, zaczyna od pytania naprowadzającego, a na prośbę daje
-// zadanie podobne, żeby sprawdzić, czy uczeń zrozumiał.
+// Karta omawiania jednego błędu. Pestka „wypluwa” ją pod zadaniem z błędem: zaczyna od pytania
+// naprowadzającego, prowadzi rozmowę i na prośbę daje zadanie podobne, żeby sprawdzić, czy uczeń
+// zrozumiał. Karta leży w treści strony, więc nie zasłania zadania ani na komputerze, ani na telefonie.
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, Lightbulb, X } from "lucide-react";
 import { aiErrorText, AiError, streamAi, type AiMessage } from "../ai";
@@ -22,28 +22,31 @@ const START = "Omówmy to zadanie.";
 export function OmowienieBledow({
   arkusz,
   postep,
-  lista,
+  d,
+  numer,
+  wszystkich,
+  onDalej,
   onWynikPrzykladu,
   onZamknij,
 }: {
   arkusz: Arkusz;
   postep: Postep;
-  lista: DoOmowienia[];
+  d: DoOmowienia;
+  numer: number;
+  wszystkich: number;
+  onDalej: () => void;
   onWynikPrzykladu: (zadanie: number, wynik: "dobrze" | "zle") => void;
   onZamknij: () => void;
 }) {
-  const [ktory, setKtory] = useState(0);
-  const [rozmowy, setRozmowy] = useState<Record<number, Wiadomosc[]>>({});
+  const [rozmowa, setRozmowa] = useState<Wiadomosc[]>([]);
   const [mysli, setMysli] = useState(false);
-  const [przyklady, setPrzyklady] = useState<Record<number, StanPrzykladu>>({});
+  const [przyklad, setPrzyklad] = useState<StanPrzykladu | null>(null);
   const [szkic, setSzkic] = useState("");
   const listaRef = useRef<HTMLDivElement>(null);
-  const d = lista[ktory]!;
   const nr = d.zadanie.nr;
-  const rozmowa = rozmowy[nr] ?? [];
-  const przyklad = przyklady[nr];
+  const ostatni = numer === wszystkich;
 
-  // Przewiń do zadania i podświetl je, póki trwa jego omawianie.
+  // Podświetl zadanie i przewiń do niego; karta jest zaraz pod nim.
   useEffect(() => {
     const el = document.getElementById(`zadanie-${nr}`);
     el?.setAttribute("data-omawiane", "true");
@@ -63,7 +66,7 @@ export function OmowienieBledow({
       ...historia.map((m): AiMessage => ({ role: m.od === "tutor" ? "assistant" : "user", content: m.tekst })),
     ];
     let tekst = "";
-    const pisz = (t: string) => setRozmowy((r) => ({ ...r, [nr]: [...historia, { od: "tutor", tekst: t }] }));
+    const pisz = (t: string) => setRozmowa([...historia, { od: "tutor", tekst: t }]);
     try {
       await streamAi({ tier: poziomAI(d), task: d.wypracowanie ? "omowienie-wypracowania" : "omowienie-bledu", messages: wiadomosci }, (delta) => {
         tekst += delta;
@@ -76,10 +79,10 @@ export function OmowienieBledow({
     setMysli(false);
   }
 
-  // Pierwsze zadanie z listy i każde kolejne zaczyna Pestka.
+  // Każde zadanie zaczyna Pestka.
   useEffect(() => {
-    if (!rozmowy[nr]) void zapytaj([]);
-  }, [nr]);
+    void zapytaj([]);
+  }, []);
 
   function wyslij(e: FormEvent) {
     e.preventDefault();
@@ -90,24 +93,23 @@ export function OmowienieBledow({
   }
 
   async function dajPrzyklad() {
-    setPrzyklady((p) => ({ ...p, [nr]: { stan: "laduje" } }));
+    setPrzyklad({ stan: "laduje" });
     const zadanie = await zrobPrzyklad(arkusz, d, postep).catch(() => null);
-    setPrzyklady((p) => ({ ...p, [nr]: zadanie ? { stan: "gotowy", zadanie } : { stan: "brak" } }));
+    setPrzyklad(zadanie ? { stan: "gotowy", zadanie } : { stan: "brak" });
   }
 
   function wybierz(litera: string) {
     if (przyklad?.stan !== "gotowy" || przyklad.wybrana) return;
-    setPrzyklady((p) => ({ ...p, [nr]: { ...przyklad, wybrana: litera } }));
+    setPrzyklad({ ...przyklad, wybrana: litera });
     onWynikPrzykladu(nr, litera === przyklad.zadanie.poprawna ? "dobrze" : "zle");
   }
 
-  const ostatni = ktory === lista.length - 1;
-
   return (
-    <aside className={styles.panel} aria-label="Omawianie błędów z Pestką">
+    <section className={styles.karta} aria-label={`Omawianie zadania ${nr} z Pestką`} data-tutor="omowienie">
       <header className={styles.head}>
+        <TutorAvatar size={40} state={mysli ? "thinking" : "idle"} className={styles.avatar} />
         <span className="label">
-          {d.wypracowanie ? "Wypracowanie" : "Błąd"} {ktory + 1} z {lista.length} · zadanie {nr}.
+          {d.wypracowanie ? "Wypracowanie" : "Błąd"} {numer} z {wszystkich} · zadanie {nr}.
         </span>
         <button type="button" className={styles.zamknij} onClick={onZamknij} aria-label="Zakończ omawianie">
           <X size={18} />
@@ -117,10 +119,9 @@ export function OmowienieBledow({
       <div className={`${chat.list} ${styles.lista}`} ref={listaRef} aria-live="polite">
         {rozmowa.map((m, i) =>
           m.od === "tutor" ? (
-            <div key={i} className={chat.tutorRow}>
-              <TutorAvatar size={28} />
-              <Markdown className={chat.tutorText}>{m.tekst}</Markdown>
-            </div>
+            <Markdown key={i} className={chat.tutorText}>
+              {m.tekst}
+            </Markdown>
           ) : (
             <p key={i} className={chat.studentText}>
               {m.tekst}
@@ -128,14 +129,11 @@ export function OmowienieBledow({
           ),
         )}
         {mysli && !rozmowa.at(-1)?.tekst && (
-          <div className={chat.tutorRow}>
-            <TutorAvatar size={28} state="thinking" />
-            <span className={chat.typing} aria-label="Pestka pisze">
-              <i />
-              <i />
-              <i />
-            </span>
-          </div>
+          <span className={chat.typing} aria-label="Pestka pisze">
+            <i />
+            <i />
+            <i />
+          </span>
         )}
 
         {przyklad?.stan === "laduje" && <p className="small muted">Przygotowuję zadanie podobne i sprawdzam, czy ma jedną dobrą odpowiedź…</p>}
@@ -165,11 +163,11 @@ export function OmowienieBledow({
       </div>
 
       <form className={styles.form} onSubmit={wyslij}>
-        <label htmlFor="omowienie-input" className="visually-hidden">
+        <label htmlFor={`omowienie-${nr}`} className="visually-hidden">
           Odpowiedź dla Pestki
         </label>
         <input
-          id="omowienie-input"
+          id={`omowienie-${nr}`}
           className="input"
           value={szkic}
           onChange={(e) => setSzkic(e.target.value)}
@@ -184,10 +182,10 @@ export function OmowienieBledow({
             <Lightbulb size={16} aria-hidden="true" /> {przyklad ? "Inny przykład" : "Daj przykład"}
           </button>
         )}
-        <button type="button" className="btn btn-secondary btn-sm" onClick={() => (ostatni ? onZamknij() : setKtory(ktory + 1))}>
-          {ostatni ? "Zakończ" : "Następny"} <ArrowRight size={16} aria-hidden="true" />
+        <button type="button" className="btn btn-soft btn-sm" onClick={ostatni ? onZamknij : onDalej}>
+          {ostatni ? "Zakończ" : "Następny błąd"} <ArrowRight size={16} aria-hidden="true" />
         </button>
       </div>
-    </aside>
+    </section>
   );
 }
