@@ -1148,7 +1148,7 @@
 }
 
 /* Odpowiedź kodem jako wiersz tabeli z arkusza: kawałki zdania i dwie grupy wyboru
-   obok siebie, rozdzielone liniami. */
+   obok siebie, rozdzielone liniami pionowymi, także od lewej. */
 .kodWybor {
   display: grid;
   grid-template-columns: repeat(4, auto);
@@ -1156,7 +1156,7 @@
   justify-content: start;
   width: fit-content;
   max-width: 100%;
-  border-block: 1px solid var(--line);
+  border-left: 1px solid var(--line);
 }
 
 .kodWybor > * {
@@ -1165,10 +1165,6 @@
 
 .kodWybor > * + * {
   border-left: 1px solid var(--line);
-}
-
-.kodWybor > :first-child {
-  padding-left: 0;
 }
 
 .kodTekst {
