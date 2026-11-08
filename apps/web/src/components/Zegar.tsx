@@ -124,6 +124,15 @@ export function Zegar({
 
   const stan = zostalo <= 0 ? "po" : zostalo <= 15 * MIN ? "koncowka" : undefined;
 
+  // Wyłączenie: wyspa najpierw się zwija, a dopiero potem znika, więc menu obok dojeżdża płynnie.
+  function wylacz() {
+    const el = wyspaRef.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return onZmien(undefined);
+    setWidok("schowany");
+    const a = el.animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(0.4)" }], { duration: 220, easing: "ease-in", fill: "forwards" });
+    a.onfinish = () => onZmien(undefined);
+  }
+
   // Przy pauzie i wznowieniu liczymy od tej samej chwili co zapis, inaczej wyświetlacz skacze
   // o czas od ostatniego tyknięcia (do sekundy).
   function przelacz() {
@@ -142,7 +151,7 @@ export function Zegar({
       <button type="button" className={styles.przycisk} onClick={przelacz} aria-label={biegnie ? "Pauza" : "Wznów"} title={biegnie ? "Pauza" : "Wznów"}>
         {biegnie ? <Pause size={18} /> : <Play size={18} />}
       </button>
-      <button type="button" className={styles.przycisk} onClick={() => onZmien(undefined)} aria-label="Wyłącz zegar" title="Wyłącz zegar">
+      <button type="button" className={styles.przycisk} onClick={wylacz} aria-label="Wyłącz zegar" title="Wyłącz zegar">
         <X size={18} />
       </button>
     </div>
