@@ -24,6 +24,7 @@ import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
 import { uplynelo, zapisCzasu, zatrzymaj, Zegar } from "../components/Zegar";
+import { dodajCzas, minuty, norma, odmierz, opisTempa, tempo, zacznijOdmierzac } from "../arkusze/czasZadan";
 import styles from "./Arkusz.module.css";
 
 type Kontekst = {
@@ -51,6 +52,9 @@ export function Arkusz() {
   const [otwartaLuka, setOtwartaLuka] = useState<string | null>(null);
 
   const sprawdzone = useCallback((nr: string) => postep.sprawdzony || postep.sprawdzoneZadania.includes(nrZadania(nr)), [postep]);
+  useEffect(zacznijOdmierzac, [id]);
+  // W trybie na czas długa cisza to też praca nad arkuszem, nie przerwa.
+  const ciszaTezLiczy = !!postep.czas?.start;
 
   const kontekst = useMemo<Kontekst | null>(() => {
     if (!dane) return null;
@@ -77,19 +81,27 @@ export function Arkusz() {
         const p = pytania.get(nr);
         return p?.typ === "zamkniete" ? (p.opcje ?? opcjeZadan.get(nrZadania(nr))) : undefined;
       },
-      ustaw: (nr, wartosc) =>
-        zmien((p) => (p.sprawdzony || p.sprawdzoneZadania.includes(nrZadania(nr)) ? p : { ...p, odpowiedzi: { ...p.odpowiedzi, [nr]: wartosc } })),
+      ustaw: (nr, wartosc) => {
+        const ms = odmierz(ciszaTezLiczy);
+        zmien((p) =>
+          p.sprawdzony || p.sprawdzoneZadania.includes(nrZadania(nr)) ? p : dodajCzas({ ...p, odpowiedzi: { ...p.odpowiedzi, [nr]: wartosc } }, nrZadania(nr), ms),
+        );
+      },
       ocen: (nr, ocena) => zmien((p) => ({ ...p, samoocena: { ...p.samoocena, [nr]: ocena } })),
       // Brudnopis to pomoc, więc działa także po sprawdzeniu zadania.
-      ustawBrudnopis: (zadanie, zapis) =>
+      ustawBrudnopis: (zadanie, zapis) => {
+        const ms = odmierz(ciszaTezLiczy);
         zmien((p) => {
           const brudnopisy = { ...p.brudnopisy };
           if (zapis) brudnopisy[zadanie] = zapis;
           else delete brudnopisy[zadanie];
-          return { ...p, brudnopisy };
-        }),
+          // Rysowanie po sprawdzeniu to już nie rozwiązywanie, więc nie dolicza czasu.
+          const liczy = !p.sprawdzony && !p.sprawdzoneZadania.includes(Number(zadanie));
+          return liczy ? dodajCzas({ ...p, brudnopisy }, Number(zadanie), ms) : { ...p, brudnopisy };
+        });
+      },
     };
-  }, [dane, postep, zmien, sprawdzone, otwartaLuka]);
+  }, [dane, postep, zmien, sprawdzone, otwartaLuka, ciszaTezLiczy]);
 
   // Lista zdań pod luką zamyka się kliknięciem obok albo klawiszem Escape.
   useEffect(() => {
@@ -143,7 +155,10 @@ export function Arkusz() {
     zmien(() => pustyPostep);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const sprawdzZadanie = (nr: number) => zmien((p) => ({ ...p, sprawdzoneZadania: [...new Set([...p.sprawdzoneZadania, nr])] }));
+  const sprawdzZadanie = (nr: number) => {
+    const ms = odmierz(ciszaTezLiczy);
+    zmien((p) => dodajCzas({ ...p, sprawdzoneZadania: [...new Set([...p.sprawdzoneZadania, nr])] }, nr, ms));
+  };
   // Poprawa zadania: odpowiedzi zostają, znika ocena i samoocena jego pytań.
   const poprawZadanie = (z: Zadanie) =>
     zmien((p) => {
@@ -163,7 +178,7 @@ export function Arkusz() {
       <main className={`container ${styles.page}`}>
         <Naglowek arkusz={dane} onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined} />
 
-        {postep.sprawdzony && <Podsumowanie wynik={wynik} odNowa={odNowa} czas={postep.czas} limitMin={dane.czas} />}
+        {postep.sprawdzony && <Podsumowanie wynik={wynik} odNowa={odNowa} czas={postep.czas} limitMin={dane.czas} arkusz={dane} postep={postep} />}
         {postep.czas && !postep.sprawdzony && dane.czas && <Zegar arkusz={dane.id} limitMin={dane.czas} czas={postep.czas} onZmien={ustawCzas} />}
 
         {dane.zadania.map((z) => (
@@ -235,7 +250,21 @@ function Naglowek({ arkusz, onNaCzas }: { arkusz: ArkuszDane; onNaCzas?: () => v
   );
 }
 
-function Podsumowanie({ wynik, odNowa, czas, limitMin }: { wynik: ReturnType<typeof policz>; odNowa: () => void; czas?: Czas; limitMin?: number }) {
+function Podsumowanie({
+  wynik,
+  odNowa,
+  czas,
+  limitMin,
+  arkusz,
+  postep,
+}: {
+  wynik: ReturnType<typeof policz>;
+  odNowa: () => void;
+  czas?: Czas;
+  limitMin?: number;
+  arkusz: ArkuszDane;
+  postep: Postep;
+}) {
   const procent = wynik.mozliwe ? Math.round((wynik.zdobyte / wynik.mozliwe) * 100) : 0;
   return (
     <section className={styles.summary} aria-live="polite">
@@ -255,10 +284,45 @@ function Podsumowanie({ wynik, odNowa, czas, limitMin }: { wynik: ReturnType<typ
           {limitMin ? ` z ${limitMin} minut${uplynelo(czas) > limitMin * 60_000 ? ", po czasie" : ""}.` : "."}
         </p>
       )}
+      <TempoZadan arkusz={arkusz} postep={postep} />
       <button type="button" className="btn btn-ghost btn-sm" onClick={odNowa}>
         <RotateCcw size={16} aria-hidden="true" /> Rozwiąż od nowa
       </button>
     </section>
+  );
+}
+
+/** Zadania, przy których czas razem z wynikiem coś mówi: długo i źle, długo i dobrze, szybko i źle. */
+function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) {
+  const czasy = postep.czasZadan ?? {};
+  if (!Object.keys(czasy).length) return null;
+  const wiersze = arkusz.zadania.flatMap((z) => {
+    const ms = czasy[z.nr];
+    if (!ms) return [];
+    const w = policzPytania(z.pytania, postep.odpowiedzi, postep.samoocena);
+    const t = tempo(ms, norma(arkusz, z), w.mozliwe ? w.zdobyte / w.mozliwe : null);
+    return t && t !== "w-normie" ? [{ z, ms, t, n: norma(arkusz, z)! }] : [];
+  });
+  return (
+    <div className={styles.tempo}>
+      <span className="label">Czas przy zadaniach</span>
+      {wiersze.length ? (
+        <ul>
+          {wiersze.slice(0, 5).map(({ z, ms, t, n }) => (
+            <li key={z.nr}>
+              <a href={`#zadanie-${z.nr}`}>Zadanie {z.nr}.</a>
+              <span>
+                {minuty(ms)} <span className="muted">(norma ok. {minuty(n)})</span>
+              </span>
+              <span className="muted">{opisTempa[t]}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="muted">Tempo w normie przy wszystkich zadaniach, przy których był mierzony czas.</p>
+      )}
+      <p className="small muted">Czas liczymy od poprzedniej czynności w arkuszu, bez chwil poza kartą. Norma to czas arkusza proporcjonalnie do punktów.</p>
+    </div>
   );
 }
 
@@ -278,7 +342,10 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
     <section className={styles.task} id={`zadanie-${zadanie.nr}`}>
       <header className={styles.taskHead}>
         <h2 className="h3">Zadanie {zadanie.nr}.</h2>
-        <span className="small muted">{gotowe && !pisemna ? `${wynik.zdobyte} / ${zadanie.punkty} pkt` : `0–${zadanie.punkty} pkt`}</span>
+        <span className="small muted">
+          {gotowe && !pisemna ? `${wynik.zdobyte} / ${zadanie.punkty} pkt` : `0–${zadanie.punkty} pkt`}
+          {gotowe && postep.czasZadan?.[zadanie.nr] ? ` · ${minuty(postep.czasZadan[zadanie.nr]!)}` : ""}
+        </span>
         {zadanie.sluchanie && (
           <span className={`small ${styles.listen}`}>
             <Headphones size={14} aria-hidden="true" /> nagranie

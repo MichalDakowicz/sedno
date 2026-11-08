@@ -23,6 +23,7 @@ export type Postep = {
   wynik?: { zdobyte: number; mozliwe: number; kiedy: string };
   brudnopisy?: Record<string, Brudnopis>; // klucz: numer zadania
   czas?: Czas;
+  czasZadan?: Record<number, number>; // ms myślenia nad zadaniem, klucz: numer zadania (arkusze/czasZadan.ts)
 };
 
 export const pustyPostep: Postep = { odpowiedzi: {}, samoocena: {}, sprawdzony: false, sprawdzoneZadania: [] };

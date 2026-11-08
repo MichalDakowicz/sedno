@@ -905,3 +905,40 @@
   color: var(--muted);
   background: var(--surface);
 }
+
+/* Czas przy zadaniach w podsumowaniu: wiersze oddzielone liniami. */
+.tempo {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.tempo ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tempo li {
+  display: grid;
+  grid-template-columns: 110px 14em minmax(0, 1fr);
+  gap: 4px 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.tempo li a {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .tempo li {
+    grid-template-columns: auto 1fr;
+  }
+
+  .tempo li > :last-child {
+    grid-column: 1 / -1;
+  }
+}
