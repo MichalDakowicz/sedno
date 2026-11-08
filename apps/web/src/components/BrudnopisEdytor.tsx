@@ -143,6 +143,44 @@ function elementyBazowe(plik: string, rysunek?: Obraz, dodatkowe: Obraz[] = []):
   );
 }
 
+// Wycinek z wykresami opcji bywa sklejony z tekstem polecenia i pustą tabelą z arkusza,
+// które są już nad płótnem. Ucinamy wszystko do ostatniej poziomej linii przez prawie
+// całą szerokość (dolna krawędź tabeli): siatki wykresów stoją po dwie obok siebie,
+// więc żadna ich linia nie ciągnie się przez cały wycinek.
+async function bezTekstuNadWykresami(obraz: Obraz): Promise<Obraz> {
+  try {
+    const img = new Image();
+    img.src = obraz.src.startsWith("data:") ? obraz.src : adresObrazu(obraz.src);
+    await img.decode();
+    const c = document.createElement("canvas");
+    [c.width, c.height] = [img.naturalWidth, img.naturalHeight];
+    const ctx = c.getContext("2d");
+    if (!ctx) return obraz;
+    ctx.drawImage(img, 0, 0);
+    const { data } = ctx.getImageData(0, 0, c.width, c.height);
+    let linia = -1;
+    for (let y = 0; y < c.height * 0.7; y++) {
+      let ciag = 0;
+      let najdluzszy = 0;
+      for (let x = 0; x < c.width; x++) {
+        const i = (y * c.width + x) * 4;
+        const ciemny = data[i] + data[i + 1] + data[i + 2] < 450;
+        ciag = ciemny ? ciag + 1 : 0;
+        najdluzszy = Math.max(najdluzszy, ciag);
+      }
+      if (najdluzszy > c.width * 0.8) linia = y;
+    }
+    if (linia < 0) return obraz;
+    const od = linia + Math.round(c.height * 0.02);
+    const wyciety = document.createElement("canvas");
+    [wyciety.width, wyciety.height] = [c.width, c.height - od];
+    wyciety.getContext("2d")!.drawImage(c, 0, -od);
+    return { ...obraz, src: wyciety.toDataURL("image/png"), wys: (obraz.wys * wyciety.height) / c.height };
+  } catch {
+    return obraz;
+  }
+}
+
 async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileData | null> {
   try {
     // Data URL z importu idzie wprost do Excalidraw; fetch obsłuży też starszą ścieżkę.
@@ -164,6 +202,7 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
 
 export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, duzyRysunek, dodatkoweRysunki = [] }: Props) {
   const [startowaGrubosc] = useState(zapamietanaGrubosc);
+  const przyciete = useRef<Obraz[]>([]);
   const api = useRef<ExcalidrawImperativeAPI | null>(null);
   const wersja = useRef<number | null>(null);
   const wczytana = useRef(false);
@@ -173,12 +212,14 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
 
   const poczatek = useMemo(
     () => async (): Promise<ExcalidrawInitialDataState> => {
-      const bazowe = elementyBazowe(plik, rysunek, dodatkoweRysunki);
+      const dodatkowe = await Promise.all(dodatkoweRysunki.map(bezTekstuNadWykresami));
+      przyciete.current = dodatkowe;
+      const bazowe = elementyBazowe(plik, rysunek, dodatkowe);
       const zapisane = (elementy ?? []) as ExcalidrawElement[];
       // Starszy zapis albo uczeń odblokował i usunął rysunek: brakujące dokładamy z powrotem.
       const brakujace = bazowe.filter((b) => !zapisane.some((e) => e.id === b.id));
       const sceny = zapisane.length ? [...brakujace, ...zapisane] : bazowe;
-      const pliki = (await Promise.all(rysunkiBazowe(plik, rysunek, dodatkoweRysunki).map((r) => wczytajRysunek(r.plik, r.obraz)))).filter((p): p is BinaryFileData => !!p);
+      const pliki = (await Promise.all(rysunkiBazowe(plik, rysunek, dodatkowe).map((r) => wczytajRysunek(r.plik, r.obraz)))).filter((p): p is BinaryFileData => !!p);
       wczytana.current = true;
       return {
         elements: sceny,
@@ -218,7 +259,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   );
 
   const wyczysc = () => {
-    api.current?.updateScene({ elements: elementyBazowe(plik, rysunek, dodatkoweRysunki), captureUpdate: CaptureUpdateAction.IMMEDIATELY });
+    api.current?.updateScene({ elements: elementyBazowe(plik, rysunek, przyciete.current), captureUpdate: CaptureUpdateAction.IMMEDIATELY });
   };
 
   // Stan paska narzędzi odbija stan edytora (skróty klawiszowe też zmieniają narzędzie).
