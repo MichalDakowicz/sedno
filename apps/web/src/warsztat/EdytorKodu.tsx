@@ -1,8 +1,9 @@
-// Edytor kodu (CodeMirror 6) z kolorowaniem Pythona albo SQL. Ctrl+Enter uruchamia.
+// Edytor kodu (CodeMirror 6) z kolorowaniem Pythona albo SQL. Ctrl+Enter uruchamia, Tab wcina.
 import { useEffect, useRef } from "react";
 import { basicSetup, EditorView } from "codemirror";
 import { Compartment, EditorState, Prec } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
+import { indentWithTab } from "@codemirror/commands";
 import { indentUnit } from "@codemirror/language";
 import { python } from "@codemirror/lang-python";
 import { sql, SQLite } from "@codemirror/lang-sql";
@@ -49,6 +50,8 @@ export default function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, etykie
           indentUnit.of("    "),
           jezykSlot.current.of([]),
           Prec.highest(keymap.of([{ key: "Mod-Enter", run: () => (zwrotne.current.onUruchom(), true) }])),
+          // Tab wcina jak w IDE (w Pythonie to składnia). Escape, potem Tab wychodzi z edytora.
+          keymap.of([indentWithTab]),
           EditorView.updateListener.of((u) => {
             if (u.docChanged) zwrotne.current.onZmiana(u.state.doc.toString());
           }),
