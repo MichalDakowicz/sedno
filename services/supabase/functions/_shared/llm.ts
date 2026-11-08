@@ -43,6 +43,8 @@ export interface ChatRequest {
   tools?: ToolSpec[];
   maxTokens?: number;
   temperature?: number;
+  /** reasoning_effort modeli z rozumowaniem (none, low, medium, high, xhigh); bez tego model myśli domyślnie. */
+  reasoningEffort?: string;
   signal?: AbortSignal;
 }
 
@@ -87,6 +89,7 @@ function requestInit(p: Provider, req: ChatRequest, stream: boolean): RequestIni
   if (req.tools?.length) body.tools = req.tools.map((t) => ({ type: "function", function: t }));
   if (req.maxTokens !== undefined) body[tokenLimitField(p)] = req.maxTokens;
   if (req.temperature !== undefined) body.temperature = req.temperature;
+  if (req.reasoningEffort) body.reasoning_effort = req.reasoningEffort;
   return {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${p.key}` },
