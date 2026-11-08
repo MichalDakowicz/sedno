@@ -11,6 +11,22 @@ import styles from "./Brudnopis.module.css";
 
 export const ID_RYSUNKU = "rysunek-bazowy";
 
+// Excalidraw na zdarzenie focus okna kończy gest, któremu „zginął” pointerup
+// (maybeCleanupAfterMissingPointerUp). Gdy okno nie ma fokusu, pierwsze dotknięcie
+// piórem najpierw zaczyna kreskę, a dopiero potem okno dostaje focus, więc kreska
+// urywała się na kropce. Ten focus połykamy, póki pióro jest dociśnięte. Nasłuch
+// powstaje przy wczytaniu modułu, czyli przed nasłuchem Excalidraw, więc idzie pierwszy.
+let dotykBezFokusu = false;
+window.addEventListener("pointerdown", () => (dotykBezFokusu = !document.hasFocus()), true);
+for (const koniec of ["pointerup", "pointercancel"]) window.addEventListener(koniec, () => (dotykBezFokusu = false), true);
+window.addEventListener(
+  "focus",
+  (e) => {
+    if (dotykBezFokusu) e.stopImmediatePropagation();
+  },
+  true,
+);
+
 // Okrojony zestaw: to, czego potrzeba w brudnopisie do matematyki. Wbudowany
 // pasek Excalidraw jest ukryty (Brudnopis.module.css), żeby nie zasłaniał płótna.
 const NARZEDZIA = [
@@ -35,8 +51,11 @@ const KOLORY = [
 
 // Grubość kreski. Zakreślacz to gruba, półprzezroczysta kreska do oznaczania
 // fragmentów wykresu bez zasłaniania go.
-// Cienka służy do precyzyjnego rysowania po wykresach, średnia (domyślna) do pisania.
+// Cienkie służą do precyzyjnego rysowania po wykresach, średnia (domyślna) do pisania.
+// Najcieńsze są dla tabletu graficznego: mocny nacisk pogrubia kreskę kilka razy.
 const GRUBOSCI = [
+  { id: "wlos", nazwa: "Najcieńsza kreska", szerokosc: 0.15, krycie: 100, kropka: 2 },
+  { id: "bardzo-cienka", nazwa: "Bardzo cienka kreska", szerokosc: 0.3, krycie: 100, kropka: 3 },
   { id: "cienka", nazwa: "Cienka kreska", szerokosc: 0.5, krycie: 100, kropka: 4 },
   { id: "srednia", nazwa: "Średnia kreska", szerokosc: 1, krycie: 100, kropka: 7 },
   { id: "gruba", nazwa: "Gruba kreska", szerokosc: 2, krycie: 100, kropka: 11 },
