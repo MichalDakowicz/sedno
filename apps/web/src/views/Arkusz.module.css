@@ -963,9 +963,26 @@
   padding: 8px;
 }
 
+/* Wycinek arkusza: karta tak szeroka jak obrazek, nie na całą kolumnę. */
+.kompakt .kadr {
+  width: fit-content;
+  max-width: 100%;
+}
+
 .kompakt .kadr img {
   width: auto;
   max-height: 32vh;
+}
+
+/* Same litery: większe pola, żeby trafić bez celowania. */
+.kompakt .segment {
+  width: 60px;
+  height: 52px;
+  font-size: 20px;
+}
+
+.kompakt .segment[data-stan="wybrana"] {
+  font-size: 22px;
 }
 
 /* Opcje tak szerokie jak ich treść: krótkie po dwie (A B, pod nimi C D), długie jedna pod drugą. */
