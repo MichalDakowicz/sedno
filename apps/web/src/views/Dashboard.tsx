@@ -235,6 +235,11 @@ function Wyniki({ podsumowania }: { podsumowania: Podsumowanie[] }) {
                   </span>
                   <span className={styles.ostatniWynik}>{procent(w)}%</span>
                 </Link>
+                {w.zdobyte < w.mozliwe && (
+                  <Link to={`/arkusze/${w.arkusz.id}?omow=1`} className={styles.omow}>
+                    omów błędy
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
