@@ -63,8 +63,10 @@
 }
 
 .topic[data-wybrany] .topicNr {
-  background: var(--primary);
+  background: var(--primary-strong);
   color: var(--primary-fg);
+  font-size: 19px;
+  font-weight: 700;
 }
 
 .topicText {
@@ -352,7 +354,7 @@
 
 .check[data-odhaczony] .checkMark {
   border-color: var(--success);
-  background: var(--success);
+  background: var(--success-strong);
   color: #fff;
 }
 

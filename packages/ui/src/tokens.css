@@ -13,10 +13,16 @@
   /* Pomarańcz do drobnego tekstu i ikon na jasnym tle: #ff7448 ma tylko 2,6:1. */
   --primary-text: #c2410c;
   --primary-fg: #ffffff;
+  /* Pomarańcz pod białym tekstem i ikonami. Biały ma na nim 3,2:1, więc tekst musi być duży i pogrubiony
+     (min. 19px, 700: próg WCAG AA dla dużego tekstu), a ikony mieszczą się w progu 3:1. */
+  --primary-strong: #f2643a;
+  --primary-strong-hover: #e2532a;
   --primary-soft: #ffe6dc;
   --secondary: #d3e1ff;
   --secondary-fg: #1b2a4a;
   --success: #1f9d63;
+  /* Zieleń pod białym tekstem: #1f9d63 ma z białym tylko 3,5:1. */
+  --success-strong: #17804f;
   --danger: #e40014;
   --dark: #1b232e;
 

@@ -180,12 +180,14 @@ textarea {
 }
 
 .btn-primary {
-  background: var(--primary);
+  background: var(--primary-strong);
   color: var(--primary-fg);
+  font-size: 19px;
+  font-weight: 700;
 }
 
 .btn-primary:hover {
-  background: var(--primary-hover);
+  background: var(--primary-strong-hover);
 }
 
 .btn-secondary {
@@ -207,6 +209,11 @@ textarea {
   min-height: 40px;
   padding: 8px 16px;
   font-size: 14px;
+}
+
+/* Biały na pomarańczu wymaga dużego tekstu także w małym przycisku. */
+.btn-primary.btn-sm {
+  font-size: 19px;
 }
 
 .link {
