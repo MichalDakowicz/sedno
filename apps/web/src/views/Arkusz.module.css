@@ -246,6 +246,8 @@
   box-shadow: 0 0 0 1.5px var(--primary);
   transition:
     top 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
+    left 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
+    width 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
     height 0.25s cubic-bezier(0.3, 0.7, 0.2, 1);
 }
 
@@ -919,22 +921,194 @@
   overflow-x: auto;
 }
 
+/* Tabela danych z zadania: bez kratki, tylko linie między wierszami. Nagłówki
+   przygaszone, liczby równe (cyfry tej samej szerokości), na środku kolumn. */
 .dataTable {
   border-collapse: collapse;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .dataTable th,
 .dataTable td {
-  padding: 8px 14px;
-  border: 1px solid var(--line);
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
   text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.dataTable tr:last-child > * {
+  border-bottom: 0;
 }
 
 .dataTable th {
+  font-size: 14px;
   font-weight: 500;
   color: var(--muted);
-  background: var(--surface);
+}
+
+/* Wiersz nagłówków kolumn oddziela od danych mocniejsza linia. */
+.dataTable tr:first-child > th[scope="col"] {
+  border-bottom-color: color-mix(in srgb, var(--fg) 22%, transparent);
+}
+
+/* Tabela w poprzek (pełny ekran): nagłówki wierszy po lewej, pierwszy wiersz to kategorie. */
+.dataTable th[scope="row"] {
+  max-width: 22ch;
+  padding-left: 0;
+  text-align: left;
+  line-height: 1.35;
+}
+
+.dataTable td {
+  min-width: 2.75em;
+  font-size: 17px;
+}
+
+.dataTable tr:first-child > td {
+  font-weight: 600;
+}
+
+/* Treść zadania nad brudnopisem na pełnym ekranie (TrescKompakt): cała szerokość, mniej powietrza. */
+.kompakt {
+  display: grid;
+  gap: 10px;
+}
+
+/* Numer zadania ze strzałkami do sąsiednich zadań, z linią pod spodem;
+   odstęp za linią trochę większy niż w treści. */
+.glowa {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Jedno pytanie: numer i treść po lewej, odpowiedzi po prawej (najwyżej połowa szerokości). */
+.obok {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) fit-content(50%);
+  column-gap: 32px;
+  align-items: start;
+}
+
+/* Odpowiedzi wyśrodkowane w pionie względem treści obok. */
+.odpowiedzi {
+  align-self: center;
+  min-width: 0;
+}
+
+.kompakt .instruction,
+.kompakt .para {
+  max-width: none;
+}
+
+.kompakt .para {
+  line-height: 1.6;
+}
+
+.kompakt .content {
+  gap: 10px;
+  padding-top: 0;
+  align-content: start;
+}
+
+.kompakt .question {
+  gap: 8px;
+  padding: 0;
+}
+
+.kompakt .kadr {
+  padding: 8px;
+}
+
+/* Wycinek arkusza: karta tak szeroka jak obrazek, nie na całą kolumnę. */
+.kompakt .kadr {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.kompakt .kadr img {
+  width: auto;
+  max-height: 32vh;
+}
+
+/* Same litery: większe pola, żeby trafić bez celowania. */
+.kompakt .segment {
+  width: 60px;
+  height: 52px;
+  font-size: 20px;
+}
+
+.kompakt .segment[data-stan="wybrana"] {
+  font-size: 22px;
+}
+
+.pionowo .slider {
+  flex-direction: column;
+  border-radius: calc(var(--r-md) + 4px);
+}
+
+.pionowo .thumb {
+  transition:
+    top 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
+    height 0.25s ease;
+}
+
+/* Opcje tak szerokie jak ich treść: krótkie po dwie (A B, pod nimi C D), długie jedna pod drugą. */
+.kompakt .choices[data-kolumny="4"],
+.kompakt .choices[data-kolumny="2"] {
+  grid-template-columns: repeat(2, max-content);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.kompakt .choices[data-kolumny="1"] {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.kompakt .choice {
+  align-items: center;
+  min-width: 96px;
+  padding: 8px 20px 8px 8px;
+  font-size: 18px;
+}
+
+.kompakt .letter {
+  width: 32px;
+  height: 32px;
+  font-size: 15px;
+}
+
+/* Kilka pytań: treść płynie w dwóch szpaltach, pytanie nie dzieli się między nie. */
+.szpalty {
+  display: block;
+  columns: 2;
+  column-gap: 32px;
+}
+
+.szpalty > * {
+  margin-bottom: 10px;
+  break-inside: avoid;
+}
+
+@media (max-width: 900px) {
+  .szpalty {
+    columns: 1;
+  }
+
+  .obok {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .kompakt .choices[data-kolumny="2"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Czas przy zadaniach w podsumowaniu: wiersze oddzielone liniami. */
@@ -972,6 +1146,161 @@
   .tempo li > :last-child {
     grid-column: 1 / -1;
   }
+}
+
+.przejscie {
+  padding-inline: 6px;
+}
+
+/* Zdania do uzupełnienia w dwóch kolumnach. */
+.zdania {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Wzór wystawiony przy lewej krawędzi, jak tekst obok, zamiast na środku szerokiego ekranu. */
+.kompakt :global(.katex-display) {
+  margin: 4px 0;
+  text-align: left;
+}
+
+.kompakt :global(.katex-display) > :global(.katex) {
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .zdania {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Odpowiedź kodem jako wiersz tabeli z arkusza: kawałki zdania i dwie grupy wyboru
+   obok siebie. Linia tylko po lewej; grupy same odcinają się od tekstu. */
+.kodWybor {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  align-items: center;
+  justify-content: start;
+  width: fit-content;
+  max-width: 100%;
+  border-left: 1px solid var(--line);
+}
+
+.kodWybor > * {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+}
+
+.kodTekst {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .kodWybor {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .kodWybor > :nth-child(3) {
+    padding-left: 0;
+  }
+}
+
+/* Stwierdzenia P/F: zdanie po lewej, przełącznik po prawej, wiersze rozdzielone linią. */
+.pfWiersze {
+  display: grid;
+}
+
+.pfWiersz {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 0;
+}
+
+.pfWiersz + .pfWiersz {
+  border-top: 1px solid var(--line);
+}
+
+/* Wybór kilku opcji (A–F): zdanie z lukami wypełnia się literami, wybrane opcje mają obwódkę. */
+.wieleWybor {
+  display: grid;
+  gap: 10px;
+}
+
+.wieleWybor .choices {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wieleWybor .choice[data-stan="wybrana"] {
+  background: var(--surface);
+  box-shadow: 0 0 0 1.5px var(--primary);
+}
+
+.lukaLitera {
+  display: inline-block;
+  min-width: 2.2em;
+  margin: 0 2px;
+  padding: 0 6px;
+  border-bottom: 1.5px solid var(--primary);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Tekst nad płótnem przy tabeli przyporządkowania: niższy, przewijany. */
+.przewijana {
+  max-height: 26vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Opcje do wyboru literą w lukach zdań: w jednym rzędzie pod ostatnim zdaniem. */
+.opcjeLiter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 10px;
+}
+
+.opcjeLiter > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Opcje liter w prawej kolumnie pełnego ekranu: jedna pod drugą. */
+.opcjeLiterPion {
+  flex-direction: column;
+  margin-top: 0;
+}
+
+/* Pełny ekran, luka z wyborem w zdaniu: opcje z treścią w rzędzie pod zdaniem. */
+.wyborLuki {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+  margin: 4px 4px 4px 0;
+  vertical-align: middle;
+  padding: 4px;
+  border-radius: calc(var(--r-md) + 4px);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.wyborLuki .choice {
+  width: auto;
+  align-items: center;
+}
+
+.wyborLuki .choice[data-stan="wybrana"] {
+  background: var(--surface);
+  box-shadow: 0 0 0 1.5px var(--primary);
 }
 
 /* Zadanie omawiane teraz z Pestką. */
