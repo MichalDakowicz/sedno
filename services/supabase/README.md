@@ -10,6 +10,7 @@ Backend Sedno: samodzielnie hostowany Supabase na serwerze domowym, publicznie p
   - `ai` – bramka AI: wybiera dostawcę konta dla poziomu `wazne` / `lekkie`, woła go (OpenAI-compatible, także streaming) i loguje zużycie,
   - `_shared/` – adapter czatu, szyfrowanie, ochrona przed SSRF, wspólne funkcje kont.
 - `deploy.sh` – wgrywa migracje i funkcje przez ssh.
+- `autodeploy/` – automatyczne wgrywanie z `main` na serwerze (patrz „Wgrywanie”).
 
 ## Schemat
 
@@ -44,6 +45,17 @@ const { text } = await askAi({ tier: "lekkie", task: "podpowiedz", messages: [{ 
 Projekt `~/supabase-hosting/projects/sedno` (port API 8007, podsieć Dockera `172.16.77.0/24`). Ustawienia Sedno w `docker-compose.sedno.yml` i `.env` (Google OAuth, `LLM_KEY_SECRET`, `LLM_PRIVATE_ORIGINS`). Proxy do Ollamy: `~/sedno-ollama` (nginx na `172.16.77.1:11435`, widoczny tylko z sieci Dockera projektu).
 
 Google OAuth: projekt Google Cloud `sedno-514016`, klient „Sedno web”, redirect `https://sedno-api.dakowicz.xyz/auth/v1/callback`. Aplikacja jest w trybie testowym: logować się mogą tylko konta dodane jako test users.
+
+## Wgrywanie
+
+Serwer sam wgrywa `main`: timer `sedno-autodeploy.timer` (usługa użytkownika systemd) co 2 minuty sprawdza `main` na GitHubie. Gdy zmieni się `services/supabase`, pobiera tarball commita (bez klonu repo), stosuje nowe migracje, podmienia funkcje i restartuje kontener funkcji. Żeby wgrać zmianę na serwer, wystarczy scalić ją do `main`; dostęp do serwera nie jest potrzebny.
+
+- Stan: `~/supabase-hosting/sedno-autodeploy/` (`sha`, `hash`). Log: `journalctl --user -u sedno-autodeploy`.
+- Nieudana migracja przerywa wgrywanie, a timer próbuje ponownie co 2 minuty, aż `main` zostanie poprawiony.
+- Instalacja lub aktualizacja skryptu na serwerze: `services/supabase/autodeploy/install.sh` (przez ssh).
+- Ręcznie, np. gałąź przed scaleniem: `services/supabase/deploy.sh` z tej gałęzi. Następna zmiana `services/supabase` w `main` nadpisze ją wersją z `main`.
+
+Kto ma prawo zapisu do `main`, ten uruchamia migracje jako `postgres` i kod funkcji na serwerze.
 
 ## Aplikacja web
 
