@@ -676,7 +676,8 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
           // Rysunek z wycinka jest na płótnie; wycinek z opcjami A–D na rysunkach zostaje obrazkiem.
           (b.typ === "kadr" && zadanie.rysunek && !/(^|\s)[A-F]\.\s/.test(b.tekst) ? tekstBezPodpisow(b.tekst) : [b])),
   );
-  const podzial = zLukami ? null : podzielNaPodpunkty(calosc);
+  const uporzadkowane = uporzadkujAkapity(calosc, (b) => luki.has(b) || lukiKadrow.has(b));
+  const podzial = zLukami ? null : podzielNaPodpunkty(uporzadkowane);
   const [podpunkt, setPodpunkt] = useState(() => (podzial ? startowyPodpunkt(plik, podzial.podpunkty.length) : 0));
   useEffect(() => {
     try {
@@ -688,7 +689,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   const ilePodpunktow = podzial?.podpunkty.length ?? 1;
   const aktywny = podzial ? podzial.podpunkty[Math.min(podpunkt, ilePodpunktow - 1)] : null;
   // Nagłówek podpunktu („Zadanie 12.1 (0–2 pkt)”) zastępuje numer w nagłówku widoku.
-  const bloki = podzial && aktywny ? [...podzial.wstep, ...aktywny.filter((b) => b.typ !== "naglowek")] : calosc;
+  const bloki = podzial && aktywny ? [...podzial.wstep, ...aktywny.filter((b) => b.typ !== "naglowek")] : uporzadkowane;
   const numer = (aktywny && numerPodpunktu(aktywny)) ?? String(zadanie.nr);
   // Wykresy opcji A–F na płótnie tylko przy podpunkcie z tabelą przyporządkowania.
   const ustawDodatkowe = useContext(PokazDodatkoweRysunki);
@@ -1417,6 +1418,36 @@ function rysunkoweOpcje(z: Zadanie): Map<string, { kadr: Blok; tekst: Blok[] }> 
     const etykiety = b.tekst.search(/\sA\.\s*B\.\s*C\.\s*D\.\s*$/);
     if (p?.typ !== "zamkniete" || p.opcje?.length || etykiety < 0) return;
     wynik.set(p.nr, { kadr: b, tekst: naAkapity(b.tekst.slice(0, etykiety).trim()) });
+  });
+  return wynik;
+}
+
+// Porządki w tekście na pełnym ekranie (dane z PDF i DOCX łamią akapity w dziwnych miejscach):
+// akapit od małej litery to dalszy ciąg poprzedniego („…wybraną” + „spośród oznaczonych…”),
+// krótkie objaśnienia po „Oznaczenia:” idą w jednej linii, a sam podpis „Tabela” nad tabelą
+// znika. Akapity z luką (chronione) zostają nietknięte, bo wiąże się z nimi odpowiedź.
+function uporzadkujAkapity(bloki: Blok[], chroniony: (b: Blok) => boolean): Blok[] {
+  const wynik: Blok[] = [];
+  let objasnienia = false;
+  bloki.forEach((b, i) => {
+    const prev = wynik[wynik.length - 1];
+    if (b.typ === "akapit" && /^Tabela(\s+\d+)?\.?$/.test(b.tekst.trim()) && bloki[i + 1]?.typ === "tabelaTresci") return;
+    if (b.typ !== "akapit" || chroniony(b) || prev?.typ !== "akapit" || chroniony(prev) || /^\d+\.\s/.test(b.tekst)) {
+      objasnienia = false;
+      wynik.push(b);
+      return;
+    }
+    if (/^[a-ząćęłńóśźż]/.test(b.tekst)) {
+      wynik[wynik.length - 1] = { ...prev, tekst: `${prev.tekst} ${b.tekst}` };
+      return;
+    }
+    if ((objasnienia || /:\s*$/.test(prev.tekst)) && b.tekst.length <= 80 && !b.polecenie) {
+      wynik[wynik.length - 1] = { ...prev, tekst: objasnienia ? `${prev.tekst}; ${b.tekst}` : `${prev.tekst} ${b.tekst}` };
+      objasnienia = true;
+      return;
+    }
+    objasnienia = false;
+    wynik.push(b);
   });
   return wynik;
 }
