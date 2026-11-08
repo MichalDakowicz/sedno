@@ -226,6 +226,10 @@
   padding-top: 2px;
 }
 
+.actions :global(.btn-sm) {
+  padding-inline: 14px;
+}
+
 .skip {
   padding: 8px 4px;
   border: 0;

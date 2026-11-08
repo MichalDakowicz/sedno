@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { FileText, GraduationCap, LayoutGrid, Menu, RotateCcw, Target, X } from "lucide-react";
+import { CircleHelp, FileText, GraduationCap, LayoutGrid, Menu, RotateCcw, Target, X } from "lucide-react";
 import { logout } from "../auth";
 import { Plywak } from "./Plywak";
+import { resetTour, useTutor } from "./TutorContext";
 import styles from "./TopNav.module.css";
 
 const links = [
@@ -26,6 +27,14 @@ export function TopNav() {
 
   // Pulpit przedmiotu też należy do „Pulpitu”.
   const onDashboard = location.pathname === "/" || location.pathname.startsWith("/przedmiot/");
+  const { startTour } = useTutor();
+
+  // Przewodnik zaczyna się na pulpicie ogólnym, więc z innej strony najpierw tam przechodzimy.
+  function przewodnik() {
+    resetTour();
+    if (location.pathname === "/") startTour();
+    else navigate("/");
+  }
 
   return (
     <div className={styles.wrap}>
@@ -57,6 +66,9 @@ export function TopNav() {
         </div>
 
         <div className={styles.right}>
+          <button type="button" className={styles.pomoc} onClick={przewodnik} aria-label="Pokaż przewodnik z Pestką" title="Przewodnik z Pestką">
+            <CircleHelp size={22} aria-hidden="true" />
+          </button>
           <Link to="/profil" className={styles.profile} aria-label="Profil">
             O
           </Link>
