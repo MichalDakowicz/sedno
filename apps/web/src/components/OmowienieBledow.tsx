@@ -184,6 +184,8 @@ export function OmowienieBledow({
   }, [rozmowa, mysli, przyklad]);
 
   async function zapytaj(historia: Wiadomosc[]) {
+    // Wiadomość ucznia widać od razu, a nie dopiero z pierwszym kawałkiem odpowiedzi Pestki.
+    setRozmowa(historia);
     setMysli(true);
     const wiadomosci: AiMessage[] = [
       { role: "system", content: promptOmowienia(arkusz, d, postep) },
@@ -270,7 +272,7 @@ export function OmowienieBledow({
             </p>
           ),
         )}
-        {mysli && !rozmowa.at(-1)?.tekst && (
+        {mysli && (rozmowa.at(-1)?.od !== "tutor" || !rozmowa.at(-1)?.tekst) && (
           <span className={chat.typing} aria-label="Pestka pisze">
             <i />
             <i />
