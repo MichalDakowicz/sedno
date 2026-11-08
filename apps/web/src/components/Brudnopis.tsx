@@ -17,6 +17,28 @@ window.EXCALIDRAW_ASSET_PATH = "/excalidraw/";
 
 const Edytor = lazy(() => import("./BrudnopisEdytor"));
 
+// Otwarty brudnopis i pełny ekran przetrwają odświeżenie strony (w obrębie karty przeglądarki).
+type Tryb = "zamkniety" | "otwarty" | "pelny";
+const kluczTrybu = (plik: string) => `sedno.brudnopis.${plik}`;
+
+function wczytajTryb(plik: string): Tryb {
+  try {
+    const t = sessionStorage.getItem(kluczTrybu(plik));
+    return t === "otwarty" || t === "pelny" ? t : "zamkniety";
+  } catch {
+    return "zamkniety";
+  }
+}
+
+function zapiszTryb(plik: string, tryb: Tryb) {
+  try {
+    if (tryb === "zamkniety") sessionStorage.removeItem(kluczTrybu(plik));
+    else sessionStorage.setItem(kluczTrybu(plik), tryb);
+  } catch {
+    // zablokowany storage: po odświeżeniu brudnopis będzie zamknięty
+  }
+}
+
 type Props = {
   plik: string;
   zadanie: number;
@@ -28,14 +50,16 @@ type Props = {
 };
 
 export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc }: Props) {
-  const [otwarty, setOtwarty] = useState(false);
-  const [pelny, setPelny] = useState(false);
+  const [tryb, setTryb] = useState<Tryb>(() => wczytajTryb(plik));
+  const otwarty = tryb !== "zamkniety";
+  const pelny = tryb === "pelny";
+  useEffect(() => zapiszTryb(plik, tryb), [plik, tryb]);
   const elementow = zapis?.elementy.length ?? 0;
 
   // Pełny ekran: strona pod spodem się nie przewija, Escape wraca do zadania.
   useEffect(() => {
     if (!pelny) return;
-    const naKlawisz = (e: KeyboardEvent) => e.key === "Escape" && setPelny(false);
+    const naKlawisz = (e: KeyboardEvent) => e.key === "Escape" && setTryb("otwarty");
     const przewijanie = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
     document.addEventListener("keydown", naKlawisz);
@@ -51,7 +75,7 @@ export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc }: Pr
         <button
           type="button"
           className="btn btn-secondary btn-sm"
-          onClick={() => setOtwarty(true)}
+          onClick={() => setTryb("otwarty")}
           data-tutor-about="Brudnopis to miejsce na obliczenia i szkice. W zadaniach zamkniętych nie wpływa na wynik, ale zapisuje się razem z odpowiedziami."
         >
           <PenLine size={16} aria-hidden="true" /> {rysunek ? "Brudnopis z rysunkiem" : "Brudnopis"}
@@ -68,12 +92,7 @@ export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc }: Pr
       aria-modal={pelny || undefined}
     >
       {/* Przy zmianie trybu edytor zostaje ten sam, więc szkic i historia cofania nie giną. */}
-      {pelny && tresc && (
-        <div className={styles.task}>
-          <h2 className="h3">Zadanie {zadanie}.</h2>
-          {tresc}
-        </div>
-      )}
+      {pelny && tresc && <div className={styles.task}>{tresc}</div>}
       <Suspense fallback={<Ladowanie ksztalt="blok" etykieta="Wczytuję brudnopis" />}>
         <Edytor
           plik={plik}
@@ -81,11 +100,8 @@ export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc }: Pr
           elementy={zapis?.elementy}
           onZapisz={(elementy) => onZmiana(elementy ? { elementy, zmieniony: new Date().toISOString() } : null)}
           pelny={pelny}
-          onPelny={() => setPelny((p) => !p)}
-          onZamknij={() => {
-            setPelny(false);
-            setOtwarty(false);
-          }}
+          onPelny={() => setTryb((t) => (t === "pelny" ? "otwarty" : "pelny"))}
+          onZamknij={() => setTryb("zamkniety")}
         />
       </Suspense>
     </section>

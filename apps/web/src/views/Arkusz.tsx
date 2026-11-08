@@ -112,6 +112,8 @@ export function Arkusz() {
     zmien((p) => (p.sprawdzony && p.wynik && p.wynik.zdobyte !== zdobyte ? { ...p, wynik: { ...p.wynik, zdobyte } } : p));
   }, [zdobyte, zmien]);
 
+  usePrzewiniecie(id, !!dane);
+
   if (laduje)
     return (
       <main className={`container ${styles.page}`}>
@@ -184,6 +186,80 @@ export function Arkusz() {
       </main>
     </Ctx.Provider>
   );
+}
+
+// Przewinięcie arkusza przetrwa odświeżenie strony (w obrębie karty przeglądarki).
+// Zapisujemy zadanie u góry ekranu i przesunięcie względem niego, a nie same piksele:
+// treść nad nim dochodzi asynchronicznie (wzory, obrazki, brudnopisy) i zmienia wysokość.
+// Powrót ponawiamy przez kilka sekund, chyba że uczeń sam zacznie przewijać.
+type Miejsce = { zadanie: string; przesuniecie: number };
+
+function usePrzewiniecie(id: string, gotowe: boolean) {
+  useEffect(() => {
+    if (!gotowe) return;
+    const klucz = `sedno.przewiniecie.${id}`;
+    const zadania = () => [...document.querySelectorAll<HTMLElement>('section[id^="zadanie-"]')];
+    const gora = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
+
+    let miejsce: Miejsce | null = null;
+    try {
+      const zapis = JSON.parse(sessionStorage.getItem(klucz) ?? "null");
+      if (typeof zapis?.zadanie === "string" && typeof zapis.przesuniecie === "number") miejsce = zapis;
+    } catch {
+      // zablokowany storage albo stary zapis: zaczynamy od góry
+    }
+    const poprzednie = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+
+    let wraca = !!miejsce;
+    let klatka = 0;
+    let proby = 0;
+    const wroc = () => {
+      const el = miejsce && document.getElementById(miejsce.zadanie);
+      if (!el || !miejsce) {
+        wraca = false;
+        return;
+      }
+      const cel = Math.max(0, gora(el) + miejsce.przesuniecie);
+      if (Math.abs(window.scrollY - cel) > 1) window.scrollTo(0, cel);
+      // Ok. 5 s: tyle zwykle dochodzą wzory i obrazki.
+      if (proby++ < 300) klatka = requestAnimationFrame(wroc);
+      else wraca = false;
+    };
+    if (wraca) wroc();
+    const przerwij = () => {
+      wraca = false;
+      cancelAnimationFrame(klatka);
+    };
+
+    let timer = 0;
+    const naPrzewiniecie = () => {
+      if (wraca) return;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        const lista = zadania();
+        // Pierwsze zadanie zaczynające się na ekranie: zmiany wysokości nad nim nie przesuną widoku.
+        const u = lista.find((el) => el.getBoundingClientRect().top >= 0) ?? lista[lista.length - 1];
+        if (!u) return;
+        const zapis: Miejsce = { zadanie: u.id, przesuniecie: Math.round(window.scrollY - gora(u)) };
+        try {
+          sessionStorage.setItem(klucz, JSON.stringify(zapis));
+        } catch {
+          // brak miejsca albo zablokowany storage
+        }
+      }, 150);
+    };
+    const wejscia = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
+    wejscia.forEach((w) => window.addEventListener(w, przerwij, { passive: true }));
+    window.addEventListener("scroll", naPrzewiniecie, { passive: true });
+    return () => {
+      przerwij();
+      window.clearTimeout(timer);
+      wejscia.forEach((w) => window.removeEventListener(w, przerwij));
+      window.removeEventListener("scroll", naPrzewiniecie);
+      history.scrollRestoration = poprzednie;
+    };
+  }, [id, gotowe]);
 }
 
 function Naglowek({ arkusz }: { arkusz: ArkuszDane }) {
@@ -394,7 +470,7 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
 }
 
 // Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
-// Zadanie z jednym pytaniem dzieli się na dwie kolumny: treść po lewej, odpowiedzi po prawej.
+// Zadanie z jednym pytaniem ma odpowiedzi w rzędzie z numerem, nad treścią.
 function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
   const { sprawdzone, wBloku } = useCtx();
   // Rysunek zadania i tak leży na płótnie brudnopisu.
@@ -415,30 +491,56 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
       ))}
     </div>
   );
-  if (!obok)
-    return (
-      <div className={styles.kompakt}>
-        {polecenie}
-        <div className={styles.content}>
-          {grupujPrawdaFalsz(bloki, zadanie).map((b, i) => (Array.isArray(b) ? <PrawdaFalsz key={i} pytania={b} /> : <BlokWidok key={i} blok={b} zadanie={zadanie.nr} />))}
-        </div>
-        {klucz}
-      </div>
-    );
   return (
-    <div className={`${styles.kompakt} ${styles.obok}`}>
-      <div className={styles.content}>
-        {polecenie}
-        {bloki.filter((b) => b !== pytaniaBloki[0]).map((b, i) => (
-          <BlokWidok key={i} blok={b} zadanie={zadanie.nr} />
-        ))}
+    <div className={styles.kompakt}>
+      {/* Numer zadania w jednym rzędzie z odpowiedziami, pod nimi treść na całą szerokość. */}
+      <div className={styles.glowa}>
+        <h2 className="h3">Zadanie {zadanie.nr}.</h2>
+        {obok && (
+          <div className={styles.odpowiedzi}>
+            <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />
+          </div>
+        )}
       </div>
-      <div className={styles.content}>
-        <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />
-        {klucz}
+      {polecenie}
+      <div className={obok ? styles.content : `${styles.content} ${styles.szpalty}`}>
+        <BlokiKompakt elementy={grupujPrawdaFalsz(obok ? bloki.filter((b) => b !== pytaniaBloki[0]) : bloki, zadanie)} zadanie={zadanie.nr} />
       </div>
+      {klucz}
     </div>
   );
+}
+
+// Krótki wzór między akapitami („Liczba … jest równa”) w gęstym widoku idzie w jednej linii z tekstem.
+const WZOR_W_LINII = 80;
+const doLinii = (b: Blok | PytanieZamkniete[]) =>
+  !Array.isArray(b) && ((b.typ === "akapit" && !b.polecenie) || (b.typ === "wzor" && b.tex.length <= WZOR_W_LINII));
+
+function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniete[])[]; zadanie: number }) {
+  const wynik: ReactNode[] = [];
+  for (let i = 0; i < elementy.length; ) {
+    const b = elementy[i];
+    let j = i;
+    while (j < elementy.length && doLinii(elementy[j])) j++;
+    const ciag = elementy.slice(i, j) as Blok[];
+    if (ciag.some((c) => c.typ === "wzor")) {
+      wynik.push(
+        <div key={i} className={styles.para}>
+          {ciag.map((c, k) => (
+            <span key={k}>
+              {k > 0 && " "}
+              {c.typ === "wzor" ? <WzorMat tex={c.tex} /> : c.typ === "akapit" ? <Tekst tekst={c.tekst} /> : null}
+            </span>
+          ))}
+        </div>,
+      );
+      i = j;
+      continue;
+    }
+    wynik.push(Array.isArray(b) ? <PrawdaFalsz key={i} pytania={b} /> : <BlokWidok key={i} blok={b} zadanie={zadanie} />);
+    i++;
+  }
+  return <>{wynik}</>;
 }
 
 function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
