@@ -23,9 +23,11 @@ type Props = {
   onZmiana: (latex: string) => void;
   tylkoOdczyt?: boolean;
   etykieta: string;
+  /** Na całą szerokość, jak pole odpowiedzi pod pytaniem. */
+  szerokie?: boolean;
 };
 
-export function PoleMatematyczne({ wartosc, onZmiana, tylkoOdczyt, etykieta }: Props) {
+export function PoleMatematyczne({ wartosc, onZmiana, tylkoOdczyt, etykieta, szerokie }: Props) {
   const pole = useRef<MathField | null>(null);
   const [gotowe, setGotowe] = useState(false);
   const zmiana = useRef(onZmiana);
@@ -58,12 +60,13 @@ export function PoleMatematyczne({ wartosc, onZmiana, tylkoOdczyt, etykieta }: P
     if (gotowe && pole.current) pole.current.readOnly = !!tylkoOdczyt;
   }, [gotowe, tylkoOdczyt]);
 
-  if (!gotowe) return <span className={`${styles.pole} ${styles.czeka}`} aria-hidden="true" />;
+  const klasa = szerokie ? `${styles.pole} ${styles.szerokie}` : styles.pole;
+  if (!gotowe) return <span className={`${klasa} ${styles.czeka}`} aria-hidden="true" />;
   return createElement("math-field", {
     // React 18 nie przekazuje className do własnych elementów, więc klasę dajemy w ref.
     ref: (el: MathField | null) => {
       pole.current = el;
-      el?.classList.add(styles.pole);
+      el?.classList.add(...klasa.split(" "));
     },
     "aria-label": etykieta,
     "math-virtual-keyboard-policy": "auto",

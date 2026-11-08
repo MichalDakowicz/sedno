@@ -80,3 +80,10 @@
 .czeka {
   height: 34px;
 }
+
+.szerokie {
+  display: block;
+  width: 100%;
+  min-width: min(20em, 70vw);
+  min-height: 40px;
+}

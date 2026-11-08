@@ -36,6 +36,8 @@ type Kontekst = {
   ustawBrudnopis: (zadanie: number, zapis: ZapisBrudnopisu | null) => void;
   pytania: Map<string, Pytanie>;
   luki: Map<Blok, Luka>; // zdania z luką na część odpowiedzi otwartej
+  kadryTekst: Map<Blok, Blok[]>; // wycinki z luką jako tekst (tylko pełny ekran)
+  lukiKadrow: Map<Blok, Luka>;
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
@@ -64,9 +66,17 @@ export function Arkusz() {
     const wBloku = new Set<string>();
     const opcjeZadan = new Map<number, Opcja[]>();
     const luki = new Map<Blok, Luka>();
+    const kadryTekst = new Map<Blok, Blok[]>();
+    const lukiKadrow = new Map<Blok, Luka>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
       lukiZadania(z)?.forEach((l, b) => luki.set(b, l));
+      z.bloki.forEach((b, i) => {
+        const k = kadrZLuka(b, z.bloki[i + 1], z);
+        if (!k) return;
+        kadryTekst.set(b, k.bloki);
+        lukiKadrow.set(...k.luka);
+      });
       for (const b of z.bloki) {
         if (b.typ === "pytanie") wBloku.add(b.nr);
         if (b.typ === "pytania" || b.typ === "tabela") b.nr.forEach((n) => wBloku.add(n));
@@ -76,6 +86,8 @@ export function Arkusz() {
     return {
       arkusz: dane,
       luki,
+      kadryTekst,
+      lukiKadrow,
       postep,
       pytania,
       wBloku,
@@ -471,7 +483,11 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           rysunek={zadanie.rysunek}
           zapis={postep.brudnopisy?.[zadanie.nr]}
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
-          tresc={<TrescKompakt zadanie={zadanie} bloki={bloki} />}
+          tresc={
+            <Kompakt.Provider value={true}>
+              <TrescKompakt zadanie={zadanie} bloki={bloki} />
+            </Kompakt.Provider>
+          }
           duzyRysunek={[...luki.values()].some((l) => zadanie.pytania.includes(l.pytanie))}
         />
       )}
@@ -566,20 +582,49 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
 // Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
 // Zadanie z jednym pytaniem: numer i treść po lewej, odpowiedzi po prawej.
 function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
-  const { arkusz, sprawdzone, wBloku, luki } = useCtx();
+  const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow } = useCtx();
+  const plik = `${arkusz.id}-${zadanie.nr}`;
   // Odpowiedzi w lukach zdań: bez kolumny odpowiedzi, po prawej staje rysunek.
   const zLukami = [...luki.values()].some((l) => zadanie.pytania.includes(l.pytanie));
   const i = arkusz.zadania.findIndex((z) => z.nr === zadanie.nr);
   const [poprzednie, nastepne] = [arkusz.zadania[i - 1], arkusz.zadania[i + 1]];
-  const przejdz = (z: Zadanie) => otworzNaPelnymEkranie(`${arkusz.id}-${z.nr}`);
   // Rysunek zadania i tak leży na płótnie brudnopisu: nie powtarzamy go, a wycinek
-  // strony z opcjami na rysunku zastępujemy jego tekstem.
+  // strony z opcjami na rysunku albo z luką zastępujemy jego tekstem.
   const naRysunku = !!zadanie.rysunek && zadanie.pytania.length === 1 && zadanie.pytania[0].typ === "zamkniete" && !zadanie.pytania[0].opcje?.length;
-  const bloki = zadanie.rysunek
-    ? wszystkie.filter((b) => b.typ !== "rysunek").flatMap((b) => (b.typ === "kadr" && naRysunku ? (kadrJakoTekst(b.tekst) ?? [b]) : [b]))
-    : wszystkie;
-  const pytaniaBloki = bloki.filter((b) => b.typ === "pytanie" || b.typ === "pytania" || b.typ === "tabela");
-  const obok = pytaniaBloki.length === 1 && !zLukami;
+  const calosc = (zadanie.rysunek ? wszystkie.filter((b) => b.typ !== "rysunek") : wszystkie).flatMap((b) =>
+    b.typ === "kadr" && naRysunku ? (kadrJakoTekst(b.tekst) ?? [b]) : (kadryTekst.get(b) ?? [b]),
+  );
+  const podzial = zLukami ? null : podzielNaPodpunkty(calosc);
+  const [podpunkt, setPodpunkt] = useState(() => (podzial ? startowyPodpunkt(plik, podzial.podpunkty.length) : 0));
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(kluczPodpunktu(plik), String(podpunkt));
+    } catch {
+      // zablokowany storage: po odświeżeniu pierwszy podpunkt
+    }
+  }, [plik, podpunkt]);
+  const ilePodpunktow = podzial?.podpunkty.length ?? 1;
+  const aktywny = podzial ? podzial.podpunkty[Math.min(podpunkt, ilePodpunktow - 1)] : null;
+  // Nagłówek podpunktu („Zadanie 12.1 (0–2 pkt)”) zastępuje numer w nagłówku widoku.
+  const bloki = podzial && aktywny ? [...podzial.wstep, ...aktywny.filter((b) => b.typ !== "naglowek")] : calosc;
+  const numer = (aktywny && numerPodpunktu(aktywny)) ?? String(zadanie.nr);
+
+  const wstecz = () => {
+    if (podzial && podpunkt > 0) return setPodpunkt(podpunkt - 1);
+    if (!poprzednie) return;
+    wejscieOdKonca = true;
+    otworzNaPelnymEkranie(`${arkusz.id}-${poprzednie.nr}`);
+  };
+  const dalej = () => {
+    if (podzial && podpunkt < ilePodpunktow - 1) return setPodpunkt(podpunkt + 1);
+    if (nastepne) otworzNaPelnymEkranie(`${arkusz.id}-${nastepne.nr}`);
+  };
+  const jestWstecz = (podzial && podpunkt > 0) || !!poprzednie;
+  const jestDalej = (podzial && podpunkt < ilePodpunktow - 1) || !!nastepne;
+
+  const pytaniaBloki = bloki.filter(czyPytanie);
+  // Odpowiedź w luce tekstu (wycinek zamieniony na tekst) nie potrzebuje prawej kolumny.
+  const obok = pytaniaBloki.length === 1 && !zLukami && !bloki.some((b) => lukiKadrow.has(b));
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
   const polecenie = zadanie.polecenie.map((p, i) => (
@@ -600,32 +645,40 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
         <button
           type="button"
           className={`btn btn-ghost btn-sm ${styles.przejscie}`}
-          disabled={!poprzednie}
-          onClick={() => poprzednie && przejdz(poprzednie)}
-          aria-label={poprzednie ? `Poprzednie zadanie (${poprzednie.nr}.)` : "Poprzednie zadanie"}
+          disabled={!jestWstecz}
+          onClick={wstecz}
+          aria-label="Poprzednie zadanie"
           title="Poprzednie zadanie"
         >
           <ChevronLeft size={18} aria-hidden="true" />
         </button>
-        <h2 className="h3">Zadanie {zadanie.nr}.</h2>
+        <h2 className="h3">Zadanie {numer}.</h2>
         <button
           type="button"
           className={`btn btn-ghost btn-sm ${styles.przejscie}`}
-          disabled={!nastepne}
-          onClick={() => nastepne && przejdz(nastepne)}
-          aria-label={nastepne ? `Następne zadanie (${nastepne.nr}.)` : "Następne zadanie"}
+          disabled={!jestDalej}
+          onClick={dalej}
+          aria-label="Następne zadanie"
           title="Następne zadanie"
         >
           <ChevronRight size={18} aria-hidden="true" />
         </button>
+        {podzial && (
+          <span className="small muted">
+            podpunkt {podpunkt + 1} z {ilePodpunktow}
+          </span>
+        )}
       </div>
       {polecenie}
-      <div className={obok || zLukami ? styles.content : `${styles.content} ${styles.szpalty}`}>
+      <div className={obok || zLukami || podzial ? styles.content : `${styles.content} ${styles.szpalty}`}>
         <BlokiKompakt elementy={grupujPrawdaFalsz(obok ? bloki.filter((b) => b !== pytaniaBloki[0]) : bloki, zadanie)} zadanie={zadanie.nr} />
       </div>
       {klucz}
     </div>
   );
+  return <NumerWidoku.Provider value={numer}>{uklad()}</NumerWidoku.Provider>;
+
+  function uklad() {
   if (zLukami && zadanie.rysunek)
     return (
       <div className={styles.obok}>
@@ -646,6 +699,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
       </div>
     </div>
   );
+  }
 }
 
 // Zadanie otwarte z kilkoma zdaniami do uzupełnienia („1. Dziedziną funkcji f jest
@@ -692,6 +746,71 @@ function ZdanieZLuka({ tekst, luka }: { tekst: string; luka: Luka }) {
   );
 }
 
+// Zadanie z podpunktami (12.1, 12.2, 12.3): na pełnym ekranie każdy podpunkt to osobny
+// krok ze wspólnym wstępem, a strzałki przechodzą 12.1 → 12.2 → 12.3 → 13. Płótno
+// zostaje jedno na całe zadanie. Podpunkt to bloki od nagłówka do jego pytania.
+const czyPytanie = (b: Blok) => b.typ === "pytanie" || b.typ === "pytania" || b.typ === "tabela";
+
+function podzielNaPodpunkty(bloki: Blok[]): { wstep: Blok[]; podpunkty: Blok[][] } | null {
+  const pierwszy = bloki.findIndex((b) => b.typ === "naglowek");
+  if (pierwszy < 0) return null;
+  const podpunkty: Blok[][] = [];
+  let biezacy: Blok[] = [];
+  for (const b of bloki.slice(pierwszy)) {
+    // Po pytaniu kolejny blok (nagłówek albo wycinek bez nagłówka) zaczyna nowy podpunkt.
+    if (biezacy.some(czyPytanie) && !czyPytanie(b)) {
+      podpunkty.push(biezacy);
+      biezacy = [];
+    }
+    biezacy.push(b);
+  }
+  if (biezacy.length) podpunkty.push(biezacy);
+  return podpunkty.length >= 2 && podpunkty.every((pp) => pp.some(czyPytanie)) ? { wstep: bloki.slice(0, pierwszy), podpunkty } : null;
+}
+
+// Numer podpunktu z jego pytania („12.1”), do nagłówka zamiast „Zadanie 12.1 (0–2 pkt)”.
+function numerPodpunktu(bloki: Blok[]): string | null {
+  const b = bloki.find(czyPytanie);
+  if (!b) return null;
+  return b.typ === "pytanie" ? b.nr : b.typ === "pytania" || b.typ === "tabela" ? (b.nr[0] ?? null) : null;
+}
+
+// Który podpunkt pokazać po wejściu: zapamiętany w karcie przeglądarki albo, przy
+// cofaniu się strzałką z następnego zadania, ostatni.
+let wejscieOdKonca = false;
+const kluczPodpunktu = (plik: string) => `sedno.podpunkt.${plik}`;
+
+function startowyPodpunkt(plik: string, ile: number): number {
+  if (wejscieOdKonca) {
+    wejscieOdKonca = false;
+    return ile - 1;
+  }
+  try {
+    const n = Number(sessionStorage.getItem(kluczPodpunktu(plik)));
+    return Number.isInteger(n) && n >= 0 && n < ile ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+// Wycinek strony z luką do pytania otwartego („Suma 𝑥1 + 𝑥2 jest równa ……… .”): na pełnym
+// ekranie jako tekst z polem w luce, z nagłówkiem podpunktu, którego w tekście wycinka nie ma.
+function kadrZLuka(kadr: Blok, nastepny: Blok | undefined, z: Zadanie): { bloki: Blok[]; luka: [Blok, Luka] } | null {
+  if (kadr.typ !== "kadr" || nastepny?.typ !== "pytanie" || !ZNACZNIK_LUKI.test(kadr.tekst)) return null;
+  const p = z.pytania.find((q) => q.nr === nastepny.nr);
+  if (p?.typ !== "otwarte" || p.tresc) return null;
+  const akapity = naAkapity(kadr.tekst);
+  const zLuka = akapity.find((a) => a.typ === "akapit" && ZNACZNIK_LUKI.test(a.tekst));
+  if (!zLuka) return null;
+  const naglowek: Blok[] = p.nr.includes(".") ? [{ typ: "naglowek", tekst: `Zadanie ${p.nr} (0–${p.punkty} pkt)` }] : [];
+  return { bloki: [...naglowek, ...akapity], luka: [zLuka, { pytanie: p, czesc: 0, ile: 1 }] };
+}
+
+// Pełny ekran brudnopisu: gęstszy układ i zamiana wycinków na tekst tam, gdzie się da.
+const Kompakt = createContext(false);
+// Numer w nagłówku pełnego ekranu: pytanie o tym samym numerze go nie powtarza.
+const NumerWidoku = createContext<string | null>(null);
+
 // Tekst wycinka strony (z PDF) bez etykiet opcji, które są na rysunku: „Dana jest
 // nierówność 3 − 2(1 − 2𝑥) ≥ 2𝑥 − 17 Na którym rysunku… A. 0 1 3 𝑥 B. …”.
 // Nowe zdanie po wzorze zaczyna akapit, a polecenia („Wybierz…”) są pogrubione jak w arkuszu.
@@ -701,7 +820,10 @@ function kadrJakoTekst(tekst: string): Blok[] | null {
   const opcje = tekst.search(/\sA\.\s[\s\S]*\sB\.\s[\s\S]*\sC\.\s[\s\S]*\sD\.\s/);
   if (opcje < 0) return null;
   const tresc = tekst.slice(0, opcje).trim();
-  if (!tresc) return null;
+  return tresc ? naAkapity(tresc) : null;
+}
+
+function naAkapity(tresc: string): Blok[] {
   return tresc
     .split(/(?<=[.?!])\s+|(?<=[\d)\]\u{1D400}-\u{1D7FF}])\s+(?=[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż])/u)
     .filter(Boolean)
@@ -717,7 +839,7 @@ const doLinii = (b: Blok | PytanieZamkniete[]) =>
 const czyZdanieNumerowane = (b: Blok | PytanieZamkniete[]) => !Array.isArray(b) && b.typ === "akapit" && !b.polecenie && /^\d+\.\s/.test(b.tekst);
 
 function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniete[])[]; zadanie: number }) {
-  const { luki } = useCtx();
+  const { luki, lukiKadrow } = useCtx();
   const wynik: ReactNode[] = [];
   for (let i = 0; i < elementy.length; ) {
     const b = elementy[i];
@@ -729,7 +851,7 @@ function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniet
         <ol key={i} className={styles.zdania}>
           {(elementy.slice(i, n) as Blok[]).map((c, k) => (
             <li key={k} className={styles.para}>
-              {c.typ === "akapit" && (luki.has(c) ? <ZdanieZLuka tekst={c.tekst} luka={luki.get(c)!} /> : <Tekst tekst={c.tekst} />)}
+              {c.typ === "akapit" && ((l) => (l ? <ZdanieZLuka tekst={c.tekst} luka={l} /> : <Tekst tekst={c.tekst} />))(luki.get(c) ?? lukiKadrow.get(c))}
             </li>
           ))}
         </ol>,
@@ -761,10 +883,13 @@ function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniet
 }
 
 function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
-  const { pytania, luki } = useCtx();
+  const { pytania, luki, lukiKadrow } = useCtx();
+  const kompakt = useContext(Kompakt);
   switch (blok.typ) {
-    case "akapit":
-      if (luki.has(blok)) return <ZdanieZLuka tekst={blok.tekst} luka={luki.get(blok)!} />;
+    case "akapit": {
+      const luka = luki.get(blok) ?? (kompakt ? lukiKadrow.get(blok) : undefined);
+      if (luka) return <ZdanieZLuka tekst={blok.tekst} luka={luka} />;
+    }
       return (
         <div className={blok.polecenie ? `${styles.para} ${styles.command}` : styles.para}>
           <Tekst tekst={blok.tekst} />
@@ -951,16 +1076,19 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
-  const { luki } = useCtx();
+  const { luki, lukiKadrow } = useCtx();
+  const kompakt = useContext(Kompakt);
+  const numerWidoku = useContext(NumerWidoku);
   if (p.typ === "wypowiedz") return null;
+  const zNumerem = p.nr.includes(".") && p.nr !== numerWidoku;
   // Odpowiedź w lukach zdań (ZdanieZLuka): tu zostaje tylko informacja po sprawdzeniu.
-  const wLukach = new Set([...luki.values()].map((l) => l.pytanie.nr));
+  const wLukach = new Set([...luki.values(), ...(kompakt ? lukiKadrow.values() : [])].map((l) => l.pytanie.nr));
   return (
     <div className={styles.question}>
       {/* Numer bez podpunktu to numer zadania, który stoi już w nagłówku. */}
-      {(p.nr.includes(".") || p.tresc) && (
+      {(zNumerem || p.tresc) && (
         <div className={styles.stem}>
-          {p.nr.includes(".") && <span className={styles.qnr}>{p.nr}.</span>}
+          {zNumerem && <span className={styles.qnr}>{p.nr}.</span>}
           {p.tresc && <Tekst tekst={p.tresc} wlasny={p.nr} />}
         </div>
       )}
@@ -1157,10 +1285,18 @@ function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: PytanieOtwarte; blok?: boolean; bezNumeru?: boolean; placeholder?: string }) {
-  const { postep, ustaw, sprawdzone } = useCtx();
+  const { arkusz, postep, ustaw, sprawdzone } = useCtx();
   const gotowe = sprawdzone(p.nr);
   const w = gotowe ? werdyktPytania(p, postep) : undefined;
   const wartosc = postep.odpowiedzi[p.nr] ?? "";
+  // Matematyka oceniana według schematu (bez listy odpowiedzi do porównania): pole z zapisem
+  // matematycznym. Przy kluczu z listą zostaje zwykły tekst, bo porównujemy go z kluczem.
+  if (blok && arkusz.przedmiot === "matematyka" && !p.kod && !p.oczekiwane?.length && !p.akceptowane?.length)
+    return (
+      <span className={styles.blockGap} data-werdykt={w}>
+        <PoleMatematyczne wartosc={wartosc} onZmiana={(latex) => ustaw(p.nr, latex)} tylkoOdczyt={gotowe} etykieta={`Odpowiedź ${p.nr}`} szerokie />
+      </span>
+    );
   return (
     <span className={blok ? styles.blockGap : styles.inlineGap} data-werdykt={w}>
       {!blok && !bezNumeru && <span className={styles.gapNr}>{p.nr}.</span>}
