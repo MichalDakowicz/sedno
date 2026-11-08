@@ -11,6 +11,10 @@ import type { Odpowiedzi, Samoocena } from "./sprawdz";
 // więc synchronizują się razem z resztą postępu.
 export type Brudnopis = { elementy: readonly unknown[]; zmieniony: string };
 
+// Zegar rozwiązywania na czas. start: chwila wznowienia (ms) albo null przy pauzie; zuzyte: czas sprzed
+// ostatniego wznowienia; ogloszone: momenty, o których Pestka już powiedziała.
+export type Czas = { start: number | null; zuzyte: number; ogloszone?: string[] };
+
 export type Postep = {
   odpowiedzi: Odpowiedzi;
   samoocena: Samoocena;
@@ -18,6 +22,8 @@ export type Postep = {
   sprawdzoneZadania: number[]; // pojedyncze zadania sprawdzone przed końcem
   wynik?: { zdobyte: number; mozliwe: number; kiedy: string };
   brudnopisy?: Record<string, Brudnopis>; // klucz: numer zadania
+  czas?: Czas;
+  czasZadan?: Record<number, number>; // ms myślenia nad zadaniem, klucz: numer zadania (arkusze/czasZadan.ts)
 };
 
 export const pustyPostep: Postep = { odpowiedzi: {}, samoocena: {}, sprawdzony: false, sprawdzoneZadania: [] };

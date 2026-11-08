@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { X } from "lucide-react";
 import { TutorAvatar } from "./TutorAvatar";
-import { resetTour, useTutor, type Hint } from "./TutorContext";
+import { useTutor, type Hint } from "./TutorContext";
 import styles from "./TutorGuide.module.css";
 
 const AV = 48;
@@ -86,10 +86,9 @@ const near = (a: Point, b: Point) => Math.abs(a.x - b.x) < 1 && Math.abs(a.y - b
 
 export function TutorGuide() {
   const tutor = useTutor();
-  const { guide, summon, isOpen, next, dismiss, open, startTour, showHints, summonAt } = tutor;
+  const { guide, summon, isOpen, next, dismiss, open, showHints, summonAt } = tutor;
   const hint = guide ? guide.hints[guide.index] : null;
   const isTourGuide = guide?.kind === "tour";
-  const navigate = useNavigate();
   const location = useLocation();
 
   const [pos, setPos] = useState<Point>(restPoint);
@@ -272,12 +271,6 @@ export function TutorGuide() {
     else open();
   }
 
-  function replayTour() {
-    resetTour();
-    if (location.pathname === "/") startTour();
-    else navigate("/");
-  }
-
   return (
     <>
       {spot && !resting && (
@@ -332,9 +325,6 @@ export function TutorGuide() {
                       Co dziś robić?
                     </button>
                   )}
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={replayTour}>
-                    Przewodnik
-                  </button>
                 </div>
               </>
             ) : (

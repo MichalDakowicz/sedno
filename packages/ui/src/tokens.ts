@@ -13,10 +13,13 @@ export const color = {
   primaryHover: "#f2643a",
   primaryText: "#c2410c",
   primaryForeground: "#ffffff",
+  primaryStrong: "#f2643a",
+  primaryStrongHover: "#e2532a",
   primarySoft: "#ffe6dc",
   secondary: "#d3e1ff",
   secondaryForeground: "#1b2a4a",
   success: "#1f9d63",
+  successStrong: "#17804f",
   danger: "#e40014",
   dark: "#1b232e",
 } as const;

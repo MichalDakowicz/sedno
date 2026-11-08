@@ -242,12 +242,17 @@
   font-weight: 600;
   transition:
     background-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    font-size 0.15s ease;
 }
 
-.choice[data-stan="wybrana"] .letter {
-  background: var(--primary);
+.choice[data-stan="wybrana"] .letter,
+.pickerOption[aria-selected="true"] .letter {
+  background: var(--primary-strong);
   color: var(--primary-fg);
+  /* Biały na pomarańczu: duży, pogrubiony tekst (WCAG AA dla dużego tekstu). */
+  font-size: 19px;
+  font-weight: 700;
 }
 
 .choice[data-stan="trafiona"] {
@@ -256,7 +261,7 @@
 }
 
 .choice[data-stan="trafiona"] .letter {
-  background: var(--success);
+  background: var(--success-strong);
   color: #fff;
 }
 
@@ -295,8 +300,8 @@
   position: absolute;
   z-index: 0;
   border-radius: var(--r-pill);
-  background: var(--primary);
-  box-shadow: 0 4px 12px rgba(255, 116, 72, 0.3);
+  background: var(--primary-strong);
+  box-shadow: 0 4px 12px rgba(242, 100, 58, 0.3);
   transition:
     left 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
     width 0.25s ease;
@@ -326,10 +331,12 @@
 
 .segment[data-stan="wybrana"] {
   color: var(--primary-fg);
+  font-size: 19px;
+  font-weight: 700;
 }
 
 .segment[data-stan="trafiona"] {
-  background: var(--success);
+  background: var(--success-strong);
   color: #fff;
 }
 
@@ -455,7 +462,7 @@
 }
 
 .tfOption[data-stan="trafiona"] {
-  background: var(--success);
+  background: var(--success-strong);
   color: #fff;
 }
 
@@ -721,10 +728,6 @@
   background: var(--primary-soft);
 }
 
-.pickerOption[aria-selected="true"] .letter {
-  background: var(--primary);
-  color: var(--primary-fg);
-}
 
 .pickerOption[data-zajeta] > span:nth-child(2) {
   color: var(--subtle);
@@ -1011,5 +1014,42 @@
 @media (max-width: 480px) {
   .kompakt .choices[data-kolumny="2"] {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Czas przy zadaniach w podsumowaniu: wiersze oddzielone liniami. */
+.tempo {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.tempo ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tempo li {
+  display: grid;
+  grid-template-columns: 110px 14em minmax(0, 1fr);
+  gap: 4px 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.tempo li a {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .tempo li {
+    grid-template-columns: auto 1fr;
+  }
+
+  .tempo li > :last-child {
+    grid-column: 1 / -1;
   }
 }

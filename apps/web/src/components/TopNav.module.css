@@ -81,9 +81,10 @@
   height: 48px;
   border: 0;
   border-radius: 50%;
-  background: var(--primary);
+  background: var(--primary-strong);
   color: var(--primary-fg);
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 700;
   cursor: pointer;
 }
 
