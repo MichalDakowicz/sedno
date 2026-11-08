@@ -14,6 +14,8 @@ export type Hint = {
   waitFor?: "summon";
   /** Własne przyciski zamiast „Dalej”; pusta lista: dymek bez przycisków (np. w locie do zadania). */
   actions?: { label: string; onClick: () => void; primary?: boolean }[];
+  /** Gdy cel jest poza ekranem (np. strona się przewija), Pestka zostaje, gdzie jest, zamiast wracać do rogu. */
+  trzymaj?: boolean;
 };
 
 export type Guide = { key: string; kind: "tour" | "hint"; hints: Hint[]; index: number };

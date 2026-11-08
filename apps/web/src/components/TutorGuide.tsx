@@ -102,6 +102,8 @@ export function TutorGuide() {
   const modeRef = useRef<Mode>("rest");
   const posRef = useRef<Point>(pos);
   const focused = useRef<HTMLElement | null>(null);
+  // Element, na którym Pestka siedzi: nowy cel to skok, ten sam (przewijanie) to tylko podążanie.
+  const ostatniCel = useRef<HTMLElement | null>(null);
   const moveTimer = useRef<number>();
 
   const setFocus = (el: HTMLElement | null) => {
@@ -150,8 +152,15 @@ export function TutorGuide() {
         // Przewodnik przyciemnia resztę ekranu; zwykła wskazówka tylko obwodzi element pulsującym pierścieniem.
         setFocus(isTourGuide ? null : el);
         showSpot(isTourGuide ? el : null);
-        place(p, "perch", jump || modeRef.current !== "perch");
+        const nowyCel = el !== ostatniCel.current;
+        ostatniCel.current = el;
+        place(p, "perch", jump || nowyCel || modeRef.current !== "perch");
+      } else if (hint?.trzymaj && modeRef.current === "perch") {
+        // Cel chwilowo poza ekranem (przewijanie do zadania): Pestka czeka w miejscu i stamtąd skoczy.
+        setFocus(null);
+        showSpot(null);
       } else {
+        ostatniCel.current = null;
         // Cel zniknął (zmiana strony albo karty) albo jest poza ekranem: Pestka wraca na spoczynek.
         setFocus(null);
         showSpot(null);
