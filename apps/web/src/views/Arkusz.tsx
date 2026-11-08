@@ -1,6 +1,6 @@
 import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
@@ -92,14 +92,16 @@ export function Arkusz() {
   const zacznijOmawianie = () => {
     if (dane && doOmowienia(dane, postep).length) setOmawiany(0);
   };
-  // Arkusz w stronach jak wydruk CKE: uczy układu i przechodzenia między stronami.
-  // Numer strony siedzi w adresie (?strona=5), więc przeżywa odświeżenie. Import bez
-  // stron (stare dane w bazie) zostaje jedną długą stroną.
-  const strony = useMemo(() => {
+  // Domyślnie cały arkusz na jednej stronie. Na życzenie arkusz w stronach jak wydruk CKE
+  // (uczy układu i przechodzenia między stronami); wybór pamięta przeglądarka. Numer strony
+  // siedzi w adresie (?strona=5), więc przeżywa odświeżenie. Import bez stron zostaje jedną stroną.
+  const [wStronach, setWStronach] = useState(() => czytajWStronach());
+  const mozliweStrony = useMemo(() => {
     if (!dane || !dane.zadania.every((z) => z.strona)) return null;
     const s = [...new Set(dane.zadania.flatMap(stronyZadania))].sort((a, b) => a - b);
     return s.length > 1 ? s : null;
   }, [dane]);
+  const strony = wStronach ? mozliweStrony : null;
   const [paramsStron, setParamsStron] = useSearchParams();
   const zAdresu = Number(paramsStron.get("strona"));
   const strona = strony ? (strony.includes(zAdresu) ? zAdresu : strony[0]) : undefined;
@@ -428,6 +430,17 @@ export function Arkusz() {
           arkusz={dane}
           onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined}
           zwiniety={!!strony && strona !== strony[0]}
+          wStronach={
+            mozliweStrony && (!strony || strona === strony[0])
+              ? {
+                  wlaczone: wStronach,
+                  onZmien: () => {
+                    zapiszWStronach(!wStronach);
+                    setWStronach(!wStronach);
+                  },
+                }
+              : undefined
+          }
         />
 
         {/* Wynik jak okładka: na pierwszej stronie arkusza, nie na każdej. */}
@@ -577,7 +590,23 @@ function usePrzewiniecie(id: string, gotowe: boolean) {
 
 // zwiniety: dalsza strona arkusza w stronach. Jak w wydruku pełny nagłówek jest tylko na pierwszej,
 // ale odtwarzacz zostaje w tym samym miejscu drzewa, żeby nagranie nie urwało się przy przewracaniu.
-function Naglowek({ arkusz, onNaCzas, zwiniety }: { arkusz: ArkuszDane; onNaCzas?: () => void; zwiniety?: boolean }) {
+const KLUCZ_STRON = "sedno.arkuszWStronach";
+function czytajWStronach() {
+  try {
+    return localStorage.getItem(KLUCZ_STRON) === "1";
+  } catch {
+    return false;
+  }
+}
+function zapiszWStronach(w: boolean) {
+  try {
+    localStorage.setItem(KLUCZ_STRON, w ? "1" : "0");
+  } catch {
+    // bez dostępu do pamięci przeglądarki wybór działa do zamknięcia karty
+  }
+}
+
+function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDane; onNaCzas?: () => void; zwiniety?: boolean; wStronach?: { wlaczone: boolean; onZmien: () => void } }) {
   const maSluchanie = arkusz.zadania.some((z) => z.sluchanie);
   return (
     <header className={styles.head}>
@@ -594,7 +623,7 @@ function Naglowek({ arkusz, onNaCzas, zwiniety }: { arkusz: ArkuszDane; onNaCzas
       )}
       {!zwiniety && <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>}
       {!zwiniety && arkusz.przedmiot === "matematyka" && <p className="small muted">Brudnopis nie wpływa na wynik w zadaniach zamkniętych. Zapisuje się w postępie arkusza.</p>}
-      {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas) && (
+      {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas || wStronach) && (
         <div className={styles.pdfs}>
           {arkusz.pdf?.arkusz && (
             <a className="btn btn-secondary btn-sm" href={arkusz.pdf?.arkusz} target="_blank" rel="noreferrer">
@@ -604,6 +633,11 @@ function Naglowek({ arkusz, onNaCzas, zwiniety }: { arkusz: ArkuszDane; onNaCzas
           {onNaCzas && (
             <button type="button" className="btn btn-ghost btn-sm" onClick={onNaCzas}>
               <Timer size={16} aria-hidden="true" /> Rozwiąż na czas
+            </button>
+          )}
+          {wStronach && (
+            <button type="button" className="btn btn-ghost btn-sm" aria-pressed={wStronach.wlaczone} onClick={wStronach.onZmien}>
+              <BookOpen size={16} aria-hidden="true" /> {wStronach.wlaczone ? "Wszystko na jednej stronie" : "Podziel na strony jak w arkuszu"}
             </button>
           )}
         </div>

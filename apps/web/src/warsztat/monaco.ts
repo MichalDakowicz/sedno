@@ -104,6 +104,8 @@ monaco.languages.registerCompletionItemProvider("python", {
   triggerCharacters: [".", '"', "'", "/"],
   async provideCompletionItems(model, position) {
     const wynik = await zapytaj<Podpowiedz[]>({ typ: "uzupelnij", ...pozycja(model, position) });
+    // Odpowiedź wątku przychodzi asynchronicznie; edytor mógł zniknąć w międzyczasie (zmiana widoku).
+    if (model.isDisposed()) return { suggestions: [] };
     const slowo = model.getWordUntilPosition(position);
     const range = new monaco.Range(position.lineNumber, slowo.startColumn, position.lineNumber, slowo.endColumn);
     return {
@@ -125,7 +127,7 @@ monaco.languages.registerSignatureHelpProvider("python", {
   signatureHelpRetriggerCharacters: [","],
   async provideSignatureHelp(model, position) {
     const wynik = await zapytaj<Sygnatura[]>({ typ: "sygnatura", ...pozycja(model, position) });
-    if (!wynik?.length) return null;
+    if (!wynik?.length || model.isDisposed()) return null;
     return {
       value: {
         signatures: wynik.map((s) => ({ label: s.etykieta, documentation: s.dok || undefined, parameters: s.parametry.map((p) => ({ label: p })) })),
@@ -141,7 +143,7 @@ monaco.languages.registerHoverProvider("python", {
   async provideHover(model, position) {
     const wynik = await zapytaj<{ naglowek: string; dok: string }[]>({ typ: "opis", ...pozycja(model, position) });
     const o = wynik?.[0];
-    if (!o) return null;
+    if (!o || model.isDisposed()) return null;
     return { contents: [{ value: "```python\n" + o.naglowek + "\n```" }, ...(o.dok ? [{ value: o.dok.replace(/\n/g, "  \n") }] : [])] };
   },
 });
