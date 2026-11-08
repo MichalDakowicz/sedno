@@ -909,23 +909,22 @@
   gap: 10px;
 }
 
-/* Numer zadania i odpowiedzi w jednym rzędzie, przyklejone do góry; pod nimi linia. */
+/* Numer zadania z linią pod spodem; odstęp za linią trochę większy niż w treści. */
 .glowa {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 8px 24px;
   margin-bottom: 4px;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--line);
 }
 
-.glowa h2 {
-  line-height: 36px;
+/* Jedno pytanie: numer i treść po lewej, odpowiedzi po prawej (najwyżej połowa szerokości). */
+.obok {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) fit-content(50%);
+  column-gap: 32px;
+  align-items: start;
 }
 
 .odpowiedzi {
-  flex: 1;
   min-width: 0;
 }
 
@@ -961,7 +960,7 @@
 /* Opcje tak szerokie jak ich treść: krótkie po dwie (A B, pod nimi C D), długie jedna pod drugą. */
 .kompakt .choices[data-kolumny="4"],
 .kompakt .choices[data-kolumny="2"] {
-  grid-template-columns: repeat(2, minmax(0, max-content));
+  grid-template-columns: repeat(2, max-content);
   width: fit-content;
   max-width: 100%;
 }
@@ -990,6 +989,11 @@
 @media (max-width: 900px) {
   .szpalty {
     columns: 1;
+  }
+
+  .obok {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 10px;
   }
 }
 

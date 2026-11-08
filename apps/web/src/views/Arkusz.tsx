@@ -470,7 +470,7 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
 }
 
 // Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
-// Zadanie z jednym pytaniem ma odpowiedzi w rzędzie z numerem, nad treścią.
+// Zadanie z jednym pytaniem: numer i treść po lewej, odpowiedzi po prawej.
 function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
   const { sprawdzone, wBloku } = useCtx();
   // Rysunek zadania i tak leży na płótnie brudnopisu.
@@ -491,22 +491,24 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
       ))}
     </div>
   );
-  return (
+  const tresc = (
     <div className={styles.kompakt}>
-      {/* Numer zadania w jednym rzędzie z odpowiedziami, pod nimi treść na całą szerokość. */}
-      <div className={styles.glowa}>
-        <h2 className="h3">Zadanie {zadanie.nr}.</h2>
-        {obok && (
-          <div className={styles.odpowiedzi}>
-            <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />
-          </div>
-        )}
-      </div>
+      <h2 className={`h3 ${styles.glowa}`}>Zadanie {zadanie.nr}.</h2>
       {polecenie}
       <div className={obok ? styles.content : `${styles.content} ${styles.szpalty}`}>
         <BlokiKompakt elementy={grupujPrawdaFalsz(obok ? bloki.filter((b) => b !== pytaniaBloki[0]) : bloki, zadanie)} zadanie={zadanie.nr} />
       </div>
       {klucz}
+    </div>
+  );
+  if (!obok) return tresc;
+  // Odpowiedzi w prawej kolumnie, od góry: nie spychają płótna w dół.
+  return (
+    <div className={styles.obok}>
+      {tresc}
+      <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
+        <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />
+      </div>
     </div>
   );
 }
