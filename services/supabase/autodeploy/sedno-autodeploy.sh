@@ -1,15 +1,22 @@
 #!/usr/bin/env bash
-# Działa na serwerze (timer systemd): gdy na main zmieni się services/supabase, wgrywa migracje i
-# Edge Functions. Bez klonu repo: pobiera tarball commita z GitHuba. Robi to samo co deploy.sh,
-# tylko lokalnie, więc przy zmianie sposobu wgrywania popraw oba pliki.
-# Użycie: sedno-autodeploy.sh [--init]  (--init zapisuje stan main bez wgrywania)
+# Działa na serwerze (timer systemd): gdy na gałęzi zmieni się services/supabase, wgrywa migracje i
+# Edge Functions do jej projektu: main → sedno (produkcja), dev → sedno-dev (staging).
+# Bez klonu repo: pobiera tarball commita z GitHuba. Robi to samo co deploy.sh, tylko lokalnie,
+# więc przy zmianie sposobu wgrywania popraw oba pliki.
+# Użycie: sedno-autodeploy.sh main|dev [--init]  (--init zapisuje stan gałęzi bez wgrywania)
 set -euo pipefail
 
 REPO="MichalDakowicz/sedno"
-REF="${SEDNO_REF:-main}"
-PROJECT="$HOME/supabase-hosting/projects/sedno"
-STATE="$HOME/supabase-hosting/sedno-autodeploy"
-DB="sb-sedno-db"
+case "${1:-}" in
+  main) TARGET=sedno ;;
+  dev) TARGET=sedno-dev ;;
+  *) echo "użycie: $0 main|dev [--init]" >&2; exit 2 ;;
+esac
+REF="${SEDNO_REF:-$1}"
+shift
+PROJECT="$HOME/supabase-hosting/projects/$TARGET"
+STATE="$HOME/supabase-hosting/sedno-autodeploy/$TARGET"
+DB="sb-$TARGET-db"
 
 mkdir -p "$STATE"
 exec 9>"$STATE/lock"
@@ -29,11 +36,11 @@ hash="$(cd "$tmp" && find migrations functions -type f -print0 | sort -z | xargs
 if [ "$hash" = "$(cat "$STATE/hash" 2>/dev/null || true)" ] || [ "${1:-}" = "--init" ]; then
   echo "$hash" >"$STATE/hash"
   echo "$sha" >"$STATE/sha"
-  echo "$REF $sha: bez zmian do wgrania"
+  echo "$TARGET ← $REF $sha: bez zmian do wgrania"
   exit 0
 fi
 
-echo "wgrywam $REF $sha"
+echo "wgrywam $TARGET ← $REF $sha"
 psql() { docker exec -i "$DB" psql -U postgres -v ON_ERROR_STOP=1 -q "$@"; }
 psql <<'SQL'
 create schema if not exists private;
@@ -58,4 +65,4 @@ done
 
 echo "$hash" >"$STATE/hash"
 echo "$sha" >"$STATE/sha"
-echo "gotowe: $REF $sha"
+echo "gotowe: $TARGET ← $REF $sha"
