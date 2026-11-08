@@ -13,6 +13,7 @@ function zaladuj() {
     // Fonty dokłada import CSS (Vite je serwuje), dźwięków klawiszy nie chcemy.
     m.MathfieldElement.fontsDirectory = null;
     m.MathfieldElement.soundsDirectory = null;
+    m.MathfieldElement.locale = "pl";
   });
   return ladowanie;
 }

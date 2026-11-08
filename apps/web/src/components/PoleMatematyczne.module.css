@@ -28,11 +28,48 @@
   box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
-/* Bez menu i przełącznika klawiatury: na dotykowym ekranie klawiatura MathLive
-   i tak pojawia się sama (math-virtual-keyboard-policy="auto"). */
-.pole::part(menu-toggle),
-.pole::part(virtual-keyboard-toggle) {
+/* Bez menu MathLive (komendy LaTeX-a, kolory). Zostaje przycisk klawiatury
+   matematycznej: ułamki, potęgi, pierwiastki i przedziały bez pisania LaTeX-a. */
+.pole::part(menu-toggle) {
   display: none;
+}
+
+.pole::part(virtual-keyboard-toggle) {
+  color: var(--muted);
+  border-radius: var(--r-sm);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.pole::part(virtual-keyboard-toggle):hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+/* Klawiatura MathLive (dokładana do body) w kolorach aplikacji, nad pełnym ekranem brudnopisu. */
+:global(.ML__keyboard) {
+  --keyboard-zindex: 200;
+  --keyboard-accent-color: var(--primary);
+  --keyboard-background: var(--bg);
+  --keyboard-border: var(--line);
+  --keyboard-toolbar-text: var(--muted);
+  --keyboard-toolbar-text-active: var(--primary);
+  --keyboard-toolbar-background-hover: var(--primary-soft);
+  --keyboard-toolbar-background-selected: transparent;
+  --keycap-background: var(--surface);
+  --keycap-background-hover: var(--primary-soft);
+  --keycap-border: var(--line);
+  --keycap-border-bottom: var(--line);
+  --keycap-text: var(--fg);
+  --keycap-primary-background: var(--primary-strong, var(--primary));
+  --keycap-primary-background-hover: var(--primary-hover, var(--primary));
+  --keycap-primary-text: var(--primary-fg);
+  --keycap-secondary-background: var(--bg);
+  --keycap-secondary-border: var(--line);
+  --keycap-secondary-border-bottom: var(--line);
+  --keycap-secondary-text: var(--fg);
+  font-family: var(--font);
 }
 
 .pole::part(content) {
