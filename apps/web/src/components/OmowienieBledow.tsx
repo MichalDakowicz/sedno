@@ -192,7 +192,7 @@ export function OmowienieBledow({
             <Lightbulb size={16} aria-hidden="true" /> {przyklad ? "Inny przykład" : "Daj przykład"}
           </button>
         )}
-        <button type="button" className="btn btn-soft btn-sm" onClick={ostatni ? onZamknij : onDalej}>
+        <button type="button" className="btn btn-dark btn-sm" onClick={ostatni ? onZamknij : onDalej}>
           {ostatni ? "Zakończ" : "Następny błąd"} <ArrowRight size={16} aria-hidden="true" />
         </button>
       </div>

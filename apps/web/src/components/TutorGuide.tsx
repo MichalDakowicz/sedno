@@ -311,7 +311,7 @@ export function TutorGuide() {
               <>
                 <p className={styles.text}>{summon.about ?? "Jestem. W czym ci pomóc?"}</p>
                 <div className={styles.actions}>
-                  <button type="button" className="btn btn-soft btn-sm" onClick={open}>
+                  <button type="button" className="btn btn-dark btn-sm" onClick={open}>
                     Porozmawiajmy
                   </button>
                   {hasToday && (
@@ -340,7 +340,7 @@ export function TutorGuide() {
                     {hint.waitFor === "summon" ? (
                       <span className={styles.wait}>Czekam na prawy przycisk…</span>
                     ) : (
-                      <button type="button" className="btn btn-soft btn-sm" onClick={next}>
+                      <button type="button" className="btn btn-dark btn-sm" onClick={next}>
                         {last ? "Jasne" : "Dalej"}
                       </button>
                     )}
