@@ -60,7 +60,7 @@ async function save(user: string, provider: string, body: Record<string, unknown
     baseUrl = await checkUrl(user, rawUrl);
   } catch (e) {
     if (e instanceof UnsafeUrl) return reply(400, { error: "bad_base_url", reason: e.message });
-    return reply(502, { error: "dns_failed" });
+    return reply(424, { error: "dns_failed" }); // 424, bo 502 Cloudflare zamienia na stronę HTML
   }
 
   const cipher = await encryptKey(secret, rowId(user, provider), key);

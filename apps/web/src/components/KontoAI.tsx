@@ -2,7 +2,7 @@
 // Klucz trafia tylko do funkcji ai-klucz; aplikacja widzi potem 4 ostatnie znaki.
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useLocation } from "react-router-dom";
-import { aiKey, refreshAiReady, type Tier } from "../ai";
+import { AiError, aiKey, askAi, refreshAiReady, type Tier } from "../ai";
 import { useProfil } from "../auth";
 import { supabase } from "../supabase";
 import styles from "./KontoAI.module.css";
@@ -128,6 +128,26 @@ export function KontoAI() {
     await load();
   }
 
+  // Nie każdy model przyjmuje każdy poziom (np. gpt-6.1-sol nie ma „bez myślenia”), więc zaraz po zmianie
+  // sprawdzamy go jednym krótkim zapytaniem i przy odmowie wracamy do poprzedniego.
+  async function zmienMyslenie(r: Routing, effort: string | null) {
+    const poprzedni = r.reasoning_effort;
+    await route(r.tier, r.provider, r.model ?? "", effort);
+    if (!effort) return setMsg("Poziom myślenia: domyślny dla modelu.");
+    setMsg("Sprawdzam, czy model obsługuje ten poziom myślenia…");
+    try {
+      await askAi({ tier: r.tier, task: "test-myslenia", maxTokens: 64, messages: [{ role: "user", content: "Odpowiedz jednym słowem: ok" }] });
+      setMsg("Poziom myślenia zapisany.");
+    } catch (e) {
+      await route(r.tier, r.provider, r.model ?? "", poprzedni);
+      setMsg(
+        e instanceof AiError && e.code === "provider_failed"
+          ? "Ten model nie obsługuje wybranego poziomu myślenia. Zostaje poprzedni."
+          : "Nie udało się sprawdzić poziomu myślenia. Zostaje poprzedni.",
+      );
+    }
+  }
+
   const presets = (Object.keys(PRESETS) as PresetId[]).filter((id) => id !== "ollama-serwer" || profil?.server_ollama);
   const p = PRESETS[preset];
 
@@ -198,7 +218,7 @@ export function KontoAI() {
                 <select
                   className="input"
                   value={r?.reasoning_effort ?? ""}
-                  onChange={(e) => r && void route(t.id, r.provider, r.model ?? "", e.target.value || null)}
+                  onChange={(e) => r && void zmienMyslenie(r, e.target.value || null)}
                   aria-label={`Poziom myślenia dla zadań: ${t.label}`}
                   disabled={!r}
                 >
