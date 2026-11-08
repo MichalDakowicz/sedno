@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, ChevronDown, FileText, Headphones, Pencil, RotateCcw, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, FileText, Headphones, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
-import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Postep } from "../arkusze/postep";
+import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep } from "../arkusze/postep";
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
@@ -23,6 +23,7 @@ import { TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
+import { uplynelo, zapisCzasu, zatrzymaj, Zegar } from "../components/Zegar";
 import styles from "./Arkusz.module.css";
 
 type Kontekst = {
@@ -130,7 +131,12 @@ export function Arkusz() {
   }
 
   const sprawdzCaly = () => {
-    zmien((p) => ({ ...p, sprawdzony: true, wynik: { zdobyte: wynik.zdobyte, mozliwe: wynik.mozliwe, kiedy: new Date().toISOString() } }));
+    zmien((p) => ({
+      ...p,
+      sprawdzony: true,
+      wynik: { zdobyte: wynik.zdobyte, mozliwe: wynik.mozliwe, kiedy: new Date().toISOString() },
+      czas: p.czas && zatrzymaj(p.czas),
+    }));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const odNowa = () => {
@@ -147,14 +153,18 @@ export function Arkusz() {
       return { ...p, samoocena, sprawdzony: false, wynik: undefined, sprawdzoneZadania: sprawdzoneZadania.filter((n) => n !== z.nr) };
     });
 
+  const ustawCzas = (c: Czas | undefined) => zmien((p) => ({ ...p, czas: c }));
+  const naCzas = () => ustawCzas({ start: Date.now(), zuzyte: 0 });
+
   const odpowiedziane = [...kontekst.pytania.keys()].filter((nr) => postep.odpowiedzi[nr]?.trim()).length;
 
   return (
     <Ctx.Provider value={kontekst}>
       <main className={`container ${styles.page}`}>
-        <Naglowek arkusz={dane} />
+        <Naglowek arkusz={dane} onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined} />
 
-        {postep.sprawdzony && <Podsumowanie wynik={wynik} odNowa={odNowa} />}
+        {postep.sprawdzony && <Podsumowanie wynik={wynik} odNowa={odNowa} czas={postep.czas} limitMin={dane.czas} />}
+        {postep.czas && !postep.sprawdzony && dane.czas && <Zegar arkusz={dane.id} limitMin={dane.czas} czas={postep.czas} onZmien={ustawCzas} />}
 
         {dane.zadania.map((z) => (
           <ZadanieWidok key={z.nr} zadanie={z} onSprawdz={() => sprawdzZadanie(z.nr)} onPopraw={() => poprawZadanie(z)} />
@@ -186,7 +196,7 @@ export function Arkusz() {
   );
 }
 
-function Naglowek({ arkusz }: { arkusz: ArkuszDane }) {
+function Naglowek({ arkusz, onNaCzas }: { arkusz: ArkuszDane; onNaCzas?: () => void }) {
   const maSluchanie = arkusz.zadania.some((z) => z.sluchanie);
   return (
     <header className={styles.head}>
@@ -200,15 +210,20 @@ function Naglowek({ arkusz }: { arkusz: ArkuszDane }) {
         Matura {arkusz.sesja} {arkusz.rok}
       </h1>
       <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>
-      {(arkusz.pdf?.arkusz || arkusz.pdf?.zasady) && (
+      {(arkusz.pdf?.arkusz || arkusz.pdf?.zasady || onNaCzas) && (
         <div className={styles.pdfs}>
-          {arkusz.pdf.arkusz && (
-            <a className="btn btn-secondary btn-sm" href={arkusz.pdf.arkusz} target="_blank" rel="noreferrer">
+          {onNaCzas && (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={onNaCzas}>
+              <Timer size={16} aria-hidden="true" /> Rozwiąż na czas
+            </button>
+          )}
+          {arkusz.pdf?.arkusz && (
+            <a className="btn btn-secondary btn-sm" href={arkusz.pdf?.arkusz} target="_blank" rel="noreferrer">
               <FileText size={16} aria-hidden="true" /> Arkusz PDF
             </a>
           )}
-          {arkusz.pdf.zasady && (
-            <a className="btn btn-ghost btn-sm" href={arkusz.pdf.zasady} target="_blank" rel="noreferrer">
+          {arkusz.pdf?.zasady && (
+            <a className="btn btn-ghost btn-sm" href={arkusz.pdf?.zasady} target="_blank" rel="noreferrer">
               <FileText size={16} aria-hidden="true" /> Zasady oceniania PDF
             </a>
           )}
@@ -220,7 +235,7 @@ function Naglowek({ arkusz }: { arkusz: ArkuszDane }) {
   );
 }
 
-function Podsumowanie({ wynik, odNowa }: { wynik: ReturnType<typeof policz>; odNowa: () => void }) {
+function Podsumowanie({ wynik, odNowa, czas, limitMin }: { wynik: ReturnType<typeof policz>; odNowa: () => void; czas?: Czas; limitMin?: number }) {
   const procent = wynik.mozliwe ? Math.round((wynik.zdobyte / wynik.mozliwe) * 100) : 0;
   return (
     <section className={styles.summary} aria-live="polite">
@@ -234,6 +249,12 @@ function Podsumowanie({ wynik, odNowa }: { wynik: ReturnType<typeof policz>; odN
           : "Wszystkie odpowiedzi ocenione."}
         {wynik.wypowiedzi > 0 && ` Wypowiedź pisemna (${wynik.wypowiedzi} pkt) wymaga oceny według kryteriów, na razie bez punktów.`}
       </p>
+      {czas && (
+        <p className="muted">
+          Czas: {zapisCzasu(uplynelo(czas))}
+          {limitMin ? ` z ${limitMin} minut${uplynelo(czas) > limitMin * 60_000 ? ", po czasie" : ""}.` : "."}
+        </p>
+      )}
       <button type="button" className="btn btn-ghost btn-sm" onClick={odNowa}>
         <RotateCcw size={16} aria-hidden="true" /> Rozwiąż od nowa
       </button>
