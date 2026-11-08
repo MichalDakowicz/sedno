@@ -89,6 +89,12 @@ export function Arkusz() {
         dwie.set(nr, w);
         w.ukryte.forEach((b) => ukryteKodem.add(b));
       });
+      // Całe zadanie P/F w wycinku: na pełnym ekranie tekst, a stwierdzenia z przełącznikami (też na stronie).
+      const zKadru = pfZKadru(z);
+      if (zKadru) {
+        kadryTekst.set(zKadru.kadr, zKadru.tekst);
+        pf.set(zKadru.nr, zKadru.stwierdzenia);
+      }
       stwierdzeniaPF(z).forEach((w, nr) => {
         pf.set(nr, w);
         w.ukryte.forEach((b) => ukryteKodem.add(b));
@@ -1437,6 +1443,35 @@ function WyborKilku({ pytanie: p, wybor }: { pytanie: PytanieOtwarte; wybor: Wyb
       </div>
     </div>
   );
+}
+
+// Całe zadanie P/F jako jeden wycinek strony (tekst, diagramy, tabela P/F; klucz np. „PP”).
+// Tekst z PDF: wstęp, podpisy osi, polecenie „Oceń prawdziwość…”, a potem stwierdzenia
+// z wtrąconym „P F” z kolumn tabeli. Wyciągamy z niego wstęp, polecenie i zdania.
+function pfZKadru(z: Zadanie): { kadr: Blok; tekst: Blok[]; nr: string; stwierdzenia: StwierdzeniaPF } | null {
+  const [p] = z.pytania;
+  const klucz = z.pytania.length === 1 && p.typ === "otwarte" && p.kod ? p.oczekiwane?.[0] : undefined;
+  const kadr = z.bloki.find((b) => b.typ === "kadr" && /Oceń prawdziwość/.test(b.tekst));
+  if (!klucz || !/^[PF]+$/.test(klucz) || kadr?.typ !== "kadr") return null;
+  const t = kadr.tekst;
+  const od = t.search(/Oceń prawdziwość/);
+  const koniecPolecenia = t.indexOf("fałszywe.", od);
+  if (koniecPolecenia < 0) return null;
+  const polecenie = t.slice(od, koniecPolecenia + "fałszywe.".length);
+  const zdania = t
+    .slice(koniecPolecenia + "fałszywe.".length)
+    .replace(/\s+P\s+F(?=\s|$)/g, "")
+    .trim()
+    .split(/(?<=\.)\s+(?=[A-ZĄĆĘŁŃÓŚŹŻ])/)
+    .filter(Boolean);
+  if (zdania.length !== klucz.length) return null;
+  const wstep = wstepBezRysunku(t.slice(0, od)) ?? naAkapity(t.slice(0, od));
+  return {
+    kadr,
+    tekst: [...wstep, { typ: "akapit", tekst: polecenie, polecenie: true }],
+    nr: p.nr,
+    stwierdzenia: { zdania: zdania.map((tekst): Blok[] => [{ typ: "akapit", tekst }]), ukryte: new Set() },
+  };
 }
 
 // Odpowiedź kodem P/F („Oceń prawdziwość stwierdzeń 1. i 2.”, klucz np. „PF”): każde

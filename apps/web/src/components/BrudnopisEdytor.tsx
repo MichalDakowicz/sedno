@@ -354,6 +354,32 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pokazDodatkowe]);
 
+  // Płótno zmienia wysokość, gdy treść nad nim dochodzi (obrazki, wzory). Dopóki uczeń nic
+  // nie zrobił, widok startowy dopasowujemy do nowego rozmiaru, żeby rysunek nie był ucięty.
+  const ruszone = useRef(false);
+  useEffect(() => {
+    const el = kontener.current;
+    if (!el) return;
+    let t = 0;
+    const ro = new ResizeObserver(() => {
+      window.clearTimeout(t);
+      t = window.setTimeout(() => {
+        if (!ruszone.current && wczytana.current) dopasuj(true);
+      }, 150);
+    });
+    ro.observe(el);
+    const ruszyl = () => (ruszone.current = true);
+    el.addEventListener("pointerdown", ruszyl);
+    el.addEventListener("wheel", ruszyl, { passive: true });
+    return () => {
+      ro.disconnect();
+      window.clearTimeout(t);
+      el.removeEventListener("pointerdown", ruszyl);
+      el.removeEventListener("wheel", ruszyl);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Stan paska narzędzi odbija stan edytora (skróty klawiszowe też zmieniają narzędzie).
   const [narzedzie, setNarzedzie] = useState<Narzedzie>("freedraw");
   const [kolor, setKolor] = useState(KOLORY[0].wartosc);
