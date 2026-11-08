@@ -8,8 +8,8 @@ Dokumentacja wizualna (GitHub Pages z `docs/`): 139 stron w 16 rozdziałach. Pon
 
 ### Do domknięcia z bieżącej pracy
 
-- **Wgrać arkusze ze stronami.** PR z arkuszem w stronach dodaje numer strony PDF do danych. Po scaleniu: `npm run importuj` i `npm run wgraj` (wgrywanie idzie przez ssh na serwer Michała, z sieci lokalnej). Do tego czasu arkusze z bazy pokazują się jedną stroną.
-- **Fragmenty nagrań.** Transkrypcje robi `services/arkusze/nagrania/transkrybuj.py` (Whisper large-v3 na lokalnym GPU, wynik w `data/nagrania/`). Zostało: klucz `OPENAI_API_KEY` w `.env`, potem `dopasuj.py` (luna, myślenie xhigh), sprawdzić kilka dopasowań na ucho, `npm run wgraj`.
+- **Wgrać arkusze z nowego importu.** Strony i czasy fragmentów działają już przez nakładkę (`apps/web/src/arkusze/nakladka.json`, `npm run nakladka`), bez tekstów. Pełny import (`npm run importuj`, potem `npm run wgraj` przez ssh na serwer Michała) doda do bazy też tekst fragmentów pod „Posłuchaj fragmentu”.
+- **Fragmenty nagrań: zrobione 8 listopada.** Whisper przepisał 39 nagrań (`data/nagrania/`), `dopasuj.py` dał fragment 547 z 558 pytań. Zostało: przesłuchać kilka fragmentów na ucho; przy nowym roczniku: `transkrybuj.py`, `dopasuj.py`, `npm run nakladka`.
 - **Rozmowy z Pestką na koncie.** Gotowe na gałęzi `rozmowy-konto` (migracja `0005_rozmowy_pestki.sql`, tabela `tutor_chats`). Zostało: wgrać na staging (`git push origin rozmowy-konto:dev`, przy innych zmianach na `dev` scalić), sprawdzić z `npm run dev:staging` (potrzebny `.env.staging`), potem PR do `main`.
 - **Omawianie wypracowania przez sol:** sprawdzić na prawdziwym wypracowaniu z angielskiego.
 - **Zgłoszenie do konkursu (29 listopada):** regulamin, konto demo dla jury, instrukcje, film do 5 minut, opis na 1 stronę, karta zgłoszenia. Szczegóły w `docs/konkurs.md` i w sekcji 5.
