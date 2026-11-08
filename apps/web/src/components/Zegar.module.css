@@ -71,6 +71,29 @@
   overflow: hidden;
 }
 
+/* Odpięty: pływa nad arkuszem w miejscu, gdzie go postawiono; łapie się go za tło. */
+.wyspa .panel.odpiety {
+  position: fixed;
+  translate: none;
+  overflow: visible;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.wyspa .panel.odpiety:active {
+  cursor: grabbing;
+}
+
+/* Odpięty zegar zostaje sam: wyspa w pasku znika razem z odstępem od menu. */
+.bezWyspy {
+  margin-left: -12px;
+}
+
+.bezWyspy > .czas {
+  display: none;
+}
+
 /* Wyspa na czas wysunięcia: niewidoczna, ale zajmuje miejsce, żeby menu nie skakało. */
 .ukryta {
   visibility: hidden;

@@ -3,7 +3,7 @@
 // (półmetek, 15 minut przed końcem, koniec), bo ciągłe odliczanie rozprasza.
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Pause, Play, Timer, X } from "lucide-react";
+import { Pause, Pin, PinOff, Play, Timer, X } from "lucide-react";
 import type { Czas } from "../arkusze/postep";
 import { useTutor } from "./TutorContext";
 import styles from "./Zegar.module.css";
@@ -53,6 +53,9 @@ export function Zegar({
   // Wysunięty zegar: „zamyka” trwa, póki animacja chowania nie wróci do wyspy.
   const [widok, setWidok] = useState<"schowany" | "otwarty" | "zamyka">("schowany");
   const rozwiniety = widok === "otwarty";
+  // Odpięty zegar pływa nad arkuszem i da się go przesunąć; pozycja zostaje na kolejne razy.
+  const [odpiety, setOdpiety] = useState<{ x: number; y: number } | null>(null);
+  const przeciagnij = useRef<{ dx: number; dy: number } | null>(null);
   const biegnie = czas.start !== null;
   // Miejsce w górnym pasku (TopNav). Bez niego zegar wisi pod paskiem jak wcześniej.
   const [wyspa, setWyspa] = useState<HTMLElement | null>(null);
@@ -65,7 +68,7 @@ export function Zegar({
   useLayoutEffect(() => {
     const wysp = wyspaRef.current?.firstElementChild as HTMLElement | null | undefined;
     const pn = panelRef.current;
-    if (widok === "schowany" || !wysp || !pn) return;
+    if (widok === "schowany" || !wysp || !pn || odpiety) return;
     const w = wysp.getBoundingClientRect();
     const r = pn.getBoundingClientRect();
     const male = {
@@ -92,15 +95,58 @@ export function Zegar({
     }
   }, [widok]);
 
-  // Kliknięcie obok chowa wysunięty zegar z powrotem do wyspy.
+  // Kliknięcie obok chowa wysunięty zegar z powrotem do wyspy (odpiętego nie: ten stoi, gdzie go postawiono).
   useEffect(() => {
-    if (!rozwiniety) return;
+    if (!rozwiniety || odpiety) return;
     const schowaj = (e: PointerEvent) => {
       if (!wyspaRef.current?.contains(e.target as Node)) setWidok("zamyka");
     };
     document.addEventListener("pointerdown", schowaj);
     return () => document.removeEventListener("pointerdown", schowaj);
-  }, [rozwiniety]);
+  }, [rozwiniety, odpiety]);
+
+  function odepnij() {
+    const r = panelRef.current?.getBoundingClientRect();
+    if (!r) return;
+    let poz = { x: r.left, y: r.top };
+    try {
+      const z = JSON.parse(localStorage.getItem("sedno.zegar-pozycja") ?? "null") as { x: number; y: number } | null;
+      if (z) poz = { x: Math.min(Math.max(8, z.x), window.innerWidth - r.width - 8), y: Math.min(Math.max(8, z.y), window.innerHeight - r.height - 8) };
+    } catch {
+      // bez zapisanej pozycji zegar zostaje tam, gdzie był
+    }
+    setOdpiety(poz);
+  }
+
+  function przypnij() {
+    setOdpiety(null);
+    setWidok("schowany");
+  }
+
+  // Przeciąganie odpiętego zegara: łapie się za dowolne miejsce poza przyciskami.
+  function chwyc(e: React.PointerEvent<HTMLDivElement>) {
+    if (!odpiety || (e.target as Element).closest("button")) return;
+    przeciagnij.current = { dx: e.clientX - odpiety.x, dy: e.clientY - odpiety.y };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+  function ciagnij(e: React.PointerEvent<HTMLDivElement>) {
+    const p = przeciagnij.current;
+    const el = panelRef.current;
+    if (!p || !el) return;
+    setOdpiety({
+      x: Math.min(Math.max(8, e.clientX - p.dx), window.innerWidth - el.offsetWidth - 8),
+      y: Math.min(Math.max(8, e.clientY - p.dy), window.innerHeight - el.offsetHeight - 8),
+    });
+  }
+  function pusc() {
+    if (!przeciagnij.current) return;
+    przeciagnij.current = null;
+    try {
+      localStorage.setItem("sedno.zegar-pozycja", JSON.stringify(odpiety));
+    } catch {
+      // pozycja zostaje tylko do odświeżenia
+    }
+  }
 
   useEffect(() => {
     if (!biegnie) return;
@@ -142,15 +188,40 @@ export function Zegar({
   }
 
   const tekst = zostalo > 0 ? zapisCzasu(zostalo) : `+${zapisCzasu(zostalo)}`;
+  // Odpięty zegar jest jedynym na ekranie: wyspa znika z paska, a menu płynnie zajmuje jej miejsce
+  // (TopNav dociąga je na sygnał). Poza arkuszem odpiętego nie ma, więc wyspa zostaje.
+  const bezWyspy = !!odpiety && !onWroc;
+  useLayoutEffect(() => {
+    window.dispatchEvent(new Event("sedno-wyspa"));
+  }, [bezWyspy]);
   const panel = (
-    <div ref={panelRef} className={styles.panel}>
-      <span className={styles.panelCzas} onClick={() => wyspa && setWidok("zamyka")}>
+    <div
+      ref={panelRef}
+      className={`${styles.panel} ${odpiety ? styles.odpiety : ""}`}
+      style={odpiety ? { left: odpiety.x, top: odpiety.y } : undefined}
+      onPointerDown={chwyc}
+      onPointerMove={ciagnij}
+      onPointerUp={pusc}
+      onPointerCancel={pusc}
+    >
+      <span className={styles.panelCzas} onClick={() => wyspa && !odpiety && setWidok("zamyka")}>
         {tekst}
         <span className={styles.opis}>{zostalo > 0 ? (biegnie ? "zostało" : "pauza") : "po czasie"}</span>
       </span>
       <button type="button" className={styles.przycisk} onClick={przelacz} aria-label={biegnie ? "Pauza" : "Wznów"} title={biegnie ? "Pauza" : "Wznów"}>
         {biegnie ? <Pause size={18} /> : <Play size={18} />}
       </button>
+      {wyspa && (
+        <button
+          type="button"
+          className={styles.przycisk}
+          onClick={odpiety ? przypnij : odepnij}
+          aria-label={odpiety ? "Przypnij zegar do paska" : "Odepnij zegar i przesuń, gdzie chcesz"}
+          title={odpiety ? "Przypnij do paska" : "Odepnij i przesuń"}
+        >
+          {odpiety ? <Pin size={17} /> : <PinOff size={17} />}
+        </button>
+      )}
       <button type="button" className={styles.przycisk} onClick={wylacz} aria-label="Wyłącz zegar" title="Wyłącz zegar">
         <X size={18} />
       </button>
@@ -167,11 +238,11 @@ export function Zegar({
 
   // Wyspa w pasku pokazuje sam czas; kliknięcie wysuwa pod nią pełny zegar z pauzą i wyłączeniem.
   return createPortal(
-    <div ref={wyspaRef} className={styles.wyspa} data-stan={stan} data-tutor="zegar" role="timer" aria-label="Czas arkusza">
+    <div ref={wyspaRef} className={`${styles.wyspa} ${bezWyspy ? styles.bezWyspy : ""}`} data-stan={stan} data-tutor="zegar" role="timer" aria-label="Czas arkusza">
       <button
         type="button"
-        className={`${styles.czas} ${widok !== "schowany" ? styles.ukryta : ""}`}
-        onClick={() => (onWroc ? onWroc() : setWidok((v) => (v === "otwarty" ? "zamyka" : "otwarty")))}
+        className={`${styles.czas} ${widok !== "schowany" && !odpiety ? styles.ukryta : ""}`}
+        onClick={() => (onWroc ? onWroc() : odpiety ? przypnij() : setWidok((v) => (v === "otwarty" ? "zamyka" : "otwarty")))}
         aria-expanded={onWroc ? undefined : rozwiniety}
         aria-label={onWroc ? `Wróć do arkusza na czas, ${zostalo > 0 ? "zostało" : "po czasie"} ${zapisCzasu(zostalo)}` : undefined}
         title={onWroc ? "Wróć do arkusza" : rozwiniety ? "Schowaj zegar" : "Pokaż zegar"}
@@ -180,7 +251,7 @@ export function Zegar({
         {tekst}
         {!biegnie && <span className={styles.pauzaZnak}>pauza</span>}
       </button>
-      {widok !== "schowany" && panel}
+      {widok !== "schowany" && !onWroc && panel}
     </div>,
     wyspa,
   );

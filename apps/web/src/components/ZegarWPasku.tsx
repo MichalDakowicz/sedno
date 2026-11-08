@@ -1,5 +1,6 @@
-// Zegar arkusza na czas poza samym arkuszem: wyspa zostaje w górnym pasku na każdej stronie,
-// a kliknięcie wraca do arkusza. W arkuszu zegarem zarządza widok arkusza (views/Arkusz.tsx).
+// Jeden zegar arkusza na czas dla całej aplikacji: wyspa w górnym pasku. Siedzi w układzie strony,
+// więc przy przejściu między pulpitem a arkuszem się nie przeładowuje i nic nie miga. W arkuszu
+// wysuwa pełny zegar (i da się go odpiąć), poza nim kliknięcie wraca do arkusza.
 import { useLocation, useNavigate } from "react-router-dom";
 import { usePostep } from "../arkusze/postep";
 import { useAktywnyZegar, type AktywnyZegar } from "../arkusze/zegarAktywny";
@@ -7,14 +8,14 @@ import { Zegar } from "./Zegar";
 
 export function ZegarWPasku() {
   const aktywny = useAktywnyZegar();
-  const { pathname } = useLocation();
-  if (!aktywny || pathname === `/arkusze/${aktywny.id}`) return null;
+  if (!aktywny) return null;
   return <ZegarArkusza key={aktywny.id} aktywny={aktywny} />;
 }
 
 function ZegarArkusza({ aktywny }: { aktywny: AktywnyZegar }) {
   const [postep, zmien] = usePostep(aktywny.id);
   const navigate = useNavigate();
+  const naArkuszu = useLocation().pathname === `/arkusze/${aktywny.id}`;
   if (!postep.czas || postep.sprawdzony) return null;
   return (
     <Zegar
@@ -22,7 +23,7 @@ function ZegarArkusza({ aktywny }: { aktywny: AktywnyZegar }) {
       limitMin={aktywny.limitMin}
       czas={postep.czas}
       onZmien={(c) => zmien((p) => ({ ...p, czas: c }))}
-      onWroc={() => navigate(`/arkusze/${aktywny.id}`)}
+      onWroc={naArkuszu ? undefined : () => navigate(`/arkusze/${aktywny.id}`)}
     />
   );
 }
