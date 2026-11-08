@@ -689,7 +689,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   const ilePodpunktow = podzial?.podpunkty.length ?? 1;
   const aktywny = podzial ? podzial.podpunkty[Math.min(podpunkt, ilePodpunktow - 1)] : null;
   // Nagłówek podpunktu („Zadanie 12.1 (0–2 pkt)”) zastępuje numer w nagłówku widoku.
-  // Luki z wyborem w tekście ({{29.1}}) z opcjami zadania: opcje idą do prawej kolumny.
+  // Luki z wyborem w tekście ({{29.1}}): opcje pokazuje każda luka (LukaZdanie), więc bez osobnej listy.
   const opcjeLukTekstu = uporzadkowane.some((b) => b.typ === "akapit" && /\{\{\d+\.\d+\}\}/.test(b.tekst)) ? uporzadkowane.find((b) => b.typ === "opcje") : undefined;
   const bloki = (podzial && aktywny ? [...podzial.wstep, ...aktywny.filter((b) => b.typ !== "naglowek")] : uporzadkowane).filter((b) => b !== opcjeLukTekstu);
   const numer = (aktywny && numerPodpunktu(aktywny)) ?? String(zadanie.nr);
@@ -785,15 +785,6 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   // Luki do wyboru litery: po prawej opcje A–E (rysunek jest na płótnie). Luki do wpisania:
   // po prawej rysunek, bo uczeń odczytuje z niego odpowiedzi.
   const opcjeLuk = [...luki.values()].find((l) => l.opcje && zadanie.pytania.includes(l.pytanie))?.opcje;
-  if (opcjeLukTekstu?.typ === "opcje")
-    return (
-      <div className={styles.obok}>
-        {tresc}
-        <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
-          <ListaOpcjiLiter opcje={opcjeLukTekstu.opcje} pionowo />
-        </div>
-      </div>
-    );
   if (zLukami && opcjeLuk)
     return (
       <div className={styles.obok}>
@@ -1922,17 +1913,30 @@ function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   const opcje = opcjeDla(p.nr);
   const gotowe = sprawdzone(p.nr);
   const wybrana = postep.odpowiedzi[p.nr] || "";
-  // Matematyka na pełnym ekranie: w luce przełącznik liter, a opcje stoją w prawej kolumnie.
+  // Matematyka na pełnym ekranie: pod luką od razu opcje z treścią („A 5,80 zł”), bez listy obok.
   if (kompakt && arkusz.przedmiot === "matematyka")
     return (
-      <PrzelacznikLiter
-        litery={opcje?.map((o) => o.litera) ?? p.litery}
-        wybrana={wybrana || undefined}
-        poprawna={p.poprawna}
-        gotowe={gotowe}
-        etykieta={`Luka ${p.nr}`}
-        onWybor={(l) => ustaw(p.nr, l)}
-      />
+      <span className={styles.wyborLuki} role="radiogroup" aria-label={`Luka ${p.nr}`}>
+        {(opcje ?? p.litery.map((l) => ({ litera: l, tresc: "" }))).map((o) => (
+          <button
+            key={o.litera}
+            type="button"
+            role="radio"
+            aria-checked={wybrana === o.litera}
+            className={styles.choice}
+            data-stan={stanCzesci(wybrana || undefined, p.poprawna, o.litera, gotowe)}
+            disabled={gotowe}
+            onClick={() => ustaw(p.nr, wybrana === o.litera ? "" : o.litera)}
+          >
+            <span className={styles.letter}>{o.litera}</span>
+            {o.tresc && (
+              <span>
+                <Tekst tekst={o.tresc} />
+              </span>
+            )}
+          </button>
+        ))}
+      </span>
     );
   const otwarta = otwartaLuka === p.nr && !gotowe;
   const w = gotowe ? werdyktPytania(p, postep) : undefined;

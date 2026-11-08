@@ -1247,3 +1247,27 @@
   flex-direction: column;
   margin-top: 0;
 }
+
+/* Pełny ekran, luka z wyborem w zdaniu: opcje z treścią w rzędzie pod zdaniem. */
+.wyborLuki {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+  margin: 4px 4px 4px 0;
+  vertical-align: middle;
+  padding: 4px;
+  border-radius: calc(var(--r-md) + 4px);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.wyborLuki .choice {
+  width: auto;
+  align-items: center;
+}
+
+.wyborLuki .choice[data-stan="wybrana"] {
+  background: var(--surface);
+  box-shadow: 0 0 0 1.5px var(--primary);
+}
