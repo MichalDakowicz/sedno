@@ -235,6 +235,7 @@ export function Arkusz() {
                 wszystkich={listaOmowien.length}
                 onDalej={() => setOmawiany(omawiany! + 1)}
                 onWynikPrzykladu={(nr, w) => zmien((p) => ({ ...p, omowione: { ...p.omowione, [nr]: w } }))}
+                onZapiszRozmowe={(nr, r) => zmien((p) => ({ ...p, rozmowyOmowien: { ...p.rozmowyOmowien, [nr]: r } }))}
                 onZamknij={() => setOmawiany(null)}
               />
             )}
