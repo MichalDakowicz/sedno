@@ -1220,3 +1220,10 @@
   font-weight: 600;
   text-align: center;
 }
+
+/* Tekst nad płótnem przy tabeli przyporządkowania: niższy, przewijany. */
+.przewijana {
+  max-height: 26vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}

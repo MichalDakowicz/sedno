@@ -696,8 +696,11 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
       ))}
     </div>
   );
+  // Przy tabeli przyporządkowania płótno z wykresami A–F potrzebuje miejsca: tekst nad nim
+  // ma niższą wysokość i przewija się sam.
+  const przewijana = bloki.some((b) => b.typ === "pytanie" && tabele.has(b.nr));
   const tresc = (
-    <div className={styles.kompakt}>
+    <div className={przewijana ? `${styles.kompakt} ${styles.przewijana}` : styles.kompakt}>
       <div className={styles.glowa}>
         <button
           type="button"
