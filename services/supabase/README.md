@@ -66,12 +66,12 @@ Kto ma prawo zapisu do repo, ten uruchamia migracje jako `postgres` i kod funkcj
 
 ### Testowanie na stagingu
 
-1. Wgraj swoją gałąź na `dev`: `git push -f origin <gałąź>:dev`. `dev` to wspólna gałąź do testów, nadpisywana bez scalania. Przed nadpisaniem zapytaj, czy nikt na niej teraz nie testuje.
+1. Wgraj swoją gałąź na `dev`: `git push origin <gałąź>:dev`. `dev` to wspólna gałąź do testów. Gdy są na niej cudze zmiany, scal do niej swoją gałąź, zamiast nadpisywać.
 2. Po ~2 minutach zmiany są na stagingu.
 3. Aplikacja ze stagingiem: plik `.env.staging` w katalogu głównym (`VITE_SUPABASE_URL=https://sedno-dev-api.dakowicz.xyz` i klucz anon stagingu), potem `npm run dev:staging`.
 4. Gdy działa, PR do `main`.
 
-Staging ma osobną bazę i konta. Logowanie tylko mailem, rejestracja bez potwierdzenia (bez Google). Arkusze są skopiowane z produkcji. Ollama serwera działa jak na produkcji, z flagą `server_ollama` ustawianą przez administratora. Migracje z porzuconych gałęzi zostają w bazie stagingu. Gdy się rozjedzie, trzeba ją postawić od nowa.
+Staging ma osobną bazę i konta. Logowanie tylko mailem, rejestracja bez potwierdzenia (bez Google). Arkusze są skopiowane z produkcji. Ollama serwera działa jak na produkcji, z flagą `server_ollama` ustawianą przez administratora. Migracje z porzuconych gałęzi zostają w bazie stagingu. Gdy się rozjedzie, trzeba ją postawić od nowa. Konto testowe (`SEDNO_TEST_*` w `.env`) skopiowano z produkcji razem z dostawcami AI. Klucze przeszyfrowano kluczem stagingu, a adres Ollamy zmieniono na `172.16.78.1`.
 
 ## Aplikacja web
 
