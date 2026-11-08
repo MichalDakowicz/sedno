@@ -950,11 +950,3 @@
   border-radius: var(--r-md);
   transition: outline-color 0.3s ease;
 }
-
-/* Przy otwartym omawianiu arkusz odsuwa się w lewo, żeby panel Pestki nie zasłaniał zadania. */
-@media (min-width: 1100px) {
-  .page[data-omawianie] {
-    margin-left: max(24px, calc(50vw - 410px - 226px));
-    transition: margin-left 0.3s ease;
-  }
-}

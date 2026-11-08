@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check, ChevronDown, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
@@ -59,12 +59,16 @@ export function Arkusz() {
   useEffect(zacznijOdmierzac, [id]);
   const session = useSession();
   const ai = useAiReady(session ? session.user.id : null) === true;
-  const [omawiam, setOmawiam] = useState(false);
+  // Który z błędów do omówienia jest otwarty (indeks w doOmowienia), null: nie omawiamy.
+  const [omawiany, setOmawiany] = useState<number | null>(null);
+  const zacznijOmawianie = () => {
+    if (dane && doOmowienia(dane, postep).length) setOmawiany(0);
+  };
   const [params, setParams] = useSearchParams();
   // ?omow=1 (np. z pulpitu) od razu otwiera omawianie błędów sprawdzonego arkusza.
   useEffect(() => {
     if (!params.has("omow") || !dane || !ai) return;
-    if (postep.sprawdzony && doOmowienia(dane, postep).length) setOmawiam(true);
+    if (postep.sprawdzony) zacznijOmawianie();
     setParams({}, { replace: true });
   }, [params, dane, ai, postep.sprawdzony]);
   // W trybie na czas długa cisza to też praca nad arkuszem, nie przerwa.
@@ -185,11 +189,14 @@ export function Arkusz() {
   const ustawCzas = (c: Czas | undefined) => zmien((p) => ({ ...p, czas: c }));
   const naCzas = () => ustawCzas({ start: Date.now(), zuzyte: 0 });
 
+  const listaOmowien = postep.sprawdzony ? doOmowienia(dane, postep) : [];
+  const omawiane = omawiany !== null ? listaOmowien[omawiany] : undefined;
+
   const odpowiedziane = [...kontekst.pytania.keys()].filter((nr) => postep.odpowiedzi[nr]?.trim()).length;
 
   return (
     <Ctx.Provider value={kontekst}>
-      <main className={`container ${styles.page}`} data-omawianie={omawiam || undefined}>
+      <main className={`container ${styles.page}`}>
         <Naglowek arkusz={dane} onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined} />
 
         {postep.sprawdzony && (
@@ -200,22 +207,28 @@ export function Arkusz() {
             limitMin={dane.czas}
             arkusz={dane}
             postep={postep}
-            omow={{ ile: doOmowienia(dane, postep).length, ai, start: () => setOmawiam(true) }}
-          />
-        )}
-        {omawiam && postep.sprawdzony && doOmowienia(dane, postep).length > 0 && (
-          <OmowienieBledow
-            arkusz={dane}
-            postep={postep}
-            lista={doOmowienia(dane, postep)}
-            onWynikPrzykladu={(nr, w) => zmien((p) => ({ ...p, omowione: { ...p.omowione, [nr]: w } }))}
-            onZamknij={() => setOmawiam(false)}
+            omow={{ ile: doOmowienia(dane, postep).length, ai, start: zacznijOmawianie }}
           />
         )}
         {postep.czas && !postep.sprawdzony && dane.czas && <Zegar arkusz={dane.id} limitMin={dane.czas} czas={postep.czas} onZmien={ustawCzas} />}
 
         {dane.zadania.map((z) => (
-          <ZadanieWidok key={z.nr} zadanie={z} onSprawdz={() => sprawdzZadanie(z.nr)} onPopraw={() => poprawZadanie(z)} />
+          <Fragment key={z.nr}>
+            <ZadanieWidok zadanie={z} onSprawdz={() => sprawdzZadanie(z.nr)} onPopraw={() => poprawZadanie(z)} />
+            {omawiane?.zadanie.nr === z.nr && (
+              <OmowienieBledow
+                key={z.nr}
+                arkusz={dane}
+                postep={postep}
+                d={omawiane}
+                numer={omawiany! + 1}
+                wszystkich={listaOmowien.length}
+                onDalej={() => setOmawiany(omawiany! + 1)}
+                onWynikPrzykladu={(nr, w) => zmien((p) => ({ ...p, omowione: { ...p.omowione, [nr]: w } }))}
+                onZamknij={() => setOmawiany(null)}
+              />
+            )}
+          </Fragment>
         ))}
 
         <footer className={styles.footer}>

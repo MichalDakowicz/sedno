@@ -46,11 +46,13 @@ export function OmowienieBledow({
   const nr = d.zadanie.nr;
   const ostatni = numer === wszystkich;
 
-  // Podświetl zadanie i przewiń do niego; karta jest zaraz pod nim.
+  const kartaRef = useRef<HTMLElement>(null);
+
+  // Podświetl zadanie i przewiń tak, żeby karta była cała widoczna, a nad nią koniec zadania.
   useEffect(() => {
     const el = document.getElementById(`zadanie-${nr}`);
     el?.setAttribute("data-omawiane", "true");
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    kartaRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
     return () => el?.removeAttribute("data-omawiane");
   }, [nr]);
 
@@ -77,6 +79,8 @@ export function OmowienieBledow({
       pisz(aiErrorText(e instanceof AiError ? e.code : "server_error"));
     }
     setMysli(false);
+    // Karta urosła o odpowiedź: dociągnij widok, żeby pole odpowiedzi nie uciekło pod ekran.
+    kartaRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
   // Każde zadanie zaczyna Pestka.
@@ -105,7 +109,7 @@ export function OmowienieBledow({
   }
 
   return (
-    <section className={styles.karta} aria-label={`Omawianie zadania ${nr} z Pestką`} data-tutor="omowienie">
+    <section ref={kartaRef} className={styles.karta} aria-label={`Omawianie zadania ${nr} z Pestką`} data-tutor="omowienie">
       <header className={styles.head}>
         <TutorAvatar size={40} state={mysli ? "thinking" : "idle"} className={styles.avatar} />
         <span className="label">
@@ -117,6 +121,12 @@ export function OmowienieBledow({
       </header>
 
       <div className={`${chat.list} ${styles.lista}`} ref={listaRef} aria-live="polite">
+        {numer === 1 && (
+          <p className={styles.zapowiedz}>
+            Omówimy {wszystkich === 1 ? "jedno zadanie" : wszystkich < 5 ? `${wszystkich} zadania` : `${wszystkich} zadań`}. Przy każdym najpierw
+            zapytam, potem wyjaśnię, a na koniec możesz poprosić o przykład do sprawdzenia.
+          </p>
+        )}
         {rozmowa.map((m, i) =>
           m.od === "tutor" ? (
             <Markdown key={i} className={chat.tutorText}>
