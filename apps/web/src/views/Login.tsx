@@ -51,7 +51,7 @@ export function Login() {
             <span className={styles.line}>Ucz się tego,</span>
             <span className={`accent ${styles.line}`}>czego jeszcze nie umiesz.</span>
           </h1>
-          <p className="lead">Rozwiązujesz zadania, a AI pokazuje, gdzie są luki, i proponuje, co ćwiczyć dziś.</p>
+          <p className="lead">Rozwiązuj arkusze maturalne. Pestka wyłapie, z czym masz jeszcze kłopot, i podpowie, od czego zacząć dziś.</p>
         </div>
 
         <form className={styles.form} onSubmit={submit}>
