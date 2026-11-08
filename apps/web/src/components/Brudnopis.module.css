@@ -6,14 +6,14 @@
 }
 
 /* Karta: brudnopis to osobne narzędzie, musi odcinać się od treści zadania.
-   Na szerokim ekranie wychodzi poza kolumnę tekstu, żeby było więcej miejsca. */
+   Ma szerokość kolumny tekstu; za jej granice wystają tylko paski narzędzi. */
 .panel {
-  --szerokosc: max(100%, min(1100px, calc(100vw - 64px)));
+  --pasek: 50px; /* przycisk 36 + padding 2 × 6 + ramka 2 × 1 */
+  --odstep: 12px; /* między paskiem a krawędzią karty */
+  --padding: 16px;
   display: grid;
   gap: 12px;
-  width: var(--szerokosc);
-  margin-left: calc((100% - var(--szerokosc)) / 2);
-  padding: 16px;
+  padding: var(--padding);
   border-radius: var(--r-md);
   background: var(--surface);
   box-shadow: var(--shadow-float);
@@ -33,25 +33,26 @@
   height: clamp(420px, 75vh, 760px);
 }
 
-/* Pasek narzędzi obok płótna, nie na nim. */
+/* Pasek podzielony na dwie strony płótna. Ujemny margines wypycha paski poza
+   kartę, więc płótno zajmuje całą jej szerokość wewnątrz paddingu. */
 .workspace {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: calc(var(--padding) + var(--odstep));
+  margin-inline: calc(-1 * (var(--pasek) + var(--odstep) + var(--padding)));
   height: clamp(420px, 75vh, 760px);
 }
 
-/* Dwie kolumny przycisków, żeby wszystko mieściło się bez przewijania. */
 .toolbar {
-  display: grid;
-  grid-template-columns: repeat(2, 36px);
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: 2px;
   padding: 6px;
   overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
-  background: var(--bg);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
   scrollbar-width: none;
 }
 
@@ -101,14 +102,14 @@
 }
 
 .sep {
-  grid-column: 1 / -1;
+  flex-shrink: 0;
   height: 1px;
   margin: 4px 4px;
   background: var(--line);
 }
 
 .grow {
-  grid-column: 1 / -1;
+  flex: 1;
 }
 
 .canvas {
@@ -139,7 +140,20 @@
   --border-radius-lg: var(--r-sm);
 }
 
-/* Telefon: pasek nad płótnem, zawijany w kilka rzędów. */
+/* Bez miejsca obok kolumny tekstu paski wchodzą do karty, po bokach płótna. */
+@media (max-width: 960px) {
+  .workspace {
+    gap: 10px;
+    margin-inline: 0;
+  }
+
+  .toolbar {
+    box-shadow: none;
+    background: var(--bg);
+  }
+}
+
+/* Telefon: narzędzia nad płótnem, styl i widok pod nim, zawijane w kilka rzędów. */
 @media (max-width: 640px) {
   .panel {
     padding: 12px;
@@ -147,7 +161,7 @@
 
   .workspace {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
     height: 78vh;
   }
 

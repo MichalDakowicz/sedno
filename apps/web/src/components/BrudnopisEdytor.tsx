@@ -232,22 +232,11 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
   return (
     <>
       <div className={styles.workspace}>
+        {/* Pasek po obu stronach płótna: po lewej narzędzia, po prawej styl i widok. */}
         <div className={styles.toolbar} role="toolbar" aria-label="Narzędzia brudnopisu" aria-orientation="vertical">
           {NARZEDZIA.map(({ typ, nazwa, ikona: Ikona }) => (
             <button key={typ} type="button" className={styles.tool} aria-pressed={narzedzie === typ} title={nazwa} aria-label={nazwa} onClick={() => wybierz(typ)}>
               <Ikona size={18} aria-hidden="true" />
-            </button>
-          ))}
-          <span className={styles.sep} aria-hidden="true" />
-          {KOLORY.map((k) => (
-            <button key={k.wartosc} type="button" className={styles.swatch} aria-pressed={kolor === k.wartosc} title={k.nazwa} aria-label={`Kolor: ${k.nazwa}`} onClick={() => ustawKolor(k.wartosc)}>
-              <span style={{ background: k.wartosc }} />
-            </button>
-          ))}
-          <span className={styles.sep} aria-hidden="true" />
-          {GRUBOSCI.map((g) => (
-            <button key={g.id} type="button" className={styles.swatch} aria-pressed={grubosc === g.id} title={g.nazwa} aria-label={g.nazwa} onClick={() => ustawGrubosc(g)}>
-              <span className={styles.width} style={{ width: g.kropka, height: g.kropka, background: kolor, opacity: g.krycie / 100 }} />
             </button>
           ))}
           <span className={styles.sep} aria-hidden="true" />
@@ -256,20 +245,6 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
           </button>
           <button type="button" className={styles.tool} title="Ponów" aria-label="Ponów" onClick={() => skrot("z", true)}>
             <Redo2 size={18} aria-hidden="true" />
-          </button>
-          <span className={styles.sep} aria-hidden="true" />
-          <button type="button" className={styles.tool} title="Pomniejsz" aria-label="Pomniejsz" onClick={() => zoom(1 / 1.25)}>
-            <ZoomOut size={18} aria-hidden="true" />
-          </button>
-          <button type="button" className={styles.tool} title="Powiększ" aria-label="Powiększ" onClick={() => zoom(1.25)}>
-            <ZoomIn size={18} aria-hidden="true" />
-          </button>
-          <button type="button" className={styles.tool} title="Pokaż całość" aria-label="Pokaż całość" onClick={() => dopasuj()}>
-            <Scan size={18} aria-hidden="true" />
-          </button>
-          <span className={styles.grow} aria-hidden="true" />
-          <button type="button" className={styles.tool} title="Wyczyść szkic" aria-label="Wyczyść szkic" onClick={wyczysc}>
-            <Trash2 size={18} aria-hidden="true" />
           </button>
         </div>
         <div ref={kontener} className={styles.canvas}>
@@ -312,6 +287,33 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
             };
           }}
         />
+        </div>
+        <div className={styles.toolbar} role="toolbar" aria-label="Styl i widok brudnopisu" aria-orientation="vertical">
+          {KOLORY.map((k) => (
+            <button key={k.wartosc} type="button" className={styles.swatch} aria-pressed={kolor === k.wartosc} title={k.nazwa} aria-label={`Kolor: ${k.nazwa}`} onClick={() => ustawKolor(k.wartosc)}>
+              <span style={{ background: k.wartosc }} />
+            </button>
+          ))}
+          <span className={styles.sep} aria-hidden="true" />
+          {GRUBOSCI.map((g) => (
+            <button key={g.id} type="button" className={styles.swatch} aria-pressed={grubosc === g.id} title={g.nazwa} aria-label={g.nazwa} onClick={() => ustawGrubosc(g)}>
+              <span className={styles.width} style={{ width: g.kropka, height: g.kropka, background: kolor, opacity: g.krycie / 100 }} />
+            </button>
+          ))}
+          <span className={styles.sep} aria-hidden="true" />
+          <button type="button" className={styles.tool} title="Pomniejsz" aria-label="Pomniejsz" onClick={() => zoom(1 / 1.25)}>
+            <ZoomOut size={18} aria-hidden="true" />
+          </button>
+          <button type="button" className={styles.tool} title="Powiększ" aria-label="Powiększ" onClick={() => zoom(1.25)}>
+            <ZoomIn size={18} aria-hidden="true" />
+          </button>
+          <button type="button" className={styles.tool} title="Pokaż całość" aria-label="Pokaż całość" onClick={() => dopasuj()}>
+            <Scan size={18} aria-hidden="true" />
+          </button>
+          <span className={styles.grow} aria-hidden="true" />
+          <button type="button" className={styles.tool} title="Wyczyść szkic" aria-label="Wyczyść szkic" onClick={wyczysc}>
+            <Trash2 size={18} aria-hidden="true" />
+          </button>
         </div>
       </div>
       <p className="small muted">Brudnopis nie wpływa na wynik. Zapisuje się w postępie arkusza.</p>
