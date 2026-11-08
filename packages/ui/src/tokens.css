@@ -12,11 +12,14 @@
   --primary-hover: #f2643a;
   /* Pomarańcz do drobnego tekstu i ikon na jasnym tle: #ff7448 ma tylko 2,6:1. */
   --primary-text: #c2410c;
-  --primary-fg: #ffffff;
+  /* Tekst i ikony na pomarańczu: biały ma na #ff7448 tylko 2,7:1, ciemny 6,9:1 (WCAG AA). */
+  --primary-fg: #0f151d;
   --primary-soft: #ffe6dc;
   --secondary: #d3e1ff;
   --secondary-fg: #1b2a4a;
   --success: #1f9d63;
+  /* Zieleń pod białym tekstem: #1f9d63 ma z białym tylko 3,5:1. */
+  --success-strong: #17804f;
   --danger: #e40014;
   --dark: #1b232e;
 

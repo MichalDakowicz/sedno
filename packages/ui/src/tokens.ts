@@ -12,11 +12,12 @@ export const color = {
   primary: "#ff7448",
   primaryHover: "#f2643a",
   primaryText: "#c2410c",
-  primaryForeground: "#ffffff",
+  primaryForeground: "#0f151d",
   primarySoft: "#ffe6dc",
   secondary: "#d3e1ff",
   secondaryForeground: "#1b2a4a",
   success: "#1f9d63",
+  successStrong: "#17804f",
   danger: "#e40014",
   dark: "#1b232e",
 } as const;
