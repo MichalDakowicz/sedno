@@ -38,21 +38,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spot,
-  .moving {
+  .spot {
     transition: none;
-  }
-
-  .spot,
-  .hop,
-  .enter {
     animation: none;
   }
 }
 
-/* Lot rusza po przysiadzie (opóźnienie) i ląduje razem ze spłaszczeniem w animacji hop. */
 .moving {
-  transition: transform 0.56s cubic-bezier(0.3, 0, 0.3, 1) 0.07s;
+  transition: transform 0.7s cubic-bezier(0.45, 0, 0.25, 1);
 }
 
 .badge {
@@ -89,7 +82,7 @@
 }
 
 .hop {
-  animation: hop 0.74s linear;
+  animation: hop 0.7s cubic-bezier(0.45, 0, 0.25, 1);
 }
 
 @keyframes pop-in {
@@ -99,27 +92,19 @@
   }
 }
 
-/* Jak skok: przysiad, wybicie i niski łuk, miękkie lądowanie ze spłaszczeniem i jednym odbiciem. */
+/* Przykuc, wybicie, lot łukiem, lądowanie ze spłaszczeniem. */
 @keyframes hop {
   0% {
     transform: translateY(0) scale(1, 1);
-    animation-timing-function: ease-out;
   }
-  10% {
-    transform: translateY(2px) scale(1.14, 0.86);
-    animation-timing-function: cubic-bezier(0.3, 0.6, 0.4, 1);
+  12% {
+    transform: translateY(0) scale(1.12, 0.84);
   }
-  48% {
-    transform: translateY(-26px) scale(0.93, 1.07);
-    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.5);
+  50% {
+    transform: translateY(-64px) scale(0.94, 1.08);
   }
-  85% {
-    transform: translateY(0) scale(1.14, 0.86);
-    animation-timing-function: ease-out;
-  }
-  93% {
-    transform: translateY(0) scale(0.96, 1.04);
-    animation-timing-function: ease-in-out;
+  86% {
+    transform: translateY(0) scale(1.14, 0.84);
   }
   100% {
     transform: translateY(0) scale(1, 1);
