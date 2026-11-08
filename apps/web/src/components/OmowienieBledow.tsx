@@ -23,6 +23,39 @@ type StanPrzykladu = { stan: "laduje" } | { stan: "brak" } | { stan: "gotowy"; z
 // Pierwsza wiadomość ucznia nie jest pokazywana: tylko uruchamia omówienie.
 const START = "Omówmy to zadanie.";
 
+// cubic-bezier(0.45, 0, 0.25, 1), czyli krzywa ruchu Pestki w przewodniku (TutorGuide .moving).
+function krzywaPrzewodnika(p: number): number {
+  const [x1, y1, x2, y2] = [0.45, 0, 0.25, 1];
+  const bez = (t: number, a: number, b: number) => 3 * a * t * (1 - t) ** 2 + 3 * b * t * t * (1 - t) + t ** 3;
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 24; i++) {
+    const mid = (lo + hi) / 2;
+    if (bez(mid, x1, x2) < p) lo = mid;
+    else hi = mid;
+  }
+  return bez((lo + hi) / 2, y1, y2);
+}
+
+// Klatki podskoku z TutorGuide (@keyframes hop): 12% przysiad, 50% szczyt łuku, 86% lądowanie.
+const KLATKI_HOP = [
+  { t: 0, y: 0, sx: 1, sy: 1 },
+  { t: 0.12, y: 0, sx: 1.12, sy: 0.84 },
+  { t: 0.5, y: -64, sx: 0.94, sy: 1.08 },
+  { t: 0.86, y: 0, sx: 1.14, sy: 0.84 },
+  { t: 1, y: 0, sx: 1, sy: 1 },
+];
+
+function skokHop(p: number): { y: number; sx: number; sy: number } {
+  const q = krzywaPrzewodnika(p);
+  const i = Math.max(0, KLATKI_HOP.findIndex((k) => k.t >= q) - 1);
+  const a = KLATKI_HOP[i];
+  const b = KLATKI_HOP[Math.min(i + 1, KLATKI_HOP.length - 1)];
+  const u = b.t === a.t ? 1 : (q - a.t) / (b.t - a.t);
+  const g = (1 - Math.cos(Math.PI * u)) / 2; // łagodnie między klatkami
+  return { y: a.y + (b.y - a.y) * g, sx: a.sx + (b.sx - a.sx) * g, sy: a.sy + (b.sy - a.sy) * g };
+}
+
 export function OmowienieBledow({
   arkusz,
   postep,
@@ -60,25 +93,29 @@ export function OmowienieBledow({
   const kartaRef = useRef<HTMLElement>(null);
   const avatarRef = useRef<HTMLSpanElement>(null);
 
-  // Rozklejenie: kopia Pestki leci z miejsca, gdzie siedziała, do avatara karty, na starcie
-  // rozciąga się jak odrywana kropla. Cel czytamy co klatkę, bo karta w tym czasie się przewija.
+  // Wlot do karty tym samym skokiem co w przewodniku (TutorGuide: ruch 0,7 s po krzywej
+  // cubic-bezier(0.45, 0, 0.25, 1) i podskok hop: przysiad, łuk, lądowanie ze spłaszczeniem),
+  // bez przestrzelenia celu. Cel czytamy co klatkę, bo karta w tym czasie się przewija.
   useLayoutEffect(() => {
     const cel = avatarRef.current;
     if (!wlot || !cel || zuzyteWloty.has(wlot) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const klon = cel.cloneNode(true) as HTMLElement;
-    Object.assign(klon.style, { position: "fixed", left: "0", top: "0", margin: "0", zIndex: "60", pointerEvents: "none", transformOrigin: "0 0" });
+    Object.assign(klon.style, { position: "fixed", left: "0", top: "0", margin: "0", zIndex: "60", pointerEvents: "none", transformOrigin: "50% 100%" });
     document.body.appendChild(klon);
     cel.style.opacity = "0";
     const t0 = performance.now();
-    const CZAS = 720;
+    const CZAS = 700;
     let klatka = 0;
     const krok = (t: number) => {
       const p = Math.min(1, (t - t0) / CZAS);
-      const e = 1 + 2.2 * (p - 1) ** 3 + 1.2 * (p - 1) ** 2; // wyjście z lekkim przestrzeleniem
+      const q = krzywaPrzewodnika(p);
       const r = cel.getBoundingClientRect();
-      const s = wlot.width / r.width + (1 - wlot.width / r.width) * Math.min(1, p * 1.4);
-      const ciag = Math.sin(Math.PI * Math.min(1, p * 2.5));
-      klon.style.transform = `translate(${wlot.left + (r.left - wlot.left) * e}px, ${wlot.top + (r.top - wlot.top) * e}px) scale(${s * (1 + 0.22 * ciag)}, ${s * (1 - 0.14 * ciag)})`;
+      // Pozycja liczona od środka dołu (stąd się przysiada i tu się ląduje).
+      const x = wlot.left + wlot.width / 2 + (r.left + r.width / 2 - (wlot.left + wlot.width / 2)) * q;
+      const y = wlot.bottom + (r.bottom - wlot.bottom) * q + skokHop(p).y;
+      const s = wlot.width / r.width + (1 - wlot.width / r.width) * q;
+      const { sx, sy } = skokHop(p);
+      klon.style.transform = `translate(${x - r.width / 2}px, ${y - r.height}px) scale(${s * sx}, ${s * sy})`;
       if (p < 1) klatka = requestAnimationFrame(krok);
       else {
         // Zużyty dopiero po wylądowaniu: React w trybie deweloperskim montuje efekt dwa razy.
@@ -87,6 +124,7 @@ export function OmowienieBledow({
         cel.style.opacity = "";
       }
     };
+    krok(t0);
     klatka = requestAnimationFrame(krok);
     return () => {
       cancelAnimationFrame(klatka);

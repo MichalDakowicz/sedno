@@ -7,7 +7,7 @@ import styles from "./TutorGuide.module.css";
 
 const AV = 48;
 const GAP = 12;
-const MOVE_MS = 760;
+const MOVE_MS = 700;
 const FADE_MS = 200;
 const SPOT_PAD = 8;
 

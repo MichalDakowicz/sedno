@@ -171,7 +171,7 @@ export function Arkusz() {
         // Pestka się rozkleja (drży, zamyka oczy, dzieli się): druga wlatuje do karty, a ona wraca na spoczynek.
         const podzial = await rozklejPestke();
         setWlot(podzial?.doKarty ?? null);
-        // Prawdziwa Pestka skacze na spoczynek ukryta; widać jej kopię lecącą łukiem (rozklejPestke).
+        // Druga Pestka wraca na spoczynek tym samym skokiem co w przewodniku (rozklejPestke).
         odprawPestke();
         setOmawiany(0);
         // Dymek pojawia się dopiero po wylądowaniu (ok. 0,7 s), więc zostaje chwila na przeczytanie.
