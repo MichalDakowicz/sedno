@@ -651,7 +651,9 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
       ? (kadrJakoTekst(b.tekst) ?? [b])
       : b.typ === "kadr" && zadanie.rysunek && pierwszyNaglowek > 0 && wszystkie.indexOf(b) < pierwszyNaglowek
         ? (wstepBezRysunku(b.tekst) ?? [b])
-        : (kadryTekst.get(b) ?? [b]),
+        : (kadryTekst.get(b) ??
+          // Rysunek z wycinka jest na płótnie; wycinek z opcjami A–D na rysunkach zostaje obrazkiem.
+          (b.typ === "kadr" && zadanie.rysunek && !/(^|\s)[A-F]\.\s/.test(b.tekst) ? tekstBezPodpisow(b.tekst) : [b])),
   );
   const podzial = zLukami ? null : podzielNaPodpunkty(calosc);
   const [podpunkt, setPodpunkt] = useState(() => (podzial ? startowyPodpunkt(plik, podzial.podpunkty.length) : 0));
@@ -1280,6 +1282,17 @@ function wstepBezRysunku(tekst: string): Blok[] | null {
   if (osie < 0) return null;
   const koniec = Math.max(tekst.lastIndexOf(".", osie), tekst.lastIndexOf("?", osie), tekst.lastIndexOf("!", osie));
   return koniec > 0 ? naAkapity(tekst.slice(0, koniec + 1)) : null;
+}
+
+// Wycinek z tekstem i rysunkiem, który leży już na płótnie: zostaje sam tekst. Podpisy
+// rysunku wpadają do tekstu z PDF (ciągi liczb z osi, „6 30°” przed kolejnym zdaniem),
+// więc je wycinamy.
+function tekstBezPodpisow(tekst: string): Blok[] {
+  const bezOsi = tekst.replace(/(?:\s+(?:[−-]?\d+(?:[−-]\d+)*|[𝑥𝑦]|[A-F]\.)){6,}/gu, " ");
+  return naAkapity(bezOsi)
+    .map((b) => (b.typ === "akapit" ? { ...b, tekst: b.tekst.replace(/^(?:[^\sa-ząćęłńóśźż]{1,5}\s+)+(?=[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})/u, "") } : b))
+    .filter((b) => b.typ !== "akapit" || /[a-ząćęłńóśźż]{3,}/.test(b.tekst))
+    .map((b) => (b.typ === "akapit" ? { ...b, polecenie: POLECENIA.test(b.tekst) || /^Oblicz\b|^Wyznacz\b/.test(b.tekst) } : b));
 }
 
 // Tabela przyporządkowania („Fragment wykresu funkcji 𝑦 = 𝑔(𝑥) przedstawiono na rysunku …”,
