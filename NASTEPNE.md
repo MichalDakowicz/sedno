@@ -20,6 +20,8 @@ Dokumentacja wizualna (GitHub Pages z `docs/`): 139 stron w 16 rozdziałach. Pon
 - **Polecenia na podstawie profilu.** „Co robić dziś” z tego, co uczeń umie, czego nie i ile ma czasu. Uczeń ma priorytety (np. „najpierw słuchanie”, „mam 20 minut dziennie”), które zmienia rozmową z Pestką, a Pestka zapisuje je w profilu.
 - **Jeden spójny design.** Ustalić raz: gdzie karty, a gdzie linie, jakie teksty i w jakim rozmiarze, czytelność (kontrast, szerokość wiersza). Przejść przez wszystkie widoki i ujednolicić. Zapisać zasady w `apps/web/README.md`.
 - **Dokończyć pozostałe sekcje:** Nauka, Mapa umiejętności, Powtórki (dziś to puste strony).
+- **Brudnopis: wygładzanie pisma.** Odręczne pismo w brudnopisie automatycznie poprawiane na czytelne (rozpoznanie znaków i wzorów, zamiana na tekst albo wygładzona kreska), z możliwością cofnięcia.
+- **Brudnopis: prostowanie przez przytrzymanie.** Narysowana kreska, przytrzymana chwilę na końcu, prostuje się w linię (a zamknięty kształt w okrąg, trójkąt lub prostokąt), jak w notatkach na tablecie.
 - **Pestka przy tablicy matematycznej.** Na tablicy (brudnopis) Pestka „nadskakuje” po prawym przycisku: analizuje to, co uczeń napisał lub narysował (eksport sceny albo zdjęcie), mówi, co widzi, i sama coś dopisuje albo rysuje, np. figurę, oś czy podpowiedź w kolejnym kroku.
 - **Analiza zdjęcia.** Uczeń wrzuca zdjęcie rozwiązania z kartki, a Pestka czyta je i omawia jak błędy z arkusza.
 
