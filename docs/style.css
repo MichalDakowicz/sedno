@@ -2,7 +2,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root{
-  --bg:#fff9f6;--surface:#fff;--text:#0f151d;--muted:#59616b;--subtle:#69707a;
+  --bg:#fff9f6;--surface:#fff;--text:#0f151d;--muted:#424951;--subtle:#545b63;
   --line:#ece4df;--line2:#ddd2cb;--grid:rgba(15,21,29,.045);
   --accent:#ff7448;--accent-hover:#f2643a;--accent-soft:#ffe6dc;--accent-fg:#d94a1f;
   --blue:#2f55b4;--blue-soft:#d3e1ff;

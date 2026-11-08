@@ -337,7 +337,13 @@ export function TutorGuide() {
                   )}
                   <p className={styles.text}>{hint.text}</p>
                   <div className={styles.actions}>
-                    {hint.waitFor === "summon" ? (
+                    {hint.actions ? (
+                      hint.actions.map((a) => (
+                        <button key={a.label} type="button" className={`btn ${a.primary ? "btn-dark" : "btn-ghost"} btn-sm`} onClick={a.onClick}>
+                          {a.label}
+                        </button>
+                      ))
+                    ) : hint.waitFor === "summon" ? (
                       <span className={styles.wait}>Czekam na prawy przycisk…</span>
                     ) : (
                       <button type="button" className="btn btn-dark btn-sm" onClick={next}>
