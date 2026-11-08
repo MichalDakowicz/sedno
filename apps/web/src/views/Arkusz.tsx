@@ -174,7 +174,8 @@ export function Arkusz() {
         // Prawdziwa Pestka skacze na spoczynek ukryta; widać jej kopię lecącą łukiem (rozklejPestke).
         odprawPestke();
         setOmawiany(0);
-      }, 900);
+        // Dymek pojawia się dopiero po wylądowaniu (ok. 0,7 s), więc zostaje chwila na przeczytanie.
+      }, 2300);
     }, 700);
   };
   // Po sprawdzeniu arkusza Pestka przylatuje do wyniku i pyta, czy poprawiamy błędy.
