@@ -564,8 +564,12 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   const i = arkusz.zadania.findIndex((z) => z.nr === zadanie.nr);
   const [poprzednie, nastepne] = [arkusz.zadania[i - 1], arkusz.zadania[i + 1]];
   const przejdz = (z: Zadanie) => otworzNaPelnymEkranie(`${arkusz.id}-${z.nr}`);
-  // Rysunek zadania i tak leży na płótnie brudnopisu.
-  const bloki = zadanie.rysunek ? wszystkie.filter((b) => b.typ !== "rysunek") : wszystkie;
+  // Rysunek zadania i tak leży na płótnie brudnopisu: nie powtarzamy go, a wycinek
+  // strony z opcjami na rysunku zastępujemy jego tekstem.
+  const naRysunku = !!zadanie.rysunek && zadanie.pytania.length === 1 && zadanie.pytania[0].typ === "zamkniete" && !zadanie.pytania[0].opcje?.length;
+  const bloki = zadanie.rysunek
+    ? wszystkie.filter((b) => b.typ !== "rysunek").flatMap((b) => (b.typ === "kadr" && naRysunku ? (kadrJakoTekst(b.tekst) ?? [b]) : [b]))
+    : wszystkie;
   const pytaniaBloki = bloki.filter((b) => b.typ === "pytanie" || b.typ === "pytania" || b.typ === "tabela");
   const obok = pytaniaBloki.length === 1;
   const gotowe = sprawdzone(`${zadanie.nr}.`);
@@ -615,15 +619,32 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
     </div>
   );
   if (!obok) return tresc;
-  // Odpowiedzi w prawej kolumnie, od góry: nie spychają płótna w dół.
+  // Odpowiedzi w prawej kolumnie: nie spychają płótna w dół. Litery do opcji
+  // z rysunku stoją jedna pod drugą, jak opcje na rysunku.
   return (
-    <div className={styles.obok}>
+    <div className={naRysunku ? `${styles.obok} ${styles.pionowo}` : styles.obok}>
       {tresc}
       <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
         <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />
       </div>
     </div>
   );
+}
+
+// Tekst wycinka strony (z PDF) bez etykiet opcji, które są na rysunku: „Dana jest
+// nierówność 3 − 2(1 − 2𝑥) ≥ 2𝑥 − 17 Na którym rysunku… A. 0 1 3 𝑥 B. …”.
+// Nowe zdanie po wzorze zaczyna akapit, a polecenia („Wybierz…”) są pogrubione jak w arkuszu.
+const POLECENIA = /^(Wybierz|Zapisz|Uzupełnij|Wpisz|Oblicz|Rozwiąż|Wykaż|Podaj|Zaznacz|Oceń)(?=\s)/;
+
+function kadrJakoTekst(tekst: string): Blok[] | null {
+  const opcje = tekst.search(/\sA\.\s[\s\S]*\sB\.\s[\s\S]*\sC\.\s[\s\S]*\sD\.\s/);
+  if (opcje < 0) return null;
+  const tresc = tekst.slice(0, opcje).trim();
+  if (!tresc) return null;
+  return tresc
+    .split(/(?<=[.?!])\s+|(?<=[\d)\]\u{1D400}-\u{1D7FF}])\s+(?=[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż])/u)
+    .filter(Boolean)
+    .map((zdanie): Blok => ({ typ: "akapit", tekst: zdanie, polecenie: POLECENIA.test(zdanie) }));
 }
 
 // Krótki wzór między akapitami („Liczba … jest równa”) w gęstym widoku idzie w jednej linii z tekstem.

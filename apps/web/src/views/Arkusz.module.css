@@ -985,6 +985,17 @@
   font-size: 22px;
 }
 
+.pionowo .slider {
+  flex-direction: column;
+  border-radius: calc(var(--r-md) + 4px);
+}
+
+.pionowo .thumb {
+  transition:
+    top 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
+    height 0.25s ease;
+}
+
 /* Opcje tak szerokie jak ich treść: krótkie po dwie (A B, pod nimi C D), długie jedna pod drugą. */
 .kompakt .choices[data-kolumny="4"],
 .kompakt .choices[data-kolumny="2"] {
