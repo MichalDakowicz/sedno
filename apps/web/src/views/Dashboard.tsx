@@ -6,7 +6,7 @@ import { SubjectIcon } from "../components/icons";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import { saveSubjects, useProfil, useSession } from "../auth";
 import { useAiReady } from "../ai";
-import { dniDoMatury, nazwaPoziomu, przedmiot, type MojPrzedmiot } from "../konto/przedmioty";
+import { dniDoMatury, nazwaPoziomu, opisPoziomow, przedmiot, zgrupuj, type MojPrzedmiot } from "../konto/przedmioty";
 import { propozycja, useWynikiKonta, type Podsumowanie, type Propozycja, type Wynik } from "../konto/wyniki";
 import type { ArkuszWpis } from "../arkusze/typy";
 import { Plywak } from "../components/Plywak";
@@ -25,7 +25,8 @@ function Kicker({ icon: Icon, children }: { icon: LucideIcon; children: ReactNod
 const tytul = (a: ArkuszWpis) => `Matura ${a.sesja} ${a.rok}`;
 const procent = (w: Wynik) => Math.round((w.zdobyte / w.mozliwe) * 100);
 
-function SubjectBar({ moje, active }: { moje: MojPrzedmiot[]; active?: string }) {
+function SubjectBar({ moje: wpisy, active }: { moje: MojPrzedmiot[]; active?: string }) {
+  const moje = zgrupuj(wpisy);
   return (
     <nav
       className={styles.subjectBar}
@@ -203,7 +204,7 @@ export function Dashboard() {
   const profil = useProfil();
   const ai = useAiReady(session ? session.user.id : null) === true;
   const moje = profil?.subjects ?? [];
-  const aktywny = moje.find((m) => m.id === id);
+  const aktywny = zgrupuj(moje).find((m) => m.id === id);
   const dane = useWynikiKonta(moje);
   const { showHints, startTour } = useTutor();
 
@@ -236,7 +237,7 @@ export function Dashboard() {
               <span className={styles.line} data-tutor="hero">
                 {p.nazwa}
               </span>
-              <span className={`accent ${styles.line}`}>Poziom {nazwaPoziomu[aktywny.poziom]}.</span>
+              <span className={`accent ${styles.line}`}>Poziom {opisPoziomow(aktywny.poziomy)}.</span>
             </>
           ) : (
             <>
@@ -263,7 +264,7 @@ export function Dashboard() {
         </section>
       )}
 
-      {dane && aktywny && zakres[0] && <ArkuszePrzedmiotu podsumowanie={zakres[0]} />}
+      {dane && aktywny && zakres.map((s) => <ArkuszePrzedmiotu key={s.przedmiot.poziom} podsumowanie={s} zPoziomem={zakres.length > 1} />)}
 
       {dane && !aktywny && moje.length > 0 && (
         <section className={`${styles.section} wejscie`} aria-labelledby="subjects-title">
@@ -276,7 +277,7 @@ export function Dashboard() {
             {dane.podsumowania.map((s) => {
               const pr = przedmiot(s.przedmiot.id)!;
               return (
-                <li key={pr.id}>
+                <li key={`${pr.id}-${s.przedmiot.poziom}`}>
                   <Link to={`/przedmiot/${pr.id}`} className={styles.subjectRow}>
                     <SubjectIcon subject={pr} size="lg" />
                     <span className={styles.subjectName}>
@@ -322,12 +323,13 @@ export function Dashboard() {
   );
 }
 
-function ArkuszePrzedmiotu({ podsumowanie: s }: { podsumowanie: Podsumowanie }) {
+function ArkuszePrzedmiotu({ podsumowanie: s, zPoziomem }: { podsumowanie: Podsumowanie; zPoziomem: boolean }) {
+  const tytulId = `sheets-title-${s.przedmiot.poziom}`;
   return (
-    <section className={`${styles.section} wejscie`} aria-labelledby="sheets-title">
+    <section className={`${styles.section} wejscie`} aria-labelledby={tytulId}>
       <div className={styles.sectionHead}>
-        <h2 id="sheets-title" className="h2">
-          Twoje arkusze
+        <h2 id={tytulId} className="h2">
+          Twoje arkusze{zPoziomem ? `, poziom ${nazwaPoziomu[s.przedmiot.poziom]}` : ""}
         </h2>
         <Link to="/arkusze" className="link">
           Wszystkie arkusze <ArrowRight size={14} aria-hidden="true" />
