@@ -93,18 +93,15 @@ export const tourHints: Hint[] = [
 
 const shownHints = new Set<string>();
 
-function greeting(przedmioty: string) {
-  return przedmioty
-    ? `Cześć, tu Pestka! Pracujemy nad maturą: ${przedmioty}. Od czego zaczynamy? Możesz wkleić zadanie albo opisać, co sprawia ci kłopot.`
-    : "Cześć, tu Pestka! Od czego zaczynamy? Możesz wkleić zadanie albo opisać, co sprawia ci kłopot.";
-}
+// Bez listy przedmiotów: strona Pestki pokazuje je obok, a model i tak dostaje je w kontekście rozmowy.
+const greeting = "Cześć, jestem Pestka. Wklej zadanie albo napisz, z czym masz kłopot, a przejdziemy przez to razem.";
 
 // Bez AI na koncie Pestki nie ma w aplikacji; gdyby rozmowa jednak ruszyła, mówi wprost, czego brakuje.
 const noAi = "Żeby odpowiadać, potrzebuję AI podpiętego do konta. Zrobisz to w profilu, w sekcji „AI na koncie”.";
 
 /** przedmioty: opis przedmiotów konta do kontekstu rozmowy, np. „polski (podstawowy), angielski (rozszerzony)”. */
 export function TutorProvider({ children, ai = false, przedmioty = "" }: { children: ReactNode; ai?: boolean; przedmioty?: string }) {
-  const [messages, setMessages] = useState<Message[]>(() => [{ id: 0, from: "tutor", text: greeting(przedmioty) }]);
+  const [messages, setMessages] = useState<Message[]>(() => [{ id: 0, from: "tutor", text: greeting }]);
   const [state, setState] = useState<AvatarState>("idle");
   const [isOpen, setOpen] = useState(false);
   const [guide, setGuide] = useState<Guide | null>(null);
