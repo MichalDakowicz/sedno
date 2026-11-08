@@ -2,15 +2,19 @@
 // Python (program), SQL (baza danych jak w Accessie), podgląd danych (jak w arkuszu
 // kalkulacyjnym) i pliki z zipa CKE do pobrania, gdy uczeń woli własny Excel czy Access.
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Download, ExternalLink, Play, Square } from "lucide-react";
+import { Check, Download, ExternalLink, Minus, Play, Square } from "lucide-react";
 import type { Warsztat as Zapis } from "../arkusze/postep";
 import type { Zadanie } from "../arkusze/typy";
 import { pythonGotowy, uruchom, zatrzymaj, type Zdarzenie } from "./python";
 import type { BazaZadania, WynikSql } from "./sql";
 import { czyTabelaryczny, tabela, type Tabela } from "./tabele";
+import { zgodneZKluczem } from "./klucz";
 import styles from "./Warsztat.module.css";
 
 const EdytorKodu = lazy(() => import("./EdytorKodu"));
+
+// Wyniki podpunktów z klucza CKE, z którymi porównujemy wyjście programu albo zapytania.
+type Klucz = { nr: string; oczekiwane: string[] }[];
 
 type Tryb = NonNullable<Zapis["tryb"]>;
 const NAZWY: Record<Tryb, string> = { python: "Python", sql: "SQL", dane: "Dane" };
@@ -36,6 +40,7 @@ export function Warsztat({ zadanie, pliki: wszystkie, zip, zapis, onZapis, doWst
   // Bez plików i bez programu w treści (np. zadanie z rekurencją do prześledzenia) warsztat jest zwinięty.
   const [otwarty, setOtwarty] = useState(() => !!zapis || nazwy.length > 0 || !!zadanie.program);
   const zmien = (z: Partial<Zapis>) => onZapis({ ...zapis, tryb, ...z });
+  const klucz: Klucz = zadanie.pytania.flatMap((p) => (p.typ === "otwarte" && p.wynik && p.oczekiwane?.length ? [{ nr: p.nr, oczekiwane: p.oczekiwane }] : []));
 
   if (!otwarty)
     return (
@@ -63,8 +68,8 @@ export function Warsztat({ zadanie, pliki: wszystkie, zip, zapis, onZapis, doWst
 
       {nazwy.length > 0 && <Pliki pliki={pliki} zip={zip} />}
 
-      {tryb === "python" && <Python pliki={pliki} kod={zapis?.python ?? poczatekPythona(nazwy)} onKod={(python) => zmien({ python })} doWstawienia={doWstawienia} onWstaw={onWstaw} />}
-      {tryb === "sql" && <Sql pliki={pliki} kod={zapis?.sql ?? poczatekSql(tabelaryczne)} onKod={(sql) => zmien({ sql })} doWstawienia={doWstawienia} onWstaw={onWstaw} />}
+      {tryb === "python" && <Python pliki={pliki} kod={zapis?.python ?? poczatekPythona(nazwy)} onKod={(python) => zmien({ python })} doWstawienia={doWstawienia} onWstaw={onWstaw} klucz={klucz} />}
+      {tryb === "sql" && <Sql pliki={pliki} kod={zapis?.sql ?? poczatekSql(tabelaryczne)} onKod={(sql) => zmien({ sql })} doWstawienia={doWstawienia} onWstaw={onWstaw} klucz={klucz} />}
       {tryb === "dane" && <Dane pliki={pliki} />}
     </section>
   );
@@ -141,7 +146,7 @@ function Wstaw({ tekst, doWstawienia, onWstaw }: { tekst: string; doWstawienia: 
 
 type Przebieg = { stan: "ladowanie" | "dziala" | "koniec"; wyjscie: { tekst: string; blad: boolean }[]; ms?: number; utworzone: Record<string, string> };
 
-function Python({ pliki, kod, onKod, doWstawienia, onWstaw }: { pliki: Record<string, string>; kod: string; onKod: (k: string) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void }) {
+function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz }: { pliki: Record<string, string>; kod: string; onKod: (k: string) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void; klucz: Klucz }) {
   const [przebieg, setPrzebieg] = useState<Przebieg | null>(null);
   const kodRef = useRef(kod);
   kodRef.current = kod;
@@ -181,7 +186,7 @@ function Python({ pliki, kod, onKod, doWstawienia, onWstaw }: { pliki: Record<st
   return (
     <div className={styles.narzedzie}>
       <Suspense fallback={<div className={styles.edytor} aria-busy="true" />}>
-        <EdytorKodu wartosc={kod} jezyk="python" onZmiana={onKod} onUruchom={start} etykieta="Kod w Pythonie" />
+        <EdytorKodu wartosc={kod} jezyk="python" pliki={pliki} onZmiana={onKod} onUruchom={start} etykieta="Kod w Pythonie" />
       </Suspense>
       <div className={styles.akcje}>
         {dziala ? (
@@ -217,12 +222,13 @@ function Python({ pliki, kod, onKod, doWstawienia, onWstaw }: { pliki: Record<st
           <Wstaw tekst={tresc} doWstawienia={doWstawienia} onWstaw={onWstaw} />
         </details>
       ))}
+      {przebieg?.stan === "koniec" && <ZgodnoscZKluczem wyjscie={[stdout, ...Object.values(przebieg.utworzone)].join("\n")} klucz={klucz} />}
       {przebieg?.stan === "koniec" && <Wstaw tekst={stdout} doWstawienia={doWstawienia} onWstaw={onWstaw} />}
     </div>
   );
 }
 
-function Sql({ pliki, kod, onKod, doWstawienia, onWstaw }: { pliki: Record<string, string>; kod: string; onKod: (k: string) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void }) {
+function Sql({ pliki, kod, onKod, doWstawienia, onWstaw, klucz }: { pliki: Record<string, string>; kod: string; onKod: (k: string) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void; klucz: Klucz }) {
   const [baza, setBaza] = useState<BazaZadania | null>(null);
   const [blad, setBlad] = useState<string | null>(null);
   const [wyniki, setWyniki] = useState<WynikSql[] | null>(null);
@@ -279,7 +285,26 @@ function Sql({ pliki, kod, onKod, doWstawienia, onWstaw }: { pliki: Record<strin
           <WynikTabela key={i} kolumny={w.kolumny} wiersze={w.wiersze} />
         ),
       )}
+      {wyniki && <ZgodnoscZKluczem wyjscie={tekstWyniku} klucz={klucz} />}
       <Wstaw tekst={tekstWyniku} doWstawienia={doWstawienia} onWstaw={onWstaw} />
+    </div>
+  );
+}
+
+// Sprawdzarka: który podpunkt ma w wyjściu wynik zgodny z kluczem CKE. Pokazuje tylko zgodność,
+// nie sam wynik, żeby nie zdradzać odpowiedzi.
+function ZgodnoscZKluczem({ wyjscie, klucz }: { wyjscie: string; klucz: Klucz }) {
+  if (!klucz.length || !wyjscie.trim()) return null;
+  const zgodne = klucz.map((k) => ({ nr: k.nr, ok: zgodneZKluczem(wyjscie, k.oczekiwane) }));
+  return (
+    <div className={styles.klucz} aria-label="Zgodność z kluczem CKE">
+      <span className="small muted">Klucz CKE</span>
+      {zgodne.map((z) => (
+        <span key={z.nr} className={styles.kluczPozycja} data-ok={z.ok || undefined} title={z.ok ? "Wynik zgodny z kluczem CKE" : "Nie ma tu wyniku zgodnego z kluczem (na pełnym pliku danych)"}>
+          {z.ok ? <Check size={14} aria-hidden="true" /> : <Minus size={14} aria-hidden="true" />} {z.nr}
+        </span>
+      ))}
+      {!zgodne.some((z) => z.ok) && <span className="small muted">Klucz dotyczy pełnego pliku danych, nie przykładowego.</span>}
     </div>
   );
 }
