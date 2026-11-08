@@ -25,6 +25,7 @@ import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
 import { OmowienieBledow } from "../components/OmowienieBledow";
 import { FragmentNagrania } from "../components/FragmentNagrania";
+import { rozklejPestke } from "../components/rozklejPestke";
 import { useTutor } from "../components/TutorContext";
 import { doOmowienia } from "../arkusze/omowienie";
 import { useSession } from "../auth";
@@ -109,7 +110,13 @@ export function Arkusz() {
       const z = dane?.zadania.find((x) => x.nr === nr);
       const s = z && strony ? stronyZadania(z) : [];
       if (s.length && strona !== undefined && strona !== s[0]) idzNaStrone(s[0], false);
-      window.setTimeout(() => document.getElementById(`zadanie-${nr}`)?.scrollIntoView({ block: "start", behavior: "smooth" }), 60);
+      // Nad nagłówkiem zostaje miejsce pod paskiem, żeby Pestka mogła usiąść na zadaniu.
+      window.setTimeout(() => {
+        const el = document.getElementById(`zadanie-${nr}`);
+        if (!el) return;
+        const pasek = document.querySelector("nav[aria-label=\"Główna\"]")?.getBoundingClientRect().bottom ?? 0;
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - pasek - 72, behavior: "smooth" });
+      }, 60);
     },
     [dane, strony, strona, idzNaStrone],
   );
@@ -160,12 +167,13 @@ export function Arkusz() {
     window.clearTimeout(lot.current);
     lot.current = window.setTimeout(() => {
       showHints(`omow-lot-${Date.now()}`, [{ target: `zadanie-${nr}`, text: `Zaczynamy od zadania ${nr}.`, actions: [] }]);
-      lot.current = window.setTimeout(() => {
-        // Pestka się rozkleja: kopia wlatuje do karty, a ona sama wraca na spoczynek.
-        setWlot(document.querySelector("[data-pestka=przewodnik]")?.getBoundingClientRect() ?? null);
+      lot.current = window.setTimeout(async () => {
+        // Pestka się rozkleja (drży, zamyka oczy, dzieli się): druga wlatuje do karty, a ona wraca na spoczynek.
+        const doKarty = await rozklejPestke();
+        setWlot(doKarty);
         odprawPestke();
         setOmawiany(0);
-      }, 1800);
+      }, 1400);
     }, 700);
   };
   // Po sprawdzeniu arkusza Pestka przylatuje do wyniku i pyta, czy poprawiamy błędy.

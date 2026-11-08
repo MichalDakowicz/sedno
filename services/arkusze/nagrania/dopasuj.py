@@ -14,6 +14,7 @@ Użycie: python services/arkusze/nagrania/dopasuj.py [fragment id]
 """
 
 import json
+import re
 import os
 import sys
 import urllib.error
@@ -26,6 +27,25 @@ NAGRANIA = GLOWNY / "data" / "nagrania"
 MODEL = os.environ.get("DOPASUJ_MODEL", "gpt-6-luna")
 WYSILEK = os.environ.get("DOPASUJ_WYSILEK", "xhigh")
 ZAPAS = 0.4  # sekundy przed i po fragmencie, żeby nie uciąć pierwszego i ostatniego słowa
+MIN_DLUGOSC = 4.0  # sekundy; krótszy fragment nie daje kontekstu
+WYGLADA_NA_POLSKI = re.compile(r"[ąćęłńśźż]|\b(się|jest|nie|czy|może|który|jak)\b", re.IGNORECASE)
+
+_model = None
+
+
+def po_angielsku(mp3: Path, od: float, do: float) -> str:
+    """Przepisuje kawałek nagrania Whisperem z wymuszonym angielskim (model ładowany raz, przy potrzebie)."""
+    global _model
+    if _model is None:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from transkrybuj import MODEL as WHISPER, biblioteki_cuda
+
+        biblioteki_cuda()
+        from faster_whisper import WhisperModel
+
+        _model = WhisperModel(WHISPER, device="cuda", compute_type="float16")
+    segmenty, _ = _model.transcribe(str(mp3), language="en", beam_size=5, clip_timestamps=[od, do])
+    return " ".join(s.text.strip() for s in segmenty).strip()
 
 POLECENIE = """Dostajesz transkrypcję nagrania z matury z języka angielskiego (ponumerowane fragmenty \
 z czasem w sekundach) i pytania jednego zadania ze słuchania z poprawnymi odpowiedziami. \
@@ -110,11 +130,16 @@ def main() -> None:
                     continue
                 if not (0 <= a <= b < len(segmenty)) or b - a > 12:
                     continue  # zakres spoza nagrania albo podejrzanie długi
-                fragmenty[nr] = {
-                    "od": round(max(0, segmenty[a]["od"] - ZAPAS), 1),
-                    "do": round(segmenty[b]["do"] + ZAPAS, 1),
-                    "tekst": " ".join(s["tekst"] for s in segmenty[a : b + 1]),
-                }
+                # Samo „is three weeks.” nic nie mówi: krótki fragment dostaje zdanie wcześniej.
+                if a > 0 and segmenty[b]["do"] - segmenty[a]["od"] < MIN_DLUGOSC:
+                    a -= 1
+                od, do = round(max(0, segmenty[a]["od"] - ZAPAS), 1), round(segmenty[b]["do"] + ZAPAS, 1)
+                tekst = " ".join(s["tekst"] for s in segmenty[a : b + 1])
+                # Whisper z rozpoznawaniem języka per fragment czasem bierze angielski fragment za polski
+                # i go tłumaczy; taki kawałek przepisujemy jeszcze raz z wymuszonym angielskim.
+                if WYGLADA_NA_POLSKI.search(tekst):
+                    tekst = po_angielsku(NAGRANIA / f"{id_}.mp3", od, do) or tekst
+                fragmenty[nr] = {"od": od, "do": do, "tekst": tekst}
         cel.write_text(json.dumps(fragmenty, ensure_ascii=False, indent=1), encoding="utf-8")
         for z in arkusz["zadania"]:
             for p in z["pytania"]:
