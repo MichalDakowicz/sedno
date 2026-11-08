@@ -142,7 +142,20 @@ export function zadaniaInformatyki(fragmenty, klucz, pliki = {}) {
     if (!z) zadania.push((z = { nr: f.zadanie, punkty: 0, strona: f.czesci[0].strona, sluchanie: false, polecenie: [], bloki: [], pytania: [] }));
     if (f.tytul) z.tytul = f.tytul;
     const tekst = f.czesci.flatMap((c) => c.linie.map((l) => l.s)).join(" ");
-    f.czesci.forEach((c, i) => z.bloki.push({ typ: "kadr", obraz: f.kadry[i], tekst: c.linie.map((l) => l.s).join(" "), strona: c.strona }));
+    // Podpunkt dostaje nagłówek z punktacją jak w arkuszu (wstęp zadania ma go w aplikacji).
+    if (f.bloki && f.punkty && f.nr.includes(".")) z.bloki.push({ typ: "naglowek", tekst: `Zadanie ${f.nr} (0–${f.punkty} pkt)`, strona: f.czesci[0].strona });
+    // Opcje A–D pytania zamkniętego odpowiadają w aplikacji przyciski, jak w matematyce.
+    let opcje = null;
+    const kz = f.punkty ? klucz[f.nr] : null;
+    if (f.bloki && /^[A-D]$/.test(kz?.rozwiazanie.trim() ?? "")) {
+      const zLitera = f.bloki.filter((b) => b.typ === "akapit" && /^[A-D]\.\s/.test(b.tekst));
+      if (zLitera.map((b) => b.tekst[0]).join("") === "ABCD") {
+        opcje = zLitera.map((b) => ({ litera: b.tekst[0], tresc: b.tekst.slice(2).trim() }));
+        f.bloki = f.bloki.filter((b) => !zLitera.includes(b));
+      }
+    }
+    if (f.bloki) z.bloki.push(...f.bloki);
+    else f.czesci.forEach((c, i) => z.bloki.push({ typ: "kadr", obraz: f.kadry[i], tekst: c.linie.map((l) => l.s).join(" "), strona: c.strona }));
 
     // Pliki danych, o których mówi treść (dron.txt, dron_przyklad.txt). Wyniki (wyniki3.txt) uczeń tworzy sam.
     for (const [nazwa] of tekst.matchAll(/[\w-]+\.txt\b/g)) if (pliki[nazwa] !== undefined && !(z.pliki ??= []).includes(nazwa)) z.pliki.push(nazwa);
@@ -156,7 +169,7 @@ export function zadaniaInformatyki(fragmenty, klucz, pliki = {}) {
     const odp = k?.rozwiazanie.trim() ?? "";
     const baza = { nr: f.nr, tresc: "", punkty: f.punkty, ...(k ? { zasadyStrona: k.strona, zasady: k.zasady, rozwiazanie: k.rozwiazanie } : {}) };
     if (/^[A-D]$/.test(odp) && /Zaznacz właściwą odpowiedź|Wybierz właściwą/.test(tekst)) {
-      z.pytania.push({ ...baza, typ: "zamkniete", litery: ["A", "B", "C", "D"], poprawna: odp });
+      z.pytania.push({ ...baza, typ: "zamkniete", litery: ["A", "B", "C", "D"], poprawna: odp, ...(opcje ? { opcje } : {}) });
     } else if (/^[PF]{2,8}$/.test(odp.replace(/\s/g, ""))) {
       z.pytania.push({ ...baza, typ: "otwarte", oczekiwane: [odp.replace(/\s/g, "")], kod: true });
     } else if (wynik(odp)) {

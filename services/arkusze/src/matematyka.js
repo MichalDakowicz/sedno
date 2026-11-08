@@ -186,7 +186,7 @@ function zakresPoziomy(s, gora, dol) {
 
 // Zapisuje wycinek strony jako PNG. Zwraca opis obrazu dla aplikacji:
 // ścieżkę względem data/arkusze i wymiary w punktach PDF.
-async function zapiszWycinek(s, [x0, y0, x1, y1], katalog, prefiks, plik) {
+export async function zapiszWycinek(s, [x0, y0, x1, y1], katalog, prefiks, plik) {
   const px = Math.round(x0 * SKALA);
   const py = Math.round((s.wys - y1) * SKALA);
   const w = Math.round((x1 - x0) * SKALA);
