@@ -107,7 +107,9 @@ async function handle(req: Request): Promise<Response> {
     } catch (e) {
       const status = e instanceof LlmError ? e.status : 0;
       await log({ ...base, ok: false, status, duration_ms: Date.now() - started });
-      return reply(502, { error: "provider_failed", status, detail: e instanceof LlmError ? e.detail : undefined });
+      // 424, nie 502: Cloudflare przed serwerem podmienia odpowiedzi 502 na własną stronę HTML bez CORS,
+      // więc aplikacja nie widziała ani kodu, ani powodu błędu dostawcy.
+      return reply(424, { error: "provider_failed", status, detail: e instanceof LlmError ? e.detail : undefined });
     }
   }
 
