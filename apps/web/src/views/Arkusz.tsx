@@ -532,6 +532,13 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           plik={`${arkusz.id}-${zadanie.nr}`}
           zadanie={zadanie.nr}
           rysunek={zadanie.rysunek}
+          opcjeZWycinka={(() => {
+            // Pytanie z samymi literami, którego opcje są rysunkami w wycinku (nie liczbami w tekście).
+            const [p] = zadanie.pytania;
+            const kadr = zadanie.bloki.find((b) => b.typ === "kadr");
+            if (zadanie.pytania.length !== 1 || p.typ !== "zamkniete" || p.opcje?.length || kadr?.typ !== "kadr") return undefined;
+            return kadrJakoTekst(kadr.tekst) && !opcjeZKadru(kadr.tekst) ? kadr.obraz : undefined;
+          })()}
           dodatkoweRysunki={zadanie.pytania
             .flatMap((p) => [...(tabele.get(p.nr)?.kadry ?? []), ...(opcjeNaRysunkach.has(p.nr) ? [opcjeNaRysunkach.get(p.nr)!.kadr] : [])])
             .flatMap((k) => (k.typ === "kadr" ? [k.obraz] : []))}
@@ -1009,7 +1016,7 @@ const NumerWidoku = createContext<string | null>(null);
 const POLECENIA = /^(Dokończ|Wybierz|Zapisz|Uzupełnij|Wpisz|Oblicz|Rozwiąż|Wykaż|Podaj|Zaznacz|Oceń)(?=\s)/;
 
 function kadrJakoTekst(tekst: string): Blok[] | null {
-  const opcje = tekst.search(/\sA\.\s[\s\S]*\sB\.\s[\s\S]*\sC\.\s[\s\S]*\sD\.\s/);
+  const opcje = tekst.search(/\sA\.(?=\s)[\s\S]*\sB\.(?=\s)[\s\S]*\sC\.(?=\s)[\s\S]*\sD\.(?=\s|$)/);
   if (opcje < 0) return null;
   const tresc = tekst.slice(0, opcje).trim();
   return tresc ? tekstBezPodpisow(tresc) : null;
@@ -1018,7 +1025,7 @@ function kadrJakoTekst(tekst: string): Blok[] | null {
 // Opcje zapisane w tekście wycinka („A. 4 B. 9 C. 10 D. 16”). Gdy to podpisy osi z rysunków
 // („A. 0 1 3 𝑥 …”, więcej niż dwa kawałki), opcje są na rysunku i zwracamy null.
 function opcjeZKadru(tekst: string): Opcja[] | null {
-  const od = tekst.search(/\sA\.\s[\s\S]*\sB\.\s[\s\S]*\sC\.\s[\s\S]*\sD\.\s/);
+  const od = tekst.search(/\sA\.(?=\s)[\s\S]*\sB\.(?=\s)[\s\S]*\sC\.(?=\s)[\s\S]*\sD\.(?=\s|$)/);
   if (od < 0) return null;
   const czesci = (" " + tekst.slice(od).trim()).split(/\s([A-D])\.\s+/).slice(1);
   const opcje: Opcja[] = [];

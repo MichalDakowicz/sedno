@@ -106,6 +106,8 @@ type Props = {
   /** Rysunki obok rysunku zadania, np. wykresy opcji A–F do zaznaczania. */
   dodatkoweRysunki?: Obraz[];
   pokazDodatkowe?: boolean;
+  /** Wycinek z opcjami A–D na rysunkach: gdy da się go podzielić na opcje, to one stoją na płótnie zamiast rysunku zadania. */
+  opcjeZWycinka?: Obraz;
   /** Zadanie bez obliczeń (odczyt z wykresu): rysunek większy, do zaznaczania na nim. */
   duzyRysunek?: boolean;
 };
@@ -238,11 +240,18 @@ async function naWykresy(obraz: Obraz): Promise<Obraz[]> {
     const wiersz = podzial(H - gora, (y) => pustyWiersz(gora + y, 0, W));
     const wiersze = wiersz < 0 ? [[gora, H]] : [[gora, gora + wiersz], [gora + wiersz, H]];
     const kafelki: Obraz[] = [];
-    for (const [y0, y1] of wiersze)
+    for (const [y0, y1] of wiersze) {
+      // Rysunki w jednym rzędzie zaczynają się na tej samej wysokości (etykiety „A.” i „B.”).
+      // Co wystaje wyżej tylko w jednej połowie, to resztka tekstu polecenia.
+      const gorny = (x0: number, x1: number) => {
+        for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) if (ciemny(x, y)) return y;
+        return y1;
+      };
+      const start = Math.max(gorny(0, kolumna), gorny(kolumna, W));
       for (const [x0, x1] of [[0, kolumna], [kolumna, W]]) {
         // Bez białych marginesów wokół wykresu, żeby odstępy w siatce były równe.
         let [l, p, g, d] = [x1, x0, y1, y0];
-        for (let y = y0; y < y1; y++)
+        for (let y = Math.max(y0, start - 2); y < y1; y++)
           for (let x = x0; x < x1; x++)
             if (ciemny(x, y)) [l, p, g, d] = [Math.min(l, x), Math.max(p, x), Math.min(g, y), Math.max(d, y)];
         if (p < l) continue;
@@ -251,6 +260,7 @@ async function naWykresy(obraz: Obraz): Promise<Obraz[]> {
         k.getContext("2d")!.drawImage(c, -(l - 4), -(g - 4));
         kafelki.push({ ...obraz, src: k.toDataURL("image/png"), szer: (obraz.szer * k.width) / W, wys: (obraz.wys * k.height) / H });
       }
+    }
     return kafelki;
   } catch {
     return [obraz];
@@ -280,9 +290,10 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
   }
 }
 
-export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, duzyRysunek, dodatkoweRysunki = [], pokazDodatkowe = true }: Props) {
+export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, duzyRysunek, dodatkoweRysunki = [], pokazDodatkowe = true, opcjeZWycinka }: Props) {
   const [startowaGrubosc] = useState(zapamietanaGrubosc);
   const przyciete = useRef<Obraz[]>([]);
+  const glownyRef = useRef<Obraz | undefined>(rysunek);
   const pokaz = useRef(pokazDodatkowe);
   pokaz.current = pokazDodatkowe;
   const api = useRef<ExcalidrawImperativeAPI | null>(null);
@@ -294,14 +305,23 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
 
   const poczatek = useMemo(
     () => async (): Promise<ExcalidrawInitialDataState> => {
-      const kafelki = (await Promise.all(dodatkoweRysunki.map(async (o) => naWykresy(await bezTekstuNadWykresami(o))))).flat();
+      const zapisaneElementy = (elementy ?? []) as ExcalidrawElement[];
+      // Rysunek zadania z importu bywa niepełny (np. tylko opcje A i B). Gdy wycinek z opcjami
+      // dzieli się na co najmniej cztery rysunki, na płótnie stoją one, a rysunek zadania znika,
+      // chyba że leży już na nim szkic.
+      const zWycinka = opcjeZWycinka ? await naWykresy(await bezTekstuNadWykresami(opcjeZWycinka)) : [];
+      const zamiast = zWycinka.length >= 4 && !zapisaneElementy.some((e) => e.id === ID_RYSUNKU);
+      const glowny = zamiast ? undefined : rysunek;
+      glownyRef.current = glowny;
+      const kafelki = [...(zamiast ? zWycinka : []), ...(await Promise.all(dodatkoweRysunki.map(async (o) => naWykresy(await bezTekstuNadWykresami(o))))).flat()];
       // Każdy wykres opcji w wysokości rysunku zadania, żeby dało się je porównać.
+      const wzor = glowny?.wys ?? Math.max(0, ...kafelki.map((k) => k.wys));
       const dodatkowe = kafelki.map((k) => {
-        const skala = rysunek ? rysunek.wys / k.wys : 1;
+        const skala = wzor ? wzor / k.wys : 1;
         return { ...k, szer: k.szer * skala, wys: k.wys * skala };
       });
       przyciete.current = dodatkowe;
-      const bazowe = elementyBazowe(plik, rysunek, dodatkowe);
+      const bazowe = elementyBazowe(plik, glowny, dodatkowe);
       const zapisane = (elementy ?? []) as ExcalidrawElement[];
       // Rysunek zadania zostaje z zapisu (szkic leży na nim), a brakujący dokładamy. Dodatkowe
       // rysunki układamy zawsze od nowa, bo ich podział i siatka mogły się zmienić.
@@ -310,7 +330,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
         ? [...bazowe.filter((b) => b.id !== ID_RYSUNKU || !zapisanyGlowny), ...zapisane.filter((e) => !czyBazowy(e.id) || e.id === ID_RYSUNKU)]
         : bazowe;
       const sceny = zDodatkowymi(wszystkie, pokaz.current);
-      const pliki = (await Promise.all(rysunkiBazowe(plik, rysunek, dodatkowe).map((r) => wczytajRysunek(r.plik, r.obraz)))).filter((p): p is BinaryFileData => !!p);
+      const pliki = (await Promise.all(rysunkiBazowe(plik, glowny, dodatkowe).map((r) => wczytajRysunek(r.plik, r.obraz)))).filter((p): p is BinaryFileData => !!p);
       wczytana.current = true;
       return {
         elements: sceny,
@@ -350,7 +370,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   );
 
   const wyczysc = () => {
-    api.current?.updateScene({ elements: zDodatkowymi(elementyBazowe(plik, rysunek, przyciete.current), pokaz.current), captureUpdate: CaptureUpdateAction.IMMEDIATELY });
+    api.current?.updateScene({ elements: zDodatkowymi(elementyBazowe(plik, glownyRef.current, przyciete.current), pokaz.current), captureUpdate: CaptureUpdateAction.IMMEDIATELY });
   };
 
   // Zmiana podpunktu na pełnym ekranie: wykresy opcji znikają albo wracają, a widok obejmuje to, co widać.
