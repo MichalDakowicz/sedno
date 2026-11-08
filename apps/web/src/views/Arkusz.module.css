@@ -902,3 +902,86 @@
   color: var(--muted);
   background: var(--surface);
 }
+
+/* Treść zadania nad brudnopisem na pełnym ekranie (TrescKompakt): cała szerokość, mniej powietrza. */
+.kompakt {
+  display: grid;
+  gap: 10px;
+}
+
+.kompakt .instruction,
+.kompakt .para {
+  max-width: none;
+}
+
+.kompakt .para {
+  line-height: 1.6;
+}
+
+.kompakt .content {
+  gap: 10px;
+  padding-top: 0;
+  align-content: start;
+}
+
+.kompakt .question {
+  gap: 8px;
+  padding: 0;
+}
+
+.kompakt .kadr {
+  padding: 8px;
+}
+
+.kompakt .kadr img {
+  width: auto;
+  max-height: 32vh;
+}
+
+/* Opcje w rzędzie albo po dwie, zależnie od długości (kolumnyOpcji). */
+.kompakt .choices[data-kolumny="4"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.kompakt .choices[data-kolumny="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Kilka pytań: treść płynie w dwóch szpaltach, pytanie nie dzieli się między nie. */
+.kompakt:not(.obok) .content {
+  display: block;
+  columns: 2;
+  column-gap: 32px;
+}
+
+.kompakt:not(.obok) .content > * {
+  margin-bottom: 10px;
+  break-inside: avoid;
+}
+
+/* Jedno pytanie: treść po lewej, odpowiedzi po prawej. */
+.obok {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .obok {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kompakt:not(.obok) .content {
+    columns: 1;
+  }
+
+  .kompakt .choices[data-kolumny="4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .kompakt .choices[data-kolumny="2"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

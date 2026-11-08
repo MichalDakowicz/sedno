@@ -302,7 +302,7 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           rysunek={zadanie.rysunek}
           zapis={postep.brudnopisy?.[zadanie.nr]}
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
-          tresc={tresc}
+          tresc={<TrescKompakt zadanie={zadanie} bloki={bloki} />}
         />
       )}
       {!pisemna && !postep.sprawdzony && (
@@ -390,6 +390,54 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
     <figure className={styles.kadr}>
       <img src={adresObrazu(obraz.src)} alt={tekst} width={Math.round(obraz.szer * 1.5)} height={Math.round(obraz.wys * 1.5)} loading="lazy" />
     </figure>
+  );
+}
+
+// Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
+// Zadanie z jednym pytaniem dzieli się na dwie kolumny: treść po lewej, odpowiedzi po prawej.
+function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
+  const { sprawdzone, wBloku } = useCtx();
+  // Rysunek zadania i tak leży na płótnie brudnopisu.
+  const bloki = zadanie.rysunek ? wszystkie.filter((b) => b.typ !== "rysunek") : wszystkie;
+  const pytaniaBloki = bloki.filter((b) => b.typ === "pytanie" || b.typ === "pytania" || b.typ === "tabela");
+  const obok = pytaniaBloki.length === 1;
+  const gotowe = sprawdzone(`${zadanie.nr}.`);
+  const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
+  const polecenie = zadanie.polecenie.map((p, i) => (
+    <p key={i} className={styles.instruction}>
+      {p}
+    </p>
+  ));
+  const klucz = gotowe && wTekscie.length > 0 && (
+    <div className={styles.keyList}>
+      {wTekscie.map((p) => (
+        <Informacja key={p.nr} pytanie={p} zNumerem />
+      ))}
+    </div>
+  );
+  if (!obok)
+    return (
+      <div className={styles.kompakt}>
+        {polecenie}
+        <div className={styles.content}>
+          {grupujPrawdaFalsz(bloki, zadanie).map((b, i) => (Array.isArray(b) ? <PrawdaFalsz key={i} pytania={b} /> : <BlokWidok key={i} blok={b} zadanie={zadanie.nr} />))}
+        </div>
+        {klucz}
+      </div>
+    );
+  return (
+    <div className={`${styles.kompakt} ${styles.obok}`}>
+      <div className={styles.content}>
+        {polecenie}
+        {bloki.filter((b) => b !== pytaniaBloki[0]).map((b, i) => (
+          <BlokWidok key={i} blok={b} zadanie={zadanie.nr} />
+        ))}
+      </div>
+      <div className={styles.content}>
+        <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />
+        {klucz}
+      </div>
+    </div>
   );
 }
 
@@ -586,10 +634,13 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
   if (p.typ === "wypowiedz") return null;
   return (
     <div className={styles.question}>
-      <div className={styles.stem}>
-        <span className={styles.qnr}>{p.nr}.</span>
-        {p.tresc && <Tekst tekst={p.tresc} wlasny={p.nr} />}
-      </div>
+      {/* Numer bez podpunktu to numer zadania, który stoi już w nagłówku. */}
+      {(p.nr.includes(".") || p.tresc) && (
+        <div className={styles.stem}>
+          {p.nr.includes(".") && <span className={styles.qnr}>{p.nr}.</span>}
+          {p.tresc && <Tekst tekst={p.tresc} wlasny={p.nr} />}
+        </div>
+      )}
       {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Suwak pytanie={p} />)}
       {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
@@ -625,13 +676,20 @@ function usePodswietlenie(wybrana: string | undefined) {
   return { kontener, ramka };
 }
 
+// Ile opcji zmieści się w rzędzie w gęstym widoku (pełny ekran brudnopisu), po długości
+// najdłuższej. Wzory liczymy bez poleceń LaTeX-a, bo na ekranie zajmują mniej.
+function kolumnyOpcji(opcje: Opcja[]): 1 | 2 | 4 {
+  const dlugosc = Math.max(...opcje.map((o) => o.tresc.replace(/\\[a-zA-Z]+/g, "").replace(/[{}\\()^_$\s]/g, "").length));
+  return dlugosc <= 18 ? 4 : dlugosc <= 48 ? 2 : 1;
+}
+
 function Opcje({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   const { postep, ustaw, sprawdzone } = useCtx();
   const gotowe = sprawdzone(p.nr);
   const wybrana = postep.odpowiedzi[p.nr] || undefined;
   const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
   return (
-    <div ref={kontener} className={styles.choices} role="radiogroup" aria-label={`Pytanie ${p.nr}`}>
+    <div ref={kontener} className={styles.choices} data-kolumny={kolumnyOpcji(p.opcje!)} role="radiogroup" aria-label={`Pytanie ${p.nr}`}>
       {ramka && <span className={styles.highlight} style={ramka} aria-hidden="true" />}
       {p.opcje!.map((o) => (
         <button
