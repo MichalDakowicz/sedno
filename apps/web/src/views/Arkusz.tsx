@@ -23,7 +23,7 @@ import { TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
-import { OmowienieBledow } from "../components/OmowienieBledow";
+import { OmowienieBledow, type Wejscie } from "../components/OmowienieBledow";
 import { FragmentNagrania } from "../components/FragmentNagrania";
 import { rozklejPestke } from "../components/rozklejPestke";
 import { useTutor } from "../components/TutorContext";
@@ -75,7 +75,7 @@ export function Arkusz() {
   // Który z błędów do omówienia jest otwarty (indeks w doOmowienia), null: nie omawiamy.
   const [omawiany, setOmawiany] = useState<number | null>(null);
   // Skąd Pestka wlatuje do karty omawiania (miejsce, w którym siedziała na zadaniu).
-  const [wlot, setWlot] = useState<DOMRect | null>(null);
+  const [wejscie, setWejscie] = useState<Wejscie | null>(null);
   const zacznijOmawianie = () => {
     if (dane && doOmowienia(dane, postep).length) setOmawiany(0);
   };
@@ -170,7 +170,7 @@ export function Arkusz() {
       lot.current = window.setTimeout(async () => {
         // Pestka się rozkleja (drży, zamyka oczy, dzieli się): druga wlatuje do karty, a ona wraca na spoczynek.
         const podzial = await rozklejPestke();
-        setWlot(podzial?.doKarty ?? null);
+        setWejscie({ z: podzial?.doKarty ?? null, id: Date.now() });
         // Druga Pestka wraca na spoczynek tym samym skokiem co w przewodniku (rozklejPestke).
         odprawPestke();
         setOmawiany(0);
@@ -356,18 +356,22 @@ export function Arkusz() {
             {omawiane?.zadanie.nr === z.nr && (strona === undefined || strona === stronyZadania(z).at(-1)) && (
               <OmowienieBledow
                 key={z.nr}
-                wlot={omawiany === 0 ? wlot : null}
+                wejscie={wejscie}
                 arkusz={dane}
                 postep={postep}
                 d={omawiane}
                 numer={omawiany! + 1}
                 wszystkich={listaOmowien.length}
-                onDalej={() => setOmawiany(omawiany! + 1)}
+                onDalej={() => {
+                  // Kolejny błąd: Pestka wskakuje do nowej karty z góry i znowu wyjaśnia.
+                  setWejscie({ z: null, id: Date.now() });
+                  setOmawiany(omawiany! + 1);
+                }}
                 onWynikPrzykladu={(nr, w) => zmien((p) => ({ ...p, omowione: { ...p.omowione, [nr]: w } }))}
                 onZapiszRozmowe={(nr, r) => zmien((p) => ({ ...p, rozmowyOmowien: { ...p.rozmowyOmowien, [nr]: r } }))}
                 onZamknij={() => {
                   setOmawiany(null);
-                  setWlot(null);
+                  setWejscie(null);
                 }}
               />
             )}

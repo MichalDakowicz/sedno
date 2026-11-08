@@ -15,9 +15,12 @@ import styles from "./OmowienieBledow.module.css";
 
 export type Wiadomosc = { od: "tutor" | "uczen"; tekst: string };
 
-// Wlot Pestki odgrywa się raz: karta pokazana ponownie (np. po zmianie strony arkusza i powrocie)
-// ma Pestkę już na miejscu, zamiast powtarzać lot z miejsca podziału.
-const zuzyteWloty = new WeakSet<DOMRect>();
+// Wejście Pestki do karty odgrywa się raz: karta pokazana ponownie (np. po zmianie strony arkusza
+// i powrocie) ma Pestkę już na miejscu, zamiast powtarzać lot.
+const zuzyteWejscia = new Set<number>();
+
+/** Skąd Pestka wskakuje do karty: z miejsca podziału (pierwszy błąd) albo z góry (null, kolejne błędy). */
+export type Wejscie = { z: DOMRect | null; id: number };
 type StanPrzykladu = { stan: "laduje" } | { stan: "brak" } | { stan: "gotowy"; zadanie: Przyklad; wybrana?: string };
 
 // Pierwsza wiadomość ucznia nie jest pokazywana: tylko uruchamia omówienie.
@@ -66,7 +69,7 @@ export function OmowienieBledow({
   onWynikPrzykladu,
   onZapiszRozmowe,
   onZamknij,
-  wlot,
+  wejscie,
 }: {
   arkusz: Arkusz;
   postep: Postep;
@@ -77,8 +80,7 @@ export function OmowienieBledow({
   onWynikPrzykladu: (zadanie: number, wynik: "dobrze" | "zle") => void;
   onZapiszRozmowe: (zadanie: number, rozmowa: Wiadomosc[]) => void;
   onZamknij: () => void;
-  /** Miejsce Pestki przed rozklejeniem: stąd jej kopia wlatuje w avatar karty. */
-  wlot?: DOMRect | null;
+  wejscie?: Wejscie | null;
 }) {
   // Wcześniejsza rozmowa o tym zadaniu wraca z postępu arkusza (synchronizowanego z kontem).
   const zapisana = postep.rozmowyOmowien?.[d.zadanie.nr];
@@ -98,7 +100,10 @@ export function OmowienieBledow({
   // bez przestrzelenia celu. Cel czytamy co klatkę, bo karta w tym czasie się przewija.
   useLayoutEffect(() => {
     const cel = avatarRef.current;
-    if (!wlot || !cel || zuzyteWloty.has(wlot) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!wejscie || !cel || zuzyteWejscia.has(wejscie.id) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Przy kolejnych błędach Pestka wskakuje z góry, znad miejsca, gdzie będzie siedzieć.
+    const r0 = cel.getBoundingClientRect();
+    const wlot = wejscie.z ?? new DOMRect(r0.left, Math.max(8, r0.top - 160), r0.width, r0.height);
     const klon = cel.cloneNode(true) as HTMLElement;
     Object.assign(klon.style, { position: "fixed", left: "0", top: "0", margin: "0", zIndex: "60", pointerEvents: "none", transformOrigin: "50% 100%" });
     document.body.appendChild(klon);
@@ -119,7 +124,7 @@ export function OmowienieBledow({
       if (p < 1) klatka = requestAnimationFrame(krok);
       else {
         // Zużyty dopiero po wylądowaniu: React w trybie deweloperskim montuje efekt dwa razy.
-        zuzyteWloty.add(wlot);
+        zuzyteWejscia.add(wejscie.id);
         klon.remove();
         cel.style.opacity = "";
       }
@@ -134,6 +139,36 @@ export function OmowienieBledow({
   }, []);
 
   // Podświetl zadanie i przewiń tak, żeby karta była cała widoczna, a nad nią koniec zadania.
+  // Odejście: Pestka podskakuje w górę i znika, a karta chowa się razem z nią; potem następny
+  // błąd (albo koniec omawiania).
+  const [odchodzi, setOdchodzi] = useState(false);
+  function odejdz(potem: () => void) {
+    const cel = avatarRef.current;
+    const karta = kartaRef.current;
+    if (odchodzi) return;
+    if (!cel || !karta || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return potem();
+    setOdchodzi(true);
+    const r = cel.getBoundingClientRect();
+    const klon = cel.cloneNode(true) as HTMLElement;
+    Object.assign(klon.style, { position: "fixed", left: `${r.left}px`, top: `${r.top}px`, margin: "0", zIndex: "60", pointerEvents: "none", transformOrigin: "50% 100%" });
+    document.body.appendChild(klon);
+    cel.style.opacity = "0";
+    klon.animate(
+      [
+        { transform: "translateY(0) scale(1, 1)", opacity: 1 },
+        { transform: "translateY(0) scale(1.12, 0.84)", opacity: 1, offset: 0.18 },
+        { transform: "translateY(-64px) scale(0.94, 1.08)", opacity: 1, offset: 0.6 },
+        { transform: "translateY(-110px) scale(0.6, 0.6)", opacity: 0 },
+      ],
+      { duration: 520, easing: "cubic-bezier(0.45, 0, 0.25, 1)", fill: "forwards" },
+    );
+    karta.animate([{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(12px)" }], { duration: 360, delay: 140, easing: "ease-in", fill: "forwards" });
+    window.setTimeout(() => {
+      klon.remove();
+      potem();
+    }, 540);
+  }
+
   useEffect(() => {
     const el = document.getElementById(`zadanie-${nr}`);
     el?.setAttribute("data-omawiane", "true");
@@ -302,7 +337,7 @@ export function OmowienieBledow({
             )}
           </button>
         )}
-        <button type="button" className="btn btn-primary btn-sm" onClick={ostatni ? onZamknij : onDalej}>
+        <button type="button" className="btn btn-primary btn-sm" onClick={() => odejdz(ostatni ? onZamknij : onDalej)} disabled={odchodzi}>
           {ostatni ? "Zakończ" : "Następny błąd"} <ArrowRight size={16} aria-hidden="true" />
         </button>
       </div>
