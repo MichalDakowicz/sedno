@@ -1241,3 +1241,9 @@
   align-items: center;
   gap: 8px;
 }
+
+/* Opcje liter w prawej kolumnie pełnego ekranu: jedna pod drugą. */
+.opcjeLiterPion {
+  flex-direction: column;
+  margin-top: 0;
+}

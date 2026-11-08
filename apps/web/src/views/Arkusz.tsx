@@ -779,6 +779,18 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   return <NumerWidoku.Provider value={numer}>{uklad()}</NumerWidoku.Provider>;
 
   function uklad() {
+  // Luki do wyboru litery: po prawej opcje A–E (rysunek jest na płótnie). Luki do wpisania:
+  // po prawej rysunek, bo uczeń odczytuje z niego odpowiedzi.
+  const opcjeLuk = [...luki.values()].find((l) => l.opcje && zadanie.pytania.includes(l.pytanie))?.opcje;
+  if (zLukami && opcjeLuk)
+    return (
+      <div className={styles.obok}>
+        {tresc}
+        <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
+          <ListaOpcjiLiter opcje={opcjeLuk} pionowo />
+        </div>
+      </div>
+    );
   if (zLukami && zadanie.rysunek)
     return (
       <div className={styles.obok}>
@@ -933,9 +945,9 @@ function ZdanieZLuka({ tekst, luka, bezOpcji }: { tekst: string; luka: Luka; bez
   );
 }
 
-function ListaOpcjiLiter({ opcje }: { opcje: Opcja[] }) {
+function ListaOpcjiLiter({ opcje, pionowo }: { opcje: Opcja[]; pionowo?: boolean }) {
   return (
-    <div className={styles.opcjeLiter}>
+    <div className={pionowo ? `${styles.opcjeLiter} ${styles.opcjeLiterPion}` : styles.opcjeLiter}>
       {opcje.map((o) => (
         <span key={o.litera}>
           <span className={styles.letter}>{o.litera}</span> <Tekst tekst={o.tresc} />
@@ -1066,9 +1078,7 @@ function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniet
           ))}
         </ol>,
       );
-      // Opcje do wyboru literą pod wszystkimi zdaniami, nie w kolumnie ostatniego.
-      const zOpcjami = (elementy.slice(i, n) as Blok[]).map((c) => luki.get(c)?.opcje).find(Boolean);
-      if (zOpcjami) wynik.push(<ListaOpcjiLiter key={`${i}-opcje`} opcje={zOpcjami} />);
+      // Opcje do wyboru literą stoją na pełnym ekranie w prawej kolumnie (TrescKompakt).
       i = n;
       continue;
     }
