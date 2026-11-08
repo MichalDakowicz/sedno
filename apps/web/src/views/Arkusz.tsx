@@ -704,6 +704,15 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   // Rozwiązanie na płótnie i stwierdzenia P/F zostają w głównej kolumnie, bez prawej.
   const naPlotnie = pytaniaBloki.length === 1 && pytaniaBloki[0].typ === "pytanie" && (obliczenia.has(pytaniaBloki[0].nr) || pf.has(pytaniaBloki[0].nr));
   const obok = pytaniaBloki.length === 1 && !zLukami && !naPlotnie && !bloki.some((b) => lukiKadrow.has(b));
+  // Pytanie (zdanie po ostatnim poleceniu, np. „Odcinek 𝑂𝐷 ma długość”) stoi przy odpowiedziach
+  // po prawej, żeby w każdym typie zadania było w tym samym miejscu.
+  const bezPytania = bloki.filter((b) => b !== pytaniaBloki[0]);
+  const ostatniePolecenie = bezPytania.reduce((n, b, k) => (b.typ === "akapit" && b.polecenie ? k : n), -1);
+  const pytanieZdanie =
+    obok && ostatniePolecenie >= 0 && bezPytania.slice(ostatniePolecenie + 1).every((b) => b.typ === "akapit" || b.typ === "wzor")
+      ? bezPytania.slice(ostatniePolecenie + 1)
+      : [];
+  const lewa = bezPytania.filter((b) => !pytanieZdanie.includes(b));
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
   const polecenie = zadanie.polecenie.map((p, i) => (
@@ -753,7 +762,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
       </div>
       {polecenie}
       <div className={obok || zLukami || podzial || pytaniaBloki.length <= 1 ? styles.content : `${styles.content} ${styles.szpalty}`}>
-        <BlokiKompakt elementy={grupujPrawdaFalsz(obok ? bloki.filter((b) => b !== pytaniaBloki[0]) : bloki, zadanie)} zadanie={zadanie.nr} />
+        <BlokiKompakt elementy={grupujPrawdaFalsz(obok ? lewa : bloki, zadanie)} zadanie={zadanie.nr} />
       </div>
       {klucz}
     </div>
@@ -777,6 +786,11 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
     <div className={naRysunku && !opcjeKadru ? `${styles.obok} ${styles.pionowo}` : styles.obok}>
       {tresc}
       <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
+        {pytanieZdanie.length > 0 && (
+          <div className={styles.content}>
+            <BlokiKompakt elementy={pytanieZdanie} zadanie={zadanie.nr} />
+          </div>
+        )}
         {opcjeKadru && zadanie.pytania[0].typ === "zamkniete" ? (
           <div className={styles.question}>
             <Opcje pytanie={{ ...zadanie.pytania[0], opcje: opcjeKadru }} />
@@ -793,7 +807,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
 
 // Pytanie otwarte z poleceniem „Zapisz obliczenia.” (albo rozumowanie, dowód) oceniane według
 // schematu: odpowiedzią jest rozwiązanie na płótnie brudnopisu, bez pola na wynik.
-const POLECENIE_OBLICZEN = /Zapisz obliczenia|Zapisz rozumowanie|Zapisz rozwiązanie|Przeprowadź dowód/i;
+const POLECENIE_OBLICZEN = /Zapisz obliczenia|Zapisz rozumowanie|Zapisz rozwiązanie|Przeprowadź dowód|Wykaż/i;
 const ODPOWIEDZ_NA_PLOTNIE = "rozwiązanie w brudnopisie";
 
 function pytaniaZObliczeniami(z: Zadanie): string[] {
@@ -1262,7 +1276,7 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
       {p.typ === "otwarte" && pf.has(p.nr) && <PrawdaFalszKod pytanie={p} stwierdzenia={pf.get(p.nr)!} />}
       {p.typ === "otwarte" && dwie.has(p.nr) && <WyborKilku pytanie={p} wybor={dwie.get(p.nr)!} />}
       {p.typ === "otwarte" && tabele.has(p.nr) && <TabelaDopasowaniaWidok pytanie={p} tabela={tabele.get(p.nr)!} />}
-      {obliczenia.has(p.nr) && <p className="small muted">Obliczenia zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
+      {obliczenia.has(p.nr) && <p className="small muted">Rozwiązanie zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
       {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
