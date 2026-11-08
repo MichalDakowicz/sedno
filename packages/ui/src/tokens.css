@@ -3,9 +3,9 @@
   --bg: #fff9f6;
   --surface: #ffffff;
   --fg: #0f151d;
-  --muted: #59616b;
-  /* Drobny tekst pomocniczy: min. 4,5:1 na tle i na białym (WCAG AA). */
-  --subtle: #69707a;
+  --muted: #424951;
+  /* Drobny tekst pomocniczy: ok. 7:1 na białym, wyraźnie czytelny także w małym rozmiarze. */
+  --subtle: #545b63;
   --line: #ece4df;
   --grid: rgba(15, 21, 29, 0.045);
   --primary: #ff7448;
