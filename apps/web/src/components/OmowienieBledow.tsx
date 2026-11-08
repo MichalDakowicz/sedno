@@ -179,9 +179,15 @@ export function OmowienieBledow({
     return () => el?.removeAttribute("data-omawiane");
   }, [nr]);
 
+  // Podczas strumienia lista jedzie za tekstem bez wygładzania (płynne przewijanie przy każdym
+  // kawałku odpowiedzi się zacinało); po odpowiedzi przewija się płynnie.
   useEffect(() => {
-    listaRef.current?.scrollTo({ top: listaRef.current.scrollHeight, behavior: "smooth" });
+    listaRef.current?.scrollTo({ top: listaRef.current.scrollHeight, behavior: mysli ? "auto" : "smooth" });
   }, [rozmowa, mysli, przyklad]);
+
+  // Pestka myśli, póki czeka na odpowiedź, a mówi (ruszają się usta), gdy tekst już płynie.
+  const pisze = mysli && rozmowa.at(-1)?.od === "tutor" && !!rozmowa.at(-1)?.tekst;
+  const stanPestki = pisze ? "talking" : mysli || przyklad?.stan === "laduje" ? "thinking" : "idle";
 
   async function zapytaj(historia: Wiadomosc[]) {
     // Wiadomość ucznia widać od razu, a nie dopiero z pierwszym kawałkiem odpowiedzi Pestki.
@@ -242,7 +248,7 @@ export function OmowienieBledow({
     <section ref={kartaRef} className={styles.karta} aria-label={`Omawianie zadania ${nr} z Pestką`} data-tutor="omowienie">
       <header className={styles.head}>
         <span ref={avatarRef} className={styles.avatarMiejsce}>
-          <TutorAvatar size={40} state={mysli || przyklad?.stan === "laduje" ? "thinking" : "idle"} className={styles.avatar} />
+          <TutorAvatar size={40} state={stanPestki} className={styles.avatar} />
         </span>
         <span className="label">
           {d.wypracowanie ? "Wypracowanie" : "Błąd"} {numer} z {wszystkich} · zadanie {nr}.
