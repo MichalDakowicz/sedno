@@ -2244,7 +2244,7 @@ function PoleLitery({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function WierszTabeli({ pytanie: p }: { pytanie: PytanieZamkniete }) {
-  const { postep, sprawdzone } = useCtx();
+  const { arkusz, postep, sprawdzone } = useCtx();
   const w = werdykt(p, postep.odpowiedzi[p.nr]);
   return (
     <div className={styles.row}>
@@ -2254,6 +2254,11 @@ function WierszTabeli({ pytanie: p }: { pytanie: PytanieZamkniete }) {
         <span className={styles.rowVerdict} data-werdykt={w}>
           {w === "dobrze" ? <Check size={16} aria-label="dobrze" /> : <X size={16} aria-label="źle" />}
           {w !== "dobrze" && <span className="small">poprawna: {p.poprawna}</span>}
+        </span>
+      )}
+      {sprawdzone(p.nr) && p.fragment && arkusz.nagranie && (
+        <span className={styles.rowFragment}>
+          <FragmentNagrania src={arkusz.nagranie} fragment={p.fragment} />
         </span>
       )}
     </div>

@@ -8,6 +8,8 @@ import { bezEmoji } from "../pestka";
 import { poziomAI, promptOmowienia, zrobPrzyklad, type DoOmowienia, type Przyklad } from "../arkusze/omowienie";
 import type { Postep } from "../arkusze/postep";
 import type { Arkusz } from "../arkusze/typy";
+import { werdykt } from "../arkusze/sprawdz";
+import { FragmentNagrania } from "./FragmentNagrania";
 import { Markdown } from "./Markdown";
 import { TutorAvatar } from "./TutorAvatar";
 import chat from "./TutorChat.module.css";
@@ -90,6 +92,7 @@ export function OmowienieBledow({
   const [szkic, setSzkic] = useState("");
   const listaRef = useRef<HTMLDivElement>(null);
   const nr = d.zadanie.nr;
+  const fragmentyBledow = d.zadanie.pytania.filter((p) => p.fragment && werdykt(p, postep.odpowiedzi[p.nr]) !== "dobrze");
   const ostatni = numer === wszystkich;
 
   const kartaRef = useRef<HTMLElement>(null);
@@ -248,11 +251,13 @@ export function OmowienieBledow({
       </header>
 
       <div className={`${chat.list} ${styles.lista}`} ref={listaRef} aria-live="polite">
-        {numer === 1 && (
-          <p className={styles.zapowiedz}>
-            Omówimy {wszystkich === 1 ? "jedno zadanie" : wszystkich < 5 ? `${wszystkich} zadania` : `${wszystkich} zadań`}. Przy każdym najpierw
-            zapytam, potem wyjaśnię, a na koniec możesz poprosić o przykład do sprawdzenia.
-          </p>
+        {/* Zadanie ze słuchania: fragmenty nagrania przy błędnych pytaniach, żeby odsłuchać, rozmawiając z Pestką. */}
+        {arkusz.nagranie && fragmentyBledow.length > 0 && (
+          <div className={styles.nagrania}>
+            {fragmentyBledow.map((p) => (
+              <FragmentNagrania key={p.nr} src={arkusz.nagranie!} fragment={p.fragment!} podpis={`${p.nr}.`} />
+            ))}
+          </div>
         )}
         {rozmowa.map((m, i) =>
           m.od === "tutor" ? (
