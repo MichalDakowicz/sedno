@@ -890,22 +890,51 @@
   overflow-x: auto;
 }
 
+/* Tabela danych z zadania: bez kratki, tylko linie między wierszami. Nagłówki
+   przygaszone, liczby równe (cyfry tej samej szerokości), na środku kolumn. */
 .dataTable {
   border-collapse: collapse;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .dataTable th,
 .dataTable td {
-  padding: 8px 14px;
-  border: 1px solid var(--line);
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
   text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.dataTable tr:last-child > * {
+  border-bottom: 0;
 }
 
 .dataTable th {
+  font-size: 14px;
   font-weight: 500;
   color: var(--muted);
-  background: var(--surface);
+}
+
+/* Wiersz nagłówków kolumn oddziela od danych mocniejsza linia. */
+.dataTable tr:first-child > th[scope="col"] {
+  border-bottom-color: color-mix(in srgb, var(--fg) 22%, transparent);
+}
+
+/* Tabela w poprzek (pełny ekran): nagłówki wierszy po lewej, pierwszy wiersz to kategorie. */
+.dataTable th[scope="row"] {
+  max-width: 22ch;
+  padding-left: 0;
+  text-align: left;
+  line-height: 1.35;
+}
+
+.dataTable td {
+  min-width: 2.75em;
+  font-size: 17px;
+}
+
+.dataTable tr:first-child > td {
+  font-weight: 600;
 }
 
 /* Treść zadania nad brudnopisem na pełnym ekranie (TrescKompakt): cała szerokość, mniej powietrza. */
