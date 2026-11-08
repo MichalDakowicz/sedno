@@ -14,15 +14,17 @@ const MAX_BODY = 256 * 1024;
 const TIERS = new Set(["wazne", "lekkie"]);
 const ROLES = new Set(["system", "user", "assistant"]);
 
-type Route = { provider: string; model: string; p: Provider };
+type Route = { provider: string; model: string; reasoningEffort?: string; p: Provider };
 
 async function resolve(user: string, tier: string, override: string | undefined): Promise<Route | Response> {
   let provider = override;
   let model: string | null = null;
+  let reasoningEffort: string | undefined;
   if (!provider) {
-    const { data } = await admin.from("ai_routing").select("provider, model").eq("user_id", user).eq("tier", tier).maybeSingle();
+    const { data } = await admin.from("ai_routing").select("provider, model, reasoning_effort").eq("user_id", user).eq("tier", tier).maybeSingle();
     provider = data?.provider;
     model = data?.model ?? null;
+    reasoningEffort = data?.reasoning_effort ?? undefined;
   }
   let query = admin.from("ai_credential").select("provider, base_url, model, key_cipher").eq("user_id", user);
   if (provider) query = query.eq("provider", provider);
@@ -42,7 +44,7 @@ async function resolve(user: string, tier: string, override: string | undefined)
     const key = await decryptKey(secret, rowId(user, c.provider), c.key_cipher);
     const baseUrl = await checkUrl(user, c.base_url);
     const m = model ?? c.model;
-    return { provider: c.provider, model: m, p: { baseUrl, key, model: m } };
+    return { provider: c.provider, model: m, reasoningEffort, p: { baseUrl, key, model: m } };
   } catch {
     return reply(400, { error: "bad_credential" });
   }
@@ -99,13 +101,15 @@ async function handle(req: Request): Promise<Response> {
 
   if (body.stream !== true) {
     try {
-      const out = await chat(route.p, { messages, maxTokens, temperature });
+      const out = await chat(route.p, { messages, maxTokens, temperature, reasoningEffort: route.reasoningEffort });
       await log({ ...base, ok: true, status: 200, prompt_tokens: out.usage?.promptTokens, completion_tokens: out.usage?.completionTokens, duration_ms: Date.now() - started });
       return reply(200, { text: out.text, provider: route.provider, model: route.model, usage: out.usage });
     } catch (e) {
       const status = e instanceof LlmError ? e.status : 0;
       await log({ ...base, ok: false, status, duration_ms: Date.now() - started });
-      return reply(502, { error: "provider_failed", status, detail: e instanceof LlmError ? e.detail : undefined });
+      // 424, nie 502: Cloudflare przed serwerem podmienia odpowiedzi 502 na własną stronę HTML bez CORS,
+      // więc aplikacja nie widziała ani kodu, ani powodu błędu dostawcy.
+      return reply(424, { error: "provider_failed", status, detail: e instanceof LlmError ? e.detail : undefined });
     }
   }
 
@@ -114,7 +118,7 @@ async function handle(req: Request): Promise<Response> {
     async start(ctrl) {
       const send = (data: unknown) => ctrl.enqueue(enc.encode(`data: ${JSON.stringify(data)}\n\n`));
       try {
-        for await (const ev of chatStream(route.p, { messages, maxTokens, temperature })) {
+        for await (const ev of chatStream(route.p, { messages, maxTokens, temperature, reasoningEffort: route.reasoningEffort })) {
           if (ev.type === "text") send({ type: "text", delta: ev.delta });
           if (ev.type === "done") {
             await log({ ...base, ok: true, status: 200, prompt_tokens: ev.result.usage?.promptTokens, completion_tokens: ev.result.usage?.completionTokens, duration_ms: Date.now() - started });

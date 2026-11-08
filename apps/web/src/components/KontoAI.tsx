@@ -2,13 +2,13 @@
 // Klucz trafia tylko do funkcji ai-klucz; aplikacja widzi potem 4 ostatnie znaki.
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { useLocation } from "react-router-dom";
-import { aiKey, refreshAiReady, type Tier } from "../ai";
+import { AiError, aiKey, askAi, refreshAiReady, type Tier } from "../ai";
 import { useProfil } from "../auth";
 import { supabase } from "../supabase";
 import styles from "./KontoAI.module.css";
 
 type Credential = { provider: string; base_url: string; model: string; key_last4: string };
-type Routing = { tier: Tier; provider: string; model: string | null };
+type Routing = { tier: Tier; provider: string; model: string | null; reasoning_effort: string | null };
 type Usage = { tier: string; provider: string; model: string; ok: boolean; duration_ms: number; prompt_tokens: number | null; completion_tokens: number | null };
 
 const PRESETS = {
@@ -18,6 +18,16 @@ const PRESETS = {
   inny: { label: "Inny zgodny z OpenAI", base_url: "https://", needsKey: true, model: "" },
 } as const;
 type PresetId = keyof typeof PRESETS;
+
+// Wartości reasoning_effort z API OpenAI. Pusta = domyślny poziom modelu (parametr nie jest wysyłany).
+const MYSLENIE = [
+  { id: "", label: "myślenie domyślne" },
+  { id: "none", label: "bez myślenia" },
+  { id: "low", label: "myślenie niskie" },
+  { id: "medium", label: "myślenie średnie" },
+  { id: "high", label: "myślenie wysokie" },
+  { id: "xhigh", label: "myślenie bardzo wysokie" },
+];
 
 const TIERS: { id: Tier; label: string; hint: string }[] = [
   { id: "wazne", label: "Ważne", hint: "ocena wypracowań, wyjaśnienia błędów" },
@@ -47,7 +57,7 @@ export function KontoAI() {
   const load = useCallback(async () => {
     const [c, r, u] = await Promise.all([
       supabase.from("ai_credential").select("provider, base_url, model, key_last4").order("provider"),
-      supabase.from("ai_routing").select("tier, provider, model"),
+      supabase.from("ai_routing").select("tier, provider, model, reasoning_effort"),
       supabase.from("ai_usage").select("tier, provider, model, ok, duration_ms, prompt_tokens, completion_tokens").order("created_at", { ascending: false }).limit(500),
     ]);
     setCreds(c.data ?? []);
@@ -111,10 +121,31 @@ export function KontoAI() {
     await load();
   }
 
-  async function route(tier: Tier, provider: string, routeModel: string) {
+  // Zmiana dostawcy zeruje poziom myślenia: inny dostawca może go nie obsługiwać.
+  async function route(tier: Tier, provider: string, routeModel: string, effort: string | null = null) {
     if (!provider) await supabase.from("ai_routing").delete().eq("tier", tier);
-    else await supabase.from("ai_routing").upsert({ tier, provider, model: routeModel.trim() || null });
+    else await supabase.from("ai_routing").upsert({ tier, provider, model: routeModel.trim() || null, reasoning_effort: effort });
     await load();
+  }
+
+  // Nie każdy model przyjmuje każdy poziom (np. gpt-6.1-sol nie ma „bez myślenia”), więc zaraz po zmianie
+  // sprawdzamy go jednym krótkim zapytaniem i przy odmowie wracamy do poprzedniego.
+  async function zmienMyslenie(r: Routing, effort: string | null) {
+    const poprzedni = r.reasoning_effort;
+    await route(r.tier, r.provider, r.model ?? "", effort);
+    if (!effort) return setMsg("Poziom myślenia: domyślny dla modelu.");
+    setMsg("Sprawdzam, czy model obsługuje ten poziom myślenia…");
+    try {
+      await askAi({ tier: r.tier, task: "test-myslenia", maxTokens: 64, messages: [{ role: "user", content: "Odpowiedz jednym słowem: ok" }] });
+      setMsg("Poziom myślenia zapisany.");
+    } catch (e) {
+      await route(r.tier, r.provider, r.model ?? "", poprzedni);
+      setMsg(
+        e instanceof AiError && e.code === "provider_failed"
+          ? "Ten model nie obsługuje wybranego poziomu myślenia. Zostaje poprzedni."
+          : "Nie udało się sprawdzić poziomu myślenia. Zostaje poprzedni.",
+      );
+    }
   }
 
   const presets = (Object.keys(PRESETS) as PresetId[]).filter((id) => id !== "ollama-serwer" || profil?.server_ollama);
@@ -180,10 +211,23 @@ export function KontoAI() {
                   placeholder="model domyślny"
                   defaultValue={r?.model ?? ""}
                   key={`${t.id}-${r?.provider}-${r?.model}`}
-                  onBlur={(e) => r && e.target.value !== (r.model ?? "") && void route(t.id, r.provider, e.target.value)}
+                  onBlur={(e) => r && e.target.value !== (r.model ?? "") && void route(t.id, r.provider, e.target.value, r.reasoning_effort)}
                   aria-label={`Model dla zadań: ${t.label}`}
                   disabled={!r}
                 />
+                <select
+                  className="input"
+                  value={r?.reasoning_effort ?? ""}
+                  onChange={(e) => r && void zmienMyslenie(r, e.target.value || null)}
+                  aria-label={`Poziom myślenia dla zadań: ${t.label}`}
+                  disabled={!r}
+                >
+                  {MYSLENIE.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             );
           })}
