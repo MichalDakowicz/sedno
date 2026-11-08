@@ -66,7 +66,7 @@ function summonPoint(page: Point): Point | null {
 }
 
 function bubbleWidth() {
-  return Math.min(300, viewW() - 32);
+  return Math.min(340, viewW() - 32);
 }
 
 function bubbleLayout(p: Point) {
