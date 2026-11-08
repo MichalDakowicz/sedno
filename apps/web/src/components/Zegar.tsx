@@ -34,7 +34,20 @@ function momenty(limitMin: number): Moment[] {
   return m;
 }
 
-export function Zegar({ arkusz, limitMin, czas, onZmien }: { arkusz: string; limitMin: number; czas: Czas; onZmien: (c: Czas | undefined) => void }) {
+/** onWroc: zegar poza arkuszem; kliknięcie wyspy wraca do arkusza zamiast wysuwać pełny zegar. */
+export function Zegar({
+  arkusz,
+  limitMin,
+  czas,
+  onZmien,
+  onWroc,
+}: {
+  arkusz: string;
+  limitMin: number;
+  czas: Czas;
+  onZmien: (c: Czas | undefined) => void;
+  onWroc?: () => void;
+}) {
   const { showHints } = useTutor();
   const [teraz, setTeraz] = useState(Date.now());
   // Wysunięty zegar: „zamyka” trwa, póki animacja chowania nie wróci do wyspy.
@@ -131,9 +144,10 @@ export function Zegar({ arkusz, limitMin, czas, onZmien }: { arkusz: string; lim
       <button
         type="button"
         className={styles.czas}
-        onClick={() => setWidok((v) => (v === "otwarty" ? "zamyka" : "otwarty"))}
-        aria-expanded={rozwiniety}
-        title={rozwiniety ? "Schowaj zegar" : "Pokaż zegar"}
+        onClick={() => (onWroc ? onWroc() : setWidok((v) => (v === "otwarty" ? "zamyka" : "otwarty")))}
+        aria-expanded={onWroc ? undefined : rozwiniety}
+        aria-label={onWroc ? `Wróć do arkusza na czas, ${zostalo > 0 ? "zostało" : "po czasie"} ${zapisCzasu(zostalo)}` : undefined}
+        title={onWroc ? "Wróć do arkusza" : rozwiniety ? "Schowaj zegar" : "Pokaż zegar"}
       >
         <Timer size={16} aria-hidden="true" className={styles.ikona} />
         {tekst}

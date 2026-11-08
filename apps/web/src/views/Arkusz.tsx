@@ -24,6 +24,7 @@ import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
 import { uplynelo, zapisCzasu, zatrzymaj, Zegar } from "../components/Zegar";
+import { ustawAktywnyZegar, useAktywnyZegar } from "../arkusze/zegarAktywny";
 import { dodajCzas, minuty, norma, odmierz, opisTempa, tempo, zacznijOdmierzac } from "../arkusze/czasZadan";
 import styles from "./Arkusz.module.css";
 
@@ -53,6 +54,15 @@ export function Arkusz() {
 
   const sprawdzone = useCallback((nr: string) => postep.sprawdzony || postep.sprawdzoneZadania.includes(nrZadania(nr)), [postep]);
   useEffect(zacznijOdmierzac, [id]);
+  // Arkusz na czas zgłasza się do paska, żeby zegar został widoczny także poza nim.
+  const aktywnyZegar = useAktywnyZegar();
+  const maZegar = !!postep.czas && !postep.sprawdzony;
+  useEffect(() => {
+    if (!dane) return;
+    if (maZegar && dane.czas) {
+      if (aktywnyZegar?.id !== dane.id) ustawAktywnyZegar({ id: dane.id, limitMin: dane.czas });
+    } else if (aktywnyZegar?.id === dane.id) ustawAktywnyZegar(null);
+  }, [dane, maZegar, aktywnyZegar?.id]);
   // W trybie na czas długa cisza to też praca nad arkuszem, nie przerwa.
   const ciszaTezLiczy = !!postep.czas?.start;
 
