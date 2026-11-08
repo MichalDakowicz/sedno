@@ -71,11 +71,21 @@ export class LlmError extends Error {
 type Fetch = typeof fetch;
 const DEFAULT_TIMEOUT_MS = 120_000;
 
+// OpenAI's newer models reject max_tokens and want max_completion_tokens. Other OpenAI-compatible
+// servers (Ollama and the like) still expect max_tokens, so only api.openai.com gets the new name.
+function tokenLimitField(p: Provider): "max_tokens" | "max_completion_tokens" {
+  try {
+    return new URL(p.baseUrl).hostname === "api.openai.com" ? "max_completion_tokens" : "max_tokens";
+  } catch {
+    return "max_tokens";
+  }
+}
+
 function requestInit(p: Provider, req: ChatRequest, stream: boolean): RequestInit {
   const body: Record<string, unknown> = { model: p.model, messages: req.messages, stream };
   if (stream) body.stream_options = { include_usage: true };
   if (req.tools?.length) body.tools = req.tools.map((t) => ({ type: "function", function: t }));
-  if (req.maxTokens !== undefined) body.max_tokens = req.maxTokens;
+  if (req.maxTokens !== undefined) body[tokenLimitField(p)] = req.maxTokens;
   if (req.temperature !== undefined) body.temperature = req.temperature;
   return {
     method: "POST",
