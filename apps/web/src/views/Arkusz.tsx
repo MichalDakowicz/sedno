@@ -104,6 +104,8 @@ export function Arkusz() {
         w.ukryte.forEach((b) => ukryteKodem.add(b));
       });
       z.bloki.forEach((b, i) => {
+        // Wycinek z samym tekstem (niski przy długim tekście, bez rysunku) na pełnym ekranie jako tekst.
+        if (b.typ === "kadr" && b.obraz.wys < b.tekst.length * 0.35) kadryTekst.set(b, naAkapity(b.tekst));
         const k = kadrZLuka(b, z.bloki[i + 1], z);
         if (!k) return;
         kadryTekst.set(b, k.bloki);
@@ -736,7 +738,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
         )}
       </div>
       {polecenie}
-      <div className={obok || zLukami || podzial ? styles.content : `${styles.content} ${styles.szpalty}`}>
+      <div className={obok || zLukami || podzial || pytaniaBloki.length <= 1 ? styles.content : `${styles.content} ${styles.szpalty}`}>
         <BlokiKompakt elementy={grupujPrawdaFalsz(obok ? bloki.filter((b) => b !== pytaniaBloki[0]) : bloki, zadanie)} zadanie={zadanie.nr} />
       </div>
       {klucz}
