@@ -62,6 +62,11 @@ export function Zegar({
   useEffect(() => setWyspa(document.getElementById("wyspa-zegara")), []);
   const wyspaRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  // Skąd zegar startuje przy odpinaniu (spod wyspy) i przy przypinaniu (z miejsca, gdzie pływał),
+  // żeby przeleciał płynnie zamiast skakać.
+  const odpinanyZ = useRef<DOMRect | null>(null);
+  const przypinanyZ = useRef<DOMRect | null>(null);
+  const bezRuchu = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   // Jak Dynamic Island: przy otwarciu wyspa znika z paska (jej miejsce zostaje), a ten sam kształt
   // rozciąga się w dół w pełny zegar: rośnie szerokość, wysokość i zaokrąglenie, kolor przechodzi
   // z ciemnego w biały. Przy zamykaniu ta sama droga z powrotem, a wyspa wraca na koniec.
@@ -80,7 +85,10 @@ export function Zegar({
     };
     const duze = { width: `${r.width}px`, height: `${r.height}px`, transform: "translateY(0)" };
     const tresc = [...pn.children] as HTMLElement[];
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // Przypinany zegar zaczyna zwijanie tam, gdzie pływał, i po drodze wraca pod wyspę.
+    const z = przypinanyZ.current;
+    przypinanyZ.current = null;
+    if (bezRuchu()) {
       if (widok === "zamyka") setWidok("schowany");
       return;
     }
@@ -88,8 +96,15 @@ export function Zegar({
       pn.animate([male, duze], { duration: 520, easing: "cubic-bezier(0.32, 1.32, 0.5, 1)" });
       tresc.forEach((el) => el.animate([{ opacity: 0 }, { opacity: 0, offset: 0.45 }, { opacity: 1 }], { duration: 520, easing: "ease-out" }));
     } else {
-      tresc.forEach((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, fill: "forwards" }));
-      const a = pn.animate([duze, male], { duration: 340, easing: "cubic-bezier(0.5, 0, 0.3, 1)", fill: "forwards" });
+      const start = z ? { ...duze, transform: `translate(${z.left - r.left}px, ${z.top - r.top}px)` } : duze;
+      tresc.forEach((el) =>
+        el.animate(z ? [{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: 0 }] : [{ opacity: 1 }, { opacity: 0 }], { duration: z ? 520 : 120, fill: "forwards" }),
+      );
+      const a = pn.animate(z ? [start, { ...duze, offset: 0.6 }, male] : [start, male], {
+        duration: z ? 560 : 340,
+        easing: "cubic-bezier(0.5, 0, 0.3, 1)",
+        fill: "forwards",
+      });
       a.onfinish = () => setWidok("schowany");
       return () => a.cancel();
     }
@@ -115,12 +130,33 @@ export function Zegar({
     } catch {
       // bez zapisanej pozycji zegar zostaje tam, gdzie był
     }
+    odpinanyZ.current = r;
     setOdpiety(poz);
   }
 
+  // Odpięty zegar przelatuje spod wyspy w swoje miejsce (zapisane z poprzedniego razu).
+  useLayoutEffect(() => {
+    const pn = panelRef.current;
+    const z = odpinanyZ.current;
+    odpinanyZ.current = null;
+    if (!odpiety || !pn || !z || bezRuchu()) return;
+    // Odpięcie w trakcie wysuwania: wysuwanie by walczyło z przelotem o tę samą pozycję.
+    pn.getAnimations().forEach((a) => a.cancel());
+    const r = pn.getBoundingClientRect();
+    if (Math.abs(z.left - r.left) < 1 && Math.abs(z.top - r.top) < 1) return;
+    pn.animate([{ transform: `translate(${z.left - r.left}px, ${z.top - r.top}px)` }, { transform: "translate(0, 0)" }], {
+      duration: 460,
+      easing: "cubic-bezier(0.32, 1.2, 0.5, 1)",
+    });
+  }, [odpiety]);
+
+  // Przypięcie: zegar wraca pod pasek i zwija się w wyspę (animacja zamykania w efekcie wyżej).
   function przypnij() {
+    // Przelot po odpięciu mógł jeszcze trwać: liczymy od miejsca, w którym zegar stoi naprawdę.
+    panelRef.current?.getAnimations().forEach((a) => a.finish());
+    przypinanyZ.current = panelRef.current?.getBoundingClientRect() ?? null;
     setOdpiety(null);
-    setWidok("schowany");
+    setWidok(przypinanyZ.current ? "zamyka" : "schowany");
   }
 
   // Przeciąganie odpiętego zegara: łapie się za dowolne miejsce poza przyciskami.
