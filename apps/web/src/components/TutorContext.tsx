@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { AvatarState } from "./TutorAvatar";
 import { aiErrorText, AiError, streamAi } from "../ai";
-import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, type Rozmowa } from "../konto/rozmowy";
+import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA_ROZMOW, type Rozmowa } from "../konto/rozmowy";
 import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
 
 export type Message = { id: number; from: "tutor" | "student"; text: string };
@@ -110,6 +110,12 @@ const noAi = "Żeby odpowiadać, potrzebuję AI podpiętego do konta. Zrobisz to
 export function TutorProvider({ children, ai = false, przedmioty = "" }: { children: ReactNode; ai?: boolean; przedmioty?: string }) {
   // Bieżąca rozmowa wraca po odświeżeniu; wcześniejsze można otworzyć (konto/rozmowy.ts).
   const [rozmowy, setRozmowy] = useState<Rozmowa[]>(wczytajRozmowy);
+  // Rozmowy z konta (z innego urządzenia) dochodzą do listy po zalogowaniu.
+  useEffect(() => {
+    const odswiez = () => setRozmowy(wczytajRozmowy());
+    window.addEventListener(ZMIANA_ROZMOW, odswiez);
+    return () => window.removeEventListener(ZMIANA_ROZMOW, odswiez);
+  }, []);
   const [biezacaRozmowa, setBiezacaRozmowa] = useState(() => idBiezacej() ?? noweId());
   const [messages, setMessages] = useState<Message[]>(() => {
     const zapis = wczytajRozmowy().find((r) => r.id === idBiezacej());
