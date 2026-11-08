@@ -14,6 +14,10 @@ import chat from "./TutorChat.module.css";
 import styles from "./OmowienieBledow.module.css";
 
 export type Wiadomosc = { od: "tutor" | "uczen"; tekst: string };
+
+// Wlot Pestki odgrywa się raz: karta pokazana ponownie (np. po zmianie strony arkusza i powrocie)
+// ma Pestkę już na miejscu, zamiast powtarzać lot z miejsca podziału.
+const zuzyteWloty = new WeakSet<DOMRect>();
 type StanPrzykladu = { stan: "laduje" } | { stan: "brak" } | { stan: "gotowy"; zadanie: Przyklad; wybrana?: string };
 
 // Pierwsza wiadomość ucznia nie jest pokazywana: tylko uruchamia omówienie.
@@ -60,7 +64,7 @@ export function OmowienieBledow({
   // rozciąga się jak odrywana kropla. Cel czytamy co klatkę, bo karta w tym czasie się przewija.
   useLayoutEffect(() => {
     const cel = avatarRef.current;
-    if (!wlot || !cel || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!wlot || !cel || zuzyteWloty.has(wlot) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const klon = cel.cloneNode(true) as HTMLElement;
     Object.assign(klon.style, { position: "fixed", left: "0", top: "0", margin: "0", zIndex: "60", pointerEvents: "none", transformOrigin: "0 0" });
     document.body.appendChild(klon);
@@ -77,6 +81,8 @@ export function OmowienieBledow({
       klon.style.transform = `translate(${wlot.left + (r.left - wlot.left) * e}px, ${wlot.top + (r.top - wlot.top) * e}px) scale(${s * (1 + 0.22 * ciag)}, ${s * (1 - 0.14 * ciag)})`;
       if (p < 1) klatka = requestAnimationFrame(krok);
       else {
+        // Zużyty dopiero po wylądowaniu: React w trybie deweloperskim montuje efekt dwa razy.
+        zuzyteWloty.add(wlot);
         klon.remove();
         cel.style.opacity = "";
       }
