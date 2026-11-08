@@ -230,6 +230,16 @@
   padding-inline: 14px;
 }
 
+/* W dymku oba przyciski tej samej wielkości, obok siebie (główny tylko kolorem i pogrubieniem). */
+.actions :global(.btn-primary.btn-sm) {
+  font-size: 15px;
+}
+
+/* Dymek bez przycisków (np. „Zaczynamy od zadania 1.”) nie trzyma pustego miejsca. */
+.actions:empty {
+  display: none;
+}
+
 .skip {
   padding: 8px 4px;
   border: 0;

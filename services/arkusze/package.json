@@ -7,7 +7,8 @@
     "pobierz": "node src/pobierz.js",
     "importuj": "node src/importuj.js",
     "kontrola": "node src/kontrola.js",
-    "wgraj": "node src/wgraj.js"
+    "wgraj": "node src/wgraj.js",
+    "nakladka": "node src/nakladka.js"
   },
   "dependencies": {
     "@xmldom/xmldom": "^0.8.10",
