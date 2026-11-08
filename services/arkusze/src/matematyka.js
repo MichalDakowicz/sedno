@@ -252,7 +252,10 @@ export async function osadzObrazy(zadania, katalog) {
   };
   for (const z of zadania) {
     await osadz(z.rysunek);
-    for (const b of z.bloki) await osadz(b.obraz);
+    for (const b of z.bloki) {
+      await osadz(b.obraz);
+      for (const o of b.obrazy ?? []) await osadz(o.obraz); // komórki tabel z informatyki
+    }
   }
 }
 

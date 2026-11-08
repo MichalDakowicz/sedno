@@ -24,7 +24,7 @@ export async function tekstPdf(sciezka, { fonty = false } = {}) {
       const y = it.transform[5];
       let w = wiersze.find((r) => Math.abs(r.y - y) <= 2.5);
       if (!w) wiersze.push((w = { y, czesci: [] }));
-      const czesc = { x: it.transform[4], s: it.str, w: it.width, h: it.height };
+      const czesc = { x: it.transform[4], y, s: it.str, w: it.width, h: it.height };
       if (fonty) czesc.f = kroje[it.fontName] ??= kroj(strona, it.fontName);
       w.czesci.push(czesc);
     }

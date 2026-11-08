@@ -154,6 +154,15 @@ export function zadaniaInformatyki(fragmenty, klucz, pliki = {}) {
         f.bloki = f.bloki.filter((b) => !zLitera.includes(b));
       }
     }
+    // Tabela w podpunkcie z pustymi komórkami to pole odpowiedzi (komórki do wpisania), a tabela
+    // z kolumnami P i F przy pytaniu „Oceń prawdziwość” to przełączniki P / F.
+    if (f.bloki && f.punkty) {
+      const kodPF = /^[PF]{2,8}$/.test((kz?.rozwiazanie ?? "").replace(/\s/g, ""));
+      const t = f.bloki.find(
+        (b) => b.typ === "tabelaTresci" && (kodPF ? b.wiersze.some((w) => w.includes("P") && w.includes("F")) : b.wiersze.slice(b.naglowek ?? 1).some((w) => w.some((k) => !k))),
+      );
+      if (t) t.pytanie = f.nr;
+    }
     if (f.bloki) z.bloki.push(...f.bloki);
     else f.czesci.forEach((c, i) => z.bloki.push({ typ: "kadr", obraz: f.kadry[i], tekst: c.linie.map((l) => l.s).join(" "), strona: c.strona }));
 
@@ -178,6 +187,9 @@ export function zadaniaInformatyki(fragmenty, klucz, pliki = {}) {
     } else {
       z.pytania.push({ ...baza, typ: "otwarte" });
     }
+    // Odpowiedź w komórkach tabeli: aplikacja sprawdza ją wierszami z kluczem (patrz sprawdz.ts).
+    const p = z.pytania.at(-1);
+    if (p.typ === "otwarte" && !p.kod && f.bloki?.some((b) => b.typ === "tabelaTresci" && b.pytanie === f.nr)) p.tabela = true;
     z.bloki.push({ typ: "pytanie", nr: f.nr, strona: f.czesci.at(-1).strona });
     z.punkty += f.punkty;
   }

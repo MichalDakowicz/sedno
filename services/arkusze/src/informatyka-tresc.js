@@ -32,25 +32,33 @@ function symbol(z, naPoczatku) {
   return naPoczatku ? "•" : "�";
 }
 
-/** Tekst linii z surowych kawałków i zakresy krojów: [od, do, "b" | "i" | "m"]. */
+/** Tekst linii z surowych kawałków i zakresy krojów: [od, do, "b" | "i" | "m" | "sup" | "sub"]. */
 export function tekstLinii(czesci) {
   let tekst = "";
   const formaty = [];
   let koniec = null;
+  // Linia bazowa: położenie kawałków pełnej wielkości. Drobniejszy kawałek wyżej to wykładnik (m³, 2¹⁰⁰),
+  // niżej to indeks (s₁, (2011)₃).
+  const maxH = Math.max(...czesci.map((c) => c.h || 0));
+  const pelne = czesci.filter((c) => (c.h || 0) >= 0.85 * maxH && c.y !== undefined).map((c) => c.y).sort((a, b) => a - b);
+  const bazowa = pelne.length ? pelne[Math.floor(pelne.length / 2)] : undefined;
   for (const c of czesci) {
     let s = c.s;
     if (c.f === "s") s = [...s].map((z, i) => symbol(z, i === 0 && !tekst)).join("");
     s = s.normalize("NFKC");
     if (!s) continue;
+    const drobny = bazowa !== undefined && c.h && c.h < 0.8 * maxH && s.trim();
+    const indeks = drobny ? (c.y > bazowa + 1.5 ? "sup" : c.y < bazowa - 0.8 ? "sub" : null) : null;
     const przerwa = koniec === null ? 0 : c.x - koniec;
-    if (tekst && przerwa > 1.2 && !tekst.endsWith(" ") && !s.startsWith(" ")) tekst += " ";
+    if (tekst && przerwa > 1.2 && !indeks && !tekst.endsWith(" ") && !s.startsWith(" ")) tekst += " ";
     const od = tekst.length;
-    tekst += s;
-    if (c.f === "b" || c.f === "i" || c.f === "m") {
+    tekst += indeks ? s.trim() : s;
+    const kroj = indeks ?? (c.f === "b" || c.f === "i" || c.f === "m" ? c.f : null);
+    if (kroj) {
       const ost = formaty.at(-1);
       // Sąsiednie kawałki tego samego kroju (także przez spację) łączymy w jeden zakres.
-      if (ost && ost[2] === c.f && ost[1] >= od - 1) ost[1] = tekst.length;
-      else formaty.push([od, tekst.length, c.f]);
+      if (ost && ost[2] === kroj && ost[1] >= od - 1) ost[1] = tekst.length;
+      else formaty.push([od, tekst.length, kroj]);
     }
     koniec = c.x + c.w;
   }
@@ -61,8 +69,8 @@ export function tekstLinii(czesci) {
 function rodzaj(l, lewa) {
   const { tekst } = l.t;
   if (!tekst || DO_POMINIECIA.test(tekst) || /[_…]{6,}|\.{8,}/.test(tekst)) return "pomin";
-  // Wzór, którego tekst nie odda: nieznany symbol albo drobne pismo (wykładnik 2¹⁰⁰, indeks, ułamek piętrowy).
-  if (tekst.includes("�") || l.czesci.some((c) => c.s.trim() && c.h && c.h < 8.5)) return "trudna";
+  // Znak, którego font Symbol nie zdradza: linia idzie do wycinka (wykładniki i indeksy obsługuje tekstLinii).
+  if (tekst.includes("�")) return "trudna";
   // Linia w większości Courierem (dane, „+ + + lub o o o”) albo same liczby (wiersz danych „3000 2000”).
   const znakiMono = l.czesci.filter((c) => c.f === "m").reduce((n, c) => n + c.s.replace(/\s/g, "").length, 0);
   // Słowo zwykłym krojem („pliku” w „w pliku symbole.txt”) oznacza zdanie; „lub” między symbolami nie.
@@ -75,7 +83,7 @@ function rodzaj(l, lewa) {
   if (KOD.test(tekst) && !/^[\p{L}_][\w]*\([^()]*\)\s*:?$/u.test(tekst)) return "kod";
   if (/^[\p{L}_][\w]*\([^()]*\)\s*:?$/u.test(tekst)) return "naglowekKodu";
   // Opis pola („data – data przywozu…”): nazwa i opis po myślniku to jeden akapit.
-  if (l.seg.length === 2 && /^[–-]\s/.test(l.seg[1].s)) return "tekst";
+  if (l.seg.length === 2 && /^[–−-]\s/.test(l.seg[1].s)) return "tekst";
   // Kolumny: wyraźna przerwa między kawałkami tekstu (słowa w zdaniu dzieli kilka punktów).
   const przerwy = l.czesci.slice(1).map((c, i) => c.x - (l.czesci[i].x + l.czesci[i].w));
   if (przerwy.some((p) => p > 20)) return "tabela";
@@ -122,6 +130,7 @@ export async function skladajTresc(doc, fragmenty, { katalog, prefiks }) {
   await mkdir(katalog, { recursive: true });
   const strony = new Map();
   const statystyka = { tekstem: 0, kadrem: 0 };
+  const wszystkieCzesci = fragmenty.flatMap((f) => f.czesci);
   for (const f of fragmenty) {
     const bloki = [];
     let wycinkiWys = 0;
@@ -132,13 +141,24 @@ export async function skladajTresc(doc, fragmenty, { katalog, prefiks }) {
     let rozsypany = false;
     for (const c of f.czesci) {
       const s = await plotno(doc, c.strona, strony);
-      const linie = c.linie
+      let linie = c.linie
         .map((l) => ({ ...l, czesci: l.czesci.filter((k) => k.x >= 60 && k.x < 520) }))
         .filter((l) => l.czesci.length)
         .map((l) => ({ ...l, x: l.czesci[0].x, t: tekstLinii(l.czesci) }));
       if (!linie.length) continue;
+      // Tabele z narysowaną siatką: ich linie tekstu zastępuje jeden element „siatka” (dol: dolna krawędź).
+      const pasGora = c.naglowek ? c.gora - 4 : c.gora + 12;
+      // Pas kończy się przed następnym fragmentem na tej samej stronie (jak kadr), żeby nie łapać jego tabel.
+      const nastepnyFragment = wszystkieCzesci.find((g) => g.strona === c.strona && g.gora < c.gora);
+      const pasDol = Math.max(c.brudnopis !== null ? c.brudnopis + 14 : 60, nastepnyFragment ? nastepnyFragment.gora + 14 : 0);
+      for (const t of tabeleZSiatki(s, pasGora, pasDol, linie.flatMap((l) => l.czesci))) {
+        const w = linie.findIndex((l) => l.y < t.gora && l.y > t.dol);
+        linie = linie.filter((l) => !(l.y < t.gora && l.y > t.dol));
+        const miejsce = w >= 0 ? w : linie.findIndex((l) => l.y < t.dol);
+        linie.splice(miejsce >= 0 ? miejsce : linie.length, 0, { y: t.dol, yGora: t.gora, x: 71, czesci: [], seg: [], t: { tekst: "", formaty: [] }, siatka: t });
+      }
       const lewa = Math.min(...linie.map((l) => l.x));
-      linie.forEach((l) => (l.rodzaj = rodzaj(l, lewa)));
+      linie.forEach((l) => (l.rodzaj = l.siatka ? "siatka" : rodzaj(l, lewa)));
       linie.forEach((l, i) => {
         if (l.rodzaj !== "naglowekKodu") return;
         const dalej = linie.slice(i + 1).find((x) => x.rodzaj !== "pomin");
@@ -152,16 +172,19 @@ export async function skladajTresc(doc, fragmenty, { katalog, prefiks }) {
         if (l.rodzaj === "pomin") continue;
         let r = l.rodzaj === "liczba" ? "kod" : l.rodzaj;
         const ost = grupy.at(-1);
-        const przerwa = ost ? ost.linie.at(-1).y - l.y : 0;
+        // Przerwa liczona do górnej krawędzi elementu (dla tabeli to jej górna ramka).
+        const krawedz = l.yGora ?? l.y;
+        const przerwa = ost ? ost.linie.at(-1).y - krawedz : 0;
         if (r === "tekst" && ost?.rodzaj === "kod" && l.x > ost.lewa + 10 && przerwa < 2 * ODSTEP_LINII) r = "kod";
         if (r === "etykieta" || r === "trudna" || (r === "tabela" && ost?.rodzaj === "obraz" && przerwa < 2 * ODSTEP_LINII)) r = "obraz";
         // Duża przerwa z tuszem między liniami to rysunek albo wykres bez tekstu.
-        if (ost && przerwa > 2.2 * ODSTEP_LINII && tusz(s, ost.linie.at(-1).y - 5, l.y + 12).length > 6) {
-          if (ost.rodzaj === "obraz") ost.dol = l.y + 12;
-          else grupy.push({ rodzaj: "obraz", linie: [], gora: ost.linie.at(-1).y - 5, dol: l.y + 12, lewa: l.x });
+        if (ost && przerwa > 2.2 * ODSTEP_LINII && tusz(s, ost.linie.at(-1).y - 5, l.siatka ? krawedz + 3 : l.y + 12).length > 6) {
+          const dolPasa = l.siatka ? krawedz + 3 : l.y + 12;
+          if (ost.rodzaj === "obraz") ost.dol = dolPasa;
+          else grupy.push({ rodzaj: "obraz", linie: [], gora: ost.linie.at(-1).y - 5, dol: dolPasa, lewa: l.x });
         }
         const g = grupy.at(-1);
-        if (g && g.rodzaj === r && przerwa < 2.2 * ODSTEP_LINII) {
+        if (g && g.rodzaj === r && r !== "siatka" && przerwa < 2.2 * ODSTEP_LINII) {
           g.linie.push(l);
           g.lewa = Math.min(g.lewa, l.x);
         } else grupy.push({ rodzaj: r, linie: [l], lewa: l.x, i });
@@ -177,7 +200,7 @@ export async function skladajTresc(doc, fragmenty, { katalog, prefiks }) {
       for (let zmiana = true; zmiana; ) {
         zmiana = false;
         grupy.forEach((g, i) => {
-          if (g.rodzaj === "obraz") return;
+          if (g.rodzaj === "obraz" || g.rodzaj === "siatka") return;
           const przed = grupy[i - 1]?.rodzaj === "obraz";
           const po = grupy[i + 1]?.rodzaj === "obraz";
           // Wiersz samych liczb zwykłym krojem (komórki tabeli, podziałka osi) pod wycinkiem albo między wycinkami.
@@ -201,15 +224,29 @@ export async function skladajTresc(doc, fragmenty, { katalog, prefiks }) {
         } else scalone.push(g);
       }
 
-      if (scalone.filter((g) => g.rodzaj === "obraz").length >= 2) rozsypany = true;
-      if (scalone.some((g, i) => g.rodzaj === "tabela" && (scalone[i - 1]?.rodzaj === "obraz" || scalone[i + 1]?.rodzaj === "obraz"))) rozsypany = true;
+      // Tabela bez siatki (kolumny z odstępów) z klamrą albo przy wycinku to zwykle wzór: do wycinka.
+      for (const [i, g] of scalone.entries()) {
+        if (g.rodzaj !== "tabela") continue;
+        // Wiersze nad tabelą z siatką o tej samej liczbie kolumn to jej nagłówek bez górnej ramki.
+        const pod = scalone[i + 1];
+        const kolumny = g.linie[0].seg.length;
+        if (pod?.rodzaj === "siatka" && g.linie.every((l) => l.seg.length === kolumny) && pod.linie[0].siatka.wiersze[0].length === kolumny) {
+          const t = pod.linie[0].siatka;
+          t.wiersze.unshift(Array.from({ length: kolumny }, (_, k) => g.linie.map((l) => l.seg[k].s.normalize("NFKC")).join(" ")));
+          t.zakresy.unshift(Array(kolumny).fill(1));
+          t.obrazy.forEach((o) => o.r++);
+          t.naglowek = Math.min(3, t.naglowek + 1);
+          g.rodzaj = "pominieta";
+        } else if (g.linie.some((l) => /[{}]/.test(l.t.tekst))) g.rodzaj = "obraz";
+      }
+      if (scalone.filter((g) => g.rodzaj === "obraz").length >= 3) rozsypany = true;
       for (const g of scalone) {
         if (g.rodzaj === "obraz") {
           // Pas od linii nad grupą do linii pod nią, dociągnięty do tuszu (ramki tabel, osie wykresu).
           const gora = Math.max(g.gora ?? -Infinity, g.linie.length ? g.linie[0].y + 12 : -Infinity);
           let dol = Math.min(g.dol ?? Infinity, g.linie.length ? g.linie.at(-1).y - 5 : Infinity);
           const nastepna = linie.find((l) => l.y < dol - 2 && l.rodzaj !== "pomin" && !g.linie.includes(l));
-          const granica = nastepna ? nastepna.y + 12 : c.brudnopis !== null ? c.brudnopis + 14 : 60;
+          const granica = nastepna ? (nastepna.siatka ? nastepna.yGora + 2 : nastepna.y + 12) : c.brudnopis !== null ? c.brudnopis + 14 : 60;
           const wTuszu = tusz(s, dol, granica);
           // Tusz ciągnący się pod ostatnią linią (dolna ramka tabeli, oś) dołączamy, aż do pustego paska.
           for (const y of wTuszu) {
@@ -227,6 +264,18 @@ export async function skladajTresc(doc, fragmenty, { katalog, prefiks }) {
           const krok = mono ? 7.2 : 35 / 4;
           const tekst = g.linie.map((l) => " ".repeat(Math.max(0, Math.round((l.x - min) / krok))) + l.t.tekst).join("\n");
           bloki.push({ typ: "kod", tekst, strona: c.strona });
+        } else if (g.rodzaj === "siatka") {
+          const t = g.linie[0].siatka;
+          const scalone = t.zakresy.some((w) => w.some((z) => z > 1));
+          // Komórki, których tekst nie odda (klamra układu), jako wycinki.
+          const obrazy = [];
+          for (const { r, c: kol, ramka } of t.obrazy) {
+            const [xl, yd, xp, yg] = ramka;
+            obrazy.push({ r, c: kol, obraz: await zapiszWycinek(s, [xl + 1, yd + 1, xp - 1, yg - 1], katalog, prefiks, `${f.nr}-k${r}-${kol}.webp`) });
+          }
+          bloki.push({ typ: "tabelaTresci", wiersze: t.wiersze, naglowek: t.naglowek, ...(scalone ? { zakresy: t.zakresy } : {}), ...(obrazy.length ? { obrazy } : {}), strona: c.strona });
+        } else if (g.rodzaj === "pominieta") {
+          continue;
         } else if (g.rodzaj === "tabela") {
           bloki.push({ typ: "tabelaTresci", wiersze: g.linie.map((l) => l.seg.map((x) => x.s.normalize("NFKC"))), strona: c.strona });
         } else {
@@ -266,7 +315,7 @@ function akapity(linie) {
     if (nowy) {
       akt = { typ: "akapit", tekst: l.t.tekst, formaty: [...l.t.formaty] };
       if (znacznik) akt.wiszace = l.x + 6;
-      else if (l.seg.length === 2 && /^[–-]\s/.test(l.seg[1].s)) akt.wiszace = l.seg[1].x;
+      else if (l.seg.length === 2 && /^[–−-]\s/.test(l.seg[1].s)) akt.wiszace = l.seg[1].x;
       wynik.push(akt);
     } else {
       const przesun = akt.tekst.length + 1;
@@ -287,4 +336,174 @@ function akapity(linie) {
     delete a.wiszace;
   }
   return wynik;
+}
+
+// ——— Tabele z siatki linii ———
+// Tabela w arkuszu CKE ma narysowane linie. Szukamy ich na wyrenderowanej stronie: poziome to wiersze
+// pikseli z ciemnym tuszem na dużej części szerokości, pionowe szukamy osobno w każdym wierszu tabeli
+// (scalone komórki nagłówka mają krótsze linie). Tekst trafia do komórki, w której leży jego środek.
+
+const ciemny = (d, i) => d[i] + d[i + 1] + d[i + 2] < CIEMNY * 3 && d[i + 3] > 0;
+
+// Kolejne indeksy spełniające warunek sklejamy w jedną linię (środek grubej kreski).
+function sklej(pozycje) {
+  const wynik = [];
+  for (const p of pozycje) {
+    const ost = wynik.at(-1);
+    if (ost && p - ost.do <= 2) ost.do = p;
+    else wynik.push({ od: p, do: p });
+  }
+  return wynik.map((l) => (l.od + l.do) / 2);
+}
+
+const SUP = { 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹", "-": "⁻", "+": "⁺" };
+const SUB = { 0: "₀", 1: "₁", 2: "₂", 3: "₃", 4: "₄", 5: "₅", 6: "₆", 7: "₇", 8: "₈", 9: "₉" };
+// W komórce tabeli wykładniki i indeksy z cyfr zapisujemy znakami Unicode (10⁶, s₁).
+function tekstKomorki({ tekst, formaty }) {
+  let wynik = "";
+  let poz = 0;
+  for (const [od, do_, k] of formaty) {
+    if (k !== "sup" && k !== "sub") continue;
+    const mapa = k === "sup" ? SUP : SUB;
+    const s = tekst.slice(od, do_);
+    if (![...s].every((z) => mapa[z])) continue;
+    wynik += tekst.slice(poz, od) + [...s].map((z) => mapa[z]).join("");
+    poz = do_;
+  }
+  return wynik + tekst.slice(poz);
+}
+
+/**
+ * Tabele z siatki w pasie [dol, gora] (punkty PDF), od góry. Tabela to ciąg sąsiednich wierszy
+ * (między liniami poziomymi), z których każdy ma co najmniej dwie linie pionowe. Każda tabela:
+ * wiersze komórek (tekst), rozpiętość komórek w kolumnach, liczba wierszy nagłówka, zakres pionowy.
+ */
+export function tabeleZSiatki(s, gora, dol, czesci) {
+  const [x0, x1] = KADR_X.map((x) => Math.round(x * SKALA));
+  const szer = x1 - x0;
+  const py0 = Math.max(0, Math.round((s.wys - gora) * SKALA));
+  const py1 = Math.round((s.wys - dol) * SKALA);
+  if (py1 - py0 < 20) return [];
+  const d = s.context.getImageData(x0, py0, szer, py1 - py0).data;
+  const yPdf = (r) => s.wys - (py0 + r) / SKALA;
+  // Poziome linie: najdłuższy ciągły odcinek tuszu w wierszu pikseli.
+  const poziome = [];
+  for (let r = 0; r < py1 - py0; r++) {
+    let bieg = 0;
+    let max = 0;
+    for (let c = 0; c < szer; c++) {
+      if (ciemny(d, (r * szer + c) * 4)) max = Math.max(max, ++bieg);
+      else bieg = 0;
+    }
+    if (max > 0.2 * szer) poziome.push(r);
+  }
+  const linieH = sklej(poziome);
+  // Pionowe linie w każdym pasie między liniami poziomymi.
+  const pasy = [];
+  for (let i = 0; i + 1 < linieH.length; i++) {
+    const r0 = Math.ceil(linieH[i]) + 2;
+    const r1 = Math.floor(linieH[i + 1]) - 2;
+    const pionowe = [];
+    if (r1 - r0 >= 6) {
+      for (let c = 0; c < szer; c++) {
+        let tusz = 0;
+        for (let r = r0; r <= r1; r++) if (ciemny(d, (r * szer + c) * 4)) tusz++;
+        if (tusz >= 0.9 * (r1 - r0 + 1)) pionowe.push(c);
+      }
+    }
+    pasy.push({ gora: linieH[i], dol: linieH[i + 1], linie: sklej(pionowe) });
+  }
+  // Ciągi pasów z siatką to tabele.
+  const tabele = [];
+  let akt = null;
+  for (const p of pasy) {
+    if (p.linie.length >= 2) {
+      if (!akt) tabele.push((akt = []));
+      akt.push(p);
+    } else akt = null;
+  }
+  return tabele.filter((t) => t.length >= 2 || t[0].linie.length >= 3).map((t) => zbudujTabele(t, czesci, { x0, yPdf })).filter(Boolean);
+}
+
+function zbudujTabele(pasy, czesci, { x0, yPdf }) {
+  const granice = sklej([...new Set(pasy.flatMap((w) => w.linie.map(Math.round)))].sort((a, b) => a - b));
+  const wynik = pasy.map((w) => {
+    const yGora = yPdf(w.gora);
+    const yDol = yPdf(w.dol);
+    const komorki = [];
+    for (let k = 0; k + 1 < w.linie.length; k++) {
+      const xl = (x0 + w.linie[k]) / SKALA;
+      const xp = (x0 + w.linie[k + 1]) / SKALA;
+      const wKomorce = czesci.filter((c) => {
+        const sx = c.x + c.w / 2;
+        const sy = c.y + (c.h || 10) * 0.3;
+        return sx > xl && sx < xp && sy < yGora && sy > yDol;
+      });
+      // Linie tekstu w komórce od góry, kawałki w linii od lewej. Najpierw linie z kawałków pełnej
+      // wielkości, potem drobne (wykładniki, indeksy) do najbliższej linii.
+      const linieKomorki = [];
+      const maxH = Math.max(0, ...wKomorce.map((c) => c.h || 0));
+      const drobne = [];
+      for (const c of [...wKomorce].sort((a, b) => b.y - a.y || a.x - b.x)) {
+        if (c.h && c.h < 0.8 * maxH) {
+          drobne.push(c);
+          continue;
+        }
+        const l = linieKomorki.find((x) => Math.abs(x.y - c.y) <= 3.5);
+        if (l) l.czesci.push(c);
+        else linieKomorki.push({ y: c.y, czesci: [c] });
+      }
+      for (const c of drobne) {
+        const l = [...linieKomorki].sort((a, b) => Math.abs(a.y - c.y) - Math.abs(b.y - c.y))[0];
+        if (l && Math.abs(l.y - c.y) <= 8) l.czesci.push(c);
+        else linieKomorki.push({ y: c.y, czesci: [c] });
+      }
+      linieKomorki.sort((a, b) => b.y - a.y);
+      const teksty = linieKomorki.map((l) => {
+        const cz = l.czesci.sort((a, b) => a.x - b.x);
+        const srodek = (cz[0].x + cz.at(-1).x + cz.at(-1).w) / 2;
+        return { tekst: tekstKomorki(tekstLinii(cz)), srodek };
+      });
+      // Ułamek piętrowy: dwie krótkie linie jedna nad drugą, wyśrodkowane („k” nad „2” → k/2).
+      let tekst;
+      if (teksty.length === 2 && teksty.every((t) => t.tekst.length <= 9) && Math.abs(teksty[0].srodek - teksty[1].srodek) < 8) {
+        const [l, m] = teksty.map((t) => (/\s/.test(t.tekst) ? `(${t.tekst})` : t.tekst));
+        tekst = `${l}/${m}`;
+      } else tekst = teksty.map((t) => t.tekst).join(" ").trim();
+      const zakres = granice.filter((g) => g > w.linie[k] + 3 && g < w.linie[k + 1] - 3).length + 1;
+      // Klamra układu, przekreślenia i inne znaki łączone albo wykładnik przed podstawą: tekst tego
+      // nie odda, komórka będzie wycinkiem.
+      const obraz = /[{}̀-ͯ]|^[₀-₉⁰-⁹]/.test(tekst) ? [xl, yDol, xp, yGora] : null;
+      komorki.push({ tekst, zakres, obraz, pogrubiona: wKomorce.length > 0 && wKomorce.filter((c) => c.f === "b").length >= wKomorce.length / 2 });
+    }
+    return komorki;
+  });
+
+  // Rysunki z linii (półki, plansze, schemat bazy, ramki w drzewie) to nie tabele: dużo pustych
+  // komórek, wiersze o różnej szerokości albo jedna kolumna.
+  const wszystkie = wynik.flat();
+  const puste = wszystkie.filter((k) => !k.tekst).length / wszystkie.length;
+  const szerokosci = new Set(wynik.map((w) => w.reduce((n, k) => n + k.zakres, 0)));
+  // Wiersz krótszy o jedną komórkę (np. ostatni wiersz bez kolumny, której w nim nie wypełnia się) jest w porządku.
+  const rozrzut = Math.max(...szerokosci) - Math.min(...szerokosci);
+  if (puste > 0.6 || rozrzut > 1 || Math.max(...wynik.map((w) => w.length)) < 2) return null;
+
+  // Nagłówek: początkowe wiersze bez pustych komórek i bez przełączników P / F, pogrubione albo
+  // opisowe nad wierszem z liczbami.
+  const liczbowa = (k) => /^[-\d\s.,·]+$/.test(k.tekst);
+  let naglowek = 0;
+  while (
+    naglowek < wynik.length - 1 &&
+    wynik[naglowek].every((k) => k.tekst && !/^[PF]$/.test(k.tekst)) &&
+    (wynik[naglowek].some((k) => k.pogrubiona) || (wynik[naglowek].every((k) => !liczbowa(k)) && wynik[naglowek + 1].some(liczbowa)))
+  )
+    naglowek++;
+  return {
+    wiersze: wynik.map((w) => w.map((k) => k.tekst)),
+    zakresy: wynik.map((w) => w.map((k) => k.zakres)),
+    obrazy: wynik.flatMap((w, r) => w.flatMap((k, c) => (k.obraz ? [{ r, c, ramka: k.obraz }] : []))),
+    naglowek: Math.min(naglowek, 3),
+    gora: yPdf(pasy[0].gora),
+    dol: yPdf(pasy.at(-1).dol),
+  };
 }
