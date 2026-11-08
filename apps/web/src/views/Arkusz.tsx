@@ -1,4 +1,4 @@
-import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check, ChevronDown, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
@@ -24,6 +24,7 @@ import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
 import { OmowienieBledow } from "../components/OmowienieBledow";
+import { useTutor } from "../components/TutorContext";
 import { doOmowienia } from "../arkusze/omowienie";
 import { useSession } from "../auth";
 import { useAiReady } from "../ai";
@@ -73,6 +74,46 @@ export function Arkusz() {
   const [omawiany, setOmawiany] = useState<number | null>(null);
   const zacznijOmawianie = () => {
     if (dane && doOmowienia(dane, postep).length) setOmawiany(0);
+  };
+  const { showHints, dismiss: odprawPestke } = useTutor();
+  const lot = useRef<number>();
+  useEffect(() => () => window.clearTimeout(lot.current), []);
+  // Pestka leci do pierwszego zadania z błędem, mówi, od którego zaczynamy, i oddaje
+  // głos karcie omawiania pod tym zadaniem. Najpierw przewijamy, bo przewodnik sam
+  // nie przewija do wskazówki, a na zadanie poza ekranem by nie usiadł.
+  const lecDoBledu = () => {
+    const pierwszy = dane ? doOmowienia(dane, postep)[0] : undefined;
+    if (!pierwszy) return;
+    const nr = pierwszy.zadanie.nr;
+    odprawPestke();
+    setOmawiany(null);
+    document.getElementById(`zadanie-${nr}`)?.scrollIntoView({ block: "start", behavior: "smooth" });
+    window.clearTimeout(lot.current);
+    lot.current = window.setTimeout(() => {
+      showHints(`omow-lot-${Date.now()}`, [{ target: `zadanie-${nr}`, text: `Zaczynamy od zadania ${nr}.`, actions: [] }]);
+      lot.current = window.setTimeout(() => {
+        odprawPestke();
+        setOmawiany(0);
+      }, 1800);
+    }, 700);
+  };
+  // Po sprawdzeniu arkusza Pestka przylatuje do wyniku i pyta, czy poprawiamy błędy.
+  const zaproponujOmowienie = (ile: number) => {
+    window.clearTimeout(lot.current);
+    lot.current = window.setTimeout(
+      () =>
+        showHints(`omow-${Date.now()}`, [
+          {
+            target: "wynik",
+            text: `Przejrzałam arkusz: ${ile === 1 ? "błąd jest w jednym zadaniu" : `błędy są w ${ile} zadaniach`}. Poprawimy?`,
+            actions: [
+              { label: "Tak, poprawmy", primary: true, onClick: lecDoBledu },
+              { label: "Później", onClick: odprawPestke },
+            ],
+          },
+        ]),
+      800,
+    );
   };
   const [params, setParams] = useSearchParams();
   // ?omow=1 (np. z pulpitu) od razu otwiera omawianie błędów sprawdzonego arkusza.
@@ -178,14 +219,12 @@ export function Arkusz() {
       czas: p.czas && zatrzymaj(p.czas),
     }));
     window.scrollTo({ top: 0, behavior: "smooth" });
+    const ile = doOmowienia(dane, postep).length;
+    if (ai && ile) zaproponujOmowienie(ile);
   };
   const odNowa = () => {
     zmien(() => pustyPostep);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-  const sprawdzZadanie = (nr: number) => {
-    const ms = odmierz(ciszaTezLiczy);
-    zmien((p) => dodajCzas({ ...p, sprawdzoneZadania: [...new Set([...p.sprawdzoneZadania, nr])] }, nr, ms));
   };
   // Poprawa zadania: odpowiedzi zostają, znika ocena i samoocena jego pytań.
   const poprawZadanie = (z: Zadanie) =>
@@ -217,13 +256,13 @@ export function Arkusz() {
             limitMin={dane.czas}
             arkusz={dane}
             postep={postep}
-            omow={{ ile: doOmowienia(dane, postep).length, ai, start: zacznijOmawianie }}
+            omow={{ ile: doOmowienia(dane, postep).length, ai, start: lecDoBledu }}
           />
         )}
 
         {dane.zadania.map((z) => (
           <Fragment key={z.nr}>
-            <ZadanieWidok zadanie={z} onSprawdz={() => sprawdzZadanie(z.nr)} onPopraw={() => poprawZadanie(z)} />
+            <ZadanieWidok zadanie={z} onPopraw={() => poprawZadanie(z)} />
             {omawiane?.zadanie.nr === z.nr && (
               <OmowienieBledow
                 key={z.nr}
@@ -320,7 +359,7 @@ function Podsumowanie({
 }) {
   const procent = wynik.mozliwe ? Math.round((wynik.zdobyte / wynik.mozliwe) * 100) : 0;
   return (
-    <section className={styles.summary} aria-live="polite">
+    <section className={styles.summary} aria-live="polite" data-tutor="wynik">
       <span className="label">{wynik.wypowiedzi ? "Wynik bez wypowiedzi pisemnej" : "Wynik"}</span>
       <p className={styles.bigScore}>
         {wynik.zdobyte} <span className="muted">/ {wynik.mozliwe} pkt</span> <span className={styles.percent}>{procent}%</span>
@@ -395,20 +434,19 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
   );
 }
 
-function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSprawdz: () => void; onPopraw: () => void }) {
+function ZadanieWidok({ zadanie, onPopraw }: { zadanie: Zadanie; onPopraw: () => void }) {
   const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis } = useCtx();
   const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
   const wynik = policzPytania(zadanie.pytania, postep.odpowiedzi, postep.samoocena);
-  const odpowiedziane = zadanie.pytania.filter((p) => postep.odpowiedzi[p.nr]?.trim()).length;
 
   // Wypowiedź pisemna: tematy do wyboru i elementy treści trafiają do edytora.
   const pisanie = useMemo(() => (pisemna ? rozbierzPolecenie(zadanie) : null), [pisemna, zadanie]);
   const bloki = pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki;
 
   return (
-    <section className={styles.task} id={`zadanie-${zadanie.nr}`}>
+    <section className={styles.task} id={`zadanie-${zadanie.nr}`} data-tutor={`zadanie-${zadanie.nr}`}>
       <header className={styles.taskHead}>
         <h2 className="h3">Zadanie {zadanie.nr}.</h2>
         <span className="small muted">
@@ -462,38 +500,18 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
         />
       )}
-      {/* Na czas jak na maturze: bez sprawdzania w trakcie, wszystko na końcu, potem omawianie z Pestką. */}
-      {!pisemna && !postep.sprawdzony && !postep.czas && (
+      {/* Sprawdzamy tylko cały arkusz, jak na maturze, a błędy omawia potem Pestka.
+          Zadanie sprawdzone wcześniej (stary zapis postępu albo inne zadanie poprawiane
+          po sprawdzeniu) pokazuje wynik i pozwala wrócić do odpowiedzi. */}
+      {!pisemna && !postep.sprawdzony && gotowe && (
         <div className={styles.taskActions}>
-          {gotowe ? (
-            <>
-              <span className={styles.taskScore}>
-                {wynik.zdobyte} / {wynik.mozliwe} pkt
-                {wynik.doOceny > 0 && <span className="small muted"> · {wynik.doOceny} do twojej oceny</span>}
-              </span>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={onPopraw}>
-                <Pencil size={15} aria-hidden="true" /> Popraw odpowiedzi
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={onSprawdz}
-                disabled={!odpowiedziane}
-                aria-describedby={odpowiedziane ? undefined : `zadanie-${zadanie.nr}-czeka`}
-              >
-                <Check size={16} aria-hidden="true" /> Sprawdź zadanie {zadanie.nr}.
-              </button>
-              {/* Wyszarzony przycisk sam nie mówi, czego brakuje. */}
-              {!odpowiedziane && (
-                <span id={`zadanie-${zadanie.nr}-czeka`} className="small muted">
-                  Odpowiedz na co najmniej jedno pytanie, żeby sprawdzić.
-                </span>
-              )}
-            </>
-          )}
+          <span className={styles.taskScore}>
+            {wynik.zdobyte} / {wynik.mozliwe} pkt
+            {wynik.doOceny > 0 && <span className="small muted"> · {wynik.doOceny} do twojej oceny</span>}
+          </span>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={onPopraw}>
+            <Pencil size={15} aria-hidden="true" /> Popraw odpowiedzi
+          </button>
         </div>
       )}
       {!pisemna && postep.sprawdzony && (
@@ -807,7 +825,7 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
         <span className={styles.qnr}>{p.nr}.</span>
         {p.tresc && <Tekst tekst={p.tresc} wlasny={p.nr} />}
       </div>
-      {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Suwak pytanie={p} />)}
+      {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <PoleLitery pytanie={p} />)}
       {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
@@ -872,31 +890,45 @@ function Opcje({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   );
 }
 
-// Same litery (dopasowanie): segmentowy suwak z przesuwanym wskaźnikiem.
-function Suwak({ pytanie: p }: { pytanie: PytanieZamkniete }) {
+// Litery po kolei (A, B, C…) opisujemy zakresem „A–F”, inne wypisujemy.
+function zakresLiter(litery: string[]) {
+  const poKolei = litery.every((l, i) => i === 0 || l.charCodeAt(0) === litery[i - 1].charCodeAt(0) + 1);
+  return poKolei && litery.length > 2 ? `${litery[0]}–${litery.at(-1)}` : litery.join(", ");
+}
+
+// Same litery (dopasowanie): pole na jedną literę, jak kratka w tabeli odpowiedzi
+// na maturze. Przyjmuje tylko litery z zadania, a po wpisaniu przechodzi do
+// następnego takiego pola, więc tabelę wypełnia się z klawiatury.
+function PoleLitery({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   const { postep, ustaw, sprawdzone } = useCtx();
   const gotowe = sprawdzone(p.nr);
-  const wybrana = postep.odpowiedzi[p.nr] || undefined;
-  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  const wybrana = postep.odpowiedzi[p.nr] ?? "";
+  const zakres = zakresLiter(p.litery);
+  const wpisz = (e: ChangeEvent<HTMLInputElement>) => {
+    const l = e.target.value.slice(-1).toUpperCase();
+    if (l && !p.litery.includes(l)) return;
+    ustaw(p.nr, l);
+    if (!l) return;
+    const pola = [...document.querySelectorAll<HTMLInputElement>("input[data-pole-litery]:not(:disabled)")];
+    pola[pola.indexOf(e.target) + 1]?.focus();
+  };
   return (
-    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={`Pytanie ${p.nr}`}>
-      {ramka && <span className={styles.thumb} style={ramka} aria-hidden="true" />}
-      {p.litery.map((l) => (
-        <button
-          key={l}
-          type="button"
-          role="radio"
-          data-litera={l}
-          aria-checked={wybrana === l}
-          className={styles.segment}
-          data-stan={stanOpcji(p, l, postep, gotowe)}
-          disabled={gotowe}
-          onClick={() => ustaw(p.nr, wybrana === l ? "" : l)}
-        >
-          {l}
-        </button>
-      ))}
-    </div>
+    <span className={styles.letterField}>
+      <input
+        className={styles.letterInput}
+        data-pole-litery=""
+        data-stan={wybrana ? stanOpcji(p, wybrana, postep, gotowe) : undefined}
+        value={wybrana}
+        onChange={wpisz}
+        onFocus={(e) => e.target.select()}
+        disabled={gotowe}
+        aria-label={`Pytanie ${p.nr}: wpisz literę ${zakres}`}
+        autoComplete="off"
+        autoCapitalize="characters"
+        spellCheck={false}
+      />
+      {!gotowe && <span className="small muted">{zakres}</span>}
+    </span>
   );
 }
 
@@ -906,7 +938,7 @@ function WierszTabeli({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   return (
     <div className={styles.row}>
       <span className={styles.qnr}>{p.nr}.</span>
-      <Suwak pytanie={p} />
+      <PoleLitery pytanie={p} />
       {sprawdzone(p.nr) && (
         <span className={styles.rowVerdict} data-werdykt={w}>
           {w === "dobrze" ? <Check size={16} aria-label="dobrze" /> : <X size={16} aria-label="źle" />}
