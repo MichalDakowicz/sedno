@@ -689,7 +689,9 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   const ilePodpunktow = podzial?.podpunkty.length ?? 1;
   const aktywny = podzial ? podzial.podpunkty[Math.min(podpunkt, ilePodpunktow - 1)] : null;
   // Nagłówek podpunktu („Zadanie 12.1 (0–2 pkt)”) zastępuje numer w nagłówku widoku.
-  const bloki = podzial && aktywny ? [...podzial.wstep, ...aktywny.filter((b) => b.typ !== "naglowek")] : uporzadkowane;
+  // Luki z wyborem w tekście ({{29.1}}) z opcjami zadania: opcje idą do prawej kolumny.
+  const opcjeLukTekstu = uporzadkowane.some((b) => b.typ === "akapit" && /\{\{\d+\.\d+\}\}/.test(b.tekst)) ? uporzadkowane.find((b) => b.typ === "opcje") : undefined;
+  const bloki = (podzial && aktywny ? [...podzial.wstep, ...aktywny.filter((b) => b.typ !== "naglowek")] : uporzadkowane).filter((b) => b !== opcjeLukTekstu);
   const numer = (aktywny && numerPodpunktu(aktywny)) ?? String(zadanie.nr);
   // Wykresy opcji A–F na płótnie tylko przy podpunkcie z tabelą przyporządkowania.
   const ustawDodatkowe = useContext(PokazDodatkoweRysunki);
@@ -783,6 +785,15 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   // Luki do wyboru litery: po prawej opcje A–E (rysunek jest na płótnie). Luki do wpisania:
   // po prawej rysunek, bo uczeń odczytuje z niego odpowiedzi.
   const opcjeLuk = [...luki.values()].find((l) => l.opcje && zadanie.pytania.includes(l.pytanie))?.opcje;
+  if (opcjeLukTekstu?.typ === "opcje")
+    return (
+      <div className={styles.obok}>
+        {tresc}
+        <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
+          <ListaOpcjiLiter opcje={opcjeLukTekstu.opcje} pionowo />
+        </div>
+      </div>
+    );
   if (zLukami && opcjeLuk)
     return (
       <div className={styles.obok}>
@@ -1906,10 +1917,23 @@ function WierszTabeli({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 // Luka na brakujące zdanie: kliknięcie rozwija pod nią listę zdań, wybrane
 // zdanie wchodzi w tekst. Bez treści opcji zostaje mały wybór liter.
 function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
-  const { postep, ustaw, sprawdzone, opcjeDla, otwartaLuka, setOtwartaLuka } = useCtx();
+  const { arkusz, postep, ustaw, sprawdzone, opcjeDla, otwartaLuka, setOtwartaLuka } = useCtx();
+  const kompakt = useContext(Kompakt);
   const opcje = opcjeDla(p.nr);
   const gotowe = sprawdzone(p.nr);
   const wybrana = postep.odpowiedzi[p.nr] || "";
+  // Matematyka na pełnym ekranie: w luce przełącznik liter, a opcje stoją w prawej kolumnie.
+  if (kompakt && arkusz.przedmiot === "matematyka")
+    return (
+      <PrzelacznikLiter
+        litery={opcje?.map((o) => o.litera) ?? p.litery}
+        wybrana={wybrana || undefined}
+        poprawna={p.poprawna}
+        gotowe={gotowe}
+        etykieta={`Luka ${p.nr}`}
+        onWybor={(l) => ustaw(p.nr, l)}
+      />
+    );
   const otwarta = otwartaLuka === p.nr && !gotowe;
   const w = gotowe ? werdyktPytania(p, postep) : undefined;
   const tresc = opcje?.find((o) => o.litera === wybrana)?.tresc;
@@ -1936,7 +1960,7 @@ function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
             {tresc && <span className={styles.gapText}>{tresc}</span>}
           </>
         ) : (
-          <span className={styles.gapPrompt}>{opcje ? "wybierz zdanie" : "wybierz"}</span>
+          <span className={styles.gapPrompt}>{!opcje ? "wybierz" : arkusz.przedmiot === "matematyka" ? "wybierz odpowiedź" : "wybierz zdanie"}</span>
         )}
         {!gotowe && <ChevronDown size={14} aria-hidden="true" className={styles.gapChevron} />}
       </button>
