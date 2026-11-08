@@ -13,7 +13,7 @@ import { TutorAvatar } from "./TutorAvatar";
 import chat from "./TutorChat.module.css";
 import styles from "./OmowienieBledow.module.css";
 
-type Wiadomosc = { od: "tutor" | "uczen"; tekst: string };
+export type Wiadomosc = { od: "tutor" | "uczen"; tekst: string };
 type StanPrzykladu = { stan: "laduje" } | { stan: "brak" } | { stan: "gotowy"; zadanie: Przyklad; wybrana?: string };
 
 // Pierwsza wiadomość ucznia nie jest pokazywana: tylko uruchamia omówienie.
@@ -27,6 +27,7 @@ export function OmowienieBledow({
   wszystkich,
   onDalej,
   onWynikPrzykladu,
+  onZapiszRozmowe,
   onZamknij,
 }: {
   arkusz: Arkusz;
@@ -36,9 +37,12 @@ export function OmowienieBledow({
   wszystkich: number;
   onDalej: () => void;
   onWynikPrzykladu: (zadanie: number, wynik: "dobrze" | "zle") => void;
+  onZapiszRozmowe: (zadanie: number, rozmowa: Wiadomosc[]) => void;
   onZamknij: () => void;
 }) {
-  const [rozmowa, setRozmowa] = useState<Wiadomosc[]>([]);
+  // Wcześniejsza rozmowa o tym zadaniu wraca z postępu arkusza (synchronizowanego z kontem).
+  const zapisana = postep.rozmowyOmowien?.[d.zadanie.nr];
+  const [rozmowa, setRozmowa] = useState<Wiadomosc[]>(zapisana ?? []);
   const [mysli, setMysli] = useState(false);
   const [przyklad, setPrzyklad] = useState<StanPrzykladu | null>(null);
   const [szkic, setSzkic] = useState("");
@@ -83,9 +87,14 @@ export function OmowienieBledow({
     kartaRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  // Każde zadanie zaczyna Pestka.
+  // Zapis do postępu, gdy Pestka skończy odpowiadać (nie przy każdym kawałku strumienia).
   useEffect(() => {
-    void zapytaj([]);
+    if (!mysli && rozmowa.length && rozmowa !== zapisana) onZapiszRozmowe(nr, rozmowa);
+  }, [mysli, rozmowa]);
+
+  // Nowe zadanie zaczyna Pestka; do omówionego wcześniej wracamy w miejscu, gdzie rozmowa się skończyła.
+  useEffect(() => {
+    if (!zapisana?.length) void zapytaj([]);
   }, []);
 
   function wyslij(e: FormEvent) {

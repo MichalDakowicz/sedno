@@ -25,6 +25,8 @@ export type Postep = {
   czas?: Czas;
   // Wynik zadania podobnego z omawiania błędów: zrozumiane albo do powtórki. Klucz: numer zadania.
   omowione?: Record<number, "dobrze" | "zle">;
+  // Rozmowy z Pestką z omawiania błędów, żeby po powrocie do zadania były na miejscu. Klucz: numer zadania.
+  rozmowyOmowien?: Record<number, { od: "tutor" | "uczen"; tekst: string }[]>;
   czasZadan?: Record<number, number>; // ms myślenia nad zadaniem, klucz: numer zadania (arkusze/czasZadan.ts)
 };
 
