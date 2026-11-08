@@ -79,12 +79,11 @@ export function podzialKropli(r: DOMRect, rozjazd: number): Promise<void> {
     const kat = (i / 10) * Math.PI * 2 + Math.random() * 0.6;
     return { el: c, kat, v: R * (1.1 + Math.random() * 1.1), r: R * (0.1 + Math.random() * 0.1) };
   });
-  document.body.appendChild(el);
 
   const x0 = W / 2 - rozjazd / 2; // środek pierwszej kropli w układzie nakładki
   const y0 = H / 2;
-  const CZAS = 720;
-  const ROZPRYSK = 420; // ms lotu kropelek od pęknięcia
+  const CZAS = 480;
+  const ROZPRYSK = 360; // ms lotu kropelek od pęknięcia
   // Najpierw powolne rozciąganie (szyjka), potem odskok z przestrzeleniem i odbiciem.
   const odbicie = (t: number) => 1 + 2.4 * (t - 1) ** 3 + 1.4 * (t - 1) ** 2;
   const droga = (p: number) => (p < 0.42 ? 0.38 * (p / 0.42) ** 2 : 0.38 + 0.62 * odbicie((p - 0.42) / 0.58));
@@ -126,7 +125,10 @@ export function podzialKropli(r: DOMRect, rozjazd: number): Promise<void> {
         koniec();
       }
     };
-    requestAnimationFrame(krok);
+    // Pierwsza klatka przed pokazaniem nakładki: bez tego koła przez moment stały w (0, 0),
+    // czyli w lewym górnym rogu nakładki (widoczna „plamka”).
+    krok(t0);
+    document.body.appendChild(el);
   });
 }
 
@@ -166,7 +168,7 @@ export async function rozklejPestke(): Promise<Rozklejenie | null> {
         { transform: "scale(1.12, 0.88) rotate(-5deg)" },
         { transform: "scale(1.06, 0.9) rotate(0deg)" },
       ],
-      { duration: 280, easing: "ease-in-out" },
+      { duration: 200, easing: "ease-in-out" },
     ).finished;
 
     // 2. Podział kropli (szyjka, rozprysk, trzęsące się twarze). Druga kropla wychodzi
@@ -188,28 +190,32 @@ export async function rozklejPestke(): Promise<Rozklejenie | null> {
       { transform: "translateX(2px) rotate(3deg) scale(1.03, 0.98)" },
       { transform: "translateX(0) rotate(0deg) scale(1, 1)" },
     ];
-    await Promise.all([a.animate(drgnij, { duration: 300, easing: "ease-out" }).finished, b.animate(drgnij, { duration: 300, easing: "ease-out", delay: 30 }).finished]);
-    await czekaj(140);
+    await Promise.all([a.animate(drgnij, { duration: 240, easing: "ease-out" }).finished, b.animate(drgnij, { duration: 240, easing: "ease-out", delay: 30 }).finished]);
+    await czekaj(80);
   } catch (e) {
     sprzataj();
     throw e;
   }
 
-  // 4. Druga oddaje miejsce lotowi do karty; pierwsza leci łukiem na spoczynek i ląduje
-  //    z odbiciem, a dopiero wtedy w jej miejscu pojawia się prawdziwa Pestka.
+  // 4. Druga oddaje miejsce lotowi do karty; pierwsza wraca na spoczynek skokiem: przysiada,
+  //    leci prawie prosto (lekko rozciągnięta) i ląduje miękko z dwoma odbiciami, a dopiero
+  //    wtedy w jej miejscu pojawia się prawdziwa Pestka.
   const doKarty = b.firstElementChild!.getBoundingClientRect();
   b.remove();
   const cel = miejsceSpoczynku(r.width);
   const dx = cel.x - r.left;
   const dy = cel.y - r.top;
+  const luk = Math.min(28, Math.hypot(dx, dy) * 0.08);
   const lot = a.animate(
     [
-      { transform: "translate(0, 0) scale(1, 1)" },
-      { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 60}px) scale(0.92, 1.08)`, offset: 0.5 },
-      { transform: `translate(${dx}px, ${dy}px) scale(1.12, 0.88)`, offset: 0.85 },
+      { transform: "translate(0, 0) scale(1, 1)", easing: "ease-out" },
+      { transform: "translate(0, 2px) scale(1.14, 0.86)", offset: 0.12, easing: "cubic-bezier(0.5, 0, 0.6, 1)" },
+      { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - luk}px) scale(0.93, 1.07)`, offset: 0.42, easing: "cubic-bezier(0.3, 0, 0.3, 1)" },
+      { transform: `translate(${dx}px, ${dy}px) scale(1.14, 0.86)`, offset: 0.74, easing: "ease-out" },
+      { transform: `translate(${dx}px, ${dy}px) scale(0.96, 1.04)`, offset: 0.88, easing: "ease-in-out" },
       { transform: `translate(${dx}px, ${dy}px) scale(1, 1)` },
     ],
-    { duration: 760, easing: "cubic-bezier(0.45, 0, 0.3, 1)", fill: "forwards" },
+    { duration: 620, fill: "forwards" },
   );
   const powrot = lot.finished.then(
     () => czekaj(60).then(sprzataj),
