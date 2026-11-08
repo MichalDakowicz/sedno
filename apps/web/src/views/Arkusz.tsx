@@ -42,6 +42,7 @@ type Kontekst = {
   kody: Map<string, WyborKodu>; // odpowiedzi kodem „A albo B oraz 1.–3.” jako wybór
   ukryteKodem: Set<Blok>; // bloki, które pokazują KodZWyborem i PrawdaFalszKod
   pf: Map<string, StwierdzeniaPF>; // odpowiedzi kodem P/F jako przełączniki przy zdaniach
+  dwie: Map<string, WyborDwoch>; // „zapisz dwie odpowiedzi spośród A–F” jako wybór
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
@@ -76,10 +77,15 @@ export function Arkusz() {
     const kody = new Map<string, WyborKodu>();
     const ukryteKodem = new Set<Blok>();
     const pf = new Map<string, StwierdzeniaPF>();
+    const dwie = new Map<string, WyborDwoch>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
       lukiZadania(z)?.forEach((l, b) => luki.set(b, l));
       pytaniaZObliczeniami(z).forEach((nr) => obliczenia.add(nr));
+      wyboryDwoch(z).forEach((w, nr) => {
+        dwie.set(nr, w);
+        w.ukryte.forEach((b) => ukryteKodem.add(b));
+      });
       stwierdzeniaPF(z).forEach((w, nr) => {
         pf.set(nr, w);
         w.ukryte.forEach((b) => ukryteKodem.add(b));
@@ -109,6 +115,7 @@ export function Arkusz() {
       kody,
       ukryteKodem,
       pf,
+      dwie,
       postep,
       pytania,
       wBloku,
@@ -1145,7 +1152,7 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
-  const { luki, lukiKadrow, obliczenia, kody, pf } = useCtx();
+  const { luki, lukiKadrow, obliczenia, kody, pf, dwie } = useCtx();
   const kompakt = useContext(Kompakt);
   const numerWidoku = useContext(NumerWidoku);
   if (p.typ === "wypowiedz") return null;
@@ -1164,8 +1171,9 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
       {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Suwak pytanie={p} />)}
       {p.typ === "otwarte" && kody.has(p.nr) && <KodZWyborem pytanie={p} wybor={kody.get(p.nr)!} />}
       {p.typ === "otwarte" && pf.has(p.nr) && <PrawdaFalszKod pytanie={p} stwierdzenia={pf.get(p.nr)!} />}
+      {p.typ === "otwarte" && dwie.has(p.nr) && <WyborKilku pytanie={p} wybor={dwie.get(p.nr)!} />}
       {obliczenia.has(p.nr) && <p className="small muted">Obliczenia zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && (
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
       <Informacja pytanie={p} />
@@ -1204,6 +1212,88 @@ function usePodswietlenie(wybrana: string | undefined) {
 function kolumnyOpcji(opcje: Opcja[]): 1 | 2 | 4 {
   const dlugosc = Math.max(...opcje.map((o) => o.tresc.replace(/\\[a-zA-Z]+/g, "").replace(/[{}\\()^_$\s]/g, "").length));
   return dlugosc <= 18 ? 4 : dlugosc <= 48 ? 2 : 1;
+}
+
+// Odpowiedź kodem „Zapisz dwie właściwe odpowiedzi spośród oznaczonych literami A–F” (klucz
+// np. „CE”): wszystkie opcje w jednej liście, wybór dwóch, a zdanie „…… oraz ……” wypełnia
+// się wybranymi literami. Kod (litery w kolejności alfabetu) trafia do odpowiedzi dopiero
+// przy dwóch wyborach; wybór w trakcie leży pod kluczem „11.wybor”.
+type WyborDwoch = { zdanie: string; opcje: Opcja[]; ile: number; ukryte: Set<Blok> };
+const OPCJA_W_AKAPICIE = /^([A-Z])\.\s+([\s\S]+)$/;
+
+function wyboryDwoch(z: Zadanie): Map<string, WyborDwoch> {
+  const wynik = new Map<string, WyborDwoch>();
+  let sekcja: Blok[] = [];
+  for (const b of z.bloki) {
+    if (b.typ !== "pytanie") {
+      sekcja.push(b);
+      continue;
+    }
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    const klucz = p?.typ === "otwarte" && p.kod ? p.oczekiwane?.[0] : undefined;
+    const opcje = sekcja.find((x) => x.typ === "opcje");
+    const zdanie = sekcja.find((x) => x.typ === "akapit" && !x.polecenie && ZNACZNIK_LUKI.test(x.tekst));
+    if (klucz && /^[A-Z]{2,}$/.test(klucz) && !/^[PF]+$/.test(klucz) && opcje?.typ === "opcje" && zdanie?.typ === "akapit") {
+      const wAkapitach = sekcja.filter((x) => x.typ === "akapit" && !x.polecenie && OPCJA_W_AKAPICIE.test(x.tekst));
+      const dodatkowe = wAkapitach.map((x) => {
+        const [, litera, tresc] = (x as { tekst: string }).tekst.match(OPCJA_W_AKAPICIE)!;
+        return { litera, tresc };
+      });
+      wynik.set(p!.nr, {
+        zdanie: zdanie.tekst,
+        opcje: [...opcje.opcje, ...dodatkowe].sort((a, c) => a.litera.localeCompare(c.litera)),
+        ile: klucz.length,
+        ukryte: new Set<Blok>([opcje, zdanie, ...wAkapitach]),
+      });
+    }
+    sekcja = [];
+  }
+  return wynik;
+}
+
+function WyborKilku({ pytanie: p, wybor }: { pytanie: PytanieOtwarte; wybor: WyborDwoch }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const wybrane = [...(postep.odpowiedzi[`${p.nr}.wybor`] ?? postep.odpowiedzi[p.nr] ?? "")].filter((l) => wybor.opcje.some((o) => o.litera === l));
+  const klucz = p.oczekiwane?.[0] ?? "";
+  const przelacz = (l: string) => {
+    // Trzeci wybór zastępuje najstarszy, żeby nie trzeba było najpierw odznaczać.
+    const nowe = wybrane.includes(l) ? wybrane.filter((x) => x !== l) : [...wybrane, l].slice(-wybor.ile);
+    ustaw(`${p.nr}.wybor`, nowe.join(""));
+    ustaw(p.nr, nowe.length === wybor.ile ? [...nowe].sort().join("") : "");
+  };
+  const posortowane = [...wybrane].sort();
+  let n = 0;
+  const czesci = wybor.zdanie.split(/(…{2,}|\.{4,})/);
+  return (
+    <div className={styles.wieleWybor}>
+      <p className={styles.para}>
+        {czesci.map((c, i) =>
+          i % 2 ? (
+            <span key={i} className={styles.lukaLitera}>
+              {posortowane[n++] ?? "……"}
+            </span>
+          ) : (
+            <Tekst key={i} tekst={c} />
+          ),
+        )}
+      </p>
+      <div className={styles.choices} data-kolumny="2" role="group" aria-label={`Pytanie ${p.nr}: wybierz ${wybor.ile}`}>
+        {wybor.opcje.map((o) => {
+          const wybrana = wybrane.includes(o.litera);
+          const stan = gotowe ? (klucz.includes(o.litera) ? (wybrana ? "trafiona" : "poprawna") : wybrana ? "bledna" : undefined) : wybrana ? "wybrana" : undefined;
+          return (
+            <button key={o.litera} type="button" role="checkbox" aria-checked={wybrana} className={styles.choice} data-stan={stan} disabled={gotowe} onClick={() => przelacz(o.litera)}>
+              <span className={styles.letter}>{o.litera}</span>
+              <span>
+                <Tekst tekst={o.tresc} />
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 // Odpowiedź kodem P/F („Oceń prawdziwość stwierdzeń 1. i 2.”, klucz np. „PF”): każde

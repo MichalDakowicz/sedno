@@ -1195,3 +1195,28 @@
 .pfWiersz + .pfWiersz {
   border-top: 1px solid var(--line);
 }
+
+/* Wybór kilku opcji (A–F): zdanie z lukami wypełnia się literami, wybrane opcje mają obwódkę. */
+.wieleWybor {
+  display: grid;
+  gap: 10px;
+}
+
+.wieleWybor .choices {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wieleWybor .choice[data-stan="wybrana"] {
+  background: var(--surface);
+  box-shadow: 0 0 0 1.5px var(--primary);
+}
+
+.lukaLitera {
+  display: inline-block;
+  min-width: 2.2em;
+  margin: 0 2px;
+  padding: 0 6px;
+  border-bottom: 1.5px solid var(--primary);
+  font-weight: 600;
+  text-align: center;
+}
