@@ -40,11 +40,14 @@ export function TopNav() {
     };
     const mo = new MutationObserver(zmiana);
     mo.observe(slot, { childList: true });
+    // Zegar daje znać, gdy wyspa chowa się albo wraca bez zmiany w drzewie (odpięcie zegara).
+    window.addEventListener("sedno-wyspa", zmiana);
     const ro = new ResizeObserver(() => (ostatnio = ul.getBoundingClientRect().left));
     ro.observe(document.body);
     return () => {
       mo.disconnect();
       ro.disconnect();
+      window.removeEventListener("sedno-wyspa", zmiana);
     };
   }, []);
 

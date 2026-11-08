@@ -27,7 +27,7 @@ import { OmowienieBledow } from "../components/OmowienieBledow";
 import { doOmowienia } from "../arkusze/omowienie";
 import { useSession } from "../auth";
 import { useAiReady } from "../ai";
-import { uplynelo, zapisCzasu, zatrzymaj, Zegar } from "../components/Zegar";
+import { uplynelo, zapisCzasu, zatrzymaj } from "../components/Zegar";
 import { ustawAktywnyZegar, useAktywnyZegar } from "../arkusze/zegarAktywny";
 import { dodajCzas, minuty, norma, odmierz, opisTempa, tempo, zacznijOdmierzac } from "../arkusze/czasZadan";
 import styles from "./Arkusz.module.css";
@@ -220,7 +220,6 @@ export function Arkusz() {
             omow={{ ile: doOmowienia(dane, postep).length, ai, start: zacznijOmawianie }}
           />
         )}
-        {postep.czas && !postep.sprawdzony && dane.czas && <Zegar arkusz={dane.id} limitMin={dane.czas} czas={postep.czas} onZmien={ustawCzas} />}
 
         {dane.zadania.map((z) => (
           <Fragment key={z.nr}>
@@ -282,22 +281,17 @@ function Naglowek({ arkusz, onNaCzas }: { arkusz: ArkuszDane; onNaCzas?: () => v
         Matura {arkusz.sesja} {arkusz.rok}
       </h1>
       <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>
-      {(arkusz.pdf?.arkusz || arkusz.pdf?.zasady || onNaCzas) && (
+      {(arkusz.pdf?.arkusz || onNaCzas) && (
         <div className={styles.pdfs}>
-          {onNaCzas && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={onNaCzas}>
-              <Timer size={16} aria-hidden="true" /> Rozwiąż na czas
-            </button>
-          )}
           {arkusz.pdf?.arkusz && (
             <a className="btn btn-secondary btn-sm" href={arkusz.pdf?.arkusz} target="_blank" rel="noreferrer">
               <FileText size={16} aria-hidden="true" /> Arkusz PDF
             </a>
           )}
-          {arkusz.pdf?.zasady && (
-            <a className="btn btn-ghost btn-sm" href={arkusz.pdf?.zasady} target="_blank" rel="noreferrer">
-              <FileText size={16} aria-hidden="true" /> Zasady oceniania PDF
-            </a>
+          {onNaCzas && (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={onNaCzas}>
+              <Timer size={16} aria-hidden="true" /> Rozwiąż na czas
+            </button>
           )}
         </div>
       )}
@@ -344,6 +338,12 @@ function Podsumowanie({
         </p>
       )}
       <TempoZadan arkusz={arkusz} postep={postep} />
+      {/* Klucz dopiero po sprawdzeniu: przed rozwiązaniem kusiłby podejrzeniem. */}
+      {arkusz.pdf?.zasady && (
+        <a className="link" href={arkusz.pdf.zasady} target="_blank" rel="noreferrer">
+          <FileText size={16} aria-hidden="true" /> Zasady oceniania PDF
+        </a>
+      )}
       {omow.ile > 0 &&
         (omow.ai ? (
           <button type="button" className="btn btn-primary" onClick={omow.start}>
@@ -453,7 +453,8 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
         />
       )}
-      {!pisemna && !postep.sprawdzony && (
+      {/* Na czas jak na maturze: bez sprawdzania w trakcie, wszystko na końcu, potem omawianie z Pestką. */}
+      {!pisemna && !postep.sprawdzony && !postep.czas && (
         <div className={styles.taskActions}>
           {gotowe ? (
             <>
