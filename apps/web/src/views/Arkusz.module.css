@@ -559,6 +559,11 @@
   min-width: 40px;
 }
 
+/* Fragment nagrania w wierszu tabeli odpowiedzi (zadania ze słuchania). */
+.rowFragment {
+  margin-left: 12px;
+}
+
 .rowVerdict {
   display: inline-flex;
   align-items: center;
