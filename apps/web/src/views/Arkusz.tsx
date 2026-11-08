@@ -43,6 +43,7 @@ type Kontekst = {
   ukryteKodem: Set<Blok>; // bloki, które pokazują KodZWyborem i PrawdaFalszKod
   pf: Map<string, StwierdzeniaPF>; // odpowiedzi kodem P/F jako przełączniki przy zdaniach
   dwie: Map<string, WyborDwoch>; // „zapisz dwie odpowiedzi spośród A–F” jako wybór
+  tabele: Map<string, TabelaDopasowania>; // „Uzupełnij tabelę” literami A–F
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
@@ -78,10 +79,12 @@ export function Arkusz() {
     const ukryteKodem = new Set<Blok>();
     const pf = new Map<string, StwierdzeniaPF>();
     const dwie = new Map<string, WyborDwoch>();
+    const tabele = new Map<string, TabelaDopasowania>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
       lukiZadania(z)?.forEach((l, b) => luki.set(b, l));
       pytaniaZObliczeniami(z).forEach((nr) => obliczenia.add(nr));
+      tabeleDopasowania(z).forEach((t, nr) => tabele.set(nr, t));
       wyboryDwoch(z).forEach((w, nr) => {
         dwie.set(nr, w);
         w.ukryte.forEach((b) => ukryteKodem.add(b));
@@ -116,6 +119,7 @@ export function Arkusz() {
       ukryteKodem,
       pf,
       dwie,
+      tabele,
       postep,
       pytania,
       wBloku,
@@ -624,8 +628,13 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   // Rysunek zadania i tak leży na płótnie brudnopisu: nie powtarzamy go, a wycinek
   // strony z opcjami na rysunku albo z luką zastępujemy jego tekstem.
   const naRysunku = !!zadanie.rysunek && zadanie.pytania.length === 1 && zadanie.pytania[0].typ === "zamkniete" && !zadanie.pytania[0].opcje?.length;
+  const pierwszyNaglowek = wszystkie.findIndex((b) => b.typ === "naglowek");
   const calosc = (zadanie.rysunek ? wszystkie.filter((b) => b.typ !== "rysunek") : wszystkie).flatMap((b) =>
-    b.typ === "kadr" && naRysunku ? (kadrJakoTekst(b.tekst) ?? [b]) : (kadryTekst.get(b) ?? [b]),
+    b.typ === "kadr" && naRysunku
+      ? (kadrJakoTekst(b.tekst) ?? [b])
+      : b.typ === "kadr" && zadanie.rysunek && pierwszyNaglowek > 0 && wszystkie.indexOf(b) < pierwszyNaglowek
+        ? (wstepBezRysunku(b.tekst) ?? [b])
+        : (kadryTekst.get(b) ?? [b]),
   );
   const podzial = zLukami ? null : podzielNaPodpunkty(calosc);
   const [podpunkt, setPodpunkt] = useState(() => (podzial ? startowyPodpunkt(plik, podzial.podpunkty.length) : 0));
@@ -1152,7 +1161,7 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
-  const { luki, lukiKadrow, obliczenia, kody, pf, dwie } = useCtx();
+  const { luki, lukiKadrow, obliczenia, kody, pf, dwie, tabele } = useCtx();
   const kompakt = useContext(Kompakt);
   const numerWidoku = useContext(NumerWidoku);
   if (p.typ === "wypowiedz") return null;
@@ -1172,8 +1181,9 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
       {p.typ === "otwarte" && kody.has(p.nr) && <KodZWyborem pytanie={p} wybor={kody.get(p.nr)!} />}
       {p.typ === "otwarte" && pf.has(p.nr) && <PrawdaFalszKod pytanie={p} stwierdzenia={pf.get(p.nr)!} />}
       {p.typ === "otwarte" && dwie.has(p.nr) && <WyborKilku pytanie={p} wybor={dwie.get(p.nr)!} />}
+      {p.typ === "otwarte" && tabele.has(p.nr) && <TabelaDopasowaniaWidok pytanie={p} tabela={tabele.get(p.nr)!} />}
       {obliczenia.has(p.nr) && <p className="small muted">Obliczenia zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && (
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
       <Informacja pytanie={p} />
@@ -1212,6 +1222,96 @@ function usePodswietlenie(wybrana: string | undefined) {
 function kolumnyOpcji(opcje: Opcja[]): 1 | 2 | 4 {
   const dlugosc = Math.max(...opcje.map((o) => o.tresc.replace(/\\[a-zA-Z]+/g, "").replace(/[{}\\()^_$\s]/g, "").length));
   return dlugosc <= 18 ? 4 : dlugosc <= 48 ? 2 : 1;
+}
+
+// Wstęp zadania jako wycinek strony z tym samym rysunkiem, który leży na płótnie: na pełnym
+// ekranie zostaje sam tekst. Tekst z PDF kończy się podpisami osi („𝑦 10 9 8 … −6”),
+// więc ucinamy go na ostatnim zdaniu przed ciągiem liczb.
+function wstepBezRysunku(tekst: string): Blok[] | null {
+  const osie = tekst.search(/(?:\s+(?:[−-]?\d+(?:[−-]\d+)*|[𝑥𝑦]|[A-F]\.)){6,}/u);
+  if (osie < 0) return null;
+  const koniec = Math.max(tekst.lastIndexOf(".", osie), tekst.lastIndexOf("?", osie), tekst.lastIndexOf("!", osie));
+  return koniec > 0 ? naAkapity(tekst.slice(0, koniec + 1)) : null;
+}
+
+// Tabela przyporządkowania („Fragment wykresu funkcji 𝑦 = 𝑔(𝑥) przedstawiono na rysunku …”,
+// klucz np. „AE”): każdy wiersz ma przełącznik liter A–F, a kod składa się z liter
+// w kolejności wierszy. Wiersze to powtórzenia tego samego początku zdania po poleceniu.
+type TabelaDopasowania = { wiersze: string[]; litery: string[] };
+
+function tabeleDopasowania(z: Zadanie): Map<string, TabelaDopasowania> {
+  const wynik = new Map<string, TabelaDopasowania>();
+  let sekcja: Blok[] = [];
+  for (const b of z.bloki) {
+    if (b.typ !== "pytanie") {
+      sekcja.push(b);
+      continue;
+    }
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    const klucz = p?.typ === "otwarte" && p.kod ? p.oczekiwane?.[0] : undefined;
+    const kadr = sekcja.find((x): x is Blok & { typ: "kadr"; tekst: string } => x.typ === "kadr" && /Uzupełnij tabelę/.test(x.tekst));
+    const zakres = kadr?.tekst.match(/literami ([A-Z])[–-]([A-Z])\./);
+    if (klucz && /^[A-Z]{2,}$/.test(klucz) && kadr && zakres) {
+      const poPoleceniu = kadr.tekst.slice(kadr.tekst.indexOf(zakres[0]) + zakres[0].length);
+      const tresc = poPoleceniu.slice(0, poPoleceniu.search(/\s[A-Z]\.\s/)).trim();
+      const poczatek = tresc.split(/\s+/).slice(0, 3).join(" ");
+      const wiersze = tresc
+        .split(poczatek)
+        .filter((w) => w.trim())
+        .map((w) => `${poczatek}${w}`.trim());
+      const litery = Array.from({ length: zakres[2].charCodeAt(0) - zakres[1].charCodeAt(0) + 1 }, (_, i) => String.fromCharCode(zakres[1].charCodeAt(0) + i));
+      if (wiersze.length === klucz.length) wynik.set(p!.nr, { wiersze, litery });
+    }
+    sekcja = [];
+  }
+  return wynik;
+}
+
+function PrzelacznikLiter({ litery, wybrana, poprawna, gotowe, onWybor, etykieta }: { litery: string[]; wybrana?: string; poprawna?: string; gotowe: boolean; onWybor: (w: string) => void; etykieta: string }) {
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  return (
+    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={etykieta}>
+      {ramka && <span className={styles.thumb} style={ramka} aria-hidden="true" />}
+      {litery.map((l) => (
+        <button
+          key={l}
+          type="button"
+          role="radio"
+          data-litera={l}
+          aria-checked={wybrana === l}
+          className={styles.segment}
+          data-stan={stanCzesci(wybrana, poprawna, l, gotowe)}
+          disabled={gotowe}
+          onClick={() => onWybor(wybrana === l ? "" : l)}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function TabelaDopasowaniaWidok({ pytanie: p, tabela }: { pytanie: PytanieOtwarte; tabela: TabelaDopasowania }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const robocze = postep.odpowiedzi[`${p.nr}.wybor`] ?? postep.odpowiedzi[p.nr] ?? "";
+  const wybory = tabela.wiersze.map((_, i) => (tabela.litery.includes(robocze[i]) ? robocze[i] : undefined));
+  const klucz = p.oczekiwane?.[0] ?? "";
+  const wybierz = (i: number, w: string) => {
+    const nowe = wybory.map((x, j) => (j === i ? w || undefined : x));
+    ustaw(`${p.nr}.wybor`, nowe.map((x) => x ?? "_").join(""));
+    ustaw(p.nr, nowe.every(Boolean) ? nowe.join("") : "");
+  };
+  return (
+    <div className={styles.pfWiersze}>
+      {tabela.wiersze.map((w, i) => (
+        <div key={i} className={styles.pfWiersz}>
+          <p className={styles.para}>{w}</p>
+          <PrzelacznikLiter litery={tabela.litery} wybrana={wybory[i]} poprawna={klucz[i]} gotowe={gotowe} etykieta={w} onWybor={(l) => wybierz(i, l)} />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 // Odpowiedź kodem „Zapisz dwie właściwe odpowiedzi spośród oznaczonych literami A–F” (klucz
