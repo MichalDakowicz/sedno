@@ -1178,3 +1178,20 @@
     padding-left: 0;
   }
 }
+
+/* Stwierdzenia P/F: zdanie po lewej, przełącznik po prawej, wiersze rozdzielone linią. */
+.pfWiersze {
+  display: grid;
+}
+
+.pfWiersz {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 0;
+}
+
+.pfWiersz + .pfWiersz {
+  border-top: 1px solid var(--line);
+}

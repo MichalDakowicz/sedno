@@ -40,7 +40,8 @@ type Kontekst = {
   lukiKadrow: Map<Blok, Luka>;
   obliczenia: Set<string>; // pytania, na które odpowiedzią jest rozwiązanie na płótnie
   kody: Map<string, WyborKodu>; // odpowiedzi kodem „A albo B oraz 1.–3.” jako wybór
-  ukryteKodem: Set<Blok>; // opcje i kawałki zdania, które pokazuje KodZWyborem
+  ukryteKodem: Set<Blok>; // bloki, które pokazują KodZWyborem i PrawdaFalszKod
+  pf: Map<string, StwierdzeniaPF>; // odpowiedzi kodem P/F jako przełączniki przy zdaniach
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
@@ -74,10 +75,15 @@ export function Arkusz() {
     const obliczenia = new Set<string>();
     const kody = new Map<string, WyborKodu>();
     const ukryteKodem = new Set<Blok>();
+    const pf = new Map<string, StwierdzeniaPF>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
       lukiZadania(z)?.forEach((l, b) => luki.set(b, l));
       pytaniaZObliczeniami(z).forEach((nr) => obliczenia.add(nr));
+      stwierdzeniaPF(z).forEach((w, nr) => {
+        pf.set(nr, w);
+        w.ukryte.forEach((b) => ukryteKodem.add(b));
+      });
       kodyZWyborem(z).forEach((w, nr) => {
         kody.set(nr, w);
         w.ukryte.forEach((b) => ukryteKodem.add(b));
@@ -102,6 +108,7 @@ export function Arkusz() {
       obliczenia,
       kody,
       ukryteKodem,
+      pf,
       postep,
       pytania,
       wBloku,
@@ -601,7 +608,7 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
 // Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
 // Zadanie z jednym pytaniem: numer i treść po lewej, odpowiedzi po prawej.
 function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
-  const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow, obliczenia } = useCtx();
+  const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow, obliczenia, pf } = useCtx();
   const plik = `${arkusz.id}-${zadanie.nr}`;
   // Odpowiedzi w lukach zdań: bez kolumny odpowiedzi, po prawej staje rysunek.
   const zLukami = [...luki.values()].some((l) => zadanie.pytania.includes(l.pytanie));
@@ -643,7 +650,8 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
 
   const pytaniaBloki = bloki.filter(czyPytanie);
   // Odpowiedź w luce tekstu (wycinek zamieniony na tekst) nie potrzebuje prawej kolumny.
-  const naPlotnie = pytaniaBloki.length === 1 && pytaniaBloki[0].typ === "pytanie" && obliczenia.has(pytaniaBloki[0].nr);
+  // Rozwiązanie na płótnie i stwierdzenia P/F zostają w głównej kolumnie, bez prawej.
+  const naPlotnie = pytaniaBloki.length === 1 && pytaniaBloki[0].typ === "pytanie" && (obliczenia.has(pytaniaBloki[0].nr) || pf.has(pytaniaBloki[0].nr));
   const obok = pytaniaBloki.length === 1 && !zLukami && !naPlotnie && !bloki.some((b) => lukiKadrow.has(b));
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
@@ -1137,7 +1145,7 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
-  const { luki, lukiKadrow, obliczenia, kody } = useCtx();
+  const { luki, lukiKadrow, obliczenia, kody, pf } = useCtx();
   const kompakt = useContext(Kompakt);
   const numerWidoku = useContext(NumerWidoku);
   if (p.typ === "wypowiedz") return null;
@@ -1155,8 +1163,9 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
       )}
       {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Suwak pytanie={p} />)}
       {p.typ === "otwarte" && kody.has(p.nr) && <KodZWyborem pytanie={p} wybor={kody.get(p.nr)!} />}
+      {p.typ === "otwarte" && pf.has(p.nr) && <PrawdaFalszKod pytanie={p} stwierdzenia={pf.get(p.nr)!} />}
       {obliczenia.has(p.nr) && <p className="small muted">Obliczenia zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && (
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
       <Informacja pytanie={p} />
@@ -1195,6 +1204,92 @@ function usePodswietlenie(wybrana: string | undefined) {
 function kolumnyOpcji(opcje: Opcja[]): 1 | 2 | 4 {
   const dlugosc = Math.max(...opcje.map((o) => o.tresc.replace(/\\[a-zA-Z]+/g, "").replace(/[{}\\()^_$\s]/g, "").length));
   return dlugosc <= 18 ? 4 : dlugosc <= 48 ? 2 : 1;
+}
+
+// Odpowiedź kodem P/F („Oceń prawdziwość stwierdzeń 1. i 2.”, klucz np. „PF”): każde
+// stwierdzenie to wiersz z przełącznikiem P | F, jak tabela w arkuszu CKE. Gotowy kod
+// trafia do odpowiedzi dopiero po wyborze przy wszystkich zdaniach; wybór w trakcie
+// leży pod osobnym kluczem („5.pf”), którego ocena nie widzi.
+type StwierdzeniaPF = { zdania: Blok[][]; ukryte: Set<Blok> };
+
+function stwierdzeniaPF(z: Zadanie): Map<string, StwierdzeniaPF> {
+  const wynik = new Map<string, StwierdzeniaPF>();
+  let sekcja: Blok[] = [];
+  for (const b of z.bloki) {
+    if (b.typ !== "pytanie") {
+      sekcja.push(b);
+      continue;
+    }
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    const klucz = p?.typ === "otwarte" && p.kod ? p.oczekiwane?.[0] : undefined;
+    if (klucz && /^[PF]+$/.test(klucz)) {
+      // Zdanie zaczyna akapit „1. …”, a kolejne akapity bez numeru (wzór w osobnej linii) go dopełniają.
+      const zdania: Blok[][] = [];
+      for (const x of sekcja) {
+        if (x.typ !== "akapit" || x.polecenie) continue;
+        if (/^\d+\.\s/.test(x.tekst)) zdania.push([x]);
+        else if (zdania.length) zdania[zdania.length - 1].push(x);
+      }
+      if (zdania.length === klucz.length) wynik.set(p!.nr, { zdania, ukryte: new Set(zdania.flat()) });
+    }
+    sekcja = [];
+  }
+  return wynik;
+}
+
+function PrzelacznikPF({ wybrana, poprawna, gotowe, onWybor, etykieta }: { wybrana?: string; poprawna?: string; gotowe: boolean; onWybor: (w: string) => void; etykieta: string }) {
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  return (
+    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={etykieta}>
+      {ramka && <span className={styles.thumb} style={ramka} aria-hidden="true" />}
+      {["P", "F"].map((l) => (
+        <button
+          key={l}
+          type="button"
+          role="radio"
+          data-litera={l}
+          aria-checked={wybrana === l}
+          aria-label={l === "P" ? "Prawda" : "Fałsz"}
+          className={styles.segment}
+          data-stan={stanCzesci(wybrana, poprawna, l, gotowe)}
+          disabled={gotowe}
+          onClick={() => onWybor(wybrana === l ? "" : l)}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PrawdaFalszKod({ pytanie: p, stwierdzenia }: { pytanie: PytanieOtwarte; stwierdzenia: StwierdzeniaPF }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const robocze = postep.odpowiedzi[`${p.nr}.pf`] ?? postep.odpowiedzi[p.nr] ?? "";
+  const wybory = stwierdzenia.zdania.map((_, i) => (robocze[i] === "P" || robocze[i] === "F" ? robocze[i] : undefined));
+  const klucz = p.oczekiwane?.[0] ?? "";
+  const wybierz = (i: number, w: string) => {
+    const nowe = wybory.map((x, j) => (j === i ? w || undefined : x));
+    ustaw(`${p.nr}.pf`, nowe.map((x) => x ?? "_").join(""));
+    ustaw(p.nr, nowe.every(Boolean) ? nowe.join("") : "");
+  };
+  return (
+    <div className={styles.pfWiersze}>
+      {stwierdzenia.zdania.map((zdanie, i) => (
+        <div key={i} className={styles.pfWiersz}>
+          <div className={styles.para}>
+            {zdanie.map((b, k) => (
+              <span key={k}>
+                {k > 0 && " "}
+                {b.typ === "akapit" && <Tekst tekst={b.tekst} />}
+              </span>
+            ))}
+          </div>
+          <PrzelacznikPF wybrana={wybory[i]} poprawna={klucz[i]} gotowe={gotowe} etykieta={`Stwierdzenie ${i + 1}: prawda czy fałsz`} onWybor={(w) => wybierz(i, w)} />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 // Odpowiedź kodem „A albo B oraz 1., 2. albo 3.” („Ten ciąg jest … oraz …”): zamiast wpisywać
