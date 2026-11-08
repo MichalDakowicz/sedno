@@ -9,7 +9,7 @@ import { join } from "node:path";
 import { KATALOG_ARKUSZY, KORZEN } from "./sciezki.js";
 
 // Typ bloku jedną literą: po tym aplikacja sprawdza, że bloki w bazie są te same co tutaj.
-export const LITERA = { akapit: "a", naglowek: "n", zrodlo: "z", wzor: "w", rysunek: "r", tabelaTresci: "t", kadr: "k", opcje: "o", pytanie: "p", pytania: "P", tabela: "T" };
+export const LITERA = { akapit: "a", naglowek: "n", zrodlo: "z", wzor: "w", rysunek: "r", tabelaTresci: "t", kadr: "k", opcje: "o", pytanie: "p", pytania: "P", tabela: "T", kod: "c" };
 
 const wynik = {};
 for (const plik of (await readdir(KATALOG_ARKUSZY)).sort()) {

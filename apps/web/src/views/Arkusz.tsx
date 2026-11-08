@@ -883,7 +883,7 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
 type ElementZadania = Blok | PytanieZamkniete[];
 type Czesc = { rodzaj: "czytanie" | "tresc" | "pytania"; elementy: ElementZadania[]; polecenie?: string };
 
-const TRESC = new Set<Blok["typ"]>(["akapit", "wzor", "rysunek", "tabelaTresci", "naglowek", "zrodlo", "kadr"]);
+const TRESC = new Set<Blok["typ"]>(["akapit", "wzor", "rysunek", "tabelaTresci", "naglowek", "zrodlo", "kadr", "kod"]);
 const jestTrescia = (e: ElementZadania | undefined) => !!e && !Array.isArray(e) && TRESC.has(e.typ);
 
 // Polecenie do grupy pytań w środku zadania, np. „For questions 4.1.–4.4.,
@@ -1472,6 +1472,12 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
     case "akapit": {
       const luka = luki.get(blok) ?? (kompakt ? lukiKadrow.get(blok) : undefined);
       if (luka) return <ZdanieZLuka tekst={blok.tekst} luka={luka} />;
+      if (blok.formaty)
+        return (
+          <div className={styles.para}>
+            <TekstFormaty tekst={blok.tekst} formaty={blok.formaty} />
+          </div>
+        );
     }
       return (
         <div className={blok.polecenie ? `${styles.para} ${styles.command}` : styles.para}>
@@ -1535,6 +1541,8 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
       return <Zrodlo tekst={blok.tekst} />;
     case "kadr":
       return <Kadr obraz={blok.obraz} tekst={blok.tekst} />;
+    case "kod":
+      return <pre className={styles.codeBlock}>{blok.tekst}</pre>;
     case "opcje":
       return <OpcjeZadania opcje={blok.opcje} zadanie={zadanie} />;
     case "pytanie": {
@@ -1579,6 +1587,21 @@ function OpcjeZadania({ opcje, zadanie }: { opcje: Opcja[]; zadanie: number }) {
       ))}
     </dl>
   );
+}
+
+// Akapit z informatyki: pogrubienie, kursywa (nazwy funkcji i zmiennych) i krój kodu (nazwy plików, symbole).
+function TekstFormaty({ tekst, formaty }: { tekst: string; formaty: [number, number, "b" | "i" | "m"][] }) {
+  const czesci: ReactNode[] = [];
+  let poz = 0;
+  for (const [od, do_, kroj] of [...formaty].sort((a, b) => a[0] - b[0])) {
+    if (od < poz) continue;
+    if (od > poz) czesci.push(tekst.slice(poz, od));
+    const s = tekst.slice(od, do_);
+    czesci.push(kroj === "b" ? <strong key={od}>{s}</strong> : kroj === "i" ? <em key={od}>{s}</em> : <code key={od} className={styles.inlineCode}>{s}</code>);
+    poz = do_;
+  }
+  if (poz < tekst.length) czesci.push(tekst.slice(poz));
+  return <>{czesci}</>;
 }
 
 // Tekst ze znacznikami luk {{3.1}}.

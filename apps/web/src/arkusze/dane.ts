@@ -7,7 +7,7 @@ import nakladka from "./nakladka.json";
 // Nakładka (npm run nakladka): numery stron PDF i czasy fragmentów nagrań, same liczby bez treści
 // CKE. Uzupełnia arkusz z bazy, dopóki ten nie zostanie wgrany ponownie z nowym importem.
 type Nakladka = Record<string, { z: Record<string, [number, number[], string]>; f?: Record<string, [number, number]> }>;
-const LITERA: Record<Blok["typ"], string> = { akapit: "a", naglowek: "n", zrodlo: "z", wzor: "w", rysunek: "r", tabelaTresci: "t", kadr: "k", opcje: "o", pytanie: "p", pytania: "P", tabela: "T" };
+const LITERA: Record<Blok["typ"], string> = { akapit: "a", naglowek: "n", zrodlo: "z", wzor: "w", rysunek: "r", tabelaTresci: "t", kadr: "k", opcje: "o", pytanie: "p", pytania: "P", tabela: "T", kod: "c" };
 
 export function zNakladka(a: Arkusz): Arkusz {
   const n = (nakladka as unknown as Nakladka)[a.id];

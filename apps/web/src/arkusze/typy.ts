@@ -30,7 +30,9 @@ export const adresObrazu = (src: string) => (src.startsWith("data:") ? src : `/d
 // Teksty matematyki mają wzory LaTeX w \( … \) (renderuje je KaTeX).
 // strona: numer strony w PDF arkusza (importy sprzed podziału na strony go nie mają).
 export type Blok = { strona?: number } & (
-  | { typ: "akapit" | "naglowek" | "zrodlo"; tekst: string; polecenie?: boolean }
+  // formaty (informatyka): zakresy [od, do) tekstu pogrubione (b), kursywą (i) albo krojem kodu (m).
+  | { typ: "akapit" | "naglowek" | "zrodlo"; tekst: string; polecenie?: boolean; formaty?: [number, number, "b" | "i" | "m"][] }
+  | { typ: "kod"; tekst: string } // informatyka: pseudokod albo przykład danych, z wcięciami
   | { typ: "wzor"; tex: string } // wzór w osobnej linii
   | { typ: "rysunek"; obraz: Obraz } // figura wycięta z arkusza PDF
   | { typ: "tabelaTresci"; wiersze: string[][] } // tabela danych w treści zadania

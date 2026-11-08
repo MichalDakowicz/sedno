@@ -1423,3 +1423,17 @@
 .keyRules {
   white-space: pre-line;
 }
+
+/* Informatyka: pseudokod i przykłady danych z arkusza, z wcięciami jak w oryginale. */
+.codeBlock {
+  margin: 0;
+  padding: 12px 16px;
+  overflow-x: auto;
+  border-left: 3px solid var(--line);
+  font: 14px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: pre;
+}
+
+.inlineCode {
+  font: 0.92em ui-monospace, SFMono-Regular, Consolas, monospace;
+}
