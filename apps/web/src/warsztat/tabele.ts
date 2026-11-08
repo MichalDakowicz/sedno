@@ -7,6 +7,7 @@ export type Tabela = {
   kolumny: string[]; // nazwy kolumn SQL (z nagłówka albo pole1, pole2… jak w imporcie Accessa)
   naglowek: string[]; // nagłówek z pliku do podglądu
   liczbowe: boolean[];
+  ulamkowe: boolean[]; // liczby z częścią ułamkową (27,8), w SQL typ real
   wiersze: string[][];
 };
 
@@ -32,7 +33,8 @@ export function tabela(plik: string, tresc: string): Tabela {
   // Powtórzona nazwa po oczyszczeniu dostaje numer.
   const kolumny = nazwy.map((n, i) => (nazwy.indexOf(n) === i ? n : `${n}_${i + 1}`));
   const liczbowe = kolumny.map((_, i) => dane.length > 0 && dane.every((w) => !w[i]?.trim() || LICZBA.test(w[i].trim())));
-  return { nazwa: plik.replace(/\.txt$/i, "").replace(/\W/g, "_"), plik, kolumny, naglowek: naglowek ? pierwszy : kolumny, liczbowe, wiersze: dane };
+  const ulamkowe = kolumny.map((_, i) => liczbowe[i] && dane.some((w) => /[.,]/.test(w[i] ?? "")));
+  return { nazwa: plik.replace(/\.txt$/i, "").replace(/\W/g, "_"), plik, kolumny, naglowek: naglowek ? pierwszy : kolumny, liczbowe, ulamkowe, wiersze: dane };
 }
 
 // „masa [kg]” → masa_kg, „zawartość [%]” → zawartosc

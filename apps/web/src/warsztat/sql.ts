@@ -19,7 +19,9 @@ export async function bazaZadania(pliki: Record<string, string>): Promise<BazaZa
     .filter(([, tresc]) => czyTabelaryczny(tresc))
     .map(([plik, tresc]) => tabela(plik, tresc));
   for (const t of tabele) {
-    db.run(`create table "${t.nazwa}" (${t.kolumny.map((k, i) => `"${k}" ${t.liczbowe[i] ? "numeric" : "text"}`).join(", ")})`);
+    // Kolumna z „27,8” to real, inaczej SQLite zapisze „6,0” jako 6 i podzieli całkowicie (27 * 6 / 100 = 1),
+    // a w Accessie to „Liczba podwójna” i dzielenie zwykłe.
+    db.run(`create table "${t.nazwa}" (${t.kolumny.map((k, i) => `"${k}" ${t.ulamkowe[i] ? "real" : t.liczbowe[i] ? "integer" : "text"}`).join(", ")})`);
     const wstaw = db.prepare(`insert into "${t.nazwa}" values (${t.kolumny.map(() => "?").join(", ")})`);
     db.run("begin");
     for (const w of t.wiersze) wstaw.run(t.kolumny.map((_, i) => (w[i] === undefined || w[i] === "" ? null : t.liczbowe[i] ? liczba(w[i]) : w[i])));
