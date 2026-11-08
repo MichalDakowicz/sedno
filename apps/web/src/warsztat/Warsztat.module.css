@@ -235,3 +235,40 @@ pre.blad {
 .kluczPozycja[data-ok] {
   color: var(--success-strong);
 }
+
+/* Arkusz kalkulacyjny (FortuneSheet) potrzebuje stałej wysokości; można go rozciągnąć za róg. */
+.arkusz {
+  position: relative;
+  height: 480px;
+  min-height: 300px;
+  max-height: 85vh;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  resize: vertical;
+}
+
+.wykres {
+  display: grid;
+  gap: 10px;
+}
+
+.opisyWykresu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.opisyWykresu input {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font: inherit;
+  font-size: 14px;
+}
+
+.plotno {
+  position: relative;
+  height: 340px;
+}

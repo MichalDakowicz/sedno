@@ -12,12 +12,13 @@ import { zgodneZKluczem } from "./klucz";
 import styles from "./Warsztat.module.css";
 
 const EdytorKodu = lazy(() => import("./EdytorKodu"));
+const ArkuszKalkulacyjny = lazy(() => import("./ArkuszKalkulacyjny"));
 
 // Wyniki podpunktów z klucza CKE, z którymi porównujemy wyjście programu albo zapytania.
 type Klucz = { nr: string; oczekiwane: string[] }[];
 
 type Tryb = NonNullable<Zapis["tryb"]>;
-const NAZWY: Record<Tryb, string> = { python: "Python", sql: "SQL", dane: "Dane" };
+const NAZWY: Record<Tryb, string> = { python: "Python", sql: "SQL", arkusz: "Arkusz (Excel)", dane: "Dane" };
 
 type Props = {
   zadanie: Zadanie;
@@ -34,8 +35,10 @@ export function Warsztat({ zadanie, pliki: wszystkie, zip, zapis, onZapis, doWst
   const pliki = useMemo(() => Object.fromEntries((zadanie.pliki ?? []).map((n) => [n, wszystkie[n]] as const)), [zadanie.pliki, wszystkie]);
   const nazwy = Object.keys(pliki);
   const tabelaryczne = nazwy.filter((n) => czyTabelaryczny(pliki[n]));
-  const tryby: Tryb[] = ["python", ...(tabelaryczne.length ? (["sql"] as const) : []), ...(nazwy.length ? (["dane"] as const) : [])];
-  const domyslny: Tryb = zadanie.program ? "python" : zadanie.sql && tabelaryczne.length ? "sql" : tabelaryczne.length ? "dane" : "python";
+  const plikiTabel = useMemo(() => Object.fromEntries(Object.entries(pliki).filter(([, t]) => czyTabelaryczny(t))), [pliki]);
+  const tryby: Tryb[] = ["python", ...(tabelaryczne.length ? (["sql", "arkusz"] as const) : []), ...(nazwy.length ? (["dane"] as const) : [])];
+  // Zadanie z plikami z tabulatorami bez programu i SQL w treści to zadanie z arkusza kalkulacyjnego.
+  const domyslny: Tryb = zadanie.program ? "python" : zadanie.sql && tabelaryczne.length ? "sql" : tabelaryczne.length ? "arkusz" : "python";
   const tryb = zapis?.tryb && tryby.includes(zapis.tryb) ? zapis.tryb : domyslny;
   // Bez plików i bez programu w treści (np. zadanie z rekurencją do prześledzenia) warsztat jest zwinięty.
   const [otwarty, setOtwarty] = useState(() => !!zapis || nazwy.length > 0 || !!zadanie.program);
@@ -70,6 +73,16 @@ export function Warsztat({ zadanie, pliki: wszystkie, zip, zapis, onZapis, doWst
 
       {tryb === "python" && <Python pliki={pliki} kod={zapis?.python ?? poczatekPythona(nazwy)} onKod={(python) => zmien({ python })} doWstawienia={doWstawienia} onWstaw={onWstaw} klucz={klucz} />}
       {tryb === "sql" && <Sql pliki={pliki} kod={zapis?.sql ?? poczatekSql(tabelaryczne)} onKod={(sql) => zmien({ sql })} doWstawienia={doWstawienia} onWstaw={onWstaw} klucz={klucz} />}
+      {tryb === "arkusz" && (
+        <Arkusz
+          pliki={plikiTabel}
+          operacje={zapis?.arkusz}
+          onOperacje={(arkusz) => zmien({ arkusz })}
+          doWstawienia={doWstawienia}
+          onWstaw={onWstaw}
+          klucz={klucz}
+        />
+      )}
       {tryb === "dane" && <Dane pliki={pliki} />}
     </section>
   );
@@ -306,6 +319,20 @@ function ZgodnoscZKluczem({ wyjscie, klucz }: { wyjscie: string; klucz: Klucz })
       ))}
       {!zgodne.some((z) => z.ok) && <span className="small muted">Klucz dotyczy pełnego pliku danych, nie przykładowego.</span>}
     </div>
+  );
+}
+
+function Arkusz({ pliki, operacje, onOperacje, doWstawienia, onWstaw, klucz }: { pliki: Record<string, string>; operacje?: unknown[]; onOperacje: (o: unknown[]) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void; klucz: Klucz }) {
+  const [zaznaczone, setZaznaczone] = useState("");
+  return (
+    <>
+      <Suspense fallback={<div className={styles.arkusz} aria-busy="true" />}>
+        <ArkuszKalkulacyjny pliki={pliki} operacje={operacje as never} onOperacje={onOperacje} onZaznaczenie={setZaznaczone} />
+      </Suspense>
+      {zaznaczone && <pre className={styles.wyjscie}>{zaznaczone}</pre>}
+      <ZgodnoscZKluczem wyjscie={zaznaczone} klucz={klucz} />
+      <Wstaw tekst={zaznaczone} doWstawienia={doWstawienia} onWstaw={onWstaw} />
+    </>
   );
 }
 
