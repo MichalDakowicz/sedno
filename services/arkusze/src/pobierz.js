@@ -1,6 +1,6 @@
 // Pobiera ze strony CKE arkusze i zasady oceniania z języka angielskiego
 // (formuła 2015 i 2023, wszystkie dostępne lata) i z matematyki na poziomie
-// podstawowym (formuła 2023) do data/cke/<rok>/
+// podstawowym i z informatyki (formuła 2023, z plikami danych) do data/cke/<rok>/
 // i zapisuje katalog.json z listą arkuszy, kluczy i adresów nagrań.
 // Pliki CKE nie trafiają do repozytorium (prawa autorskie), patrz .gitignore.
 import { mkdir, writeFile, access } from "node:fs/promises";

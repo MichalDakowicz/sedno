@@ -78,7 +78,9 @@ const akapitowa = (l) => l.seg[0].x <= 90 && l.seg[0].s.length >= 4;
 
 // zRysunkiem: numery fragmentów, w których forma DOCX ma rysunek; tam szukamy
 // figury z niższym progiem wysokości (pojedyncza oś liczbowa ma ok. 26 pt).
-export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {}, zRysunkiem = new Set() }) {
+// bezRysunkow: same kadry (informatyka). format „webp” waży kilka razy mniej niż PNG,
+// co ma znaczenie przy arkuszu złożonym z samych kadrów.
+export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {}, zRysunkiem = new Set(), bezRysunkow = false, format = "png" }) {
   await mkdir(katalog, { recursive: true });
   const strony = new Map();
   const strona = async (n) => {
@@ -107,13 +109,13 @@ export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {}, 
       // Dół kadru to ostatni wiersz z tuszem: jasna kratka na rozwiązanie zostaje poza nim.
       let ostatni = c.gora;
       for (const [y, ciemny] of tusz) if (ciemny) ostatni = Math.min(ostatni, y);
-      const plik = i ? `${f.nr}-${i + 1}.png` : `${f.nr}.png`;
+      const plik = i ? `${f.nr}-${i + 1}.${format}` : `${f.nr}.${format}`;
       // Pasek „Zadanie N. (0–X)” dubluje nagłówek w aplikacji, więc go obcinamy.
       // Zostaje tylko przy podpunktach (12.2), bo tam niesie numer i punktację.
       const gora = c.naglowek && !f.nr.includes(".") ? c.gora - 6 : c.gora + 13;
       f.kadry.push(await zapiszWycinek(s, [KADR_X[0], Math.max(dol, ostatni - 6), KADR_X[1], gora], katalog, prefiks, plik));
 
-      if (f.rysunek || poprawka === null || (poprawka && poprawka.strona !== c.strona)) continue;
+      if (bezRysunkow || f.rysunek || poprawka === null || (poprawka && poprawka.strona !== c.strona)) continue;
       const rysunek = poprawka ? { ramka: poprawka.ramka } : tabelaWyboru ? null : znajdzRysunek(s, c, tusz, zRysunkiem.has(f.nr) ? 20 : MIN_RYSUNEK.wys);
       if (rysunek) f.rysunek = await zapiszWycinek(s, rysunek.ramka, katalog, prefiks, `${f.nr}-rysunek.png`);
     }
@@ -191,7 +193,7 @@ async function zapiszWycinek(s, [x0, y0, x1, y1], katalog, prefiks, plik) {
   const h = Math.round((y1 - y0) * SKALA);
   const cel = s.fabryka.create(w, h);
   cel.context.putImageData(s.context.getImageData(px, py, w, h), 0, 0);
-  await writeFile(join(katalog, plik), cel.canvas.toBuffer("image/png"));
+  await writeFile(join(katalog, plik), plik.endsWith(".webp") ? cel.canvas.toBuffer("image/webp", 80) : cel.canvas.toBuffer("image/png"));
   return { src: `${prefiks}/${plik}`, szer: Math.round(x1 - x0), wys: Math.round(y1 - y0) };
 }
 
@@ -245,7 +247,7 @@ export async function osadzObrazy(zadania, katalog) {
   const cache = new Map();
   const osadz = async (obraz) => {
     if (!obraz || obraz.src.startsWith("data:")) return;
-    if (!cache.has(obraz.src)) cache.set(obraz.src, `data:image/png;base64,${(await readFile(join(katalog, obraz.src))).toString("base64")}`);
+    if (!cache.has(obraz.src)) cache.set(obraz.src, `data:image/${obraz.src.endsWith(".webp") ? "webp" : "png"};base64,${(await readFile(join(katalog, obraz.src))).toString("base64")}`);
     obraz.src = cache.get(obraz.src);
   };
   for (const z of zadania) {
