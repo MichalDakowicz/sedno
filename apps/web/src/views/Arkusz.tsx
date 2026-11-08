@@ -681,10 +681,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   // Odpowiedź w luce tekstu (wycinek zamieniony na tekst) nie potrzebuje prawej kolumny.
   // Rozwiązanie na płótnie i stwierdzenia P/F zostają w głównej kolumnie, bez prawej.
   const naPlotnie = pytaniaBloki.length === 1 && pytaniaBloki[0].typ === "pytanie" && (obliczenia.has(pytaniaBloki[0].nr) || pf.has(pytaniaBloki[0].nr));
-  // Tabela przyporządkowania (wykresy A–F na płótnie): tekst na całą szerokość w trzech szpaltach,
-  // wiersze tabeli obok siebie pod nim, żeby płótno dostało jak najwięcej miejsca.
-  const zTabelaDopasowania = bloki.some((b) => b.typ === "pytanie" && tabele.has(b.nr));
-  const obok = pytaniaBloki.length === 1 && !zLukami && !naPlotnie && !zTabelaDopasowania && !bloki.some((b) => lukiKadrow.has(b));
+  const obok = pytaniaBloki.length === 1 && !zLukami && !naPlotnie && !bloki.some((b) => lukiKadrow.has(b));
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
   const polecenie = zadanie.polecenie.map((p, i) => (
@@ -730,11 +727,9 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
         )}
       </div>
       {polecenie}
-      {/* Tabela przyporządkowania potrzebuje dużo płótna (wykresy A–F), więc tekst nad nim idzie w dwóch szpaltach. */}
-      <div className={zTabelaDopasowania ? `${styles.content} ${styles.szpalty} ${styles.szpalty3}` : obok || zLukami || podzial ? styles.content : `${styles.content} ${styles.szpalty}`}>
-        <BlokiKompakt elementy={grupujPrawdaFalsz(obok || zTabelaDopasowania ? bloki.filter((b) => b !== pytaniaBloki[0]) : bloki, zadanie)} zadanie={zadanie.nr} />
+      <div className={obok || zLukami || podzial ? styles.content : `${styles.content} ${styles.szpalty}`}>
+        <BlokiKompakt elementy={grupujPrawdaFalsz(obok ? bloki.filter((b) => b !== pytaniaBloki[0]) : bloki, zadanie)} zadanie={zadanie.nr} />
       </div>
-      {zTabelaDopasowania && <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />}
       {klucz}
     </div>
   );
@@ -1348,7 +1343,7 @@ function TabelaDopasowaniaWidok({ pytanie: p, tabela }: { pytanie: PytanieOtwart
     ustaw(p.nr, nowe.every(Boolean) ? nowe.join("") : "");
   };
   return (
-    <div className={`${styles.pfWiersze} ${styles.tabelaDopasowania}`}>
+    <div className={styles.pfWiersze}>
       {tabela.wiersze.map((w, i) => (
         <div key={i} className={styles.pfWiersz}>
           <p className={styles.para}>{w}</p>
