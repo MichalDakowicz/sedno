@@ -114,11 +114,14 @@ type Props = {
 function rysunkiBazowe(plik: string, rysunek?: Obraz, dodatkowe: Obraz[] = []): { id: string; plik: string; obraz: Obraz; x: number; y: number }[] {
   const wynik: { id: string; plik: string; obraz: Obraz; x: number; y: number }[] = [];
   if (rysunek) wynik.push({ id: ID_RYSUNKU, plik, obraz: rysunek, x: 0, y: 0 });
-  let x = rysunek ? rysunek.szer * SKALA_RYSUNKU + 60 : 0;
-  const y = 0;
+  // Dodatkowe rysunki (wykresy opcji) w siatce po trzy w rzędzie, w kolejności liter.
+  const x0 = rysunek ? rysunek.szer * SKALA_RYSUNKU + 80 : 0;
+  const kolumny = Math.min(3, dodatkowe.length);
+  const szer = Math.max(0, ...dodatkowe.map((o) => o.szer * SKALA_RYSUNKU));
+  const wys = Math.max(0, ...dodatkowe.map((o) => o.wys * SKALA_RYSUNKU));
   dodatkowe.forEach((obraz, i) => {
-    wynik.push({ id: `${ID_RYSUNKU}-${i + 1}`, plik: `${plik}-${i + 1}`, obraz, x, y });
-    x += obraz.szer * SKALA_RYSUNKU + 40;
+    const [k, w] = [i % kolumny, Math.floor(i / kolumny)];
+    wynik.push({ id: `${ID_RYSUNKU}-${i + 1}`, plik: `${plik}-${i + 1}`, obraz, x: x0 + k * (szer + 40), y: w * (wys + 40) });
   });
   return wynik;
 }
@@ -181,6 +184,68 @@ async function bezTekstuNadWykresami(obraz: Obraz): Promise<Obraz> {
   }
 }
 
+// Wycinek z kilkoma wykresami opcji (A i B obok siebie, C–F w siatce 2 × 2) dzielimy
+// na osobne wykresy wzdłuż pustych pasów między nimi, żeby każda opcja stała na płótnie
+// osobno i w tej samej wielkości.
+async function naWykresy(obraz: Obraz): Promise<Obraz[]> {
+  try {
+    const img = new Image();
+    img.src = obraz.src.startsWith("data:") ? obraz.src : adresObrazu(obraz.src);
+    await img.decode();
+    const [W, H] = [img.naturalWidth, img.naturalHeight];
+    const c = document.createElement("canvas");
+    [c.width, c.height] = [W, H];
+    const ctx = c.getContext("2d");
+    if (!ctx) return [obraz];
+    ctx.drawImage(img, 0, 0);
+    const { data } = ctx.getImageData(0, 0, W, H);
+    const ciemny = (x: number, y: number) => {
+      const i = (y * W + x) * 4;
+      return data[i] + data[i + 1] + data[i + 2] < 600;
+    };
+    // Najszerszy pusty pas w środkowej części (30–70%) osi: tam przebiega podział.
+    const podzial = (dl: number, pusty: (t: number) => boolean) => {
+      let [najlepszy, dlugosc, start] = [-1, 0, -1];
+      for (let t = Math.floor(dl * 0.3); t <= Math.ceil(dl * 0.7); t++) {
+        if (pusty(t)) {
+          if (start < 0) start = t;
+          if (t - start + 1 > dlugosc) [dlugosc, najlepszy] = [t - start + 1, Math.round((start + t) / 2)];
+        } else start = -1;
+      }
+      return dlugosc >= Math.max(4, dl * 0.01) ? najlepszy : -1;
+    };
+    const pustaKolumna = (x: number, y0: number, y1: number) => {
+      for (let y = y0; y < y1; y++) if (ciemny(x, y)) return false;
+      return true;
+    };
+    const pustyWiersz = (y: number, x0: number, x1: number) => {
+      for (let x = x0; x < x1; x++) if (ciemny(x, y)) return false;
+      return true;
+    };
+    const kolumna = podzial(W, (x) => pustaKolumna(x, 0, H));
+    if (kolumna < 0) return [obraz];
+    const wiersz = podzial(H, (y) => pustyWiersz(y, 0, W));
+    const wiersze = wiersz < 0 ? [[0, H]] : [[0, wiersz], [wiersz, H]];
+    const kafelki: Obraz[] = [];
+    for (const [y0, y1] of wiersze)
+      for (const [x0, x1] of [[0, kolumna], [kolumna, W]]) {
+        // Bez białych marginesów wokół wykresu, żeby odstępy w siatce były równe.
+        let [l, p, g, d] = [x1, x0, y1, y0];
+        for (let y = y0; y < y1; y++)
+          for (let x = x0; x < x1; x++)
+            if (ciemny(x, y)) [l, p, g, d] = [Math.min(l, x), Math.max(p, x), Math.min(g, y), Math.max(d, y)];
+        if (p < l) continue;
+        const k = document.createElement("canvas");
+        [k.width, k.height] = [p - l + 9, d - g + 9];
+        k.getContext("2d")!.drawImage(c, -(l - 4), -(g - 4));
+        kafelki.push({ ...obraz, src: k.toDataURL("image/png"), szer: (obraz.szer * k.width) / W, wys: (obraz.wys * k.height) / H });
+      }
+    return kafelki;
+  } catch {
+    return [obraz];
+  }
+}
+
 async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileData | null> {
   try {
     // Data URL z importu idzie wprost do Excalidraw; fetch obsłuży też starszą ścieżkę.
@@ -212,13 +277,21 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
 
   const poczatek = useMemo(
     () => async (): Promise<ExcalidrawInitialDataState> => {
-      const dodatkowe = await Promise.all(dodatkoweRysunki.map(bezTekstuNadWykresami));
+      const kafelki = (await Promise.all(dodatkoweRysunki.map(async (o) => naWykresy(await bezTekstuNadWykresami(o))))).flat();
+      // Każdy wykres opcji w wysokości rysunku zadania, żeby dało się je porównać.
+      const dodatkowe = kafelki.map((k) => {
+        const skala = rysunek ? rysunek.wys / k.wys : 1;
+        return { ...k, szer: k.szer * skala, wys: k.wys * skala };
+      });
       przyciete.current = dodatkowe;
       const bazowe = elementyBazowe(plik, rysunek, dodatkowe);
       const zapisane = (elementy ?? []) as ExcalidrawElement[];
-      // Starszy zapis albo uczeń odblokował i usunął rysunek: brakujące dokładamy z powrotem.
-      const brakujace = bazowe.filter((b) => !zapisane.some((e) => e.id === b.id));
-      const sceny = zapisane.length ? [...brakujace, ...zapisane] : bazowe;
+      // Rysunek zadania zostaje z zapisu (szkic leży na nim), a brakujący dokładamy. Dodatkowe
+      // rysunki układamy zawsze od nowa, bo ich podział i siatka mogły się zmienić.
+      const zapisanyGlowny = zapisane.some((e) => e.id === ID_RYSUNKU);
+      const sceny = zapisane.length
+        ? [...bazowe.filter((b) => b.id !== ID_RYSUNKU || !zapisanyGlowny), ...zapisane.filter((e) => !czyBazowy(e.id) || e.id === ID_RYSUNKU)]
+        : bazowe;
       const pliki = (await Promise.all(rysunkiBazowe(plik, rysunek, dodatkowe).map((r) => wczytajRysunek(r.plik, r.obraz)))).filter((p): p is BinaryFileData => !!p);
       wczytana.current = true;
       return {
