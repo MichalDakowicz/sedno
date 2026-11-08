@@ -39,6 +39,8 @@ type Kontekst = {
   kadryTekst: Map<Blok, Blok[]>; // wycinki z luką jako tekst (tylko pełny ekran)
   lukiKadrow: Map<Blok, Luka>;
   obliczenia: Set<string>; // pytania, na które odpowiedzią jest rozwiązanie na płótnie
+  kody: Map<string, WyborKodu>; // odpowiedzi kodem „A albo B oraz 1.–3.” jako wybór
+  ukryteKodem: Set<Blok>; // opcje i kawałki zdania, które pokazuje KodZWyborem
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
@@ -70,10 +72,16 @@ export function Arkusz() {
     const kadryTekst = new Map<Blok, Blok[]>();
     const lukiKadrow = new Map<Blok, Luka>();
     const obliczenia = new Set<string>();
+    const kody = new Map<string, WyborKodu>();
+    const ukryteKodem = new Set<Blok>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
       lukiZadania(z)?.forEach((l, b) => luki.set(b, l));
       pytaniaZObliczeniami(z).forEach((nr) => obliczenia.add(nr));
+      kodyZWyborem(z).forEach((w, nr) => {
+        kody.set(nr, w);
+        w.ukryte.forEach((b) => ukryteKodem.add(b));
+      });
       z.bloki.forEach((b, i) => {
         const k = kadrZLuka(b, z.bloki[i + 1], z);
         if (!k) return;
@@ -92,6 +100,8 @@ export function Arkusz() {
       kadryTekst,
       lukiKadrow,
       obliczenia,
+      kody,
+      ukryteKodem,
       postep,
       pytania,
       wBloku,
@@ -438,7 +448,8 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
 
   // Wypowiedź pisemna: tematy do wyboru i elementy treści trafiają do edytora.
   const pisanie = useMemo(() => (pisemna ? rozbierzPolecenie(zadanie) : null), [pisemna, zadanie]);
-  const bloki = pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki;
+  const { ukryteKodem } = useCtx();
+  const bloki = (pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki).filter((b) => !ukryteKodem.has(b));
 
   // Treść z odpowiedziami: na stronie i nad brudnopisem na pełnym ekranie.
   const tresc = (
@@ -1126,7 +1137,7 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
-  const { luki, lukiKadrow, obliczenia } = useCtx();
+  const { luki, lukiKadrow, obliczenia, kody } = useCtx();
   const kompakt = useContext(Kompakt);
   const numerWidoku = useContext(NumerWidoku);
   if (p.typ === "wypowiedz") return null;
@@ -1143,8 +1154,9 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
         </div>
       )}
       {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Suwak pytanie={p} />)}
+      {p.typ === "otwarte" && kody.has(p.nr) && <KodZWyborem pytanie={p} wybor={kody.get(p.nr)!} />}
       {obliczenia.has(p.nr) && <p className="small muted">Obliczenia zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && (
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
       <Informacja pytanie={p} />
@@ -1183,6 +1195,102 @@ function usePodswietlenie(wybrana: string | undefined) {
 function kolumnyOpcji(opcje: Opcja[]): 1 | 2 | 4 {
   const dlugosc = Math.max(...opcje.map((o) => o.tresc.replace(/\\[a-zA-Z]+/g, "").replace(/[{}\\()^_$\s]/g, "").length));
   return dlugosc <= 18 ? 4 : dlugosc <= 48 ? 2 : 1;
+}
+
+// Odpowiedź kodem „A albo B oraz 1., 2. albo 3.” („Ten ciąg jest … oraz …”): zamiast wpisywać
+// „B2”, uczeń wybiera w dwóch grupach, a zapis zostaje kodem, więc sprawdzanie z kluczem działa.
+type WyborKodu = { przed: string; miedzy: string; litery: Opcja[]; cyfry: Opcja[]; ukryte: Set<Blok> };
+const NUMEROWANA = /^(\d)\.\s+([\s\S]+)$/;
+
+function kodyZWyborem(z: Zadanie): Map<string, WyborKodu> {
+  const wynik = new Map<string, WyborKodu>();
+  let sekcja: Blok[] = [];
+  for (const b of z.bloki) {
+    if (b.typ !== "pytanie") {
+      sekcja.push(b);
+      continue;
+    }
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    const opcje = sekcja.find((x) => x.typ === "opcje");
+    if (p?.typ === "otwarte" && p.kod && p.oczekiwane?.every((k) => /^[A-Z]\d$/.test(k)) && opcje?.typ === "opcje") {
+      const numerowane = sekcja.filter((x): x is Blok & { typ: "akapit"; tekst: string; polecenie?: boolean } => x.typ === "akapit" && !x.polecenie && NUMEROWANA.test(x.tekst));
+      // Krótkie kawałki zdania: „Ten ciąg jest” przed pierwszą grupą, „oraz” przed drugą.
+      const kawalki = sekcja.filter((x): x is Blok & { typ: "akapit"; tekst: string; polecenie?: boolean } => x.typ === "akapit" && !x.polecenie && !NUMEROWANA.test(x.tekst) && x.tekst.length <= 80);
+      const zdanie = kawalki.slice(-2);
+      if (numerowane.length >= 2)
+        wynik.set(p.nr, {
+          przed: zdanie.length === 2 ? zdanie[0].tekst : "",
+          miedzy: zdanie.length === 2 ? zdanie[1].tekst : (zdanie[0]?.tekst ?? "oraz"),
+          litery: opcje.opcje,
+          cyfry: numerowane.map((x) => {
+            const [, nr, tresc] = x.tekst.match(NUMEROWANA)!;
+            return { litera: nr, tresc };
+          }),
+          ukryte: new Set<Blok>([opcje, ...numerowane, ...zdanie]),
+        });
+    }
+    sekcja = [];
+  }
+  return wynik;
+}
+
+function stanCzesci(wybrana: string | undefined, poprawna: string | undefined, wartosc: string, gotowe: boolean) {
+  if (!gotowe) return wybrana === wartosc ? "wybrana" : undefined;
+  if (wartosc === poprawna) return wybrana === wartosc ? "trafiona" : "poprawna";
+  return wybrana === wartosc ? "bledna" : undefined;
+}
+
+function GrupaKodu({ opcje, wybrana, poprawna, gotowe, onWybor, etykieta }: { opcje: Opcja[]; wybrana?: string; poprawna?: string; gotowe: boolean; onWybor: (w: string) => void; etykieta: string }) {
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  return (
+    <div ref={kontener} className={styles.choices} role="radiogroup" aria-label={etykieta}>
+      {ramka && <span className={styles.highlight} style={ramka} aria-hidden="true" />}
+      {opcje.map((o) => (
+        <button
+          key={o.litera}
+          type="button"
+          role="radio"
+          data-litera={o.litera}
+          aria-checked={wybrana === o.litera}
+          className={styles.choice}
+          data-stan={stanCzesci(wybrana, poprawna, o.litera, gotowe)}
+          disabled={gotowe}
+          onClick={() => onWybor(wybrana === o.litera ? "" : o.litera)}
+        >
+          <span className={styles.letter}>{o.litera}</span>
+          <span>
+            <Tekst tekst={o.tresc} />
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function KodZWyborem({ pytanie: p, wybor }: { pytanie: PytanieOtwarte; wybor: WyborKodu }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const kod = postep.odpowiedzi[p.nr] ?? "";
+  const litera = kod.match(/^[A-Z]/)?.[0];
+  const cyfra = kod.match(/\d+$/)?.[0];
+  const klucz = p.oczekiwane?.[0] ?? "";
+  return (
+    // Jak w arkuszu CKE: jeden wiersz tabeli „Ten ciąg jest | A / B | oraz | 1. / 2. / 3.”.
+    <div className={styles.kodWybor}>
+      <p className={styles.kodTekst}>
+        <Tekst tekst={wybor.przed} />
+      </p>
+      <div>
+        <GrupaKodu opcje={wybor.litery} wybrana={litera} poprawna={klucz[0]} gotowe={gotowe} etykieta={`Pytanie ${p.nr}, pierwsza część`} onWybor={(l) => ustaw(p.nr, `${l}${cyfra ?? ""}`)} />
+      </div>
+      <p className={styles.kodTekst}>
+        <Tekst tekst={wybor.miedzy} />
+      </p>
+      <div>
+        <GrupaKodu opcje={wybor.cyfry} wybrana={cyfra} poprawna={klucz.slice(1)} gotowe={gotowe} etykieta={`Pytanie ${p.nr}, druga część`} onWybor={(c) => ustaw(p.nr, `${litera ?? ""}${c}`)} />
+      </div>
+    </div>
+  );
 }
 
 function Opcje({ pytanie: p }: { pytanie: PytanieZamkniete }) {

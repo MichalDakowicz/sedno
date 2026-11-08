@@ -1146,3 +1146,42 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Odpowiedź kodem jako wiersz tabeli z arkusza: kawałki zdania i dwie grupy wyboru
+   obok siebie, rozdzielone liniami. */
+.kodWybor {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  align-items: center;
+  justify-content: start;
+  width: fit-content;
+  max-width: 100%;
+  border-block: 1px solid var(--line);
+}
+
+.kodWybor > * {
+  padding: 8px 14px;
+}
+
+.kodWybor > * + * {
+  border-left: 1px solid var(--line);
+}
+
+.kodWybor > :first-child {
+  padding-left: 0;
+}
+
+.kodTekst {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .kodWybor {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .kodWybor > :nth-child(3) {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
