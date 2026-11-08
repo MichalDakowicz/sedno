@@ -18,7 +18,8 @@ const CIEMNY = 150;
 const ODSTEP_LINII = 14.7; // typowy odstęp linii tekstu 11 pt w arkuszu
 
 // „dla” tylko jako pętla („dla i = 1, 2, …”), żeby nie łapać zdań w rodzaju „dla tego pliku”.
-const KOD = /←|^(jeżeli|dopóki|wykonuj|w przeciwnym razie|zwróć|wynikiem jest|funkcja|powtarzaj|koniec)\b|^dla [\p{L}_]\w* ?(=|←)|^[\p{L}_][\w]*\([^()]*\)\s*:?$/u;
+// Strzałka tylko jako przypisanie na początku linii („w ← a + b”, „T[i] ← 0”), nie w zdaniu.
+const KOD = /^[\p{L}_][\w]*(?:\[[^\]]*\])*\s*←|^(jeżeli|dopóki|wykonuj|w przeciwnym razie|zwróć|wynikiem jest|funkcja|powtarzaj|koniec)\b|^dla [\p{L}_]\w* ?(=|←)|^[\p{L}_][\w]*\([^()]*\)\s*:?$/u;
 const DO_POMINIECIA = /^[\s.…_]+$|^Odpowiedź:\s*[_.…\s]*$|^Miejsce na/;
 
 // Font Symbol koduje znaki w obszarze prywatnym Unicode (U+F0xx). Najczęstsze w arkuszach
@@ -48,7 +49,8 @@ export function tekstLinii(czesci) {
     s = s.normalize("NFKC");
     if (!s) continue;
     const drobny = bazowa !== undefined && c.h && c.h < 0.8 * maxH && s.trim();
-    const indeks = drobny ? (c.y > bazowa + 1.5 ? "sup" : c.y < bazowa - 0.8 ? "sub" : null) : null;
+    // Indeks dolny bywa prawie na linii bazowej (podstawa systemu: 101112₃), więc drobny znak nie wyżej niż ona to indeks.
+    const indeks = drobny ? (c.y > bazowa + 1.5 ? "sup" : "sub") : null;
     const przerwa = koniec === null ? 0 : c.x - koniec;
     if (tekst && przerwa > 1.2 && !indeks && !tekst.endsWith(" ") && !s.startsWith(" ")) tekst += " ";
     const od = tekst.length;
@@ -68,7 +70,10 @@ export function tekstLinii(czesci) {
 
 function rodzaj(l, lewa) {
   const { tekst } = l.t;
-  if (!tekst || DO_POMINIECIA.test(tekst) || /[_…]{6,}|\.{8,}/.test(tekst)) return "pomin";
+  // Miejsce na odpowiedź (same kropki albo podkreślenia) pomijamy; linia z treścią i kropkami do uzupełnienia
+  // („1201₃ + 2102₉ = ……”) zostaje.
+  const bezKropek = tekst.replace(/[_…]{3,}|\.{4,}/g, "").trim();
+  if (!tekst || DO_POMINIECIA.test(tekst) || bezKropek.length < 3) return "pomin";
   // Znak, którego font Symbol nie zdradza: linia idzie do wycinka (wykładniki i indeksy obsługuje tekstLinii).
   if (tekst.includes("�")) return "trudna";
   // Linia w większości Courierem (dane, „+ + + lub o o o”) albo same liczby (wiersz danych „3000 2000”).

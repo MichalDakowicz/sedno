@@ -1437,3 +1437,49 @@
 .inlineCode {
   font: 0.92em ui-monospace, SFMono-Regular, Consolas, monospace;
 }
+
+/* Informatyka: tabela z komórkami do wpisania. Pole wypełnia komórkę, jak w arkuszu CKE. */
+.fillTable td {
+  vertical-align: middle;
+}
+
+.fillCell {
+  padding: 2px !important;
+}
+
+.fillCell input {
+  width: 100%;
+  min-width: 70px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.fillCell input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.pfCell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.cellImage {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Tabele z informatyki: pierwszy wiersz bez nagłówka nie jest pogrubiony (nagłówek ma własne th). */
+.infTable tr:first-child > td {
+  font-weight: inherit;
+}
+
+/* Tabela „Oceń prawdziwość”: zdania od lewej. */
+.pfTable td {
+  text-align: left;
+}

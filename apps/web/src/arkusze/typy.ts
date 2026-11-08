@@ -27,15 +27,20 @@ export type Obraz = { src: string; szer: number; wys: number };
 // Starsze importy miały ścieżkę względem data/arkusze zamiast data URL.
 export const adresObrazu = (src: string) => (src.startsWith("data:") ? src : `/dane/arkusze/${src}`);
 
+// Krój fragmentu akapitu (informatyka): pogrubienie, kursywa, kod, wykładnik, indeks dolny.
+export type Kroj = "b" | "i" | "m" | "sup" | "sub";
+
 // Teksty matematyki mają wzory LaTeX w \( … \) (renderuje je KaTeX).
 // strona: numer strony w PDF arkusza (importy sprzed podziału na strony go nie mają).
 export type Blok = { strona?: number } & (
   // formaty (informatyka): zakresy [od, do) tekstu pogrubione (b), kursywą (i) albo krojem kodu (m).
-  | { typ: "akapit" | "naglowek" | "zrodlo"; tekst: string; polecenie?: boolean; formaty?: [number, number, "b" | "i" | "m"][] }
+  | { typ: "akapit" | "naglowek" | "zrodlo"; tekst: string; polecenie?: boolean; formaty?: [number, number, Kroj][] }
   | { typ: "kod"; tekst: string } // informatyka: pseudokod albo przykład danych, z wcięciami
   | { typ: "wzor"; tex: string } // wzór w osobnej linii
   | { typ: "rysunek"; obraz: Obraz } // figura wycięta z arkusza PDF
-  | { typ: "tabelaTresci"; wiersze: string[][] } // tabela danych w treści zadania
+  // Tabela danych w treści zadania. Informatyka: naglowek (liczba wierszy nagłówka), zakresy (colspan
+  // komórek), obrazy (komórki jako wycinki) i pytanie: puste komórki albo kolumny P / F to odpowiedź na nie.
+  | { typ: "tabelaTresci"; wiersze: string[][]; naglowek?: number; zakresy?: number[][]; obrazy?: { r: number; c: number; obraz: Obraz }[]; pytanie?: string }
   // Matematyka: zadanie jako obraz, gdy treści nie dało się wziąć z formy DOCX;
   // tekst zostaje jako opis alternatywny.
   | { typ: "kadr"; obraz: Obraz; tekst: string }
@@ -74,6 +79,7 @@ export type PytanieOtwarte = PytanieBaza & {
   opis?: string;
   kod?: boolean; // odpowiedź to kod z liter i cyfr (PF, A2), a nie tekst
   wynik?: boolean; // wynik zadania praktycznego (informatyka): porównanie bez spacji, jednostek i formatu liczb
+  tabela?: boolean; // odpowiedź w komórkach tabeli (informatyka): wiersze sprawdzane z wierszami klucza
 };
 
 export type Wypowiedz = PytanieBaza & { typ: "wypowiedz"; poczatek?: string };

@@ -44,6 +44,13 @@ export function werdykt(p: Pytanie, odpowiedz: string | undefined): Werdykt {
   if (!o) return "pusto";
   if (p.typ === "zamkniete") return o === p.poprawna ? "dobrze" : "zle";
   if (p.typ === "wypowiedz") return "do-oceny";
+  // Tabela (informatyka): każdy wiersz odpowiedzi musi być którymś wierszem rozwiązania z klucza.
+  // Klucz bywa rozbity na linie inaczej niż tabela, więc przy braku zgodności decyduje uczeń.
+  if (p.tabela && p.rozwiazanie) {
+    const klucz = new Set(p.rozwiazanie.split("\n").map(normalizujWynik).filter(Boolean));
+    const wiersze = o.split("\n").map(normalizujWynik).filter(Boolean);
+    return wiersze.length && wiersze.every((w) => klucz.has(w)) ? "dobrze" : "do-oceny";
+  }
   const n = p.wynik ? normalizujWynik(o) : normalizuj(o);
   const zgodne = (lista?: string[]) => lista?.some((x) => (p.wynik ? normalizujWynik(x) : normalizuj(x)) === n) ?? false;
   // Akceptowane wygrywają z odrzuconymi: na listach odrzuconych bywa ta sama

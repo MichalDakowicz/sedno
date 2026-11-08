@@ -10,6 +10,7 @@ import {
   nazwaPrzedmiotu,
   type Arkusz as ArkuszDane,
   type Blok,
+  type Kroj,
   type Obraz,
   type Opcja,
   type Pytanie,
@@ -56,6 +57,7 @@ type Kontekst = {
   tabele: Map<string, TabelaDopasowania>; // „Uzupełnij tabelę” literami A–F
   opcjeNaRysunkach: Map<string, { kadr: Blok; tekst: Blok[] }>; // opcje A–D jako rysunki w wycinku
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
+  wTabeli: Set<string>; // pytania z odpowiedzią w tabeli (komórki do wpisania albo P / F, informatyka)
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
   otwartaLuka: string | null;
@@ -304,6 +306,7 @@ export function Arkusz() {
       dwie,
       tabele,
       opcjeNaRysunkach,
+      wTabeli: new Set(dane.zadania.flatMap((z) => z.bloki.flatMap((b) => (b.typ === "tabelaTresci" && b.pytanie ? [b.pytanie] : [])))),
       postep,
       pytania,
       wBloku,
@@ -1291,15 +1294,26 @@ const czesciOdpowiedzi = (odpowiedz: string | undefined, ile: number) => {
   return Array.from({ length: ile }, (_, i) => czesci[i] ?? "");
 };
 
-function ZdanieZLuka({ tekst, luka, bezOpcji }: { tekst: string; luka: Luka; bezOpcji?: boolean }) {
-  const { postep, ustaw, sprawdzone } = useCtx();
+function ZdanieZLuka({ tekst, luka, bezOpcji, formaty }: { tekst: string; luka: Luka; bezOpcji?: boolean; formaty?: [number, number, Kroj][] }) {
+  const { arkusz, postep, ustaw, sprawdzone } = useCtx();
   const { pytanie: p, czesc, ile } = luka;
   const czesci = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
   const m = tekst.match(ZNACZNIK_LUKI)!;
   const [przed, po] = [tekst.slice(0, m.index), tekst.slice(m.index! + m[0].length)];
+  // Informatyka: formatowanie (indeksy podstaw systemów, kursywa) przycięte do części przed i po luce.
+  const kawalek = (od: number, do_: number) =>
+    formaty ? (
+      <TekstFormaty tekst={tekst.slice(od, do_)} formaty={formaty.filter(([a, b]) => b > od && a < do_).map(([a, b, k]) => [Math.max(a, od) - od, Math.min(b, do_) - od, k] as [number, number, Kroj])} />
+    ) : null;
+  const zapisz = (wartosc: string) => {
+    const nowe = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
+    nowe[czesc] = wartosc.replace(/\n/g, " ");
+    // Puste części na końcu nie liczą się jako odpowiedź.
+    ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
+  };
   return (
     <div className={`${styles.para} ${styles.zdanieLuka}`}>
-      <Tekst tekst={przed} />
+      {kawalek(0, m.index!) ?? <Tekst tekst={przed} />}
       {luka.opcje ? (
         <PrzelacznikLiter
           litery={luka.opcje.map((o) => o.litera)}
@@ -1312,6 +1326,11 @@ function ZdanieZLuka({ tekst, luka, bezOpcji }: { tekst: string; luka: Luka; bez
             ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
           }}
         />
+      ) : arkusz.przedmiot === "informatyka" ? (
+        // Informatyka: zwykłe pole (liczba w innym systemie, wynik), bez klawiatury matematycznej.
+        <span className={styles.inlineGap}>
+          <input type="text" value={czesci[czesc] ?? ""} size={Math.max(12, (czesci[czesc] ?? "").length + 2)} readOnly={sprawdzone(p.nr)} autoComplete="off" spellCheck={false} onChange={(e) => zapisz(e.target.value)} aria-label={`Odpowiedź ${p.nr}, część ${czesc + 1}`} />
+        </span>
       ) : ile === 1 && (p.oczekiwane?.length || p.akceptowane?.length) ? (
         // Odpowiedź porównywana z kluczem jako tekst: zwykłe pole w luce.
         <LukaTekst pytanie={p} bezNumeru />
@@ -1328,7 +1347,7 @@ function ZdanieZLuka({ tekst, luka, bezOpcji }: { tekst: string; luka: Luka; bez
         }}
       />
       )}
-      <Tekst tekst={po} />
+      {kawalek(m.index! + m[0].length, tekst.length) ?? <Tekst tekst={po} />}
       {luka.opcje && czesc === ile - 1 && !bezOpcji && <ListaOpcjiLiter opcje={luka.opcje} />}
     </div>
   );
@@ -1505,7 +1524,7 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
   switch (blok.typ) {
     case "akapit": {
       const luka = luki.get(blok) ?? (kompakt ? lukiKadrow.get(blok) : undefined);
-      if (luka) return <ZdanieZLuka tekst={blok.tekst} luka={luka} />;
+      if (luka) return <ZdanieZLuka tekst={blok.tekst} luka={luka} formaty={blok.formaty} />;
       if (blok.formaty)
         return (
           <div className={styles.para}>
@@ -1523,6 +1542,7 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
     case "rysunek":
       return <Kadr obraz={blok.obraz} tekst="Rysunek do zadania" />;
     case "tabelaTresci":
+      if (blok.naglowek !== undefined || blok.pytanie || blok.zakresy || blok.obrazy) return <TabelaInformatyki blok={blok} />;
       // Na pełnym ekranie wąska, wysoka tabela (Ocena | Liczba uczniów, 6 wierszy) idzie
       // w poprzek: nagłówki w pierwszej kolumnie, wartości obok, więc zajmuje dwa wiersze.
       if (kompakt && blok.wiersze[0]?.length <= 3 && blok.wiersze.length > 3)
@@ -1624,18 +1644,146 @@ function OpcjeZadania({ opcje, zadanie }: { opcje: Opcja[]; zadanie: number }) {
 }
 
 // Akapit z informatyki: pogrubienie, kursywa (nazwy funkcji i zmiennych) i krój kodu (nazwy plików, symbole).
-function TekstFormaty({ tekst, formaty }: { tekst: string; formaty: [number, number, "b" | "i" | "m"][] }) {
+function TekstFormaty({ tekst, formaty }: { tekst: string; formaty: [number, number, Kroj][] }) {
   const czesci: ReactNode[] = [];
   let poz = 0;
   for (const [od, do_, kroj] of [...formaty].sort((a, b) => a[0] - b[0])) {
     if (od < poz) continue;
     if (od > poz) czesci.push(tekst.slice(poz, od));
     const s = tekst.slice(od, do_);
-    czesci.push(kroj === "b" ? <strong key={od}>{s}</strong> : kroj === "i" ? <em key={od}>{s}</em> : <code key={od} className={styles.inlineCode}>{s}</code>);
+    czesci.push(
+      kroj === "b" ? <strong key={od}>{s}</strong> : kroj === "i" ? <em key={od}>{s}</em> : kroj === "sup" ? <sup key={od}>{s}</sup> : kroj === "sub" ? <sub key={od}>{s}</sub> : <code key={od} className={styles.inlineCode}>{s}</code>,
+    );
     poz = do_;
   }
   if (poz < tekst.length) czesci.push(tekst.slice(poz));
   return <>{czesci}</>;
+}
+
+// Tabela z informatyki: nagłówek, scalone komórki, komórki-wycinki. Gdy odpowiedź na pytanie jest
+// w tabeli, puste komórki są polami do wpisania, a kolumny P i F przełącznikiem w każdym wierszu.
+// Wpisane komórki leżą pod kluczem „<nr>:tabela” (JSON), a odpowiedź pytania to wiersze tabeli
+// tekstem (komórki spacją), sprawdzane z wierszami klucza.
+function TabelaInformatyki({ blok }: { blok: Extract<Blok, { typ: "tabelaTresci" }> }) {
+  const { postep, ustaw, sprawdzone, pytania } = useCtx();
+  const naglowek = blok.naglowek ?? 1;
+  const p = blok.pytanie ? pytania.get(blok.pytanie) : undefined;
+  const gotowe = p ? sprawdzone(p.nr) : true;
+  const pf = p?.typ === "otwarte" && p.kod;
+  const obrazy = new Map((blok.obrazy ?? []).map((o) => [`${o.r},${o.c}`, o.obraz]));
+  const klucz = p ? `${p.nr}:tabela` : "";
+  const komorki: Record<string, string> = (() => {
+    try {
+      return p ? JSON.parse(postep.odpowiedzi[klucz] || "{}") : {};
+    } catch {
+      return {};
+    }
+  })();
+  // Wiersze z przełącznikiem P / F, w kolejności, i litera wybrana w każdym.
+  const wierszePF = pf ? blok.wiersze.map((w, r) => (w.includes("P") && w.includes("F") ? r : -1)).filter((r) => r >= 0) : [];
+  const literyPF = (postep.odpowiedzi[p?.nr ?? ""] ?? "").padEnd(wierszePF.length, "_");
+  const poprawnePF = p?.typ === "otwarte" ? p.oczekiwane?.[0] : undefined;
+
+  const wpisz = (r: number, c: number, wartosc: string) => {
+    if (!p) return;
+    const nowe = { ...komorki, [`${r},${c}`]: wartosc };
+    if (!wartosc) delete nowe[`${r},${c}`];
+    ustaw(klucz, JSON.stringify(nowe));
+    // Odpowiedź: wiersze danych, w każdym komórki z treści i wpisane, rozdzielone spacją.
+    const wiersze = blok.wiersze.slice(naglowek).map((w, i) => w.map((k, c) => k || nowe[`${i + naglowek},${c}`] || "").join(" ").trim());
+    ustaw(p.nr, Object.keys(nowe).length ? wiersze.join("\n") : "");
+  };
+  const wybierzPF = (i: number, litera: string) => {
+    if (!p) return;
+    const litery = [...literyPF];
+    litery[i] = litera || "_";
+    const wynik = litery.join("");
+    ustaw(p.nr, /^_+$/.test(wynik) ? "" : wynik);
+  };
+
+  return (
+    <div className={styles.dataTableWrap}>
+      <table className={`${styles.dataTable} ${styles.infTable} ${pf ? styles.pfTable : p ? styles.fillTable : ""}`}>
+        <tbody>
+          {blok.wiersze.map((w, r) => {
+            const iPF = wierszePF.indexOf(r);
+            return (
+              <tr key={r}>
+                {w.map((k, c) => {
+                  const zakres = blok.zakresy?.[r]?.[c] ?? 1;
+                  const obraz = obrazy.get(`${r},${c}`);
+                  if (iPF >= 0 && (k === "P" || k === "F")) {
+                    if (k === "F") return null;
+                    const wybrana = literyPF[iPF] === "_" ? undefined : literyPF[iPF];
+                    return (
+                      <td key={c} colSpan={2} className={styles.pfCell}>
+                        <PrawdaFalszKomorka wybrana={wybrana} poprawna={gotowe ? poprawnePF?.[iPF] : undefined} gotowe={gotowe} onWybor={(l) => wybierzPF(iPF, l)} etykieta={`Zdanie ${iPF + 1}: prawda czy fałsz`} />
+                      </td>
+                    );
+                  }
+                  const tresc = obraz ? <img src={adresObrazu(obraz.src)} alt={k} width={Math.round(obraz.szer * 1.5)} className={styles.cellImage} /> : <Tekst tekst={k} />;
+                  if (r < naglowek)
+                    return (
+                      <th key={c} scope="col" colSpan={zakres}>
+                        {tresc}
+                      </th>
+                    );
+                  if (!k && p && !pf)
+                    return (
+                      <td key={c} colSpan={zakres} className={styles.fillCell}>
+                        <input
+                          type="text"
+                          value={komorki[`${r},${c}`] ?? ""}
+                          readOnly={gotowe}
+                          autoComplete="off"
+                          spellCheck={false}
+                          onChange={(e) => wpisz(r, c, e.target.value)}
+                          aria-label={`Wiersz ${r + 1 - naglowek}, kolumna ${c + 1}`}
+                        />
+                      </td>
+                    );
+                  return (
+                    <td key={c} colSpan={zakres}>
+                      {tresc}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Przełącznik Prawda / Fałsz w wierszu tabeli z informatyki, w stylu przełącznika z angielskiego.
+const PF_PL = [
+  { litera: "P", nazwa: "Prawda", ikona: Check },
+  { litera: "F", nazwa: "Fałsz", ikona: X },
+];
+function PrawdaFalszKomorka({ wybrana, poprawna, gotowe, onWybor, etykieta }: { wybrana?: string; poprawna?: string; gotowe: boolean; onWybor: (l: string) => void; etykieta: string }) {
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  return (
+    <div ref={kontener} className={styles.tfToggle} role="radiogroup" aria-label={etykieta}>
+      {ramka && <span className={styles.tfThumb} style={ramka} aria-hidden="true" />}
+      {PF_PL.map(({ litera, nazwa, ikona: Ikona }) => (
+        <button
+          key={litera}
+          type="button"
+          role="radio"
+          aria-checked={wybrana === litera}
+          className={styles.tfOption}
+          data-stan={stanCzesci(wybrana, poprawna, litera, gotowe)}
+          disabled={gotowe}
+          onClick={() => onWybor(wybrana === litera ? "" : litera)}
+        >
+          <Ikona size={15} strokeWidth={2.4} aria-hidden="true" />
+          {nazwa}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 // Tekst ze znacznikami luk {{3.1}}.
@@ -1739,7 +1887,7 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
-  const { luki, lukiKadrow, obliczenia, kody, pf, dwie, tabele } = useCtx();
+  const { luki, lukiKadrow, obliczenia, kody, pf, dwie, tabele, wTabeli } = useCtx();
   const kompakt = useContext(Kompakt);
   const numerWidoku = useContext(NumerWidoku);
   if (p.typ === "wypowiedz") return null;
@@ -1761,7 +1909,7 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
       {p.typ === "otwarte" && dwie.has(p.nr) && <WyborKilku pytanie={p} wybor={dwie.get(p.nr)!} />}
       {p.typ === "otwarte" && tabele.has(p.nr) && <TabelaDopasowaniaWidok pytanie={p} tabela={tabele.get(p.nr)!} />}
       {obliczenia.has(p.nr) && <p className="small muted">Rozwiązanie zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && (
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && !wTabeli.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
       <Informacja pytanie={p} />
