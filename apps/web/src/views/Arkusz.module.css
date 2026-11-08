@@ -240,12 +240,17 @@
   font-weight: 600;
   transition:
     background-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    font-size 0.15s ease;
 }
 
-.choice[data-stan="wybrana"] .letter {
-  background: var(--primary);
+.choice[data-stan="wybrana"] .letter,
+.pickerOption[aria-selected="true"] .letter {
+  background: var(--primary-strong);
   color: var(--primary-fg);
+  /* Biały na pomarańczu: duży, pogrubiony tekst (WCAG AA dla dużego tekstu). */
+  font-size: 19px;
+  font-weight: 700;
 }
 
 .choice[data-stan="trafiona"] {
@@ -293,8 +298,8 @@
   position: absolute;
   z-index: 0;
   border-radius: var(--r-pill);
-  background: var(--primary);
-  box-shadow: 0 4px 12px rgba(255, 116, 72, 0.3);
+  background: var(--primary-strong);
+  box-shadow: 0 4px 12px rgba(242, 100, 58, 0.3);
   transition:
     left 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
     width 0.25s ease;
@@ -324,6 +329,8 @@
 
 .segment[data-stan="wybrana"] {
   color: var(--primary-fg);
+  font-size: 19px;
+  font-weight: 700;
 }
 
 .segment[data-stan="trafiona"] {
@@ -719,10 +726,6 @@
   background: var(--primary-soft);
 }
 
-.pickerOption[aria-selected="true"] .letter {
-  background: var(--primary);
-  color: var(--primary-fg);
-}
 
 .pickerOption[data-zajeta] > span:nth-child(2) {
   color: var(--subtle);
