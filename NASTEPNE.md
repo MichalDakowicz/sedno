@@ -8,6 +8,7 @@ Dokumentacja wizualna (GitHub Pages z `docs/`): 139 stron w 16 rozdziałach. Pon
 
 ### Do domknięcia z bieżącej pracy
 
+- **Informatyka (gałąź `informatyka`).** Arkusze 2023–2026 z kluczem i plikami danych, warsztat pod zadaniem: Python w przeglądarce (Pyodide z własnego serwera), SQL na tabelach z plików (sql.js, funkcje z Accessa), podgląd danych i pobieranie plików do Excela/Accessa. Na stagingu są tylko 4 arkusze informatyki (`SEDNO_DB=sb-sedno-dev-db npm run wgraj -- informatyka`). Zostało: sprawdzić widok arkusza po zalogowaniu, po scaleniu wgrać arkusze na produkcję (`npm run wgraj -- informatyka`). Dalej: ocena algorytmów i zapytań przez Pestkę (uruchomienie zapytania ucznia i porównanie z wynikiem wzorcowym), wykresy do zadań z arkusza kalkulacyjnego.
 - **Wgrać arkusze z nowego importu.** Strony i czasy fragmentów działają już przez nakładkę (`apps/web/src/arkusze/nakladka.json`, `npm run nakladka`), bez tekstów. Pełny import (`npm run importuj`, potem `npm run wgraj` przez ssh na serwer Michała) doda do bazy też tekst fragmentów pod „Posłuchaj fragmentu”.
 - **Fragmenty nagrań: zrobione 8 listopada.** Whisper przepisał 39 nagrań (`data/nagrania/`), `dopasuj.py` dał fragment 547 z 558 pytań. Zostało: przesłuchać kilka fragmentów na ucho; przy nowym roczniku: `transkrybuj.py`, `dopasuj.py`, `npm run nakladka`.
 - **Rozmowy z Pestką na koncie.** Gotowe na gałęzi `rozmowy-konto` (migracja `0005_rozmowy_pestki.sql`, tabela `tutor_chats`). Zostało: wgrać na staging (`git push origin rozmowy-konto:dev`, przy innych zmianach na `dev` scalić), sprawdzić z `npm run dev:staging` (potrzebny `.env.staging`), potem PR do `main`.
@@ -28,7 +29,6 @@ Dokumentacja wizualna (GitHub Pages z `docs/`): 139 stron w 16 rozdziałach. Pon
 ## 1. Decyzje otwarte
 
 - **Pule arkuszy CKE:** osobne pule na naukę i na egzamin (rekomendacja) czy nauka tylko z wygenerowanych wariantów. Najpierw policzyć arkusze dla angielskiego dwujęzycznego i informatyki w formule 2023.
-- **Przedmiot startowy:** rekomendacja angielski dwujęzyczny, informatyka potem razem z problemem sprawdzania kodu.
 - **Plan nauki do matury** w widgecie „Do matury” czy tylko odliczanie (rekomendacja: opcjonalny widget, ukryty w układzie „nauka”).
 - **Regulamin konkursu:** przeczytać PDF w całości, w szczególności co znaczy „wersja binarna” dla aplikacji webowej, wymagania dotyczące danych użytkowników, Karta Zgłoszenia i Klauzula Informacyjna.
 - **Dane niepełnoletnich:** zgoda opiekuna, czas przechowywania, hosting danych.
@@ -57,7 +57,7 @@ Do uzupełnienia w istniejących formatach:
 ## 3. Silnik, dane i ocena
 
 - **Filar 5, ćwiczenia i warianty:** jak powstaje wariant zadania dla angielskiego i jak go weryfikujemy (klucz wariantu), wersje dla matematyki i informatyki (szablony z parametrami, solvery).
-- **Sprawdzanie kodu (informatyka):** osobny problem: izolowane uruchamianie, porównanie wyników z danymi CKE, SQL, arkusz kalkulacyjny. Zadania praktyczne ocenia się po wynikach, nie po kodzie.
+- **Sprawdzanie kodu (informatyka):** wyniki porównujemy z kluczem, kod uruchamia się w przeglądarce (warsztat). Zostało: ocena algorytmów zapisanych w arkuszu i zapytań SQL (np. uruchomienie zapytania ucznia na danych i porównanie z zapytaniem z klucza), wykresy.
 - **Rubryki innych przedmiotów:** ta sama struktura co dla angielskiego, ale każda wymaga własnej analizy.
 - **Część ustna** angielskiego dwujęzycznego: obsługujemy czy nie.
 - **Waga umiejętności na maturze:** policzyć z kluczy CKE (punkty per kod wymagania). Zasila „Dziś warto”.

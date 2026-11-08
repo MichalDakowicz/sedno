@@ -3,14 +3,67 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sedno – Informatyka: sprawdzanie kodu</title>
+<title>Sedno – Informatyka: warsztat i sprawdzanie</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
-<h1>Informatyka: sprawdzanie kodu</h1>
-<p class="sub">Osobny problem, na później.</p>
-<div class="card"><p>Osobny problem do omówienia po rdzeniu. Zadania praktyczne ocenia się po rzeczywistych wynikach (programu, kwerendy, arkusza), według zasad CKE, które wprost mówią, że punkty zależą od wyników, nie od samego kodu. Wymaga odizolowanego uruchamiania i porównania z danymi CKE. Ta sama architektura „kod liczy, AI klasyfikuje” zostaje, ale z innym źródłem sygnałów.</p></div>
+<h1>Informatyka: warsztat i sprawdzanie</h1>
+<p class="sub">Liczy się wynik, tak jak na maturze. Kod, zapytanie i dane są w przeglądarce, przy zadaniu.</p>
+
+<figure>
+<svg viewBox="0 0 760 300" role="img" aria-label="Zadanie z arkusza i pliki danych trafiają do warsztatu: Python, SQL albo podgląd danych. Wynik idzie do odpowiedzi i jest porównywany z kluczem CKE, a gdy się nie zgadza, uczeń ocenia sam według zasad oceniania.">
+  <defs><marker id="s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="svg-arrow"/></marker></defs>
+  <rect class="svg-node" x="20" y="20" width="220" height="110" rx="6"/>
+  <text class="svg-t" x="36" y="46">Zadanie z arkusza CKE</text>
+  <text class="svg-s" x="36" y="70">treść jako wycinek PDF</text>
+  <text class="svg-s" x="36" y="90">pliki z zipa CKE (dron.txt …)</text>
+  <text class="svg-s" x="36" y="110">do pobrania albo w warsztacie</text>
+
+  <rect class="svg-node-alt" x="280" y="20" width="220" height="150" rx="6"/>
+  <text class="svg-t" x="296" y="46">Warsztat pod zadaniem</text>
+  <text class="svg-s" x="296" y="70">Python: program na plikach</text>
+  <text class="svg-s" x="296" y="90">SQL: tabele z plików (Access)</text>
+  <text class="svg-s" x="296" y="110">Dane: podgląd jak w Excelu</text>
+  <text class="svg-s" x="296" y="130">wszystko w przeglądarce,</text>
+  <text class="svg-s" x="296" y="150">bez serwera i bez CDN</text>
+
+  <rect class="svg-node" x="540" y="20" width="200" height="110" rx="6"/>
+  <text class="svg-t" x="556" y="46">Odpowiedź</text>
+  <text class="svg-s" x="556" y="70">wynik wstawiony z programu</text>
+  <text class="svg-s" x="556" y="90">albo wpisany ręcznie;</text>
+  <text class="svg-s" x="556" y="110">algorytm, zapytanie, tabela</text>
+
+  <rect class="svg-node-ok" x="280" y="200" width="220" height="80" rx="6"/>
+  <text class="svg-t" x="296" y="226">Zgodny z kluczem</text>
+  <text class="svg-s" x="296" y="248">bez spacji, jednostek,</text>
+  <text class="svg-s" x="296" y="266">przecinka i zer po przecinku</text>
+
+  <rect class="svg-node-warn" x="540" y="200" width="200" height="80" rx="6"/>
+  <text class="svg-t" x="556" y="226">Samoocena</text>
+  <text class="svg-s" x="556" y="248">rozwiązanie i zasady CKE</text>
+  <text class="svg-s" x="556" y="266">obok, punkty przyznaje uczeń</text>
+
+  <path class="svg-line" d="M240 75H278" marker-end="url(#s1)"/>
+  <path class="svg-line" d="M500 75H538" marker-end="url(#s1)"/>
+  <path class="svg-line" d="M600 130V185H390V198" marker-end="url(#s1)"/>
+  <path class="svg-line" d="M660 130V198" marker-end="url(#s1)"/>
+</svg>
+</figure>
+
+<h2>Co jest w aplikacji</h2>
+<ul>
+  <li>Arkusze z formuły 2023 (2023–2026). Treść to wycinki z PDF, bo pseudokod, tabele i wykresy giną w tekście. Przy każdym pytaniu jest rozwiązanie i zasady oceniania z klucza CKE.</li>
+  <li>Pod zadaniem z plikami danych jest warsztat. <b>Python</b> działa w przeglądarce (Pyodide), pliki leżą obok programu jak na egzaminie, a wynik można jednym kliknięciem wstawić do odpowiedzi.</li>
+  <li>Zadania z bazy danych: pliki z tabulatorami stają się tabelami SQLite. Zapytanie piszesz jak w widoku SQL Accessa; działają <code>YEAR()</code>, <code>MONTH()</code>, <code>DAY()</code>, <code>MID()</code>, <code>LEN()</code>.</li>
+  <li>Zadania z arkusza kalkulacyjnego: podgląd danych z sortowaniem i pobranie plików do własnego Excela. Obliczenia da się też zrobić w Pythonie albo SQL; wykres uczeń robi u siebie i ocenia sam.</li>
+</ul>
+
+<h2>Do weryfikacji i na później</h2>
+<ul>
+  <li>Zgodność wyniku sprawdzamy tylko dla krótkich wyników. Algorytmy, zapytania i tabele uczeń ocenia sam, z rozwiązaniem obok. Ocena przez Pestkę (czy algorytm działa, czy zapytanie daje ten sam wynik) jest następnym krokiem.</li>
+  <li>Prawa do plików danych CKE: tak jak arkusze, trzymamy je tylko w bazie dla zalogowanych, nie w repozytorium.</li>
+</ul>
 </main>
 <script src="nav.js" defer></script>
 </body>

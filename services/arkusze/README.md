@@ -1,6 +1,6 @@
 # arkusze
 
-Import arkuszy maturalnych CKE do JSON dla aplikacji: język angielski (formuła 2015 i 2023, wszystkie lata dostępne na stronie CKE) i matematyka na poziomie podstawowym (formuła 2023). Na razie bez AI: parser oparty na regułach i układzie tekstu w PDF.
+Import arkuszy maturalnych CKE do JSON dla aplikacji: język angielski (formuła 2015 i 2023, wszystkie lata dostępne na stronie CKE), matematyka na poziomie podstawowym i informatyka (formuła 2023). Na razie bez AI: parser oparty na regułach i układzie tekstu w PDF.
 
 Pliki CKE i wynikowe JSON-y lądują w `data/` w katalogu głównym, który jest w `.gitignore`. Materiały CKE mają prawa autorskie i nie trafiają do repozytorium, dopóki nie ustalimy warunków użycia.
 
@@ -14,6 +14,8 @@ npm run importuj   # JSON-y do data/arkusze/
 npm run kontrola   # spójność danych: klucze, luki, punkty
 npm run wgraj      # data/arkusze/ do tabeli sheets w Supabase (ssh na serwer)
 ```
+
+Na staging: `SEDNO_DB=sb-sedno-dev-db npm run wgraj`. Z prefiksem (`npm run wgraj -- informatyka`) wgrywa tylko pasujące arkusze i nie usuwa pozostałych z bazy.
 
 Aplikacja webowa czyta arkusze z tabeli `sheets` w Supabase (tylko zalogowani), więc po każdym imporcie trzeba je wgrać (`wgraj.js`). Na hosting nie trafiają. Nagrań nie pobieramy: JSON ma adres pliku mp3 na stronie CKE.
 
@@ -46,6 +48,16 @@ Tekst z PDF gubi ułamki, potęgi i pierwiastki. Treść ze wzorami bierzemy wi�
 - Klucz (`kluczMatematyki`): kolumna „Wersja A” tabeli rozwiązań. Pojedyncza litera A–D przy zadaniu „Wybierz właściwą odpowiedź” daje pytanie zamknięte (z opcjami z DOCX); kod (PF, A2, CE) albo krótki wynik daje pytanie otwarte z `oczekiwane`; resztę uczeń ocenia według schematu ze strony `zasadyStrona` w PDF zasad.
 - `kontrola` renderuje każdy wzór przez KaTeX. Podgląd DOCX: `node src/podglad-docx.js <plik.docx> [numery]`.
 - Import tylko matematyki: `node src/importuj.js matematyka`.
+
+## Informatyka
+
+Arkusz bez formy DOCX, a tekst z PDF gubi pseudokod (strzałka przypisania wychodzi jako „•”), tabele i wykresy. Treść każdego fragmentu to więc kadr, jak w matematyce, tylko w WebP (arkusz z samych kadrów waży 1,9–2,5 MB zamiast 4–5 MB w PNG).
+
+- `informatyka.js`, PDF: fragment to „Zadanie N. Tytuł” (wstęp, tytuł trafia do pola `tytul`), „Zadanie N.M. (0–X)” albo „Informacja do zadań …” (osobny fragment bez punktów przed pierwszym z podpunktów). Tabelka egzaminatora stoi na marginesie raz z lewej, raz z prawej. Fragment kończą „Miejsce na obliczenia / zapis algorytmu / zapis zapytania”, „Do oceny oddajesz” i „BRUDNOPIS”.
+- Klucz (`kluczInformatyki`): przy każdym podpunkcie tekst po „Zasady oceniania” i po nagłówku rozwiązania („Rozwiązanie”, „Poprawna odpowiedź”, „Przykładowe rozwiązanie” itd.). Wcięcia pseudokodu odtwarzamy z położenia linii, „•” zamieniamy na „←”. Przypis z podstawą prawną kończy stronę.
+- Typ pytania z rozwiązania: litera A–D przy „Zaznacz właściwą odpowiedź” to pytanie zamknięte, ciąg P/F to kod, krótki wynik (do 8 wierszy, bez pseudokodu i SQL) to `oczekiwane` z `wynik: true` (aplikacja porównuje bez spacji, jednostek i formatu liczb), reszta to samoocena z rozwiązaniem obok.
+- Pliki danych: zip z CKE (`Dane_2305.zip`, od 2024 `Dane-NF-<sesja>.zip`) rozpakowany do pola `dane.pliki` arkusza (UTF-8, w razie błędu Windows-1250). Zadanie dostaje listę plików, o których mówi treść (`pliki`), oraz flagi `program` i `sql`.
+- Import tylko informatyki: `node src/importuj.js informatyka`.
 
 ## Znane ograniczenia
 

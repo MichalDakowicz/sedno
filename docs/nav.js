@@ -193,7 +193,7 @@
    },
    {
     "id": "ocena-informatyka",
-    "title": "Informatyka: sprawdzanie kodu"
+    "title": "Informatyka: warsztat i sprawdzanie"
    },
    {
     "id": "ocena-pytania",
