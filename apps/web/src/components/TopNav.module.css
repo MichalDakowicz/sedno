@@ -32,11 +32,23 @@
   white-space: nowrap;
 }
 
+.srodek {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.wyspa:empty {
+  display: none;
+}
+
 .links {
   position: relative;
   display: flex;
   gap: 4px;
-  margin: 0 auto;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
