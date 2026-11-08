@@ -1,7 +1,7 @@
 // Edytor kodu w warsztacie: Monaco, czyli edytor z VS Code. Python z podpowiedziami Jedi (nazwy,
 // metody, pliki z danymi, parametry funkcji, opis pod kursorem, błędy składni na żywo), SQL
 // z kolorowaniem i nazwami tabel i kolumn. Ctrl+Enter uruchamia.
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { monaco, rozgrzej, sprawdzSkladnie, ustawPliki } from "./monaco";
 import styles from "./Warsztat.module.css";
 
@@ -9,7 +9,7 @@ type Props = {
   wartosc: string;
   jezyk: "python" | "sql";
   onZmiana: (kod: string) => void;
-  onUruchom: () => void;
+  onUruchom: (kod: string) => void;
   etykieta: string;
   // Pliki z danymi zadania (Python podpowiada je w open("…")).
   pliki?: Record<string, string>;
@@ -49,11 +49,12 @@ monaco.languages.registerCompletionItemProvider("sql", {
   },
 });
 
-export default function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, etykieta, pliki, schemat }: Props) {
+function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, etykieta, pliki, schemat }: Props) {
   const miejsce = useRef<HTMLDivElement>(null);
   const edytor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const zwrotne = useRef({ onZmiana, onUruchom });
   zwrotne.current = { onZmiana, onUruchom };
+  const wyslane = useRef(wartosc);
 
   useEffect(() => {
     const model = monaco.editor.createModel(wartosc, jezyk);
@@ -78,11 +79,26 @@ export default function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, etykie
       scrollbar: { alwaysConsumeMouseWheel: false },
     });
     edytor.current = e;
-    e.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => zwrotne.current.onUruchom());
+    // Zapis do postępu przerenderowuje cały arkusz, więc idzie dopiero po chwili bez pisania
+    // (i od razu przy wyjściu z edytora, uruchomieniu i zamknięciu).
+    let zapis: ReturnType<typeof setTimeout> | undefined;
+    const wyslij = () => {
+      clearTimeout(zapis);
+      const kod = model.getValue();
+      if (kod === wyslane.current) return;
+      wyslane.current = kod;
+      zwrotne.current.onZmiana(kod);
+    };
+    e.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      wyslij();
+      zwrotne.current.onUruchom(model.getValue());
+    });
+    const rozmycie = e.onDidBlurEditorText(wyslij);
 
     let czas: ReturnType<typeof setTimeout> | undefined;
     const zmiany = model.onDidChangeContent(() => {
-      zwrotne.current.onZmiana(model.getValue());
+      clearTimeout(zapis);
+      zapis = setTimeout(wyslij, 600);
       if (jezyk !== "python") return;
       clearTimeout(czas);
       czas = setTimeout(() => void sprawdzSkladnie(model), 500);
@@ -98,6 +114,8 @@ export default function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, etykie
     }
     return () => {
       clearTimeout(czas);
+      wyslij();
+      rozmycie.dispose();
       zmiany.dispose();
       e.dispose();
       model.dispose();
@@ -116,11 +134,18 @@ export default function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, etykie
     if (model && schemat) schematy.set(model, schemat);
   }, [schemat]);
 
-  // Zmiana z zewnątrz (np. wczytany postęp z konta) podmienia treść, gdy różni się od edytora.
+  // Zmiana z zewnątrz (np. wczytany postęp z konta) podmienia treść. Wartość, którą edytor sam
+  // wysłał, nie wraca do niego (przy opóźnionym zapisie cofnęłaby świeżo wpisane znaki).
   useEffect(() => {
     const model = edytor.current?.getModel();
-    if (model && model.getValue() !== wartosc) model.setValue(wartosc);
+    if (model && wartosc !== wyslane.current && model.getValue() !== wartosc) {
+      wyslane.current = wartosc;
+      model.setValue(wartosc);
+    }
   }, [wartosc]);
 
   return <div ref={miejsce} className={styles.edytor} />;
 }
+
+// Rerender strony (np. po zapisie postępu) nie dotyka edytora, dopóki nie zmienią się jego dane.
+export default memo(EdytorKodu, (a, b) => a.wartosc === b.wartosc && a.jezyk === b.jezyk && a.pliki === b.pliki && a.schemat === b.schemat && a.etykieta === b.etykieta);

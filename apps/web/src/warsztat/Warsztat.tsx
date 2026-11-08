@@ -2,13 +2,15 @@
 // Python (program), SQL (baza danych jak w Accessie), podgląd danych (jak w arkuszu
 // kalkulacyjnym) i pliki z zipa CKE do pobrania, gdy uczeń woli własny Excel czy Access.
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Check, Download, ExternalLink, Minus, Play, Square } from "lucide-react";
+import { Check, Download, ExternalLink, Minus, Play, Square, Table2, X } from "lucide-react";
+import { createPortal } from "react-dom";
 import type { Warsztat as Zapis } from "../arkusze/postep";
 import type { Zadanie } from "../arkusze/typy";
 import { pythonGotowy, uruchom, zatrzymaj, type Zdarzenie } from "./python";
 import type { BazaZadania, WynikSql } from "./sql";
 import { czyTabelaryczny, tabela, type Tabela } from "./tabele";
 import { zgodneZKluczem } from "./klucz";
+import { Widoczny } from "./Widoczny";
 import styles from "./Warsztat.module.css";
 
 const EdytorKodu = lazy(() => import("./EdytorKodu"));
@@ -175,11 +177,12 @@ function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz }: { pliki: Re
   // Wątek należy do strony; wyjście z arkusza go kończy.
   useEffect(() => () => zatrzymaj(), []);
 
-  const start = () => {
+  // Ctrl+Enter podaje kod prosto z edytora (zapis do postępu idzie z opóźnieniem).
+  const start = (zEdytora?: unknown) => {
     if (dziala) return;
     setSekundy(0);
     setPrzebieg({ stan: pythonGotowy() ? "dziala" : "ladowanie", wyjscie: [], utworzone: {} });
-    uruchom(kodRef.current, pliki, (z: Zdarzenie) =>
+    uruchom(typeof zEdytora === "string" ? zEdytora : kodRef.current, pliki, (z: Zdarzenie) =>
       setPrzebieg((p) => {
         if (!p) return p;
         if (z.typ === "gotowy") return { ...p, stan: "dziala" };
@@ -198,9 +201,11 @@ function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz }: { pliki: Re
   const stdout = przebieg?.wyjscie.filter((w) => !w.blad).map((w) => w.tekst).join("") ?? "";
   return (
     <div className={styles.narzedzie}>
+      <Widoczny wysokosc={342}>
       <Suspense fallback={<div className={styles.edytor} aria-busy="true" />}>
         <EdytorKodu wartosc={kod} jezyk="python" pliki={pliki} onZmiana={onKod} onUruchom={start} etykieta="Kod w Pythonie" />
       </Suspense>
+      </Widoczny>
       <div className={styles.akcje}>
         {dziala ? (
           <button type="button" className="btn btn-secondary btn-sm" onClick={stop}>
@@ -260,7 +265,7 @@ function Sql({ pliki, kod, onKod, doWstawienia, onWstaw, klucz }: { pliki: Recor
   }, [pliki]);
 
   const schemat = useMemo(() => (baza ? Object.fromEntries(baza.tabele.map((t) => [t.nazwa, t.kolumny])) : undefined), [baza]);
-  const start = () => baza && setWyniki(baza.zapytaj(kodRef.current));
+  const start = (zEdytora?: unknown) => baza && setWyniki(baza.zapytaj(typeof zEdytora === "string" ? zEdytora : kodRef.current));
   const ostatni = wyniki?.at(-1);
   const tekstWyniku = ostatni && "wiersze" in ostatni ? ostatni.wiersze.map((w) => w.map((k) => k ?? "").join(" ")).join("\n") : "";
 
@@ -276,9 +281,11 @@ function Sql({ pliki, kod, onKod, doWstawienia, onWstaw, klucz }: { pliki: Recor
           ))}
         </dl>
       )}
+      <Widoczny wysokosc={342}>
       <Suspense fallback={<div className={styles.edytor} aria-busy="true" />}>
         <EdytorKodu wartosc={kod} jezyk="sql" schemat={schemat} onZmiana={onKod} onUruchom={start} etykieta="Zapytanie SQL" />
       </Suspense>
+      </Widoczny>
       <div className={styles.akcje}>
         <button type="button" className="btn btn-primary btn-sm" onClick={start} disabled={!baza}>
           <Play size={15} aria-hidden="true" /> Wykonaj
@@ -322,16 +329,50 @@ function ZgodnoscZKluczem({ wyjscie, klucz }: { wyjscie: string; klucz: Klucz })
   );
 }
 
+// Arkusz kalkulacyjny otwiera się tylko na żądanie, w oknie na pełnym ekranie. FortuneSheet podpina
+// klawiaturę, schowek i mysz na całym dokumencie, więc zamontowany na stronie arkusza przejmowałby
+// pisanie w innych polach. Zamknięcie okna odmontowuje go razem z tymi nasłuchami.
 function Arkusz({ pliki, operacje, onOperacje, doWstawienia, onWstaw, klucz }: { pliki: Record<string, string>; operacje?: unknown[]; onOperacje: (o: unknown[]) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void; klucz: Klucz }) {
   const [zaznaczone, setZaznaczone] = useState("");
+  const [otwarty, setOtwarty] = useState(false);
+  useEffect(() => {
+    if (!otwarty) return;
+    const przewijanie = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = przewijanie;
+    };
+  }, [otwarty]);
   return (
     <>
-      <Suspense fallback={<div className={styles.arkusz} aria-busy="true" />}>
-        <ArkuszKalkulacyjny pliki={pliki} operacje={operacje as never} onOperacje={onOperacje} onZaznaczenie={setZaznaczone} />
-      </Suspense>
-      {zaznaczone && <pre className={styles.wyjscie}>{zaznaczone}</pre>}
-      <ZgodnoscZKluczem wyjscie={zaznaczone} klucz={klucz} />
-      <Wstaw tekst={zaznaczone} doWstawienia={doWstawienia} onWstaw={onWstaw} />
+      <div className={styles.akcje}>
+        <button type="button" className="btn btn-primary btn-sm" onClick={() => setOtwarty(true)}>
+          <Table2 size={15} aria-hidden="true" /> Otwórz arkusz kalkulacyjny
+        </button>
+        <span className="small muted">
+          {Object.keys(pliki).join(", ")} jako arkusze, formuły i wykresy{operacje?.length ? " · twoje zmiany są zapisane" : ""}
+        </span>
+      </div>
+      {otwarty &&
+        createPortal(
+          <div className={styles.oknoArkusza} role="dialog" aria-modal="true" aria-label="Arkusz kalkulacyjny">
+            <div className={styles.oknoGlowa}>
+              <strong>Arkusz kalkulacyjny</strong>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => setOtwarty(false)}>
+                <X size={15} aria-hidden="true" /> Zamknij
+              </button>
+            </div>
+            <div className={styles.oknoTresc}>
+              <Suspense fallback={<div className={styles.arkusz} aria-busy="true" />}>
+                <ArkuszKalkulacyjny pliki={pliki} operacje={operacje as never} onOperacje={onOperacje} onZaznaczenie={setZaznaczone} />
+              </Suspense>
+              {zaznaczone && <pre className={styles.wyjscie}>{zaznaczone}</pre>}
+              <ZgodnoscZKluczem wyjscie={zaznaczone} klucz={klucz} />
+              <Wstaw tekst={zaznaczone} doWstawienia={doWstawienia} onWstaw={onWstaw} />
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

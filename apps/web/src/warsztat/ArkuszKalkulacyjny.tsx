@@ -4,7 +4,7 @@
 // Zmiany ucznia zapisujemy jako operacje FortuneSheet (onOp), a po powrocie odtwarzamy je na
 // świeżo wczytanych danych; samych danych CKE nie zapisujemy w postępie.
 // Wykres z zaznaczenia (Chart.js) zastępuje kreator wykresów z Excela.
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { Workbook, type WorkbookInstance } from "@fortune-sheet/react";
 import "@fortune-sheet/react/dist/index.css";
 import type { Op, Sheet } from "@fortune-sheet/core";
@@ -50,8 +50,24 @@ function arkusze(pliki: Record<string, string>): Sheet[] {
   });
 }
 
-export default function ArkuszKalkulacyjny({ pliki, operacje, onOperacje, onZaznaczenie }: Props) {
+function ArkuszKalkulacyjny({ pliki, operacje, onOperacje, onZaznaczenie }: Props) {
   const ref = useRef<WorkbookInstance>(null);
+  const zwrotne = useRef({ onOperacje, onZaznaczenie });
+  zwrotne.current = { onOperacje, onZaznaczenie };
+  // Zapis operacji przerenderowuje cały arkusz maturalny, więc idzie po sekundzie spokoju i przy zamknięciu.
+  const zapis = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const wyslij = () => {
+    clearTimeout(zapis.current);
+    zapis.current = undefined;
+    zwrotne.current.onOperacje(ops.current);
+  };
+  useEffect(
+    () => () => {
+      if (zapis.current) wyslij();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
   // Dane wczytujemy raz: nowe dane w Workbook to nowe arkusze i utrata zaznaczenia oraz zmian.
   const [dane] = useState(() => arkusze(pliki));
   const ops = useRef<Op[]>(operacje ?? []);
@@ -68,7 +84,7 @@ export default function ArkuszKalkulacyjny({ pliki, operacje, onOperacje, onZazn
       } catch {
         // Operacje z innej wersji danych: zaczynamy od czystego arkusza.
         ops.current = [];
-        onOperacje([]);
+        zwrotne.current.onOperacje([]);
       }
     }
   });
@@ -99,7 +115,7 @@ export default function ArkuszKalkulacyjny({ pliki, operacje, onOperacje, onZazn
 
   const wstaw = () => {
     const wartosci = zaznaczenie();
-    if (wartosci) onZaznaczenie(wartosci.map((w) => w.join(" ").trim()).join("\n"));
+    if (wartosci) zwrotne.current.onZaznaczenie(wartosci.map((w) => w.join(" ").trim()).join("\n"));
   };
 
   return (
@@ -115,7 +131,8 @@ export default function ArkuszKalkulacyjny({ pliki, operacje, onOperacje, onZazn
           toolbarItems={["undo", "redo", "|", "format", "font-size", "|", "bold", "italic", "|", "sort", "filter", "|", "merge-cell", "border", "|", "formula-sum"]}
           onOp={(nowe) => {
             ops.current = [...ops.current, ...nowe].slice(-LIMIT_OPERACJI);
-            onOperacje(ops.current);
+            clearTimeout(zapis.current);
+            zapis.current = setTimeout(wyslij, 1000);
           }}
         />
       </div>
@@ -132,6 +149,10 @@ export default function ArkuszKalkulacyjny({ pliki, operacje, onOperacje, onZazn
     </div>
   );
 }
+
+
+// Arkusz nie reaguje na rerender strony: dane wczytuje raz, a funkcje zwrotne bierze z refa.
+export default memo(ArkuszKalkulacyjny, () => true);
 
 const TYPY: { id: string; nazwa: string; typ: ChartType; stos?: boolean; poziomy?: boolean }[] = [
   { id: "kolumnowy", nazwa: "Kolumnowy", typ: "bar" },
