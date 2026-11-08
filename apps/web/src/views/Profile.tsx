@@ -12,18 +12,19 @@ export function Profile() {
   const { hash } = useLocation();
   const session = useSession();
   const profil = useProfil();
-  const [zapisano, setZapisano] = useState<string | null>(null);
+  const [blad, setBlad] = useState<string | null>(null);
   const przedmiotyRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (hash === "#przedmioty" && profil) przedmiotyRef.current?.scrollIntoView({ block: "start" });
   }, [hash, !!profil]);
 
-  // Zmiana przedmiotów zapisuje się od razu; pusta lista nie, bo pulpit nie miałby czego pokazać.
+  // Zmiana przedmiotów zapisuje się od razu, więc udany zapis nie potrzebuje komunikatu; widać tylko błędy.
+  // Pusta lista się nie zapisuje, bo pulpit nie miałby czego pokazać.
   async function zmien(v: MojPrzedmiot[]) {
-    if (!v.length) return setZapisano("Zostaw przynajmniej jeden przedmiot.");
-    setZapisano(null);
-    setZapisano((await saveSubjects(v)) ? "Zapisano." : "Nie udało się zapisać.");
+    if (!v.length) return setBlad("Zostaw przynajmniej jeden przedmiot.");
+    setBlad(null);
+    if (!(await saveSubjects(v))) setBlad("Nie udało się zapisać. Spróbuj jeszcze raz.");
   }
 
   return (
@@ -40,9 +41,9 @@ export function Profile() {
           <p className="muted small">Pulpit, propozycje i Pestka dopasowują się do nich.</p>
         </div>
         {profil && <WyborPrzedmiotow value={profil.subjects} onChange={(v) => void zmien(v)} />}
-        {zapisano && (
-          <p className="small muted" role="status">
-            {zapisano}
+        {blad && (
+          <p className="small" role="alert">
+            {blad}
           </p>
         )}
       </section>
