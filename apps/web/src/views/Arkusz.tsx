@@ -427,15 +427,24 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
         </p>
       ))}
       <div className={styles.content}>
-        {grupujPrawdaFalsz(bloki, zadanie).map((b, i) =>
-          Array.isArray(b) ? (
-            <PrawdaFalsz key={i} pytania={b} />
-          ) : b.typ === "pytanie" && pisanie ? (
-            <WypowiedzWidok key={i} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} />
-          ) : (
-            <BlokWidok key={i} blok={b} zadanie={zadanie.nr} />
-          ),
-        )}
+        {podzielNaCzesci(grupujPrawdaFalsz(bloki, zadanie), arkusz.przedmiot !== "matematyka").map((c, i) => (
+          <div key={i} className={styles.part} data-rodzaj={c.rodzaj}>
+            {c.polecenie && (
+              <p className={styles.instruction}>
+                <Tekst tekst={c.polecenie} />
+              </p>
+            )}
+            {c.elementy.map((b, j) =>
+              Array.isArray(b) ? (
+                <PrawdaFalsz key={j} pytania={b} />
+              ) : b.typ === "pytanie" && pisanie ? (
+                <WypowiedzWidok key={j} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} />
+              ) : (
+                <BlokWidok key={j} blok={b} zadanie={zadanie.nr} />
+              ),
+            )}
+          </div>
+        ))}
       </div>
       {gotowe && wTekscie.length > 0 && (
         <div className={styles.keyList}>
@@ -495,6 +504,65 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
         </div>
       )}
     </section>
+  );
+}
+
+type ElementZadania = Blok | PytanieZamkniete[];
+type Czesc = { rodzaj: "czytanie" | "tresc" | "pytania"; elementy: ElementZadania[]; polecenie?: string };
+
+const TRESC = new Set<Blok["typ"]>(["akapit", "wzor", "rysunek", "tabelaTresci", "naglowek", "zrodlo", "kadr"]);
+const jestTrescia = (e: ElementZadania | undefined) => !!e && !Array.isArray(e) && TRESC.has(e.typ);
+
+// Polecenie do grupy pytań w środku zadania, np. „For questions 4.1.–4.4.,
+// choose…” albo „W zadaniach 1.3.–1.6. zakreśl…”, tuż przed pytaniami.
+// Etykieta tekstu („Tekst 2. (do zadań 2.2. i 2.3.)”) się nie liczy.
+const POLECENIE_PYTAN = /\b\d+\.\d+\./;
+const ETYKIETA_TEKSTU = /^(Tekst|Text)\s+\d/;
+
+// Dzieli zadanie na ciągi treści i ciągi pytań, żeby oddzielić je linią.
+// Treść z tytułem, przypisem albo dłuższa niż krótkie wprowadzenie to tekst
+// do czytania i dostaje wyróżnienie (poza matematyką, gdzie nagłówki to
+// podpunkty, a nie tytuły tekstów). Sąsiednie przypisy („Na podstawie: …”,
+// „Źródło: …”) łączymy w jedną drobną linię pod tekstem: to atrybucja CKE.
+function podzielNaCzesci(elementy: ElementZadania[], teksty: boolean): Czesc[] {
+  const czesci: Czesc[] = [];
+  elementy.forEach((e, i) => {
+    const ost = czesci[czesci.length - 1];
+    if (
+      !Array.isArray(e) &&
+      e.typ === "akapit" &&
+      !e.tekst.includes("{{") &&
+      POLECENIE_PYTAN.test(e.tekst) &&
+      !ETYKIETA_TEKSTU.test(e.tekst) &&
+      elementy[i + 1] &&
+      !jestTrescia(elementy[i + 1])
+    ) {
+      czesci.push({ rodzaj: "pytania", elementy: [], polecenie: e.tekst });
+      return;
+    }
+    const tresc = jestTrescia(e);
+    const c = ost && (ost.rodzaj !== "pytania") === tresc ? ost : ({ rodzaj: tresc ? "tresc" : "pytania", elementy: [] } satisfies Czesc);
+    if (c !== ost) czesci.push(c);
+    const poprzedni = c.elementy[c.elementy.length - 1];
+    if (!Array.isArray(e) && e.typ === "zrodlo" && !Array.isArray(poprzedni) && poprzedni?.typ === "zrodlo")
+      c.elementy[c.elementy.length - 1] = { typ: "zrodlo", tekst: `${poprzedni.tekst} ${e.tekst}` };
+    else c.elementy.push(e);
+  });
+  for (const c of czesci) {
+    if (!teksty || c.rodzaj !== "tresc") continue;
+    const dlugosc = c.elementy.reduce((n, e) => n + (!Array.isArray(e) && "tekst" in e ? e.tekst.length : 0), 0);
+    const tytul = c.elementy.some((e) => !Array.isArray(e) && (e.typ === "naglowek" || e.typ === "zrodlo"));
+    if (tytul || dlugosc > 600) c.rodzaj = "czytanie";
+  }
+  return czesci;
+}
+
+function Zrodlo({ tekst }: { tekst: string }) {
+  // Jedna linia; dotknięcie albo fokus pokazuje całość, gdy się nie mieści.
+  return (
+    <p className={styles.source} title={tekst} tabIndex={0}>
+      {tekst}
+    </p>
   );
 }
 
@@ -582,7 +650,7 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
     case "naglowek":
       return <h3 className={styles.textTitle}>{blok.tekst}</h3>;
     case "zrodlo":
-      return <p className={`small muted ${styles.source}`}>{blok.tekst}</p>;
+      return <Zrodlo tekst={blok.tekst} />;
     case "kadr":
       return <Kadr obraz={blok.obraz} tekst={blok.tekst} />;
     case "opcje":
