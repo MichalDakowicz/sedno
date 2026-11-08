@@ -933,7 +933,9 @@
   align-items: start;
 }
 
+/* Odpowiedzi wyśrodkowane w pionie względem treści obok. */
 .odpowiedzi {
+  align-self: center;
   min-width: 0;
 }
 

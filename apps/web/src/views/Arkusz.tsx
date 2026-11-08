@@ -627,7 +627,8 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
 }
 
 // Krótki wzór między akapitami („Liczba … jest równa”) w gęstym widoku idzie w jednej linii z tekstem.
-const WZOR_W_LINII = 80;
+// Ułamki i potęgi zostają w stylu wystawionym (\displaystyle), żeby w linii nie maleły.
+const WZOR_W_LINII = 160;
 const doLinii = (b: Blok | PytanieZamkniete[]) =>
   !Array.isArray(b) && ((b.typ === "akapit" && !b.polecenie) || (b.typ === "wzor" && b.tex.length <= WZOR_W_LINII));
 
@@ -644,7 +645,7 @@ function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniet
           {ciag.map((c, k) => (
             <span key={k}>
               {k > 0 && " "}
-              {c.typ === "wzor" ? <WzorMat tex={c.tex} /> : c.typ === "akapit" ? <Tekst tekst={c.tekst} /> : null}
+              {c.typ === "wzor" ? <WzorMat tex={`\\displaystyle ${c.tex}`} /> : c.typ === "akapit" ? <Tekst tekst={c.tekst} /> : null}
             </span>
           ))}
         </div>,
