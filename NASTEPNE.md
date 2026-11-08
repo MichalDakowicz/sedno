@@ -1,8 +1,27 @@
 # Następne kroki i pomysły
 
-Stan na 2 listopada 2026, koniec pierwszej sesji planowania. Termin zgłoszenia do konkursu: **29 listopada 2026**.
+Stan na 2 listopada 2026, koniec pierwszej sesji planowania; sekcja 0 z 8 listopada. Termin zgłoszenia do konkursu: **29 listopada 2026**.
 
 Dokumentacja wizualna (GitHub Pages z `docs/`): 139 stron w 16 rozdziałach. Poniżej to, co zostało.
+
+## 0. Najbliższe kroki (stan na 8 listopada 2026)
+
+### Do domknięcia z bieżącej pracy
+
+- **Wgrać arkusze ze stronami.** PR z arkuszem w stronach dodaje numer strony PDF do danych. Po scaleniu: `npm run importuj` i `npm run wgraj` (wgrywanie idzie przez ssh na serwer Michała, z sieci lokalnej). Do tego czasu arkusze z bazy pokazują się jedną stroną.
+- **Fragmenty nagrań.** Transkrypcje robi `services/arkusze/nagrania/transkrybuj.py` (Whisper large-v3 na lokalnym GPU, wynik w `data/nagrania/`). Zostało: klucz `OPENAI_API_KEY` w `.env`, potem `dopasuj.py` (luna, myślenie xhigh), sprawdzić kilka dopasowań na ucho, `npm run wgraj`.
+- **Rozmowy z Pestką na koncie.** Gotowe na gałęzi `rozmowy-konto` (migracja `0005_rozmowy_pestki.sql`, tabela `tutor_chats`). Zostało: wgrać na staging (`git push origin rozmowy-konto:dev`, przy innych zmianach na `dev` scalić), sprawdzić z `npm run dev:staging` (potrzebny `.env.staging`), potem PR do `main`.
+- **Omawianie wypracowania przez sol:** sprawdzić na prawdziwym wypracowaniu z angielskiego.
+- **Zgłoszenie do konkursu (29 listopada):** regulamin, konto demo dla jury, instrukcje, film do 5 minut, opis na 1 stronę, karta zgłoszenia. Szczegóły w `docs/konkurs.md` i w sekcji 5.
+
+### Pomysły do zrobienia
+
+- **Profil ucznia od pierwszego wejścia.** Na początku więcej rzeczy do wybrania przez ucznia, z których powstaje profil: jak się uczy (profil psychologiczny: motywacja, tempo, co go zniechęca), co umie, czego nie, ile czasu zajmują mu zadania. Profil uzupełnia się sam z wyników i czasów z arkuszy.
+- **Polecenia na podstawie profilu.** „Co robić dziś” z tego, co uczeń umie, czego nie i ile ma czasu. Uczeń ma priorytety (np. „najpierw słuchanie”, „mam 20 minut dziennie”), które zmienia rozmową z Pestką, a Pestka zapisuje je w profilu.
+- **Jeden spójny design.** Ustalić raz: gdzie karty, a gdzie linie, jakie teksty i w jakim rozmiarze, czytelność (kontrast, szerokość wiersza). Przejść przez wszystkie widoki i ujednolicić. Zapisać zasady w `apps/web/README.md`.
+- **Dokończyć pozostałe sekcje:** Nauka, Mapa umiejętności, Powtórki (dziś to puste strony).
+- **Pestka przy tablicy matematycznej.** Na tablicy (brudnopis) Pestka „nadskakuje” po prawym przycisku: analizuje to, co uczeń napisał lub narysował (eksport sceny albo zdjęcie), mówi, co widzi, i sama coś dopisuje albo rysuje, np. figurę, oś czy podpowiedź w kolejnym kroku.
+- **Analiza zdjęcia.** Uczeń wrzuca zdjęcie rozwiązania z kartki, a Pestka czyta je i omawia jak błędy z arkusza.
 
 ## 1. Decyzje otwarte
 
