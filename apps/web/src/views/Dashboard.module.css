@@ -390,6 +390,18 @@
 }
 
 /* Panel wyników: liczba z trendem, skala do progu, wniosek i ostatnie arkusze. */
+.wynikiNaglowek {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.block .wynikiNaglowek :global(.link) {
+  margin-top: 0;
+}
+
 .wynikiGlowa {
   width: 100%;
   display: flex;

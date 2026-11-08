@@ -194,7 +194,12 @@ function Wyniki({ podsumowania }: { podsumowania: Podsumowanie[] }) {
   const srednia = wszystkie.length ? Math.round(wszystkie.reduce((s, w) => s + procent(w), 0) / wszystkie.length) : null;
   return (
     <div className={styles.block} data-tutor="results" data-tutor-about="Średnia z arkuszy, które sprawdziłeś w Sedno. Z nich wybieram, co polecić.">
-      <Kicker icon={Target}>Wyniki</Kicker>
+      <div className={styles.wynikiNaglowek}>
+        <Kicker icon={Target}>Wyniki</Kicker>
+        <Link to="/arkusze" className="link">
+          Arkusze <ArrowRight size={14} aria-hidden="true" />
+        </Link>
+      </div>
       {srednia === null ? (
         <>
           <p className="h2">Jeszcze bez wyniku</p>
@@ -221,7 +226,7 @@ function Wyniki({ podsumowania }: { podsumowania: Podsumowanie[] }) {
           </div>
           <p className={styles.wniosek}>{wniosek(tegoSamego(wszystkie))}</p>
           <ul className={styles.ostatnie}>
-            {wszystkie.slice(0, 3).map((w) => (
+            {wszystkie.slice(0, 2).map((w) => (
               <li key={w.arkusz.id + w.kiedy}>
                 <Link to={`/arkusze/${w.arkusz.id}`}>
                   <span>
@@ -235,9 +240,6 @@ function Wyniki({ podsumowania }: { podsumowania: Podsumowanie[] }) {
           </ul>
         </>
       )}
-      <Link to="/arkusze" className="link">
-        Arkusze i egzamin <ArrowRight size={14} aria-hidden="true" />
-      </Link>
     </div>
   );
 }
