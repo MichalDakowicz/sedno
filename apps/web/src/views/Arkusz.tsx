@@ -180,19 +180,19 @@ export function Arkusz() {
   const { showHints, dismiss: odprawPestke } = useTutor();
   const lot = useRef<number>();
   useEffect(() => () => window.clearTimeout(lot.current), []);
-  // Pestka leci do pierwszego zadania z błędem, mówi, od którego zaczynamy, i oddaje
-  // głos karcie omawiania pod tym zadaniem. Najpierw przewijamy, bo przewodnik sam
-  // nie przewija do wskazówki, a na zadanie poza ekranem by nie usiadł.
+  // Pestka leci prosto do pierwszego zadania z błędem (bez powrotu do rogu), mówi, od którego
+  // zaczynamy, i oddaje głos karcie omawiania pod tym zadaniem. Strona przewija się do zadania,
+  // a Pestka czeka w miejscu (trzymaj) i skacze na zadanie, gdy ono wjedzie na ekran.
   const lecDoBledu = () => {
     const pierwszy = dane ? doOmowienia(dane, postep)[0] : undefined;
     if (!pierwszy) return;
     const nr = pierwszy.zadanie.nr;
-    odprawPestke();
     setOmawiany(null);
     pokazZadanie(nr);
     window.clearTimeout(lot.current);
+    // Chwila na przełączenie strony arkusza: wskazówka bez celu na stronie zostałaby pominięta.
     lot.current = window.setTimeout(() => {
-      showHints(`omow-lot-${Date.now()}`, [{ target: `zadanie-${nr}`, text: `Zaczynamy od zadania ${nr}.`, actions: [] }]);
+      showHints(`omow-lot-${Date.now()}`, [{ target: `zadanie-${nr}`, text: `Zaczynamy od zadania ${nr}.`, actions: [], trzymaj: true }]);
       lot.current = window.setTimeout(async () => {
         // Pestka się rozkleja (drży, zamyka oczy, dzieli się): druga wlatuje do karty, a ona wraca na spoczynek.
         const podzial = await rozklejPestke();
@@ -201,8 +201,8 @@ export function Arkusz() {
         odprawPestke();
         setOmawiany(0);
         // Dymek pojawia się dopiero po wylądowaniu (ok. 0,7 s), więc zostaje chwila na przeczytanie.
-      }, 2300);
-    }, 700);
+      }, 2600);
+    }, 150);
   };
   // Po sprawdzeniu arkusza Pestka przylatuje do wyniku i pyta, czy poprawiamy błędy.
   const zaproponujOmowienie = (ile: number) => {
@@ -213,6 +213,7 @@ export function Arkusz() {
           {
             target: "wynik",
             text: `Przejrzałam arkusz: ${ile === 1 ? "błąd jest w jednym zadaniu" : `błędy są w ${ile} zadaniach`}. Poprawimy?`,
+            trzymaj: true,
             actions: [
               { label: "Tak, poprawmy", primary: true, onClick: lecDoBledu },
               { label: "Później", onClick: odprawPestke },
