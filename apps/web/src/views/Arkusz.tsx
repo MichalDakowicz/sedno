@@ -23,6 +23,7 @@ import { TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
+import { PoleMatematyczne } from "../components/PoleMatematyczne";
 import { uplynelo, zapisCzasu, zatrzymaj, Zegar } from "../components/Zegar";
 import { dodajCzas, minuty, norma, odmierz, opisTempa, tempo, zacznijOdmierzac } from "../arkusze/czasZadan";
 import styles from "./Arkusz.module.css";
@@ -34,6 +35,7 @@ type Kontekst = {
   ocen: (nr: string, ocena: boolean | number) => void;
   ustawBrudnopis: (zadanie: number, zapis: ZapisBrudnopisu | null) => void;
   pytania: Map<string, Pytanie>;
+  luki: Map<Blok, Luka>; // zdania z luką na część odpowiedzi otwartej
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
@@ -61,8 +63,10 @@ export function Arkusz() {
     const pytania = new Map<string, Pytanie>();
     const wBloku = new Set<string>();
     const opcjeZadan = new Map<number, Opcja[]>();
+    const luki = new Map<Blok, Luka>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
+      lukiZadania(z)?.forEach((l, b) => luki.set(b, l));
       for (const b of z.bloki) {
         if (b.typ === "pytanie") wBloku.add(b.nr);
         if (b.typ === "pytania" || b.typ === "tabela") b.nr.forEach((n) => wBloku.add(n));
@@ -71,6 +75,7 @@ export function Arkusz() {
     }
     return {
       arkusz: dane,
+      luki,
       postep,
       pytania,
       wBloku,
@@ -404,7 +409,7 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
 }
 
 function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSprawdz: () => void; onPopraw: () => void }) {
-  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis } = useCtx();
+  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki } = useCtx();
   const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
@@ -467,6 +472,7 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           zapis={postep.brudnopisy?.[zadanie.nr]}
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
           tresc={<TrescKompakt zadanie={zadanie} bloki={bloki} />}
+          duzyRysunek={[...luki.values()].some((l) => zadanie.pytania.includes(l.pytanie))}
         />
       )}
       {!pisemna && !postep.sprawdzony && (
@@ -560,7 +566,9 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
 // Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
 // Zadanie z jednym pytaniem: numer i treść po lewej, odpowiedzi po prawej.
 function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
-  const { arkusz, sprawdzone, wBloku } = useCtx();
+  const { arkusz, sprawdzone, wBloku, luki } = useCtx();
+  // Odpowiedzi w lukach zdań: bez kolumny odpowiedzi, po prawej staje rysunek.
+  const zLukami = [...luki.values()].some((l) => zadanie.pytania.includes(l.pytanie));
   const i = arkusz.zadania.findIndex((z) => z.nr === zadanie.nr);
   const [poprzednie, nastepne] = [arkusz.zadania[i - 1], arkusz.zadania[i + 1]];
   const przejdz = (z: Zadanie) => otworzNaPelnymEkranie(`${arkusz.id}-${z.nr}`);
@@ -571,7 +579,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
     ? wszystkie.filter((b) => b.typ !== "rysunek").flatMap((b) => (b.typ === "kadr" && naRysunku ? (kadrJakoTekst(b.tekst) ?? [b]) : [b]))
     : wszystkie;
   const pytaniaBloki = bloki.filter((b) => b.typ === "pytanie" || b.typ === "pytania" || b.typ === "tabela");
-  const obok = pytaniaBloki.length === 1;
+  const obok = pytaniaBloki.length === 1 && !zLukami;
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
   const polecenie = zadanie.polecenie.map((p, i) => (
@@ -612,12 +620,21 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
         </button>
       </div>
       {polecenie}
-      <div className={obok ? styles.content : `${styles.content} ${styles.szpalty}`}>
+      <div className={obok || zLukami ? styles.content : `${styles.content} ${styles.szpalty}`}>
         <BlokiKompakt elementy={grupujPrawdaFalsz(obok ? bloki.filter((b) => b !== pytaniaBloki[0]) : bloki, zadanie)} zadanie={zadanie.nr} />
       </div>
       {klucz}
     </div>
   );
+  if (zLukami && zadanie.rysunek)
+    return (
+      <div className={styles.obok}>
+        {tresc}
+        <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
+          <Kadr obraz={zadanie.rysunek} tekst="Rysunek do zadania" />
+        </div>
+      </div>
+    );
   if (!obok) return tresc;
   // Odpowiedzi w prawej kolumnie: nie spychają płótna w dół. Litery do opcji
   // z rysunku stoją jedna pod drugą, jak opcje na rysunku.
@@ -627,6 +644,50 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
       <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
         <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />
       </div>
+    </div>
+  );
+}
+
+// Zadanie otwarte z kilkoma zdaniami do uzupełnienia („1. Dziedziną funkcji f jest
+// przedział …… .”): klucz CKE ma jedno pytanie za kilka punktów, ale uczeń wpisuje
+// osobną odpowiedź w każdą lukę. Części trzymamy w jednej odpowiedzi, linia po linii.
+type Luka = { pytanie: PytanieOtwarte; czesc: number; ile: number };
+const ZNACZNIK_LUKI = /…{2,}|\.{4,}/;
+
+function lukiZadania(z: Zadanie): Map<Blok, Luka> | null {
+  const [p] = z.pytania;
+  if (z.pytania.length !== 1 || p.typ !== "otwarte" || p.tresc) return null;
+  const zdania = z.bloki.filter((b) => b.typ === "akapit" && !b.polecenie && ZNACZNIK_LUKI.test(b.tekst));
+  if (zdania.length < 2) return null;
+  return new Map(zdania.map((b, czesc) => [b, { pytanie: p, czesc, ile: zdania.length }]));
+}
+
+const czesciOdpowiedzi = (odpowiedz: string | undefined, ile: number) => {
+  const czesci = (odpowiedz ?? "").split("\n");
+  return Array.from({ length: ile }, (_, i) => czesci[i] ?? "");
+};
+
+function ZdanieZLuka({ tekst, luka }: { tekst: string; luka: Luka }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const { pytanie: p, czesc, ile } = luka;
+  const czesci = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
+  const m = tekst.match(ZNACZNIK_LUKI)!;
+  const [przed, po] = [tekst.slice(0, m.index), tekst.slice(m.index! + m[0].length)];
+  return (
+    <div className={`${styles.para} ${styles.zdanieLuka}`}>
+      <Tekst tekst={przed} />
+      <PoleMatematyczne
+        wartosc={czesci[czesc]}
+        tylkoOdczyt={sprawdzone(p.nr)}
+        etykieta={`Odpowiedź ${p.nr}, zdanie ${czesc + 1}`}
+        onZmiana={(latex) => {
+          const nowe = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
+          nowe[czesc] = latex.replace(/\n/g, " ");
+          // Puste części na końcu nie liczą się jako odpowiedź.
+          ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
+        }}
+      />
+      <Tekst tekst={po} />
     </div>
   );
 }
@@ -656,6 +717,7 @@ const doLinii = (b: Blok | PytanieZamkniete[]) =>
 const czyZdanieNumerowane = (b: Blok | PytanieZamkniete[]) => !Array.isArray(b) && b.typ === "akapit" && !b.polecenie && /^\d+\.\s/.test(b.tekst);
 
 function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniete[])[]; zadanie: number }) {
+  const { luki } = useCtx();
   const wynik: ReactNode[] = [];
   for (let i = 0; i < elementy.length; ) {
     const b = elementy[i];
@@ -667,7 +729,7 @@ function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniet
         <ol key={i} className={styles.zdania}>
           {(elementy.slice(i, n) as Blok[]).map((c, k) => (
             <li key={k} className={styles.para}>
-              {c.typ === "akapit" && <Tekst tekst={c.tekst} />}
+              {c.typ === "akapit" && (luki.has(c) ? <ZdanieZLuka tekst={c.tekst} luka={luki.get(c)!} /> : <Tekst tekst={c.tekst} />)}
             </li>
           ))}
         </ol>,
@@ -699,9 +761,10 @@ function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniet
 }
 
 function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
-  const { pytania } = useCtx();
+  const { pytania, luki } = useCtx();
   switch (blok.typ) {
     case "akapit":
+      if (luki.has(blok)) return <ZdanieZLuka tekst={blok.tekst} luka={luki.get(blok)!} />;
       return (
         <div className={blok.polecenie ? `${styles.para} ${styles.command}` : styles.para}>
           <Tekst tekst={blok.tekst} />
@@ -888,7 +951,10 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
+  const { luki } = useCtx();
   if (p.typ === "wypowiedz") return null;
+  // Odpowiedź w lukach zdań (ZdanieZLuka): tu zostaje tylko informacja po sprawdzeniu.
+  const wLukach = new Set([...luki.values()].map((l) => l.pytanie.nr));
   return (
     <div className={styles.question}>
       {/* Numer bez podpunktu to numer zadania, który stoi już w nagłówku. */}
@@ -899,7 +965,7 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
         </div>
       )}
       {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Suwak pytanie={p} />)}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && (
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
       <Informacja pytanie={p} />

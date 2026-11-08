@@ -101,6 +101,8 @@ type Props = {
   pelny: boolean;
   onPelny: () => void;
   onZamknij: () => void;
+  /** Zadanie bez obliczeń (odczyt z wykresu): rysunek większy, do zaznaczania na nim. */
+  duzyRysunek?: boolean;
 };
 
 function elementyBazowe(plik: string, rysunek?: Obraz): ExcalidrawElement[] {
@@ -140,7 +142,7 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
   }
 }
 
-export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij }: Props) {
+export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, duzyRysunek }: Props) {
   const [startowaGrubosc] = useState(zapamietanaGrubosc);
   const api = useRef<ExcalidrawImperativeAPI | null>(null);
   const wersja = useRef<number | null>(null);
@@ -253,8 +255,8 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     if (els.length) {
       const [x1, y1, x2, y2] = getCommonBounds(els);
       // Na wąskim płótnie (telefon) miejsce na notatki jest pod figurą, więc zajmuje ona prawie całą szerokość.
-      const udzial = s.width < 500 ? 0.9 : 0.6;
-      z = Math.min(ZOOM_START, (s.width * udzial) / Math.max(1, x2 - x1), (s.height * udzial) / Math.max(1, y2 - y1));
+      const udzial = s.width < 500 || duzyRysunek ? 0.9 : 0.6;
+      z = Math.min(duzyRysunek ? 2 : ZOOM_START, (s.width * udzial) / Math.max(1, x2 - x1), (s.height * udzial) / Math.max(1, y2 - y1));
       if (start) {
         // Na start figura w prawym górnym rogu: lewa strona i dół zostają na obliczenia.
         const margines = 16;

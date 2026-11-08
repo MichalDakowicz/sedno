@@ -1,0 +1,45 @@
+/* Pole MathLive w stylu luk w tekście: niska ramka, pomarańczowy kursor i zaznaczenie. */
+.pole {
+  display: inline-block;
+  min-width: 8em;
+  max-width: 100%;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 18px;
+  vertical-align: middle;
+  --caret-color: var(--primary);
+  --primary-color: var(--primary);
+  --selection-background-color: var(--primary-soft);
+  --selection-color: var(--fg);
+  --contains-highlight-background-color: transparent;
+  --placeholder-color: var(--subtle);
+  --smart-fence-color: var(--subtle);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.pole:focus-within {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+/* Bez menu i przełącznika klawiatury: na dotykowym ekranie klawiatura MathLive
+   i tak pojawia się sama (math-virtual-keyboard-policy="auto"). */
+.pole::part(menu-toggle),
+.pole::part(virtual-keyboard-toggle) {
+  display: none;
+}
+
+.pole::part(content) {
+  padding: 2px 0;
+}
+
+/* Miejsce na pole, zanim MathLive się wczyta: ta sama wysokość, bez skoku układu. */
+.czeka {
+  height: 34px;
+}
