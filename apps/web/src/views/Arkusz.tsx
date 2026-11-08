@@ -653,10 +653,28 @@ const WZOR_W_LINII = 160;
 const doLinii = (b: Blok | PytanieZamkniete[]) =>
   !Array.isArray(b) && ((b.typ === "akapit" && !b.polecenie) || (b.typ === "wzor" && b.tex.length <= WZOR_W_LINII));
 
+const czyZdanieNumerowane = (b: Blok | PytanieZamkniete[]) => !Array.isArray(b) && b.typ === "akapit" && !b.polecenie && /^\d+\.\s/.test(b.tekst);
+
 function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniete[])[]; zadanie: number }) {
   const wynik: ReactNode[] = [];
   for (let i = 0; i < elementy.length; ) {
     const b = elementy[i];
+    // Zdania do uzupełnienia („1. Dziedziną funkcji … jest przedział …… .”) w dwóch kolumnach.
+    let n = i;
+    while (n < elementy.length && czyZdanieNumerowane(elementy[n])) n++;
+    if (n - i >= 2) {
+      wynik.push(
+        <ol key={i} className={styles.zdania}>
+          {(elementy.slice(i, n) as Blok[]).map((c, k) => (
+            <li key={k} className={styles.para}>
+              {c.typ === "akapit" && <Tekst tekst={c.tekst} />}
+            </li>
+          ))}
+        </ol>,
+      );
+      i = n;
+      continue;
+    }
     let j = i;
     while (j < elementy.length && doLinii(elementy[j])) j++;
     const ciag = elementy.slice(i, j) as Blok[];

@@ -1091,3 +1091,29 @@
 .przejscie {
   padding-inline: 6px;
 }
+
+/* Zdania do uzupełnienia w dwóch kolumnach. */
+.zdania {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Wzór wystawiony przy lewej krawędzi, jak tekst obok, zamiast na środku szerokiego ekranu. */
+.kompakt :global(.katex-display) {
+  margin: 4px 0;
+  text-align: left;
+}
+
+.kompakt :global(.katex-display) > :global(.katex) {
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .zdania {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
