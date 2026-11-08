@@ -200,6 +200,8 @@
     0 6px 18px rgba(255, 116, 72, 0.18);
   transition:
     top 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
+    left 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
+    width 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
     height 0.25s cubic-bezier(0.3, 0.7, 0.2, 1);
 }
 
@@ -971,7 +973,16 @@
 }
 
 .kompakt .choice {
-  padding: 6px 14px 6px 6px;
+  align-items: center;
+  min-width: 96px;
+  padding: 8px 20px 8px 8px;
+  font-size: 18px;
+}
+
+.kompakt .letter {
+  width: 32px;
+  height: 32px;
+  font-size: 15px;
 }
 
 /* Kilka pytań: treść płynie w dwóch szpaltach, pytanie nie dzieli się między nie. */
