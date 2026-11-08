@@ -132,15 +132,9 @@ export function podzialKropli(r: DOMRect, rozjazd: number): Promise<void> {
   });
 }
 
-/** Miejsce spoczynku Pestki w rogu ekranu (jak restPoint w TutorGuide), dla avatara o boku `bok`. */
-function miejsceSpoczynku(bok: number): { x: number; y: number } {
-  const brzeg = window.innerWidth < 640 ? 16 : 24;
-  return { x: window.innerWidth - bok - brzeg, y: window.innerHeight - bok - brzeg };
-}
-
 export type Rozklejenie = { doKarty: DOMRect; powrot: Promise<void> };
 
-/** Zwraca miejsce drugiej Pestki (stamtąd leci do karty) i obietnicę powrotu pierwszej na spoczynek. */
+/** Zwraca miejsce Pestki lecącej do karty i obietnicę powrotu drugiej na spoczynek. */
 export async function rozklejPestke(): Promise<Rozklejenie | null> {
   const avatar = document.querySelector<HTMLElement>("[data-pestka=przewodnik]");
   const svg = avatar?.querySelector("svg");
@@ -197,33 +191,30 @@ export async function rozklejPestke(): Promise<Rozklejenie | null> {
     throw e;
   }
 
-  // 4. Druga oddaje miejsce lotowi do karty; pierwsza wraca na spoczynek skokiem: przysiada,
-  //    leci prawie prosto (lekko rozciągnięta) i ląduje miękko z dwoma odbiciami, a dopiero
-  //    wtedy w jej miejscu pojawia się prawdziwa Pestka.
+  // 4. Druga oddaje miejsce lotowi do karty. Na spoczynek wraca prawdziwa Pestka, tym samym
+  //    skokiem co w przewodniku (TutorGuide po dismiss): staje tam, gdzie kropla, która wraca,
+  //    a przesunięcie znika płynnie razem z jej skokiem do rogu.
   // Na spoczynek (prawy dolny róg) wraca kropla po prawej, do karty leci ta po lewej,
   // żeby ich drogi się nie krzyżowały.
   const [doKartyEl, wraca] = rozjazd > 0 ? [a, b] : [b, a];
   const doKarty = doKartyEl.firstElementChild!.getBoundingClientRect();
-  doKartyEl.remove();
-  const start = wraca.firstElementChild!.getBoundingClientRect();
-  const cel = miejsceSpoczynku(r.width);
-  const dx = cel.x - start.left;
-  const dy = cel.y - start.top;
-  const luk = Math.min(28, Math.hypot(dx, dy) * 0.08);
-  const lot = wraca.animate(
-    [
-      { transform: "translate(0, 0) scale(1, 1)", easing: "ease-out" },
-      { transform: "translate(0, 2px) scale(1.14, 0.86)", offset: 0.12, easing: "cubic-bezier(0.5, 0, 0.6, 1)" },
-      { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - luk}px) scale(0.93, 1.07)`, offset: 0.42, easing: "cubic-bezier(0.3, 0, 0.3, 1)" },
-      { transform: `translate(${dx}px, ${dy}px) scale(1.14, 0.86)`, offset: 0.74, easing: "ease-out" },
-      { transform: `translate(${dx}px, ${dy}px) scale(0.96, 1.04)`, offset: 0.88, easing: "ease-in-out" },
-      { transform: `translate(${dx}px, ${dy}px) scale(1, 1)` },
-    ],
-    { duration: 620, fill: "forwards" },
-  );
-  const powrot = lot.finished.then(
-    () => czekaj(60).then(sprzataj),
-    () => sprzataj(),
+  const przesuniecie = wraca.firstElementChild!.getBoundingClientRect().left - r.left;
+  przewodnik.style.translate = `${przesuniecie}px 0px`;
+  // Stary dymek („Zaczynamy od zadania”) znika razem z dismiss; do tego czasu nie może mignąć.
+  przewodnik.querySelector<HTMLElement>("[role=status]")?.style.setProperty("opacity", "0");
+  sprzataj();
+  // Ruch jak w TutorGuide (.moving): ta sama długość i krzywa dla pozycji i przesunięcia.
+  const ruch = "0.7s cubic-bezier(0.45, 0, 0.25, 1)";
+  const powrot = new Promise<void>((gotowe) =>
+    requestAnimationFrame(() => {
+      przewodnik.style.transition = `transform ${ruch}, translate ${ruch}`;
+      przewodnik.style.translate = "0px 0px";
+      window.setTimeout(() => {
+        przewodnik.style.transition = "";
+        przewodnik.style.translate = "";
+        gotowe();
+      }, 760);
+    }),
   );
   return { doKarty, powrot };
 }
