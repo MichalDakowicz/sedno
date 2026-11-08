@@ -1220,3 +1220,23 @@
   font-weight: 600;
   text-align: center;
 }
+
+/* Pełny ekran, tabela przyporządkowania: trzy szpalty tekstu i wiersze tabeli obok siebie. */
+.kompakt .szpalty3 {
+  columns: 3;
+}
+
+.kompakt .tabelaDopasowania {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
+  column-gap: 32px;
+}
+
+.kompakt .tabelaDopasowania .pfWiersz + .pfWiersz {
+  border-top: 0;
+}
+
+@media (max-width: 900px) {
+  .kompakt .szpalty3 {
+    columns: 1;
+  }
+}
