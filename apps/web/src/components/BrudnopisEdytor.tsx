@@ -5,7 +5,7 @@ import { CaptureUpdateAction, convertToExcalidrawElements, Excalidraw, getCommon
 import type { AppState, BinaryFileData, DataURL, ExcalidrawImperativeAPI, ExcalidrawInitialDataState, NormalizedZoomValue } from "@excalidraw/excalidraw/types";
 import type { ExcalidrawElement, FileId } from "@excalidraw/excalidraw/element/types";
 import "@excalidraw/excalidraw/index.css";
-import { Circle, Eraser, Hand, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Square, Trash2, Type, Undo2, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
+import { Circle, Eraser, Hand, Maximize2, Minimize2, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Square, Trash2, Type, Undo2, X, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
 import { adresObrazu, type Obraz } from "../arkusze/typy";
 import styles from "./Brudnopis.module.css";
 
@@ -57,6 +57,9 @@ type Props = {
   rysunek?: Obraz;
   elementy?: readonly unknown[];
   onZapisz: (elementy: readonly ExcalidrawElement[] | null) => void;
+  pelny: boolean;
+  onPelny: () => void;
+  onZamknij: () => void;
 };
 
 function elementyBazowe(plik: string, rysunek?: Obraz): ExcalidrawElement[] {
@@ -96,7 +99,7 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
   }
 }
 
-export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: Props) {
+export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij }: Props) {
   const api = useRef<ExcalidrawImperativeAPI | null>(null);
   const wersja = useRef<number | null>(null);
   const wczytana = useRef(false);
@@ -246,6 +249,13 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
           <button type="button" className={styles.tool} title="Ponów" aria-label="Ponów" onClick={() => skrot("z", true)}>
             <Redo2 size={18} aria-hidden="true" />
           </button>
+          <span className={styles.grow} aria-hidden="true" />
+          <button type="button" className={styles.tool} title={pelny ? "Wyjdź z pełnego ekranu" : "Pełny ekran"} aria-label={pelny ? "Wyjdź z pełnego ekranu" : "Pełny ekran"} onClick={onPelny}>
+            {pelny ? <Minimize2 size={18} aria-hidden="true" /> : <Maximize2 size={18} aria-hidden="true" />}
+          </button>
+          <button type="button" className={styles.tool} title="Zamknij brudnopis" aria-label="Zamknij brudnopis" onClick={onZamknij}>
+            <X size={18} aria-hidden="true" />
+          </button>
         </div>
         <div ref={kontener} className={styles.canvas}>
         <Excalidraw
@@ -316,7 +326,6 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz }: P
           </button>
         </div>
       </div>
-      <p className="small muted">Brudnopis nie wpływa na wynik. Zapisuje się w postępie arkusza.</p>
     </>
   );
 }

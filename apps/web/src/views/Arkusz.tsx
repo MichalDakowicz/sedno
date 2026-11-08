@@ -200,6 +200,7 @@ function Naglowek({ arkusz }: { arkusz: ArkuszDane }) {
         Matura {arkusz.sesja} {arkusz.rok}
       </h1>
       <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>
+      {arkusz.przedmiot === "matematyka" && <p className="small muted">Brudnopis nie wpływa na wynik w zadaniach zamkniętych. Zapisuje się w postępie arkusza.</p>}
       {(arkusz.pdf?.arkusz || arkusz.pdf?.zasady) && (
         <div className={styles.pdfs}>
           {arkusz.pdf.arkusz && (
@@ -253,17 +254,9 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
   const pisanie = useMemo(() => (pisemna ? rozbierzPolecenie(zadanie) : null), [pisemna, zadanie]);
   const bloki = pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki;
 
-  return (
-    <section className={styles.task} id={`zadanie-${zadanie.nr}`}>
-      <header className={styles.taskHead}>
-        <h2 className="h3">Zadanie {zadanie.nr}.</h2>
-        <span className="small muted">{gotowe && !pisemna ? `${wynik.zdobyte} / ${zadanie.punkty} pkt` : `0–${zadanie.punkty} pkt`}</span>
-        {zadanie.sluchanie && (
-          <span className={`small ${styles.listen}`}>
-            <Headphones size={14} aria-hidden="true" /> nagranie
-          </span>
-        )}
-      </header>
+  // Treść z odpowiedziami: na stronie i nad brudnopisem na pełnym ekranie.
+  const tresc = (
+    <>
       {zadanie.polecenie.map((p, i) => (
         <p key={i} className={styles.instruction}>
           {p}
@@ -287,6 +280,21 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           ))}
         </div>
       )}
+    </>
+  );
+
+  return (
+    <section className={styles.task} id={`zadanie-${zadanie.nr}`}>
+      <header className={styles.taskHead}>
+        <h2 className="h3">Zadanie {zadanie.nr}.</h2>
+        <span className="small muted">{gotowe && !pisemna ? `${wynik.zdobyte} / ${zadanie.punkty} pkt` : `0–${zadanie.punkty} pkt`}</span>
+        {zadanie.sluchanie && (
+          <span className={`small ${styles.listen}`}>
+            <Headphones size={14} aria-hidden="true" /> nagranie
+          </span>
+        )}
+      </header>
+      {tresc}
       {arkusz.przedmiot === "matematyka" && (
         <Brudnopis
           plik={`${arkusz.id}-${zadanie.nr}`}
@@ -294,6 +302,7 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           rysunek={zadanie.rysunek}
           zapis={postep.brudnopisy?.[zadanie.nr]}
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
+          tresc={tresc}
         />
       )}
       {!pisemna && !postep.sprawdzony && (

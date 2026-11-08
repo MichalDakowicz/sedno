@@ -5,26 +5,36 @@
   gap: 12px;
 }
 
-/* Karta: brudnopis to osobne narzędzie, musi odcinać się od treści zadania.
-   Ma szerokość kolumny tekstu; za jej granice wystają tylko paski narzędzi. */
+/* Bez karty: płótno ma własną ramkę, a paski narzędzi stoją po jego bokach.
+   Na szerokim ekranie płótno jest szersze niż kolumna tekstu (do 1200 px),
+   ale tak, żeby paski zmieściły się w oknie. */
 .panel {
   --pasek: 50px; /* przycisk 36 + padding 2 × 6 + ramka 2 × 1 */
-  --odstep: 12px; /* między paskiem a krawędzią karty */
-  --padding: 16px;
-  display: grid;
-  gap: 12px;
-  padding: var(--padding);
-  border-radius: var(--r-md);
-  background: var(--surface);
-  box-shadow: var(--shadow-float);
+  --odstep: 12px; /* między paskiem a płótnem */
+  --szerokosc: max(100%, min(1200px, calc(100vw - 2 * (var(--pasek) + var(--odstep)) - 64px)));
+  width: var(--szerokosc);
+  margin-left: calc((100% - var(--szerokosc)) / 2);
 }
 
-.head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+/* Pełny ekran: treść zadania z odpowiedziami u góry, płótno pod nią. */
+.fullscreen {
+  --pasek: 50px;
+  --odstep: 12px;
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg);
+}
+
+.task {
+  max-height: 38vh;
+  overflow-y: auto;
+  padding: 4px max(8px, calc((100% - 900px) / 2)) 12px;
+  border-bottom: 1px solid var(--line);
 }
 
 .loading {
@@ -33,14 +43,19 @@
   height: clamp(420px, 75vh, 760px);
 }
 
-/* Pasek podzielony na dwie strony płótna. Ujemny margines wypycha paski poza
-   kartę, więc płótno zajmuje całą jej szerokość wewnątrz paddingu. */
+/* Pasek podzielony na dwie strony płótna; ujemny margines wystawia paski poza szerokość płótna. */
 .workspace {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: calc(var(--padding) + var(--odstep));
-  margin-inline: calc(-1 * (var(--pasek) + var(--odstep) + var(--padding)));
+  gap: var(--odstep);
+  margin-inline: calc(-1 * (var(--pasek) + var(--odstep)));
   height: clamp(420px, 75vh, 760px);
+}
+
+.fullscreen .workspace {
+  min-height: 0;
+  height: auto;
+  margin-inline: 0;
 }
 
 .toolbar {
@@ -142,27 +157,35 @@
 
 /* Bez miejsca obok kolumny tekstu paski wchodzą do karty, po bokach płótna. */
 @media (max-width: 960px) {
+  .panel {
+    width: 100%;
+    margin-left: 0;
+  }
+
   .workspace {
     gap: 10px;
     margin-inline: 0;
-  }
-
-  .toolbar {
-    box-shadow: none;
-    background: var(--bg);
   }
 }
 
 /* Telefon: narzędzia nad płótnem, styl i widok pod nim, zawijane w kilka rzędów. */
 @media (max-width: 640px) {
-  .panel {
+  .fullscreen {
     padding: 12px;
+  }
+
+  .task {
+    max-height: 30vh;
   }
 
   .workspace {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr) auto;
     height: 78vh;
+  }
+
+  .fullscreen .workspace {
+    height: auto;
   }
 
   .toolbar {

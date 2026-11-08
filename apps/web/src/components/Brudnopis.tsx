@@ -1,7 +1,7 @@
 // Brudnopis przy zadaniu: szkic w Excalidraw, opcjonalnie na rysunku z treści.
 // To pomoc, nie forma odpowiedzi: zadania zamknięte zostają zamknięte.
-import { lazy, Suspense, useState } from "react";
-import { PenLine, X } from "lucide-react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+import { PenLine } from "lucide-react";
 import type { Brudnopis as Zapis } from "../arkusze/postep";
 import type { Obraz } from "../arkusze/typy";
 import { Ladowanie } from "./Ladowanie";
@@ -23,11 +23,27 @@ type Props = {
   rysunek?: Obraz;
   zapis?: Zapis;
   onZmiana: (zapis: Zapis | null) => void;
+  /** Treść zadania z odpowiedziami: na pełnym ekranie stoi nad płótnem. */
+  tresc?: ReactNode;
 };
 
-export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana }: Props) {
+export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc }: Props) {
   const [otwarty, setOtwarty] = useState(false);
+  const [pelny, setPelny] = useState(false);
   const elementow = zapis?.elementy.length ?? 0;
+
+  // Pełny ekran: strona pod spodem się nie przewija, Escape wraca do zadania.
+  useEffect(() => {
+    if (!pelny) return;
+    const naKlawisz = (e: KeyboardEvent) => e.key === "Escape" && setPelny(false);
+    const przewijanie = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.addEventListener("keydown", naKlawisz);
+    return () => {
+      document.documentElement.style.overflow = przewijanie;
+      document.removeEventListener("keydown", naKlawisz);
+    };
+  }, [pelny]);
 
   if (!otwarty)
     return (
@@ -36,7 +52,7 @@ export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana }: Props) {
           type="button"
           className="btn btn-secondary btn-sm"
           onClick={() => setOtwarty(true)}
-          data-tutor-about="Brudnopis to miejsce na obliczenia i szkice. Nie wpływa na wynik, ale zapisuje się razem z odpowiedziami."
+          data-tutor-about="Brudnopis to miejsce na obliczenia i szkice. W zadaniach zamkniętych nie wpływa na wynik, ale zapisuje się razem z odpowiedziami."
         >
           <PenLine size={16} aria-hidden="true" /> {rysunek ? "Brudnopis z rysunkiem" : "Brudnopis"}
         </button>
@@ -45,19 +61,31 @@ export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana }: Props) {
     );
 
   return (
-    <section className={styles.panel} aria-label={`Brudnopis do zadania ${zadanie}`}>
-      <header className={styles.head}>
-        <span className="label">Brudnopis · zadanie {zadanie}</span>
-        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setOtwarty(false)}>
-          <X size={16} aria-hidden="true" /> Zamknij
-        </button>
-      </header>
+    <section
+      className={pelny ? styles.fullscreen : styles.panel}
+      aria-label={`Brudnopis do zadania ${zadanie}`}
+      role={pelny ? "dialog" : undefined}
+      aria-modal={pelny || undefined}
+    >
+      {/* Przy zmianie trybu edytor zostaje ten sam, więc szkic i historia cofania nie giną. */}
+      {pelny && tresc && (
+        <div className={styles.task}>
+          <h2 className="h3">Zadanie {zadanie}.</h2>
+          {tresc}
+        </div>
+      )}
       <Suspense fallback={<Ladowanie ksztalt="blok" etykieta="Wczytuję brudnopis" />}>
         <Edytor
           plik={plik}
           rysunek={rysunek}
           elementy={zapis?.elementy}
           onZapisz={(elementy) => onZmiana(elementy ? { elementy, zmieniony: new Date().toISOString() } : null)}
+          pelny={pelny}
+          onPelny={() => setPelny((p) => !p)}
+          onZamknij={() => {
+            setPelny(false);
+            setOtwarty(false);
+          }}
         />
       </Suspense>
     </section>
