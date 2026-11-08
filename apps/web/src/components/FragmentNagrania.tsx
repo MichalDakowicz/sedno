@@ -12,7 +12,8 @@ let zatrzymajGrajacy: (() => void) | null = null;
 
 const sekundy = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
-export function FragmentNagrania({ src, fragment }: { src: string; fragment: CzescNagrania }) {
+/** podpis: numer pytania przed przyciskiem (np. w karcie omawiania, gdzie fragmentów jest kilka). */
+export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragment: CzescNagrania; podpis?: string }) {
   const [gra, setGra] = useState(false);
   const zatrzymajMoj = useRef<(() => void) | null>(null);
   useEffect(() => () => zatrzymajMoj.current?.(), []);
@@ -47,7 +48,8 @@ export function FragmentNagrania({ src, fragment }: { src: string; fragment: Cze
     <div className={styles.fragment}>
       <button type="button" className="btn btn-ghost btn-sm" onClick={przelacz} aria-pressed={gra}>
         {gra ? <Pause size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />}
-        {gra ? "Zatrzymaj" : "Posłuchaj fragmentu"}
+        {podpis && <strong>{podpis}</strong>}
+        {gra ? "Zatrzymaj" : podpis ? "Posłuchaj" : "Posłuchaj fragmentu"}
         <span className={styles.czas}>
           {sekundy(fragment.od)}–{sekundy(fragment.do)}
         </span>

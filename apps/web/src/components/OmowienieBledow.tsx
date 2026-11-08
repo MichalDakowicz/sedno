@@ -8,6 +8,8 @@ import { bezEmoji } from "../pestka";
 import { poziomAI, promptOmowienia, zrobPrzyklad, type DoOmowienia, type Przyklad } from "../arkusze/omowienie";
 import type { Postep } from "../arkusze/postep";
 import type { Arkusz } from "../arkusze/typy";
+import { werdykt } from "../arkusze/sprawdz";
+import { FragmentNagrania } from "./FragmentNagrania";
 import { Markdown } from "./Markdown";
 import { TutorAvatar } from "./TutorAvatar";
 import chat from "./TutorChat.module.css";
@@ -90,6 +92,7 @@ export function OmowienieBledow({
   const [szkic, setSzkic] = useState("");
   const listaRef = useRef<HTMLDivElement>(null);
   const nr = d.zadanie.nr;
+  const fragmentyBledow = d.zadanie.pytania.filter((p) => p.fragment && werdykt(p, postep.odpowiedzi[p.nr]) !== "dobrze");
   const ostatni = numer === wszystkich;
 
   const kartaRef = useRef<HTMLElement>(null);
@@ -176,11 +179,19 @@ export function OmowienieBledow({
     return () => el?.removeAttribute("data-omawiane");
   }, [nr]);
 
+  // Podczas strumienia lista jedzie za tekstem bez wygładzania (płynne przewijanie przy każdym
+  // kawałku odpowiedzi się zacinało); po odpowiedzi przewija się płynnie.
   useEffect(() => {
-    listaRef.current?.scrollTo({ top: listaRef.current.scrollHeight, behavior: "smooth" });
+    listaRef.current?.scrollTo({ top: listaRef.current.scrollHeight, behavior: mysli ? "auto" : "smooth" });
   }, [rozmowa, mysli, przyklad]);
 
+  // Pestka myśli, póki czeka na odpowiedź, a mówi (ruszają się usta), gdy tekst już płynie.
+  const pisze = mysli && rozmowa.at(-1)?.od === "tutor" && !!rozmowa.at(-1)?.tekst;
+  const stanPestki = pisze ? "talking" : mysli || przyklad?.stan === "laduje" ? "thinking" : "idle";
+
   async function zapytaj(historia: Wiadomosc[]) {
+    // Wiadomość ucznia widać od razu, a nie dopiero z pierwszym kawałkiem odpowiedzi Pestki.
+    setRozmowa(historia);
     setMysli(true);
     const wiadomosci: AiMessage[] = [
       { role: "system", content: promptOmowienia(arkusz, d, postep) },
@@ -237,7 +248,7 @@ export function OmowienieBledow({
     <section ref={kartaRef} className={styles.karta} aria-label={`Omawianie zadania ${nr} z Pestką`} data-tutor="omowienie">
       <header className={styles.head}>
         <span ref={avatarRef} className={styles.avatarMiejsce}>
-          <TutorAvatar size={40} state={mysli || przyklad?.stan === "laduje" ? "thinking" : "idle"} className={styles.avatar} />
+          <TutorAvatar size={40} state={stanPestki} className={styles.avatar} />
         </span>
         <span className="label">
           {d.wypracowanie ? "Wypracowanie" : "Błąd"} {numer} z {wszystkich} · zadanie {nr}.
@@ -248,11 +259,13 @@ export function OmowienieBledow({
       </header>
 
       <div className={`${chat.list} ${styles.lista}`} ref={listaRef} aria-live="polite">
-        {numer === 1 && (
-          <p className={styles.zapowiedz}>
-            Omówimy {wszystkich === 1 ? "jedno zadanie" : wszystkich < 5 ? `${wszystkich} zadania` : `${wszystkich} zadań`}. Przy każdym najpierw
-            zapytam, potem wyjaśnię, a na koniec możesz poprosić o przykład do sprawdzenia.
-          </p>
+        {/* Zadanie ze słuchania: fragmenty nagrania przy błędnych pytaniach, żeby odsłuchać, rozmawiając z Pestką. */}
+        {arkusz.nagranie && fragmentyBledow.length > 0 && (
+          <div className={styles.nagrania}>
+            {fragmentyBledow.map((p) => (
+              <FragmentNagrania key={p.nr} src={arkusz.nagranie!} fragment={p.fragment!} podpis={`${p.nr}.`} />
+            ))}
+          </div>
         )}
         {rozmowa.map((m, i) =>
           m.od === "tutor" ? (
@@ -265,7 +278,7 @@ export function OmowienieBledow({
             </p>
           ),
         )}
-        {mysli && !rozmowa.at(-1)?.tekst && (
+        {mysli && (rozmowa.at(-1)?.od !== "tutor" || !rozmowa.at(-1)?.tekst) && (
           <span className={chat.typing} aria-label="Pestka pisze">
             <i />
             <i />

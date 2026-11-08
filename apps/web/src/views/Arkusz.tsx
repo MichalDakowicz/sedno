@@ -789,7 +789,11 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
       </>
       )}
       <div className={styles.content}>
-        {podzielNaCzesci(grupujPrawdaFalsz(bloki, zadanie), arkusz.przedmiot === "angielski").map((c, i) => (
+        {podzielNaCzesci(
+          grupujPrawdaFalsz(bloki, zadanie),
+          arkusz.przedmiot === "angielski",
+          new Set(zadanie.pytania.filter((p) => !p.tresc.trim()).map((p) => p.nr)),
+        ).map((c, i) => (
           <div key={i} className={styles.part} data-rodzaj={c.rodzaj}>
             {c.polecenie && (
               <p className={styles.instruction}>
@@ -893,9 +897,13 @@ const ETYKIETA_TEKSTU = /^(Tekst|Text)\s+\d/;
 // do czytania i dostaje wyróżnienie (poza matematyką, gdzie nagłówki to
 // podpunkty, a nie tytuły tekstów). Sąsiednie przypisy („Na podstawie: …”,
 // „Źródło: …”) łączymy w jedną drobną linię pod tekstem: to atrybucja CKE.
-function podzielNaCzesci(elementy: ElementZadania[], teksty: boolean): Czesc[] {
+// oznaczenia: pytania bez własnej treści (np. kratka „4.1.” na nagłówek akapitu). Taka kratka tuż
+// przed akapitem należy do tekstu, więc nie rozcina go na części oddzielone liniami.
+function podzielNaCzesci(elementy: ElementZadania[], teksty: boolean, oznaczenia: Set<string>): Czesc[] {
   const czesci: Czesc[] = [];
   elementy.forEach((e, i) => {
+    const nast = elementy[i + 1];
+    const oznaczenieAkapitu = !Array.isArray(e) && e.typ === "pytanie" && oznaczenia.has(e.nr) && !!nast && !Array.isArray(nast) && nast.typ === "akapit";
     const ost = czesci[czesci.length - 1];
     if (
       !Array.isArray(e) &&
@@ -909,7 +917,7 @@ function podzielNaCzesci(elementy: ElementZadania[], teksty: boolean): Czesc[] {
       czesci.push({ rodzaj: "pytania", elementy: [], polecenie: e.tekst });
       return;
     }
-    const tresc = jestTrescia(e);
+    const tresc = jestTrescia(e) || oznaczenieAkapitu;
     const c = ost && (ost.rodzaj !== "pytania") === tresc ? ost : ({ rodzaj: tresc ? "tresc" : "pytania", elementy: [] } satisfies Czesc);
     if (c !== ost) czesci.push(c);
     const poprzedni = c.elementy[c.elementy.length - 1];
@@ -2267,7 +2275,7 @@ function PoleLitery({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function WierszTabeli({ pytanie: p }: { pytanie: PytanieZamkniete }) {
-  const { postep, sprawdzone } = useCtx();
+  const { arkusz, postep, sprawdzone } = useCtx();
   const w = werdykt(p, postep.odpowiedzi[p.nr]);
   return (
     <div className={styles.row}>
@@ -2277,6 +2285,11 @@ function WierszTabeli({ pytanie: p }: { pytanie: PytanieZamkniete }) {
         <span className={styles.rowVerdict} data-werdykt={w}>
           {w === "dobrze" ? <Check size={16} aria-label="dobrze" /> : <X size={16} aria-label="źle" />}
           {w !== "dobrze" && <span className="small">poprawna: {p.poprawna}</span>}
+        </span>
+      )}
+      {sprawdzone(p.nr) && p.fragment && arkusz.nagranie && (
+        <span className={styles.rowFragment}>
+          <FragmentNagrania src={arkusz.nagranie} fragment={p.fragment} />
         </span>
       )}
     </div>
