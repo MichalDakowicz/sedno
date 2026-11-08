@@ -25,13 +25,27 @@ export function normalizuj(s: string): string {
     .trim();
 }
 
+// Wynik zadania praktycznego z informatyki: program wypisuje „41498.2”, klucz ma „41498,2 kg”,
+// a odpowiedzi w kilku wierszach różnią się odstępami i etykietami „a)”. Porównujemy więc same
+// znaki bez odstępów, jednostek, etykiet podpunktów i zer na końcu części ułamkowej.
+export function normalizujWynik(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/(^|\s)[a-h]\)\s/g, " ")
+    .replace(/(\d),(\d)/g, "$1.$2")
+    .replace(/(^|\s)(kg|zł|razy|m3)(?=\s|$)/g, " ")
+    .replace(/[\s,;:"'„”]/g, "")
+    .replace(/(\.\d*?)0+(?!\d)/g, "$1")
+    .replace(/\.(?!\d)/g, "");
+}
+
 export function werdykt(p: Pytanie, odpowiedz: string | undefined): Werdykt {
   const o = (odpowiedz ?? "").trim();
   if (!o) return "pusto";
   if (p.typ === "zamkniete") return o === p.poprawna ? "dobrze" : "zle";
   if (p.typ === "wypowiedz") return "do-oceny";
-  const n = normalizuj(o);
-  const zgodne = (lista?: string[]) => lista?.some((x) => normalizuj(x) === n) ?? false;
+  const n = p.wynik ? normalizujWynik(o) : normalizuj(o);
+  const zgodne = (lista?: string[]) => lista?.some((x) => (p.wynik ? normalizujWynik(x) : normalizuj(x)) === n) ?? false;
   // Akceptowane wygrywają z odrzuconymi: na listach odrzuconych bywa ta sama
   // odpowiedź z inną pisownią wielkich liter (np. „i had to go”).
   if (zgodne(p.oczekiwane) || zgodne(p.akceptowane)) return "dobrze";

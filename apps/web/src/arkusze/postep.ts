@@ -11,6 +11,9 @@ import type { Odpowiedzi, Samoocena } from "./sprawdz";
 // więc synchronizują się razem z resztą postępu.
 export type Brudnopis = { elementy: readonly unknown[]; zmieniony: string };
 
+// Warsztat przy zadaniu z informatyki: kod w Pythonie, zapytanie SQL i otwarta karta.
+export type Warsztat = { tryb?: "python" | "sql" | "dane"; python?: string; sql?: string };
+
 // Zegar rozwiązywania na czas. start: chwila wznowienia (ms) albo null przy pauzie; zuzyte: czas sprzed
 // ostatniego wznowienia; ogloszone: momenty, o których Pestka już powiedziała.
 export type Czas = { start: number | null; zuzyte: number; ogloszone?: string[] };
@@ -27,6 +30,7 @@ export type Postep = {
   omowione?: Record<number, "dobrze" | "zle">;
   // Rozmowy z Pestką z omawiania błędów, żeby po powrocie do zadania były na miejscu. Klucz: numer zadania.
   rozmowyOmowien?: Record<number, { od: "tutor" | "uczen"; tekst: string }[]>;
+  warsztat?: Record<number, Warsztat>; // klucz: numer zadania
   czasZadan?: Record<number, number>; // ms myślenia nad zadaniem, klucz: numer zadania (arkusze/czasZadan.ts)
 };
 

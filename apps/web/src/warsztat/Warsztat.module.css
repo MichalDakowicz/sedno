@@ -1,0 +1,221 @@
+/* Warsztat pod zadaniem z informatyki. Oddzielony linią jak reszta części zadania. */
+.warsztat {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.glowa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+
+.karty {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.karta {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.karta:hover {
+  color: var(--fg);
+  background: var(--surface);
+}
+
+.karta[aria-selected="true"] {
+  color: var(--fg);
+  background: var(--surface);
+  border-color: transparent;
+  box-shadow: var(--shadow-float);
+}
+
+.pliki {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.plik {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font: inherit;
+  font-size: 14px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.plik:hover {
+  border-color: var(--subtle);
+}
+
+.zip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.narzedzie {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.edytor {
+  min-height: 180px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.edytor :global(.cm-editor) {
+  min-height: 180px;
+  max-height: 60vh;
+}
+
+.edytor :global(.cm-scroller) {
+  overflow: auto;
+}
+
+.akcje {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.wyjscie {
+  margin: 0;
+  max-height: 320px;
+  overflow: auto;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: var(--dark);
+  color: #f3efe9;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.wyjscie :global(.muted) {
+  color: #b9b2aa;
+}
+
+.blad {
+  color: #ff9b8a;
+}
+
+pre.blad {
+  color: #ff9b8a;
+}
+
+.utworzony summary {
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.wstaw {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+.schemat {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.schemat > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+}
+
+.schemat dt {
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.schemat dd {
+  margin: 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.tabelaWrap {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tabelaWrap > table {
+  display: block;
+  max-height: 420px;
+  overflow: auto;
+}
+
+.tabela {
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela th,
+.tabela td {
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tabela td[data-liczba] {
+  text-align: right;
+}
+
+.tabela th {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  font-weight: 600;
+}
+
+.tabela th button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}

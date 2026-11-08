@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  CodeXml,
   Footprints,
   GraduationCap,
   Languages,
@@ -18,6 +19,7 @@ const subjectIcons: Record<string, LucideIcon> = {
   polski: BookOpen,
   matematyka: Sigma,
   angielski: Languages,
+  informatyka: CodeXml,
 };
 
 export const formatIcons: Record<Format, LucideIcon> = {

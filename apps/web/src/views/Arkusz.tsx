@@ -2,7 +2,7 @@ import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutE
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
-import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep } from "../arkusze/postep";
+import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
@@ -24,6 +24,7 @@ import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
 import { PoleMatematyczne } from "../components/PoleMatematyczne";
+import { Warsztat } from "../warsztat/Warsztat";
 import { OmowienieBledow, type Wejscie } from "../components/OmowienieBledow";
 import { FragmentNagrania } from "../components/FragmentNagrania";
 import { rozklejPestke } from "../components/rozklejPestke";
@@ -42,6 +43,7 @@ type Kontekst = {
   ustaw: (nr: string, wartosc: string) => void;
   ocen: (nr: string, ocena: boolean | number) => void;
   ustawBrudnopis: (zadanie: number, zapis: ZapisBrudnopisu | null) => void;
+  ustawWarsztat: (zadanie: number, zapis: ZapisWarsztatu) => void;
   pytania: Map<string, Pytanie>;
   luki: Map<Blok, Luka>; // zdania z luką na część odpowiedzi otwartej
   kadryTekst: Map<Blok, Blok[]>; // wycinki z luką jako tekst (tylko pełny ekran)
@@ -331,6 +333,14 @@ export function Arkusz() {
           const odpowiedzi = { ...p.odpowiedzi };
           for (const nr of obliczenia) if (nrZadania(nr) === Number(zadanie)) odpowiedzi[nr] = zapis ? ODPOWIEDZ_NA_PLOTNIE : "";
           return dodajCzas({ ...p, brudnopisy, odpowiedzi }, Number(zadanie), ms);
+        });
+      },
+      // Kod w warsztacie, jak brudnopis, zostaje do dyspozycji także po sprawdzeniu.
+      ustawWarsztat: (zadanie, zapis) => {
+        const ms = odmierz(ciszaTezLiczy);
+        zmien((p) => {
+          const z = { ...p, warsztat: { ...p.warsztat, [zadanie]: zapis } };
+          return p.sprawdzony || p.sprawdzoneZadania.includes(zadanie) ? z : dodajCzas(z, zadanie, ms);
         });
       },
     };
@@ -732,7 +742,7 @@ function stronyZadania(z: Zadanie): number[] {
 
 /** strona: arkusz w stronach; zadanie pokazuje tylko to, co leży na tej stronie. */
 function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopraw: () => void; strona?: number }) {
-  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki, tabele, opcjeNaRysunkach, ukryteKodem } = useCtx();
+  const { arkusz, postep, wBloku, sprawdzone, ustaw, ustawBrudnopis, ustawWarsztat, luki, tabele, opcjeNaRysunkach, ukryteKodem } = useCtx();
   const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
@@ -758,7 +768,9 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
       {pierwsza && (
       <>
       <header className={styles.taskHead}>
-        <h2 className="h3">Zadanie {zadanie.nr}.</h2>
+        <h2 className="h3">
+          Zadanie {zadanie.nr}.{zadanie.tytul && <span className={styles.taskTitle}> {zadanie.tytul}</span>}
+        </h2>
         <span className="small muted">
           {gotowe && !pisemna ? `${wynik.zdobyte} / ${zadanie.punkty} pkt` : `0–${zadanie.punkty} pkt`}
           {gotowe && postep.czasZadan?.[zadanie.nr] ? ` · ${minuty(postep.czasZadan[zadanie.nr]!)}` : ""}
@@ -777,7 +789,7 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
       </>
       )}
       <div className={styles.content}>
-        {podzielNaCzesci(grupujPrawdaFalsz(bloki, zadanie), arkusz.przedmiot !== "matematyka").map((c, i) => (
+        {podzielNaCzesci(grupujPrawdaFalsz(bloki, zadanie), arkusz.przedmiot === "angielski").map((c, i) => (
           <div key={i} className={styles.part} data-rodzaj={c.rodzaj}>
             {c.polecenie && (
               <p className={styles.instruction}>
@@ -826,6 +838,17 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
             </Kompakt.Provider>
           }
           duzyRysunek={[...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie))}
+        />
+      )}
+      {ostatnia && arkusz.przedmiot === "informatyka" && zadanie.pytania.some((p) => p.typ === "otwarte" && !p.kod) && (
+        <Warsztat
+          zadanie={zadanie}
+          pliki={arkusz.dane?.pliki ?? {}}
+          zip={arkusz.dane?.zip}
+          zapis={postep.warsztat?.[zadanie.nr]}
+          onZapis={(z) => ustawWarsztat(zadanie.nr, z)}
+          doWstawienia={zadanie.pytania.filter((p) => p.typ === "otwarte" && !p.kod && !sprawdzone(p.nr)).map((p) => p.nr)}
+          onWstaw={ustaw}
         />
       )}
       {/* Sprawdzamy tylko cały arkusz, jak na maturze, a błędy omawia potem Pestka.
@@ -2374,6 +2397,24 @@ function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: Pyta
         <PoleMatematyczne wartosc={wartosc} onZmiana={(latex) => ustaw(p.nr, latex)} tylkoOdczyt={gotowe} etykieta={`Odpowiedź ${p.nr}`} szerokie />
       </span>
     );
+  // Informatyka: wynik bywa kilkoma wierszami (wyjście programu, lista nazw), a odpowiedzią bywa algorytm czy zapytanie.
+  if (blok && arkusz.przedmiot === "informatyka" && !p.kod)
+    return (
+      <span className={styles.blockGap} data-werdykt={w}>
+        <textarea
+          className={styles.codeAnswer}
+          value={wartosc}
+          rows={Math.min(14, Math.max(3, wartosc.split("\n").length + 1))}
+          readOnly={gotowe}
+          autoComplete="off"
+          autoCapitalize="off"
+          spellCheck={false}
+          onChange={(e) => ustaw(p.nr, e.target.value)}
+          placeholder={p.wynik ? "wynik: wpisz albo wstaw z programu" : "odpowiedź, algorytm albo zapytanie"}
+          aria-label={`Odpowiedź ${p.nr}`}
+        />
+      </span>
+    );
   return (
     <span className={blok ? styles.blockGap : styles.inlineGap} data-werdykt={w}>
       {!blok && !bezNumeru && <span className={styles.gapNr}>{p.nr}.</span>}
@@ -2474,7 +2515,19 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
               </a>
             </p>
           )}
-          {p.oczekiwane?.length ? (
+          {p.rozwiazanie ? (
+            // Informatyka: rozwiązanie z klucza w układzie z klucza (wiersze wyniku, wcięcia pseudokodu).
+            <>
+              <span className="label">Rozwiązanie CKE</span>
+              <pre className={styles.keyCode}>{p.rozwiazanie}</pre>
+              {p.zasady && (
+                <details>
+                  <summary className="small">Zasady oceniania</summary>
+                  <p className={`small muted ${styles.keyRules}`}>{p.zasady}</p>
+                </details>
+              )}
+            </>
+          ) : p.oczekiwane?.length ? (
             <p>
               <span className="label">Oczekiwana</span> {p.oczekiwane.slice(0, 6).join(" / ")}
             </p>
