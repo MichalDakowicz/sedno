@@ -105,6 +105,7 @@ type Props = {
   onZamknij: () => void;
   /** Rysunki obok rysunku zadania, np. wykresy opcji A–F do zaznaczania. */
   dodatkoweRysunki?: Obraz[];
+  pokazDodatkowe?: boolean;
   /** Zadanie bez obliczeń (odczyt z wykresu): rysunek większy, do zaznaczania na nim. */
   duzyRysunek?: boolean;
 };
@@ -246,6 +247,10 @@ async function naWykresy(obraz: Obraz): Promise<Obraz[]> {
   }
 }
 
+// Dodatkowe rysunki ukrywamy (isDeleted), zamiast je usuwać: wracają przy następnym podpunkcie.
+const zDodatkowymi = (els: readonly ExcalidrawElement[], pokaz: boolean) =>
+  els.map((e) => (czyBazowy(e.id) && e.id !== ID_RYSUNKU && e.isDeleted === pokaz ? newElementWith(e, { isDeleted: !pokaz }) : e));
+
 async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileData | null> {
   try {
     // Data URL z importu idzie wprost do Excalidraw; fetch obsłuży też starszą ścieżkę.
@@ -265,9 +270,11 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
   }
 }
 
-export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, duzyRysunek, dodatkoweRysunki = [] }: Props) {
+export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, duzyRysunek, dodatkoweRysunki = [], pokazDodatkowe = true }: Props) {
   const [startowaGrubosc] = useState(zapamietanaGrubosc);
   const przyciete = useRef<Obraz[]>([]);
+  const pokaz = useRef(pokazDodatkowe);
+  pokaz.current = pokazDodatkowe;
   const api = useRef<ExcalidrawImperativeAPI | null>(null);
   const wersja = useRef<number | null>(null);
   const wczytana = useRef(false);
@@ -289,9 +296,10 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
       // Rysunek zadania zostaje z zapisu (szkic leży na nim), a brakujący dokładamy. Dodatkowe
       // rysunki układamy zawsze od nowa, bo ich podział i siatka mogły się zmienić.
       const zapisanyGlowny = zapisane.some((e) => e.id === ID_RYSUNKU);
-      const sceny = zapisane.length
+      const wszystkie = zapisane.length
         ? [...bazowe.filter((b) => b.id !== ID_RYSUNKU || !zapisanyGlowny), ...zapisane.filter((e) => !czyBazowy(e.id) || e.id === ID_RYSUNKU)]
         : bazowe;
+      const sceny = zDodatkowymi(wszystkie, pokaz.current);
       const pliki = (await Promise.all(rysunkiBazowe(plik, rysunek, dodatkowe).map((r) => wczytajRysunek(r.plik, r.obraz)))).filter((p): p is BinaryFileData => !!p);
       wczytana.current = true;
       return {
@@ -332,8 +340,19 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   );
 
   const wyczysc = () => {
-    api.current?.updateScene({ elements: elementyBazowe(plik, rysunek, przyciete.current), captureUpdate: CaptureUpdateAction.IMMEDIATELY });
+    api.current?.updateScene({ elements: zDodatkowymi(elementyBazowe(plik, rysunek, przyciete.current), pokaz.current), captureUpdate: CaptureUpdateAction.IMMEDIATELY });
   };
+
+  // Zmiana podpunktu na pełnym ekranie: wykresy opcji znikają albo wracają, a widok obejmuje to, co widać.
+  useEffect(() => {
+    const a = api.current;
+    if (!a || !wczytana.current || !dodatkoweRysunki.length) return;
+    a.updateScene({ elements: zDodatkowymi(a.getSceneElementsIncludingDeleted(), pokazDodatkowe), captureUpdate: CaptureUpdateAction.NEVER });
+    // Treść nad płótnem ma w innym podpunkcie inną wysokość: dopasowujemy po zmianie rozmiaru płótna.
+    const t = window.setTimeout(() => dopasuj(true), 200);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pokazDodatkowe]);
 
   // Stan paska narzędzi odbija stan edytora (skróty klawiszowe też zmieniają narzędzie).
   const [narzedzie, setNarzedzie] = useState<Narzedzie>("freedraw");

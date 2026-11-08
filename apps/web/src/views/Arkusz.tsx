@@ -18,7 +18,7 @@ import {
   type Wypowiedz,
   type Zadanie,
 } from "../arkusze/typy";
-import { Brudnopis, otworzNaPelnymEkranie } from "../components/Brudnopis";
+import { Brudnopis, otworzNaPelnymEkranie, PokazDodatkoweRysunki } from "../components/Brudnopis";
 import { TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
@@ -82,7 +82,7 @@ export function Arkusz() {
     const tabele = new Map<string, TabelaDopasowania>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
-      lukiZadania(z)?.forEach((l, b) => luki.set(b, l));
+      (lukiZadania(z) ?? pojedynczeLuki(z)).forEach((l, b) => luki.set(b, l));
       pytaniaZObliczeniami(z).forEach((nr) => obliczenia.add(nr));
       tabeleDopasowania(z).forEach((t, nr) => tabele.set(nr, t));
       wyboryDwoch(z).forEach((w, nr) => {
@@ -526,7 +526,7 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
               <TrescKompakt zadanie={zadanie} bloki={bloki} />
             </Kompakt.Provider>
           }
-          duzyRysunek={[...luki.values()].some((l) => zadanie.pytania.includes(l.pytanie))}
+          duzyRysunek={[...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie))}
         />
       )}
       {!pisemna && !postep.sprawdzony && (
@@ -623,7 +623,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow, obliczenia, pf, tabele } = useCtx();
   const plik = `${arkusz.id}-${zadanie.nr}`;
   // Odpowiedzi w lukach zdań: bez kolumny odpowiedzi, po prawej staje rysunek.
-  const zLukami = [...luki.values()].some((l) => zadanie.pytania.includes(l.pytanie));
+  const zLukami = [...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie));
   const i = arkusz.zadania.findIndex((z) => z.nr === zadanie.nr);
   const [poprzednie, nastepne] = [arkusz.zadania[i - 1], arkusz.zadania[i + 1]];
   // Rysunek zadania i tak leży na płótnie brudnopisu: nie powtarzamy go, a wycinek
@@ -659,6 +659,10 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   // Nagłówek podpunktu („Zadanie 12.1 (0–2 pkt)”) zastępuje numer w nagłówku widoku.
   const bloki = podzial && aktywny ? [...podzial.wstep, ...aktywny.filter((b) => b.typ !== "naglowek")] : calosc;
   const numer = (aktywny && numerPodpunktu(aktywny)) ?? String(zadanie.nr);
+  // Wykresy opcji A–F na płótnie tylko przy podpunkcie z tabelą przyporządkowania.
+  const ustawDodatkowe = useContext(PokazDodatkoweRysunki);
+  const zTabela = !aktywny || aktywny.some((b) => b.typ === "pytanie" && tabele.has(b.nr));
+  useEffect(() => ustawDodatkowe(zTabela), [ustawDodatkowe, zTabela]);
 
   const wstecz = () => {
     if (podzial && podpunkt > 0) return setPodpunkt(podpunkt - 1);
@@ -787,6 +791,25 @@ function lukiZadania(z: Zadanie): Map<Blok, Luka> | null {
   return new Map(zdania.map((b, czesc) => [b, { pytanie: p, czesc, ile: zdania.length }]));
 }
 
+// Pytanie otwarte z jednym zdaniem do dokończenia („Zbiorem … jest przedział …… .”):
+// odpowiedź wpisuje się w lukę tego zdania, bez osobnego pola pod nim.
+function pojedynczeLuki(z: Zadanie): Map<Blok, Luka> {
+  const wynik = new Map<Blok, Luka>();
+  let sekcja: Blok[] = [];
+  for (const b of z.bloki) {
+    if (b.typ !== "pytanie") {
+      sekcja.push(b);
+      continue;
+    }
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    const zLuka = sekcja.filter((x) => x.typ === "akapit" && !x.polecenie && ZNACZNIK_LUKI.test(x.tekst));
+    const obliczenia = POLECENIE_OBLICZEN.test(sekcja.map((x) => ("tekst" in x ? x.tekst : "")).join(" "));
+    if (p?.typ === "otwarte" && !p.tresc && !p.kod && !obliczenia && zLuka.length === 1) wynik.set(zLuka[0], { pytanie: p, czesc: 0, ile: 1 });
+    sekcja = [];
+  }
+  return wynik;
+}
+
 const czesciOdpowiedzi = (odpowiedz: string | undefined, ile: number) => {
   const czesci = (odpowiedz ?? "").split("\n");
   return Array.from({ length: ile }, (_, i) => czesci[i] ?? "");
@@ -801,6 +824,10 @@ function ZdanieZLuka({ tekst, luka }: { tekst: string; luka: Luka }) {
   return (
     <div className={`${styles.para} ${styles.zdanieLuka}`}>
       <Tekst tekst={przed} />
+      {ile === 1 && (p.oczekiwane?.length || p.akceptowane?.length) ? (
+        // Odpowiedź porównywana z kluczem jako tekst: zwykłe pole w luce.
+        <LukaTekst pytanie={p} bezNumeru />
+      ) : (
       <PoleMatematyczne
         wartosc={czesci[czesc]}
         tylkoOdczyt={sprawdzone(p.nr)}
@@ -812,6 +839,7 @@ function ZdanieZLuka({ tekst, luka }: { tekst: string; luka: Luka }) {
           ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
         }}
       />
+      )}
       <Tekst tekst={po} />
     </div>
   );

@@ -1,6 +1,6 @@
 // Brudnopis przy zadaniu: szkic w Excalidraw, opcjonalnie na rysunku z treści.
 // To pomoc, nie forma odpowiedzi: zadania zamknięte zostają zamknięte.
-import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
+import { createContext, lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { PenLine } from "lucide-react";
 import type { Brudnopis as Zapis } from "../arkusze/postep";
 import type { Obraz } from "../arkusze/typy";
@@ -44,6 +44,10 @@ function zapiszTryb(plik: string, tryb: Tryb) {
 const ZDARZENIE_PELNY = "sedno:brudnopis-pelny";
 export const otworzNaPelnymEkranie = (plik: string) => window.dispatchEvent(new CustomEvent(ZDARZENIE_PELNY, { detail: plik }));
 
+// Treść nad płótnem na pełnym ekranie mówi, czy pokazać dodatkowe rysunki (wykresy opcji
+// A–F): są potrzebne tylko w podpunkcie, którego dotyczą.
+export const PokazDodatkoweRysunki = createContext<(pokaz: boolean) => void>(() => {});
+
 type Props = {
   plik: string;
   zadanie: number;
@@ -58,6 +62,7 @@ type Props = {
 
 export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc, duzyRysunek, dodatkoweRysunki }: Props) {
   const [tryb, setTryb] = useState<Tryb>(() => wczytajTryb(plik));
+  const [pokazDodatkowe, setPokazDodatkowe] = useState(true);
   const otwarty = tryb !== "zamkniety";
   const pelny = tryb === "pelny";
   useEffect(() => zapiszTryb(plik, tryb), [plik, tryb]);
@@ -111,7 +116,11 @@ export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc, duzy
       aria-modal={pelny || undefined}
     >
       {/* Przy zmianie trybu edytor zostaje ten sam, więc szkic i historia cofania nie giną. */}
-      {pelny && tresc && <div className={styles.task}>{tresc}</div>}
+      {pelny && tresc && (
+        <PokazDodatkoweRysunki.Provider value={setPokazDodatkowe}>
+          <div className={styles.task}>{tresc}</div>
+        </PokazDodatkoweRysunki.Provider>
+      )}
       <Suspense fallback={<Ladowanie ksztalt="blok" etykieta="Wczytuję brudnopis" />}>
         <Edytor
           plik={plik}
@@ -121,6 +130,8 @@ export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc, duzy
           pelny={pelny}
           duzyRysunek={duzyRysunek}
           dodatkoweRysunki={dodatkoweRysunki}
+          // Poza pełnym ekranem płótno obejmuje całe zadanie, więc widać wszystkie rysunki.
+          pokazDodatkowe={!pelny || pokazDodatkowe}
           onPelny={() => setTryb((t) => (t === "pelny" ? "otwarty" : "pelny"))}
           onZamknij={() => setTryb("zamkniety")}
         />
