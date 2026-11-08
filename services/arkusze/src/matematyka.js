@@ -222,6 +222,12 @@ export function kluczMatematyki(strony) {
         tryb = "wersje";
         continue;
       }
+      // Klucz po zdaniach („29.1. C”, „29.2. A”): litera dla każdej luki z osobna.
+      const wybor = tryb === "wersje" && l.seg[0].s.match(/^(\d+\.\d+)\.\s*([A-Z])$/);
+      if (wybor) {
+        (akt.wybory ??= {})[wybor[1]] = wybor[2];
+        continue;
+      }
       if (tryb === "wersje" && KOD.test(l.seg[0].s)) {
         akt.kod = (akt.kod ?? "") + l.seg[0].s;
         continue;
@@ -300,6 +306,26 @@ function podobienstwo(a, b) {
   return (2 * poprz[b.length]) / (a.length + b.length);
 }
 
+// „Uzupełnij zdania 1. i 2. Zapisz po numerze zdania właściwą odpowiedź, wybraną spośród
+// oznaczonych literami A–E” z kluczem po zdaniach (29.1. C, 29.2. A): luka „……” w zdaniu
+// „1. …” staje się znacznikiem {{29.1}}, a opcja dopisana akapitem („E. 5,70 zł”, DOCX
+// nie trzyma jej w liście) dołącza do bloku opcji. Bez pasujących zdań zwraca null.
+function lukiZWyborem(z, od, f, k) {
+  const wybory = Object.entries(k.wybory).sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }));
+  const bloki = z.bloki.slice(od);
+  const zdania = wybory.map(([nr]) => bloki.find((b) => b.typ === "akapit" && b.tekst.startsWith(`${nr.split(".")[1]}. `) && /…{2,}|\.{4,}/.test(b.tekst)));
+  const opcje = bloki.find((b) => b.typ === "opcje");
+  if (zdania.some((b) => !b) || !opcje) return null;
+  zdania.forEach((b, i) => (b.tekst = b.tekst.replace(/…{2,}|\.{4,}/, `{{${wybory[i][0]}}}`)));
+  const dopisane = bloki.filter((b) => b.typ === "akapit" && /^[A-Z]\.\s/.test(b.tekst));
+  for (const b of dopisane) {
+    opcje.opcje.push({ litera: b.tekst[0], tresc: b.tekst.slice(3).trim() });
+    z.bloki.splice(z.bloki.indexOf(b), 1);
+  }
+  opcje.opcje.sort((a, b) => a.litera.localeCompare(b.litera));
+  return { wybory, litery: opcje.opcje.map((o) => o.litera) };
+}
+
 // Fragmenty z kluczem składamy w zadania w formacie aplikacji (apps/web/src/arkusze/typy.ts).
 export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
   const ostrzezenia = [];
@@ -343,6 +369,14 @@ export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
     if (!k) ostrzezenia.push(`${f.nr}: brak w kluczu`);
     else if (k.punkty !== f.punkty) ostrzezenia.push(`${f.nr}: ${f.punkty} pkt w arkuszu, ${k.punkty} w kluczu`);
     const baza = { nr: f.nr, tresc: "", punkty: f.punkty, ...(k ? { zasadyStrona: k.strona } : {}) };
+    const luki = !zamkniete && k?.wybory ? lukiZWyborem(z, od, f, k) : null;
+    if (luki) {
+      // Każda luka to osobne pytanie zamknięte w tekście ({{29.1}}), sprawdzane z kluczem.
+      for (const [nr, poprawna] of luki.wybory)
+        z.pytania.push({ nr, tresc: "", punkty: f.punkty / luki.wybory.length, zasadyStrona: k.strona, typ: "zamkniete", litery: luki.litery, poprawna });
+      z.punkty += f.punkty;
+      continue;
+    }
     if (zamkniete) {
       z.pytania.push({ ...baza, typ: "zamkniete", litery: ["A", "B", "C", "D"], poprawna: k.kod, ...(pelneOpcje ? { opcje } : {}) });
     } else if (k?.kod || k?.odpowiedz) {
