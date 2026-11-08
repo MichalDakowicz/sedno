@@ -643,6 +643,9 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   // Rysunek zadania i tak leży na płótnie brudnopisu: nie powtarzamy go, a wycinek
   // strony z opcjami na rysunku albo z luką zastępujemy jego tekstem.
   const naRysunku = !!zadanie.rysunek && zadanie.pytania.length === 1 && zadanie.pytania[0].typ === "zamkniete" && !zadanie.pytania[0].opcje?.length;
+  // Opcje w tekście wycinka (liczby, krótkie wyrażenia): pokazujemy je jako zwykłe odpowiedzi.
+  const kadrOpcji = naRysunku ? wszystkie.find((b) => b.typ === "kadr") : undefined;
+  const opcjeKadru = kadrOpcji?.typ === "kadr" ? opcjeZKadru(kadrOpcji.tekst) : null;
   const pierwszyNaglowek = wszystkie.findIndex((b) => b.typ === "naglowek");
   // Tabela przyporządkowania: wykresy opcji są na płótnie, nad nim zostaje tekst polecenia.
   const kadryTabel = new Map<Blok, Blok[]>();
@@ -771,10 +774,17 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   // Odpowiedzi w prawej kolumnie: nie spychają płótna w dół. Litery do opcji
   // z rysunku stoją jedna pod drugą, jak opcje na rysunku.
   return (
-    <div className={naRysunku ? `${styles.obok} ${styles.pionowo}` : styles.obok}>
+    <div className={naRysunku && !opcjeKadru ? `${styles.obok} ${styles.pionowo}` : styles.obok}>
       {tresc}
       <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
-        <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />
+        {opcjeKadru && zadanie.pytania[0].typ === "zamkniete" ? (
+          <div className={styles.question}>
+            <Opcje pytanie={{ ...zadanie.pytania[0], opcje: opcjeKadru }} />
+            <Informacja pytanie={zadanie.pytania[0]} />
+          </div>
+        ) : (
+          <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />
+        )}
       </div>
     </div>
   );
@@ -941,7 +951,18 @@ function kadrJakoTekst(tekst: string): Blok[] | null {
   const opcje = tekst.search(/\sA\.\s[\s\S]*\sB\.\s[\s\S]*\sC\.\s[\s\S]*\sD\.\s/);
   if (opcje < 0) return null;
   const tresc = tekst.slice(0, opcje).trim();
-  return tresc ? naAkapity(tresc) : null;
+  return tresc ? tekstBezPodpisow(tresc) : null;
+}
+
+// Opcje zapisane w tekście wycinka („A. 4 B. 9 C. 10 D. 16”). Gdy to podpisy osi z rysunków
+// („A. 0 1 3 𝑥 …”, więcej niż dwa kawałki), opcje są na rysunku i zwracamy null.
+function opcjeZKadru(tekst: string): Opcja[] | null {
+  const od = tekst.search(/\sA\.\s[\s\S]*\sB\.\s[\s\S]*\sC\.\s[\s\S]*\sD\.\s/);
+  if (od < 0) return null;
+  const czesci = (" " + tekst.slice(od).trim()).split(/\s([A-D])\.\s+/).slice(1);
+  const opcje: Opcja[] = [];
+  for (let i = 0; i + 1 < czesci.length; i += 2) opcje.push({ litera: czesci[i], tresc: czesci[i + 1].trim() });
+  return opcje.length === 4 && opcje.every((o) => o.tresc && o.tresc.split(/\s+/).length <= 2) ? opcje : null;
 }
 
 function naAkapity(tresc: string): Blok[] {
