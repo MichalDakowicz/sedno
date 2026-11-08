@@ -254,7 +254,7 @@
 }
 
 .choice[data-stan="trafiona"] .letter {
-  background: var(--success);
+  background: var(--success-strong);
   color: #fff;
 }
 
@@ -327,7 +327,7 @@
 }
 
 .segment[data-stan="trafiona"] {
-  background: var(--success);
+  background: var(--success-strong);
   color: #fff;
 }
 
@@ -453,7 +453,7 @@
 }
 
 .tfOption[data-stan="trafiona"] {
-  background: var(--success);
+  background: var(--success-strong);
   color: #fff;
 }
 

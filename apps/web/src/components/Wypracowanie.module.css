@@ -352,7 +352,7 @@
 
 .check[data-odhaczony] .checkMark {
   border-color: var(--success);
-  background: var(--success);
+  background: var(--success-strong);
   color: #fff;
 }
 
