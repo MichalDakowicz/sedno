@@ -108,7 +108,8 @@ export function Arkusz() {
       });
       z.bloki.forEach((b, i) => {
         // Wycinek z samym tekstem (niski przy długim tekście, bez rysunku) na pełnym ekranie jako tekst.
-        if (b.typ === "kadr" && b.obraz.wys < b.tekst.length * 0.35) kadryTekst.set(b, naAkapity(b.tekst));
+        // Linia tekstu na szerokości arkusza to ok. 95 znaków i 20 pkt wysokości.
+        if (b.typ === "kadr" && b.obraz.wys <= Math.ceil(b.tekst.length / 95) * 20 + 20) kadryTekst.set(b, naAkapity(b.tekst));
         const k = kadrZLuka(b, z.bloki[i + 1], z);
         if (!k) return;
         kadryTekst.set(b, k.bloki);
