@@ -942,3 +942,11 @@
     grid-column: 1 / -1;
   }
 }
+
+/* Zadanie omawiane teraz z Pestką. */
+.task[data-omawiane="true"] {
+  outline: 2px solid var(--primary);
+  outline-offset: 12px;
+  border-radius: var(--r-md);
+  transition: outline-color 0.3s ease;
+}

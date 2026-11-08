@@ -23,6 +23,8 @@ export type Postep = {
   wynik?: { zdobyte: number; mozliwe: number; kiedy: string };
   brudnopisy?: Record<string, Brudnopis>; // klucz: numer zadania
   czas?: Czas;
+  // Wynik zadania podobnego z omawiania błędów: zrozumiane albo do powtórki. Klucz: numer zadania.
+  omowione?: Record<number, "dobrze" | "zle">;
   czasZadan?: Record<number, number>; // ms myślenia nad zadaniem, klucz: numer zadania (arkusze/czasZadan.ts)
 };
 

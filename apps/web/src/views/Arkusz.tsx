@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, ChevronDown, FileText, Headphones, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Check, ChevronDown, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep } from "../arkusze/postep";
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
@@ -23,6 +23,10 @@ import { TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
+import { OmowienieBledow } from "../components/OmowienieBledow";
+import { doOmowienia } from "../arkusze/omowienie";
+import { useSession } from "../auth";
+import { useAiReady } from "../ai";
 import { uplynelo, zapisCzasu, zatrzymaj, Zegar } from "../components/Zegar";
 import { dodajCzas, minuty, norma, odmierz, opisTempa, tempo, zacznijOdmierzac } from "../arkusze/czasZadan";
 import styles from "./Arkusz.module.css";
@@ -53,6 +57,20 @@ export function Arkusz() {
 
   const sprawdzone = useCallback((nr: string) => postep.sprawdzony || postep.sprawdzoneZadania.includes(nrZadania(nr)), [postep]);
   useEffect(zacznijOdmierzac, [id]);
+  const session = useSession();
+  const ai = useAiReady(session ? session.user.id : null) === true;
+  // Który z błędów do omówienia jest otwarty (indeks w doOmowienia), null: nie omawiamy.
+  const [omawiany, setOmawiany] = useState<number | null>(null);
+  const zacznijOmawianie = () => {
+    if (dane && doOmowienia(dane, postep).length) setOmawiany(0);
+  };
+  const [params, setParams] = useSearchParams();
+  // ?omow=1 (np. z pulpitu) od razu otwiera omawianie błędów sprawdzonego arkusza.
+  useEffect(() => {
+    if (!params.has("omow") || !dane || !ai) return;
+    if (postep.sprawdzony) zacznijOmawianie();
+    setParams({}, { replace: true });
+  }, [params, dane, ai, postep.sprawdzony]);
   // W trybie na czas długa cisza to też praca nad arkuszem, nie przerwa.
   const ciszaTezLiczy = !!postep.czas?.start;
 
@@ -171,6 +189,9 @@ export function Arkusz() {
   const ustawCzas = (c: Czas | undefined) => zmien((p) => ({ ...p, czas: c }));
   const naCzas = () => ustawCzas({ start: Date.now(), zuzyte: 0 });
 
+  const listaOmowien = postep.sprawdzony ? doOmowienia(dane, postep) : [];
+  const omawiane = omawiany !== null ? listaOmowien[omawiany] : undefined;
+
   const odpowiedziane = [...kontekst.pytania.keys()].filter((nr) => postep.odpowiedzi[nr]?.trim()).length;
 
   return (
@@ -178,11 +199,36 @@ export function Arkusz() {
       <main className={`container ${styles.page}`}>
         <Naglowek arkusz={dane} onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined} />
 
-        {postep.sprawdzony && <Podsumowanie wynik={wynik} odNowa={odNowa} czas={postep.czas} limitMin={dane.czas} arkusz={dane} postep={postep} />}
+        {postep.sprawdzony && (
+          <Podsumowanie
+            wynik={wynik}
+            odNowa={odNowa}
+            czas={postep.czas}
+            limitMin={dane.czas}
+            arkusz={dane}
+            postep={postep}
+            omow={{ ile: doOmowienia(dane, postep).length, ai, start: zacznijOmawianie }}
+          />
+        )}
         {postep.czas && !postep.sprawdzony && dane.czas && <Zegar arkusz={dane.id} limitMin={dane.czas} czas={postep.czas} onZmien={ustawCzas} />}
 
         {dane.zadania.map((z) => (
-          <ZadanieWidok key={z.nr} zadanie={z} onSprawdz={() => sprawdzZadanie(z.nr)} onPopraw={() => poprawZadanie(z)} />
+          <Fragment key={z.nr}>
+            <ZadanieWidok zadanie={z} onSprawdz={() => sprawdzZadanie(z.nr)} onPopraw={() => poprawZadanie(z)} />
+            {omawiane?.zadanie.nr === z.nr && (
+              <OmowienieBledow
+                key={z.nr}
+                arkusz={dane}
+                postep={postep}
+                d={omawiane}
+                numer={omawiany! + 1}
+                wszystkich={listaOmowien.length}
+                onDalej={() => setOmawiany(omawiany! + 1)}
+                onWynikPrzykladu={(nr, w) => zmien((p) => ({ ...p, omowione: { ...p.omowione, [nr]: w } }))}
+                onZamknij={() => setOmawiany(null)}
+              />
+            )}
+          </Fragment>
         ))}
 
         <footer className={styles.footer}>
@@ -257,6 +303,7 @@ function Podsumowanie({
   limitMin,
   arkusz,
   postep,
+  omow,
 }: {
   wynik: ReturnType<typeof policz>;
   odNowa: () => void;
@@ -264,6 +311,7 @@ function Podsumowanie({
   limitMin?: number;
   arkusz: ArkuszDane;
   postep: Postep;
+  omow: { ile: number; ai: boolean; start: () => void };
 }) {
   const procent = wynik.mozliwe ? Math.round((wynik.zdobyte / wynik.mozliwe) * 100) : 0;
   return (
@@ -285,6 +333,16 @@ function Podsumowanie({
         </p>
       )}
       <TempoZadan arkusz={arkusz} postep={postep} />
+      {omow.ile > 0 &&
+        (omow.ai ? (
+          <button type="button" className="btn btn-primary" onClick={omow.start}>
+            <MessagesSquare size={18} aria-hidden="true" /> Omów błędy z Pestką ({omow.ile})
+          </button>
+        ) : (
+          <p className="small muted">
+            Pestka omówi z tobą błędy, gdy podłączysz AI w <Link to="/profil">profilu</Link>.
+          </p>
+        ))}
       <button type="button" className="btn btn-ghost btn-sm" onClick={odNowa}>
         <RotateCcw size={16} aria-hidden="true" /> Rozwiąż od nowa
       </button>
