@@ -65,7 +65,8 @@ for (const plik of pliki.sort()) {
       } else if (q.typ === "otwarte") {
         if (!q.oczekiwane?.length && !q.akceptowane?.length && !q.zasadyStrona) problemy.push(`${q.nr}: brak odpowiedzi w kluczu`);
         // Pytanie otwarte z własnym blokiem musi mieć gdzie wpisać odpowiedź.
-        const doklejone = (q.akceptowane ?? []).concat(q.oczekiwane ?? []).filter((s) => s.split(" ").length > 14);
+        // Wynik z informatyki bywa kilkoma wierszami liczb, więc długość nie świadczy o sklejeniu.
+        const doklejone = q.wynik ? [] : (q.akceptowane ?? []).concat(q.oczekiwane ?? []).filter((s) => s.split(" ").length > 14);
         if (doklejone.length) problemy.push(`${q.nr}: podejrzanie długa odpowiedź w kluczu`);
       } else if (q.typ !== "wypowiedz") problemy.push(`${q.nr}: nieznany typ ${q.typ}`);
     }
