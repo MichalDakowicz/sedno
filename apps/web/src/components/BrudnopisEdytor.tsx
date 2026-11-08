@@ -117,7 +117,8 @@ function rysunkiBazowe(plik: string, rysunek?: Obraz, dodatkowe: Obraz[] = []): 
   if (rysunek) wynik.push({ id: ID_RYSUNKU, plik, obraz: rysunek, x: 0, y: 0 });
   // Dodatkowe rysunki (wykresy opcji) w siatce po trzy w rzędzie, w kolejności liter.
   const x0 = rysunek ? rysunek.szer * SKALA_RYSUNKU + 80 : 0;
-  const kolumny = Math.min(3, dodatkowe.length);
+  // Cztery opcje w kwadracie 2 × 2, więcej po trzy w rzędzie.
+  const kolumny = dodatkowe.length === 4 ? 2 : Math.min(3, dodatkowe.length);
   const szer = Math.max(0, ...dodatkowe.map((o) => o.szer * SKALA_RYSUNKU));
   const wys = Math.max(0, ...dodatkowe.map((o) => o.wys * SKALA_RYSUNKU));
   dodatkowe.forEach((obraz, i) => {
@@ -223,10 +224,19 @@ async function naWykresy(obraz: Obraz): Promise<Obraz[]> {
       for (let x = x0; x < x1; x++) if (ciemny(x, y)) return false;
       return true;
     };
-    const kolumna = podzial(W, (x) => pustaKolumna(x, 0, H));
+    // Tekst polecenia nad rysunkami ciągnie się przez całą szerokość, więc pusty pas między
+    // kolumnami szukamy od coraz niższego wiersza; to, co nad nim, jest już nad płótnem.
+    let gora = 0;
+    let kolumna = podzial(W, (x) => pustaKolumna(x, 0, H));
+    for (let y = 8; kolumna < 0 && y < H * 0.6; y += 8) {
+      kolumna = podzial(W, (x) => pustaKolumna(x, y, H));
+      if (kolumna >= 0) gora = y;
+    }
     if (kolumna < 0) return [obraz];
-    const wiersz = podzial(H, (y) => pustyWiersz(y, 0, W));
-    const wiersze = wiersz < 0 ? [[0, H]] : [[0, wiersz], [wiersz, H]];
+    // Pas mógł trafić w ostatnią linię tekstu: schodzimy do pierwszego całkiem pustego wiersza.
+    if (gora > 0) while (gora < H * 0.6 && !pustyWiersz(gora, 0, W)) gora++;
+    const wiersz = podzial(H - gora, (y) => pustyWiersz(gora + y, 0, W));
+    const wiersze = wiersz < 0 ? [[gora, H]] : [[gora, gora + wiersz], [gora + wiersz, H]];
     const kafelki: Obraz[] = [];
     for (const [y0, y1] of wiersze)
       for (const [x0, x1] of [[0, kolumna], [kolumna, W]]) {

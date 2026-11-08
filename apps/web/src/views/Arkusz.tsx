@@ -44,6 +44,7 @@ type Kontekst = {
   pf: Map<string, StwierdzeniaPF>; // odpowiedzi kodem P/F jako przełączniki przy zdaniach
   dwie: Map<string, WyborDwoch>; // „zapisz dwie odpowiedzi spośród A–F” jako wybór
   tabele: Map<string, TabelaDopasowania>; // „Uzupełnij tabelę” literami A–F
+  opcjeNaRysunkach: Map<string, { kadr: Blok; tekst: Blok[] }>; // opcje A–D jako rysunki w wycinku
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
@@ -80,11 +81,13 @@ export function Arkusz() {
     const pf = new Map<string, StwierdzeniaPF>();
     const dwie = new Map<string, WyborDwoch>();
     const tabele = new Map<string, TabelaDopasowania>();
+    const opcjeNaRysunkach = new Map<string, { kadr: Blok; tekst: Blok[] }>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
       (lukiZadania(z) ?? pojedynczeLuki(z)).forEach((l, b) => luki.set(b, l));
       pytaniaZObliczeniami(z).forEach((nr) => obliczenia.add(nr));
       tabeleDopasowania(z).forEach((t, nr) => tabele.set(nr, t));
+      rysunkoweOpcje(z).forEach((o, nr) => opcjeNaRysunkach.set(nr, o));
       wyboryDwoch(z).forEach((w, nr) => {
         dwie.set(nr, w);
         w.ukryte.forEach((b) => ukryteKodem.add(b));
@@ -128,6 +131,7 @@ export function Arkusz() {
       pf,
       dwie,
       tabele,
+      opcjeNaRysunkach,
       postep,
       pytania,
       wBloku,
@@ -465,7 +469,7 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
 }
 
 function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSprawdz: () => void; onPopraw: () => void }) {
-  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki, tabele } = useCtx();
+  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki, tabele, opcjeNaRysunkach } = useCtx();
   const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
@@ -526,7 +530,9 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           plik={`${arkusz.id}-${zadanie.nr}`}
           zadanie={zadanie.nr}
           rysunek={zadanie.rysunek}
-          dodatkoweRysunki={zadanie.pytania.flatMap((p) => tabele.get(p.nr)?.kadry ?? []).flatMap((k) => (k.typ === "kadr" ? [k.obraz] : []))}
+          dodatkoweRysunki={zadanie.pytania
+            .flatMap((p) => [...(tabele.get(p.nr)?.kadry ?? []), ...(opcjeNaRysunkach.has(p.nr) ? [opcjeNaRysunkach.get(p.nr)!.kadr] : [])])
+            .flatMap((k) => (k.typ === "kadr" ? [k.obraz] : []))}
           zapis={postep.brudnopisy?.[zadanie.nr]}
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
           tresc={
@@ -628,7 +634,7 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
 // Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
 // Zadanie z jednym pytaniem: numer i treść po lewej, odpowiedzi po prawej.
 function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
-  const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow, obliczenia, pf, tabele } = useCtx();
+  const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow, obliczenia, pf, tabele, opcjeNaRysunkach } = useCtx();
   const plik = `${arkusz.id}-${zadanie.nr}`;
   // Odpowiedzi w lukach zdań: bez kolumny odpowiedzi, po prawej staje rysunek.
   const zLukami = [...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie));
@@ -643,6 +649,9 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   for (const p of zadanie.pytania) {
     const t = tabele.get(p.nr);
     t?.kadry.forEach((k, i) => kadryTabel.set(k, i === 0 ? naAkapity(t.wstep) : []));
+    // Opcje A–D na rysunkach: rysunki idą na płótno, nad nim zostaje tekst polecenia.
+    const o = opcjeNaRysunkach.get(p.nr);
+    if (o) kadryTabel.set(o.kadr, o.tekst);
   }
   const calosc = (zadanie.rysunek ? wszystkie.filter((b) => b.typ !== "rysunek") : wszystkie).flatMap((b) =>
     kadryTabel.has(b)
@@ -650,7 +659,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
       : b.typ === "kadr" && naRysunku
       ? (kadrJakoTekst(b.tekst) ?? [b])
       : b.typ === "kadr" && zadanie.rysunek && pierwszyNaglowek > 0 && wszystkie.indexOf(b) < pierwszyNaglowek
-        ? (wstepBezRysunku(b.tekst) ?? [b])
+        ? (wstepBezRysunku(b.tekst) ?? tekstBezPodpisow(b.tekst))
         : (kadryTekst.get(b) ??
           // Rysunek z wycinka jest na płótnie; wycinek z opcjami A–D na rysunkach zostaje obrazkiem.
           (b.typ === "kadr" && zadanie.rysunek && !/(^|\s)[A-F]\.\s/.test(b.tekst) ? tekstBezPodpisow(b.tekst) : [b])),
@@ -671,7 +680,7 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   const numer = (aktywny && numerPodpunktu(aktywny)) ?? String(zadanie.nr);
   // Wykresy opcji A–F na płótnie tylko przy podpunkcie z tabelą przyporządkowania.
   const ustawDodatkowe = useContext(PokazDodatkoweRysunki);
-  const zTabela = !aktywny || aktywny.some((b) => b.typ === "pytanie" && tabele.has(b.nr));
+  const zTabela = !aktywny || aktywny.some((b) => b.typ === "pytanie" && (tabele.has(b.nr) || opcjeNaRysunkach.has(b.nr)));
   useEffect(() => ustawDodatkowe(zTabela), [ustawDodatkowe, zTabela]);
 
   const wstecz = () => {
@@ -926,7 +935,7 @@ const NumerWidoku = createContext<string | null>(null);
 // Tekst wycinka strony (z PDF) bez etykiet opcji, które są na rysunku: „Dana jest
 // nierówność 3 − 2(1 − 2𝑥) ≥ 2𝑥 − 17 Na którym rysunku… A. 0 1 3 𝑥 B. …”.
 // Nowe zdanie po wzorze zaczyna akapit, a polecenia („Wybierz…”) są pogrubione jak w arkuszu.
-const POLECENIA = /^(Wybierz|Zapisz|Uzupełnij|Wpisz|Oblicz|Rozwiąż|Wykaż|Podaj|Zaznacz|Oceń)(?=\s)/;
+const POLECENIA = /^(Dokończ|Wybierz|Zapisz|Uzupełnij|Wpisz|Oblicz|Rozwiąż|Wykaż|Podaj|Zaznacz|Oceń)(?=\s)/;
 
 function kadrJakoTekst(tekst: string): Blok[] | null {
   const opcje = tekst.search(/\sA\.\s[\s\S]*\sB\.\s[\s\S]*\sC\.\s[\s\S]*\sD\.\s/);
@@ -1293,6 +1302,21 @@ function tekstBezPodpisow(tekst: string): Blok[] {
     .map((b) => (b.typ === "akapit" ? { ...b, tekst: b.tekst.replace(/^(?:[^\sa-ząćęłńóśźż]{1,5}\s+)+(?=[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})/u, "") } : b))
     .filter((b) => b.typ !== "akapit" || /[a-ząćęłńóśźż]{3,}/.test(b.tekst))
     .map((b) => (b.typ === "akapit" ? { ...b, polecenie: POLECENIA.test(b.tekst) || /^Oblicz\b|^Wyznacz\b/.test(b.tekst) } : b));
+}
+
+// Pytanie zamknięte z samymi literami, którego opcje A–D są rysunkami w wycinku („…jest
+// zaznaczony na rysunku A. B. C. D.”): rysunki trafiają na płótno, nad nim tekst polecenia.
+function rysunkoweOpcje(z: Zadanie): Map<string, { kadr: Blok; tekst: Blok[] }> {
+  const wynik = new Map<string, { kadr: Blok; tekst: Blok[] }>();
+  z.bloki.forEach((b, i) => {
+    const nast = z.bloki[i + 1];
+    if (b.typ !== "kadr" || nast?.typ !== "pytanie") return;
+    const p = z.pytania.find((q) => q.nr === nast.nr);
+    const etykiety = b.tekst.search(/\sA\.\s*B\.\s*C\.\s*D\.\s*$/);
+    if (p?.typ !== "zamkniete" || p.opcje?.length || etykiety < 0) return;
+    wynik.set(p.nr, { kadr: b, tekst: naAkapity(b.tekst.slice(0, etykiety).trim()) });
+  });
+  return wynik;
 }
 
 // Tabela przyporządkowania („Fragment wykresu funkcji 𝑦 = 𝑔(𝑥) przedstawiono na rysunku …”,
