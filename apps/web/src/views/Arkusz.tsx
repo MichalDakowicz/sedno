@@ -1,6 +1,6 @@
 import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, ChevronDown, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep } from "../arkusze/postep";
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
@@ -18,11 +18,12 @@ import {
   type Wypowiedz,
   type Zadanie,
 } from "../arkusze/typy";
-import { Brudnopis } from "../components/Brudnopis";
+import { Brudnopis, otworzNaPelnymEkranie, PokazDodatkoweRysunki, ZDARZENIE_PELNY } from "../components/Brudnopis";
 import { TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
+import { PoleMatematyczne } from "../components/PoleMatematyczne";
 import { OmowienieBledow } from "../components/OmowienieBledow";
 import { FragmentNagrania } from "../components/FragmentNagrania";
 import { rozklejPestke } from "../components/rozklejPestke";
@@ -42,6 +43,16 @@ type Kontekst = {
   ocen: (nr: string, ocena: boolean | number) => void;
   ustawBrudnopis: (zadanie: number, zapis: ZapisBrudnopisu | null) => void;
   pytania: Map<string, Pytanie>;
+  luki: Map<Blok, Luka>; // zdania z luką na część odpowiedzi otwartej
+  kadryTekst: Map<Blok, Blok[]>; // wycinki z luką jako tekst (tylko pełny ekran)
+  lukiKadrow: Map<Blok, Luka>;
+  obliczenia: Set<string>; // pytania, na które odpowiedzią jest rozwiązanie na płótnie
+  kody: Map<string, WyborKodu>; // odpowiedzi kodem „A albo B oraz 1.–3.” jako wybór
+  ukryteKodem: Set<Blok>; // bloki, które pokazują KodZWyborem i PrawdaFalszKod
+  pf: Map<string, StwierdzeniaPF>; // odpowiedzi kodem P/F jako przełączniki przy zdaniach
+  dwie: Map<string, WyborDwoch>; // „zapisz dwie odpowiedzi spośród A–F” jako wybór
+  tabele: Map<string, TabelaDopasowania>; // „Uzupełnij tabelę” literami A–F
+  opcjeNaRysunkach: Map<string, { kadr: Blok; tekst: Blok[] }>; // opcje A–D jako rysunki w wycinku
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
@@ -129,11 +140,26 @@ export function Arkusz() {
     window.addEventListener("hashchange", zHasha);
     return () => window.removeEventListener("hashchange", zHasha);
   }, [pokazZadanie]);
+  // Przejście na pełnym ekranie do brudnopisu zadania z innej strony: brudnopis stoi
+  // na ostatniej stronie zadania, więc tam przewracamy arkusz.
+  useEffect(() => {
+    if (!dane || !strony) return;
+    const naPrzejscie = (e: Event) => {
+      const plik = (e as CustomEvent<string>).detail;
+      const z = dane.zadania.find((x) => `${dane.id}-${x.nr}` === plik);
+      const s = z ? stronyZadania(z).at(-1) : undefined;
+      if (s !== undefined && s !== strona) idzNaStrone(s, false);
+    };
+    window.addEventListener(ZDARZENIE_PELNY, naPrzejscie);
+    return () => window.removeEventListener(ZDARZENIE_PELNY, naPrzejscie);
+  }, [dane, strony, strona, idzNaStrone]);
   // Strzałki w lewo i w prawo przewracają strony, o ile uczeń nie pisze w polu.
   useEffect(() => {
     if (!strony || strona === undefined) return;
     const naKlawisz = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      // Na pełnym ekranie brudnopisu strona pod spodem stoi w miejscu.
+      if (document.querySelector('section[role="dialog"][aria-label^="Brudnopis"]')) return;
       if ((e.target as Element).closest("input, textarea, select, [contenteditable='true'], .excalidraw")) return;
       const i = strony.indexOf(strona);
       if (e.key === "ArrowRight" && i < strony.length - 1) idzNaStrone(strony[i + 1]);
@@ -211,8 +237,50 @@ export function Arkusz() {
     const pytania = new Map<string, Pytanie>();
     const wBloku = new Set<string>();
     const opcjeZadan = new Map<number, Opcja[]>();
+    const luki = new Map<Blok, Luka>();
+    const kadryTekst = new Map<Blok, Blok[]>();
+    const lukiKadrow = new Map<Blok, Luka>();
+    const obliczenia = new Set<string>();
+    const kody = new Map<string, WyborKodu>();
+    const ukryteKodem = new Set<Blok>();
+    const pf = new Map<string, StwierdzeniaPF>();
+    const dwie = new Map<string, WyborDwoch>();
+    const tabele = new Map<string, TabelaDopasowania>();
+    const opcjeNaRysunkach = new Map<string, { kadr: Blok; tekst: Blok[] }>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
+      (lukiZadania(z) ?? pojedynczeLuki(z)).forEach((l, b) => luki.set(b, l));
+      if ([...luki.values()].some((l) => l.opcje && z.pytania.includes(l.pytanie))) opcjeDoLiter(z)?.ukryte.forEach((b) => ukryteKodem.add(b));
+      pytaniaZObliczeniami(z).forEach((nr) => obliczenia.add(nr));
+      tabeleDopasowania(z).forEach((t, nr) => tabele.set(nr, t));
+      rysunkoweOpcje(z).forEach((o, nr) => opcjeNaRysunkach.set(nr, o));
+      wyboryDwoch(z).forEach((w, nr) => {
+        dwie.set(nr, w);
+        w.ukryte.forEach((b) => ukryteKodem.add(b));
+      });
+      // Całe zadanie P/F w wycinku: na pełnym ekranie tekst, a stwierdzenia z przełącznikami (też na stronie).
+      const zKadru = pfZKadru(z);
+      if (zKadru) {
+        kadryTekst.set(zKadru.kadr, zKadru.tekst);
+        pf.set(zKadru.nr, zKadru.stwierdzenia);
+      }
+      stwierdzeniaPF(z).forEach((w, nr) => {
+        pf.set(nr, w);
+        w.ukryte.forEach((b) => ukryteKodem.add(b));
+      });
+      kodyZWyborem(z).forEach((w, nr) => {
+        kody.set(nr, w);
+        w.ukryte.forEach((b) => ukryteKodem.add(b));
+      });
+      z.bloki.forEach((b, i) => {
+        // Wycinek z samym tekstem (niski przy długim tekście, bez rysunku) na pełnym ekranie jako tekst.
+        // Linia tekstu na szerokości arkusza to ok. 95 znaków i 20 pkt wysokości.
+        if (b.typ === "kadr" && b.obraz.wys <= Math.ceil(b.tekst.length / 95) * 20 + 20) kadryTekst.set(b, naAkapity(b.tekst));
+        const k = kadrZLuka(b, z.bloki[i + 1], z);
+        if (!k) return;
+        kadryTekst.set(b, k.bloki);
+        lukiKadrow.set(...k.luka);
+      });
       for (const b of z.bloki) {
         if (b.typ === "pytanie") wBloku.add(b.nr);
         if (b.typ === "pytania" || b.typ === "tabela") b.nr.forEach((n) => wBloku.add(n));
@@ -221,6 +289,16 @@ export function Arkusz() {
     }
     return {
       arkusz: dane,
+      luki,
+      kadryTekst,
+      lukiKadrow,
+      obliczenia,
+      kody,
+      ukryteKodem,
+      pf,
+      dwie,
+      tabele,
+      opcjeNaRysunkach,
       postep,
       pytania,
       wBloku,
@@ -247,7 +325,11 @@ export function Arkusz() {
           else delete brudnopisy[zadanie];
           // Rysowanie po sprawdzeniu to już nie rozwiązywanie, więc nie dolicza czasu.
           const liczy = !p.sprawdzony && !p.sprawdzoneZadania.includes(Number(zadanie));
-          return liczy ? dodajCzas({ ...p, brudnopisy }, Number(zadanie), ms) : { ...p, brudnopisy };
+          if (!liczy) return { ...p, brudnopisy };
+          // Przy „Zapisz obliczenia” odpowiedzią jest szkic: jest szkic, jest odpowiedź do oceny.
+          const odpowiedzi = { ...p.odpowiedzi };
+          for (const nr of obliczenia) if (nrZadania(nr) === Number(zadanie)) odpowiedzi[nr] = zapis ? ODPOWIEDZ_NA_PLOTNIE : "";
+          return dodajCzas({ ...p, brudnopisy, odpowiedzi }, Number(zadanie), ms);
         });
       },
     };
@@ -274,6 +356,8 @@ export function Arkusz() {
     if (zdobyte === undefined) return;
     zmien((p) => (p.sprawdzony && p.wynik && p.wynik.zdobyte !== zdobyte ? { ...p, wynik: { ...p.wynik, zdobyte } } : p));
   }, [zdobyte, zmien]);
+
+  usePrzewiniecie(id, !!dane);
 
   if (laduje)
     return (
@@ -402,6 +486,80 @@ export function Arkusz() {
   );
 }
 
+// Przewinięcie arkusza przetrwa odświeżenie strony (w obrębie karty przeglądarki).
+// Zapisujemy zadanie u góry ekranu i przesunięcie względem niego, a nie same piksele:
+// treść nad nim dochodzi asynchronicznie (wzory, obrazki, brudnopisy) i zmienia wysokość.
+// Powrót ponawiamy przez kilka sekund, chyba że uczeń sam zacznie przewijać.
+type Miejsce = { zadanie: string; przesuniecie: number };
+
+function usePrzewiniecie(id: string, gotowe: boolean) {
+  useEffect(() => {
+    if (!gotowe) return;
+    const klucz = `sedno.przewiniecie.${id}`;
+    const zadania = () => [...document.querySelectorAll<HTMLElement>('section[id^="zadanie-"]')];
+    const gora = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
+
+    let miejsce: Miejsce | null = null;
+    try {
+      const zapis = JSON.parse(sessionStorage.getItem(klucz) ?? "null");
+      if (typeof zapis?.zadanie === "string" && typeof zapis.przesuniecie === "number") miejsce = zapis;
+    } catch {
+      // zablokowany storage albo stary zapis: zaczynamy od góry
+    }
+    const poprzednie = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+
+    let wraca = !!miejsce;
+    let klatka = 0;
+    let proby = 0;
+    const wroc = () => {
+      const el = miejsce && document.getElementById(miejsce.zadanie);
+      if (!el || !miejsce) {
+        wraca = false;
+        return;
+      }
+      const cel = Math.max(0, gora(el) + miejsce.przesuniecie);
+      if (Math.abs(window.scrollY - cel) > 1) window.scrollTo(0, cel);
+      // Ok. 5 s: tyle zwykle dochodzą wzory i obrazki.
+      if (proby++ < 300) klatka = requestAnimationFrame(wroc);
+      else wraca = false;
+    };
+    if (wraca) wroc();
+    const przerwij = () => {
+      wraca = false;
+      cancelAnimationFrame(klatka);
+    };
+
+    let timer = 0;
+    const naPrzewiniecie = () => {
+      if (wraca) return;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        const lista = zadania();
+        // Pierwsze zadanie zaczynające się na ekranie: zmiany wysokości nad nim nie przesuną widoku.
+        const u = lista.find((el) => el.getBoundingClientRect().top >= 0) ?? lista[lista.length - 1];
+        if (!u) return;
+        const zapis: Miejsce = { zadanie: u.id, przesuniecie: Math.round(window.scrollY - gora(u)) };
+        try {
+          sessionStorage.setItem(klucz, JSON.stringify(zapis));
+        } catch {
+          // brak miejsca albo zablokowany storage
+        }
+      }, 150);
+    };
+    const wejscia = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
+    wejscia.forEach((w) => window.addEventListener(w, przerwij, { passive: true }));
+    window.addEventListener("scroll", naPrzewiniecie, { passive: true });
+    return () => {
+      przerwij();
+      window.clearTimeout(timer);
+      wejscia.forEach((w) => window.removeEventListener(w, przerwij));
+      window.removeEventListener("scroll", naPrzewiniecie);
+      history.scrollRestoration = poprzednie;
+    };
+  }, [id, gotowe]);
+}
+
 // zwiniety: dalsza strona arkusza w stronach. Jak w wydruku pełny nagłówek jest tylko na pierwszej,
 // ale odtwarzacz zostaje w tym samym miejscu drzewa, żeby nagranie nie urwało się przy przewracaniu.
 function Naglowek({ arkusz, onNaCzas, zwiniety }: { arkusz: ArkuszDane; onNaCzas?: () => void; zwiniety?: boolean }) {
@@ -420,6 +578,7 @@ function Naglowek({ arkusz, onNaCzas, zwiniety }: { arkusz: ArkuszDane; onNaCzas
       </h1>
       )}
       {!zwiniety && <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>}
+      {!zwiniety && arkusz.przedmiot === "matematyka" && <p className="small muted">Brudnopis nie wpływa na wynik w zadaniach zamkniętych. Zapisuje się w postępie arkusza.</p>}
       {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas) && (
         <div className={styles.pdfs}>
           {arkusz.pdf?.arkusz && (
@@ -568,7 +727,7 @@ function stronyZadania(z: Zadanie): number[] {
 
 /** strona: arkusz w stronach; zadanie pokazuje tylko to, co leży na tej stronie. */
 function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopraw: () => void; strona?: number }) {
-  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis } = useCtx();
+  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki, tabele, opcjeNaRysunkach, ukryteKodem } = useCtx();
   const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
@@ -580,9 +739,9 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
 
   // Wypowiedź pisemna: tematy do wyboru i elementy treści trafiają do edytora.
   const pisanie = useMemo(() => (pisemna ? rozbierzPolecenie(zadanie) : null), [pisemna, zadanie]);
-  const bloki = (pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki).filter(
-    (b) => strona === undefined || (b.strona ?? zadanie.strona) === strona,
-  );
+  // Na pełnym ekranie brudnopisu całe zadanie; na stronie arkusza tylko bloki tej strony.
+  const wszystkieBloki = (pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki).filter((b) => !ukryteKodem.has(b));
+  const bloki = wszystkieBloki.filter((b) => strona === undefined || (b.strona ?? zadanie.strona) === strona);
 
   return (
     <section
@@ -644,8 +803,24 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           plik={`${arkusz.id}-${zadanie.nr}`}
           zadanie={zadanie.nr}
           rysunek={zadanie.rysunek}
+          opcjeZWycinka={(() => {
+            // Pytanie z samymi literami, którego opcje są rysunkami w wycinku (nie liczbami w tekście).
+            const [p] = zadanie.pytania;
+            const kadr = zadanie.bloki.find((b) => b.typ === "kadr");
+            if (zadanie.pytania.length !== 1 || p.typ !== "zamkniete" || p.opcje?.length || kadr?.typ !== "kadr") return undefined;
+            return kadrJakoTekst(kadr.tekst) && !opcjeZKadru(kadr.tekst) ? kadr.obraz : undefined;
+          })()}
+          dodatkoweRysunki={zadanie.pytania
+            .flatMap((p) => [...(tabele.get(p.nr)?.kadry ?? []), ...(opcjeNaRysunkach.has(p.nr) ? [opcjeNaRysunkach.get(p.nr)!.kadr] : [])])
+            .flatMap((k) => (k.typ === "kadr" ? [k.obraz] : []))}
           zapis={postep.brudnopisy?.[zadanie.nr]}
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
+          tresc={
+            <Kompakt.Provider value={true}>
+              <TrescKompakt zadanie={zadanie} bloki={wszystkieBloki} />
+            </Kompakt.Provider>
+          }
+          duzyRysunek={[...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie))}
         />
       )}
       {/* Sprawdzamy tylko cały arkusz, jak na maturze, a błędy omawia potem Pestka.
@@ -776,10 +951,492 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
   );
 }
 
+// Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
+// Zadanie z jednym pytaniem: numer i treść po lewej, odpowiedzi po prawej.
+function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
+  const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow, obliczenia, pf, tabele, opcjeNaRysunkach } = useCtx();
+  const plik = `${arkusz.id}-${zadanie.nr}`;
+  // Odpowiedzi w lukach zdań: bez kolumny odpowiedzi, po prawej staje rysunek.
+  const zLukami = [...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie));
+  const i = arkusz.zadania.findIndex((z) => z.nr === zadanie.nr);
+  const [poprzednie, nastepne] = [arkusz.zadania[i - 1], arkusz.zadania[i + 1]];
+  // Rysunek zadania i tak leży na płótnie brudnopisu: nie powtarzamy go, a wycinek
+  // strony z opcjami na rysunku albo z luką zastępujemy jego tekstem.
+  const naRysunku = !!zadanie.rysunek && zadanie.pytania.length === 1 && zadanie.pytania[0].typ === "zamkniete" && !zadanie.pytania[0].opcje?.length;
+  // Opcje w tekście wycinka (liczby, krótkie wyrażenia): pokazujemy je jako zwykłe odpowiedzi.
+  const kadrOpcji = naRysunku ? wszystkie.find((b) => b.typ === "kadr") : undefined;
+  const opcjeKadru = kadrOpcji?.typ === "kadr" ? opcjeZKadru(kadrOpcji.tekst) : null;
+  const pierwszyNaglowek = wszystkie.findIndex((b) => b.typ === "naglowek");
+  // Tabela przyporządkowania: wykresy opcji są na płótnie, nad nim zostaje tekst polecenia.
+  const kadryTabel = new Map<Blok, Blok[]>();
+  for (const p of zadanie.pytania) {
+    const t = tabele.get(p.nr);
+    t?.kadry.forEach((k, i) => kadryTabel.set(k, i === 0 ? naAkapity(t.wstep) : []));
+    // Opcje A–D na rysunkach: rysunki idą na płótno, nad nim zostaje tekst polecenia.
+    const o = opcjeNaRysunkach.get(p.nr);
+    if (o) kadryTabel.set(o.kadr, o.tekst);
+  }
+  const calosc = (zadanie.rysunek ? wszystkie.filter((b) => b.typ !== "rysunek") : wszystkie).flatMap((b) =>
+    kadryTabel.has(b)
+      ? kadryTabel.get(b)!
+      : b.typ === "kadr" && naRysunku
+      ? (kadrJakoTekst(b.tekst) ?? [b])
+      : b.typ === "kadr" && zadanie.rysunek && pierwszyNaglowek > 0 && wszystkie.indexOf(b) < pierwszyNaglowek
+        ? (wstepBezRysunku(b.tekst) ?? tekstBezPodpisow(b.tekst))
+        : (kadryTekst.get(b) ??
+          // Rysunek z wycinka jest na płótnie; wycinek z opcjami A–D na rysunkach zostaje obrazkiem.
+          (b.typ === "kadr" && zadanie.rysunek && !/(^|\s)[A-F]\.\s/.test(b.tekst) ? tekstBezPodpisow(b.tekst) : [b])),
+  );
+  const uporzadkowane = uporzadkujAkapity(calosc, (b) => luki.has(b) || lukiKadrow.has(b));
+  const podzial = zLukami ? null : podzielNaPodpunkty(uporzadkowane);
+  const [podpunkt, setPodpunkt] = useState(() => {
+    const kierunek = zuzyjWejscie();
+    return podzial ? startowyPodpunkt(plik, podzial.podpunkty.length, kierunek) : 0;
+  });
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(kluczPodpunktu(plik), String(podpunkt));
+    } catch {
+      // zablokowany storage: po odświeżeniu pierwszy podpunkt
+    }
+  }, [plik, podpunkt]);
+  const ilePodpunktow = podzial?.podpunkty.length ?? 1;
+  const aktywny = podzial ? podzial.podpunkty[Math.min(podpunkt, ilePodpunktow - 1)] : null;
+  // Nagłówek podpunktu („Zadanie 12.1 (0–2 pkt)”) zastępuje numer w nagłówku widoku.
+  // Luki z wyborem w tekście ({{29.1}}): opcje pokazuje każda luka (LukaZdanie), więc bez osobnej listy.
+  const opcjeLukTekstu = uporzadkowane.some((b) => b.typ === "akapit" && /\{\{\d+\.\d+\}\}/.test(b.tekst)) ? uporzadkowane.find((b) => b.typ === "opcje") : undefined;
+  const bloki = (podzial && aktywny ? [...podzial.wstep, ...aktywny.filter((b) => b.typ !== "naglowek")] : uporzadkowane).filter((b) => b !== opcjeLukTekstu);
+  const numer = (aktywny && numerPodpunktu(aktywny)) ?? String(zadanie.nr);
+  // Wykresy opcji A–F na płótnie tylko przy podpunkcie z tabelą przyporządkowania.
+  const ustawDodatkowe = useContext(PokazDodatkoweRysunki);
+  const zTabela = !aktywny || aktywny.some((b) => b.typ === "pytanie" && (tabele.has(b.nr) || opcjeNaRysunkach.has(b.nr)));
+  useEffect(() => ustawDodatkowe(zTabela), [ustawDodatkowe, zTabela]);
+
+  const wstecz = () => {
+    if (podzial && podpunkt > 0) return setPodpunkt(podpunkt - 1);
+    if (!poprzednie) return;
+    wejscie = "koniec";
+    otworzNaPelnymEkranie(`${arkusz.id}-${poprzednie.nr}`);
+  };
+  const dalej = () => {
+    if (podzial && podpunkt < ilePodpunktow - 1) return setPodpunkt(podpunkt + 1);
+    if (!nastepne) return;
+    wejscie = "poczatek";
+    otworzNaPelnymEkranie(`${arkusz.id}-${nastepne.nr}`);
+  };
+  const jestWstecz = (podzial && podpunkt > 0) || !!poprzednie;
+  const jestDalej = (podzial && podpunkt < ilePodpunktow - 1) || !!nastepne;
+
+  const pytaniaBloki = bloki.filter(czyPytanie);
+  // Odpowiedź w luce tekstu (wycinek zamieniony na tekst) nie potrzebuje prawej kolumny.
+  // Rozwiązanie na płótnie i stwierdzenia P/F zostają w głównej kolumnie, bez prawej.
+  const naPlotnie = pytaniaBloki.length === 1 && pytaniaBloki[0].typ === "pytanie" && (obliczenia.has(pytaniaBloki[0].nr) || pf.has(pytaniaBloki[0].nr));
+  const obok = pytaniaBloki.length === 1 && !zLukami && !naPlotnie && !bloki.some((b) => lukiKadrow.has(b));
+  // Pytanie (zdanie po ostatnim poleceniu, np. „Odcinek 𝑂𝐷 ma długość”) stoi przy odpowiedziach
+  // po prawej, żeby w każdym typie zadania było w tym samym miejscu.
+  const bezPytania = bloki.filter((b) => b !== pytaniaBloki[0]);
+  const ostatniePolecenie = bezPytania.reduce((n, b, k) => (b.typ === "akapit" && b.polecenie ? k : n), -1);
+  const pytanieZdanie =
+    obok && ostatniePolecenie >= 0 && bezPytania.slice(ostatniePolecenie + 1).every((b) => b.typ === "akapit" || b.typ === "wzor")
+      ? bezPytania.slice(ostatniePolecenie + 1)
+      : [];
+  const lewa = bezPytania.filter((b) => !pytanieZdanie.includes(b));
+  const gotowe = sprawdzone(`${zadanie.nr}.`);
+  const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
+  const polecenie = zadanie.polecenie.map((p, i) => (
+    <p key={i} className={styles.instruction}>
+      {p}
+    </p>
+  ));
+  const klucz = gotowe && wTekscie.length > 0 && (
+    <div className={styles.keyList}>
+      {wTekscie.map((p) => (
+        <Informacja key={p.nr} pytanie={p} zNumerem />
+      ))}
+    </div>
+  );
+  // Przy tabeli przyporządkowania płótno z wykresami A–F potrzebuje miejsca: tekst nad nim
+  // ma niższą wysokość i przewija się sam.
+  const przewijana = bloki.some((b) => b.typ === "pytanie" && tabele.has(b.nr));
+  const tresc = (
+    <div className={przewijana ? `${styles.kompakt} ${styles.przewijana}` : styles.kompakt}>
+      <div className={styles.glowa}>
+        <button
+          type="button"
+          className={`btn btn-ghost btn-sm ${styles.przejscie}`}
+          disabled={!jestWstecz}
+          onClick={wstecz}
+          aria-label="Poprzednie zadanie"
+          title="Poprzednie zadanie"
+        >
+          <ChevronLeft size={18} aria-hidden="true" />
+        </button>
+        <h2 className="h3">Zadanie {numer}.</h2>
+        <button
+          type="button"
+          className={`btn btn-ghost btn-sm ${styles.przejscie}`}
+          disabled={!jestDalej}
+          onClick={dalej}
+          aria-label="Następne zadanie"
+          title="Następne zadanie"
+        >
+          <ChevronRight size={18} aria-hidden="true" />
+        </button>
+        {podzial && (
+          <span className="small muted">
+            podpunkt {podpunkt + 1} z {ilePodpunktow}
+          </span>
+        )}
+      </div>
+      {polecenie}
+      <div className={obok || zLukami || podzial || pytaniaBloki.length <= 1 ? styles.content : `${styles.content} ${styles.szpalty}`}>
+        <BlokiKompakt elementy={grupujPrawdaFalsz(obok ? lewa : bloki, zadanie)} zadanie={zadanie.nr} />
+      </div>
+      {klucz}
+    </div>
+  );
+  return <NumerWidoku.Provider value={numer}>{uklad()}</NumerWidoku.Provider>;
+
+  function uklad() {
+  // Luki do wyboru litery: po prawej opcje A–E (rysunek jest na płótnie). Luki do wpisania:
+  // po prawej rysunek, bo uczeń odczytuje z niego odpowiedzi.
+  const opcjeLuk = [...luki.values()].find((l) => l.opcje && zadanie.pytania.includes(l.pytanie))?.opcje;
+  if (zLukami && opcjeLuk)
+    return (
+      <div className={styles.obok}>
+        {tresc}
+        <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
+          <ListaOpcjiLiter opcje={opcjeLuk} pionowo />
+        </div>
+      </div>
+    );
+  if (zLukami && zadanie.rysunek)
+    return (
+      <div className={styles.obok}>
+        {tresc}
+        <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
+          <Kadr obraz={zadanie.rysunek} tekst="Rysunek do zadania" />
+        </div>
+      </div>
+    );
+  if (!obok) return tresc;
+  // Odpowiedzi w prawej kolumnie: nie spychają płótna w dół. Litery do opcji
+  // z rysunku stoją jedna pod drugą, jak opcje na rysunku.
+  return (
+    <div className={naRysunku && !opcjeKadru ? `${styles.obok} ${styles.pionowo}` : styles.obok}>
+      {tresc}
+      <div className={`${styles.kompakt} ${styles.odpowiedzi}`}>
+        {pytanieZdanie.length > 0 && (
+          <div className={styles.content}>
+            <BlokiKompakt elementy={pytanieZdanie} zadanie={zadanie.nr} />
+          </div>
+        )}
+        {opcjeKadru && zadanie.pytania[0].typ === "zamkniete" ? (
+          <div className={styles.question}>
+            <Opcje pytanie={{ ...zadanie.pytania[0], opcje: opcjeKadru }} />
+            <Informacja pytanie={zadanie.pytania[0]} />
+          </div>
+        ) : (
+          <BlokWidok blok={pytaniaBloki[0]} zadanie={zadanie.nr} />
+        )}
+      </div>
+    </div>
+  );
+  }
+}
+
+// Pytanie otwarte z poleceniem „Zapisz obliczenia.” (albo rozumowanie, dowód) oceniane według
+// schematu: odpowiedzią jest rozwiązanie na płótnie brudnopisu, bez pola na wynik.
+const POLECENIE_OBLICZEN = /Zapisz obliczenia|Zapisz rozumowanie|Zapisz rozwiązanie|Przeprowadź dowód|Wykaż/i;
+const ODPOWIEDZ_NA_PLOTNIE = "rozwiązanie w brudnopisie";
+
+function pytaniaZObliczeniami(z: Zadanie): string[] {
+  const wynik: string[] = [];
+  let polecenia = z.polecenie.join(" ");
+  for (const b of z.bloki) {
+    if (b.typ === "akapit" || b.typ === "kadr") polecenia += " " + b.tekst;
+    if (b.typ !== "pytanie") continue;
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    if (p?.typ === "otwarte" && !p.tresc && !p.kod && !p.oczekiwane?.length && !p.akceptowane?.length && POLECENIE_OBLICZEN.test(polecenia)) wynik.push(p.nr);
+    polecenia = "";
+  }
+  return wynik;
+}
+
+// Zadanie otwarte z kilkoma zdaniami do uzupełnienia („1. Dziedziną funkcji f jest
+// przedział …… .”): klucz CKE ma jedno pytanie za kilka punktów, ale uczeń wpisuje
+// osobną odpowiedź w każdą lukę. Części trzymamy w jednej odpowiedzi, linia po linii.
+// opcje: odpowiedź to litera spośród opcji zadania („wybraną spośród oznaczonych literami A–E”);
+// pod ostatnim zdaniem stoi wtedy lista opcji.
+type Luka = { pytanie: PytanieOtwarte; czesc: number; ile: number; opcje?: Opcja[] };
+const ZNACZNIK_LUKI = /…{2,}|\.{4,}/;
+
+function lukiZadania(z: Zadanie): Map<Blok, Luka> | null {
+  const [p] = z.pytania;
+  if (z.pytania.length !== 1 || p.typ !== "otwarte" || p.tresc) return null;
+  const zdania = z.bloki.filter((b) => b.typ === "akapit" && !b.polecenie && ZNACZNIK_LUKI.test(b.tekst));
+  if (zdania.length < 2) return null;
+  const opcje = opcjeDoLiter(z);
+  return new Map(zdania.map((b, czesc) => [b, { pytanie: p, czesc, ile: zdania.length, opcje: opcje?.opcje }]));
+}
+
+// „Zapisz po numerze zdania właściwą odpowiedź, wybraną spośród oznaczonych literami A–E”:
+// opcje A–D z bloku opcji i dopisane akapitem „E. 5,70 zł”. Zwraca też bloki do ukrycia.
+function opcjeDoLiter(z: Zadanie): { opcje: Opcja[]; ukryte: Blok[] } | null {
+  const polecenie = z.bloki.filter((b) => b.typ === "akapit" && b.polecenie).map((b) => (b.typ === "akapit" ? b.tekst : "")).join(" ") + " " + z.bloki.map((b) => (b.typ === "akapit" ? b.tekst : "")).join(" ");
+  const blok = z.bloki.find((b) => b.typ === "opcje");
+  if (blok?.typ !== "opcje" || !/spośród oznaczonych literami/.test(polecenie)) return null;
+  const dodatkowe = z.bloki.filter((b) => b.typ === "akapit" && !b.polecenie && OPCJA_W_AKAPICIE.test(b.tekst));
+  const opcje = [
+    ...blok.opcje,
+    ...dodatkowe.map((b) => {
+      const [, litera, tresc] = (b as { tekst: string }).tekst.match(OPCJA_W_AKAPICIE)!;
+      return { litera, tresc };
+    }),
+  ].sort((a, c) => a.litera.localeCompare(c.litera));
+  return { opcje, ukryte: [blok, ...dodatkowe] };
+}
+
+// Pytanie otwarte z jednym zdaniem do dokończenia („Zbiorem … jest przedział …… .”):
+// odpowiedź wpisuje się w lukę tego zdania, bez osobnego pola pod nim.
+function pojedynczeLuki(z: Zadanie): Map<Blok, Luka> {
+  const wynik = new Map<Blok, Luka>();
+  let sekcja: Blok[] = [];
+  for (const b of z.bloki) {
+    if (b.typ !== "pytanie") {
+      sekcja.push(b);
+      continue;
+    }
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    const zLuka = sekcja.filter((x) => x.typ === "akapit" && !x.polecenie && ZNACZNIK_LUKI.test(x.tekst));
+    const obliczenia = POLECENIE_OBLICZEN.test(sekcja.map((x) => ("tekst" in x ? x.tekst : "")).join(" "));
+    if (p?.typ === "otwarte" && !p.tresc && !p.kod && !obliczenia && zLuka.length === 1) wynik.set(zLuka[0], { pytanie: p, czesc: 0, ile: 1 });
+    sekcja = [];
+  }
+  return wynik;
+}
+
+const czesciOdpowiedzi = (odpowiedz: string | undefined, ile: number) => {
+  const czesci = (odpowiedz ?? "").split("\n");
+  return Array.from({ length: ile }, (_, i) => czesci[i] ?? "");
+};
+
+function ZdanieZLuka({ tekst, luka, bezOpcji }: { tekst: string; luka: Luka; bezOpcji?: boolean }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const { pytanie: p, czesc, ile } = luka;
+  const czesci = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
+  const m = tekst.match(ZNACZNIK_LUKI)!;
+  const [przed, po] = [tekst.slice(0, m.index), tekst.slice(m.index! + m[0].length)];
+  return (
+    <div className={`${styles.para} ${styles.zdanieLuka}`}>
+      <Tekst tekst={przed} />
+      {luka.opcje ? (
+        <PrzelacznikLiter
+          litery={luka.opcje.map((o) => o.litera)}
+          wybrana={czesci[czesc] || undefined}
+          gotowe={sprawdzone(p.nr)}
+          etykieta={`Odpowiedź ${p.nr}, zdanie ${czesc + 1}`}
+          onWybor={(l) => {
+            const nowe = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
+            nowe[czesc] = l;
+            ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
+          }}
+        />
+      ) : ile === 1 && (p.oczekiwane?.length || p.akceptowane?.length) ? (
+        // Odpowiedź porównywana z kluczem jako tekst: zwykłe pole w luce.
+        <LukaTekst pytanie={p} bezNumeru />
+      ) : (
+      <PoleMatematyczne
+        wartosc={czesci[czesc]}
+        tylkoOdczyt={sprawdzone(p.nr)}
+        etykieta={`Odpowiedź ${p.nr}, zdanie ${czesc + 1}`}
+        onZmiana={(latex) => {
+          const nowe = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
+          nowe[czesc] = latex.replace(/\n/g, " ");
+          // Puste części na końcu nie liczą się jako odpowiedź.
+          ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
+        }}
+      />
+      )}
+      <Tekst tekst={po} />
+      {luka.opcje && czesc === ile - 1 && !bezOpcji && <ListaOpcjiLiter opcje={luka.opcje} />}
+    </div>
+  );
+}
+
+function ListaOpcjiLiter({ opcje, pionowo }: { opcje: Opcja[]; pionowo?: boolean }) {
+  return (
+    <div className={pionowo ? `${styles.opcjeLiter} ${styles.opcjeLiterPion}` : styles.opcjeLiter}>
+      {opcje.map((o) => (
+        <span key={o.litera}>
+          <span className={styles.letter}>{o.litera}</span> <Tekst tekst={o.tresc} />
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// Zadanie z podpunktami (12.1, 12.2, 12.3): na pełnym ekranie każdy podpunkt to osobny
+// krok ze wspólnym wstępem, a strzałki przechodzą 12.1 → 12.2 → 12.3 → 13. Płótno
+// zostaje jedno na całe zadanie. Podpunkt to bloki od nagłówka do jego pytania.
+const czyPytanie = (b: Blok) => b.typ === "pytanie" || b.typ === "pytania" || b.typ === "tabela";
+
+function podzielNaPodpunkty(bloki: Blok[]): { wstep: Blok[]; podpunkty: Blok[][] } | null {
+  const pierwszy = bloki.findIndex((b) => b.typ === "naglowek");
+  if (pierwszy < 0) return null;
+  const podpunkty: Blok[][] = [];
+  let biezacy: Blok[] = [];
+  for (const b of bloki.slice(pierwszy)) {
+    // Po pytaniu kolejny blok (nagłówek albo wycinek bez nagłówka) zaczyna nowy podpunkt.
+    if (biezacy.some(czyPytanie) && !czyPytanie(b)) {
+      podpunkty.push(biezacy);
+      biezacy = [];
+    }
+    biezacy.push(b);
+  }
+  if (biezacy.length) podpunkty.push(biezacy);
+  return podpunkty.length >= 2 && podpunkty.every((pp) => pp.some(czyPytanie)) ? { wstep: bloki.slice(0, pierwszy), podpunkty } : null;
+}
+
+// Numer podpunktu z jego pytania („12.1”), do nagłówka zamiast „Zadanie 12.1 (0–2 pkt)”.
+function numerPodpunktu(bloki: Blok[]): string | null {
+  const b = bloki.find(czyPytanie);
+  if (!b) return null;
+  return b.typ === "pytanie" ? b.nr : b.typ === "pytania" || b.typ === "tabela" ? (b.nr[0] ?? null) : null;
+}
+
+// Który podpunkt pokazać po wejściu: strzałką do przodu pierwszy, wstecz ostatni,
+// a po odświeżeniu zapamiętany w karcie przeglądarki.
+let wejscie: "poczatek" | "koniec" | null = null;
+const kluczPodpunktu = (plik: string) => `sedno.podpunkt.${plik}`;
+
+// Kierunek zużywa pierwsze zamontowane zadanie, także bez podpunktów, żeby nie przeszedł dalej.
+function zuzyjWejscie() {
+  const kierunek = wejscie;
+  wejscie = null;
+  return kierunek;
+}
+
+function startowyPodpunkt(plik: string, ile: number, kierunek: typeof wejscie): number {
+  if (kierunek === "koniec") return ile - 1;
+  if (kierunek === "poczatek") return 0;
+  try {
+    const n = Number(sessionStorage.getItem(kluczPodpunktu(plik)));
+    return Number.isInteger(n) && n >= 0 && n < ile ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+// Wycinek strony z luką do pytania otwartego („Suma 𝑥1 + 𝑥2 jest równa ……… .”): na pełnym
+// ekranie jako tekst z polem w luce, z nagłówkiem podpunktu, którego w tekście wycinka nie ma.
+function kadrZLuka(kadr: Blok, nastepny: Blok | undefined, z: Zadanie): { bloki: Blok[]; luka: [Blok, Luka] } | null {
+  if (kadr.typ !== "kadr" || nastepny?.typ !== "pytanie" || !ZNACZNIK_LUKI.test(kadr.tekst)) return null;
+  const p = z.pytania.find((q) => q.nr === nastepny.nr);
+  if (p?.typ !== "otwarte" || p.tresc) return null;
+  const akapity = naAkapity(kadr.tekst);
+  const zLuka = akapity.find((a) => a.typ === "akapit" && ZNACZNIK_LUKI.test(a.tekst));
+  if (!zLuka) return null;
+  const naglowek: Blok[] = p.nr.includes(".") ? [{ typ: "naglowek", tekst: `Zadanie ${p.nr} (0–${p.punkty} pkt)` }] : [];
+  return { bloki: [...naglowek, ...akapity], luka: [zLuka, { pytanie: p, czesc: 0, ile: 1 }] };
+}
+
+// Pełny ekran brudnopisu: gęstszy układ i zamiana wycinków na tekst tam, gdzie się da.
+const Kompakt = createContext(false);
+// Numer w nagłówku pełnego ekranu: pytanie o tym samym numerze go nie powtarza.
+const NumerWidoku = createContext<string | null>(null);
+
+// Tekst wycinka strony (z PDF) bez etykiet opcji, które są na rysunku: „Dana jest
+// nierówność 3 − 2(1 − 2𝑥) ≥ 2𝑥 − 17 Na którym rysunku… A. 0 1 3 𝑥 B. …”.
+// Nowe zdanie po wzorze zaczyna akapit, a polecenia („Wybierz…”) są pogrubione jak w arkuszu.
+const POLECENIA = /^(Dokończ|Wybierz|Zapisz|Uzupełnij|Wpisz|Oblicz|Rozwiąż|Wykaż|Podaj|Zaznacz|Oceń)(?=\s)/;
+
+function kadrJakoTekst(tekst: string): Blok[] | null {
+  const opcje = tekst.search(/\sA\.(?=\s)[\s\S]*\sB\.(?=\s)[\s\S]*\sC\.(?=\s)[\s\S]*\sD\.(?=\s|$)/);
+  if (opcje < 0) return null;
+  const tresc = tekst.slice(0, opcje).trim();
+  return tresc ? tekstBezPodpisow(tresc) : null;
+}
+
+// Opcje zapisane w tekście wycinka („A. 4 B. 9 C. 10 D. 16”). Gdy to podpisy osi z rysunków
+// („A. 0 1 3 𝑥 …”, więcej niż dwa kawałki), opcje są na rysunku i zwracamy null.
+function opcjeZKadru(tekst: string): Opcja[] | null {
+  const od = tekst.search(/\sA\.(?=\s)[\s\S]*\sB\.(?=\s)[\s\S]*\sC\.(?=\s)[\s\S]*\sD\.(?=\s|$)/);
+  if (od < 0) return null;
+  const czesci = (" " + tekst.slice(od).trim()).split(/\s([A-D])\.\s+/).slice(1);
+  const opcje: Opcja[] = [];
+  for (let i = 0; i + 1 < czesci.length; i += 2) opcje.push({ litera: czesci[i], tresc: czesci[i + 1].trim() });
+  return opcje.length === 4 && opcje.every((o) => o.tresc && o.tresc.split(/\s+/).length <= 2) ? opcje : null;
+}
+
+function naAkapity(tresc: string): Blok[] {
+  return tresc
+    .split(/(?<=[.?!])\s+|(?<=[\d)\]\u{1D400}-\u{1D7FF}])\s+(?=[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż])/u)
+    .filter(Boolean)
+    .map((zdanie): Blok => ({ typ: "akapit", tekst: zdanie, polecenie: POLECENIA.test(zdanie) }));
+}
+
+// Krótki wzór między akapitami („Liczba … jest równa”) w gęstym widoku idzie w jednej linii z tekstem.
+// Ułamki i potęgi zostają w stylu wystawionym (\displaystyle), żeby w linii nie maleły.
+const WZOR_W_LINII = 160;
+const doLinii = (b: Blok | PytanieZamkniete[]) =>
+  !Array.isArray(b) && ((b.typ === "akapit" && !b.polecenie) || (b.typ === "wzor" && b.tex.length <= WZOR_W_LINII));
+
+const czyZdanieNumerowane = (b: Blok | PytanieZamkniete[]) => !Array.isArray(b) && b.typ === "akapit" && !b.polecenie && /^\d+\.\s/.test(b.tekst);
+
+function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniete[])[]; zadanie: number }) {
+  const { luki, lukiKadrow } = useCtx();
+  const wynik: ReactNode[] = [];
+  for (let i = 0; i < elementy.length; ) {
+    const b = elementy[i];
+    // Zdania do uzupełnienia („1. Dziedziną funkcji … jest przedział …… .”) w dwóch kolumnach.
+    let n = i;
+    while (n < elementy.length && czyZdanieNumerowane(elementy[n])) n++;
+    if (n - i >= 2) {
+      wynik.push(
+        <ol key={i} className={styles.zdania}>
+          {(elementy.slice(i, n) as Blok[]).map((c, k) => (
+            <li key={k} className={styles.para}>
+              {c.typ === "akapit" && ((l) => (l ? <ZdanieZLuka tekst={c.tekst} luka={l} bezOpcji /> : <Tekst tekst={c.tekst} />))(luki.get(c) ?? lukiKadrow.get(c))}
+            </li>
+          ))}
+        </ol>,
+      );
+      // Opcje do wyboru literą stoją na pełnym ekranie w prawej kolumnie (TrescKompakt).
+      i = n;
+      continue;
+    }
+    let j = i;
+    while (j < elementy.length && doLinii(elementy[j])) j++;
+    const ciag = elementy.slice(i, j) as Blok[];
+    if (ciag.some((c) => c.typ === "wzor")) {
+      wynik.push(
+        <div key={i} className={styles.para}>
+          {ciag.map((c, k) => (
+            <span key={k}>
+              {k > 0 && " "}
+              {c.typ === "wzor" ? <WzorMat tex={`\\displaystyle ${c.tex}`} /> : c.typ === "akapit" ? <Tekst tekst={c.tekst} /> : null}
+            </span>
+          ))}
+        </div>,
+      );
+      i = j;
+      continue;
+    }
+    wynik.push(Array.isArray(b) ? <PrawdaFalsz key={i} pytania={b} /> : <BlokWidok key={i} blok={b} zadanie={zadanie} />);
+    i++;
+  }
+  return <>{wynik}</>;
+}
+
 function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
-  const { pytania } = useCtx();
+  const { pytania, luki, lukiKadrow } = useCtx();
+  const kompakt = useContext(Kompakt);
   switch (blok.typ) {
-    case "akapit":
+    case "akapit": {
+      const luka = luki.get(blok) ?? (kompakt ? lukiKadrow.get(blok) : undefined);
+      if (luka) return <ZdanieZLuka tekst={blok.tekst} luka={luka} />;
+    }
       return (
         <div className={blok.polecenie ? `${styles.para} ${styles.command}` : styles.para}>
           <Tekst tekst={blok.tekst} />
@@ -790,6 +1447,29 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
     case "rysunek":
       return <Kadr obraz={blok.obraz} tekst="Rysunek do zadania" />;
     case "tabelaTresci":
+      // Na pełnym ekranie wąska, wysoka tabela (Ocena | Liczba uczniów, 6 wierszy) idzie
+      // w poprzek: nagłówki w pierwszej kolumnie, wartości obok, więc zajmuje dwa wiersze.
+      if (kompakt && blok.wiersze[0]?.length <= 3 && blok.wiersze.length > 3)
+        return (
+          <div className={styles.dataTableWrap}>
+            <table className={styles.dataTable}>
+              <tbody>
+                {blok.wiersze[0].map((naglowek, j) => (
+                  <tr key={j}>
+                    <th scope="row">
+                      <Tekst tekst={naglowek} />
+                    </th>
+                    {blok.wiersze.slice(1).map((w, i) => (
+                      <td key={i}>
+                        <Tekst tekst={w[j] ?? ""} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
       return (
         <div className={styles.dataTableWrap}>
           <table className={styles.dataTable}>
@@ -966,15 +1646,29 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
+  const { luki, lukiKadrow, obliczenia, kody, pf, dwie, tabele } = useCtx();
+  const kompakt = useContext(Kompakt);
+  const numerWidoku = useContext(NumerWidoku);
   if (p.typ === "wypowiedz") return null;
+  const zNumerem = p.nr.includes(".") && p.nr !== numerWidoku;
+  // Odpowiedź w lukach zdań (ZdanieZLuka): tu zostaje tylko informacja po sprawdzeniu.
+  const wLukach = new Set([...luki.values(), ...(kompakt ? lukiKadrow.values() : [])].map((l) => l.pytanie.nr));
   return (
     <div className={styles.question}>
-      <div className={styles.stem}>
-        <span className={styles.qnr}>{p.nr}.</span>
-        {p.tresc && <Tekst tekst={p.tresc} wlasny={p.nr} />}
-      </div>
-      {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <PoleLitery pytanie={p} />)}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && (
+      {/* Numer bez podpunktu to numer zadania, który stoi już w nagłówku. */}
+      {(zNumerem || p.tresc) && (
+        <div className={styles.stem}>
+          {zNumerem && <span className={styles.qnr}>{p.nr}.</span>}
+          {p.tresc && <Tekst tekst={p.tresc} wlasny={p.nr} />}
+        </div>
+      )}
+      {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : kompakt ? <LiteryKompakt pytanie={p} /> : <PoleLitery pytanie={p} />)}
+      {p.typ === "otwarte" && kody.has(p.nr) && <KodZWyborem pytanie={p} wybor={kody.get(p.nr)!} />}
+      {p.typ === "otwarte" && pf.has(p.nr) && <PrawdaFalszKod pytanie={p} stwierdzenia={pf.get(p.nr)!} />}
+      {p.typ === "otwarte" && dwie.has(p.nr) && <WyborKilku pytanie={p} wybor={dwie.get(p.nr)!} />}
+      {p.typ === "otwarte" && tabele.has(p.nr) && <TabelaDopasowaniaWidok pytanie={p} tabela={tabele.get(p.nr)!} />}
+      {obliczenia.has(p.nr) && <p className="small muted">Rozwiązanie zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
       <Informacja pytanie={p} />
@@ -1008,13 +1702,462 @@ function usePodswietlenie(wybrana: string | undefined) {
   return { kontener, ramka };
 }
 
+// Ile opcji zmieści się w rzędzie w gęstym widoku (pełny ekran brudnopisu), po długości
+// najdłuższej. Wzory liczymy bez poleceń LaTeX-a, bo na ekranie zajmują mniej.
+function kolumnyOpcji(opcje: Opcja[]): 1 | 2 | 4 {
+  const dlugosc = Math.max(...opcje.map((o) => o.tresc.replace(/\\[a-zA-Z]+/g, "").replace(/[{}\\()^_$\s]/g, "").length));
+  return dlugosc <= 18 ? 4 : dlugosc <= 48 ? 2 : 1;
+}
+
+// Wstęp zadania jako wycinek strony z tym samym rysunkiem, który leży na płótnie: na pełnym
+// ekranie zostaje sam tekst. Tekst z PDF kończy się podpisami osi („𝑦 10 9 8 … −6”),
+// więc ucinamy go na ostatnim zdaniu przed ciągiem liczb.
+function wstepBezRysunku(tekst: string): Blok[] | null {
+  const osie = tekst.search(/(?:\s+(?:[−-]?\d+(?:[−-]\d+)*|[𝑥𝑦]|[A-F]\.)){6,}/u);
+  if (osie < 0) return null;
+  const koniec = Math.max(tekst.lastIndexOf(".", osie), tekst.lastIndexOf("?", osie), tekst.lastIndexOf("!", osie));
+  return koniec > 0 ? naAkapity(tekst.slice(0, koniec + 1)) : null;
+}
+
+// Wycinek z tekstem i rysunkiem, który leży już na płótnie: zostaje sam tekst. Podpisy
+// rysunku wpadają do tekstu z PDF (ciągi liczb z osi, „6 30°” przed kolejnym zdaniem),
+// więc je wycinamy.
+function tekstBezPodpisow(tekst: string): Blok[] {
+  const bezOsi = tekst.replace(/(?:\s+(?:[−-]?\d+(?:[−-]\d+)*|[𝑥𝑦]|[A-F]\.)){6,}/gu, " ");
+  return naAkapity(bezOsi)
+    .map((b) => (b.typ === "akapit" ? { ...b, tekst: b.tekst.replace(/^(?:[^\sa-ząćęłńóśźż]{1,5}\s+)+(?=[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]{2,})/u, "") } : b))
+    .filter((b) => b.typ !== "akapit" || /[a-ząćęłńóśźż]{3,}/.test(b.tekst))
+    .map((b) => (b.typ === "akapit" ? { ...b, polecenie: POLECENIA.test(b.tekst) || /^Oblicz\b|^Wyznacz\b/.test(b.tekst) } : b));
+}
+
+// Pytanie zamknięte z samymi literami, którego opcje A–D są rysunkami w wycinku („…jest
+// zaznaczony na rysunku A. B. C. D.”): rysunki trafiają na płótno, nad nim tekst polecenia.
+function rysunkoweOpcje(z: Zadanie): Map<string, { kadr: Blok; tekst: Blok[] }> {
+  const wynik = new Map<string, { kadr: Blok; tekst: Blok[] }>();
+  z.bloki.forEach((b, i) => {
+    const nast = z.bloki[i + 1];
+    if (b.typ !== "kadr" || nast?.typ !== "pytanie") return;
+    const p = z.pytania.find((q) => q.nr === nast.nr);
+    const etykiety = b.tekst.search(/\sA\.\s*B\.\s*C\.\s*D\.\s*$/);
+    if (p?.typ !== "zamkniete" || p.opcje?.length || etykiety < 0) return;
+    wynik.set(p.nr, { kadr: b, tekst: naAkapity(b.tekst.slice(0, etykiety).trim()) });
+  });
+  return wynik;
+}
+
+// Porządki w tekście na pełnym ekranie (dane z PDF i DOCX łamią akapity w dziwnych miejscach):
+// akapit od małej litery to dalszy ciąg poprzedniego („…wybraną” + „spośród oznaczonych…”),
+// krótkie objaśnienia po „Oznaczenia:” idą w jednej linii, a sam podpis „Tabela” nad tabelą
+// znika. Akapity z luką (chronione) zostają nietknięte, bo wiąże się z nimi odpowiedź.
+function uporzadkujAkapity(bloki: Blok[], chroniony: (b: Blok) => boolean): Blok[] {
+  const wynik: Blok[] = [];
+  let objasnienia = false;
+  bloki.forEach((b, i) => {
+    const prev = wynik[wynik.length - 1];
+    if (b.typ === "akapit" && /^Tabela(\s+\d+)?\.?$/.test(b.tekst.trim()) && bloki[i + 1]?.typ === "tabelaTresci") return;
+    if (b.typ !== "akapit" || chroniony(b) || prev?.typ !== "akapit" || chroniony(prev) || /^\d+\.\s/.test(b.tekst)) {
+      objasnienia = false;
+      wynik.push(b);
+      return;
+    }
+    if (/^[a-ząćęłńóśźż]/.test(b.tekst)) {
+      wynik[wynik.length - 1] = { ...prev, tekst: `${prev.tekst} ${b.tekst}` };
+      return;
+    }
+    if ((objasnienia || /:\s*$/.test(prev.tekst)) && b.tekst.length <= 80 && !b.polecenie) {
+      wynik[wynik.length - 1] = { ...prev, tekst: objasnienia ? `${prev.tekst}; ${b.tekst}` : `${prev.tekst} ${b.tekst}` };
+      objasnienia = true;
+      return;
+    }
+    objasnienia = false;
+    wynik.push(b);
+  });
+  return wynik;
+}
+
+// Tabela przyporządkowania („Fragment wykresu funkcji 𝑦 = 𝑔(𝑥) przedstawiono na rysunku …”,
+// klucz np. „AE”): każdy wiersz ma przełącznik liter A–F, a kod składa się z liter
+// w kolejności wierszy. Wiersze to powtórzenia tego samego początku zdania po poleceniu.
+type TabelaDopasowania = { wstep: string; wiersze: string[]; litery: string[]; kadry: Blok[] };
+
+function tabeleDopasowania(z: Zadanie): Map<string, TabelaDopasowania> {
+  const wynik = new Map<string, TabelaDopasowania>();
+  let sekcja: Blok[] = [];
+  for (const b of z.bloki) {
+    if (b.typ !== "pytanie") {
+      sekcja.push(b);
+      continue;
+    }
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    const klucz = p?.typ === "otwarte" && p.kod ? p.oczekiwane?.[0] : undefined;
+    const kadr = sekcja.find((x): x is Blok & { typ: "kadr"; tekst: string } => x.typ === "kadr" && /Uzupełnij tabelę/.test(x.tekst));
+    const zakres = kadr?.tekst.match(/literami ([A-Z])[–-]([A-Z])\./);
+    if (klucz && /^[A-Z]{2,}$/.test(klucz) && kadr && zakres) {
+      const poPoleceniu = kadr.tekst.slice(kadr.tekst.indexOf(zakres[0]) + zakres[0].length);
+      const tresc = poPoleceniu.slice(0, poPoleceniu.search(/\s[A-Z]\.\s/)).trim();
+      const poczatek = tresc.split(/\s+/).slice(0, 3).join(" ");
+      const wiersze = tresc
+        .split(poczatek)
+        .filter((w) => w.trim())
+        .map((w) => `${poczatek}${w}`.trim());
+      const litery = Array.from({ length: zakres[2].charCodeAt(0) - zakres[1].charCodeAt(0) + 1 }, (_, i) => String.fromCharCode(zakres[1].charCodeAt(0) + i));
+      // Wycinki z wykresami opcji (A–F) idą na płótno; wstęp to tekst wycinka przed wierszami tabeli.
+      const kadry = sekcja.filter((x) => x.typ === "kadr" && (x === kadr || /(^|\s)[A-Z]\.\s/.test(x.tekst)));
+      const wstep = kadr.tekst.slice(0, kadr.tekst.indexOf(poczatek)).trim();
+      if (wiersze.length === klucz.length) wynik.set(p!.nr, { wstep, wiersze, litery, kadry });
+    }
+    sekcja = [];
+  }
+  return wynik;
+}
+
+function PrzelacznikLiter({ litery, wybrana, poprawna, gotowe, onWybor, etykieta }: { litery: string[]; wybrana?: string; poprawna?: string; gotowe: boolean; onWybor: (w: string) => void; etykieta: string }) {
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  return (
+    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={etykieta}>
+      {ramka && <span className={styles.thumb} style={ramka} aria-hidden="true" />}
+      {litery.map((l) => (
+        <button
+          key={l}
+          type="button"
+          role="radio"
+          data-litera={l}
+          aria-checked={wybrana === l}
+          className={styles.segment}
+          data-stan={stanCzesci(wybrana, poprawna, l, gotowe)}
+          disabled={gotowe}
+          onClick={() => onWybor(wybrana === l ? "" : l)}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function TabelaDopasowaniaWidok({ pytanie: p, tabela }: { pytanie: PytanieOtwarte; tabela: TabelaDopasowania }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const robocze = postep.odpowiedzi[`${p.nr}.wybor`] ?? postep.odpowiedzi[p.nr] ?? "";
+  const wybory = tabela.wiersze.map((_, i) => (tabela.litery.includes(robocze[i]) ? robocze[i] : undefined));
+  const klucz = p.oczekiwane?.[0] ?? "";
+  const wybierz = (i: number, w: string) => {
+    const nowe = wybory.map((x, j) => (j === i ? w || undefined : x));
+    ustaw(`${p.nr}.wybor`, nowe.map((x) => x ?? "_").join(""));
+    ustaw(p.nr, nowe.every(Boolean) ? nowe.join("") : "");
+  };
+  return (
+    <div className={styles.pfWiersze}>
+      {tabela.wiersze.map((w, i) => (
+        <div key={i} className={styles.pfWiersz}>
+          <p className={styles.para}>{w}</p>
+          <PrzelacznikLiter litery={tabela.litery} wybrana={wybory[i]} poprawna={klucz[i]} gotowe={gotowe} etykieta={w} onWybor={(l) => wybierz(i, l)} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Odpowiedź kodem „Zapisz dwie właściwe odpowiedzi spośród oznaczonych literami A–F” (klucz
+// np. „CE”): wszystkie opcje w jednej liście, wybór dwóch, a zdanie „…… oraz ……” wypełnia
+// się wybranymi literami. Kod (litery w kolejności alfabetu) trafia do odpowiedzi dopiero
+// przy dwóch wyborach; wybór w trakcie leży pod kluczem „11.wybor”.
+type WyborDwoch = { zdanie: string; opcje: Opcja[]; ile: number; ukryte: Set<Blok> };
+const OPCJA_W_AKAPICIE = /^([A-Z])\.\s+([\s\S]+)$/;
+
+function wyboryDwoch(z: Zadanie): Map<string, WyborDwoch> {
+  const wynik = new Map<string, WyborDwoch>();
+  let sekcja: Blok[] = [];
+  for (const b of z.bloki) {
+    if (b.typ !== "pytanie") {
+      sekcja.push(b);
+      continue;
+    }
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    const klucz = p?.typ === "otwarte" && p.kod ? p.oczekiwane?.[0] : undefined;
+    const opcje = sekcja.find((x) => x.typ === "opcje");
+    const zdanie = sekcja.find((x) => x.typ === "akapit" && !x.polecenie && ZNACZNIK_LUKI.test(x.tekst));
+    if (klucz && /^[A-Z]{2,}$/.test(klucz) && !/^[PF]+$/.test(klucz) && opcje?.typ === "opcje" && zdanie?.typ === "akapit") {
+      const wAkapitach = sekcja.filter((x) => x.typ === "akapit" && !x.polecenie && OPCJA_W_AKAPICIE.test(x.tekst));
+      const dodatkowe = wAkapitach.map((x) => {
+        const [, litera, tresc] = (x as { tekst: string }).tekst.match(OPCJA_W_AKAPICIE)!;
+        return { litera, tresc };
+      });
+      wynik.set(p!.nr, {
+        zdanie: zdanie.tekst,
+        opcje: [...opcje.opcje, ...dodatkowe].sort((a, c) => a.litera.localeCompare(c.litera)),
+        ile: klucz.length,
+        ukryte: new Set<Blok>([opcje, zdanie, ...wAkapitach]),
+      });
+    }
+    sekcja = [];
+  }
+  return wynik;
+}
+
+function WyborKilku({ pytanie: p, wybor }: { pytanie: PytanieOtwarte; wybor: WyborDwoch }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const wybrane = [...(postep.odpowiedzi[`${p.nr}.wybor`] ?? postep.odpowiedzi[p.nr] ?? "")].filter((l) => wybor.opcje.some((o) => o.litera === l));
+  const klucz = p.oczekiwane?.[0] ?? "";
+  const przelacz = (l: string) => {
+    // Trzeci wybór zastępuje najstarszy, żeby nie trzeba było najpierw odznaczać.
+    const nowe = wybrane.includes(l) ? wybrane.filter((x) => x !== l) : [...wybrane, l].slice(-wybor.ile);
+    ustaw(`${p.nr}.wybor`, nowe.join(""));
+    ustaw(p.nr, nowe.length === wybor.ile ? [...nowe].sort().join("") : "");
+  };
+  const posortowane = [...wybrane].sort();
+  let n = 0;
+  const czesci = wybor.zdanie.split(/(…{2,}|\.{4,})/);
+  return (
+    <div className={styles.wieleWybor}>
+      <p className={styles.para}>
+        {czesci.map((c, i) =>
+          i % 2 ? (
+            <span key={i} className={styles.lukaLitera}>
+              {posortowane[n++] ?? "……"}
+            </span>
+          ) : (
+            <Tekst key={i} tekst={c} />
+          ),
+        )}
+      </p>
+      <div className={styles.choices} data-kolumny="2" role="group" aria-label={`Pytanie ${p.nr}: wybierz ${wybor.ile}`}>
+        {wybor.opcje.map((o) => {
+          const wybrana = wybrane.includes(o.litera);
+          const stan = gotowe ? (klucz.includes(o.litera) ? (wybrana ? "trafiona" : "poprawna") : wybrana ? "bledna" : undefined) : wybrana ? "wybrana" : undefined;
+          return (
+            <button key={o.litera} type="button" role="checkbox" aria-checked={wybrana} className={styles.choice} data-stan={stan} disabled={gotowe} onClick={() => przelacz(o.litera)}>
+              <span className={styles.letter}>{o.litera}</span>
+              <span>
+                <Tekst tekst={o.tresc} />
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Całe zadanie P/F jako jeden wycinek strony (tekst, diagramy, tabela P/F; klucz np. „PP”).
+// Tekst z PDF: wstęp, podpisy osi, polecenie „Oceń prawdziwość…”, a potem stwierdzenia
+// z wtrąconym „P F” z kolumn tabeli. Wyciągamy z niego wstęp, polecenie i zdania.
+function pfZKadru(z: Zadanie): { kadr: Blok; tekst: Blok[]; nr: string; stwierdzenia: StwierdzeniaPF } | null {
+  const [p] = z.pytania;
+  const klucz = z.pytania.length === 1 && p.typ === "otwarte" && p.kod ? p.oczekiwane?.[0] : undefined;
+  const kadr = z.bloki.find((b) => b.typ === "kadr" && /Oceń prawdziwość/.test(b.tekst));
+  if (!klucz || !/^[PF]+$/.test(klucz) || kadr?.typ !== "kadr") return null;
+  const t = kadr.tekst;
+  const od = t.search(/Oceń prawdziwość/);
+  const koniecPolecenia = t.indexOf("fałszywe.", od);
+  if (koniecPolecenia < 0) return null;
+  const polecenie = t.slice(od, koniecPolecenia + "fałszywe.".length);
+  const zdania = t
+    .slice(koniecPolecenia + "fałszywe.".length)
+    .replace(/\s+P\s+F(?=\s|$)/g, "")
+    .trim()
+    .split(/(?<=\.)\s+(?=[A-ZĄĆĘŁŃÓŚŹŻ])/)
+    .filter(Boolean);
+  if (zdania.length !== klucz.length) return null;
+  const wstep = wstepBezRysunku(t.slice(0, od)) ?? naAkapity(t.slice(0, od));
+  return {
+    kadr,
+    tekst: [...wstep, { typ: "akapit", tekst: polecenie, polecenie: true }],
+    nr: p.nr,
+    stwierdzenia: { zdania: zdania.map((tekst): Blok[] => [{ typ: "akapit", tekst }]), ukryte: new Set() },
+  };
+}
+
+// Odpowiedź kodem P/F („Oceń prawdziwość stwierdzeń 1. i 2.”, klucz np. „PF”): każde
+// stwierdzenie to wiersz z przełącznikiem P | F, jak tabela w arkuszu CKE. Gotowy kod
+// trafia do odpowiedzi dopiero po wyborze przy wszystkich zdaniach; wybór w trakcie
+// leży pod osobnym kluczem („5.pf”), którego ocena nie widzi.
+type StwierdzeniaPF = { zdania: Blok[][]; ukryte: Set<Blok> };
+
+function stwierdzeniaPF(z: Zadanie): Map<string, StwierdzeniaPF> {
+  const wynik = new Map<string, StwierdzeniaPF>();
+  let sekcja: Blok[] = [];
+  for (const b of z.bloki) {
+    if (b.typ !== "pytanie") {
+      sekcja.push(b);
+      continue;
+    }
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    const klucz = p?.typ === "otwarte" && p.kod ? p.oczekiwane?.[0] : undefined;
+    if (klucz && /^[PF]+$/.test(klucz)) {
+      // Zdanie zaczyna akapit „1. …”, a kolejne akapity bez numeru (wzór w osobnej linii) go dopełniają.
+      const zdania: Blok[][] = [];
+      for (const x of sekcja) {
+        if (x.typ !== "akapit" || x.polecenie) continue;
+        if (/^\d+\.\s/.test(x.tekst)) zdania.push([x]);
+        else if (zdania.length) zdania[zdania.length - 1].push(x);
+      }
+      if (zdania.length === klucz.length) wynik.set(p!.nr, { zdania, ukryte: new Set(zdania.flat()) });
+    }
+    sekcja = [];
+  }
+  return wynik;
+}
+
+function PrzelacznikPF({ wybrana, poprawna, gotowe, onWybor, etykieta }: { wybrana?: string; poprawna?: string; gotowe: boolean; onWybor: (w: string) => void; etykieta: string }) {
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  return (
+    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={etykieta}>
+      {ramka && <span className={styles.thumb} style={ramka} aria-hidden="true" />}
+      {["P", "F"].map((l) => (
+        <button
+          key={l}
+          type="button"
+          role="radio"
+          data-litera={l}
+          aria-checked={wybrana === l}
+          aria-label={l === "P" ? "Prawda" : "Fałsz"}
+          className={styles.segment}
+          data-stan={stanCzesci(wybrana, poprawna, l, gotowe)}
+          disabled={gotowe}
+          onClick={() => onWybor(wybrana === l ? "" : l)}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PrawdaFalszKod({ pytanie: p, stwierdzenia }: { pytanie: PytanieOtwarte; stwierdzenia: StwierdzeniaPF }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const robocze = postep.odpowiedzi[`${p.nr}.pf`] ?? postep.odpowiedzi[p.nr] ?? "";
+  const wybory = stwierdzenia.zdania.map((_, i) => (robocze[i] === "P" || robocze[i] === "F" ? robocze[i] : undefined));
+  const klucz = p.oczekiwane?.[0] ?? "";
+  const wybierz = (i: number, w: string) => {
+    const nowe = wybory.map((x, j) => (j === i ? w || undefined : x));
+    ustaw(`${p.nr}.pf`, nowe.map((x) => x ?? "_").join(""));
+    ustaw(p.nr, nowe.every(Boolean) ? nowe.join("") : "");
+  };
+  return (
+    <div className={styles.pfWiersze}>
+      {stwierdzenia.zdania.map((zdanie, i) => (
+        <div key={i} className={styles.pfWiersz}>
+          <div className={styles.para}>
+            {zdanie.map((b, k) => (
+              <span key={k}>
+                {k > 0 && " "}
+                {b.typ === "akapit" && <Tekst tekst={b.tekst} />}
+              </span>
+            ))}
+          </div>
+          <PrzelacznikPF wybrana={wybory[i]} poprawna={klucz[i]} gotowe={gotowe} etykieta={`Stwierdzenie ${i + 1}: prawda czy fałsz`} onWybor={(w) => wybierz(i, w)} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Odpowiedź kodem „A albo B oraz 1., 2. albo 3.” („Ten ciąg jest … oraz …”): zamiast wpisywać
+// „B2”, uczeń wybiera w dwóch grupach, a zapis zostaje kodem, więc sprawdzanie z kluczem działa.
+type WyborKodu = { przed: string; miedzy: string; litery: Opcja[]; cyfry: Opcja[]; ukryte: Set<Blok> };
+const NUMEROWANA = /^(\d)\.\s+([\s\S]+)$/;
+
+function kodyZWyborem(z: Zadanie): Map<string, WyborKodu> {
+  const wynik = new Map<string, WyborKodu>();
+  let sekcja: Blok[] = [];
+  for (const b of z.bloki) {
+    if (b.typ !== "pytanie") {
+      sekcja.push(b);
+      continue;
+    }
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    const opcje = sekcja.find((x) => x.typ === "opcje");
+    if (p?.typ === "otwarte" && p.kod && p.oczekiwane?.every((k) => /^[A-Z]\d$/.test(k)) && opcje?.typ === "opcje") {
+      const numerowane = sekcja.filter((x): x is Blok & { typ: "akapit"; tekst: string; polecenie?: boolean } => x.typ === "akapit" && !x.polecenie && NUMEROWANA.test(x.tekst));
+      // Krótkie kawałki zdania: „Ten ciąg jest” przed pierwszą grupą, „oraz” przed drugą.
+      const kawalki = sekcja.filter((x): x is Blok & { typ: "akapit"; tekst: string; polecenie?: boolean } => x.typ === "akapit" && !x.polecenie && !NUMEROWANA.test(x.tekst) && x.tekst.length <= 80);
+      const zdanie = kawalki.slice(-2);
+      if (numerowane.length >= 2)
+        wynik.set(p.nr, {
+          przed: zdanie.length === 2 ? zdanie[0].tekst : "",
+          miedzy: zdanie.length === 2 ? zdanie[1].tekst : (zdanie[0]?.tekst ?? "oraz"),
+          litery: opcje.opcje,
+          cyfry: numerowane.map((x) => {
+            const [, nr, tresc] = x.tekst.match(NUMEROWANA)!;
+            return { litera: nr, tresc };
+          }),
+          ukryte: new Set<Blok>([opcje, ...numerowane, ...zdanie]),
+        });
+    }
+    sekcja = [];
+  }
+  return wynik;
+}
+
+function stanCzesci(wybrana: string | undefined, poprawna: string | undefined, wartosc: string, gotowe: boolean) {
+  if (!gotowe) return wybrana === wartosc ? "wybrana" : undefined;
+  if (wartosc === poprawna) return wybrana === wartosc ? "trafiona" : "poprawna";
+  return wybrana === wartosc ? "bledna" : undefined;
+}
+
+function GrupaKodu({ opcje, wybrana, poprawna, gotowe, onWybor, etykieta }: { opcje: Opcja[]; wybrana?: string; poprawna?: string; gotowe: boolean; onWybor: (w: string) => void; etykieta: string }) {
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  return (
+    <div ref={kontener} className={styles.choices} role="radiogroup" aria-label={etykieta}>
+      {ramka && <span className={styles.highlight} style={ramka} aria-hidden="true" />}
+      {opcje.map((o) => (
+        <button
+          key={o.litera}
+          type="button"
+          role="radio"
+          data-litera={o.litera}
+          aria-checked={wybrana === o.litera}
+          className={styles.choice}
+          data-stan={stanCzesci(wybrana, poprawna, o.litera, gotowe)}
+          disabled={gotowe}
+          onClick={() => onWybor(wybrana === o.litera ? "" : o.litera)}
+        >
+          <span className={styles.letter}>{o.litera}</span>
+          <span>
+            <Tekst tekst={o.tresc} />
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function KodZWyborem({ pytanie: p, wybor }: { pytanie: PytanieOtwarte; wybor: WyborKodu }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  const gotowe = sprawdzone(p.nr);
+  const kod = postep.odpowiedzi[p.nr] ?? "";
+  const litera = kod.match(/^[A-Z]/)?.[0];
+  const cyfra = kod.match(/\d+$/)?.[0];
+  const klucz = p.oczekiwane?.[0] ?? "";
+  return (
+    // Jak w arkuszu CKE: jeden wiersz tabeli „Ten ciąg jest | A / B | oraz | 1. / 2. / 3.”.
+    <div className={styles.kodWybor}>
+      <p className={styles.kodTekst}>
+        <Tekst tekst={wybor.przed} />
+      </p>
+      <div>
+        <GrupaKodu opcje={wybor.litery} wybrana={litera} poprawna={klucz[0]} gotowe={gotowe} etykieta={`Pytanie ${p.nr}, pierwsza część`} onWybor={(l) => ustaw(p.nr, `${l}${cyfra ?? ""}`)} />
+      </div>
+      <p className={styles.kodTekst}>
+        <Tekst tekst={wybor.miedzy} />
+      </p>
+      <div>
+        <GrupaKodu opcje={wybor.cyfry} wybrana={cyfra} poprawna={klucz.slice(1)} gotowe={gotowe} etykieta={`Pytanie ${p.nr}, druga część`} onWybor={(c) => ustaw(p.nr, `${litera ?? ""}${c}`)} />
+      </div>
+    </div>
+  );
+}
+
 function Opcje({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   const { postep, ustaw, sprawdzone } = useCtx();
   const gotowe = sprawdzone(p.nr);
   const wybrana = postep.odpowiedzi[p.nr] || undefined;
   const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
   return (
-    <div ref={kontener} className={styles.choices} role="radiogroup" aria-label={`Pytanie ${p.nr}`}>
+    <div ref={kontener} className={styles.choices} data-kolumny={kolumnyOpcji(p.opcje!)} role="radiogroup" aria-label={`Pytanie ${p.nr}`}>
       {ramka && <span className={styles.highlight} style={ramka} aria-hidden="true" />}
       {p.opcje!.map((o) => (
         <button
@@ -1047,6 +2190,21 @@ function zakresLiter(litery: string[]) {
 // Same litery (dopasowanie): pole na jedną literę, jak kratka w tabeli odpowiedzi
 // na maturze. Przyjmuje tylko litery z zadania, a po wpisaniu przechodzi do
 // następnego takiego pola, więc tabelę wypełnia się z klawiatury.
+// Pełny ekran brudnopisu: litery do kliknięcia (opcje leżą na płótnie albo w treści).
+function LiteryKompakt({ pytanie: p }: { pytanie: PytanieZamkniete }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  return (
+    <PrzelacznikLiter
+      litery={p.litery}
+      wybrana={postep.odpowiedzi[p.nr] || undefined}
+      poprawna={p.poprawna}
+      gotowe={sprawdzone(p.nr)}
+      etykieta={`Pytanie ${p.nr}`}
+      onWybor={(l) => ustaw(p.nr, l)}
+    />
+  );
+}
+
 function PoleLitery({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   const { postep, ustaw, sprawdzone } = useCtx();
   const gotowe = sprawdzone(p.nr);
@@ -1100,10 +2258,36 @@ function WierszTabeli({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 // Luka na brakujące zdanie: kliknięcie rozwija pod nią listę zdań, wybrane
 // zdanie wchodzi w tekst. Bez treści opcji zostaje mały wybór liter.
 function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
-  const { postep, ustaw, sprawdzone, opcjeDla, otwartaLuka, setOtwartaLuka } = useCtx();
+  const { arkusz, postep, ustaw, sprawdzone, opcjeDla, otwartaLuka, setOtwartaLuka } = useCtx();
+  const kompakt = useContext(Kompakt);
   const opcje = opcjeDla(p.nr);
   const gotowe = sprawdzone(p.nr);
   const wybrana = postep.odpowiedzi[p.nr] || "";
+  // Matematyka na pełnym ekranie: pod luką od razu opcje z treścią („A 5,80 zł”), bez listy obok.
+  if (kompakt && arkusz.przedmiot === "matematyka")
+    return (
+      <span className={styles.wyborLuki} role="radiogroup" aria-label={`Luka ${p.nr}`}>
+        {(opcje ?? p.litery.map((l) => ({ litera: l, tresc: "" }))).map((o) => (
+          <button
+            key={o.litera}
+            type="button"
+            role="radio"
+            aria-checked={wybrana === o.litera}
+            className={styles.choice}
+            data-stan={stanCzesci(wybrana || undefined, p.poprawna, o.litera, gotowe)}
+            disabled={gotowe}
+            onClick={() => ustaw(p.nr, wybrana === o.litera ? "" : o.litera)}
+          >
+            <span className={styles.letter}>{o.litera}</span>
+            {o.tresc && (
+              <span>
+                <Tekst tekst={o.tresc} />
+              </span>
+            )}
+          </button>
+        ))}
+      </span>
+    );
   const otwarta = otwartaLuka === p.nr && !gotowe;
   const w = gotowe ? werdyktPytania(p, postep) : undefined;
   const tresc = opcje?.find((o) => o.litera === wybrana)?.tresc;
@@ -1130,7 +2314,7 @@ function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
             {tresc && <span className={styles.gapText}>{tresc}</span>}
           </>
         ) : (
-          <span className={styles.gapPrompt}>{opcje ? "wybierz zdanie" : "wybierz"}</span>
+          <span className={styles.gapPrompt}>{!opcje ? "wybierz" : arkusz.przedmiot === "matematyka" ? "wybierz odpowiedź" : "wybierz zdanie"}</span>
         )}
         {!gotowe && <ChevronDown size={14} aria-hidden="true" className={styles.gapChevron} />}
       </button>
@@ -1173,10 +2357,18 @@ function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: PytanieOtwarte; blok?: boolean; bezNumeru?: boolean; placeholder?: string }) {
-  const { postep, ustaw, sprawdzone } = useCtx();
+  const { arkusz, postep, ustaw, sprawdzone } = useCtx();
   const gotowe = sprawdzone(p.nr);
   const w = gotowe ? werdyktPytania(p, postep) : undefined;
   const wartosc = postep.odpowiedzi[p.nr] ?? "";
+  // Matematyka oceniana według schematu (bez listy odpowiedzi do porównania): pole z zapisem
+  // matematycznym. Przy kluczu z listą zostaje zwykły tekst, bo porównujemy go z kluczem.
+  if (blok && arkusz.przedmiot === "matematyka" && !p.kod && !p.oczekiwane?.length && !p.akceptowane?.length)
+    return (
+      <span className={styles.blockGap} data-werdykt={w}>
+        <PoleMatematyczne wartosc={wartosc} onZmiana={(latex) => ustaw(p.nr, latex)} tylkoOdczyt={gotowe} etykieta={`Odpowiedź ${p.nr}`} szerokie />
+      </span>
+    );
   return (
     <span className={blok ? styles.blockGap : styles.inlineGap} data-werdykt={w}>
       {!blok && !bezNumeru && <span className={styles.gapNr}>{p.nr}.</span>}
