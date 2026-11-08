@@ -16,17 +16,17 @@
   <defs><marker id="s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="svg-arrow"/></marker></defs>
   <rect class="svg-node" x="20" y="20" width="220" height="110" rx="6"/>
   <text class="svg-t" x="36" y="46">Zadanie z arkusza CKE</text>
-  <text class="svg-s" x="36" y="70">treść jako wycinek PDF</text>
+  <text class="svg-s" x="36" y="70">treść jako tekst, kod, tabele</text>
   <text class="svg-s" x="36" y="90">pliki z zipa CKE (dron.txt …)</text>
   <text class="svg-s" x="36" y="110">do pobrania albo w warsztacie</text>
 
   <rect class="svg-node-alt" x="280" y="20" width="220" height="150" rx="6"/>
   <text class="svg-t" x="296" y="46">Warsztat pod zadaniem</text>
-  <text class="svg-s" x="296" y="70">Python: program na plikach</text>
+  <text class="svg-s" x="296" y="70">Python w edytorze z VS Code</text>
   <text class="svg-s" x="296" y="90">SQL: tabele z plików (Access)</text>
   <text class="svg-s" x="296" y="110">Dane: podgląd jak w Excelu</text>
-  <text class="svg-s" x="296" y="130">wszystko w przeglądarce,</text>
-  <text class="svg-s" x="296" y="150">bez serwera i bez CDN</text>
+  <text class="svg-s" x="296" y="130">podpowiedzi Jedi, sprawdzarka</text>
+  <text class="svg-s" x="296" y="150">z kluczem; bez serwera i CDN</text>
 
   <rect class="svg-node" x="540" y="20" width="200" height="110" rx="6"/>
   <text class="svg-t" x="556" y="46">Odpowiedź</text>
@@ -53,15 +53,16 @@
 
 <h2>Co jest w aplikacji</h2>
 <ul>
-  <li>Arkusze z formuły 2023 (2023–2026). Treść to wycinki z PDF, bo pseudokod, tabele i wykresy giną w tekście. Przy każdym pytaniu jest rozwiązanie i zasady oceniania z klucza CKE.</li>
-  <li>Pod zadaniem z plikami danych jest warsztat. <b>Python</b> działa w przeglądarce (Pyodide), pliki leżą obok programu jak na egzaminie, a wynik można jednym kliknięciem wstawić do odpowiedzi.</li>
+  <li>Arkusze z formuły 2023 (2023–2026). Treść to tekst jak w matematyce: akapity z pogrubieniem i kursywą, nazwy plików krojem kodu, pseudokod i przykłady danych jako kod z wcięciami, proste tabele jako tabele, opcje A–D jako przyciski. Wykresy, rysunki i wzory (wykładniki, ułamki) zostają wycinkami z PDF. Przy każdym pytaniu jest rozwiązanie i zasady oceniania z klucza CKE.</li>
+  <li>Pod zadaniem jest warsztat z <b>edytorem z VS Code</b> (Monaco) i <b>Pythonem</b> w przeglądarce (Pyodide, prawdziwy CPython 3.12). Podpowiedzi jak w VS Code daje Jedi: nazwy zmiennych i funkcji, metody, nazwy plików z danymi w <code>open("…")</code>, parametry funkcji, opis pod kursorem i błędy składni na bieżąco. Pliki leżą obok programu jak na egzaminie.</li>
+  <li><b>Sprawdzarka</b>: po uruchomieniu wyjście programu (ekran i zapisane pliki) albo zapytania SQL jest porównywane z kluczem CKE dla każdego podpunktu, bez zdradzania samego wyniku. Wynik da się jednym kliknięciem wstawić do odpowiedzi.</li>
   <li>Zadania z bazy danych: pliki z tabulatorami stają się tabelami SQLite. Zapytanie piszesz jak w widoku SQL Accessa; działają <code>YEAR()</code>, <code>MONTH()</code>, <code>DAY()</code>, <code>MID()</code>, <code>LEN()</code>.</li>
   <li>Zadania z arkusza kalkulacyjnego: podgląd danych z sortowaniem i pobranie plików do własnego Excela. Obliczenia da się też zrobić w Pythonie albo SQL; wykres uczeń robi u siebie i ocenia sam.</li>
 </ul>
 
 <h2>Do weryfikacji i na później</h2>
 <ul>
-  <li>Zgodność wyniku sprawdzamy tylko dla krótkich wyników. Algorytmy, zapytania i tabele uczeń ocenia sam, z rozwiązaniem obok. Ocena przez Pestkę (czy algorytm działa, czy zapytanie daje ten sam wynik) jest następnym krokiem.</li>
+  <li>Języki: na razie Python. C++ i Java (też dozwolone na maturze) wymagają kompilatora na serwerze z izolacją; decyzja odłożona. Algorytmy zapisane w arkuszu, zapytania i tabele uczeń ocenia sam, z rozwiązaniem obok; ocena przez Pestkę to następny krok.</li>
   <li>Prawa do plików danych CKE: tak jak arkusze, trzymamy je tylko w bazie dla zalogowanych, nie w repozytorium.</li>
 </ul>
 </main>

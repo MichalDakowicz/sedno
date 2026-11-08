@@ -51,7 +51,7 @@ Tekst z PDF gubi ułamki, potęgi i pierwiastki. Treść ze wzorami bierzemy wi�
 
 ## Informatyka
 
-Arkusz bez formy DOCX, a tekst z PDF gubi pseudokod (strzałka przypisania wychodzi jako „•”), tabele i wykresy. Treść każdego fragmentu to więc kadr, jak w matematyce, tylko w WebP (arkusz z samych kadrów waży 1,9–2,5 MB zamiast 4–5 MB w PNG).
+Arkusz nie ma formy DOCX, więc treść składamy z PDF razem z krojami pisma (`tekstPdf(…, { fonty: true })`: pogrubienie, kursywa, Courier, Symbol). `informatyka-tresc.js` dzieli linie fragmentu na akapity z zakresami `formaty`, bloki `kod` (pseudokod po strzałce i słowach „jeżeli”, „dopóki”…, dane Courierem, wiersze liczb; wcięcia z położenia linii), tabele o równej liczbie kolumn i wycinki (wykresy, rysunki, wzory z drobnym pismem albo nieznanym znakiem z fontu Symbol). Fragment z co najmniej dwoma wycinkami albo z wycinkami na ponad 60% wysokości zostaje jednym kadrem (WebP). Akapity „A.–D.” przy pytaniu zamkniętym stają się opcjami.
 
 - `informatyka.js`, PDF: fragment to „Zadanie N. Tytuł” (wstęp, tytuł trafia do pola `tytul`), „Zadanie N.M. (0–X)” albo „Informacja do zadań …” (osobny fragment bez punktów przed pierwszym z podpunktów). Tabelka egzaminatora stoi na marginesie raz z lewej, raz z prawej. Fragment kończą „Miejsce na obliczenia / zapis algorytmu / zapis zapytania”, „Do oceny oddajesz” i „BRUDNOPIS”.
 - Klucz (`kluczInformatyki`): przy każdym podpunkcie tekst po „Zasady oceniania” i po nagłówku rozwiązania („Rozwiązanie”, „Poprawna odpowiedź”, „Przykładowe rozwiązanie” itd.). Wcięcia pseudokodu odtwarzamy z położenia linii, „•” zamieniamy na „←”. Przypis z podstawą prawną kończy stronę.
