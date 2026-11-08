@@ -4,7 +4,7 @@
   list-style: none;
   display: grid;
   width: 100%;
-  max-width: 520px;
+  max-width: 600px;
 }
 
 .row {
@@ -20,9 +20,9 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* Stała szerokość nazwy: poziomy we wszystkich wierszach zaczynają się w tej samej kolumnie. */
 .toggle {
-  flex: 1;
-  min-width: 160px;
+  flex: 0 0 190px;
   display: flex;
   align-items: center;
   gap: 12px;
