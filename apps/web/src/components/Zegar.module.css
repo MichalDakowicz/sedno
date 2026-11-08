@@ -1,24 +1,135 @@
-/* Przyklejony pod górnym paskiem, żeby był pod ręką przy każdym zadaniu, a dymek Pestki go nie zasłaniał. */
-.zegar {
-  position: fixed;
-  left: 50%;
-  top: 96px;
-  z-index: 40;
-  transform: translateX(-50%);
+/* Zegar arkusza. Zwykle „wyspa” w górnym pasku z samym czasem; kliknięcie wysuwa pod nią pełny
+   zegar z pauzą i wyłączeniem. Gdy paska nie ma, pełny zegar wisi pod nim na środku ekranu. */
+.wyspa {
+  position: relative;
+  animation: wynurz 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+@keyframes wynurz {
+  from {
+    opacity: 0;
+    scale: 0.5;
+  }
+}
+
+.czas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px 0 14px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--fg);
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ikona {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.pauzaZnak {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.wyspa[data-stan="koncowka"] .czas,
+.wyspa[data-stan="po"] .czas {
+  color: var(--primary);
+}
+
+/* Pełny zegar: wysuwa się z wyspy w dół. */
+.panel {
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 6px 6px 6px 20px;
   border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.92);
   -webkit-backdrop-filter: blur(12px) saturate(1.6);
   backdrop-filter: blur(12px) saturate(1.6);
   box-shadow:
     0 0 0 1px rgba(15, 21, 29, 0.06),
     var(--shadow-float);
+  white-space: nowrap;
 }
 
-.czas {
+/* Jak Dynamic Island: pełny zegar wyrasta z wyspy (ciemny, jej rozmiaru, na jej miejscu) i rośnie
+   w dół do białego zegara; chowanie to ta sama droga z powrotem. Treść pojawia się, gdy kształt jest już duży. */
+.wyspa .panel {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  z-index: 40;
+  translate: -50% 0;
+  transform-origin: 50% 0;
+  animation: wyrosnij 0.5s cubic-bezier(0.3, 1.25, 0.45, 1) both;
+}
+
+.wyspa .panel > * {
+  animation: pokaz 0.5s ease both;
+}
+
+.wyspa .zamyka {
+  animation: schowaj 0.32s cubic-bezier(0.5, 0, 0.75, 0) both;
+}
+
+.wyspa .zamyka > * {
+  animation: ukryj 0.12s ease both;
+}
+
+@keyframes wyrosnij {
+  from {
+    transform: translateY(calc(-100% * var(--sy, 0.8) - 14px)) scale(var(--sx, 0.45), var(--sy, 0.8));
+    background: var(--fg);
+    box-shadow: none;
+  }
+  45% {
+    background: var(--fg);
+  }
+}
+
+@keyframes schowaj {
+  55% {
+    background: var(--fg);
+  }
+  to {
+    transform: translateY(calc(-100% * var(--sy, 0.8) - 14px)) scale(var(--sx, 0.45), var(--sy, 0.8));
+    background: var(--fg);
+    box-shadow: none;
+    opacity: 0;
+  }
+}
+
+@keyframes pokaz {
+  0%,
+  45% {
+    opacity: 0;
+  }
+}
+
+@keyframes ukryj {
+  to {
+    opacity: 0;
+  }
+}
+
+.samodzielny {
+  position: fixed;
+  left: 50%;
+  top: 96px;
+  z-index: 40;
+  translate: -50% 0;
+}
+
+.panelCzas {
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -26,6 +137,7 @@
   font-size: 20px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
+  color: var(--fg);
 }
 
 .opis {
@@ -34,15 +146,16 @@
   color: var(--subtle);
 }
 
-.zegar[data-stan="koncowka"] .czas,
-.zegar[data-stan="po"] .czas,
-.zegar[data-stan="po"] .opis {
+[data-stan="koncowka"] .panelCzas,
+[data-stan="po"] .panelCzas,
+[data-stan="po"] .opis {
   color: var(--primary-text);
 }
 
 .przycisk {
   display: grid;
   place-items: center;
+  flex: none;
   width: 40px;
   height: 40px;
   border: 0;
@@ -56,8 +169,21 @@
   background: var(--bg);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .wyspa,
+  .wyspa .panel,
+  .wyspa .panel > * {
+    animation: none;
+  }
+
+  .wyspa .zamyka {
+    display: none;
+  }
+}
+
 @media print {
-  .zegar {
+  .wyspa,
+  .samodzielny {
     display: none;
   }
 }

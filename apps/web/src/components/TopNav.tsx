@@ -43,22 +43,27 @@ export function TopNav() {
           Sedno
         </Link>
 
-        <ul className={styles.links} data-tutor="nav-links">
-          <Plywak jako="li" zalezy={location.pathname} />
-          {links.map(({ to, label, icon: Icon, end }) => (
-            <li key={to}>
-              <NavLink
-                to={to}
-                end={end}
-                data-aktywny={end ? onDashboard : location.pathname === to || location.pathname.startsWith(`${to}/`)}
-                className={({ isActive }) => `${styles.link} ${isActive || (end && onDashboard) ? styles.active : ""}`}
-              >
-                <Icon size={16} strokeWidth={2} aria-hidden="true" />
-                {label}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+        {/* Środek paska: menu i miejsce na „wyspę” zegara arkusza (components/Zegar.tsx). Są wyśrodkowane
+            razem, więc gdy wyspa się pojawia albo rozwija, menu przesuwa się płynnie. */}
+        <div className={styles.srodek}>
+          <ul className={styles.links} data-tutor="nav-links">
+            <Plywak jako="li" zalezy={location.pathname} />
+            {links.map(({ to, label, icon: Icon, end }) => (
+              <li key={to}>
+                <NavLink
+                  to={to}
+                  end={end}
+                  data-aktywny={end ? onDashboard : location.pathname === to || location.pathname.startsWith(`${to}/`)}
+                  className={({ isActive }) => `${styles.link} ${isActive || (end && onDashboard) ? styles.active : ""}`}
+                >
+                  <Icon size={16} strokeWidth={2} aria-hidden="true" />
+                  {label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+          <div id="wyspa-zegara" className={styles.wyspa} />
+        </div>
 
         <div className={styles.right}>
           <button type="button" className={styles.pomoc} onClick={przewodnik} aria-label="Pokaż przewodnik z Pestką" title="Przewodnik z Pestką">

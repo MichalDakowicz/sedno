@@ -1,8 +1,9 @@
 // Zegar arkusza: odlicza czas egzaminu z arkusza. Stan siedzi w postępie arkusza, więc przeżywa
 // odświeżenie strony i synchronizuje się z kontem. Pestka odzywa się tylko w kilku momentach
 // (półmetek, 15 minut przed końcem, koniec), bo ciągłe odliczanie rozprasza.
-import { useEffect, useState } from "react";
-import { Pause, Play, X } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
+import { Pause, Play, Timer, X } from "lucide-react";
 import type { Czas } from "../arkusze/postep";
 import { useTutor } from "./TutorContext";
 import styles from "./Zegar.module.css";
@@ -10,7 +11,7 @@ import styles from "./Zegar.module.css";
 const MIN = 60_000;
 
 /** Czas, który już upłynął (ms). */
-export const uplynelo = (c: Czas, teraz = Date.now()) => c.zuzyte + (c.start ? teraz - c.start : 0);
+export const uplynelo = (c: Czas, teraz = Date.now()) => c.zuzyte + (c.start ? Math.max(0, teraz - c.start) : 0);
 
 /** Zegar zatrzymany w bieżącej chwili. */
 export const zatrzymaj = (c: Czas): Czas => (c.start ? { ...c, start: null, zuzyte: uplynelo(c) } : c);
@@ -33,10 +34,50 @@ function momenty(limitMin: number): Moment[] {
   return m;
 }
 
-export function Zegar({ arkusz, limitMin, czas, onZmien }: { arkusz: string; limitMin: number; czas: Czas; onZmien: (c: Czas | undefined) => void }) {
+/** onWroc: zegar poza arkuszem; kliknięcie wyspy wraca do arkusza zamiast wysuwać pełny zegar. */
+export function Zegar({
+  arkusz,
+  limitMin,
+  czas,
+  onZmien,
+  onWroc,
+}: {
+  arkusz: string;
+  limitMin: number;
+  czas: Czas;
+  onZmien: (c: Czas | undefined) => void;
+  onWroc?: () => void;
+}) {
   const { showHints } = useTutor();
   const [teraz, setTeraz] = useState(Date.now());
+  // Wysunięty zegar: „zamyka” trwa, póki animacja chowania nie wróci do wyspy.
+  const [widok, setWidok] = useState<"schowany" | "otwarty" | "zamyka">("schowany");
+  const rozwiniety = widok === "otwarty";
   const biegnie = czas.start !== null;
+  // Miejsce w górnym pasku (TopNav). Bez niego zegar wisi pod paskiem jak wcześniej.
+  const [wyspa, setWyspa] = useState<HTMLElement | null>(null);
+  useEffect(() => setWyspa(document.getElementById("wyspa-zegara")), []);
+  const wyspaRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  // Pełny zegar rośnie z kształtu wyspy: skala startowa to stosunek ich szerokości i wysokości.
+  const [ksztalt, setKsztalt] = useState<CSSProperties>({});
+  useLayoutEffect(() => {
+    // offsetWidth/Height, bo nie zależą od transformacji: panel jest już w trakcie animacji.
+    const w = wyspaRef.current?.firstElementChild as HTMLElement | null | undefined;
+    const pn = panelRef.current;
+    if (widok !== "schowany" && w && pn?.offsetWidth)
+      setKsztalt({ "--sx": (w.offsetWidth / pn.offsetWidth).toFixed(3), "--sy": (w.offsetHeight / pn.offsetHeight).toFixed(3) } as CSSProperties);
+  }, [widok]);
+
+  // Kliknięcie obok chowa wysunięty zegar z powrotem do wyspy.
+  useEffect(() => {
+    if (!rozwiniety) return;
+    const schowaj = (e: PointerEvent) => {
+      if (!wyspaRef.current?.contains(e.target as Node)) setWidok("zamyka");
+    };
+    document.addEventListener("pointerdown", schowaj);
+    return () => document.removeEventListener("pointerdown", schowaj);
+  }, [rozwiniety]);
 
   useEffect(() => {
     if (!biegnie) return;
@@ -60,24 +101,60 @@ export function Zegar({ arkusz, limitMin, czas, onZmien }: { arkusz: string; lim
 
   const stan = zostalo <= 0 ? "po" : zostalo <= 15 * MIN ? "koncowka" : undefined;
 
-  return (
-    <div className={styles.zegar} data-stan={stan} data-tutor="zegar" role="timer" aria-label="Czas arkusza">
-      <span className={styles.czas}>
-        {zostalo > 0 ? zapisCzasu(zostalo) : `+${zapisCzasu(zostalo)}`}
+  // Przy pauzie i wznowieniu liczymy od tej samej chwili co zapis, inaczej wyświetlacz skacze
+  // o czas od ostatniego tyknięcia (do sekundy).
+  function przelacz() {
+    const t = Date.now();
+    setTeraz(t);
+    onZmien(biegnie ? { ...czas, start: null, zuzyte: uplynelo(czas, t) } : { ...czas, start: t });
+  }
+
+  const tekst = zostalo > 0 ? zapisCzasu(zostalo) : `+${zapisCzasu(zostalo)}`;
+  const panel = (
+    <div
+      ref={panelRef}
+      className={`${styles.panel} ${widok === "zamyka" ? styles.zamyka : ""}`}
+      style={ksztalt}
+      onAnimationEnd={(e) => e.target === e.currentTarget && widok === "zamyka" && setWidok("schowany")}
+    >
+      <span className={styles.panelCzas}>
+        {tekst}
         <span className={styles.opis}>{zostalo > 0 ? (biegnie ? "zostało" : "pauza") : "po czasie"}</span>
       </span>
-      <button
-        type="button"
-        className={styles.przycisk}
-        onClick={() => onZmien(biegnie ? zatrzymaj(czas) : { ...czas, start: Date.now() })}
-        aria-label={biegnie ? "Pauza" : "Wznów"}
-        title={biegnie ? "Pauza" : "Wznów"}
-      >
+      <button type="button" className={styles.przycisk} onClick={przelacz} aria-label={biegnie ? "Pauza" : "Wznów"} title={biegnie ? "Pauza" : "Wznów"}>
         {biegnie ? <Pause size={18} /> : <Play size={18} />}
       </button>
       <button type="button" className={styles.przycisk} onClick={() => onZmien(undefined)} aria-label="Wyłącz zegar" title="Wyłącz zegar">
         <X size={18} />
       </button>
     </div>
+  );
+
+  // Bez miejsca w pasku: sam pełny zegar pod paskiem.
+  if (!wyspa)
+    return (
+      <div className={styles.samodzielny} data-stan={stan} data-tutor="zegar" role="timer" aria-label="Czas arkusza">
+        {panel}
+      </div>
+    );
+
+  // Wyspa w pasku pokazuje sam czas; kliknięcie wysuwa pod nią pełny zegar z pauzą i wyłączeniem.
+  return createPortal(
+    <div ref={wyspaRef} className={styles.wyspa} data-stan={stan} data-tutor="zegar" role="timer" aria-label="Czas arkusza">
+      <button
+        type="button"
+        className={styles.czas}
+        onClick={() => (onWroc ? onWroc() : setWidok((v) => (v === "otwarty" ? "zamyka" : "otwarty")))}
+        aria-expanded={onWroc ? undefined : rozwiniety}
+        aria-label={onWroc ? `Wróć do arkusza na czas, ${zostalo > 0 ? "zostało" : "po czasie"} ${zapisCzasu(zostalo)}` : undefined}
+        title={onWroc ? "Wróć do arkusza" : rozwiniety ? "Schowaj zegar" : "Pokaż zegar"}
+      >
+        <Timer size={16} aria-hidden="true" className={styles.ikona} />
+        {tekst}
+        {!biegnie && <span className={styles.pauzaZnak}>pauza</span>}
+      </button>
+      {widok !== "schowany" && panel}
+    </div>,
+    wyspa,
   );
 }
