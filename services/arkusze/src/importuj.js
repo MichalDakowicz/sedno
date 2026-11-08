@@ -2,13 +2,25 @@
 // JSON dla aplikacji: data/arkusze/<id>.json oraz data/arkusze/index.json.
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { KATALOG_CKE, KATALOG_ARKUSZY } from "./sciezki.js";
+import { KATALOG_CKE, KATALOG_ARKUSZY, KATALOG_NAGRAN } from "./sciezki.js";
 import { tekstPdf } from "./tekst.js";
 import { parsujArkusz } from "./arkusz.js";
 import { parsujKlucz } from "./klucz.js";
 import { scal } from "./scal.js";
 import { fragmentyMatematyki, kadruj, kluczMatematyki, osadzObrazy, otworzPdf, zadaniaMatematyki } from "./matematyka.js";
 import { czytajDocx, fragmentyDocx } from "./docx.js";
+
+// Fragmenty nagrań dopasowane do pytań (services/arkusze/nagrania/dopasuj.py) leżą osobno,
+// żeby ponowny import ich nie kasował: { "1.1": { od, do, tekst }, … }.
+async function doklejFragmenty(id, pytania) {
+  let fragmenty;
+  try {
+    fragmenty = JSON.parse(await readFile(join(KATALOG_NAGRAN, `${id}-fragmenty.json`), "utf8"));
+  } catch {
+    return;
+  }
+  for (const q of pytania) if (fragmenty[q.nr]) q.fragment = fragmenty[q.nr];
+}
 
 const MIESIACE = { "05": "maj", "06": "czerwiec", "08": "sierpień" };
 // Ręczne poprawki ramek rysunków bazowych (matematyka.js).
@@ -58,6 +70,7 @@ for (const w of katalog) {
     if (!w.zasady) ostrzezenia.unshift("brak pliku zasad oceniania");
 
     const pytania = zadania.flatMap((z) => z.pytania);
+    await doklejFragmenty(id, pytania);
     const sumaPunktow = pytania.reduce((s, q) => s + q.punkty, 0);
     if (metadane.punkty && sumaPunktow !== metadane.punkty) ostrzezenia.push(`suma punktów ${sumaPunktow} ≠ ${metadane.punkty}`);
 

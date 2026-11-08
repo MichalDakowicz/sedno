@@ -307,7 +307,10 @@ export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
   const kadry = []; // fragmenty pokazane jako obraz, z powodem
   for (const f of fragmenty) {
     let z = zadania.find((x) => x.nr === f.zadanie);
-    if (!z) zadania.push((z = { nr: f.zadanie, punkty: 0, sluchanie: false, polecenie: [], bloki: [], pytania: [] }));
+    if (!z) zadania.push((z = { nr: f.zadanie, punkty: 0, strona: f.czesci[0].strona, sluchanie: false, polecenie: [], bloki: [], pytania: [] }));
+    // Bloki fragmentu stoją na jego pierwszej stronie (kadry mają własną); finally łapie też „continue”.
+    const od = z.bloki.length;
+    try {
     const tekst = f.czesci.flatMap((c) => c.linie.map((l) => l.s)).join(" ");
     if (f.rysunek && !z.rysunek) z.rysunek = f.rysunek;
 
@@ -316,7 +319,7 @@ export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
     const opcje = [];
     if (powod) {
       kadry.push(`${f.nr}: ${powod}`);
-      f.czesci.forEach((c, i) => z.bloki.push({ typ: "kadr", obraz: f.kadry[i], tekst: c.linie.map((l) => l.s).join(" ") }));
+      f.czesci.forEach((c, i) => z.bloki.push({ typ: "kadr", obraz: f.kadry[i], tekst: c.linie.map((l) => l.s).join(" "), strona: c.strona }));
     } else {
       // Podpunkt (12.2) dostaje nagłówek jak pasek w arkuszu; całe zadanie ma go w aplikacji.
       if (f.nr.includes(".")) z.bloki.push({ typ: "naglowek", tekst: `Zadanie ${f.nr} (0–${f.punkty} pkt)` });
@@ -351,6 +354,9 @@ export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
     }
     z.bloki.push({ typ: "pytanie", nr: f.nr });
     z.punkty += f.punkty;
+    } finally {
+      for (const b of z.bloki.slice(od)) b.strona ??= f.czesci[0].strona;
+    }
   }
   return { zadania, ostrzezenia, kadry };
 }

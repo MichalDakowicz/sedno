@@ -981,3 +981,67 @@
   border-radius: var(--r-md);
   transition: outline-color 0.3s ease;
 }
+
+/* Arkusz w stronach: przewracanie pod treścią strony, jak stopka wydruku. */
+.strony {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+}
+
+.numery {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.numery button {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.numery button:hover {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.numery button[aria-current="page"] {
+  background: var(--primary-soft);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 1.5px var(--primary);
+}
+
+.strony button:disabled {
+  visibility: hidden;
+}
+
+/* Zadanie zaczęte na poprzedniej stronie: zamiast nagłówka sam dopisek. */
+.ciagDalszy {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .numery {
+    order: 3;
+    flex-basis: 100%;
+  }
+}

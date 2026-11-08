@@ -288,6 +288,7 @@ export function TutorGuide() {
           key={`a${hop}`}
           type="button"
           className={`${styles.avatar} ${hop === 0 ? styles.enter : styles.hop}`}
+          data-pestka="przewodnik"
           onClick={onAvatar}
           aria-label={pending ? "Pestka ma dla ciebie wskazówkę" : "Porozmawiaj z Pestką"}
           title={pending ? "Pokaż wskazówkę" : "Porozmawiaj z Pestką"}
@@ -311,7 +312,7 @@ export function TutorGuide() {
               <>
                 <p className={styles.text}>{summon.about ?? "Jestem. W czym ci pomóc?"}</p>
                 <div className={styles.actions}>
-                  <button type="button" className="btn btn-dark btn-sm" onClick={open}>
+                  <button type="button" className="btn btn-primary btn-sm" onClick={open}>
                     Porozmawiajmy
                   </button>
                   {hasToday && (
@@ -339,14 +340,14 @@ export function TutorGuide() {
                   <div className={styles.actions}>
                     {hint.actions ? (
                       hint.actions.map((a) => (
-                        <button key={a.label} type="button" className={`btn ${a.primary ? "btn-dark" : "btn-ghost"} btn-sm`} onClick={a.onClick}>
+                        <button key={a.label} type="button" className={`btn ${a.primary ? "btn-primary" : "btn-ghost"} btn-sm`} onClick={a.onClick}>
                           {a.label}
                         </button>
                       ))
                     ) : hint.waitFor === "summon" ? (
                       <span className={styles.wait}>Czekam na prawy przycisk…</span>
                     ) : (
-                      <button type="button" className="btn btn-dark btn-sm" onClick={next}>
+                      <button type="button" className="btn btn-primary btn-sm" onClick={next}>
                         {last ? "Jasne" : "Dalej"}
                       </button>
                     )}

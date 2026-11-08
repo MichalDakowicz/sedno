@@ -28,7 +28,8 @@ export type Obraz = { src: string; szer: number; wys: number };
 export const adresObrazu = (src: string) => (src.startsWith("data:") ? src : `/dane/arkusze/${src}`);
 
 // Teksty matematyki mają wzory LaTeX w \( … \) (renderuje je KaTeX).
-export type Blok =
+// strona: numer strony w PDF arkusza (importy sprzed podziału na strony go nie mają).
+export type Blok = { strona?: number } & (
   | { typ: "akapit" | "naglowek" | "zrodlo"; tekst: string; polecenie?: boolean }
   | { typ: "wzor"; tex: string } // wzór w osobnej linii
   | { typ: "rysunek"; obraz: Obraz } // figura wycięta z arkusza PDF
@@ -38,13 +39,18 @@ export type Blok =
   | { typ: "kadr"; obraz: Obraz; tekst: string }
   | { typ: "opcje"; opcje: Opcja[] }
   | { typ: "pytanie"; nr: string }
-  | { typ: "pytania" | "tabela"; nr: string[] };
+  | { typ: "pytania" | "tabela"; nr: string[] }
+);
+
+// Kawałek nagrania, w którym pada odpowiedź na pytanie ze słuchania (sekundy od początku pliku).
+export type CzescNagrania = { od: number; do: number; tekst: string };
 
 type PytanieBaza = {
   nr: string;
   tresc: string;
   punkty: number;
   wTekscie?: boolean;
+  fragment?: CzescNagrania; // dopasowany skryptem services/arkusze/nagrania
   zasadyStrona?: number; // strona zadania w PDF zasad oceniania (schemat punktowania)
 };
 
@@ -71,6 +77,7 @@ export type Pytanie = PytanieZamkniete | PytanieOtwarte | Wypowiedz;
 export type Zadanie = {
   nr: number;
   punkty: number;
+  strona?: number; // strona PDF, na której zaczyna się zadanie
   sluchanie: boolean;
   polecenie: string[];
   bloki: Blok[];

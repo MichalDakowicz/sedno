@@ -1,8 +1,8 @@
 // Karta omawiania jednego błędu. Pestka „wypluwa” ją pod zadaniem z błędem: zaczyna od pytania
 // naprowadzającego, prowadzi rozmowę i na prośbę daje zadanie podobne, żeby sprawdzić, czy uczeń
 // zrozumiał. Karta leży w treści strony, więc nie zasłania zadania ani na komputerze, ani na telefonie.
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowRight, Lightbulb, X } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
+import { ArrowRight, Lightbulb, LoaderCircle, X } from "lucide-react";
 import { aiErrorText, AiError, streamAi, type AiMessage } from "../ai";
 import { bezEmoji } from "../pestka";
 import { poziomAI, promptOmowienia, zrobPrzyklad, type DoOmowienia, type Przyklad } from "../arkusze/omowienie";
@@ -29,6 +29,7 @@ export function OmowienieBledow({
   onWynikPrzykladu,
   onZapiszRozmowe,
   onZamknij,
+  wlot,
 }: {
   arkusz: Arkusz;
   postep: Postep;
@@ -39,6 +40,8 @@ export function OmowienieBledow({
   onWynikPrzykladu: (zadanie: number, wynik: "dobrze" | "zle") => void;
   onZapiszRozmowe: (zadanie: number, rozmowa: Wiadomosc[]) => void;
   onZamknij: () => void;
+  /** Miejsce Pestki przed rozklejeniem: stąd jej kopia wlatuje w avatar karty. */
+  wlot?: DOMRect | null;
 }) {
   // Wcześniejsza rozmowa o tym zadaniu wraca z postępu arkusza (synchronizowanego z kontem).
   const zapisana = postep.rozmowyOmowien?.[d.zadanie.nr];
@@ -51,6 +54,40 @@ export function OmowienieBledow({
   const ostatni = numer === wszystkich;
 
   const kartaRef = useRef<HTMLElement>(null);
+  const avatarRef = useRef<HTMLSpanElement>(null);
+
+  // Rozklejenie: kopia Pestki leci z miejsca, gdzie siedziała, do avatara karty, na starcie
+  // rozciąga się jak odrywana kropla. Cel czytamy co klatkę, bo karta w tym czasie się przewija.
+  useLayoutEffect(() => {
+    const cel = avatarRef.current;
+    if (!wlot || !cel || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const klon = cel.cloneNode(true) as HTMLElement;
+    Object.assign(klon.style, { position: "fixed", left: "0", top: "0", margin: "0", zIndex: "60", pointerEvents: "none", transformOrigin: "0 0" });
+    document.body.appendChild(klon);
+    cel.style.opacity = "0";
+    const t0 = performance.now();
+    const CZAS = 720;
+    let klatka = 0;
+    const krok = (t: number) => {
+      const p = Math.min(1, (t - t0) / CZAS);
+      const e = 1 + 2.2 * (p - 1) ** 3 + 1.2 * (p - 1) ** 2; // wyjście z lekkim przestrzeleniem
+      const r = cel.getBoundingClientRect();
+      const s = wlot.width / r.width + (1 - wlot.width / r.width) * Math.min(1, p * 1.4);
+      const ciag = Math.sin(Math.PI * Math.min(1, p * 2.5));
+      klon.style.transform = `translate(${wlot.left + (r.left - wlot.left) * e}px, ${wlot.top + (r.top - wlot.top) * e}px) scale(${s * (1 + 0.22 * ciag)}, ${s * (1 - 0.14 * ciag)})`;
+      if (p < 1) klatka = requestAnimationFrame(krok);
+      else {
+        klon.remove();
+        cel.style.opacity = "";
+      }
+    };
+    klatka = requestAnimationFrame(krok);
+    return () => {
+      cancelAnimationFrame(klatka);
+      klon.remove();
+      cel.style.opacity = "";
+    };
+  }, []);
 
   // Podświetl zadanie i przewiń tak, żeby karta była cała widoczna, a nad nią koniec zadania.
   useEffect(() => {
@@ -120,7 +157,9 @@ export function OmowienieBledow({
   return (
     <section ref={kartaRef} className={styles.karta} aria-label={`Omawianie zadania ${nr} z Pestką`} data-tutor="omowienie">
       <header className={styles.head}>
-        <TutorAvatar size={40} state={mysli ? "thinking" : "idle"} className={styles.avatar} />
+        <span ref={avatarRef} className={styles.avatarMiejsce}>
+          <TutorAvatar size={40} state={mysli || przyklad?.stan === "laduje" ? "thinking" : "idle"} className={styles.avatar} />
+        </span>
         <span className="label">
           {d.wypracowanie ? "Wypracowanie" : "Błąd"} {numer} z {wszystkich} · zadanie {nr}.
         </span>
@@ -155,7 +194,17 @@ export function OmowienieBledow({
           </span>
         )}
 
-        {przyklad?.stan === "laduje" && <p className="small muted">Przygotowuję zadanie podobne i sprawdzam, czy ma jedną dobrą odpowiedź…</p>}
+        {/* Przygotowanie przykładu trwa kilka sekund (model układa zadanie i je sprawdza), więc widać, że coś się dzieje. */}
+        {przyklad?.stan === "laduje" && (
+          <div className={styles.laduje} role="status">
+            <span className={chat.typing} aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span>Przygotowuję zadanie podobne i sprawdzam, czy ma jedną dobrą odpowiedź…</span>
+          </div>
+        )}
         {przyklad?.stan === "brak" && <p className="small muted">Nie udało się przygotować pewnego zadania podobnego. Spróbuj jeszcze raz albo przejdź dalej.</p>}
         {przyklad?.stan === "gotowy" && (
           <div className={styles.przyklad}>
@@ -198,10 +247,18 @@ export function OmowienieBledow({
       <div className={styles.akcje}>
         {!d.wypracowanie && (
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => void dajPrzyklad()} disabled={przyklad?.stan === "laduje" || mysli}>
-            <Lightbulb size={16} aria-hidden="true" /> {przyklad ? "Inny przykład" : "Daj przykład"}
+            {przyklad?.stan === "laduje" ? (
+              <>
+                <LoaderCircle size={16} aria-hidden="true" className={styles.kolko} /> Przygotowuję…
+              </>
+            ) : (
+              <>
+                <Lightbulb size={16} aria-hidden="true" /> {przyklad ? "Inny przykład" : "Daj przykład"}
+              </>
+            )}
           </button>
         )}
-        <button type="button" className="btn btn-dark btn-sm" onClick={ostatni ? onZamknij : onDalej}>
+        <button type="button" className="btn btn-primary btn-sm" onClick={ostatni ? onZamknij : onDalej}>
           {ostatni ? "Zakończ" : "Następny błąd"} <ArrowRight size={16} aria-hidden="true" />
         </button>
       </div>
