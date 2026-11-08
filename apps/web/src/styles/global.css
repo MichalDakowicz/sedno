@@ -190,6 +190,17 @@ textarea {
   background: var(--primary-strong-hover);
 }
 
+/* Akcja główna w małych miejscach (dymek Pestki): jasny pomarańcz z ciemnym tekstem, więc bez
+   wymogu dużego tekstu i w tej samej wielkości co przyciski obok. */
+.btn-soft {
+  background: var(--primary-soft);
+  color: var(--fg);
+}
+
+.btn-soft:hover {
+  background: #ffd5c4;
+}
+
 .btn-secondary {
   background: var(--secondary);
   color: var(--secondary-fg);
