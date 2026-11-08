@@ -1148,12 +1148,11 @@
 }
 
 /* Odpowiedź kodem jako wiersz tabeli z arkusza: kawałki zdania i dwie grupy wyboru
-   obok siebie, rozdzielone liniami pionowymi, także od lewej. */
+   obok siebie. Linia tylko po lewej; grupy same odcinają się od tekstu. */
 .kodWybor {
   display: grid;
   grid-template-columns: repeat(4, auto);
-  /* Komórki na pełną wysokość wiersza, więc wszystkie linie pionowe są równe. */
-  align-items: stretch;
+  align-items: center;
   justify-content: start;
   width: fit-content;
   max-width: 100%;
@@ -1166,10 +1165,6 @@
   padding: 8px 14px;
 }
 
-.kodWybor > * + * {
-  border-left: 1px solid var(--line);
-}
-
 .kodTekst {
   margin: 0;
 }
@@ -1180,7 +1175,6 @@
   }
 
   .kodWybor > :nth-child(3) {
-    border-left: 0;
     padding-left: 0;
   }
 }
