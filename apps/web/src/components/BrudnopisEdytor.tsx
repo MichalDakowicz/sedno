@@ -11,6 +11,8 @@ import { adresObrazu, type Obraz } from "../arkusze/typy";
 import styles from "./Brudnopis.module.css";
 
 export const ID_RYSUNKU = "rysunek-bazowy";
+// Dodatkowe rysunki (np. wykresy opcji A–F) mają id „rysunek-bazowy-1”, „-2”…
+const czyBazowy = (id: string) => id === ID_RYSUNKU || id.startsWith(`${ID_RYSUNKU}-`);
 
 // Excalidraw na zdarzenie focus okna kończy gest, któremu „zginął” pointerup
 // (maybeCleanupAfterMissingPointerUp). Gdy strona nie ma fokusu (aktywne inne okno),
@@ -101,26 +103,44 @@ type Props = {
   pelny: boolean;
   onPelny: () => void;
   onZamknij: () => void;
+  /** Rysunki obok rysunku zadania, np. wykresy opcji A–F do zaznaczania. */
+  dodatkoweRysunki?: Obraz[];
   /** Zadanie bez obliczeń (odczyt z wykresu): rysunek większy, do zaznaczania na nim. */
   duzyRysunek?: boolean;
 };
 
-function elementyBazowe(plik: string, rysunek?: Obraz): ExcalidrawElement[] {
-  if (!rysunek) return [];
-  return convertToExcalidrawElements([
-    {
-      type: "image",
-      id: ID_RYSUNKU,
-      fileId: plik as FileId,
-      x: 0,
-      y: 0,
-      width: rysunek.szer * SKALA_RYSUNKU,
-      height: rysunek.wys * SKALA_RYSUNKU,
-      locked: true, // uczeń rysuje po figurze, ale jej nie przesunie ani nie usunie
-      status: "saved",
-    },
-    // Stałe id: po nim poznajemy figurę w zapisanej scenie.
-  ], { regenerateIds: false });
+// Rysunek zadania w (0, 0), a dodatkowe rysunki w rzędzie obok niego. Wszystkie zablokowane:
+// uczeń rysuje po nich, ale ich nie przesunie ani nie usunie.
+function rysunkiBazowe(plik: string, rysunek?: Obraz, dodatkowe: Obraz[] = []): { id: string; plik: string; obraz: Obraz; x: number; y: number }[] {
+  const wynik: { id: string; plik: string; obraz: Obraz; x: number; y: number }[] = [];
+  if (rysunek) wynik.push({ id: ID_RYSUNKU, plik, obraz: rysunek, x: 0, y: 0 });
+  let x = rysunek ? rysunek.szer * SKALA_RYSUNKU + 60 : 0;
+  const y = 0;
+  dodatkowe.forEach((obraz, i) => {
+    wynik.push({ id: `${ID_RYSUNKU}-${i + 1}`, plik: `${plik}-${i + 1}`, obraz, x, y });
+    x += obraz.szer * SKALA_RYSUNKU + 40;
+  });
+  return wynik;
+}
+
+function elementyBazowe(plik: string, rysunek?: Obraz, dodatkowe: Obraz[] = []): ExcalidrawElement[] {
+  const rysunki = rysunkiBazowe(plik, rysunek, dodatkowe);
+  if (!rysunki.length) return [];
+  return convertToExcalidrawElements(
+    rysunki.map((r) => ({
+      type: "image" as const,
+      id: r.id,
+      fileId: r.plik as FileId,
+      x: r.x,
+      y: r.y,
+      width: r.obraz.szer * SKALA_RYSUNKU,
+      height: r.obraz.wys * SKALA_RYSUNKU,
+      locked: true,
+      status: "saved" as const,
+    })),
+    // Stałe id: po nich poznajemy rysunki w zapisanej scenie.
+    { regenerateIds: false },
+  );
 }
 
 async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileData | null> {
@@ -142,7 +162,7 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
   }
 }
 
-export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, duzyRysunek }: Props) {
+export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, duzyRysunek, dodatkoweRysunki = [] }: Props) {
   const [startowaGrubosc] = useState(zapamietanaGrubosc);
   const api = useRef<ExcalidrawImperativeAPI | null>(null);
   const wersja = useRef<number | null>(null);
@@ -153,15 +173,16 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
 
   const poczatek = useMemo(
     () => async (): Promise<ExcalidrawInitialDataState> => {
-      const bazowe = elementyBazowe(plik, rysunek);
+      const bazowe = elementyBazowe(plik, rysunek, dodatkoweRysunki);
       const zapisane = (elementy ?? []) as ExcalidrawElement[];
-      // Starszy zapis albo uczeń odblokował i usunął figurę: dokładamy ją z powrotem.
-      const sceny = zapisane.length ? (zapisane.some((e) => e.id === ID_RYSUNKU) ? zapisane : [...bazowe, ...zapisane]) : bazowe;
-      const pliki = rysunek ? await wczytajRysunek(plik, rysunek) : null;
+      // Starszy zapis albo uczeń odblokował i usunął rysunek: brakujące dokładamy z powrotem.
+      const brakujace = bazowe.filter((b) => !zapisane.some((e) => e.id === b.id));
+      const sceny = zapisane.length ? [...brakujace, ...zapisane] : bazowe;
+      const pliki = (await Promise.all(rysunkiBazowe(plik, rysunek, dodatkoweRysunki).map((r) => wczytajRysunek(r.plik, r.obraz)))).filter((p): p is BinaryFileData => !!p);
       wczytana.current = true;
       return {
         elements: sceny,
-        files: pliki ? { [pliki.id]: pliki } : undefined,
+        files: pliki.length ? Object.fromEntries(pliki.map((p) => [p.id, p])) : undefined,
         appState: {
           viewBackgroundColor: "#ffffff",
           currentItemStrokeColor: KOLORY[0].wartosc,
@@ -184,7 +205,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   // Pusta scena (sama figura) usuwa wpis, żeby samo otwarcie niczego nie zapisywało.
   const wyslij = (els: readonly ExcalidrawElement[]) => {
     const zywe = els.filter((e) => !e.isDeleted);
-    zapisz.current(zywe.some((e) => e.id !== ID_RYSUNKU) ? zywe : null);
+    zapisz.current(zywe.some((e) => !czyBazowy(e.id)) ? zywe : null);
   };
   useEffect(
     () => () => {
@@ -197,7 +218,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   );
 
   const wyczysc = () => {
-    api.current?.updateScene({ elements: elementyBazowe(plik, rysunek), captureUpdate: CaptureUpdateAction.IMMEDIATELY });
+    api.current?.updateScene({ elements: elementyBazowe(plik, rysunek, dodatkoweRysunki), captureUpdate: CaptureUpdateAction.IMMEDIATELY });
   };
 
   // Stan paska narzędzi odbija stan edytora (skróty klawiszowe też zmieniają narzędzie).
@@ -212,7 +233,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     const a = api.current;
     if (!a) return;
     const zaznaczone = a.getAppState().selectedElementIds;
-    const elementy = a.getSceneElements().map((e) => (zaznaczone[e.id] && e.id !== ID_RYSUNKU ? newElementWith(e, zmiana) : e));
+    const elementy = a.getSceneElements().map((e) => (zaznaczone[e.id] && !czyBazowy(e.id) ? newElementWith(e, zmiana) : e));
     a.updateScene({ elements: elementy, appState: stan as AppState, captureUpdate: CaptureUpdateAction.IMMEDIATELY });
   };
   const ustawKolor = (wartosc: string) => ustawStyl({ strokeColor: wartosc }, { currentItemStrokeColor: wartosc });
@@ -255,9 +276,11 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     if (els.length) {
       const [x1, y1, x2, y2] = getCommonBounds(els);
       // Na wąskim płótnie (telefon) miejsce na notatki jest pod figurą, więc zajmuje ona prawie całą szerokość.
-      const udzial = s.width < 500 || duzyRysunek ? 0.9 : 0.7;
+      // Z dodatkowymi rysunkami (opcje A–F) całość na środku, prawie na całe płótno.
+      const wiele = dodatkoweRysunki.length > 0;
+      const udzial = s.width < 500 || duzyRysunek || wiele ? 0.95 : 0.7;
       z = Math.min(duzyRysunek ? 2 : ZOOM_START, (s.width * udzial) / Math.max(1, x2 - x1), (s.height * udzial) / Math.max(1, y2 - y1));
-      if (start) {
+      if (start && !wiele) {
         // Na start figura w prawym górnym rogu: lewa strona i dół zostają na obliczenia.
         const margines = 16;
         scrollX = (s.width - margines) / z - x2;
@@ -332,7 +355,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             const h = hashElementsVersion(els);
             if (wersja.current === null) {
               // initialData już rozwiązane, ale elementy mogą wejść dopiero w kolejnym wywołaniu.
-              const oczekiwane = rysunek ? els.some((e) => e.id === ID_RYSUNKU) : !elementy?.length || els.length > 0;
+              const oczekiwane = rysunek || dodatkoweRysunki.length ? els.some((e) => czyBazowy(e.id)) : !elementy?.length || els.length > 0;
               if (!oczekiwane) return;
               // Pierwsze wywołanie po wczytaniu to scena startowa, nie zmiana.
               // Ustawiamy wtedy ołówek i widok z zapasem miejsca wokół treści.

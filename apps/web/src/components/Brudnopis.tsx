@@ -53,9 +53,10 @@ type Props = {
   /** Treść zadania z odpowiedziami: na pełnym ekranie stoi nad płótnem. */
   tresc?: ReactNode;
   duzyRysunek?: boolean;
+  dodatkoweRysunki?: Obraz[];
 };
 
-export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc, duzyRysunek }: Props) {
+export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc, duzyRysunek, dodatkoweRysunki }: Props) {
   const [tryb, setTryb] = useState<Tryb>(() => wczytajTryb(plik));
   const otwarty = tryb !== "zamkniety";
   const pelny = tryb === "pelny";
@@ -119,6 +120,7 @@ export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc, duzy
           onZapisz={(elementy) => onZmiana(elementy ? { elementy, zmieniony: new Date().toISOString() } : null)}
           pelny={pelny}
           duzyRysunek={duzyRysunek}
+          dodatkoweRysunki={dodatkoweRysunki}
           onPelny={() => setTryb((t) => (t === "pelny" ? "otwarty" : "pelny"))}
           onZamknij={() => setTryb("zamkniety")}
         />

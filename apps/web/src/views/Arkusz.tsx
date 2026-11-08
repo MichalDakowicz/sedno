@@ -457,7 +457,7 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
 }
 
 function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSprawdz: () => void; onPopraw: () => void }) {
-  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki } = useCtx();
+  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki, tabele } = useCtx();
   const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
@@ -518,6 +518,7 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           plik={`${arkusz.id}-${zadanie.nr}`}
           zadanie={zadanie.nr}
           rysunek={zadanie.rysunek}
+          dodatkoweRysunki={zadanie.pytania.flatMap((p) => tabele.get(p.nr)?.kadry ?? []).flatMap((k) => (k.typ === "kadr" ? [k.obraz] : []))}
           zapis={postep.brudnopisy?.[zadanie.nr]}
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
           tresc={
@@ -619,7 +620,7 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
 // Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
 // Zadanie z jednym pytaniem: numer i treść po lewej, odpowiedzi po prawej.
 function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
-  const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow, obliczenia, pf } = useCtx();
+  const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow, obliczenia, pf, tabele } = useCtx();
   const plik = `${arkusz.id}-${zadanie.nr}`;
   // Odpowiedzi w lukach zdań: bez kolumny odpowiedzi, po prawej staje rysunek.
   const zLukami = [...luki.values()].some((l) => zadanie.pytania.includes(l.pytanie));
@@ -629,8 +630,16 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   // strony z opcjami na rysunku albo z luką zastępujemy jego tekstem.
   const naRysunku = !!zadanie.rysunek && zadanie.pytania.length === 1 && zadanie.pytania[0].typ === "zamkniete" && !zadanie.pytania[0].opcje?.length;
   const pierwszyNaglowek = wszystkie.findIndex((b) => b.typ === "naglowek");
+  // Tabela przyporządkowania: wykresy opcji są na płótnie, nad nim zostaje tekst polecenia.
+  const kadryTabel = new Map<Blok, Blok[]>();
+  for (const p of zadanie.pytania) {
+    const t = tabele.get(p.nr);
+    t?.kadry.forEach((k, i) => kadryTabel.set(k, i === 0 ? naAkapity(t.wstep) : []));
+  }
   const calosc = (zadanie.rysunek ? wszystkie.filter((b) => b.typ !== "rysunek") : wszystkie).flatMap((b) =>
-    b.typ === "kadr" && naRysunku
+    kadryTabel.has(b)
+      ? kadryTabel.get(b)!
+      : b.typ === "kadr" && naRysunku
       ? (kadrJakoTekst(b.tekst) ?? [b])
       : b.typ === "kadr" && zadanie.rysunek && pierwszyNaglowek > 0 && wszystkie.indexOf(b) < pierwszyNaglowek
         ? (wstepBezRysunku(b.tekst) ?? [b])
@@ -1237,7 +1246,7 @@ function wstepBezRysunku(tekst: string): Blok[] | null {
 // Tabela przyporządkowania („Fragment wykresu funkcji 𝑦 = 𝑔(𝑥) przedstawiono na rysunku …”,
 // klucz np. „AE”): każdy wiersz ma przełącznik liter A–F, a kod składa się z liter
 // w kolejności wierszy. Wiersze to powtórzenia tego samego początku zdania po poleceniu.
-type TabelaDopasowania = { wiersze: string[]; litery: string[] };
+type TabelaDopasowania = { wstep: string; wiersze: string[]; litery: string[]; kadry: Blok[] };
 
 function tabeleDopasowania(z: Zadanie): Map<string, TabelaDopasowania> {
   const wynik = new Map<string, TabelaDopasowania>();
@@ -1260,7 +1269,10 @@ function tabeleDopasowania(z: Zadanie): Map<string, TabelaDopasowania> {
         .filter((w) => w.trim())
         .map((w) => `${poczatek}${w}`.trim());
       const litery = Array.from({ length: zakres[2].charCodeAt(0) - zakres[1].charCodeAt(0) + 1 }, (_, i) => String.fromCharCode(zakres[1].charCodeAt(0) + i));
-      if (wiersze.length === klucz.length) wynik.set(p!.nr, { wiersze, litery });
+      // Wycinki z wykresami opcji (A–F) idą na płótno; wstęp to tekst wycinka przed wierszami tabeli.
+      const kadry = sekcja.filter((x) => x.typ === "kadr" && (x === kadr || /(^|\s)[A-Z]\.\s/.test(x.tekst)));
+      const wstep = kadr.tekst.slice(0, kadr.tekst.indexOf(poczatek)).trim();
+      if (wiersze.length === klucz.length) wynik.set(p!.nr, { wstep, wiersze, litery, kadry });
     }
     sekcja = [];
   }
