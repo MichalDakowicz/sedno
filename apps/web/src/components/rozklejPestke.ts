@@ -53,7 +53,9 @@ export function podzialKropli(r: DOMRect, rozjazd: number): Promise<void> {
       <path d="M${-11.4 * s} ${-1 * s} q ${3.4 * s} ${2 * s} ${6.8 * s} 0 M${4.6 * s} ${-1 * s} q ${3.4 * s} ${2 * s} ${6.8 * s} 0"
         fill="none" stroke="#0f151d" stroke-width="${2.4 * s}" stroke-linecap="round" />
       <path d="M${-5 * s} ${8.5 * s} c ${2.8 * s} ${2.6 * s} ${7.2 * s} ${2.6 * s} ${10 * s} 0"
-        fill="none" stroke="#0f151d" stroke-width="${2.4 * s}" stroke-linecap="round" />`;
+        fill="none" stroke="#0f151d" stroke-width="${2.4 * s}" stroke-linecap="round" />
+      <circle cx="${-15.5 * s}" cy="${6 * s}" r="${4 * s}" fill="#ffc8b7" opacity="0.7" />
+      <circle cx="${15.5 * s}" cy="${6 * s}" r="${4 * s}" fill="#ffc8b7" opacity="0.7" />`;
   el.innerHTML = `
     <defs>
       <linearGradient id="${id}-c" x1="0" y1="0" x2="1" y2="1">
@@ -81,7 +83,7 @@ export function podzialKropli(r: DOMRect, rozjazd: number): Promise<void> {
 
   const x0 = W / 2 - rozjazd / 2; // środek pierwszej kropli w układzie nakładki
   const y0 = H / 2;
-  const CZAS = 980;
+  const CZAS = 720;
   const ROZPRYSK = 420; // ms lotu kropelek od pęknięcia
   // Najpierw powolne rozciąganie (szyjka), potem odskok z przestrzeleniem i odbiciem.
   const odbicie = (t: number) => 1 + 2.4 * (t - 1) ** 3 + 1.4 * (t - 1) ** 2;
@@ -128,65 +130,90 @@ export function podzialKropli(r: DOMRect, rozjazd: number): Promise<void> {
   });
 }
 
-export async function rozklejPestke(): Promise<DOMRect | null> {
+/** Miejsce spoczynku Pestki w rogu ekranu (jak restPoint w TutorGuide), dla avatara o boku `bok`. */
+function miejsceSpoczynku(bok: number): { x: number; y: number } {
+  const brzeg = window.innerWidth < 640 ? 16 : 24;
+  return { x: window.innerWidth - bok - brzeg, y: window.innerHeight - bok - brzeg };
+}
+
+export type Rozklejenie = { doKarty: DOMRect; powrot: Promise<void> };
+
+/** Zwraca miejsce drugiej Pestki (stamtąd leci do karty) i obietnicę powrotu pierwszej na spoczynek. */
+export async function rozklejPestke(): Promise<Rozklejenie | null> {
   const avatar = document.querySelector<HTMLElement>("[data-pestka=przewodnik]");
   const svg = avatar?.querySelector("svg");
   if (!avatar || !svg) return null;
   const r = svg.getBoundingClientRect();
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return r;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return { doKarty: r, powrot: Promise.resolve() };
 
   const przewodnik = avatar.parentElement as HTMLElement;
   przewodnik.style.opacity = "0";
   const a = kopia(svg, r);
   let b: HTMLElement | null = null;
+  const sprzataj = () => {
+    a.remove();
+    b?.remove();
+    przewodnik.style.opacity = "";
+  };
   try {
-    // 1. Kropla: drży i faluje, coraz mocniej.
+    // 1. Krótkie, mocne drżenie z zaciśniętymi oczami; podział rusza od razu po nim.
+    oczy(a, true);
     await a.animate(
       [
         { transform: "scale(1, 1) rotate(0deg)" },
-        { transform: "scale(1.08, 0.92) rotate(-6deg)" },
-        { transform: "scale(0.94, 1.07) rotate(5deg)" },
-        { transform: "scale(1.12, 0.88) rotate(-7deg)" },
-        { transform: "scale(0.92, 1.1) rotate(6deg)" },
-        { transform: "scale(1.14, 0.86) rotate(-3deg)" },
-        { transform: "scale(1, 1) rotate(0deg)" },
+        { transform: "scale(1.1, 0.9) rotate(-7deg)" },
+        { transform: "scale(0.93, 1.08) rotate(6deg)" },
+        { transform: "scale(1.12, 0.88) rotate(-5deg)" },
+        { transform: "scale(1.06, 0.9) rotate(0deg)" },
       ],
-      { duration: 520, easing: "ease-in-out" },
+      { duration: 280, easing: "ease-in-out" },
     ).finished;
 
-    // 2. Skupienie: zamyka oczy i przysiada.
-    oczy(a, true);
-    await a.animate([{ transform: "scale(1, 1)" }, { transform: "scale(1.06, 0.9)" }], { duration: 220, easing: "ease-out", fill: "forwards" }).finished;
-
-    // 3. Podział kropli: z ciała wyciąga się druga kropla, łączy je szyjka, która cienieje i pęka,
-    //    a wokół pryskają kropelki. Pierwsza zostaje na miejscu (to prawdziwa Pestka).
-    // Druga kropla wychodzi w stronę środka ekranu, gdy z prawej nie ma miejsca.
+    // 2. Podział kropli (szyjka, rozprysk, trzęsące się twarze). Druga kropla wychodzi
+    //    w stronę środka ekranu, gdy z prawej nie ma miejsca.
     const kierunek = r.right + r.width * 1.3 > window.innerWidth - 8 ? -1 : 1;
     const rozjazd = kierunek * r.width * 1.25;
     a.style.opacity = "0";
     await podzialKropli(r, rozjazd);
-    a.style.opacity = "";
     a.getAnimations().forEach((x) => x.cancel());
+    a.style.opacity = "";
     b = kopia(svg, r);
     b.style.left = `${r.left + rozjazd}px`;
     oczy(a, false);
     oczy(b, false);
-    // Obie z otwartymi oczami jeszcze się trzęsą, coraz słabiej, i stają na chwilę, zanim ruszą.
+    // 3. Obie z otwartymi oczami jeszcze drżą, coraz słabiej, i stają na moment.
     const drgnij: Keyframe[] = [
       { transform: "translateX(0) rotate(0deg) scale(1.1, 0.9)" },
       { transform: "translateX(-2px) rotate(-5deg) scale(0.96, 1.04)" },
-      { transform: "translateX(2px) rotate(4deg) scale(1.04, 0.97)" },
-      { transform: "translateX(-1px) rotate(-2deg) scale(0.99, 1.01)" },
+      { transform: "translateX(2px) rotate(3deg) scale(1.03, 0.98)" },
       { transform: "translateX(0) rotate(0deg) scale(1, 1)" },
     ];
-    await Promise.all([a.animate(drgnij, { duration: 420, easing: "ease-out" }).finished, b.animate(drgnij, { duration: 420, easing: "ease-out", delay: 40 }).finished]);
-    await czekaj(260);
-
-    // 4. Druga kropla oddaje swoje miejsce lotowi do karty, pierwsza staje się z powrotem Pestką.
-    return b.firstElementChild!.getBoundingClientRect();
-  } finally {
-    a.remove();
-    b?.remove();
-    przewodnik.style.opacity = "";
+    await Promise.all([a.animate(drgnij, { duration: 300, easing: "ease-out" }).finished, b.animate(drgnij, { duration: 300, easing: "ease-out", delay: 30 }).finished]);
+    await czekaj(140);
+  } catch (e) {
+    sprzataj();
+    throw e;
   }
+
+  // 4. Druga oddaje miejsce lotowi do karty; pierwsza leci łukiem na spoczynek i ląduje
+  //    z odbiciem, a dopiero wtedy w jej miejscu pojawia się prawdziwa Pestka.
+  const doKarty = b.firstElementChild!.getBoundingClientRect();
+  b.remove();
+  const cel = miejsceSpoczynku(r.width);
+  const dx = cel.x - r.left;
+  const dy = cel.y - r.top;
+  const lot = a.animate(
+    [
+      { transform: "translate(0, 0) scale(1, 1)" },
+      { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 60}px) scale(0.92, 1.08)`, offset: 0.5 },
+      { transform: `translate(${dx}px, ${dy}px) scale(1.12, 0.88)`, offset: 0.85 },
+      { transform: `translate(${dx}px, ${dy}px) scale(1, 1)` },
+    ],
+    { duration: 760, easing: "cubic-bezier(0.45, 0, 0.3, 1)", fill: "forwards" },
+  );
+  const powrot = lot.finished.then(
+    () => czekaj(60).then(sprzataj),
+    () => sprzataj(),
+  );
+  return { doKarty, powrot };
 }

@@ -169,11 +169,12 @@ export function Arkusz() {
       showHints(`omow-lot-${Date.now()}`, [{ target: `zadanie-${nr}`, text: `Zaczynamy od zadania ${nr}.`, actions: [] }]);
       lot.current = window.setTimeout(async () => {
         // Pestka się rozkleja (drży, zamyka oczy, dzieli się): druga wlatuje do karty, a ona wraca na spoczynek.
-        const doKarty = await rozklejPestke();
-        setWlot(doKarty);
+        const podzial = await rozklejPestke();
+        setWlot(podzial?.doKarty ?? null);
+        // Prawdziwa Pestka skacze na spoczynek ukryta; widać jej kopię lecącą łukiem (rozklejPestke).
         odprawPestke();
         setOmawiany(0);
-      }, 1400);
+      }, 900);
     }, 700);
   };
   // Po sprawdzeniu arkusza Pestka przylatuje do wyniku i pyta, czy poprawiamy błędy.
