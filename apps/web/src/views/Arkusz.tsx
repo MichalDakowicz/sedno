@@ -927,6 +927,29 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
     case "rysunek":
       return <Kadr obraz={blok.obraz} tekst="Rysunek do zadania" />;
     case "tabelaTresci":
+      // Na pełnym ekranie wąska, wysoka tabela (Ocena | Liczba uczniów, 6 wierszy) idzie
+      // w poprzek: nagłówki w pierwszej kolumnie, wartości obok, więc zajmuje dwa wiersze.
+      if (kompakt && blok.wiersze[0]?.length <= 3 && blok.wiersze.length > 3)
+        return (
+          <div className={styles.dataTableWrap}>
+            <table className={styles.dataTable}>
+              <tbody>
+                {blok.wiersze[0].map((naglowek, j) => (
+                  <tr key={j}>
+                    <th scope="row">
+                      <Tekst tekst={naglowek} />
+                    </th>
+                    {blok.wiersze.slice(1).map((w, i) => (
+                      <td key={i}>
+                        <Tekst tekst={w[j] ?? ""} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
       return (
         <div className={styles.dataTableWrap}>
           <table className={styles.dataTable}>
