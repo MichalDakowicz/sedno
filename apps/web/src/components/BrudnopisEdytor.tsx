@@ -74,6 +74,17 @@ const GRUBOSCI = [
 ] as const;
 type Grubosc = (typeof GRUBOSCI)[number];
 const gruboscZ = (szerokosc: number, krycie: number) => GRUBOSCI.find((g) => g.szerokosc === szerokosc && g.krycie === krycie)?.id;
+// Wybrana grubość to nawyk ucznia (np. najcieńsza przy tablecie graficznym),
+// więc pamiętamy ją między zadaniami i wizytami.
+const KLUCZ_GRUBOSCI = "sedno.brudnopis.grubosc";
+function zapamietanaGrubosc(): Grubosc {
+  const domyslna = GRUBOSCI.find((g) => g.id === "srednia")!;
+  try {
+    return GRUBOSCI.find((g) => g.id === localStorage.getItem(KLUCZ_GRUBOSCI)) ?? domyslna;
+  } catch {
+    return domyslna;
+  }
+}
 // Kadry mają wymiary w punktach PDF; w brudnopisie rysunek jest nieco większy,
 // żeby domyślna grubość kreski pasowała do skali figury.
 const SKALA_RYSUNKU = 1.5;
@@ -130,6 +141,7 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
 }
 
 export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij }: Props) {
+  const [startowaGrubosc] = useState(zapamietanaGrubosc);
   const api = useRef<ExcalidrawImperativeAPI | null>(null);
   const wersja = useRef<number | null>(null);
   const wczytana = useRef(false);
@@ -152,8 +164,9 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
           viewBackgroundColor: "#ffffff",
           currentItemStrokeColor: KOLORY[0].wartosc,
           currentItemRoughness: 0,
-          currentItemStrokeWidth: 1, // średnia: odręczne pismo jak długopisem, nie markerem
-          currentItemOpacity: 100,
+          // Domyślnie średnia: odręczne pismo jak długopisem, nie markerem.
+          currentItemStrokeWidth: startowaGrubosc.szerokosc,
+          currentItemOpacity: startowaGrubosc.krycie,
           // W brudnopisie zaczyna się od pisania, nie od zaznaczania.
           activeTool: { type: "freedraw", customType: null, lastActiveTool: null, locked: false },
           zoom: { value: ZOOM_START as NormalizedZoomValue },
@@ -188,7 +201,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   // Stan paska narzędzi odbija stan edytora (skróty klawiszowe też zmieniają narzędzie).
   const [narzedzie, setNarzedzie] = useState<Narzedzie>("freedraw");
   const [kolor, setKolor] = useState(KOLORY[0].wartosc);
-  const [grubosc, setGrubosc] = useState<Grubosc["id"] | undefined>("srednia");
+  const [grubosc, setGrubosc] = useState<Grubosc["id"] | undefined>(startowaGrubosc.id);
 
   const wybierz = (typ: Narzedzie) => api.current?.setActiveTool({ type: typ });
 
@@ -201,8 +214,14 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     a.updateScene({ elements: elementy, appState: stan as AppState, captureUpdate: CaptureUpdateAction.IMMEDIATELY });
   };
   const ustawKolor = (wartosc: string) => ustawStyl({ strokeColor: wartosc }, { currentItemStrokeColor: wartosc });
-  const ustawGrubosc = (g: Grubosc) =>
+  const ustawGrubosc = (g: Grubosc) => {
+    try {
+      localStorage.setItem(KLUCZ_GRUBOSCI, g.id);
+    } catch {
+      // zablokowany storage: grubość zostaje tylko w tym brudnopisie
+    }
     ustawStyl({ strokeWidth: g.szerokosc, opacity: g.krycie }, { currentItemStrokeWidth: g.szerokosc, currentItemOpacity: g.krycie });
+  };
 
   // Zoom wokół środka widoku.
   const zoom = (mnoznik: number) => {

@@ -914,8 +914,12 @@
   gap: 10px;
 }
 
-/* Numer zadania z linią pod spodem; odstęp za linią trochę większy niż w treści. */
+/* Numer zadania ze strzałkami do sąsiednich zadań, z linią pod spodem;
+   odstęp za linią trochę większy niż w treści. */
 .glowa {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   margin-bottom: 4px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--line);
@@ -1052,4 +1056,8 @@
   .tempo li > :last-child {
     grid-column: 1 / -1;
   }
+}
+
+.przejscie {
+  padding-inline: 6px;
 }

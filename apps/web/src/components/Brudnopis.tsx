@@ -39,6 +39,11 @@ function zapiszTryb(plik: string, tryb: Tryb) {
   }
 }
 
+// Przejście na pełnym ekranie do brudnopisu innego zadania: ten otwiera się na pełnym
+// ekranie, a dotychczasowy zamyka (szkic zostaje zapisany).
+const ZDARZENIE_PELNY = "sedno:brudnopis-pelny";
+export const otworzNaPelnymEkranie = (plik: string) => window.dispatchEvent(new CustomEvent(ZDARZENIE_PELNY, { detail: plik }));
+
 type Props = {
   plik: string;
   zadanie: number;
@@ -54,6 +59,18 @@ export function Brudnopis({ plik, zadanie, rysunek, zapis, onZmiana, tresc }: Pr
   const otwarty = tryb !== "zamkniety";
   const pelny = tryb === "pelny";
   useEffect(() => zapiszTryb(plik, tryb), [plik, tryb]);
+  useEffect(() => {
+    const naPrzejscie = (e: Event) => {
+      const cel = (e as CustomEvent<string>).detail;
+      if (cel === plik) {
+        setTryb("pelny");
+        // Pod spodem strona przewija się do tego zadania, żeby po wyjściu być przy nim.
+        document.getElementById(`zadanie-${zadanie}`)?.scrollIntoView({ block: "start" });
+      } else setTryb((t) => (t === "pelny" ? "zamkniety" : t));
+    };
+    window.addEventListener(ZDARZENIE_PELNY, naPrzejscie);
+    return () => window.removeEventListener(ZDARZENIE_PELNY, naPrzejscie);
+  }, [plik, zadanie]);
   const elementow = zapis?.elementy.length ?? 0;
 
   // Pełny ekran: strona pod spodem się nie przewija, Escape wraca do zadania.

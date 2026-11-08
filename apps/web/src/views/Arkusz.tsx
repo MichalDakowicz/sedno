@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, ChevronDown, FileText, Headphones, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep } from "../arkusze/postep";
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
@@ -18,7 +18,7 @@ import {
   type Wypowiedz,
   type Zadanie,
 } from "../arkusze/typy";
-import { Brudnopis } from "../components/Brudnopis";
+import { Brudnopis, otworzNaPelnymEkranie } from "../components/Brudnopis";
 import { TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
@@ -560,7 +560,10 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
 // Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
 // Zadanie z jednym pytaniem: numer i treść po lewej, odpowiedzi po prawej.
 function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
-  const { sprawdzone, wBloku } = useCtx();
+  const { arkusz, sprawdzone, wBloku } = useCtx();
+  const i = arkusz.zadania.findIndex((z) => z.nr === zadanie.nr);
+  const [poprzednie, nastepne] = [arkusz.zadania[i - 1], arkusz.zadania[i + 1]];
+  const przejdz = (z: Zadanie) => otworzNaPelnymEkranie(`${arkusz.id}-${z.nr}`);
   // Rysunek zadania i tak leży na płótnie brudnopisu.
   const bloki = zadanie.rysunek ? wszystkie.filter((b) => b.typ !== "rysunek") : wszystkie;
   const pytaniaBloki = bloki.filter((b) => b.typ === "pytanie" || b.typ === "pytania" || b.typ === "tabela");
@@ -581,7 +584,29 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   );
   const tresc = (
     <div className={styles.kompakt}>
-      <h2 className={`h3 ${styles.glowa}`}>Zadanie {zadanie.nr}.</h2>
+      <div className={styles.glowa}>
+        <button
+          type="button"
+          className={`btn btn-ghost btn-sm ${styles.przejscie}`}
+          disabled={!poprzednie}
+          onClick={() => poprzednie && przejdz(poprzednie)}
+          aria-label={poprzednie ? `Poprzednie zadanie (${poprzednie.nr}.)` : "Poprzednie zadanie"}
+          title="Poprzednie zadanie"
+        >
+          <ChevronLeft size={18} aria-hidden="true" />
+        </button>
+        <h2 className="h3">Zadanie {zadanie.nr}.</h2>
+        <button
+          type="button"
+          className={`btn btn-ghost btn-sm ${styles.przejscie}`}
+          disabled={!nastepne}
+          onClick={() => nastepne && przejdz(nastepne)}
+          aria-label={nastepne ? `Następne zadanie (${nastepne.nr}.)` : "Następne zadanie"}
+          title="Następne zadanie"
+        >
+          <ChevronRight size={18} aria-hidden="true" />
+        </button>
+      </div>
       {polecenie}
       <div className={obok ? styles.content : `${styles.content} ${styles.szpalty}`}>
         <BlokiKompakt elementy={grupujPrawdaFalsz(obok ? bloki.filter((b) => b !== pytaniaBloki[0]) : bloki, zadanie)} zadanie={zadanie.nr} />
