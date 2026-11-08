@@ -26,7 +26,7 @@ export function TutorDock() {
               <TutorAvatar size={40} state={state} />
               <div className={styles.headerText}>
                 <p className={styles.title}>Pestka</p>
-                <p className={styles.context}>tutor · pyta, zamiast podawać odpowiedź</p>
+                <p className={styles.context}>tutor</p>
               </div>
               <Link to="/tutor" className={styles.iconBtn} onClick={close} aria-label="Otwórz na pełnym ekranie">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">

@@ -32,11 +32,23 @@
   white-space: nowrap;
 }
 
+.srodek {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+.wyspa:empty {
+  display: none;
+}
+
 .links {
   position: relative;
   display: flex;
   gap: 4px;
-  margin: 0 auto;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -86,6 +98,23 @@
   font-size: 19px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.pomoc {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.pomoc:hover {
+  background: var(--bg);
+  color: var(--fg);
 }
 
 .menuBtn {

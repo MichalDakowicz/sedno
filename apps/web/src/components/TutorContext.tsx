@@ -1,6 +1,7 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { AvatarState } from "./TutorAvatar";
 import { aiErrorText, AiError, streamAi } from "../ai";
+import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, type Rozmowa } from "../konto/rozmowy";
 import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
 
 export type Message = { id: number; from: "tutor" | "student"; text: string };
@@ -11,6 +12,8 @@ export type Hint = {
   target: string | string[];
   text: string;
   waitFor?: "summon";
+  /** Własne przyciski zamiast „Dalej”; pusta lista: dymek bez przycisków (np. w locie do zadania). */
+  actions?: { label: string; onClick: () => void; primary?: boolean }[];
 };
 
 export type Guide = { key: string; kind: "tour" | "hint"; hints: Hint[]; index: number };
@@ -19,6 +22,10 @@ export type Summon = { x: number; y: number; about: string | null };
 
 type TutorValue = {
   messages: Message[];
+  rozmowy: Rozmowa[];
+  biezacaRozmowa: string;
+  nowaRozmowa: () => void;
+  otworzRozmowe: (id: string) => void;
   state: AvatarState;
   isOpen: boolean;
   open: () => void;
@@ -101,12 +108,18 @@ const noAi = "Żeby odpowiadać, potrzebuję AI podpiętego do konta. Zrobisz to
 
 /** przedmioty: opis przedmiotów konta do kontekstu rozmowy, np. „polski (podstawowy), angielski (rozszerzony)”. */
 export function TutorProvider({ children, ai = false, przedmioty = "" }: { children: ReactNode; ai?: boolean; przedmioty?: string }) {
-  const [messages, setMessages] = useState<Message[]>(() => [{ id: 0, from: "tutor", text: greeting }]);
+  // Bieżąca rozmowa wraca po odświeżeniu; wcześniejsze można otworzyć (konto/rozmowy.ts).
+  const [rozmowy, setRozmowy] = useState<Rozmowa[]>(wczytajRozmowy);
+  const [biezacaRozmowa, setBiezacaRozmowa] = useState(() => idBiezacej() ?? noweId());
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const zapis = wczytajRozmowy().find((r) => r.id === idBiezacej());
+    return zapis ? zapis.wiadomosci.map((m, i) => ({ id: i, from: m.from, text: m.text })) : [{ id: 0, from: "tutor", text: greeting }];
+  });
   const [state, setState] = useState<AvatarState>("idle");
   const [isOpen, setOpen] = useState(false);
   const [guide, setGuide] = useState<Guide | null>(null);
   const [summon, setSummon] = useState<Summon | null>(null);
-  const nextId = useRef(1);
+  const nextId = useRef(1000);
   const history = useRef<Message[]>([]);
   history.current = messages;
 
@@ -201,6 +214,28 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
     [guide],
   );
 
+  // Zapis po każdej zmianie, poza strumieniem odpowiedzi (wtedy na koniec, gdy Pestka skończy).
+  useEffect(() => {
+    if (state === "talking" || state === "thinking") return;
+    ustawBiezaca(biezacaRozmowa);
+    setRozmowy(zapiszRozmowe(biezacaRozmowa, messages.map((m) => ({ from: m.from, text: m.text }))));
+  }, [messages, state, biezacaRozmowa]);
+
+  const nowaRozmowa = useCallback(() => {
+    const id = noweId();
+    setBiezacaRozmowa(id);
+    ustawBiezaca(id);
+    setMessages([{ id: nextId.current++, from: "tutor", text: greeting }]);
+  }, []);
+
+  const otworzRozmowe = useCallback((id: string) => {
+    const r = wczytajRozmowy().find((x) => x.id === id);
+    if (!r) return;
+    setBiezacaRozmowa(id);
+    ustawBiezaca(id);
+    setMessages(r.wiadomosci.map((m) => ({ id: nextId.current++, from: m.from, text: m.text })));
+  }, []);
+
   const open = useCallback(() => {
     setGuide(null);
     setSummon(null);
@@ -210,6 +245,10 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
   const value = useMemo<TutorValue>(
     () => ({
       messages,
+      rozmowy,
+      biezacaRozmowa,
+      nowaRozmowa,
+      otworzRozmowe,
       state,
       isOpen,
       open,
@@ -227,7 +266,7 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
       dismiss,
       summonAt,
     }),
-    [messages, state, isOpen, open, send, guide, summon, showHints, startTour, next, dismiss, summonAt],
+    [messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, send, guide, summon, showHints, startTour, next, dismiss, summonAt],
   );
 
   return <TutorContext.Provider value={value}>{children}</TutorContext.Provider>;

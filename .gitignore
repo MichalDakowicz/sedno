@@ -13,3 +13,6 @@ data/
 
 # Cache Firebase CLI
 .firebase/
+
+# Cache Pythona (skrypty nagrań)
+__pycache__/

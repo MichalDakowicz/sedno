@@ -1,0 +1,179 @@
+/* Karta, bo musi się wyróżnić na tle zadań: Pestka „wypluwa” ją pod omawianym zadaniem. */
+.karta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-top: -16px;
+  scroll-margin-bottom: 24px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1px rgba(15, 21, 29, 0.06),
+    var(--shadow-float);
+  transform-origin: 32px 0;
+  animation: wyplun 0.4s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+
+@keyframes wyplun {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .karta {
+    animation: none;
+  }
+}
+
+.avatar {
+  flex: none;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.zamknij {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.zamknij:hover {
+  background: var(--bg);
+}
+
+.lista {
+  max-height: 460px;
+  padding: 16px 20px;
+}
+
+.zapowiedz {
+  margin: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.przyklad {
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.opcje {
+  display: grid;
+  gap: 6px;
+}
+
+.opcja {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font: inherit;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.opcja:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+
+.opcja:disabled {
+  cursor: default;
+}
+
+.opcja[data-stan="dobra"] {
+  border-color: var(--success-strong);
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+}
+
+.opcja[data-stan="zla"] {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+}
+
+.litera {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wyjasnienie {
+  font-size: 14px;
+}
+
+.form {
+  padding: 10px 16px 0;
+  border-top: 1px solid var(--line);
+}
+
+.form :global(.input) {
+  width: 100%;
+}
+
+.akcje {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 16px 14px;
+}
+
+.akcje :global(.btn-primary) {
+  margin-left: auto;
+}
+
+/* Ładowanie przykładu: kropki jak przy pisaniu Pestki i zwykły, czytelny tekst. */
+.laduje {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.kolko {
+  animation: kreci 0.9s linear infinite;
+}
+
+@keyframes kreci {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kolko {
+    animation: none;
+  }
+}
+
+/* Miejsce avatara: tu ląduje Pestka po rozklejeniu (OmowienieBledow.tsx). */
+.avatarMiejsce {
+  display: inline-flex;
+  flex: none;
+}

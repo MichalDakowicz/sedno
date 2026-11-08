@@ -1,24 +1,113 @@
-/* Przyklejony pod górnym paskiem, żeby był pod ręką przy każdym zadaniu, a dymek Pestki go nie zasłaniał. */
-.zegar {
-  position: fixed;
-  left: 50%;
-  top: 96px;
-  z-index: 40;
-  transform: translateX(-50%);
+/* Zegar arkusza. Zwykle „wyspa” w górnym pasku z samym czasem; kliknięcie wysuwa pod nią pełny
+   zegar z pauzą i wyłączeniem. Gdy paska nie ma, pełny zegar wisi pod nim na środku ekranu. */
+.wyspa {
+  position: relative;
+  animation: wynurz 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+@keyframes wynurz {
+  from {
+    opacity: 0;
+    scale: 0.5;
+  }
+}
+
+.czas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px 0 14px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--fg);
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ikona {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.pauzaZnak {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.wyspa[data-stan="koncowka"] .czas,
+.wyspa[data-stan="po"] .czas {
+  color: var(--primary);
+}
+
+/* Pełny zegar: wysuwa się z wyspy w dół. */
+.panel {
   display: flex;
   align-items: center;
   gap: 4px;
   padding: 6px 6px 6px 20px;
   border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.92);
   -webkit-backdrop-filter: blur(12px) saturate(1.6);
   backdrop-filter: blur(12px) saturate(1.6);
   box-shadow:
     0 0 0 1px rgba(15, 21, 29, 0.06),
     var(--shadow-float);
+  white-space: nowrap;
 }
 
-.czas {
+/* Pełny zegar pod wyspą. Kształt (z wyspy w pełny zegar) animuje Zegar.tsx przez Web Animations API. */
+.wyspa .panel {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  z-index: 40;
+  translate: -50% 0;
+  overflow: hidden;
+}
+
+/* Odpięty: pływa nad arkuszem w miejscu, gdzie go postawiono; łapie się go za tło. */
+.wyspa .panel.odpiety {
+  position: fixed;
+  translate: none;
+  overflow: visible;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.wyspa .panel.odpiety:active {
+  cursor: grabbing;
+}
+
+/* Odpięty zegar zostaje sam: wyspa w pasku znika razem z odstępem od menu. */
+.bezWyspy {
+  margin-left: -12px;
+}
+
+.bezWyspy > .czas {
+  display: none;
+}
+
+/* Wyspa na czas wysunięcia: niewidoczna, ale zajmuje miejsce, żeby menu nie skakało. */
+.ukryta {
+  visibility: hidden;
+}
+
+.samodzielny {
+  position: fixed;
+  left: 50%;
+  top: 96px;
+  z-index: 40;
+  translate: -50% 0;
+}
+
+.panelCzas {
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -26,6 +115,7 @@
   font-size: 20px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
+  color: var(--fg);
 }
 
 .opis {
@@ -34,15 +124,16 @@
   color: var(--subtle);
 }
 
-.zegar[data-stan="koncowka"] .czas,
-.zegar[data-stan="po"] .czas,
-.zegar[data-stan="po"] .opis {
+[data-stan="koncowka"] .panelCzas,
+[data-stan="po"] .panelCzas,
+[data-stan="po"] .opis {
   color: var(--primary-text);
 }
 
 .przycisk {
   display: grid;
   place-items: center;
+  flex: none;
   width: 40px;
   height: 40px;
   border: 0;
@@ -56,8 +147,15 @@
   background: var(--bg);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .wyspa {
+    animation: none;
+  }
+}
+
 @media print {
-  .zegar {
+  .wyspa,
+  .samodzielny {
     display: none;
   }
 }

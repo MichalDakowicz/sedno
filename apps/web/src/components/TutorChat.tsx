@@ -4,9 +4,16 @@ import { Markdown } from "./Markdown";
 import { useTutor } from "./TutorContext";
 import styles from "./TutorChat.module.css";
 
+const kiedy = (iso: string) => {
+  const dni = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  return dni <= 0 ? "dziś" : dni === 1 ? "wczoraj" : `${dni} dni temu`;
+};
+
 export function TutorChat() {
-  const { messages, state, send, suggestions } = useTutor();
+  const { messages, state, send, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe } = useTutor();
   const [draft, setDraft] = useState("");
+  const [lista, setLista] = useState(false);
+  const wczesniejsze = rozmowy.filter((r) => r.id !== biezacaRozmowa);
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,6 +28,41 @@ export function TutorChat() {
 
   return (
     <div className={styles.chat}>
+      <div className={styles.rozmowyPasek}>
+        <button type="button" className={styles.rozmowyPrzycisk} onClick={() => setLista((l) => !l)} disabled={!wczesniejsze.length} aria-expanded={lista}>
+          {lista ? "Wróć do rozmowy" : `Wcześniejsze rozmowy${wczesniejsze.length ? ` (${wczesniejsze.length})` : ""}`}
+        </button>
+        {messages.some((m) => m.from === "student") && (
+          <button
+            type="button"
+            className={styles.rozmowyPrzycisk}
+            onClick={() => {
+              nowaRozmowa();
+              setLista(false);
+            }}
+          >
+            Nowa rozmowa
+          </button>
+        )}
+      </div>
+      {lista ? (
+        <ul className={styles.rozmowyLista}>
+          {wczesniejsze.map((r) => (
+            <li key={r.id}>
+              <button
+                type="button"
+                onClick={() => {
+                  otworzRozmowe(r.id);
+                  setLista(false);
+                }}
+              >
+                <span>{r.tytul}</span>
+                <span className="small muted">{kiedy(r.kiedy)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
       <div className={styles.list} ref={listRef} aria-live="polite">
         {messages.map((m) =>
           m.from === "tutor" ? (
@@ -45,6 +87,7 @@ export function TutorChat() {
           </div>
         )}
       </div>
+      )}
 
       <div className={styles.composer}>
         <div className={styles.suggestions}>
@@ -72,7 +115,6 @@ export function TutorChat() {
             </svg>
           </button>
         </form>
-        <p className={styles.note}>Pestka pyta, zamiast podawać odpowiedź. W trybie egzaminu milczy.</p>
       </div>
     </div>
   );

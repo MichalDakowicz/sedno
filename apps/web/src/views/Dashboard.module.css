@@ -508,7 +508,20 @@
 }
 
 .ostatnie li {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
   border-top: 1px solid var(--line);
+}
+
+.ostatnie li > a:first-child {
+  flex: 1;
+}
+
+.ostatnie a.omow {
+  flex: none;
+  font-size: 13px;
+  color: var(--primary-text);
 }
 
 .ostatnie a {

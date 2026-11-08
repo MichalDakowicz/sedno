@@ -7,7 +7,7 @@ import styles from "./TutorGuide.module.css";
 
 const AV = 48;
 const GAP = 12;
-const MOVE_MS = 700;
+const MOVE_MS = 760;
 const FADE_MS = 200;
 const SPOT_PAD = 8;
 
@@ -66,7 +66,7 @@ function summonPoint(page: Point): Point | null {
 }
 
 function bubbleWidth() {
-  return Math.min(300, viewW() - 32);
+  return Math.min(340, viewW() - 32);
 }
 
 function bubbleLayout(p: Point) {
@@ -288,6 +288,7 @@ export function TutorGuide() {
           key={`a${hop}`}
           type="button"
           className={`${styles.avatar} ${hop === 0 ? styles.enter : styles.hop}`}
+          data-pestka="przewodnik"
           onClick={onAvatar}
           aria-label={pending ? "Pestka ma dla ciebie wskazówkę" : "Porozmawiaj z Pestką"}
           title={pending ? "Pokaż wskazówkę" : "Porozmawiaj z Pestką"}
@@ -337,7 +338,13 @@ export function TutorGuide() {
                   )}
                   <p className={styles.text}>{hint.text}</p>
                   <div className={styles.actions}>
-                    {hint.waitFor === "summon" ? (
+                    {hint.actions ? (
+                      hint.actions.map((a) => (
+                        <button key={a.label} type="button" className={`btn ${a.primary ? "btn-primary" : "btn-ghost"} btn-sm`} onClick={a.onClick}>
+                          {a.label}
+                        </button>
+                      ))
+                    ) : hint.waitFor === "summon" ? (
                       <span className={styles.wait}>Czekam na prawy przycisk…</span>
                     ) : (
                       <button type="button" className="btn btn-primary btn-sm" onClick={next}>

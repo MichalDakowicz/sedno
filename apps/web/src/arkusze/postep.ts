@@ -23,6 +23,10 @@ export type Postep = {
   wynik?: { zdobyte: number; mozliwe: number; kiedy: string };
   brudnopisy?: Record<string, Brudnopis>; // klucz: numer zadania
   czas?: Czas;
+  // Wynik zadania podobnego z omawiania błędów: zrozumiane albo do powtórki. Klucz: numer zadania.
+  omowione?: Record<number, "dobrze" | "zle">;
+  // Rozmowy z Pestką z omawiania błędów, żeby po powrocie do zadania były na miejscu. Klucz: numer zadania.
+  rozmowyOmowien?: Record<number, { od: "tutor" | "uczen"; tekst: string }[]>;
   czasZadan?: Record<number, number>; // ms myślenia nad zadaniem, klucz: numer zadania (arkusze/czasZadan.ts)
 };
 
@@ -71,39 +75,60 @@ export async function pobierzPostepy(user: string): Promise<void> {
   for (const row of data) zapiszLokalnie(row.sheet_id, { ...pusty, ...(row.data as Postep) });
 }
 
+// Wspólny stan postępu w pamięci: kilka miejsc naraz (arkusz i zegar w pasku) widzi ten sam postęp
+// i każda zmiana trafia do wszystkich.
+const pamiec = new Map<string, Postep>();
+const sluchacze = new Map<string, Set<(p: Postep) => void>>();
+// Numer zmiany na arkusz: odpowiedź z konta, która przyszła po lokalnej zmianie, jest już nieaktualna
+// (zapis na konto idzie z opóźnieniem), więc jej nie bierzemy. Konto czytamy raz na arkusz w sesji.
+const wersje = new Map<string, number>();
+const pobrane = new Set<string>();
+
+function ustaw(id: string, p: Postep) {
+  pamiec.set(id, p);
+  sluchacze.get(id)?.forEach((f) => f(p));
+}
+
 export function usePostep(id: string) {
-  const [postep, setPostep] = useState<Postep>(() => wczytajPostep(id));
+  const [postep, setPostep] = useState<Postep>(() => pamiec.get(id) ?? wczytajPostep(id));
 
   useEffect(() => {
-    setPostep(wczytajPostep(id));
+    if (!pamiec.has(id)) pamiec.set(id, wczytajPostep(id));
+    setPostep(pamiec.get(id)!);
+    const lista = sluchacze.get(id) ?? new Set();
+    sluchacze.set(id, lista);
+    lista.add(setPostep);
     const user = currentUserId();
-    if (!user) return;
     let live = true;
-    supabase
-      .from("sheet_progress")
-      .select("data")
-      .eq("user_id", user)
-      .eq("sheet_id", id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!live || !data) return;
-        const zKonta = { ...pusty, ...(data.data as Postep) };
-        zapiszLokalnie(id, zKonta);
-        setPostep(zKonta);
-      });
+    const wersja = wersje.get(id) ?? 0;
+    if (user && !pobrane.has(id))
+      supabase
+        .from("sheet_progress")
+        .select("data")
+        .eq("user_id", user)
+        .eq("sheet_id", id)
+        .maybeSingle()
+        .then(({ data }) => {
+          pobrane.add(id);
+          if (!live || !data || (wersje.get(id) ?? 0) !== wersja) return;
+          const zKonta = { ...pusty, ...(data.data as Postep) };
+          zapiszLokalnie(id, zKonta);
+          ustaw(id, zKonta);
+        });
     return () => {
       live = false;
+      lista.delete(setPostep);
     };
   }, [id]);
 
   const zmien = useCallback(
-    (f: (p: Postep) => Postep) =>
-      setPostep((stary) => {
-        const nowy = f(stary);
-        zapiszLokalnie(id, nowy);
-        zapiszNaKonto(id, nowy);
-        return nowy;
-      }),
+    (f: (p: Postep) => Postep) => {
+      const nowy = f(pamiec.get(id) ?? wczytajPostep(id));
+      wersje.set(id, (wersje.get(id) ?? 0) + 1);
+      zapiszLokalnie(id, nowy);
+      zapiszNaKonto(id, nowy);
+      ustaw(id, nowy);
+    },
     [id],
   );
 

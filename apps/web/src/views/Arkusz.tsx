@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep } from "../arkusze/postep";
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
@@ -18,13 +18,21 @@ import {
   type Wypowiedz,
   type Zadanie,
 } from "../arkusze/typy";
-import { Brudnopis, otworzNaPelnymEkranie, PokazDodatkoweRysunki } from "../components/Brudnopis";
+import { Brudnopis, otworzNaPelnymEkranie, PokazDodatkoweRysunki, ZDARZENIE_PELNY } from "../components/Brudnopis";
 import { TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
 import { PoleMatematyczne } from "../components/PoleMatematyczne";
-import { uplynelo, zapisCzasu, zatrzymaj, Zegar } from "../components/Zegar";
+import { OmowienieBledow } from "../components/OmowienieBledow";
+import { FragmentNagrania } from "../components/FragmentNagrania";
+import { rozklejPestke } from "../components/rozklejPestke";
+import { useTutor } from "../components/TutorContext";
+import { doOmowienia } from "../arkusze/omowienie";
+import { useSession } from "../auth";
+import { useAiReady } from "../ai";
+import { uplynelo, zapisCzasu, zatrzymaj } from "../components/Zegar";
+import { ustawAktywnyZegar, useAktywnyZegar } from "../arkusze/zegarAktywny";
 import { dodajCzas, minuty, norma, odmierz, opisTempa, tempo, zacznijOdmierzac } from "../arkusze/czasZadan";
 import styles from "./Arkusz.module.css";
 
@@ -64,6 +72,163 @@ export function Arkusz() {
 
   const sprawdzone = useCallback((nr: string) => postep.sprawdzony || postep.sprawdzoneZadania.includes(nrZadania(nr)), [postep]);
   useEffect(zacznijOdmierzac, [id]);
+  // Arkusz na czas zgłasza się do paska, żeby zegar został widoczny także poza nim.
+  const aktywnyZegar = useAktywnyZegar();
+  const maZegar = !!postep.czas && !postep.sprawdzony;
+  useEffect(() => {
+    if (!dane) return;
+    if (maZegar && dane.czas) {
+      if (aktywnyZegar?.id !== dane.id) ustawAktywnyZegar({ id: dane.id, limitMin: dane.czas });
+    } else if (aktywnyZegar?.id === dane.id) ustawAktywnyZegar(null);
+  }, [dane, maZegar, aktywnyZegar?.id]);
+  const session = useSession();
+  const ai = useAiReady(session ? session.user.id : null) === true;
+  // Który z błędów do omówienia jest otwarty (indeks w doOmowienia), null: nie omawiamy.
+  const [omawiany, setOmawiany] = useState<number | null>(null);
+  // Skąd Pestka wlatuje do karty omawiania (miejsce, w którym siedziała na zadaniu).
+  const [wlot, setWlot] = useState<DOMRect | null>(null);
+  const zacznijOmawianie = () => {
+    if (dane && doOmowienia(dane, postep).length) setOmawiany(0);
+  };
+  // Arkusz w stronach jak wydruk CKE: uczy układu i przechodzenia między stronami.
+  // Numer strony siedzi w adresie (?strona=5), więc przeżywa odświeżenie. Import bez
+  // stron (stare dane w bazie) zostaje jedną długą stroną.
+  const strony = useMemo(() => {
+    if (!dane || !dane.zadania.every((z) => z.strona)) return null;
+    const s = [...new Set(dane.zadania.flatMap(stronyZadania))].sort((a, b) => a - b);
+    return s.length > 1 ? s : null;
+  }, [dane]);
+  const [paramsStron, setParamsStron] = useSearchParams();
+  const zAdresu = Number(paramsStron.get("strona"));
+  const strona = strony ? (strony.includes(zAdresu) ? zAdresu : strony[0]) : undefined;
+  const idzNaStrone = useCallback(
+    (s: number, naGore = true) => {
+      setParamsStron(
+        (p) => {
+          const n = new URLSearchParams(p);
+          n.set("strona", String(s));
+          return n;
+        },
+        { replace: true },
+      );
+      if (naGore) window.scrollTo({ top: 0 });
+    },
+    [setParamsStron],
+  );
+  // Do zadania na innej stronie (link „Zadanie 3.” w podsumowaniu, omawianie): najpierw strona, potem przewinięcie.
+  const pokazZadanie = useCallback(
+    (nr: number) => {
+      const z = dane?.zadania.find((x) => x.nr === nr);
+      const s = z && strony ? stronyZadania(z) : [];
+      if (s.length && strona !== undefined && strona !== s[0]) idzNaStrone(s[0], false);
+      // Nad nagłówkiem zostaje miejsce pod paskiem, żeby Pestka mogła usiąść na zadaniu.
+      window.setTimeout(() => {
+        const el = document.getElementById(`zadanie-${nr}`);
+        if (!el) return;
+        const pasek = document.querySelector("nav[aria-label=\"Główna\"]")?.getBoundingClientRect().bottom ?? 0;
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - pasek - 72, behavior: "smooth" });
+      }, 60);
+    },
+    [dane, strony, strona, idzNaStrone],
+  );
+  useEffect(() => {
+    const zHasha = () => {
+      const m = location.hash.match(/^#zadanie-(\d+)$/);
+      if (m) pokazZadanie(Number(m[1]));
+    };
+    zHasha();
+    window.addEventListener("hashchange", zHasha);
+    return () => window.removeEventListener("hashchange", zHasha);
+  }, [pokazZadanie]);
+  // Przejście na pełnym ekranie do brudnopisu zadania z innej strony: brudnopis stoi
+  // na ostatniej stronie zadania, więc tam przewracamy arkusz.
+  useEffect(() => {
+    if (!dane || !strony) return;
+    const naPrzejscie = (e: Event) => {
+      const plik = (e as CustomEvent<string>).detail;
+      const z = dane.zadania.find((x) => `${dane.id}-${x.nr}` === plik);
+      const s = z ? stronyZadania(z).at(-1) : undefined;
+      if (s !== undefined && s !== strona) idzNaStrone(s, false);
+    };
+    window.addEventListener(ZDARZENIE_PELNY, naPrzejscie);
+    return () => window.removeEventListener(ZDARZENIE_PELNY, naPrzejscie);
+  }, [dane, strony, strona, idzNaStrone]);
+  // Strzałki w lewo i w prawo przewracają strony, o ile uczeń nie pisze w polu.
+  useEffect(() => {
+    if (!strony || strona === undefined) return;
+    const naKlawisz = (e: KeyboardEvent) => {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      // Na pełnym ekranie brudnopisu strona pod spodem stoi w miejscu.
+      if (document.querySelector('section[role="dialog"][aria-label^="Brudnopis"]')) return;
+      if ((e.target as Element).closest("input, textarea, select, [contenteditable='true'], .excalidraw")) return;
+      const i = strony.indexOf(strona);
+      if (e.key === "ArrowRight" && i < strony.length - 1) idzNaStrone(strony[i + 1]);
+      if (e.key === "ArrowLeft" && i > 0) idzNaStrone(strony[i - 1]);
+    };
+    window.addEventListener("keydown", naKlawisz);
+    return () => window.removeEventListener("keydown", naKlawisz);
+  }, [strony, strona, idzNaStrone]);
+
+  // Karta omawiania stoi pod ostatnią stroną zadania; „Następny błąd” może być na innej stronie.
+  useEffect(() => {
+    if (omawiany === null || !dane || !strony) return;
+    const z = doOmowienia(dane, postep)[omawiany]?.zadanie;
+    const s = z ? stronyZadania(z).at(-1) : undefined;
+    if (s !== undefined && s !== strona) idzNaStrone(s, false);
+  }, [omawiany]);
+
+  const { showHints, dismiss: odprawPestke } = useTutor();
+  const lot = useRef<number>();
+  useEffect(() => () => window.clearTimeout(lot.current), []);
+  // Pestka leci do pierwszego zadania z błędem, mówi, od którego zaczynamy, i oddaje
+  // głos karcie omawiania pod tym zadaniem. Najpierw przewijamy, bo przewodnik sam
+  // nie przewija do wskazówki, a na zadanie poza ekranem by nie usiadł.
+  const lecDoBledu = () => {
+    const pierwszy = dane ? doOmowienia(dane, postep)[0] : undefined;
+    if (!pierwszy) return;
+    const nr = pierwszy.zadanie.nr;
+    odprawPestke();
+    setOmawiany(null);
+    pokazZadanie(nr);
+    window.clearTimeout(lot.current);
+    lot.current = window.setTimeout(() => {
+      showHints(`omow-lot-${Date.now()}`, [{ target: `zadanie-${nr}`, text: `Zaczynamy od zadania ${nr}.`, actions: [] }]);
+      lot.current = window.setTimeout(async () => {
+        // Pestka się rozkleja (drży, zamyka oczy, dzieli się): druga wlatuje do karty, a ona wraca na spoczynek.
+        const podzial = await rozklejPestke();
+        setWlot(podzial?.doKarty ?? null);
+        // Prawdziwa Pestka skacze na spoczynek ukryta; widać jej kopię lecącą łukiem (rozklejPestke).
+        odprawPestke();
+        setOmawiany(0);
+        // Dymek pojawia się dopiero po wylądowaniu (ok. 0,7 s), więc zostaje chwila na przeczytanie.
+      }, 2300);
+    }, 700);
+  };
+  // Po sprawdzeniu arkusza Pestka przylatuje do wyniku i pyta, czy poprawiamy błędy.
+  const zaproponujOmowienie = (ile: number) => {
+    window.clearTimeout(lot.current);
+    lot.current = window.setTimeout(
+      () =>
+        showHints(`omow-${Date.now()}`, [
+          {
+            target: "wynik",
+            text: `Przejrzałam arkusz: ${ile === 1 ? "błąd jest w jednym zadaniu" : `błędy są w ${ile} zadaniach`}. Poprawimy?`,
+            actions: [
+              { label: "Tak, poprawmy", primary: true, onClick: lecDoBledu },
+              { label: "Później", onClick: odprawPestke },
+            ],
+          },
+        ]),
+      800,
+    );
+  };
+  const [params, setParams] = useSearchParams();
+  // ?omow=1 (np. z pulpitu) od razu otwiera omawianie błędów sprawdzonego arkusza.
+  useEffect(() => {
+    if (!params.has("omow") || !dane || !ai) return;
+    if (postep.sprawdzony) zacznijOmawianie();
+    setParams({}, { replace: true });
+  }, [params, dane, ai, postep.sprawdzony]);
   // W trybie na czas długa cisza to też praca nad arkuszem, nie przerwa.
   const ciszaTezLiczy = !!postep.czas?.start;
 
@@ -218,15 +383,15 @@ export function Arkusz() {
       wynik: { zdobyte: wynik.zdobyte, mozliwe: wynik.mozliwe, kiedy: new Date().toISOString() },
       czas: p.czas && zatrzymaj(p.czas),
     }));
+    if (strony) idzNaStrone(strony[0], false);
     window.scrollTo({ top: 0, behavior: "smooth" });
+    const ile = doOmowienia(dane, postep).length;
+    if (ai && ile) zaproponujOmowienie(ile);
   };
   const odNowa = () => {
     zmien(() => pustyPostep);
+    if (strony) idzNaStrone(strony[0], false);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-  const sprawdzZadanie = (nr: number) => {
-    const ms = odmierz(ciszaTezLiczy);
-    zmien((p) => dodajCzas({ ...p, sprawdzoneZadania: [...new Set([...p.sprawdzoneZadania, nr])] }, nr, ms));
   };
   // Poprawa zadania: odpowiedzi zostają, znika ocena i samoocena jego pytań.
   const poprawZadanie = (z: Zadanie) =>
@@ -240,19 +405,60 @@ export function Arkusz() {
   const ustawCzas = (c: Czas | undefined) => zmien((p) => ({ ...p, czas: c }));
   const naCzas = () => ustawCzas({ start: Date.now(), zuzyte: 0 });
 
+  const listaOmowien = postep.sprawdzony ? doOmowienia(dane, postep) : [];
+  const omawiane = omawiany !== null ? listaOmowien[omawiany] : undefined;
+
   const odpowiedziane = [...kontekst.pytania.keys()].filter((nr) => postep.odpowiedzi[nr]?.trim()).length;
 
   return (
     <Ctx.Provider value={kontekst}>
       <main className={`container ${styles.page}`}>
-        <Naglowek arkusz={dane} onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined} />
+        <Naglowek
+          arkusz={dane}
+          onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined}
+          zwiniety={!!strony && strona !== strony[0]}
+        />
 
-        {postep.sprawdzony && <Podsumowanie wynik={wynik} odNowa={odNowa} czas={postep.czas} limitMin={dane.czas} arkusz={dane} postep={postep} />}
-        {postep.czas && !postep.sprawdzony && dane.czas && <Zegar arkusz={dane.id} limitMin={dane.czas} czas={postep.czas} onZmien={ustawCzas} />}
+        {/* Wynik jak okładka: na pierwszej stronie arkusza, nie na każdej. */}
+        {postep.sprawdzony && (!strony || strona === strony[0]) && (
+          <Podsumowanie
+            wynik={wynik}
+            odNowa={odNowa}
+            czas={postep.czas}
+            limitMin={dane.czas}
+            arkusz={dane}
+            postep={postep}
+            omow={{ ile: doOmowienia(dane, postep).length, ai, start: lecDoBledu }}
+          />
+        )}
 
-        {dane.zadania.map((z) => (
-          <ZadanieWidok key={z.nr} zadanie={z} onSprawdz={() => sprawdzZadanie(z.nr)} onPopraw={() => poprawZadanie(z)} />
+        {dane.zadania
+          .filter((z) => strona === undefined || stronyZadania(z).includes(strona))
+          .map((z) => (
+          <Fragment key={z.nr}>
+            <ZadanieWidok zadanie={z} strona={strona} onPopraw={() => poprawZadanie(z)} />
+            {omawiane?.zadanie.nr === z.nr && (strona === undefined || strona === stronyZadania(z).at(-1)) && (
+              <OmowienieBledow
+                key={z.nr}
+                wlot={omawiany === 0 ? wlot : null}
+                arkusz={dane}
+                postep={postep}
+                d={omawiane}
+                numer={omawiany! + 1}
+                wszystkich={listaOmowien.length}
+                onDalej={() => setOmawiany(omawiany! + 1)}
+                onWynikPrzykladu={(nr, w) => zmien((p) => ({ ...p, omowione: { ...p.omowione, [nr]: w } }))}
+                onZapiszRozmowe={(nr, r) => zmien((p) => ({ ...p, rozmowyOmowien: { ...p.rozmowyOmowien, [nr]: r } }))}
+                onZamknij={() => {
+                  setOmawiany(null);
+                  setWlot(null);
+                }}
+              />
+            )}
+          </Fragment>
         ))}
+
+        {strony && strona !== undefined && <Strony strony={strony} strona={strona} onZmien={idzNaStrone} />}
 
         <footer className={styles.footer}>
           {postep.sprawdzony ? (
@@ -354,7 +560,9 @@ function usePrzewiniecie(id: string, gotowe: boolean) {
   }, [id, gotowe]);
 }
 
-function Naglowek({ arkusz, onNaCzas }: { arkusz: ArkuszDane; onNaCzas?: () => void }) {
+// zwiniety: dalsza strona arkusza w stronach. Jak w wydruku pełny nagłówek jest tylko na pierwszej,
+// ale odtwarzacz zostaje w tym samym miejscu drzewa, żeby nagranie nie urwało się przy przewracaniu.
+function Naglowek({ arkusz, onNaCzas, zwiniety }: { arkusz: ArkuszDane; onNaCzas?: () => void; zwiniety?: boolean }) {
   const maSluchanie = arkusz.zadania.some((z) => z.sluchanie);
   return (
     <header className={styles.head}>
@@ -364,32 +572,29 @@ function Naglowek({ arkusz, onNaCzas }: { arkusz: ArkuszDane; onNaCzas?: () => v
       <span className="label">
         {nazwaPrzedmiotu[arkusz.przedmiot] ?? arkusz.przedmiot} · {nazwaPoziomu[arkusz.poziom]} · formuła {arkusz.formula ?? "2023"} · {arkusz.symbol}
       </span>
+      {!zwiniety && (
       <h1 className="h1">
         Matura {arkusz.sesja} {arkusz.rok}
       </h1>
-      <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>
-      {arkusz.przedmiot === "matematyka" && <p className="small muted">Brudnopis nie wpływa na wynik w zadaniach zamkniętych. Zapisuje się w postępie arkusza.</p>}
-      {(arkusz.pdf?.arkusz || arkusz.pdf?.zasady || onNaCzas) && (
+      )}
+      {!zwiniety && <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>}
+      {!zwiniety && arkusz.przedmiot === "matematyka" && <p className="small muted">Brudnopis nie wpływa na wynik w zadaniach zamkniętych. Zapisuje się w postępie arkusza.</p>}
+      {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas) && (
         <div className={styles.pdfs}>
-          {onNaCzas && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={onNaCzas}>
-              <Timer size={16} aria-hidden="true" /> Rozwiąż na czas
-            </button>
-          )}
           {arkusz.pdf?.arkusz && (
             <a className="btn btn-secondary btn-sm" href={arkusz.pdf?.arkusz} target="_blank" rel="noreferrer">
               <FileText size={16} aria-hidden="true" /> Arkusz PDF
             </a>
           )}
-          {arkusz.pdf?.zasady && (
-            <a className="btn btn-ghost btn-sm" href={arkusz.pdf?.zasady} target="_blank" rel="noreferrer">
-              <FileText size={16} aria-hidden="true" /> Zasady oceniania PDF
-            </a>
+          {onNaCzas && (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={onNaCzas}>
+              <Timer size={16} aria-hidden="true" /> Rozwiąż na czas
+            </button>
           )}
         </div>
       )}
       {maSluchanie && arkusz.nagranie && <Nagranie src={arkusz.nagranie} />}
-      <p className="small muted">Źródło: Centralna Komisja Egzaminacyjna, cke.gov.pl.</p>
+      {!zwiniety && <p className="small muted">Źródło: Centralna Komisja Egzaminacyjna, cke.gov.pl.</p>}
     </header>
   );
 }
@@ -401,6 +606,7 @@ function Podsumowanie({
   limitMin,
   arkusz,
   postep,
+  omow,
 }: {
   wynik: ReturnType<typeof policz>;
   odNowa: () => void;
@@ -408,10 +614,11 @@ function Podsumowanie({
   limitMin?: number;
   arkusz: ArkuszDane;
   postep: Postep;
+  omow: { ile: number; ai: boolean; start: () => void };
 }) {
   const procent = wynik.mozliwe ? Math.round((wynik.zdobyte / wynik.mozliwe) * 100) : 0;
   return (
-    <section className={styles.summary} aria-live="polite">
+    <section className={styles.summary} aria-live="polite" data-tutor="wynik">
       <span className="label">{wynik.wypowiedzi ? "Wynik bez wypowiedzi pisemnej" : "Wynik"}</span>
       <p className={styles.bigScore}>
         {wynik.zdobyte} <span className="muted">/ {wynik.mozliwe} pkt</span> <span className={styles.percent}>{procent}%</span>
@@ -429,6 +636,22 @@ function Podsumowanie({
         </p>
       )}
       <TempoZadan arkusz={arkusz} postep={postep} />
+      {/* Klucz dopiero po sprawdzeniu: przed rozwiązaniem kusiłby podejrzeniem. */}
+      {arkusz.pdf?.zasady && (
+        <a className="link" href={arkusz.pdf.zasady} target="_blank" rel="noreferrer">
+          <FileText size={16} aria-hidden="true" /> Zasady oceniania PDF
+        </a>
+      )}
+      {omow.ile > 0 &&
+        (omow.ai ? (
+          <button type="button" className="btn btn-primary" onClick={omow.start}>
+            <MessagesSquare size={18} aria-hidden="true" /> Omów błędy z Pestką ({omow.ile})
+          </button>
+        ) : (
+          <p className="small muted">
+            Pestka omówi z tobą błędy, gdy podłączysz AI w <Link to="/profil">profilu</Link>.
+          </p>
+        ))}
       <button type="button" className="btn btn-ghost btn-sm" onClick={odNowa}>
         <RotateCcw size={16} aria-hidden="true" /> Rozwiąż od nowa
       </button>
@@ -470,50 +693,65 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
   );
 }
 
-function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSprawdz: () => void; onPopraw: () => void }) {
-  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki, tabele, opcjeNaRysunkach } = useCtx();
+// Przewracanie stron pod treścią strony, jak stopka wydruku: poprzednia, numery stron z PDF, następna.
+function Strony({ strony, strona, onZmien }: { strony: number[]; strona: number; onZmien: (s: number) => void }) {
+  const i = strony.indexOf(strona);
+  return (
+    <nav className={styles.strony} aria-label="Strony arkusza">
+      <button type="button" className="btn btn-ghost btn-sm" disabled={i <= 0} onClick={() => onZmien(strony[i - 1])}>
+        <ArrowLeft size={16} aria-hidden="true" /> Poprzednia
+      </button>
+      <ol className={styles.numery}>
+          {strony.map((s) => (
+            <li key={s}>
+              <button type="button" aria-current={s === strona ? "page" : undefined} aria-label={`Strona ${s}`} onClick={() => onZmien(s)}>
+                {s}
+              </button>
+            </li>
+          ))}
+      </ol>
+      <button type="button" className="btn btn-ghost btn-sm" disabled={i >= strony.length - 1} onClick={() => onZmien(strony[i + 1])}>
+        Następna <ArrowRight size={16} aria-hidden="true" />
+      </button>
+    </nav>
+  );
+}
+
+/** Strony PDF, na których leży zadanie (rosnąco). Pusta lista: import bez podziału na strony. */
+function stronyZadania(z: Zadanie): number[] {
+  const s = new Set<number>();
+  if (z.strona) s.add(z.strona);
+  for (const b of z.bloki) if (b.strona) s.add(b.strona);
+  return [...s].sort((a, b) => a - b);
+}
+
+/** strona: arkusz w stronach; zadanie pokazuje tylko to, co leży na tej stronie. */
+function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopraw: () => void; strona?: number }) {
+  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki, tabele, opcjeNaRysunkach, ukryteKodem } = useCtx();
   const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
   const wynik = policzPytania(zadanie.pytania, postep.odpowiedzi, postep.samoocena);
-  const odpowiedziane = zadanie.pytania.filter((p) => postep.odpowiedzi[p.nr]?.trim()).length;
+  // Zadanie na kilku stronach: nagłówek na pierwszej, wynik, brudnopis i przyciski na ostatniej.
+  const naStronach = strona !== undefined ? stronyZadania(zadanie) : null;
+  const pierwsza = !naStronach || strona === naStronach[0];
+  const ostatnia = !naStronach || strona === naStronach.at(-1);
 
   // Wypowiedź pisemna: tematy do wyboru i elementy treści trafiają do edytora.
   const pisanie = useMemo(() => (pisemna ? rozbierzPolecenie(zadanie) : null), [pisemna, zadanie]);
-  const { ukryteKodem } = useCtx();
-  const bloki = (pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki).filter((b) => !ukryteKodem.has(b));
-
-  // Treść z odpowiedziami: na stronie i nad brudnopisem na pełnym ekranie.
-  const tresc = (
-    <>
-      {zadanie.polecenie.map((p, i) => (
-        <p key={i} className={styles.instruction}>
-          {p}
-        </p>
-      ))}
-      <div className={styles.content}>
-        {grupujPrawdaFalsz(bloki, zadanie).map((b, i) =>
-          Array.isArray(b) ? (
-            <PrawdaFalsz key={i} pytania={b} />
-          ) : b.typ === "pytanie" && pisanie ? (
-            <WypowiedzWidok key={i} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} />
-          ) : (
-            <BlokWidok key={i} blok={b} zadanie={zadanie.nr} />
-          ),
-        )}
-      </div>
-      {gotowe && wTekscie.length > 0 && (
-        <div className={styles.keyList}>
-          {wTekscie.map((p) => (
-            <Informacja key={p.nr} pytanie={p} zNumerem />
-          ))}
-        </div>
-      )}
-    </>
-  );
+  // Na pełnym ekranie brudnopisu całe zadanie; na stronie arkusza tylko bloki tej strony.
+  const wszystkieBloki = (pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki).filter((b) => !ukryteKodem.has(b));
+  const bloki = wszystkieBloki.filter((b) => strona === undefined || (b.strona ?? zadanie.strona) === strona);
 
   return (
-    <section className={styles.task} id={`zadanie-${zadanie.nr}`}>
+    <section
+      className={styles.task}
+      id={pierwsza ? `zadanie-${zadanie.nr}` : undefined}
+      data-tutor={pierwsza ? `zadanie-${zadanie.nr}` : undefined}
+    >
+      {!pierwsza && <p className={`small muted ${styles.ciagDalszy}`}>Zadanie {zadanie.nr}. · ciąg dalszy</p>}
+      {pierwsza && (
+      <>
       <header className={styles.taskHead}>
         <h2 className="h3">Zadanie {zadanie.nr}.</h2>
         <span className="small muted">
@@ -526,8 +764,41 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           </span>
         )}
       </header>
-      {tresc}
-      {arkusz.przedmiot === "matematyka" && (
+      {zadanie.polecenie.map((p, i) => (
+        <p key={i} className={styles.instruction}>
+          {p}
+        </p>
+      ))}
+      </>
+      )}
+      <div className={styles.content}>
+        {podzielNaCzesci(grupujPrawdaFalsz(bloki, zadanie), arkusz.przedmiot !== "matematyka").map((c, i) => (
+          <div key={i} className={styles.part} data-rodzaj={c.rodzaj}>
+            {c.polecenie && (
+              <p className={styles.instruction}>
+                <Tekst tekst={c.polecenie} />
+              </p>
+            )}
+            {c.elementy.map((b, j) =>
+              Array.isArray(b) ? (
+                <PrawdaFalsz key={j} pytania={b} />
+              ) : b.typ === "pytanie" && pisanie ? (
+                <WypowiedzWidok key={j} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} />
+              ) : (
+                <BlokWidok key={j} blok={b} zadanie={zadanie.nr} />
+              ),
+            )}
+          </div>
+        ))}
+      </div>
+      {ostatnia && gotowe && wTekscie.length > 0 && (
+        <div className={styles.keyList}>
+          {wTekscie.map((p) => (
+            <Informacja key={p.nr} pytanie={p} zNumerem />
+          ))}
+        </div>
+      )}
+      {ostatnia && arkusz.przedmiot === "matematyka" && (
         <Brudnopis
           plik={`${arkusz.id}-${zadanie.nr}`}
           zadanie={zadanie.nr}
@@ -546,46 +817,27 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
           tresc={
             <Kompakt.Provider value={true}>
-              <TrescKompakt zadanie={zadanie} bloki={bloki} />
+              <TrescKompakt zadanie={zadanie} bloki={wszystkieBloki} />
             </Kompakt.Provider>
           }
           duzyRysunek={[...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie))}
         />
       )}
-      {!pisemna && !postep.sprawdzony && (
+      {/* Sprawdzamy tylko cały arkusz, jak na maturze, a błędy omawia potem Pestka.
+          Zadanie sprawdzone wcześniej (stary zapis postępu albo inne zadanie poprawiane
+          po sprawdzeniu) pokazuje wynik i pozwala wrócić do odpowiedzi. */}
+      {ostatnia && !pisemna && !postep.sprawdzony && gotowe && (
         <div className={styles.taskActions}>
-          {gotowe ? (
-            <>
-              <span className={styles.taskScore}>
-                {wynik.zdobyte} / {wynik.mozliwe} pkt
-                {wynik.doOceny > 0 && <span className="small muted"> · {wynik.doOceny} do twojej oceny</span>}
-              </span>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={onPopraw}>
-                <Pencil size={15} aria-hidden="true" /> Popraw odpowiedzi
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={onSprawdz}
-                disabled={!odpowiedziane}
-                aria-describedby={odpowiedziane ? undefined : `zadanie-${zadanie.nr}-czeka`}
-              >
-                <Check size={16} aria-hidden="true" /> Sprawdź zadanie {zadanie.nr}.
-              </button>
-              {/* Wyszarzony przycisk sam nie mówi, czego brakuje. */}
-              {!odpowiedziane && (
-                <span id={`zadanie-${zadanie.nr}-czeka`} className="small muted">
-                  Odpowiedz na co najmniej jedno pytanie, żeby sprawdzić.
-                </span>
-              )}
-            </>
-          )}
+          <span className={styles.taskScore}>
+            {wynik.zdobyte} / {wynik.mozliwe} pkt
+            {wynik.doOceny > 0 && <span className="small muted"> · {wynik.doOceny} do twojej oceny</span>}
+          </span>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={onPopraw}>
+            <Pencil size={15} aria-hidden="true" /> Popraw odpowiedzi
+          </button>
         </div>
       )}
-      {!pisemna && postep.sprawdzony && (
+      {ostatnia && !pisemna && postep.sprawdzony && (
         <div className={styles.taskActions}>
           <button type="button" className="btn btn-ghost btn-sm" onClick={onPopraw}>
             <Pencil size={15} aria-hidden="true" /> Popraw odpowiedzi w tym zadaniu
@@ -593,6 +845,65 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
         </div>
       )}
     </section>
+  );
+}
+
+type ElementZadania = Blok | PytanieZamkniete[];
+type Czesc = { rodzaj: "czytanie" | "tresc" | "pytania"; elementy: ElementZadania[]; polecenie?: string };
+
+const TRESC = new Set<Blok["typ"]>(["akapit", "wzor", "rysunek", "tabelaTresci", "naglowek", "zrodlo", "kadr"]);
+const jestTrescia = (e: ElementZadania | undefined) => !!e && !Array.isArray(e) && TRESC.has(e.typ);
+
+// Polecenie do grupy pytań w środku zadania, np. „For questions 4.1.–4.4.,
+// choose…” albo „W zadaniach 1.3.–1.6. zakreśl…”, tuż przed pytaniami.
+// Etykieta tekstu („Tekst 2. (do zadań 2.2. i 2.3.)”) się nie liczy.
+const POLECENIE_PYTAN = /\b\d+\.\d+\./;
+const ETYKIETA_TEKSTU = /^(Tekst|Text)\s+\d/;
+
+// Dzieli zadanie na ciągi treści i ciągi pytań, żeby oddzielić je linią.
+// Treść z tytułem, przypisem albo dłuższa niż krótkie wprowadzenie to tekst
+// do czytania i dostaje wyróżnienie (poza matematyką, gdzie nagłówki to
+// podpunkty, a nie tytuły tekstów). Sąsiednie przypisy („Na podstawie: …”,
+// „Źródło: …”) łączymy w jedną drobną linię pod tekstem: to atrybucja CKE.
+function podzielNaCzesci(elementy: ElementZadania[], teksty: boolean): Czesc[] {
+  const czesci: Czesc[] = [];
+  elementy.forEach((e, i) => {
+    const ost = czesci[czesci.length - 1];
+    if (
+      !Array.isArray(e) &&
+      e.typ === "akapit" &&
+      !e.tekst.includes("{{") &&
+      POLECENIE_PYTAN.test(e.tekst) &&
+      !ETYKIETA_TEKSTU.test(e.tekst) &&
+      elementy[i + 1] &&
+      !jestTrescia(elementy[i + 1])
+    ) {
+      czesci.push({ rodzaj: "pytania", elementy: [], polecenie: e.tekst });
+      return;
+    }
+    const tresc = jestTrescia(e);
+    const c = ost && (ost.rodzaj !== "pytania") === tresc ? ost : ({ rodzaj: tresc ? "tresc" : "pytania", elementy: [] } satisfies Czesc);
+    if (c !== ost) czesci.push(c);
+    const poprzedni = c.elementy[c.elementy.length - 1];
+    if (!Array.isArray(e) && e.typ === "zrodlo" && !Array.isArray(poprzedni) && poprzedni?.typ === "zrodlo")
+      c.elementy[c.elementy.length - 1] = { typ: "zrodlo", tekst: `${poprzedni.tekst} ${e.tekst}` };
+    else c.elementy.push(e);
+  });
+  for (const c of czesci) {
+    if (!teksty || c.rodzaj !== "tresc") continue;
+    const dlugosc = c.elementy.reduce((n, e) => n + (!Array.isArray(e) && "tekst" in e ? e.tekst.length : 0), 0);
+    const tytul = c.elementy.some((e) => !Array.isArray(e) && (e.typ === "naglowek" || e.typ === "zrodlo"));
+    if (tytul || dlugosc > 600) c.rodzaj = "czytanie";
+  }
+  return czesci;
+}
+
+function Zrodlo({ tekst }: { tekst: string }) {
+  // Jedna linia; dotknięcie albo fokus pokazuje całość, gdy się nie mieści.
+  return (
+    <p className={styles.source} title={tekst} tabIndex={0}>
+      {tekst}
+    </p>
   );
 }
 
@@ -678,7 +989,10 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   );
   const uporzadkowane = uporzadkujAkapity(calosc, (b) => luki.has(b) || lukiKadrow.has(b));
   const podzial = zLukami ? null : podzielNaPodpunkty(uporzadkowane);
-  const [podpunkt, setPodpunkt] = useState(() => (podzial ? startowyPodpunkt(plik, podzial.podpunkty.length) : 0));
+  const [podpunkt, setPodpunkt] = useState(() => {
+    const kierunek = zuzyjWejscie();
+    return podzial ? startowyPodpunkt(plik, podzial.podpunkty.length, kierunek) : 0;
+  });
   useEffect(() => {
     try {
       sessionStorage.setItem(kluczPodpunktu(plik), String(podpunkt));
@@ -701,12 +1015,14 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
   const wstecz = () => {
     if (podzial && podpunkt > 0) return setPodpunkt(podpunkt - 1);
     if (!poprzednie) return;
-    wejscieOdKonca = true;
+    wejscie = "koniec";
     otworzNaPelnymEkranie(`${arkusz.id}-${poprzednie.nr}`);
   };
   const dalej = () => {
     if (podzial && podpunkt < ilePodpunktow - 1) return setPodpunkt(podpunkt + 1);
-    if (nastepne) otworzNaPelnymEkranie(`${arkusz.id}-${nastepne.nr}`);
+    if (!nastepne) return;
+    wejscie = "poczatek";
+    otworzNaPelnymEkranie(`${arkusz.id}-${nastepne.nr}`);
   };
   const jestWstecz = (podzial && podpunkt > 0) || !!poprzednie;
   const jestDalej = (podzial && podpunkt < ilePodpunktow - 1) || !!nastepne;
@@ -989,16 +1305,21 @@ function numerPodpunktu(bloki: Blok[]): string | null {
   return b.typ === "pytanie" ? b.nr : b.typ === "pytania" || b.typ === "tabela" ? (b.nr[0] ?? null) : null;
 }
 
-// Który podpunkt pokazać po wejściu: zapamiętany w karcie przeglądarki albo, przy
-// cofaniu się strzałką z następnego zadania, ostatni.
-let wejscieOdKonca = false;
+// Który podpunkt pokazać po wejściu: strzałką do przodu pierwszy, wstecz ostatni,
+// a po odświeżeniu zapamiętany w karcie przeglądarki.
+let wejscie: "poczatek" | "koniec" | null = null;
 const kluczPodpunktu = (plik: string) => `sedno.podpunkt.${plik}`;
 
-function startowyPodpunkt(plik: string, ile: number): number {
-  if (wejscieOdKonca) {
-    wejscieOdKonca = false;
-    return ile - 1;
-  }
+// Kierunek zużywa pierwsze zamontowane zadanie, także bez podpunktów, żeby nie przeszedł dalej.
+function zuzyjWejscie() {
+  const kierunek = wejscie;
+  wejscie = null;
+  return kierunek;
+}
+
+function startowyPodpunkt(plik: string, ile: number, kierunek: typeof wejscie): number {
+  if (kierunek === "koniec") return ile - 1;
+  if (kierunek === "poczatek") return 0;
   try {
     const n = Number(sessionStorage.getItem(kluczPodpunktu(plik)));
     return Number.isInteger(n) && n >= 0 && n < ile ? n : 0;
@@ -1175,7 +1496,7 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
     case "naglowek":
       return <h3 className={styles.textTitle}>{blok.tekst}</h3>;
     case "zrodlo":
-      return <p className={`small muted ${styles.source}`}>{blok.tekst}</p>;
+      return <Zrodlo tekst={blok.tekst} />;
     case "kadr":
       return <Kadr obraz={blok.obraz} tekst={blok.tekst} />;
     case "opcje":
@@ -1341,7 +1662,7 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
           {p.tresc && <Tekst tekst={p.tresc} wlasny={p.nr} />}
         </div>
       )}
-      {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Suwak pytanie={p} />)}
+      {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : kompakt ? <LiteryKompakt pytanie={p} /> : <PoleLitery pytanie={p} />)}
       {p.typ === "otwarte" && kody.has(p.nr) && <KodZWyborem pytanie={p} wybor={kody.get(p.nr)!} />}
       {p.typ === "otwarte" && pf.has(p.nr) && <PrawdaFalszKod pytanie={p} stwierdzenia={pf.get(p.nr)!} />}
       {p.typ === "otwarte" && dwie.has(p.nr) && <WyborKilku pytanie={p} wybor={dwie.get(p.nr)!} />}
@@ -1860,31 +2181,60 @@ function Opcje({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   );
 }
 
-// Same litery (dopasowanie): segmentowy suwak z przesuwanym wskaźnikiem.
-function Suwak({ pytanie: p }: { pytanie: PytanieZamkniete }) {
+// Litery po kolei (A, B, C…) opisujemy zakresem „A–F”, inne wypisujemy.
+function zakresLiter(litery: string[]) {
+  const poKolei = litery.every((l, i) => i === 0 || l.charCodeAt(0) === litery[i - 1].charCodeAt(0) + 1);
+  return poKolei && litery.length > 2 ? `${litery[0]}–${litery.at(-1)}` : litery.join(", ");
+}
+
+// Same litery (dopasowanie): pole na jedną literę, jak kratka w tabeli odpowiedzi
+// na maturze. Przyjmuje tylko litery z zadania, a po wpisaniu przechodzi do
+// następnego takiego pola, więc tabelę wypełnia się z klawiatury.
+// Pełny ekran brudnopisu: litery do kliknięcia (opcje leżą na płótnie albo w treści).
+function LiteryKompakt({ pytanie: p }: { pytanie: PytanieZamkniete }) {
+  const { postep, ustaw, sprawdzone } = useCtx();
+  return (
+    <PrzelacznikLiter
+      litery={p.litery}
+      wybrana={postep.odpowiedzi[p.nr] || undefined}
+      poprawna={p.poprawna}
+      gotowe={sprawdzone(p.nr)}
+      etykieta={`Pytanie ${p.nr}`}
+      onWybor={(l) => ustaw(p.nr, l)}
+    />
+  );
+}
+
+function PoleLitery({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   const { postep, ustaw, sprawdzone } = useCtx();
   const gotowe = sprawdzone(p.nr);
-  const wybrana = postep.odpowiedzi[p.nr] || undefined;
-  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  const wybrana = postep.odpowiedzi[p.nr] ?? "";
+  const zakres = zakresLiter(p.litery);
+  const wpisz = (e: ChangeEvent<HTMLInputElement>) => {
+    const l = e.target.value.slice(-1).toUpperCase();
+    if (l && !p.litery.includes(l)) return;
+    ustaw(p.nr, l);
+    if (!l) return;
+    const pola = [...document.querySelectorAll<HTMLInputElement>("input[data-pole-litery]:not(:disabled)")];
+    pola[pola.indexOf(e.target) + 1]?.focus();
+  };
   return (
-    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={`Pytanie ${p.nr}`}>
-      {ramka && <span className={styles.thumb} style={ramka} aria-hidden="true" />}
-      {p.litery.map((l) => (
-        <button
-          key={l}
-          type="button"
-          role="radio"
-          data-litera={l}
-          aria-checked={wybrana === l}
-          className={styles.segment}
-          data-stan={stanOpcji(p, l, postep, gotowe)}
-          disabled={gotowe}
-          onClick={() => ustaw(p.nr, wybrana === l ? "" : l)}
-        >
-          {l}
-        </button>
-      ))}
-    </div>
+    <span className={styles.letterField}>
+      <input
+        className={styles.letterInput}
+        data-pole-litery=""
+        data-stan={wybrana ? stanOpcji(p, wybrana, postep, gotowe) : undefined}
+        value={wybrana}
+        onChange={wpisz}
+        onFocus={(e) => e.target.select()}
+        disabled={gotowe}
+        aria-label={`Pytanie ${p.nr}: wpisz literę ${zakres}`}
+        autoComplete="off"
+        autoCapitalize="characters"
+        spellCheck={false}
+      />
+      {!gotowe && <span className="small muted">{zakres}</span>}
+    </span>
   );
 }
 
@@ -1894,7 +2244,7 @@ function WierszTabeli({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   return (
     <div className={styles.row}>
       <span className={styles.qnr}>{p.nr}.</span>
-      <Suwak pytanie={p} />
+      <PoleLitery pytanie={p} />
       {sprawdzone(p.nr) && (
         <span className={styles.rowVerdict} data-werdykt={w}>
           {w === "dobrze" ? <Check size={16} aria-label="dobrze" /> : <X size={16} aria-label="źle" />}
@@ -2094,6 +2444,7 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
           {w === "dobrze" ? "Dobrze" : `${odp ? `Twoja: ${odp}. ` : "Brak odpowiedzi. "}Poprawna: ${p.poprawna}`}
         </p>
         {w !== "dobrze" && zdanie && !p.opcje?.length && <p className={`small muted ${styles.correctText}`}><Tekst tekst={zdanie} /></p>}
+        {p.fragment && arkusz.nagranie && <FragmentNagrania src={arkusz.nagranie} fragment={p.fragment} />}
       </div>
     );
   }
@@ -2108,6 +2459,7 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
         {surowy === "pusto" && "Brak odpowiedzi"}
         {surowy === "do-oceny" && opisSamooceny(p, postep.samoocena[p.nr], !!(p.oczekiwane?.length || p.akceptowane?.length))}
       </p>
+      {p.fragment && arkusz.nagranie && <FragmentNagrania src={arkusz.nagranie} fragment={p.fragment} />}
       {surowy !== "dobrze" && (
         <div className={styles.key}>
           {schemat && (

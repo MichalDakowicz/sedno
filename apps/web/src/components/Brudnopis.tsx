@@ -41,8 +41,13 @@ function zapiszTryb(plik: string, tryb: Tryb) {
 
 // Przejście na pełnym ekranie do brudnopisu innego zadania: ten otwiera się na pełnym
 // ekranie, a dotychczasowy zamyka (szkic zostaje zapisany).
-const ZDARZENIE_PELNY = "sedno:brudnopis-pelny";
-export const otworzNaPelnymEkranie = (plik: string) => window.dispatchEvent(new CustomEvent(ZDARZENIE_PELNY, { detail: plik }));
+export const ZDARZENIE_PELNY = "sedno:brudnopis-pelny";
+// Brudnopis zadania z innej strony arkusza nie jest zamontowany: zapisany tryb otworzy go
+// na pełnym ekranie, gdy arkusz przejdzie na tę stronę (słucha tego samego zdarzenia).
+export const otworzNaPelnymEkranie = (plik: string) => {
+  zapiszTryb(plik, "pelny");
+  window.dispatchEvent(new CustomEvent(ZDARZENIE_PELNY, { detail: plik }));
+};
 
 // Treść nad płótnem na pełnym ekranie mówi, czy pokazać dodatkowe rysunki (wykresy opcji
 // A–F): są potrzebne tylko w podpunkcie, którego dotyczą.

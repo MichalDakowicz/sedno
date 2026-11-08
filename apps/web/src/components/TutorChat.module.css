@@ -72,6 +72,67 @@
   }
 }
 
+.rozmowyPasek {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.rozmowyPrzycisk {
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.rozmowyPrzycisk:hover:not(:disabled) {
+  color: var(--fg);
+  background: var(--bg);
+}
+
+.rozmowyPrzycisk:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.rozmowyLista {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 8px 24px;
+  list-style: none;
+}
+
+.rozmowyLista li + li {
+  border-top: 1px solid var(--line);
+}
+
+.rozmowyLista button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 14px 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.rozmowyLista button:hover > span:first-child {
+  color: var(--primary-text);
+}
+
 .composer {
   display: grid;
   gap: 12px;
@@ -120,11 +181,6 @@
 .form :global(.btn:disabled) {
   opacity: 0.4;
   cursor: default;
-}
-
-.note {
-  font-size: 12px;
-  color: var(--subtle);
 }
 
 @media (max-width: 640px) {
