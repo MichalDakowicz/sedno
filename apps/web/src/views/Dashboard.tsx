@@ -9,6 +9,8 @@ import { useAiReady } from "../ai";
 import { dniDoMatury, nazwaPoziomu, przedmiot, type MojPrzedmiot } from "../konto/przedmioty";
 import { propozycja, useWynikiKonta, type Podsumowanie, type Propozycja, type Wynik } from "../konto/wyniki";
 import type { ArkuszWpis } from "../arkusze/typy";
+import { Plywak } from "../components/Plywak";
+import { Ladowanie } from "../components/Ladowanie";
 import styles from "./Dashboard.module.css";
 
 function Kicker({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode }) {
@@ -31,7 +33,8 @@ function SubjectBar({ moje, active }: { moje: MojPrzedmiot[]; active?: string })
       data-tutor="subjects"
       data-tutor-about="Tu wybierasz przedmiot. „Wszystkie” to pulpit ogólny, a przedmiot zawęża pulpit tylko do jego danych."
     >
-      <NavLink to="/" end className={({ isActive }) => `${styles.chip} ${isActive ? styles.chipActive : ""}`}>
+      <Plywak zalezy={`${active ?? "wszystkie"}-${moje.length}`} />
+      <NavLink to="/" end data-aktywny={!active} className={({ isActive }) => `${styles.chip} ${isActive ? styles.chipActive : ""}`}>
         <span className={styles.chipIcon}>
           <LayoutGrid size={14} aria-hidden="true" />
         </span>
@@ -40,7 +43,7 @@ function SubjectBar({ moje, active }: { moje: MojPrzedmiot[]; active?: string })
       {moje.map((m) => {
         const p = przedmiot(m.id)!;
         return (
-          <NavLink key={m.id} to={`/przedmiot/${m.id}`} className={`${styles.chip} ${active === m.id ? styles.chipActive : ""}`}>
+          <NavLink key={m.id} to={`/przedmiot/${m.id}`} data-aktywny={active === m.id} className={`${styles.chip} ${active === m.id ? styles.chipActive : ""}`}>
             <SubjectIcon subject={p} size="sm" />
             {p.nazwa}
           </NavLink>
@@ -249,8 +252,10 @@ export function Dashboard() {
 
       {profil && !moje.length && <BezPrzedmiotow />}
 
+      {!dane && <Ladowanie ksztalt="pulpit" ile={3} etykieta="Wczytuję twoje arkusze i wyniki" />}
+
       {dane && co && (
-        <section className={styles.top}>
+        <section className={`${styles.top} wejscie`}>
           <Today co={co} showSubject={!aktywny} ai={ai} />
           <div className={styles.side}>
             <Wyniki podsumowania={zakres} />
@@ -261,7 +266,7 @@ export function Dashboard() {
       {dane && aktywny && zakres[0] && <ArkuszePrzedmiotu podsumowanie={zakres[0]} />}
 
       {dane && !aktywny && moje.length > 0 && (
-        <section className={styles.section} aria-labelledby="subjects-title">
+        <section className={`${styles.section} wejscie`} aria-labelledby="subjects-title">
           <div className={styles.sectionHead}>
             <h2 id="subjects-title" className="h2">
               Twoje przedmioty
@@ -301,7 +306,7 @@ export function Dashboard() {
       )}
 
       {dane && moje.length > 0 && (
-        <section className={styles.section} aria-labelledby="map-title">
+        <section className={`${styles.section} wejscie`} aria-labelledby="map-title">
           <div className={styles.sectionHead}>
             <h2 id="map-title" className="h2">
               Mapa umiejętności
@@ -319,7 +324,7 @@ export function Dashboard() {
 
 function ArkuszePrzedmiotu({ podsumowanie: s }: { podsumowanie: Podsumowanie }) {
   return (
-    <section className={styles.section} aria-labelledby="sheets-title">
+    <section className={`${styles.section} wejscie`} aria-labelledby="sheets-title">
       <div className={styles.sectionHead}>
         <h2 id="sheets-title" className="h2">
           Twoje arkusze

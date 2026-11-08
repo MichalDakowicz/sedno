@@ -1,0 +1,65 @@
+.wrap {
+  min-height: 1px;
+}
+
+.szkielet {
+  display: grid;
+  gap: 12px;
+  animation: pojaw 0.25s ease-out;
+}
+
+.szkielet > span {
+  display: block;
+  border-radius: var(--r-sm);
+  background: linear-gradient(90deg, var(--line) 0%, #f7f0eb 50%, var(--line) 100%);
+  background-size: 200% 100%;
+  animation: blysk 1.4s ease-in-out infinite;
+}
+
+.karta {
+  height: 240px;
+  max-width: 600px;
+  border-radius: var(--r-lg) !important;
+}
+
+.naglowek {
+  width: 220px;
+  height: 28px;
+  margin-top: 28px;
+}
+
+.wiersz {
+  height: 64px;
+}
+
+.tytul {
+  width: 60%;
+  height: 40px;
+  margin-bottom: 12px;
+}
+
+.linia {
+  height: 16px;
+}
+
+@keyframes blysk {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes pojaw {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .szkielet,
+  .szkielet > span {
+    animation: none;
+  }
+}

@@ -22,6 +22,7 @@ import { Brudnopis } from "../components/Brudnopis";
 import { TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
+import { Ladowanie } from "../components/Ladowanie";
 import styles from "./Arkusz.module.css";
 
 type Kontekst = {
@@ -114,7 +115,7 @@ export function Arkusz() {
   if (laduje)
     return (
       <main className={`container ${styles.page}`}>
-        <p className="muted">Wczytuję arkusz…</p>
+        <Ladowanie ksztalt="tekst" ile={7} etykieta="Wczytuję arkusz" />
       </main>
     );
   if (blad || !dane || !kontekst || !wynik) {
@@ -308,9 +309,23 @@ function ZadanieWidok({ zadanie, onSprawdz, onPopraw }: { zadanie: Zadanie; onSp
               </button>
             </>
           ) : (
-            <button type="button" className="btn btn-secondary btn-sm" onClick={onSprawdz} disabled={!odpowiedziane}>
-              <Check size={16} aria-hidden="true" /> Sprawdź zadanie {zadanie.nr}.
-            </button>
+            <>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={onSprawdz}
+                disabled={!odpowiedziane}
+                aria-describedby={odpowiedziane ? undefined : `zadanie-${zadanie.nr}-czeka`}
+              >
+                <Check size={16} aria-hidden="true" /> Sprawdź zadanie {zadanie.nr}.
+              </button>
+              {/* Wyszarzony przycisk sam nie mówi, czego brakuje. */}
+              {!odpowiedziane && (
+                <span id={`zadanie-${zadanie.nr}-czeka`} className="small muted">
+                  Odpowiedz na co najmniej jedno pytanie, żeby sprawdzić.
+                </span>
+              )}
+            </>
           )}
         </div>
       )}

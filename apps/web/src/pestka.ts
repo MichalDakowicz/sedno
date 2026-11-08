@@ -14,6 +14,7 @@ export function promptPestki(k: Kontekst): string {
       "chyba że uczeń kilka razy utknął; wtedy pokazujesz jeden krok, nie całość.",
     "Gdy uczeń ma rację, mówisz to wprost i sprawdzasz, czy rozumie dlaczego. Nie chwal przesadnie i nie używaj emoji.",
     "Gdy uczeń odpowiada na twoje pytanie, potwierdź krótko, co jest dobre, i idź o krok dalej. Nigdy nie zadawaj ponownie pytania, na które uczeń już odpowiedział, i nie powtarzaj swojej poprzedniej wypowiedzi.",
+    "Pytajnik stawiaj tylko przy prawdziwym pytaniu, nie na końcu zdania twierdzącego.",
     `Przedmiot: ${k.przedmiot}.`,
     k.umiejetnosc ? `Ćwiczona umiejętność: ${k.umiejetnosc}.` : "",
     k.typowyBlad ? `Typowy błąd ucznia w tym temacie: ${k.typowyBlad}.` : "",

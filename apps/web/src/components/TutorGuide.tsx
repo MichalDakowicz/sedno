@@ -9,10 +9,12 @@ const AV = 48;
 const GAP = 12;
 const MOVE_MS = 700;
 const FADE_MS = 200;
+const SPOT_PAD = 8;
 
 type Point = { x: number; y: number };
 type Placement = "right" | "left" | "below" | "above";
 type Mode = "rest" | "perch";
+type Spot = { x: number; y: number; w: number; h: number };
 
 // Liczymy od samych krawędzi okna: natywny pasek przewijania jest ukryty, a własny (ScrollBar) to nakładka.
 const viewW = () => window.innerWidth;
@@ -86,6 +88,7 @@ export function TutorGuide() {
   const tutor = useTutor();
   const { guide, summon, isOpen, next, dismiss, open, startTour, showHints, summonAt } = tutor;
   const hint = guide ? guide.hints[guide.index] : null;
+  const isTourGuide = guide?.kind === "tour";
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -95,6 +98,7 @@ export function TutorGuide() {
   const [hop, setHop] = useState(0);
   const [talking, setTalking] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [spot, setSpot] = useState<Spot | null>(null);
 
   const modeRef = useRef<Mode>("rest");
   const posRef = useRef<Point>(pos);
@@ -124,11 +128,19 @@ export function TutorGuide() {
   }, []);
 
   // Ustala, gdzie Pestka powinna być teraz. `jump` dla zmian wywołanych przez ucznia lub nową wskazówkę.
+  const showSpot = useCallback((el: HTMLElement | null) => {
+    const r = el?.getBoundingClientRect();
+    // Zbyt duży element (np. cała kolumna) nie dostaje reflektora: przyciemnienie nic by nie pokazało.
+    const next = r && r.height < window.innerHeight * 0.8 ? { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) } : null;
+    setSpot((prev) => (prev && next && prev.x === next.x && prev.y === next.y && prev.w === next.w && prev.h === next.h ? prev : next));
+  }, []);
+
   const sync = useCallback(
     (jump: boolean) => {
       if (summon) {
         const p = summonPoint(summon);
         setFocus(null);
+        showSpot(null);
         if (p) place(p, "perch", jump || modeRef.current !== "perch");
         else dismiss(); // przewinięte poza ekran: przywołanie wygasa
         return;
@@ -136,14 +148,18 @@ export function TutorGuide() {
       const el = hint ? findTarget(hint.target) : null;
       const p = el ? perchPoint(el) : null;
       if (el && p) {
-        setFocus(el);
+        // Przewodnik przyciemnia resztę ekranu; zwykła wskazówka tylko obwodzi element pulsującym pierścieniem.
+        setFocus(isTourGuide ? null : el);
+        showSpot(isTourGuide ? el : null);
         place(p, "perch", jump || modeRef.current !== "perch");
       } else {
+        // Cel zniknął (zmiana strony albo karty) albo jest poza ekranem: Pestka wraca na spoczynek.
         setFocus(null);
+        showSpot(null);
         place(restPoint(), "rest", modeRef.current !== "rest" || jump);
       }
     },
-    [summon, hint, place, dismiss],
+    [summon, hint, place, dismiss, isTourGuide, showSpot],
   );
 
   // Nowa wskazówka albo przywołanie.
@@ -176,6 +192,27 @@ export function TutorGuide() {
       window.removeEventListener("resize", onChange);
     };
   }, [sync]);
+
+  // Zmiana strony albo karty (np. przełączenie przedmiotu) usuwa cel albo go przesuwa, a to nie jest ani
+  // przewijanie, ani zmiana rozmiaru okna. Bez tego Pestka zostawała tam, gdzie cel już nie istnieje.
+  useEffect(() => {
+    let frame = 0;
+    const onMutate = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => sync(false));
+    };
+    const observer = new MutationObserver(onMutate);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [sync]);
+
+  // Przywołanie prawym przyciskiem dotyczy miejsca na stronie, więc po przejściu gdzie indziej wygasa.
+  useEffect(() => {
+    if (summon) dismiss();
+  }, [location.pathname]);
 
   useEffect(() => () => setFocus(null), []);
 
@@ -242,84 +279,93 @@ export function TutorGuide() {
   }
 
   return (
-    <div
-      className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""}`}
-      style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
-    >
-      <button
-        key={`a${hop}`}
-        type="button"
-        className={`${styles.avatar} ${hop === 0 ? styles.enter : styles.hop}`}
-        onClick={onAvatar}
-        aria-label={pending ? "Pestka ma dla ciebie wskazówkę" : "Porozmawiaj z Pestką"}
-        title={pending ? "Pokaż wskazówkę" : "Porozmawiaj z Pestką"}
-      >
-        <TutorAvatar size={AV} state={talking ? "talking" : tutor.state} />
-        {pending && <span className={styles.badge} aria-hidden="true" />}
-      </button>
-
-      {!resting && (summon || hint) && (
+    <>
+      {spot && !resting && (
         <div
-          key={`b${hop}`}
-          className={`${styles.bubble} ${styles[layout.placement]} ${layout.up ? styles.up : ""} ${closing ? styles.closing : ""}`}
-          style={bubbleStyle}
-          role="status"
+          className={`${styles.spot} ${closing ? styles.spotClosing : ""}`}
+          style={{ left: spot.x - SPOT_PAD, top: spot.y - SPOT_PAD, width: spot.w + SPOT_PAD * 2, height: spot.h + SPOT_PAD * 2 }}
+          aria-hidden="true"
+        />
+      )}
+      <div
+        className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""}`}
+        style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+      >
+        <button
+          key={`a${hop}`}
+          type="button"
+          className={`${styles.avatar} ${hop === 0 ? styles.enter : styles.hop}`}
+          onClick={onAvatar}
+          aria-label={pending ? "Pestka ma dla ciebie wskazówkę" : "Porozmawiaj z Pestką"}
+          title={pending ? "Pokaż wskazówkę" : "Porozmawiaj z Pestką"}
         >
-          <button type="button" className={styles.close} onClick={close} aria-label="Odpraw Pestkę">
-            <X size={16} />
-          </button>
+          <TutorAvatar size={AV} state={talking ? "talking" : tutor.state} />
+          {pending && <span className={styles.badge} aria-hidden="true" />}
+        </button>
 
-          {summon ? (
-            <>
-              <p className={styles.text}>{summon.about ?? "Jestem. W czym ci pomóc?"}</p>
-              <div className={styles.actions}>
-                <button type="button" className="btn btn-primary btn-sm" onClick={open}>
-                  Porozmawiajmy
-                </button>
-                {hasToday && (
-                  <button
-                    type="button"
-                    className="btn btn-ghost btn-sm"
-                    onClick={() =>
-                      showHints(`ask-${Date.now()}`, [{ target: "today-cta", text: "To polecam na dziś. Krótko i w twoim najsłabszym miejscu." }])
-                    }
-                  >
-                    Co dziś robić?
-                  </button>
-                )}
-                <button type="button" className="btn btn-ghost btn-sm" onClick={replayTour}>
-                  Przewodnik
-                </button>
-              </div>
-            </>
-          ) : (
-            hint && (
+        {!resting && (summon || hint) && (
+          <div
+            key={`b${hop}`}
+            className={`${styles.bubble} ${styles[layout.placement]} ${layout.up ? styles.up : ""} ${closing ? styles.closing : ""}`}
+            style={bubbleStyle}
+            role="status"
+          >
+            <button type="button" className={styles.close} onClick={close} aria-label="Odpraw Pestkę">
+              <X size={16} />
+            </button>
+
+            {summon ? (
               <>
-                {isTour && guide && (
-                  <span className={styles.step}>
-                    Przewodnik · {guide.index + 1} z {guide.hints.length}
-                  </span>
-                )}
-                <p className={styles.text}>{hint.text}</p>
+                <p className={styles.text}>{summon.about ?? "Jestem. W czym ci pomóc?"}</p>
                 <div className={styles.actions}>
-                  {hint.waitFor === "summon" ? (
-                    <span className={styles.wait}>Czekam na prawy przycisk…</span>
-                  ) : (
-                    <button type="button" className="btn btn-primary btn-sm" onClick={next}>
-                      {last ? "Jasne" : "Dalej"}
+                  <button type="button" className="btn btn-primary btn-sm" onClick={open}>
+                    Porozmawiajmy
+                  </button>
+                  {hasToday && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      onClick={() =>
+                        showHints(`ask-${Date.now()}`, [{ target: "today-cta", text: "To polecam na dziś. Krótko i w twoim najsłabszym miejscu." }])
+                      }
+                    >
+                      Co dziś robić?
                     </button>
                   )}
-                  {isTour && !last && (
-                    <button type="button" className={styles.skip} onClick={close}>
-                      Pomiń przewodnik
-                    </button>
-                  )}
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={replayTour}>
+                    Przewodnik
+                  </button>
                 </div>
               </>
-            )
-          )}
-        </div>
-      )}
-    </div>
+            ) : (
+              hint && (
+                <>
+                  {isTour && guide && (
+                    <span className={styles.step}>
+                      Przewodnik · {guide.index + 1} z {guide.hints.length}
+                    </span>
+                  )}
+                  <p className={styles.text}>{hint.text}</p>
+                  <div className={styles.actions}>
+                    {hint.waitFor === "summon" ? (
+                      <span className={styles.wait}>Czekam na prawy przycisk…</span>
+                    ) : (
+                      <button type="button" className="btn btn-primary btn-sm" onClick={next}>
+                        {last ? "Jasne" : "Dalej"}
+                      </button>
+                    )}
+                    {isTour && !last && (
+                      <button type="button" className={styles.skip} onClick={close}>
+                        Pomiń przewodnik
+                      </button>
+                    )}
+                  </div>
+                </>
+              )
+            )}
+          </div>
+        )}
+      </div>
+    </>
   );
 }

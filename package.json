@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev": "npm run dev -w @sedno/web",
+    "dev:staging": "npm run dev -w @sedno/web -- --mode staging",
     "build": "npm run build -w @sedno/web",
     "typecheck": "npm run typecheck -w @sedno/web",
     "pobierz": "npm run pobierz -w @sedno/arkusze",

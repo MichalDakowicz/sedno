@@ -24,12 +24,12 @@ npm run build
 
 ## Pestka (tutor AI)
 
-Pestka jest zawsze widoczna, ale nie ma stałego miejsca w treści (`TutorGuide.tsx`, stan w `TutorContext.tsx`):
+Pestka pojawia się tylko na kontach z podpiętym AI (`useAiReady` w `ai.ts`) i nie ma stałego miejsca w treści (`TutorGuide.tsx`, stan w `TutorContext.tsx`):
 
 - **Spoczynek:** gdy nie ma nic do powiedzenia, siedzi w prawym dolnym rogu ekranu, w całości widoczna. Kropka oznacza czekającą wskazówkę; kliknięcie przewija do niej.
 - **Wskazówki:** strona wywołuje `showHints(klucz, wskazówki)`. Pestka skacze do elementu z `data-tutor="…"`, siada na jego rogu, podświetla go i pokazuje dymek. Zwykła wskazówka nie przewija strony: Pestka czeka na spoczynku, aż element wjedzie w ekran.
-- **Przewijanie:** podąża za elementem. Gdy element wyjedzie z ekranu, wraca na spoczynek, a przy powrocie elementu skacze do niego z powrotem.
-- **Przewodnik:** przy pierwszym wejściu na pulpit (`tourHints`). Ostatni krok czeka na przywołanie. Ponownie z `/profil`.
+- **Przewijanie i zmiany treści:** podąża za elementem. Gdy element wyjedzie z ekranu albo zniknie (przejście na inną stronę, przełączenie karty), wraca na spoczynek, a przy powrocie elementu skacze do niego z powrotem. Zmiany w treści strony wykrywa `MutationObserver`.
+- **Przewodnik:** przy pierwszym wejściu na pulpit (`tourHints`). Przyciemnia resztę ekranu wokół wskazanego elementu (`.spot`), a zwykła wskazówka tylko obwodzi element pierścieniem. Ostatni krok czeka na przywołanie. Ponownie z `/profil`.
 - **Przywołanie:** prawy przycisk (na telefonie przytrzymanie) w dowolnym miejscu poza polami tekstowymi. Jeśli element pod kursorem ma `data-tutor-about="…"`, Pestka wyjaśnia go w dymku.
 - **Odprawienie:** krzyżyk w dymku albo Escape: dymek gaśnie, Pestka skacze na spoczynek. Kliknięcie w avatar otwiera rozmowę w panelu bocznym (`TutorDock.tsx`).
 
@@ -46,7 +46,7 @@ Dane arkuszy nie są w repo ani w buildzie. `npm run pobierz`, `npm run importuj
 - `src/components/Nagranie.tsx`: odtwarzacz nagrania; po starcie przypina się do dołu ekranu.
 - `src/components/Wypracowanie.tsx`: edytor wypowiedzi pisemnej: wybór tematu, lista elementów treści, licznik słów względem zakresu z polecenia, tryb skupienia.
 
-Logowanie i odpowiedzi Pestki są na niby (`src/auth.ts`, `TutorContext.tsx`), dane w `src/data/demo.ts`.
+Logowanie to Supabase Auth (`src/auth.ts`). Pestka odpowiada modelem z konta przez bramkę `ai` (`src/ai.ts`), a jej prompt i ochrona przed powtórzeniami i emoji są w `src/pestka.ts`. Pokaz w onboardingu ma przygotowane odpowiedzi na wypadek braku AI albo powtórzenia przez model.
 
 ## Styl
 

@@ -85,7 +85,11 @@ export function KontoAI() {
       setBusy(false);
       return setMsg(ERRORS.bad_base_url!);
     }
-    const res = await aiKey({ action: "save", provider, base_url: baseUrl, model, key: key || undefined });
+    if (/[@\s]/.test(model.trim())) {
+      setBusy(false);
+      return setMsg("To nie wygląda na nazwę modelu (np. gpt-4o-mini). Sprawdź, czy przeglądarka nie wstawiła tu własnych danych.");
+    }
+    const res = await aiKey({ action: "save", provider, base_url: baseUrl, model: model.trim(), key: key || undefined });
     setBusy(false);
     if (res.ok) {
       setKey("");
@@ -205,12 +209,12 @@ export function KontoAI() {
         )}
         <div className="field">
           <label htmlFor="ai-model">Model</label>
-          <input id="ai-model" className="input" value={model} onChange={(e) => setModel(e.target.value)} placeholder={preset === "openai" ? "np. gpt-4o-mini" : "np. qwen3:8b"} required />
+          <input id="ai-model" name="ai-model" className="input" value={model} onChange={(e) => setModel(e.target.value)} placeholder={preset === "openai" ? "np. gpt-4o-mini" : "np. qwen3:8b"} autoComplete="off" data-1p-ignore data-lpignore="true" required />
         </div>
         {preset !== "ollama-serwer" && (
           <div className="field">
             <label htmlFor="ai-key">Klucz API{p.needsKey ? "" : " (jeśli wymagany)"}</label>
-            <input id="ai-key" className="input" type="password" autoComplete="off" value={key} onChange={(e) => setKey(e.target.value)} required={p.needsKey} />
+            <input id="ai-key" name="ai-api-key" className="input" type="password" autoComplete="new-password" data-1p-ignore data-lpignore="true" value={key} onChange={(e) => setKey(e.target.value)} required={p.needsKey} />
           </div>
         )}
         <button type="submit" className="btn btn-secondary" disabled={busy}>

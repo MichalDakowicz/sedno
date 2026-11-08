@@ -8,6 +8,7 @@
 /* Pasek przedmiotów */
 
 .subjectBar {
+  position: relative;
   display: flex;
   gap: 8px;
   width: fit-content;
@@ -97,7 +98,7 @@
 }
 
 .kicker svg {
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 /* Rekomendacja + boczna kolumna */
@@ -128,7 +129,7 @@
 }
 
 .todayHead .kicker {
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .tag {
@@ -179,7 +180,7 @@
 
 .altIcon {
   flex-shrink: 0;
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .altName {
@@ -187,7 +188,7 @@
 }
 
 .alternatives button:hover .altName {
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .side {
@@ -332,7 +333,7 @@
 }
 
 .subjectRow:hover .chevron {
-  color: var(--primary);
+  color: var(--primary-text);
   transform: translateX(3px);
 }
 

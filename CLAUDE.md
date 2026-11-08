@@ -20,6 +20,7 @@ Myślenie o aplikacji (pomysły, decyzje, kierunek, funkcje, UX) dzieje się w r
 ## Git
 
 - Repo: https://github.com/MichalDakowicz/sedno (publiczne). Gałąź domyślna: `main`.
+- Po każdym nowym poleceniu, zanim zaczniesz pracę, zaktualizuj `main` z GitHuba: na `main` `git pull --ff-only`, na innej gałęzi `git fetch origin main:main`. Gałąź roboczą, która została w tyle, zaktualizuj względem `main`, zanim na niej zbudujesz coś nowego.
 - Dopóki zmieniamy tylko dokumentację (`docs/`, `notes/`, `CLAUDE.md`, `README.md`), pracuj bezpośrednio na `main`: bez gałęzi i PR, commity wprost na `main` z pushem.
 - Gdy zacznie się kod aplikacji, zmiany w kodzie idą na osobnych gałęziach scalanych przez PR. Nie pracuj wtedy bezpośrednio na `main`.
 - Nazwy gałęzi zwykłe i opisowe, np. `zarys-pomyslu`, `logowanie`, `parser-arkuszy`. Bez prefiksów narzędzi (`claude/`, `codex/` itp.). Prefiksy typu `feature/` też zbędne.
@@ -36,6 +37,7 @@ Myślenie o aplikacji (pomysły, decyzje, kierunek, funkcje, UX) dzieje się w r
 - Komendy z katalogu głównego: `npm install`, `npm run dev` (http://localhost:5173), `npm run typecheck`, `npm run build`. Testów i lintu jeszcze nie ma.
 - Aplikacja ma własny styl (jasne kremowe tło, pomarańczowy akcent). Dokumenty w `docs/` używają tych samych kolorów. Zasady w `apps/web/README.md`.
 - Weryfikuj zmianę uruchomieniem lub testem, zanim uznasz ją za gotową. Jeśli czegoś nie dało się sprawdzić, powiedz o tym wprost.
+- Backend (`services/supabase`) testuj na stagingu `sedno-dev`, nie na produkcji. Wgraj gałąź na `dev` (`git push origin <gałąź>:dev`; gdy `dev` ma inne zmiany, scal do niej swoją gałąź zamiast nadpisywać). Po ~2 minutach serwer sam wgrywa migracje i funkcje (log: `journalctl --user -u sedno-autodeploy@dev`). Aplikację ze stagingiem uruchamia `npm run dev:staging` (`.env.staging`), a konto testowe z `.env` (`SEDNO_TEST_*`) działa też na stagingu. Na produkcję zmiana trafia przez scalenie do `main`, a ręczny `services/supabase/deploy.sh` tylko na wyraźną prośbę. Szczegóły w `services/supabase/README.md`.
 - Dane z zewnątrz (arkusze, nagrania, klucze odpowiedzi) mają prawa autorskie. Nie wrzucaj ich do repo, dopóki nie ustalimy warunków użycia.
 
 ## Terminy konkursu

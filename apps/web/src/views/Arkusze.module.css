@@ -12,6 +12,7 @@
 }
 
 .levels {
+  position: relative;
   display: flex;
   gap: 8px;
   overflow-x: auto;
@@ -81,7 +82,7 @@
 }
 
 .row:hover .title {
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .year {

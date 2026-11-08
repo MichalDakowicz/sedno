@@ -4,11 +4,14 @@
   --surface: #ffffff;
   --fg: #0f151d;
   --muted: #59616b;
-  --subtle: #8a9099;
+  /* Drobny tekst pomocniczy: min. 4,5:1 na tle i na białym (WCAG AA). */
+  --subtle: #69707a;
   --line: #ece4df;
   --grid: rgba(15, 21, 29, 0.045);
   --primary: #ff7448;
   --primary-hover: #f2643a;
+  /* Pomarańcz do drobnego tekstu i ikon na jasnym tle: #ff7448 ma tylko 2,6:1. */
+  --primary-text: #c2410c;
   --primary-fg: #ffffff;
   --primary-soft: #ffe6dc;
   --secondary: #d3e1ff;
