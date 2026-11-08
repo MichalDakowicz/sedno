@@ -1227,3 +1227,17 @@
   overflow-y: auto;
   padding-right: 8px;
 }
+
+/* Opcje do wyboru literą w lukach zdań: w jednym rzędzie pod ostatnim zdaniem. */
+.opcjeLiter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 10px;
+}
+
+.opcjeLiter > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

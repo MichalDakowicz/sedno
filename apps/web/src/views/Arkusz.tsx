@@ -85,6 +85,7 @@ export function Arkusz() {
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
       (lukiZadania(z) ?? pojedynczeLuki(z)).forEach((l, b) => luki.set(b, l));
+      if ([...luki.values()].some((l) => l.opcje && z.pytania.includes(l.pytanie))) opcjeDoLiter(z)?.ukryte.forEach((b) => ukryteKodem.add(b));
       pytaniaZObliczeniami(z).forEach((nr) => obliczenia.add(nr));
       tabeleDopasowania(z).forEach((t, nr) => tabele.set(nr, t));
       rysunkoweOpcje(z).forEach((o, nr) => opcjeNaRysunkach.set(nr, o));
@@ -827,7 +828,9 @@ function pytaniaZObliczeniami(z: Zadanie): string[] {
 // Zadanie otwarte z kilkoma zdaniami do uzupełnienia („1. Dziedziną funkcji f jest
 // przedział …… .”): klucz CKE ma jedno pytanie za kilka punktów, ale uczeń wpisuje
 // osobną odpowiedź w każdą lukę. Części trzymamy w jednej odpowiedzi, linia po linii.
-type Luka = { pytanie: PytanieOtwarte; czesc: number; ile: number };
+// opcje: odpowiedź to litera spośród opcji zadania („wybraną spośród oznaczonych literami A–E”);
+// pod ostatnim zdaniem stoi wtedy lista opcji.
+type Luka = { pytanie: PytanieOtwarte; czesc: number; ile: number; opcje?: Opcja[] };
 const ZNACZNIK_LUKI = /…{2,}|\.{4,}/;
 
 function lukiZadania(z: Zadanie): Map<Blok, Luka> | null {
@@ -835,7 +838,25 @@ function lukiZadania(z: Zadanie): Map<Blok, Luka> | null {
   if (z.pytania.length !== 1 || p.typ !== "otwarte" || p.tresc) return null;
   const zdania = z.bloki.filter((b) => b.typ === "akapit" && !b.polecenie && ZNACZNIK_LUKI.test(b.tekst));
   if (zdania.length < 2) return null;
-  return new Map(zdania.map((b, czesc) => [b, { pytanie: p, czesc, ile: zdania.length }]));
+  const opcje = opcjeDoLiter(z);
+  return new Map(zdania.map((b, czesc) => [b, { pytanie: p, czesc, ile: zdania.length, opcje: opcje?.opcje }]));
+}
+
+// „Zapisz po numerze zdania właściwą odpowiedź, wybraną spośród oznaczonych literami A–E”:
+// opcje A–D z bloku opcji i dopisane akapitem „E. 5,70 zł”. Zwraca też bloki do ukrycia.
+function opcjeDoLiter(z: Zadanie): { opcje: Opcja[]; ukryte: Blok[] } | null {
+  const polecenie = z.bloki.filter((b) => b.typ === "akapit" && b.polecenie).map((b) => (b.typ === "akapit" ? b.tekst : "")).join(" ") + " " + z.bloki.map((b) => (b.typ === "akapit" ? b.tekst : "")).join(" ");
+  const blok = z.bloki.find((b) => b.typ === "opcje");
+  if (blok?.typ !== "opcje" || !/spośród oznaczonych literami/.test(polecenie)) return null;
+  const dodatkowe = z.bloki.filter((b) => b.typ === "akapit" && !b.polecenie && OPCJA_W_AKAPICIE.test(b.tekst));
+  const opcje = [
+    ...blok.opcje,
+    ...dodatkowe.map((b) => {
+      const [, litera, tresc] = (b as { tekst: string }).tekst.match(OPCJA_W_AKAPICIE)!;
+      return { litera, tresc };
+    }),
+  ].sort((a, c) => a.litera.localeCompare(c.litera));
+  return { opcje, ukryte: [blok, ...dodatkowe] };
 }
 
 // Pytanie otwarte z jednym zdaniem do dokończenia („Zbiorem … jest przedział …… .”):
@@ -862,7 +883,7 @@ const czesciOdpowiedzi = (odpowiedz: string | undefined, ile: number) => {
   return Array.from({ length: ile }, (_, i) => czesci[i] ?? "");
 };
 
-function ZdanieZLuka({ tekst, luka }: { tekst: string; luka: Luka }) {
+function ZdanieZLuka({ tekst, luka, bezOpcji }: { tekst: string; luka: Luka; bezOpcji?: boolean }) {
   const { postep, ustaw, sprawdzone } = useCtx();
   const { pytanie: p, czesc, ile } = luka;
   const czesci = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
@@ -871,7 +892,19 @@ function ZdanieZLuka({ tekst, luka }: { tekst: string; luka: Luka }) {
   return (
     <div className={`${styles.para} ${styles.zdanieLuka}`}>
       <Tekst tekst={przed} />
-      {ile === 1 && (p.oczekiwane?.length || p.akceptowane?.length) ? (
+      {luka.opcje ? (
+        <PrzelacznikLiter
+          litery={luka.opcje.map((o) => o.litera)}
+          wybrana={czesci[czesc] || undefined}
+          gotowe={sprawdzone(p.nr)}
+          etykieta={`Odpowiedź ${p.nr}, zdanie ${czesc + 1}`}
+          onWybor={(l) => {
+            const nowe = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
+            nowe[czesc] = l;
+            ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
+          }}
+        />
+      ) : ile === 1 && (p.oczekiwane?.length || p.akceptowane?.length) ? (
         // Odpowiedź porównywana z kluczem jako tekst: zwykłe pole w luce.
         <LukaTekst pytanie={p} bezNumeru />
       ) : (
@@ -888,6 +921,19 @@ function ZdanieZLuka({ tekst, luka }: { tekst: string; luka: Luka }) {
       />
       )}
       <Tekst tekst={po} />
+      {luka.opcje && czesc === ile - 1 && !bezOpcji && <ListaOpcjiLiter opcje={luka.opcje} />}
+    </div>
+  );
+}
+
+function ListaOpcjiLiter({ opcje }: { opcje: Opcja[] }) {
+  return (
+    <div className={styles.opcjeLiter}>
+      {opcje.map((o) => (
+        <span key={o.litera}>
+          <span className={styles.letter}>{o.litera}</span> <Tekst tekst={o.tresc} />
+        </span>
+      ))}
     </div>
   );
 }
@@ -1008,11 +1054,14 @@ function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniet
         <ol key={i} className={styles.zdania}>
           {(elementy.slice(i, n) as Blok[]).map((c, k) => (
             <li key={k} className={styles.para}>
-              {c.typ === "akapit" && ((l) => (l ? <ZdanieZLuka tekst={c.tekst} luka={l} /> : <Tekst tekst={c.tekst} />))(luki.get(c) ?? lukiKadrow.get(c))}
+              {c.typ === "akapit" && ((l) => (l ? <ZdanieZLuka tekst={c.tekst} luka={l} bezOpcji /> : <Tekst tekst={c.tekst} />))(luki.get(c) ?? lukiKadrow.get(c))}
             </li>
           ))}
         </ol>,
       );
+      // Opcje do wyboru literą pod wszystkimi zdaniami, nie w kolumnie ostatniego.
+      const zOpcjami = (elementy.slice(i, n) as Blok[]).map((c) => luki.get(c)?.opcje).find(Boolean);
+      if (zOpcjami) wynik.push(<ListaOpcjiLiter key={`${i}-opcje`} opcje={zOpcjami} />);
       i = n;
       continue;
     }
