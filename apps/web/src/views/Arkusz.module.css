@@ -1152,7 +1152,8 @@
 .kodWybor {
   display: grid;
   grid-template-columns: repeat(4, auto);
-  align-items: center;
+  /* Komórki na pełną wysokość wiersza, więc wszystkie linie pionowe są równe. */
+  align-items: stretch;
   justify-content: start;
   width: fit-content;
   max-width: 100%;
@@ -1160,6 +1161,8 @@
 }
 
 .kodWybor > * {
+  display: flex;
+  align-items: center;
   padding: 8px 14px;
 }
 
