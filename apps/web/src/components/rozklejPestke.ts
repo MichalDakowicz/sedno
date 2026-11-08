@@ -152,6 +152,9 @@ export async function rozklejPestke(): Promise<Rozklejenie | null> {
   przewodnik.style.opacity = "0";
   const a = kopia(svg, r);
   let b: HTMLElement | null = null;
+  // Druga kropla wychodzi w stronę środka ekranu, gdy z prawej nie ma miejsca.
+  const kierunek = r.right + r.width * 1.3 > window.innerWidth - 8 ? -1 : 1;
+  const rozjazd = kierunek * r.width * 1.25;
   const sprzataj = () => {
     a.remove();
     b?.remove();
@@ -171,10 +174,7 @@ export async function rozklejPestke(): Promise<Rozklejenie | null> {
       { duration: 200, easing: "ease-in-out" },
     ).finished;
 
-    // 2. Podział kropli (szyjka, rozprysk, trzęsące się twarze). Druga kropla wychodzi
-    //    w stronę środka ekranu, gdy z prawej nie ma miejsca.
-    const kierunek = r.right + r.width * 1.3 > window.innerWidth - 8 ? -1 : 1;
-    const rozjazd = kierunek * r.width * 1.25;
+    // 2. Podział kropli (szyjka, rozprysk, trzęsące się twarze).
     a.style.opacity = "0";
     await podzialKropli(r, rozjazd);
     a.getAnimations().forEach((x) => x.cancel());
@@ -200,13 +200,17 @@ export async function rozklejPestke(): Promise<Rozklejenie | null> {
   // 4. Druga oddaje miejsce lotowi do karty; pierwsza wraca na spoczynek skokiem: przysiada,
   //    leci prawie prosto (lekko rozciągnięta) i ląduje miękko z dwoma odbiciami, a dopiero
   //    wtedy w jej miejscu pojawia się prawdziwa Pestka.
-  const doKarty = b.firstElementChild!.getBoundingClientRect();
-  b.remove();
+  // Na spoczynek (prawy dolny róg) wraca kropla po prawej, do karty leci ta po lewej,
+  // żeby ich drogi się nie krzyżowały.
+  const [doKartyEl, wraca] = rozjazd > 0 ? [a, b] : [b, a];
+  const doKarty = doKartyEl.firstElementChild!.getBoundingClientRect();
+  doKartyEl.remove();
+  const start = wraca.firstElementChild!.getBoundingClientRect();
   const cel = miejsceSpoczynku(r.width);
-  const dx = cel.x - r.left;
-  const dy = cel.y - r.top;
+  const dx = cel.x - start.left;
+  const dy = cel.y - start.top;
   const luk = Math.min(28, Math.hypot(dx, dy) * 0.08);
-  const lot = a.animate(
+  const lot = wraca.animate(
     [
       { transform: "translate(0, 0) scale(1, 1)", easing: "ease-out" },
       { transform: "translate(0, 2px) scale(1.14, 0.86)", offset: 0.12, easing: "cubic-bezier(0.5, 0, 0.6, 1)" },
