@@ -5,7 +5,7 @@ import { SubjectIcon } from "../components/icons";
 import { PodlaczAI } from "../components/PodlaczAI";
 import { useProfil, useSession } from "../auth";
 import { useAiReady } from "../ai";
-import { nazwaPoziomu, przedmiot } from "../konto/przedmioty";
+import { opisPoziomow, przedmiot, zgrupuj } from "../konto/przedmioty";
 import styles from "./Tutor.module.css";
 
 export function Tutor() {
@@ -36,7 +36,7 @@ export function Tutor() {
         <p className="muted">Twoja tutorka. Prowadzi cię pytaniami do zrozumienia, zamiast podawać gotowe odpowiedzi. Wklej zadanie albo opisz, co sprawia ci kłopot.</p>
         {moje.length > 0 && (
           <dl className={styles.context}>
-            {moje.map((m) => {
+            {zgrupuj(moje).map((m) => {
               const p = przedmiot(m.id)!;
               return (
                 <div key={m.id}>
@@ -44,7 +44,7 @@ export function Tutor() {
                     <SubjectIcon subject={p} size="sm" />
                     {p.nazwa}
                   </dt>
-                  <dd>poziom {nazwaPoziomu[m.poziom]}</dd>
+                  <dd>poziom {opisPoziomow(m.poziomy)}</dd>
                 </div>
               );
             })}

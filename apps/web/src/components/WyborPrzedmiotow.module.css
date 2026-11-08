@@ -3,9 +3,8 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 10px;
   width: 100%;
-  max-width: 520px;
+  max-width: 600px;
 }
 
 .row {
@@ -13,20 +12,17 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 10px 16px;
-  padding: 10px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  background: var(--surface);
-  transition: border-color 0.15s;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
 }
 
-.on {
-  border-color: var(--primary);
+.row:last-child {
+  border-bottom: 1px solid var(--line);
 }
 
+/* Stała szerokość nazwy: poziomy we wszystkich wierszach zaczynają się w tej samej kolumnie. */
 .toggle {
-  flex: 1;
-  min-width: 160px;
+  flex: 0 0 190px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -51,6 +47,7 @@
   place-items: center;
   border: 1.5px solid var(--line);
   border-radius: 6px;
+  flex: none;
   color: var(--primary-fg);
 }
 

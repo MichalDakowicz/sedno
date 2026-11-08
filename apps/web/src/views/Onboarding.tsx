@@ -14,7 +14,7 @@ import { SubjectIcon } from "../components/icons";
 import { markOnboarded, saveSubjects, useProfil, useSession } from "../auth";
 import { streamAi, useAiReady } from "../ai";
 import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
-import { przedmiot, type MojPrzedmiot, type PrzedmiotId } from "../konto/przedmioty";
+import { przedmiot, zgrupuj, type MojPrzedmiot, type PrzedmiotId } from "../konto/przedmioty";
 import styles from "./Onboarding.module.css";
 
 type Litera = "A" | "B" | "C" | "D";
@@ -212,7 +212,8 @@ export function Onboarding() {
   );
 }
 
-function Pokaz({ ai, przedmioty, onDalej }: { ai: boolean; przedmioty: MojPrzedmiot[]; onDalej: () => void }) {
+function Pokaz({ ai, przedmioty: wpisyKonta, onDalej }: { ai: boolean; przedmioty: MojPrzedmiot[]; onDalej: () => void }) {
+  const przedmioty = zgrupuj(wpisyKonta);
   const [ktory, setKtory] = useState<PrzedmiotId>(przedmioty[0]!.id);
   const zadanie = ZADANIA[ktory];
   const [wybor, setWybor] = useState<Litera | null>(null);
