@@ -1,3 +1,9 @@
+/* Arkusz czyta się jak kartkę: białe tło bez siatki, czarny tekst. */
+:global(body):has(.page) {
+  background-color: var(--surface);
+  background-image: none;
+}
+
 .page {
   display: grid;
   gap: 48px;
@@ -63,11 +69,12 @@
 
 /* Zadanie */
 
+/* Granica między zadaniami jest mocniejsza niż linie w środku zadania. */
 .task {
   display: grid;
   gap: 16px;
-  padding-top: 32px;
-  border-top: 1px solid var(--line);
+  padding-top: 40px;
+  border-top: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
   scroll-margin-top: 96px;
 }
 
@@ -85,15 +92,41 @@
   color: var(--primary-text);
 }
 
+/* Polecenie: pogrubione jak w arkuszu, żeby nie zlewało się z tekstem. */
 .instruction {
   max-width: 68ch;
-  color: var(--muted);
+  font-weight: 600;
+  line-height: 1.6;
 }
 
 .content {
   display: grid;
-  gap: 14px;
+  gap: 28px;
   padding-top: 8px;
+}
+
+/* Część zadania: ciąg treści albo ciąg pytań. */
+.part {
+  display: grid;
+  gap: 14px;
+}
+
+/* Tekst do czytania: linia z lewej zamiast karty. */
+.part[data-rodzaj="czytanie"] {
+  padding-left: 20px;
+  border-left: 2px solid var(--line);
+}
+
+/* Przejście między tekstem a pytaniami (w obie strony) oddziela linia.
+   Linię dostaje część bez lewej krawędzi, żeby linie nie tworzyły narożnika. */
+.part[data-rodzaj="czytanie"] + .part:not([data-rodzaj="czytanie"]) {
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.part:not([data-rodzaj="czytanie"]):has(+ .part[data-rodzaj="czytanie"]) {
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
 }
 
 .para {
@@ -108,8 +141,22 @@
   letter-spacing: 0.04em;
 }
 
+/* Przypis „Na podstawie: …”: jedna drobna linia na końcu tekstu.
+   Zostaje, bo to atrybucja tekstów CKE; fokus albo dotknięcie pokazuje całość. */
 .source {
-  text-align: right;
+  max-width: 72ch;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--subtle);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  outline-offset: 2px;
+}
+
+.source:focus,
+.source:active {
+  white-space: normal;
 }
 
 .taskActions {
@@ -194,10 +241,9 @@
   position: absolute;
   z-index: 0;
   border-radius: var(--r-md);
-  background: var(--surface);
-  box-shadow:
-    0 0 0 1.5px var(--primary),
-    0 6px 18px rgba(255, 116, 72, 0.18);
+  /* Na białym arkuszu sama obwódka ginie, więc wybór ma pomarańczowe tło. */
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 1.5px var(--primary);
   transition:
     top 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
     height 0.25s cubic-bezier(0.3, 0.7, 0.2, 1);
