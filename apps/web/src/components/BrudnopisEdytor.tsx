@@ -87,7 +87,7 @@ function zapamietanaGrubosc(): Grubosc {
 }
 // Kadry mają wymiary w punktach PDF; w brudnopisie rysunek jest nieco większy,
 // żeby domyślna grubość kreski pasowała do skali figury.
-const SKALA_RYSUNKU = 1.5;
+const SKALA_RYSUNKU = 2.25;
 // Startowe (i największe przy dopasowaniu) przybliżenie. Odręczna kreska
 // Excalidraw ma ok. 4× „grubości” średnicy, więc przy 100% pismo wygląda jak
 // pisane markerem; 75% z cienką kreską daje ok. 3 px, jak długopis.
@@ -255,7 +255,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     if (els.length) {
       const [x1, y1, x2, y2] = getCommonBounds(els);
       // Na wąskim płótnie (telefon) miejsce na notatki jest pod figurą, więc zajmuje ona prawie całą szerokość.
-      const udzial = s.width < 500 || duzyRysunek ? 0.9 : 0.6;
+      const udzial = s.width < 500 || duzyRysunek ? 0.9 : 0.7;
       z = Math.min(duzyRysunek ? 2 : ZOOM_START, (s.width * udzial) / Math.max(1, x2 - x1), (s.height * udzial) / Math.max(1, y2 - y1));
       if (start) {
         // Na start figura w prawym górnym rogu: lewa strona i dół zostają na obliczenia.

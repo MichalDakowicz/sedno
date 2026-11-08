@@ -38,6 +38,7 @@ type Kontekst = {
   luki: Map<Blok, Luka>; // zdania z luką na część odpowiedzi otwartej
   kadryTekst: Map<Blok, Blok[]>; // wycinki z luką jako tekst (tylko pełny ekran)
   lukiKadrow: Map<Blok, Luka>;
+  obliczenia: Set<string>; // pytania, na które odpowiedzią jest rozwiązanie na płótnie
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
@@ -68,9 +69,11 @@ export function Arkusz() {
     const luki = new Map<Blok, Luka>();
     const kadryTekst = new Map<Blok, Blok[]>();
     const lukiKadrow = new Map<Blok, Luka>();
+    const obliczenia = new Set<string>();
     for (const z of dane.zadania) {
       for (const p of z.pytania) pytania.set(p.nr, p);
       lukiZadania(z)?.forEach((l, b) => luki.set(b, l));
+      pytaniaZObliczeniami(z).forEach((nr) => obliczenia.add(nr));
       z.bloki.forEach((b, i) => {
         const k = kadrZLuka(b, z.bloki[i + 1], z);
         if (!k) return;
@@ -88,6 +91,7 @@ export function Arkusz() {
       luki,
       kadryTekst,
       lukiKadrow,
+      obliczenia,
       postep,
       pytania,
       wBloku,
@@ -114,7 +118,11 @@ export function Arkusz() {
           else delete brudnopisy[zadanie];
           // Rysowanie po sprawdzeniu to już nie rozwiązywanie, więc nie dolicza czasu.
           const liczy = !p.sprawdzony && !p.sprawdzoneZadania.includes(Number(zadanie));
-          return liczy ? dodajCzas({ ...p, brudnopisy }, Number(zadanie), ms) : { ...p, brudnopisy };
+          if (!liczy) return { ...p, brudnopisy };
+          // Przy „Zapisz obliczenia” odpowiedzią jest szkic: jest szkic, jest odpowiedź do oceny.
+          const odpowiedzi = { ...p.odpowiedzi };
+          for (const nr of obliczenia) if (nrZadania(nr) === Number(zadanie)) odpowiedzi[nr] = zapis ? ODPOWIEDZ_NA_PLOTNIE : "";
+          return dodajCzas({ ...p, brudnopisy, odpowiedzi }, Number(zadanie), ms);
         });
       },
     };
@@ -582,7 +590,7 @@ function Kadr({ obraz, tekst }: { obraz: Obraz; tekst: string }) {
 // Treść zadania nad brudnopisem na pełnym ekranie: cała szerokość, gęściej.
 // Zadanie z jednym pytaniem: numer i treść po lewej, odpowiedzi po prawej.
 function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: Blok[] }) {
-  const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow } = useCtx();
+  const { arkusz, sprawdzone, wBloku, luki, kadryTekst, lukiKadrow, obliczenia } = useCtx();
   const plik = `${arkusz.id}-${zadanie.nr}`;
   // Odpowiedzi w lukach zdań: bez kolumny odpowiedzi, po prawej staje rysunek.
   const zLukami = [...luki.values()].some((l) => zadanie.pytania.includes(l.pytanie));
@@ -624,7 +632,8 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
 
   const pytaniaBloki = bloki.filter(czyPytanie);
   // Odpowiedź w luce tekstu (wycinek zamieniony na tekst) nie potrzebuje prawej kolumny.
-  const obok = pytaniaBloki.length === 1 && !zLukami && !bloki.some((b) => lukiKadrow.has(b));
+  const naPlotnie = pytaniaBloki.length === 1 && pytaniaBloki[0].typ === "pytanie" && obliczenia.has(pytaniaBloki[0].nr);
+  const obok = pytaniaBloki.length === 1 && !zLukami && !naPlotnie && !bloki.some((b) => lukiKadrow.has(b));
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
   const polecenie = zadanie.polecenie.map((p, i) => (
@@ -700,6 +709,24 @@ function TrescKompakt({ zadanie, bloki: wszystkie }: { zadanie: Zadanie; bloki: 
     </div>
   );
   }
+}
+
+// Pytanie otwarte z poleceniem „Zapisz obliczenia.” (albo rozumowanie, dowód) oceniane według
+// schematu: odpowiedzią jest rozwiązanie na płótnie brudnopisu, bez pola na wynik.
+const POLECENIE_OBLICZEN = /Zapisz obliczenia|Zapisz rozumowanie|Zapisz rozwiązanie|Przeprowadź dowód/i;
+const ODPOWIEDZ_NA_PLOTNIE = "rozwiązanie w brudnopisie";
+
+function pytaniaZObliczeniami(z: Zadanie): string[] {
+  const wynik: string[] = [];
+  let polecenia = z.polecenie.join(" ");
+  for (const b of z.bloki) {
+    if (b.typ === "akapit" || b.typ === "kadr") polecenia += " " + b.tekst;
+    if (b.typ !== "pytanie") continue;
+    const p = z.pytania.find((q) => q.nr === b.nr);
+    if (p?.typ === "otwarte" && !p.tresc && !p.kod && !p.oczekiwane?.length && !p.akceptowane?.length && POLECENIE_OBLICZEN.test(polecenia)) wynik.push(p.nr);
+    polecenia = "";
+  }
+  return wynik;
 }
 
 // Zadanie otwarte z kilkoma zdaniami do uzupełnienia („1. Dziedziną funkcji f jest
@@ -1076,7 +1103,7 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
-  const { luki, lukiKadrow } = useCtx();
+  const { luki, lukiKadrow, obliczenia } = useCtx();
   const kompakt = useContext(Kompakt);
   const numerWidoku = useContext(NumerWidoku);
   if (p.typ === "wypowiedz") return null;
@@ -1093,7 +1120,8 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
         </div>
       )}
       {p.typ === "zamkniete" && (p.opcje?.length ? <Opcje pytanie={p} /> : <Suwak pytanie={p} />)}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && (
+      {obliczenia.has(p.nr) && <p className="small muted">Obliczenia zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
       <Informacja pytanie={p} />
