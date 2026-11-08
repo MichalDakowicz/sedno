@@ -1,6 +1,7 @@
 // Edytor brudnopisu: Excalidraw z opcjonalnym rysunkiem bazowym z arkusza.
 // Ładowany leniwie (Brudnopis.tsx), bo Excalidraw waży kilkaset kB.
 import { useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { CaptureUpdateAction, convertToExcalidrawElements, Excalidraw, getCommonBounds, hashElementsVersion, newElementWith } from "@excalidraw/excalidraw";
 import type { AppState, BinaryFileData, DataURL, ExcalidrawImperativeAPI, ExcalidrawInitialDataState, NormalizedZoomValue } from "@excalidraw/excalidraw/types";
 import type { ExcalidrawElement, FileId } from "@excalidraw/excalidraw/element/types";
@@ -12,17 +13,27 @@ import styles from "./Brudnopis.module.css";
 export const ID_RYSUNKU = "rysunek-bazowy";
 
 // Excalidraw na zdarzenie focus okna kończy gest, któremu „zginął” pointerup
-// (maybeCleanupAfterMissingPointerUp). Gdy okno nie ma fokusu, pierwsze dotknięcie
-// piórem najpierw zaczyna kreskę, a dopiero potem okno dostaje focus, więc kreska
-// urywała się na kropce. Ten focus połykamy, póki pióro jest dociśnięte. Nasłuch
-// powstaje przy wczytaniu modułu, czyli przed nasłuchem Excalidraw, więc idzie pierwszy.
-let dotykBezFokusu = false;
-window.addEventListener("pointerdown", () => (dotykBezFokusu = !document.hasFocus()), true);
-for (const koniec of ["pointerup", "pointercancel"]) window.addEventListener(koniec, () => (dotykBezFokusu = false), true);
+// (maybeCleanupAfterMissingPointerUp). Gdy strona nie ma fokusu (aktywne inne okno),
+// pierwsze dotknięcie piórem najpierw zaczyna kreskę, a dopiero potem okno dostaje
+// focus, więc kreska urywała się na kropce. Taki focus połykamy: przyszedł chwilę po
+// dociśnięciu, a pióro wciąż jest na płótnie. Nie polegamy na document.hasFocus(),
+// bo przeglądarka bywa już „aktywna” w chwili pointerdown. Nasłuch powstaje przy
+// wczytaniu modułu, czyli przed nasłuchem Excalidraw, więc idzie pierwszy.
+let docisniety = false;
+let docisnietyOd = 0;
+window.addEventListener(
+  "pointerdown",
+  () => {
+    docisniety = true;
+    docisnietyOd = performance.now();
+  },
+  true,
+);
+window.addEventListener("pointerup", () => (docisniety = false), true);
 window.addEventListener(
   "focus",
   (e) => {
-    if (dotykBezFokusu) e.stopImmediatePropagation();
+    if (docisniety && performance.now() - docisnietyOd < 1500) e.stopImmediatePropagation();
   },
   true,
 );
@@ -276,7 +287,14 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             <X size={18} aria-hidden="true" />
           </button>
         </div>
-        <div ref={kontener} className={styles.canvas}>
+        {/* Excalidraw zna położenie płótna tylko z resize i (opóźnionego) scrolla. Gdy treść nad
+            nim się przesunie, kreska wypadała obok kursora, więc odświeżamy je przed dotknięciem. */}
+        <div
+          ref={kontener}
+          className={styles.canvas}
+          onPointerEnter={() => api.current?.refresh()}
+          onPointerDownCapture={() => flushSync(() => api.current?.refresh())}
+        >
         <Excalidraw
           excalidrawAPI={(a) => (api.current = a)}
           initialData={poczatek}
