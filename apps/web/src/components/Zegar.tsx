@@ -1,7 +1,7 @@
 // Zegar arkusza: odlicza czas egzaminu z arkusza. Stan siedzi w postępie arkusza, więc przeżywa
 // odświeżenie strony i synchronizuje się z kontem. Pestka odzywa się tylko w kilku momentach
 // (półmetek, 15 minut przed końcem, koniec), bo ciągłe odliczanie rozprasza.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { Pause, Play, Timer, X } from "lucide-react";
 import type { Czas } from "../arkusze/postep";
@@ -37,18 +37,30 @@ function momenty(limitMin: number): Moment[] {
 export function Zegar({ arkusz, limitMin, czas, onZmien }: { arkusz: string; limitMin: number; czas: Czas; onZmien: (c: Czas | undefined) => void }) {
   const { showHints } = useTutor();
   const [teraz, setTeraz] = useState(Date.now());
-  const [rozwiniety, setRozwiniety] = useState(false);
+  // Wysunięty zegar: „zamyka” trwa, póki animacja chowania nie wróci do wyspy.
+  const [widok, setWidok] = useState<"schowany" | "otwarty" | "zamyka">("schowany");
+  const rozwiniety = widok === "otwarty";
   const biegnie = czas.start !== null;
   // Miejsce w górnym pasku (TopNav). Bez niego zegar wisi pod paskiem jak wcześniej.
   const [wyspa, setWyspa] = useState<HTMLElement | null>(null);
   useEffect(() => setWyspa(document.getElementById("wyspa-zegara")), []);
   const wyspaRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  // Pełny zegar rośnie z kształtu wyspy: skala startowa to stosunek ich szerokości i wysokości.
+  const [ksztalt, setKsztalt] = useState<CSSProperties>({});
+  useLayoutEffect(() => {
+    // offsetWidth/Height, bo nie zależą od transformacji: panel jest już w trakcie animacji.
+    const w = wyspaRef.current?.firstElementChild as HTMLElement | null | undefined;
+    const pn = panelRef.current;
+    if (widok !== "schowany" && w && pn?.offsetWidth)
+      setKsztalt({ "--sx": (w.offsetWidth / pn.offsetWidth).toFixed(3), "--sy": (w.offsetHeight / pn.offsetHeight).toFixed(3) } as CSSProperties);
+  }, [widok]);
 
   // Kliknięcie obok chowa wysunięty zegar z powrotem do wyspy.
   useEffect(() => {
     if (!rozwiniety) return;
     const schowaj = (e: PointerEvent) => {
-      if (!wyspaRef.current?.contains(e.target as Node)) setRozwiniety(false);
+      if (!wyspaRef.current?.contains(e.target as Node)) setWidok("zamyka");
     };
     document.addEventListener("pointerdown", schowaj);
     return () => document.removeEventListener("pointerdown", schowaj);
@@ -86,7 +98,12 @@ export function Zegar({ arkusz, limitMin, czas, onZmien }: { arkusz: string; lim
 
   const tekst = zostalo > 0 ? zapisCzasu(zostalo) : `+${zapisCzasu(zostalo)}`;
   const panel = (
-    <div className={styles.panel}>
+    <div
+      ref={panelRef}
+      className={`${styles.panel} ${widok === "zamyka" ? styles.zamyka : ""}`}
+      style={ksztalt}
+      onAnimationEnd={(e) => e.target === e.currentTarget && widok === "zamyka" && setWidok("schowany")}
+    >
       <span className={styles.panelCzas}>
         {tekst}
         <span className={styles.opis}>{zostalo > 0 ? (biegnie ? "zostało" : "pauza") : "po czasie"}</span>
@@ -114,7 +131,7 @@ export function Zegar({ arkusz, limitMin, czas, onZmien }: { arkusz: string; lim
       <button
         type="button"
         className={styles.czas}
-        onClick={() => setRozwiniety((r) => !r)}
+        onClick={() => setWidok((v) => (v === "otwarty" ? "zamyka" : "otwarty"))}
         aria-expanded={rozwiniety}
         title={rozwiniety ? "Schowaj zegar" : "Pokaż zegar"}
       >
@@ -122,7 +139,7 @@ export function Zegar({ arkusz, limitMin, czas, onZmien }: { arkusz: string; lim
         {tekst}
         {!biegnie && <span className={styles.pauzaZnak}>pauza</span>}
       </button>
-      {rozwiniety && panel}
+      {widok !== "schowany" && panel}
     </div>,
     wyspa,
   );
