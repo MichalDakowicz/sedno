@@ -33,7 +33,8 @@ function arkusze(pliki: Record<string, string>): Sheet[] {
       w.map((k, c) => {
         const tekst = (k ?? "").trim();
         const jestLiczba = r > 0 && t.liczbowe[c] && tekst !== "";
-        return { r, c, v: jestLiczba ? { v: liczba(tekst), m: tekst, ct: { fa: "General", t: "n" } } : { v: tekst, m: tekst, ct: { fa: "@", t: "s" } } };
+        // Pasek statystyk FortuneSheet liczy parseFloat(m), więc „9,8” dałoby 9: tekst wyświetlany musi mieć kropkę.
+        return { r, c, v: jestLiczba ? { v: liczba(tekst), m: String(liczba(tekst)), ct: { fa: "General", t: "n" } } : { v: tekst, m: tekst, ct: { fa: "@", t: "s" } } };
       }),
     );
     return {
