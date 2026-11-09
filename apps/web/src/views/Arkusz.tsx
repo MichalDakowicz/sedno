@@ -471,7 +471,7 @@ export function Arkusz() {
 
   const zadanieMaterialow = materialy ? dane.zadania.find((z) => z.nr === materialy.nr) : undefined;
   // Panel obok treści odsuwa arkusz od swojej krawędzi; na wąskim ekranie przykrywa go w całości.
-  const odsuniecie = materialy?.otwarty && !uklad.waski ? { [uklad.strona === "prawa" ? "paddingRight" : "paddingLeft"]: uklad.szerokosc } : undefined;
+  const odsuniecie = materialy?.otwarty && !uklad.waski ? { [uklad.strona === "prawa" ? "paddingRight" : "paddingLeft"]: `calc(${uklad.szerokosc}px + 32px)` } : undefined;
 
   return (
     <Ctx.Provider value={kontekst}>

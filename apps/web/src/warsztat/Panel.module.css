@@ -4,10 +4,13 @@
   position: fixed;
   /* Pod górnym paskiem (TopNav: 16 + 64 + 8 zapasu), żeby go nie zasłaniać. */
   top: var(--panel-gora, 88px);
-  bottom: 0;
+  bottom: 16px;
   z-index: 40;
   display: flex;
   flex-direction: column;
+  /* Pływający biały panel jak górny pasek: zaokrąglony, z cieniem, bez ramki. */
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-float);
   background: var(--surface);
   outline: none;
 }
@@ -17,20 +20,17 @@
 }
 
 .panel[data-strona="prawa"] {
-  right: 0;
-  border-left: 1px solid var(--line);
+  right: 16px;
 }
 
 .panel[data-strona="lewa"] {
-  left: 0;
-  border-right: 1px solid var(--line);
+  left: 16px;
 }
 
 /* Wąski ekran: jeden widok, bez uchwytu i strony. */
 .panel[data-waski] {
-  inset: var(--panel-gora, 88px) 0 0;
+  inset: var(--panel-gora, 88px) 16px 16px;
   width: auto;
-  border: 0;
 }
 
 .glowa {
@@ -121,6 +121,7 @@
   padding: 14px 16px 24px;
   overflow-x: hidden;
   overflow-y: auto;
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
 }
 
 .tresc > * {
