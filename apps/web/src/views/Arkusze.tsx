@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Clock, FileText, Headphones } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
@@ -100,10 +100,11 @@ export function Arkusze() {
               <header className={styles.groupHead}>
                 <h2 className="h3">{f.nazwa}</h2>
                 <p className="small muted">{f.opis}</p>
+                <p className="small muted">{opisGrupy(arkusze).join(" · ")}</p>
               </header>
               <ul className={styles.list}>
                 {arkusze.map((a) => (
-                  <Wiersz key={a.id} arkusz={a} />
+                  <Karta key={a.id} arkusz={a} />
                 ))}
               </ul>
             </section>
@@ -113,48 +114,40 @@ export function Arkusze() {
   );
 }
 
-function Wiersz({ arkusz: a }: { arkusz: ArkuszWpis }) {
+function Karta({ arkusz: a }: { arkusz: ArkuszWpis }) {
   const postep = wczytajPostep(a.id);
   const zaczety = Object.keys(postep.odpowiedzi).length > 0;
+  const proc = postep.wynik ? Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100) : null;
   return (
     <li>
-      <Link to={`/arkusze/${a.id}`} className={styles.row}>
+      <Link to={`/arkusze/${a.id}`} className={styles.card} title={a.symbol}>
         <span className={styles.year}>{a.rok}</span>
-        <span className={styles.info}>
-          <span className={styles.title}>
-            Matura {a.sesja} {a.rok}
-          </span>
-          <span className={`small muted ${styles.meta}`}>
-            <span>{a.symbol}</span>
-            {a.czas && (
-              <span>
-                <Clock size={13} aria-hidden="true" /> {a.czas} min
-              </span>
-            )}
-            {a.przedmiot === "informatyka" && (
-              <span>
-                <FileText size={13} aria-hidden="true" /> z plikami danych
-              </span>
-            )}
-            {a.przedmiot === "angielski" && (
-              <span>
-                <Headphones size={13} aria-hidden="true" /> z nagraniem
-              </span>
-            )}
-            <span>{a.punkty} pkt</span>
-          </span>
-        </span>
+        <span className={`small muted ${styles.session}`}>{a.sesja}</span>
         <span className={styles.status}>
-          {postep.wynik ? (
-            <span className={styles.score}>{Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100)}%</span>
-          ) : zaczety ? (
-            <span className="small muted">w trakcie</span>
-          ) : null}
-          <ChevronRight size={18} aria-hidden="true" />
+          {proc !== null ? <span className={styles.score}>{proc}%</span> : zaczety ? <span className="small muted">w trakcie</span> : <span className="small muted">nierozwiązany</span>}
+        </span>
+        <span className={`btn btn-ghost ${styles.action}`}>
+          {proc !== null ? "Zobacz wynik" : zaczety ? "Kontynuuj" : "Rozwiąż"}
+          <ChevronRight size={16} aria-hidden="true" />
         </span>
       </Link>
     </li>
   );
+}
+
+// Wspólne dane arkuszy z grupy (czas, punkty, nagranie) idą do nagłówka zamiast na każdą kartę.
+function opisGrupy(arkusze: ArkuszWpis[]): string[] {
+  const zakres = (w: number[], jednostka: string) => {
+    if (!w.length) return null;
+    const min = Math.min(...w);
+    const max = Math.max(...w);
+    return min === max ? `${min} ${jednostka}` : `${min}–${max} ${jednostka}`;
+  };
+  const czas = zakres(arkusze.flatMap((a) => (a.czas ? [a.czas] : [])), "min");
+  const punkty = zakres(arkusze.map((a) => a.punkty), "pkt");
+  const nagranie = arkusze.some((a) => a.przedmiot === "angielski");
+  const pliki = arkusze.some((a) => a.przedmiot === "informatyka");
+  return [czas, punkty, nagranie ? "z nagraniem" : null, pliki ? "z plikami danych" : null].filter((x): x is string => !!x);
 }
 
 function BrakDanych({ blad }: { blad: string }) {
