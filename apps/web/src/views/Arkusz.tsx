@@ -1243,6 +1243,7 @@ function pytaniaZObliczeniami(z: Zadanie): string[] {
 // pod ostatnim zdaniem stoi wtedy lista opcji.
 type Luka = { pytanie: PytanieOtwarte; czesc: number; ile: number; opcje?: Opcja[] };
 const ZNACZNIK_LUKI = /…{2,}|\.{4,}/;
+const LUKI_W_ZDANIU = new RegExp(ZNACZNIK_LUKI.source, "g");
 
 function lukiZadania(z: Zadanie): Map<Blok, Luka> | null {
   const [p] = z.pytania;
@@ -1283,7 +1284,11 @@ function pojedynczeLuki(z: Zadanie): Map<Blok, Luka> {
     const p = z.pytania.find((q) => q.nr === b.nr);
     const zLuka = sekcja.filter((x) => x.typ === "akapit" && !x.polecenie && ZNACZNIK_LUKI.test(x.tekst));
     const obliczenia = POLECENIE_OBLICZEN.test(sekcja.map((x) => ("tekst" in x ? x.tekst : "")).join(" "));
-    if (p?.typ === "otwarte" && !p.tresc && !p.kod && !obliczenia && zLuka.length === 1) wynik.set(zLuka[0], { pytanie: p, czesc: 0, ile: 1 });
+    if (p?.typ === "otwarte" && !p.tresc && !p.kod && !obliczenia && zLuka.length === 1) {
+      // Jedno zdanie z kilkoma lukami (informatyka, zadanie 5): każda luka to osobna część odpowiedzi.
+      const ile = zLuka[0].typ === "akapit" ? (zLuka[0].tekst.match(LUKI_W_ZDANIU) ?? []).length : 1;
+      wynik.set(zLuka[0], { pytanie: p, czesc: 0, ile: Math.max(ile, 1) });
+    }
     sekcja = [];
   }
   return wynik;
@@ -1305,12 +1310,35 @@ function ZdanieZLuka({ tekst, luka, bezOpcji, formaty }: { tekst: string; luka: 
     formaty ? (
       <TekstFormaty tekst={tekst.slice(od, do_)} formaty={formaty.filter(([a, b]) => b > od && a < do_).map(([a, b, k]) => [Math.max(a, od) - od, Math.min(b, do_) - od, k] as [number, number, Kroj])} />
     ) : null;
-  const zapisz = (wartosc: string) => {
+  const zapisz = (wartosc: string, i = czesc) => {
     const nowe = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
-    nowe[czesc] = wartosc.replace(/\n/g, " ");
+    nowe[i] = wartosc.replace(/\n/g, " ");
     // Puste części na końcu nie liczą się jako odpowiedź.
     ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
   };
+  // Zdanie z kilkoma lukami (informatyka): każda ma własne pole i własną część odpowiedzi.
+  const luki = [...tekst.matchAll(LUKI_W_ZDANIU)];
+  if (arkusz.przedmiot === "informatyka" && !luka.opcje && luki.length > 1 && ile >= luki.length) {
+    const od = (i: number) => (i ? luki[i - 1].index! + luki[i - 1][0].length : 0);
+    const ostatnia = luki[luki.length - 1];
+    const koniec = ostatnia.index! + ostatnia[0].length;
+    return (
+      <div className={`${styles.para} ${styles.zdanieLuka}`}>
+        {luki.map((l, i) => {
+          const wartosc = czesci[czesc + i] ?? "";
+          return (
+            <Fragment key={i}>
+              {kawalek(od(i), l.index!) ?? <Tekst tekst={tekst.slice(od(i), l.index!)} />}
+              <span className={styles.inlineGap}>
+                <input type="text" value={wartosc} size={Math.max(12, wartosc.length + 2)} readOnly={sprawdzone(p.nr)} autoComplete="off" spellCheck={false} onChange={(e) => zapisz(e.target.value, czesc + i)} aria-label={`Odpowiedź ${p.nr}, luka ${i + 1}`} />
+              </span>
+            </Fragment>
+          );
+        })}
+        {kawalek(koniec, tekst.length) ?? <Tekst tekst={tekst.slice(koniec)} />}
+      </div>
+    );
+  }
   return (
     <div className={`${styles.para} ${styles.zdanieLuka}`}>
       {kawalek(0, m.index!) ?? <Tekst tekst={przed} />}

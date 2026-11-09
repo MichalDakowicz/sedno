@@ -51,6 +51,13 @@ export function werdykt(p: Pytanie, odpowiedz: string | undefined): Werdykt {
     const wiersze = o.split("\n").map(normalizujWynik).filter(Boolean);
     return wiersze.length && wiersze.every((w) => klucz.has(w)) ? "dobrze" : "do-oceny";
   }
+  // Odpowiedź z kilku luk (informatyka): klucz CKE ma ją pogrubioną w rozwiązaniu, a lista oczekiwanych
+  // bywa rozsypanym zapisem z PDF. Każda luka musi się zgadzać, w kolejności.
+  const pogrubione = p.wynik ? p.rozwiazanie?.match(/[\u{1D7CE}-\u{1D7FF}]+/gu)?.map((c) => [...c].map((z) => (z.codePointAt(0)! - 0x1d7ce) % 10).join("")) : undefined;
+  if (pogrubione && pogrubione.length > 1) {
+    const czesci = (odpowiedz ?? "").split("\n").map(normalizujWynik);
+    return czesci.length === pogrubione.length && pogrubione.every((k, i) => k === czesci[i]) ? "dobrze" : "do-oceny";
+  }
   const n = p.wynik ? normalizujWynik(o) : normalizuj(o);
   const zgodne = (lista?: string[]) => lista?.some((x) => (p.wynik ? normalizujWynik(x) : normalizuj(x)) === n) ?? false;
   // Akceptowane wygrywają z odrzuconymi: na listach odrzuconych bywa ta sama
