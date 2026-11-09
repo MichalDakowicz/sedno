@@ -164,9 +164,9 @@ function definicjaPrzypadkow(wiersze) {
   const linie = przypadki.map(([wyr, war]) => {
     const t = WYRAZENIA_Z_UL[wyr.replace(/\s+/g, "")] ?? naTex(wyr);
     const warunek = war.replace(/^gdy\s*/, "").split(/\s+oraz\s+/).map(warunekTex);
-    return `${t} & \\text{gdy } ${warunek.join(String.raw` \text{ oraz } `)}`;
+    return `\\displaystyle ${t} & \\text{gdy } ${warunek.join(String.raw` \text{ oraz } `)}`;
   });
-  return `${naTex(lewa[0].replace(/=$/, ""))} = \\begin{cases} ${linie.join(" \\\\ ")} \\end{cases}`;
+  return `${naTex(lewa[0].replace(/=$/, ""))} = \\begin{cases} ${linie.join(" \\\\[1.2ex] ")} \\end{cases}`;
 }
 
 /**
