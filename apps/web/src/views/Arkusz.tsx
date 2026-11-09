@@ -1766,7 +1766,7 @@ function TabelaInformatyki({ blok }: { blok: Extract<Blok, { typ: "tabelaTresci"
                           autoComplete="off"
                           spellCheck={false}
                           onChange={(e) => wpisz(r, c, e.target.value)}
-                          aria-label={`Wiersz ${r + 1 - naglowek}, kolumna ${c + 1}`}
+                          aria-label={`Odpowiedź ${p.nr}, wiersz ${r + 1 - naglowek}, kolumna ${c + 1}`}
                         />
                       </td>
                     );
@@ -1915,11 +1915,13 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
-  const { luki, lukiKadrow, obliczenia, kody, pf, dwie, tabele, wTabeli } = useCtx();
+  const { arkusz, luki, lukiKadrow, obliczenia, kody, pf, dwie, tabele, wTabeli } = useCtx();
   const kompakt = useContext(Kompakt);
   const numerWidoku = useContext(NumerWidoku);
   if (p.typ === "wypowiedz") return null;
-  const zNumerem = p.nr.includes(".") && p.nr !== numerWidoku;
+  // Informatyka: nagłówek „Zadanie 7.1 (0–3 pkt)” już podaje numer podpunktu, więc nie powtarzamy go nad polem.
+  const wNaglowku = arkusz.przedmiot === "informatyka" && arkusz.zadania.some((z) => z.bloki.some((b) => b.typ === "naglowek" && b.tekst.startsWith(`Zadanie ${p.nr} `)));
+  const zNumerem = p.nr.includes(".") && p.nr !== numerWidoku && !wNaglowku;
   // Odpowiedź w lukach zdań (ZdanieZLuka): tu zostaje tylko informacja po sprawdzeniu.
   const wLukach = new Set([...luki.values(), ...(kompakt ? lukiKadrow.values() : [])].map((l) => l.pytanie.nr));
   return (
