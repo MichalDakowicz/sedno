@@ -1613,14 +1613,6 @@
 }
 
 /* Pod zadaniem: przejście do sąsiednich zadań. */
-.sasiedzi {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
-}
-
 .question {
   scroll-margin-top: 96px;
 }

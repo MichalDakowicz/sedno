@@ -2,7 +2,8 @@
 .panel {
   --wys-edytora: clamp(220px, 40vh, 520px);
   position: fixed;
-  top: 0;
+  /* Pod górnym paskiem (TopNav: 16 + 64 + 8 zapasu), żeby go nie zasłaniać. */
+  top: var(--panel-gora, 88px);
   bottom: 0;
   z-index: 40;
   display: flex;
@@ -27,7 +28,7 @@
 
 /* Wąski ekran: jeden widok, bez uchwytu i strony. */
 .panel[data-waski] {
-  inset: 0;
+  inset: var(--panel-gora, 88px) 0 0;
   width: auto;
   border: 0;
 }
@@ -112,11 +113,19 @@
 .tresc {
   flex: 1;
   display: grid;
+  /* Kolumna nie rośnie pod zawartość: edytor i wyniki dopasowują się do panelu, nigdy odwrotnie. */
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 14px;
   min-height: 0;
   padding: 14px 16px 24px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.tresc > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* Uchwyt na krawędzi od strony treści; szerszy obszar chwytu niż widoczna kreska. */

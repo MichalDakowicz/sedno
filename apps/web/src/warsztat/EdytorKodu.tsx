@@ -76,7 +76,10 @@ function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, etykieta, pliki, sche
       renderLineHighlight: "line",
       padding: { top: 8, bottom: 8 },
       ariaLabel: etykieta,
-      scrollbar: { alwaysConsumeMouseWheel: false },
+      // Edytor dopasowuje się do panelu: długie linie zawijamy, poziomego przewijania nie ma.
+      wordWrap: "on",
+      wrappingIndent: "same",
+      scrollbar: { alwaysConsumeMouseWheel: false, horizontal: "hidden" },
     });
     edytor.current = e;
     // Zapis do postępu przerenderowuje cały arkusz, więc idzie dopiero po chwili bez pisania

@@ -958,31 +958,6 @@ function SpisZadan() {
   );
 }
 
-// Pod zadaniem: poprzednie i następne, żeby w długim arkuszu nie wracać do góry po spis.
-function SasiedniZadania({ nr }: { nr: number }) {
-  const { arkusz, idzDoZadania } = useCtx();
-  const i = arkusz.zadania.findIndex((z) => z.nr === nr);
-  const poprzednie = arkusz.zadania[i - 1];
-  const nastepne = arkusz.zadania[i + 1];
-  if (!poprzednie && !nastepne) return null;
-  return (
-    <nav className={styles.sasiedzi} aria-label={`Zadanie ${nr}, przejście do sąsiednich`}>
-      {poprzednie ? (
-        <button type="button" className="btn btn-ghost btn-sm" onClick={() => idzDoZadania(poprzednie.nr)}>
-          <ArrowLeft size={16} aria-hidden="true" /> Zadanie {poprzednie.nr}.
-        </button>
-      ) : (
-        <span />
-      )}
-      {nastepne && (
-        <button type="button" className="btn btn-ghost btn-sm" onClick={() => idzDoZadania(nastepne.nr)}>
-          Zadanie {nastepne.nr}. <ArrowRight size={16} aria-hidden="true" />
-        </button>
-      )}
-    </nav>
-  );
-}
-
 // Przewracanie stron pod treścią strony, jak stopka wydruku: poprzednia, numery stron z PDF, następna.
 function Strony({ strony, strona, onZmien }: { strony: number[]; strona: number; onZmien: (s: number) => void }) {
   const i = strony.indexOf(strona);
@@ -1151,7 +1126,6 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           </button>
         </div>
       )}
-      {ostatnia && <SasiedniZadania nr={zadanie.nr} />}
     </section>
   );
 }
