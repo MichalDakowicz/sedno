@@ -1,18 +1,12 @@
-/* Warsztat pod zadaniem z informatyki. Oddzielony linią jak reszta części zadania. */
-.warsztat {
-  display: grid;
-  gap: 14px;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
-}
-
-.glowa {
+/* Narzędzia warsztatu (Python, SQL, dane, skoroszyt) w panelu i wiersz z materiałami przy zadaniu. */
+/* Lekki wiersz przy treści zadania: pliki i przycisk otwierający panel. Oddzielony linią. */
+.wiersz {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px 16px;
+  gap: 8px 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
 }
 
 .karty {
@@ -89,7 +83,7 @@
 
 /* Monaco potrzebuje stałej wysokości; uczeń może ją zmienić, ciągnąc za róg. */
 .edytor {
-  height: 340px;
+  height: var(--wys-edytora, 340px);
   min-height: 160px;
   max-height: 80vh;
   border: 1px solid var(--line);

@@ -89,10 +89,12 @@ export function Wstaw({ tekst, doWstawienia, onWstaw }: { tekst: string; doWstaw
   );
 }
 
-type Przebieg = { stan: "ladowanie" | "dziala" | "koniec"; wyjscie: { tekst: string; blad: boolean }[]; ms?: number; utworzone: Record<string, string> };
+export type Przebieg = { stan: "ladowanie" | "dziala" | "koniec"; wyjscie: { tekst: string; blad: boolean }[]; ms?: number; utworzone: Record<string, string> };
 
-export function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz }: { pliki: Record<string, string>; kod: string; onKod: (k: string) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void; klucz: Klucz }) {
-  const [przebieg, setPrzebieg] = useState<Przebieg | null>(null);
+// Przebieg i wyniki trzyma rodzic, żeby po schowaniu panelu i zmianie zadania były na miejscu.
+export type Ustaw<T> = (u: T | ((p: T) => T)) => void;
+
+export function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz, przebieg, setPrzebieg }: { pliki: Record<string, string>; kod: string; onKod: (k: string) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void; klucz: Klucz; przebieg: Przebieg | null; setPrzebieg: Ustaw<Przebieg | null> }) {
   const kodRef = useRef(kod);
   kodRef.current = kod;
   const [sekundy, setSekundy] = useState(0);
@@ -104,8 +106,17 @@ export function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz }: { pl
     const t = setInterval(() => setSekundy(Math.floor((Date.now() - start) / 1000)), 500);
     return () => clearInterval(t);
   }, [dziala]);
-  // Wątek należy do strony; wyjście z arkusza go kończy.
-  useEffect(() => () => zatrzymaj(), []);
+  // Jeden wątek na stronę: przejście do innego zadania albo wyjście z arkusza kończy działający program.
+  const dzialaRef = useRef(dziala);
+  dzialaRef.current = dziala;
+  useEffect(
+    () => () => {
+      zatrzymaj();
+      if (dzialaRef.current) setPrzebieg((p) => p && { ...p, stan: "koniec", wyjscie: [...p.wyjscie, { tekst: "Zatrzymano.\n", blad: true }] });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   // Ctrl+Enter podaje kod prosto z edytora (zapis do postępu idzie z opóźnieniem).
   const start = (zEdytora?: unknown) => {
@@ -176,10 +187,9 @@ export function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz }: { pl
   );
 }
 
-export function Sql({ pliki, kod, onKod, doWstawienia, onWstaw, klucz }: { pliki: Record<string, string>; kod: string; onKod: (k: string) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void; klucz: Klucz }) {
+export function Sql({ pliki, kod, onKod, doWstawienia, onWstaw, klucz, wyniki, setWyniki }: { pliki: Record<string, string>; kod: string; onKod: (k: string) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void; klucz: Klucz; wyniki: WynikSql[] | null; setWyniki: Ustaw<WynikSql[] | null> }) {
   const [baza, setBaza] = useState<BazaZadania | null>(null);
   const [blad, setBlad] = useState<string | null>(null);
-  const [wyniki, setWyniki] = useState<WynikSql[] | null>(null);
   const kodRef = useRef(kod);
   kodRef.current = kod;
 

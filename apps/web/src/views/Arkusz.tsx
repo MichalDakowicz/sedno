@@ -25,7 +25,9 @@ import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
 import { PoleMatematyczne } from "../components/PoleMatematyczne";
-import { Warsztat } from "../warsztat/Warsztat";
+import { MaterialyWiersz } from "../warsztat/MaterialyWiersz";
+import { PanelWarsztatu } from "../warsztat/PanelWarsztatu";
+import { useUklad } from "../warsztat/panelUklad";
 import { OmowienieBledow, type Wejscie } from "../components/OmowienieBledow";
 import { FragmentNagrania } from "../components/FragmentNagrania";
 import { rozklejPestke } from "../components/rozklejPestke";
@@ -68,6 +70,9 @@ type Kontekst = {
 
 const Ctx = createContext<Kontekst | null>(null);
 const useCtx = () => useContext(Ctx)!;
+
+// Panel z materiałami do zadania (informatyka): dla którego zadania jest otwarty i jak go otworzyć.
+const MaterialyCtx = createContext<{ nr: number | null; otworz: (nr: number, przycisk: HTMLElement) => void }>({ nr: null, otworz: () => {} });
 const nrZadania = (nrPytania: string) => Number(nrPytania.split(".")[0]);
 
 export function Arkusz() {
@@ -75,6 +80,14 @@ export function Arkusz() {
   const { dane, blad, laduje } = useArkusz(id);
   const [postep, zmien] = usePostep(id);
   const [otwartaLuka, setOtwartaLuka] = useState<string | null>(null);
+  const [materialy, setMaterialy] = useState<{ nr: number; otwarty: boolean } | null>(null);
+  const przyciskMaterialow = useRef<HTMLElement | null>(null);
+  const uklad = useUklad();
+  const otworzMaterialy = useCallback((nr: number, przycisk: HTMLElement) => {
+    przyciskMaterialow.current = przycisk;
+    setMaterialy({ nr, otwarty: true });
+  }, []);
+  const materialyCtx = useMemo(() => ({ nr: materialy?.otwarty ? materialy.nr : null, otworz: otworzMaterialy }), [materialy, otworzMaterialy]);
 
   const sprawdzone = useCallback((nr: string) => postep.sprawdzony || postep.sprawdzoneZadania.includes(nrZadania(nr)), [postep]);
   useEffect(zacznijOdmierzac, [id]);
@@ -456,8 +469,14 @@ export function Arkusz() {
 
   const odpowiedziane = [...kontekst.pytania.keys()].filter((nr) => postep.odpowiedzi[nr]?.trim()).length;
 
+  const zadanieMaterialow = materialy ? dane.zadania.find((z) => z.nr === materialy.nr) : undefined;
+  // Panel obok treści odsuwa arkusz od swojej krawędzi; na wąskim ekranie przykrywa go w całości.
+  const odsuniecie = materialy?.otwarty && !uklad.waski ? { [uklad.strona === "prawa" ? "paddingRight" : "paddingLeft"]: uklad.szerokosc } : undefined;
+
   return (
     <Ctx.Provider value={kontekst}>
+      <MaterialyCtx.Provider value={materialyCtx}>
+      <div style={odsuniecie}>
       <main className={`container ${styles.page}`}>
         <Naglowek
           arkusz={dane}
@@ -555,6 +574,23 @@ export function Arkusz() {
           )}
         </footer>
       </main>
+      </div>
+      {materialy && zadanieMaterialow && (
+        <PanelWarsztatu
+          zadanie={zadanieMaterialow}
+          pliki={dane.dane?.pliki ?? {}}
+          zip={dane.dane?.zip}
+          zapis={postep.warsztat?.[zadanieMaterialow.nr]}
+          onZapis={(z) => kontekst.ustawWarsztat(zadanieMaterialow.nr, z)}
+          doWstawienia={zadanieMaterialow.pytania.filter((p) => p.typ === "otwarte" && !p.kod && !sprawdzone(p.nr)).map((p) => p.nr)}
+          onWstaw={kontekst.ustaw}
+          uklad={uklad}
+          otwarty={materialy.otwarty}
+          onSchowaj={() => setMaterialy((m) => m && { ...m, otwarty: false })}
+          przycisk={przyciskMaterialow}
+        />
+      )}
+      </MaterialyCtx.Provider>
     </Ctx.Provider>
   );
 }
@@ -981,7 +1017,9 @@ function stronyZadania(z: Zadanie): number[] {
 
 /** strona: arkusz w stronach; zadanie pokazuje tylko to, co leży na tej stronie. */
 function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopraw: () => void; strona?: number }) {
-  const { arkusz, postep, wBloku, sprawdzone, ustaw, ustawBrudnopis, ustawWarsztat, luki, tabele, opcjeNaRysunkach, ukryteKodem } = useCtx();
+  const materialy = useContext(MaterialyCtx);
+  const otworzMaterialy = materialy.otworz;
+  const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki, tabele, opcjeNaRysunkach, ukryteKodem } = useCtx();
   const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
   const gotowe = sprawdzone(`${zadanie.nr}.`);
   const wTekscie = zadanie.pytania.filter((p) => !wBloku.has(p.nr) && p.typ !== "wypowiedz");
@@ -1084,14 +1122,12 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
         />
       )}
       {ostatnia && arkusz.przedmiot === "informatyka" && zadanie.pytania.some((p) => p.typ === "otwarte" && !p.kod) && (
-        <Warsztat
+        <MaterialyWiersz
           zadanie={zadanie}
           pliki={arkusz.dane?.pliki ?? {}}
           zip={arkusz.dane?.zip}
-          zapis={postep.warsztat?.[zadanie.nr]}
-          onZapis={(z) => ustawWarsztat(zadanie.nr, z)}
-          doWstawienia={zadanie.pytania.filter((p) => p.typ === "otwarte" && !p.kod && !sprawdzone(p.nr)).map((p) => p.nr)}
-          onWstaw={ustaw}
+          otwarty={materialy.nr === zadanie.nr}
+          onOtworz={(przycisk) => otworzMaterialy(zadanie.nr, przycisk)}
         />
       )}
       {/* Sprawdzamy tylko cały arkusz, jak na maturze, a błędy omawia potem Pestka.
