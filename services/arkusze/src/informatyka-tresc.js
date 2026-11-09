@@ -94,6 +94,8 @@ function rodzaj(l, lewa) {
   // Kolumny: wyraźna przerwa między kawałkami tekstu (słowa w zdaniu dzieli kilka punktów).
   const przerwy = l.czesci.slice(1).map((c, i) => c.x - (l.czesci[i].x + l.czesci[i].w));
   if (przerwy.some((p) => p > 20)) return "tabela";
+  // „pracownik 7” w ramce schematu hierarchii: bez tego pas wycinka kończy się w połowie ramki.
+  if (/^pracownik \d+(\s+[–−-]\s+prezes)?$/i.test(tekst)) return "etykieta";
   // Krótki napis bez słów (liczba na osi, „y”, „[3000, 6000]”) to etykieta wykresu albo rysunku.
   if (tekst.length < 18 && !/[a-ząćęłńóśźż]{4,}/i.test(tekst) && l.x > lewa + 8) return "etykieta";
   return "tekst";
