@@ -1,6 +1,6 @@
 import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
@@ -62,6 +62,8 @@ type Kontekst = {
   sprawdzone: (nr: string) => boolean;
   otwartaLuka: string | null;
   setOtwartaLuka: (nr: string | null) => void;
+  idzDoZadania: (nr: number) => void;
+  idzDoPytania: (nr: string) => void;
 };
 
 const Ctx = createContext<Kontekst | null>(null);
@@ -122,20 +124,34 @@ export function Arkusz() {
     [setParamsStron],
   );
   // Do zadania na innej stronie (link „Zadanie 3.” w podsumowaniu, omawianie): najpierw strona, potem przewinięcie.
+  const pokaz = useCallback(
+    (idElementu: string, s: number | undefined, odstep: number) => {
+      if (s !== undefined && strona !== undefined && strona !== s) idzNaStrone(s, false);
+      // Nad elementem zostaje miejsce pod paskiem, żeby Pestka mogła usiąść na zadaniu.
+      window.setTimeout(() => {
+        const el = document.getElementById(idElementu);
+        if (!el) return;
+        const pasek = document.querySelector("nav[aria-label=\"Główna\"]")?.getBoundingClientRect().bottom ?? 0;
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - pasek - odstep, behavior: "smooth" });
+      }, 60);
+    },
+    [strona, idzNaStrone],
+  );
   const pokazZadanie = useCallback(
     (nr: number) => {
       const z = dane?.zadania.find((x) => x.nr === nr);
-      const s = z && strony ? stronyZadania(z) : [];
-      if (s.length && strona !== undefined && strona !== s[0]) idzNaStrone(s[0], false);
-      // Nad nagłówkiem zostaje miejsce pod paskiem, żeby Pestka mogła usiąść na zadaniu.
-      window.setTimeout(() => {
-        const el = document.getElementById(`zadanie-${nr}`);
-        if (!el) return;
-        const pasek = document.querySelector("nav[aria-label=\"Główna\"]")?.getBoundingClientRect().bottom ?? 0;
-        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - pasek - 72, behavior: "smooth" });
-      }, 60);
+      pokaz(`zadanie-${nr}`, z && strony ? stronyZadania(z)[0] : undefined, 72);
     },
-    [dane, strony, strona, idzNaStrone],
+    [dane, strony, pokaz],
+  );
+  // Do podpunktu: w arkuszu w stronach na stronę, na której leży jego pytanie.
+  const pokazPytanie = useCallback(
+    (nr: string) => {
+      const z = dane?.zadania.find((x) => x.nr === nrZadania(nr));
+      const b = z?.bloki.find((x) => (x.typ === "pytanie" ? x.nr === nr : (x.typ === "pytania" || x.typ === "tabela") && x.nr.includes(nr)));
+      pokaz(`pytanie-${nr}`, z && strony ? (b?.strona ?? z.strona ?? stronyZadania(z)[0]) : undefined, 24);
+    },
+    [dane, strony, pokaz],
   );
   useEffect(() => {
     const zHasha = () => {
@@ -313,6 +329,8 @@ export function Arkusz() {
       sprawdzone,
       otwartaLuka,
       setOtwartaLuka,
+      idzDoZadania: pokazZadanie,
+      idzDoPytania: pokazPytanie,
       opcjeDla: (nr) => {
         const p = pytania.get(nr);
         return p?.typ === "zamkniete" ? (p.opcje ?? opcjeZadan.get(nrZadania(nr))) : undefined;
@@ -349,7 +367,7 @@ export function Arkusz() {
         });
       },
     };
-  }, [dane, postep, zmien, sprawdzone, otwartaLuka, ciszaTezLiczy]);
+  }, [dane, postep, zmien, sprawdzone, otwartaLuka, ciszaTezLiczy, pokazZadanie, pokazPytanie]);
 
   // Lista zdań pod luką zamyka się kliknięciem obok albo klawiszem Escape.
   useEffect(() => {
@@ -458,6 +476,8 @@ export function Arkusz() {
             omow={{ ile: doOmowienia(dane, postep).length, ai, start: lecDoBledu }}
           />
         )}
+
+        <SpisZadan />
 
         {dane.zadania
           .filter((z) => strona === undefined || stronyZadania(z).includes(strona))
@@ -745,6 +765,132 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
   );
 }
 
+// Zadanie, które uczeń ma teraz na ekranie: ostatnie, którego początek minął linię pod paskiem.
+// W arkuszu w stronach liczą się tylko zadania obecne na stronie.
+function useAktualneZadanie(numery: number[]) {
+  const [aktualne, setAktualne] = useState<number | null>(null);
+  useEffect(() => {
+    let klatka = 0;
+    const licz = () => {
+      klatka = 0;
+      const pasek = document.querySelector("nav[aria-label=\"Główna\"]")?.getBoundingClientRect().bottom ?? 0;
+      let wynik: number | null = null;
+      for (const nr of numery) {
+        const el = document.getElementById(`zadanie-${nr}`);
+        if (el && el.getBoundingClientRect().top <= pasek + 120) wynik = nr;
+      }
+      setAktualne(wynik);
+    };
+    const zglos = () => {
+      if (!klatka) klatka = requestAnimationFrame(licz);
+    };
+    licz();
+    window.addEventListener("scroll", zglos, { passive: true });
+    window.addEventListener("resize", zglos);
+    // Zmiana strony arkusza podmienia zadania w drzewie bez przewinięcia.
+    const obserwator = new MutationObserver(zglos);
+    obserwator.observe(document.querySelector("main") ?? document.body, { childList: true, subtree: true });
+    return () => {
+      cancelAnimationFrame(klatka);
+      obserwator.disconnect();
+      window.removeEventListener("scroll", zglos);
+      window.removeEventListener("resize", zglos);
+    };
+  }, [numery]);
+  return aktualne;
+}
+
+// Zwijany spis zadań i podpunktów z oznaczeniem, co ma już odpowiedź, i skokiem do miejsca w arkuszu.
+function SpisZadan() {
+  const { arkusz, postep, sprawdzone, idzDoZadania, idzDoPytania } = useCtx();
+  const [otwarty, setOtwarty] = useState(false);
+  const numery = useMemo(() => arkusz.zadania.map((z) => z.nr), [arkusz]);
+  const aktualne = useAktualneZadanie(numery);
+  const maOdpowiedz = (nr: string) => !!postep.odpowiedzi[nr]?.trim();
+  const wiersze = arkusz.zadania.map((z) => {
+    const pytania = z.pytania.filter((p) => p.typ !== "wypowiedz");
+    const ile = z.pytania.filter((p) => maOdpowiedz(p.nr)).length;
+    return { z, pytania, ile, wszystkich: z.pytania.length };
+  });
+  const gotowych = wiersze.filter((w) => w.wszystkich > 0 && w.ile === w.wszystkich).length;
+  return (
+    <nav className={styles.spis} aria-label="Spis zadań">
+      <button type="button" className={styles.spisPrzycisk} aria-expanded={otwarty} aria-controls="spis-zadan" onClick={() => setOtwarty(!otwarty)}>
+        <List size={16} aria-hidden="true" />
+        <span>Spis zadań</span>
+        <span className="small muted">
+          {gotowych} z {wiersze.length} z odpowiedzią
+        </span>
+        <ChevronDown size={16} aria-hidden="true" className={otwarty ? styles.spisStrzalkaOtwarta : undefined} />
+      </button>
+      {otwarty && (
+        <ol id="spis-zadan" className={styles.spisLista}>
+          {wiersze.map(({ z, pytania, ile, wszystkich }) => {
+            const stan = ile === 0 ? "bez odpowiedzi" : ile === wszystkich ? "jest odpowiedź" : `${ile} z ${wszystkich}`;
+            return (
+              <li key={z.nr} className={styles.spisWiersz}>
+                <button
+                  type="button"
+                  className={styles.spisZadanie}
+                  aria-current={aktualne === z.nr ? "location" : undefined}
+                  onClick={() => idzDoZadania(z.nr)}
+                >
+                  <span className={styles.spisNr}>{z.nr}.</span>
+                  <span className={styles.spisTytul}>{z.tytul ?? `Zadanie ${z.nr}`}</span>
+                  <span className={styles.spisStan} data-stan={ile === 0 ? "brak" : ile === wszystkich ? "jest" : "czesc"}>
+                    {sprawdzone(`${z.nr}.`) && !postep.sprawdzony ? "sprawdzone" : stan}
+                  </span>
+                </button>
+                {pytania.length > 1 && (
+                  <ul className={styles.spisPodzadania} aria-label={`Podzadania zadania ${z.nr}`}>
+                    {pytania.map((p) => (
+                      <li key={p.nr}>
+                        <button
+                          type="button"
+                          data-stan={maOdpowiedz(p.nr) ? "jest" : "brak"}
+                          aria-label={`Zadanie ${p.nr}, ${maOdpowiedz(p.nr) ? "jest odpowiedź" : "bez odpowiedzi"}`}
+                          onClick={() => idzDoPytania(p.nr)}
+                        >
+                          {p.nr}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      )}
+    </nav>
+  );
+}
+
+// Pod zadaniem: poprzednie i następne, żeby w długim arkuszu nie wracać do góry po spis.
+function SasiedniZadania({ nr }: { nr: number }) {
+  const { arkusz, idzDoZadania } = useCtx();
+  const i = arkusz.zadania.findIndex((z) => z.nr === nr);
+  const poprzednie = arkusz.zadania[i - 1];
+  const nastepne = arkusz.zadania[i + 1];
+  if (!poprzednie && !nastepne) return null;
+  return (
+    <nav className={styles.sasiedzi} aria-label={`Zadanie ${nr}, przejście do sąsiednich`}>
+      {poprzednie ? (
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => idzDoZadania(poprzednie.nr)}>
+          <ArrowLeft size={16} aria-hidden="true" /> Zadanie {poprzednie.nr}.
+        </button>
+      ) : (
+        <span />
+      )}
+      {nastepne && (
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => idzDoZadania(nastepne.nr)}>
+          Zadanie {nastepne.nr}. <ArrowRight size={16} aria-hidden="true" />
+        </button>
+      )}
+    </nav>
+  );
+}
+
 // Przewracanie stron pod treścią strony, jak stopka wydruku: poprzednia, numery stron z PDF, następna.
 function Strony({ strony, strona, onZmien }: { strony: number[]; strona: number; onZmien: (s: number) => void }) {
   const i = strony.indexOf(strona);
@@ -913,6 +1059,7 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           </button>
         </div>
       )}
+      {ostatnia && <SasiedniZadania nr={zadanie.nr} />}
     </section>
   );
 }
@@ -1925,7 +2072,7 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
   // Odpowiedź w lukach zdań (ZdanieZLuka): tu zostaje tylko informacja po sprawdzeniu.
   const wLukach = new Set([...luki.values(), ...(kompakt ? lukiKadrow.values() : [])].map((l) => l.pytanie.nr));
   return (
-    <div className={styles.question}>
+    <div className={styles.question} id={kompakt ? undefined : `pytanie-${p.nr}`}>
       {/* Numer bez podpunktu to numer zadania, który stoi już w nagłówku. */}
       {(zNumerem || p.tresc) && (
         <div className={styles.stem}>

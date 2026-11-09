@@ -1483,3 +1483,144 @@
 .pfTable td {
   text-align: left;
 }
+
+/* Spis zadań: zwijany, linie zamiast kart. */
+.spis {
+  display: grid;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.spisPrzycisk {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.spisPrzycisk > :nth-child(3) {
+  margin-left: auto;
+  font-weight: 400;
+}
+
+.spisPrzycisk svg:last-child {
+  transition: transform 0.15s ease;
+}
+
+.spisStrzalkaOtwarta {
+  transform: rotate(180deg);
+}
+
+.spisLista {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spisWiersz {
+  display: grid;
+  gap: 6px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.spisZadanie {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 8px;
+  margin: 0 -8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.spisZadanie:hover {
+  background: var(--bg);
+}
+
+.spisZadanie[aria-current="location"] {
+  background: var(--primary-soft);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.spisNr {
+  min-width: 2.2ch;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.spisTytul {
+  flex: 1;
+  min-width: 0;
+}
+
+.spisStan {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.spisStan[data-stan="jest"] {
+  color: var(--success-strong);
+  font-weight: 600;
+}
+
+.spisPodzadania {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0 0 0 calc(2.2ch + 10px);
+  list-style: none;
+}
+
+.spisPodzadania button {
+  min-width: 44px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.spisPodzadania button[data-stan="jest"] {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+  color: var(--fg);
+}
+
+.spisPodzadania button:hover {
+  color: var(--fg);
+  border-color: var(--primary);
+}
+
+/* Pod zadaniem: przejście do sąsiednich zadań. */
+.sasiedzi {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.question {
+  scroll-margin-top: 96px;
+}
