@@ -131,6 +131,44 @@ function tusz(s, gora, dol) {
   return wynik;
 }
 
+// Ułamki w wyrażeniach przypadków giną przy odczycie tekstu z PDF (licznik i mianownik leżą w innych
+// liniach), więc znane wyrażenia podajemy z ułamkami; klucz to wyrażenie bez spacji. Sprawdzone z arkuszem.
+const WYRAZENIA_Z_UL = {
+  "A(2∙m,n)": String.raw`A\left(2 \cdot m, \frac{n}{2}\right)`,
+  "2∙A(m,n–1)+m": String.raw`2 \cdot A\left(m, \frac{n-1}{2}\right) + m`,
+};
+const naTex = (t) => t.replace(/\s*[∙·]\s*/g, String.raw` \cdot `).replace(/\s*[–−]\s*/g, " - ").replace(/\s+/g, " ").replace(/\b([A-Za-z]) \(/g, "$1(").trim();
+// Warunek: słowa jako tekst, symbole i zmienne jako wzór („n > 1”, „n jest podzielne przez 2”).
+const warunekTex = (w) =>
+  w
+    .split(/\s+/)
+    .reduce((wyn, t) => {
+      const slowo = /^\p{L}{2,}$/u.test(t);
+      const ost = wyn.at(-1);
+      if (ost && ost.slowo === slowo) ost.t.push(t);
+      else wyn.push({ slowo, t: [t] });
+      return wyn;
+    }, [])
+    .map(({ slowo, t }) => (slowo ? String.raw`\text{ ${t.join(" ")} }` : naTex(t.join(" "))))
+    .join(" ");
+
+/**
+ * Definicja przez przypadki („wyrażenie | gdy warunek”, w PDF z klamrą) jako wzór z \begin{cases}.
+ * Wiersz z „=” na końcu to lewa strona (A(m, n) =); pozostałe wiersze bez „gdy” to okruchy ułamków
+ * ze środka klamry i są pomijane. Zwraca null, gdy tabela nie wygląda na taką definicję.
+ */
+function definicjaPrzypadkow(wiersze) {
+  const przypadki = wiersze.filter((w) => w.length === 2 && /^gdy\b/.test(w[1]));
+  const lewa = wiersze.find((w) => /=$/.test(w[0].trim()));
+  if (przypadki.length < 2 || !lewa) return null;
+  const linie = przypadki.map(([wyr, war]) => {
+    const t = WYRAZENIA_Z_UL[wyr.replace(/\s+/g, "")] ?? naTex(wyr);
+    const warunek = war.replace(/^gdy\s*/, "").split(/\s+oraz\s+/).map(warunekTex);
+    return `${t} & \\text{gdy } ${warunek.join(String.raw` \text{ oraz } `)}`;
+  });
+  return `${naTex(lewa[0].replace(/=$/, ""))} = \\begin{cases} ${linie.join(" \\\\ ")} \\end{cases}`;
+}
+
 /**
  * Dla każdego fragmentu ustawia `f.bloki` (bloki treści w formacie aplikacji) albo zostawia
  * `f.bloki = null`, gdy fragment lepiej pokazać kadrem. Wycinki zapisuje obok kadrów.
@@ -295,7 +333,9 @@ export async function skladajTresc(doc, fragmenty, { katalog, prefiks }) {
         } else if (g.rodzaj === "pominieta") {
           continue;
         } else if (g.rodzaj === "tabela") {
-          bloki.push({ typ: "tabelaTresci", wiersze: g.linie.map((l) => l.seg.map((x) => x.s.normalize("NFKC"))), strona: c.strona });
+          const wzor = definicjaPrzypadkow(g.linie.map((l) => l.seg.map((x) => x.s.normalize("NFKC"))));
+          if (wzor) bloki.push({ typ: "wzor", tex: wzor, strona: c.strona });
+          else bloki.push({ typ: "tabelaTresci", wiersze: g.linie.map((l) => l.seg.map((x) => x.s.normalize("NFKC"))), strona: c.strona });
         } else {
           for (const a of akapity(g.linie)) bloki.push({ ...a, strona: c.strona });
         }
