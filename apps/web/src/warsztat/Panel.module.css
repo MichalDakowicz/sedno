@@ -80,9 +80,8 @@
 
 .karty {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
 
 .karta {
