@@ -73,6 +73,8 @@ function rodzaj(l, lewa) {
   // Miejsce na odpowiedź (same kropki albo podkreślenia) pomijamy; linia z treścią i kropkami do uzupełnienia
   // („1201₃ + 2102₉ = ……”) zostaje.
   const bezKropek = tekst.replace(/[_…]{3,}|\.{4,}/g, "").trim();
+  // Pojedyncza cyfra bywa daną (wiersz przykładu pliku) albo etykietą wiersza schematu; patrz skladajTresc.
+  if (/^\d$/.test(tekst)) return "cyfra";
   if (!tekst || DO_POMINIECIA.test(tekst) || bezKropek.length < 3) return "pomin";
   // Znak, którego font Symbol nie zdradza: linia idzie do wycinka (wykładniki i indeksy obsługuje tekstLinii).
   if (tekst.includes("�")) return "trudna";
@@ -164,6 +166,15 @@ export async function skladajTresc(doc, fragmenty, { katalog, prefiks }) {
       }
       const lewa = Math.min(...linie.map((l) => l.x));
       linie.forEach((l) => (l.rodzaj = l.siatka ? "siatka" : rodzaj(l, lewa)));
+      // Cyfry po jednej w linii zaraz po zdaniu to dane przykładu („0 / 1 / 2 …”). Przy nagłówku kolumn
+      // albo wycinku to etykiety wierszy schematu, które i tak są na wycinku.
+      linie.forEach((l, i) => {
+        if (l.rodzaj !== "cyfra") return;
+        const poprzednia = linie[i - 1];
+        const wczesniej = linie.slice(0, i).reverse().find((x) => !x.cyfra && x.rodzaj !== "pomin");
+        l.cyfra = true;
+        l.rodzaj = poprzednia?.cyfra ? poprzednia.rodzaj : wczesniej?.rodzaj === "tekst" ? "liczba" : "pomin";
+      });
       linie.forEach((l, i) => {
         if (l.rodzaj !== "naglowekKodu") return;
         const dalej = linie.slice(i + 1).find((x) => x.rodzaj !== "pomin");
