@@ -48,8 +48,9 @@ function arkusze(pliki: Record<string, string>): Sheet[] {
       w.map((k, c) => {
         const tekst = (k ?? "").trim();
         const jestLiczba = r > 0 && t.liczbowe[c] && tekst !== "";
-        // Komórka liczbowa ma v liczbą (formuły i sortowanie), a m z kropką: wbudowany pasek statystyk FortuneSheet
-        // liczy parseFloat(m). Zaznaczenie pokazujemy własnym paskiem z v i przecinkiem (Skoroszyt.tsx).
+        // Komórka liczbowa ma v liczbą (formuły i sortowanie), a m z kropką: po edycji komórki FortuneSheet i tak
+        // wylicza m z v z kropką, więc przecinek w siatce byłby tylko w części komórek. Statystyki i wynik z zaznaczenia
+        // pokazujemy z przecinkiem, z v (Skoroszyt.tsx).
         return { r, c, v: jestLiczba ? { v: liczba(tekst), m: String(liczba(tekst)), ct: { fa: "General", t: "n" } } : { v: tekst, m: tekst, ct: { fa: "@", t: "s" } } };
       }),
     );
@@ -131,14 +132,17 @@ function ArkuszKalkulacyjny({ pliki, operacje, onOperacje, onZmiana, onZaznaczen
     odczyt.current = setTimeout(() => {
       const api = ref.current;
       const zakres = api?.getSelection()?.[0];
-      if (!api || !zakres) return zwrotne.current.onZaznaczenie(null);
+      // Tuż po zamontowaniu selekcja bywa pusta (bez zakresu): to nie jest zaznaczenie.
+      if (!api || !zakres || !Number.isFinite(zakres.row?.[0]) || !Number.isFinite(zakres.column?.[0])) return zwrotne.current.onZaznaczenie(null);
       const komorki = api.getCellsByRange({ row: zakres.row, column: zakres.column });
       const liczby: number[] = [];
       const wartosci = komorki.map((w) =>
         w.map((k) => {
-          if (typeof k?.v === "number") {
-            liczby.push(k.v);
-            return polskaLiczba(k.v);
+          // Po edycji komórki FortuneSheet trzyma liczbę jako tekst z ct.t = "n".
+          const liczbowa = typeof k?.v === "number" || (k?.ct?.t === "n" && k.v !== "" && Number.isFinite(Number(k.v)));
+          if (liczbowa) {
+            liczby.push(Number(k!.v));
+            return polskaLiczba(Number(k!.v));
           }
           return (k?.m ?? k?.v ?? "") as string | number;
         }),
@@ -165,7 +169,8 @@ function ArkuszKalkulacyjny({ pliki, operacje, onOperacje, onZmiana, onZaznaczen
           ops.current = [...ops.current, ...nowe].slice(-LIMIT_OPERACJI);
           clearTimeout(zapis.current);
           zapis.current = setTimeout(wyslij, 1000);
-          zwrotne.current.onZmiana?.();
+          // FortuneSheet woła onOp w trakcie renderu własnego stanu, więc setState rodzica odkładamy.
+          setTimeout(() => zwrotne.current.onZmiana?.(), 0);
           // Wynik formuły albo sortowania zmienia to, co jest zaznaczone.
           odczytaj();
         }}

@@ -338,6 +338,27 @@ const PL: Slownik = {
   },
 };
 
+// Lista formatów liczb z paska narzędzi to funkcja z walutą (domyślnie ¥) jako argumentem, więc podmieniamy ją w całości, ze złotym.
+const FORMATY: [string, string, string][] = [
+  ["Automatyczny", "General", ""],
+  ["Zwykły tekst", "@", ""],
+  ["", "split", ""],
+  ["Liczba", "##0.00", "1000.12"],
+  ["Procent", "#0.00%", "12.21%"],
+  ["Naukowy", "0.00E+00", "1.01E+5"],
+  ["", "split", ""],
+  ["Księgowy", "#,##0.00\" zł\"", "1 200,09 zł"],
+  ["Waluta", "0.00\" zł\"", "1200.09 zł"],
+  ["", "split", ""],
+  ["Data", "yyyy-MM-dd", "2017-11-29"],
+  ["Godzina", "hh:mm AM/PM", "3:00 PM"],
+  ["Godzina 24h", "hh:mm", "15:00"],
+  ["Data i godzina", "yyyy-MM-dd hh:mm AM/PM", "2017-11-29 3:00 PM"],
+  ["Data i godzina 24h", "yyyy-MM-dd hh:mm", "2017-11-29 15:00"],
+  ["", "split", ""],
+  ["Formaty niestandardowe", "fmtOtherSelf", ""],
+];
+
 let zastosowane = false;
 
 export function polskieEtykiety() {
@@ -345,4 +366,6 @@ export function polskieEtykiety() {
   zastosowane = true;
   const en = locale({ lang: "en" } as Context) as unknown as Slownik;
   for (const [dzial, wpisy] of Object.entries(PL)) en[dzial] = Object.assign(en[dzial] ?? {}, wpisy);
+  const ogolny = en as unknown as Record<string, unknown>;
+  ogolny.defaultFmt = () => FORMATY.map(([text, value, example]) => ({ text, value, example, ...(value === "fmtOtherSelf" ? { icon: "rightArrow" } : {}) }));
 }

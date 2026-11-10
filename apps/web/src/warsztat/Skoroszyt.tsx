@@ -3,7 +3,7 @@
 // panelu albo na innej zakładce przejmowałby pisanie w innych polach. Montujemy go tylko, gdy panel jest
 // otwarty na tej zakładce; po powrocie zmiany odtwarzamy z zapisanych operacji (stan zostaje, tracimy tylko
 // zaznaczenie i przewinięcie).
-import { lazy, Suspense, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { BarChart3, Check, CircleAlert, Loader2, MousePointerSquareDashed } from "lucide-react";
 import { useStanZapisu, type StanZapisu } from "../arkusze/postep";
 import { Wstaw, ZgodnoscZKluczem, type Klucz } from "./Narzedzia";
@@ -38,6 +38,10 @@ export function Skoroszyt({ nr, pliki, operacje, onOperacje, doWstawienia, onWst
   const [zaznaczenie, setZaznaczenie] = useState<Zaznaczenie | null>(null);
   const [oczekuje, setOczekuje] = useState(false);
   const stanKonta = useStanZapisu();
+  // Po schowaniu panelu siatka znika, a z nią zaznaczenie; po powrocie startuje bez zaznaczenia.
+  useEffect(() => {
+    if (!aktywny) setZaznaczenie(null);
+  }, [aktywny]);
   // Siatka zna tylko wartości z chwili montowania (memo), więc funkcje zwrotne idą przez ref.
   const zwrotne = useRef(onOperacje);
   zwrotne.current = onOperacje;
@@ -77,7 +81,7 @@ export function Skoroszyt({ nr, pliki, operacje, onOperacje, doWstawienia, onWst
           </Suspense>
         ) : null}
       </div>
-      <Wynik zaznaczenie={aktywny ? zaznaczenie : null} doWstawienia={doWstawienia} onWstaw={onWstaw} klucz={klucz} />
+      <Wynik zaznaczenie={zaznaczenie} doWstawienia={doWstawienia} onWstaw={onWstaw} klucz={klucz} />
     </div>
   );
 }
@@ -140,7 +144,7 @@ function Wynik({ zaznaczenie, doWstawienia, onWstaw, klucz }: { zaznaczenie: Zaz
           {l.length > 0 && (
             <dl className={styles.statystyki} aria-label="Statystyki zaznaczenia">
               {[
-                ["Liczba", l.length],
+                ["Liczb", l.length],
                 ["Suma", suma],
                 ["Średnia", suma / l.length],
                 ["Min", Math.min(...l)],

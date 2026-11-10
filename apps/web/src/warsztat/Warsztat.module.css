@@ -242,7 +242,7 @@ pre.blad {
 .skoroszyt {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(220px, 1fr) auto;
+  grid-template-rows: auto minmax(240px, 1fr) auto;
   gap: 10px;
   height: 100%;
   min-height: 480px;
@@ -315,11 +315,16 @@ pre.blad {
   inset: 0;
 }
 
+/* Wbudowany pasek statystyk liczy z tekstu z kropką i dubluje nasze statystyki zaznaczenia (Skoroszyt.tsx). */
+.arkuszObudowa :global(.fortune-stat-area) {
+  display: none;
+}
+
 /* Wynik z zaznaczenia: stały pasek pod siatką w panelu, kolumna obok niej na pełnym ekranie. */
 .wynik {
   display: grid;
   gap: 8px;
-  max-height: 38vh;
+  max-height: min(34vh, 230px);
   padding-top: 10px;
   border-top: 1px solid var(--line);
   overflow-y: auto;
