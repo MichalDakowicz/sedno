@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
+import { czegoZadanie, OPIS_FORMY, opisOceny, opisWypelnienia, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
@@ -541,6 +542,7 @@ export function Arkusz() {
         )}
 
         <SpisZadan />
+        {dane.przedmiot === "informatyka" && <CoOddajesz arkusz={dane} />}
 
         {dane.zadania
           .filter((z) => strona === undefined || stronyZadania(z).includes(strona))
@@ -581,6 +583,7 @@ export function Arkusz() {
             </button>
           ) : (
             <>
+              {dane.przedmiot === "informatyka" && <BrakujaceOdpowiedzi />}
               <p className="muted small">
                 Odpowiedzi: {odpowiedziane} z {kontekst.pytania.size}. Zapisują się na bieżąco w tej przeglądarce.
               </p>
@@ -1086,7 +1089,10 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
               ) : b.typ === "pytanie" && pisanie ? (
                 <WypowiedzWidok key={j} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} />
               ) : (
-                <BlokWidok key={j} blok={b} zadanie={zadanie.nr} />
+                <Fragment key={j}>
+                  <BlokWidok blok={b} zadanie={zadanie.nr} />
+                  {arkusz.przedmiot === "informatyka" && <WskazowkaAplikacji rodzaj={wskazowkaPodAkapitem(b)} />}
+                </Fragment>
               ),
             )}
           </div>
@@ -2183,7 +2189,126 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
       {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && !wTabeli.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
+      {!kompakt && <ZnacznikOdpowiedzi p={p} />}
       <Informacja pytanie={p} />
+    </div>
+  );
+}
+
+const ileLuk = (luki: Map<Blok, Luka>, nr: string) => [...luki.values()].find((l) => l.pytanie.nr === nr)?.ile;
+
+// Wskazówka aplikacji pod oryginalnym poleceniem CKE (polecenia nie zmieniamy): jak oddać odpowiedź tutaj
+// i czy plik albo wykres jest oceniany. Linia z lewej, bez karty.
+function WskazowkaAplikacji({ rodzaj }: { rodzaj: RodzajWskazowki | null }) {
+  if (!rodzaj) return null;
+  const w = WSKAZOWKI[rodzaj];
+  return (
+    <p className={`small ${styles.wskazowka}`}>
+      <strong>{w.tytul}:</strong> {w.tekst}
+    </p>
+  );
+}
+
+// Przy podpunkcie z informatyki: gdzie wpisać odpowiedź, w jakiej formie, czy jest zapisana i kto ją oceni.
+function ZnacznikOdpowiedzi({ p }: { p: Pytanie }) {
+  const { arkusz, postep, luki, sprawdzone } = useCtx();
+  if (arkusz.przedmiot !== "informatyka" || p.typ !== "otwarte" || sprawdzone(p.nr)) return null;
+  const z = arkusz.zadania.find((x) => x.nr === nrZadania(p.nr));
+  if (!z) return null;
+  const s = stanOdpowiedzi(z, p, postep.odpowiedzi, ileLuk(luki, p.nr));
+  const o = OPIS_FORMY[s.forma];
+  return (
+    <div className={styles.znacznik} data-stan={s.pusta ? "brak" : s.pelna ? "jest" : "czesc"}>
+      <p className="small">
+        <span className={styles.znacznikStan}>{s.pusta ? "Puste" : s.z > 1 ? `${s.ile} z ${s.z}` : "Zapisane"}</span>
+        <strong>{o.miejsce}</strong>: {o.format}.
+      </p>
+      <p className="small muted">
+        {s.z > 1 ? `${opisWypelnienia(s)} ` : ""}
+        {opisOceny(s)}
+      </p>
+    </div>
+  );
+}
+
+// Jak oddawanie wygląda tu, a jak na egzaminie: kod roboczy, odpowiedź i pliki to trzy różne rzeczy.
+function CoOddajesz({ arkusz }: { arkusz: ArkuszDane }) {
+  const [otwarty, setOtwarty] = useState(false);
+  const wg = arkusz.zadania.map((z) => ({ nr: z.nr, ...czegoZadanie(z) }));
+  const lista = (f: (x: (typeof wg)[number]) => boolean) => wg.filter(f).map((x) => x.nr).join(", ");
+  const wPliku = lista((x) => !!x.plikWynikow);
+  const zWykresem = lista((x) => x.wykres);
+  return (
+    <section className={styles.oddajesz} aria-label="Co oddajesz tutaj, a co na egzaminie">
+      <button type="button" className={styles.spisPrzycisk} aria-expanded={otwarty} aria-controls="co-oddajesz" onClick={() => setOtwarty(!otwarty)}>
+        <FileText size={16} aria-hidden="true" />
+        <span>Co oddajesz tutaj, a co na egzaminie</span>
+        <ChevronDown size={16} aria-hidden="true" className={otwarty ? styles.spisStrzalkaOtwarta : undefined} />
+      </button>
+      {otwarty && (
+        <div id="co-oddajesz" className={styles.oddajeszTresc}>
+          <div>
+            <h3 className="h4">Kod roboczy</h3>
+            <p className="small">
+              Programy, zapytania i obliczenia piszesz w panelu materiałów do zadania. Zapisują się w tej przeglądarce i nie są oceniane. Do odpowiedzi trafia tylko to, co sam wstawisz do pola pod poleceniem.
+            </p>
+          </div>
+          <div>
+            <h3 className="h4">Odpowiedź w Sedno</h3>
+            <p className="small">
+              Pola pod poleceniami, komórki tabel i luki w zdaniach. Tylko to liczy się do wyniku. Wpisany wynik porównujemy z kluczem CKE; algorytm, zapytanie i zestawienie pod wykres oceniasz sam po sprawdzeniu arkusza, z rozwiązaniem CKE przed oczami.
+            </p>
+          </div>
+          <div>
+            <h3 className="h4">Pliki i wykresy: poza Sedno</h3>
+            <p className="small">
+              Plik z wynikami, pliki z kodem, wykres i realizacja w arkuszu kalkulacyjnym albo bazie to rzeczy, które polecenia CKE każą oddać. Tu nie wysyłasz żadnych plików i Sedno ich nie sprawdza.
+              {wPliku && ` W tym arkuszu plik wyników dotyczy zadań: ${wPliku}.`}
+              {zWykresem && ` Wykres: zadania ${zWykresem}.`} Jak dokładnie przekazuje się pliki na egzaminie: do weryfikacji w informatorze CKE.
+            </p>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// Przed sprawdzeniem: podpunkty bez pełnej odpowiedzi, każdy ze skokiem do pola.
+function BrakujaceOdpowiedzi() {
+  const { arkusz, postep, luki, idzDoPytania } = useCtx();
+  const braki = arkusz.zadania.flatMap((z) =>
+    z.pytania.flatMap((p) => {
+      if (p.typ === "wypowiedz") return [];
+      const s = stanOdpowiedzi(z, p, postep.odpowiedzi, ileLuk(luki, p.nr));
+      return s.pelna ? [] : [{ nr: p.nr, s }];
+    }),
+  );
+  return (
+    <div className={styles.braki} role="group" aria-label="Brakujące odpowiedzi">
+      {braki.length === 0 ? (
+        <p className="small">Każdy podpunkt ma odpowiedź. Pamiętaj, że pliki i wykresy z poleceń CKE zostają poza Sedno.</p>
+      ) : (
+        <>
+          <p className="small">
+            <strong>Bez pełnej odpowiedzi: {braki.length}.</strong> Możesz wrócić do pola albo sprawdzić arkusz mimo braków.
+          </p>
+          <ul className={styles.brakiLista}>
+            {braki.map(({ nr, s }) => (
+              <li key={nr}>
+                <button type="button" data-stan={s.pusta ? "brak" : "czesc"} onClick={() => idzDoPytania(nr)} aria-label={`Zadanie ${nr}, ${s.pusta ? "bez odpowiedzi" : `${s.ile} z ${s.z}`}: przejdź do pola`}>
+                  {nr}
+                  {!s.pusta && (
+                    <span>
+                      {" "}
+                      {s.ile}/{s.z}
+                    </span>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }
