@@ -40,11 +40,13 @@ function clampX(x: number) {
   return Math.min(Math.max(x, 8), viewW() - AV - 8);
 }
 
-// Miejsce spoczynku: dolny róg, w całości na ekranie. Prawy, chyba że po prawej stoi panel warsztatu
-// (data-panel-strona na <html>): wtedy lewy, żeby panel nie tracił miejsca w pionie.
+// Miejsce spoczynku: dolny róg, w całości na ekranie. Prawy, chyba że po prawej stoi panel warsztatu:
+// wtedy lewy, żeby panel nie tracił miejsca w pionie. Strona zmienia się dopiero w chwili skoku (patrz
+// efekt przy data-panel-strona), a nie od razu z atrybutem, bo inaczej zwykła synchronizacja przeniosłaby
+// Pestkę bez animacji.
+let spoczynekLewy = false;
 function restPoint(): Point {
-  const lewy = document.documentElement.dataset.panelStrona === "prawa";
-  return { x: lewy ? edge() : viewW() - AV - edge(), y: window.innerHeight - AV - edge() };
+  return { x: spoczynekLewy ? edge() : viewW() - AV - edge(), y: window.innerHeight - AV - edge() };
 }
 
 // Siada na prawym górnym rogu elementu. Gdy nad elementem nie ma miejsca (np. pasek nawigacji),
@@ -232,6 +234,7 @@ export function TutorGuide() {
       if (strona === ostatnia) return;
       ostatnia = strona;      window.clearTimeout(timer);
       if (modeRef.current !== "rest" || reduce) {
+        spoczynekLewy = strona === "prawa";
         sync(false);
         return;
       }
@@ -239,10 +242,12 @@ export function TutorGuide() {
         setSquash(true);
         timer = window.setTimeout(() => {
           setSquash(false);
+          spoczynekLewy = true;
           sync(true);
         }, WGNIECENIE_MS);
       } else {
         setSquash(false);
+        spoczynekLewy = false;
         sync(true);
       }
     });
