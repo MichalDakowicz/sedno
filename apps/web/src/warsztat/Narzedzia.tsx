@@ -1,8 +1,7 @@
 // Narzędzia warsztatu informatyki, osadzane w panelu przy zadaniu: pliki do pobrania, Python,
 // SQL, skoroszyt i podgląd danych.
 import { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Check, Download, ExternalLink, Minus, Play, Square, Table2, X } from "lucide-react";
-import { createPortal } from "react-dom";
+import { Check, Download, ExternalLink, Minus, Play, Square } from "lucide-react";
 import { pythonGotowy, uruchom, zatrzymaj, type Zdarzenie } from "./python";
 import type { BazaZadania, WynikSql } from "./sql";
 import { czyTabelaryczny, tabela, type Tabela } from "./tabele";
@@ -14,7 +13,6 @@ import type { Warsztat as Zapis } from "../arkusze/postep";
 import styles from "./Warsztat.module.css";
 
 const EdytorKodu = lazy(() => import("./EdytorKodu"));
-const ArkuszKalkulacyjny = lazy(() => import("./ArkuszKalkulacyjny"));
 
 // Wyniki podpunktów z klucza CKE, z którymi porównujemy wyjście programu albo zapytania.
 export type Klucz = { nr: string; oczekiwane: string[] }[];
@@ -297,54 +295,6 @@ export function ZgodnoscZKluczem({ wyjscie, klucz }: { wyjscie: string; klucz: K
       ))}
       {!zgodne.some((z) => z.ok) && <span className="small muted">Klucz dotyczy pełnego pliku danych, nie przykładowego.</span>}
     </div>
-  );
-}
-
-// Skoroszyt: arkusz kalkulacyjny otwiera się tylko na żądanie, w oknie na pełnym ekranie. FortuneSheet podpina
-// klawiaturę, schowek i mysz na całym dokumencie, więc zamontowany na stronie arkusza przejmowałby
-// pisanie w innych polach. Zamknięcie okna odmontowuje go razem z tymi nasłuchami.
-export function Skoroszyt({ pliki, operacje, onOperacje, doWstawienia, onWstaw, klucz }: { pliki: Record<string, string>; operacje?: unknown[]; onOperacje: (o: unknown[]) => void; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void; klucz: Klucz }) {
-  const [zaznaczone, setZaznaczone] = useState("");
-  const [otwarty, setOtwarty] = useState(false);
-  useEffect(() => {
-    if (!otwarty) return;
-    const przewijanie = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = przewijanie;
-    };
-  }, [otwarty]);
-  return (
-    <>
-      <div className={styles.akcje}>
-        <button type="button" className="btn btn-primary btn-sm" onClick={() => setOtwarty(true)}>
-          <Table2 size={15} aria-hidden="true" /> Otwórz arkusz kalkulacyjny
-        </button>
-        <span className="small muted">
-          {Object.keys(pliki).join(", ")} jako arkusze, formuły i wykresy{operacje?.length ? " · twoje zmiany są zapisane" : ""}
-        </span>
-      </div>
-      {otwarty &&
-        createPortal(
-          <div className={styles.oknoArkusza} role="dialog" aria-modal="true" aria-label="Arkusz kalkulacyjny">
-            <div className={styles.oknoGlowa}>
-              <strong>Arkusz kalkulacyjny</strong>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={() => setOtwarty(false)}>
-                <X size={15} aria-hidden="true" /> Zamknij
-              </button>
-            </div>
-            <div className={styles.oknoTresc}>
-              <Suspense fallback={<div className={styles.arkusz} aria-busy="true" />}>
-                <ArkuszKalkulacyjny pliki={pliki} operacje={operacje as never} onOperacje={onOperacje} onZaznaczenie={setZaznaczone} />
-              </Suspense>
-              {zaznaczone && <pre className={styles.wyjscie}>{zaznaczone}</pre>}
-              <ZgodnoscZKluczem wyjscie={zaznaczone} klucz={klucz} />
-              <Wstaw tekst={zaznaczone} doWstawienia={doWstawienia} onWstaw={onWstaw} />
-            </div>
-          </div>,
-          document.body,
-        )}
-    </>
   );
 }
 

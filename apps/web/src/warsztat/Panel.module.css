@@ -166,3 +166,20 @@
 .uchwyt:focus-visible::after {
   background: var(--primary);
 }
+
+/* Skoroszyt jest zakładką o stałej wysokości: siatka wypełnia panel, a przewija się tylko ona sama. */
+.tresc[data-tryb="arkusz"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* Pełny ekran skoroszytu: ten sam panel (siatka zostaje zamontowana), rozciągnięty na całe okno. */
+.panel[data-pelny] {
+  inset: 0;
+  width: auto;
+  z-index: 1000;
+  border-radius: 0;
+}
+
+.panel[data-pelny] .tresc {
+  border-radius: 0;
+}
