@@ -84,6 +84,7 @@ export function Brudnopis({ tekst, onTekst, onPython }: Props) {
           value={tekst}
           onChange={(e) => {
             onTekst(e.target.value);
+            setOdrzucona(null);
             odczytaj(e);
           }}
           onSelect={odczytaj}
