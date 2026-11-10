@@ -39,9 +39,11 @@ function clampX(x: number) {
   return Math.min(Math.max(x, 8), viewW() - AV - 8);
 }
 
-// Miejsce spoczynku: prawy dolny róg, w całości na ekranie.
+// Miejsce spoczynku: dolny róg, w całości na ekranie. Prawy, chyba że po prawej stoi panel warsztatu
+// (data-panel-strona na <html>): wtedy lewy, żeby panel nie tracił miejsca w pionie.
 function restPoint(): Point {
-  return { x: viewW() - AV - edge(), y: window.innerHeight - AV - edge() };
+  const lewy = document.documentElement.dataset.panelStrona === "prawa";
+  return { x: lewy ? edge() : viewW() - AV - edge(), y: window.innerHeight - AV - edge() };
 }
 
 // Siada na prawym górnym rogu elementu. Gdy nad elementem nie ma miejsca (np. pasek nawigacji),
@@ -211,6 +213,7 @@ export function TutorGuide() {
     };
     const observer = new MutationObserver(onMutate);
     observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-panel-strona"] });
     return () => {
       observer.disconnect();
       cancelAnimationFrame(frame);

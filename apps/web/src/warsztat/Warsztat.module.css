@@ -378,10 +378,44 @@ pre.blad {
 .wynik {
   display: grid;
   gap: 8px;
-  max-height: min(34vh, 230px);
-  padding-top: 10px;
+  padding-top: 8px;
   border-top: 1px solid var(--line);
+}
+
+/* W panelu wynik jest zwinięty do jednej linii z podsumowaniem; po kliknięciu rozwija się do czytelnego rozmiaru. */
+.wynikNaglowek {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wynikPodsumowanie {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wynikTresc {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  max-height: min(48vh, 440px);
   overflow-y: auto;
+}
+
+.skoroszytSzczegoly summary {
+  cursor: pointer;
 }
 
 .wskazowka {
@@ -475,9 +509,12 @@ pre.blad {
   }
 
   .skoroszyt[data-pelny] .wynik {
-    max-height: none;
     padding-top: 0;
     border-top: 0;
     align-content: start;
+  }
+
+  .skoroszyt[data-pelny] .wynikTresc {
+    max-height: none;
   }
 }

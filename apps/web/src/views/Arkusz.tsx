@@ -420,6 +420,16 @@ export function Arkusz() {
 
   usePrzewiniecie(id, !!dane);
 
+  // Pestka odpoczywa po przeciwnej stronie niż panel, żeby panel miał pełną wysokość (patrz TutorGuide).
+  const stronaPanelu = materialy?.otwarty && !uklad.waski ? uklad.strona : undefined;
+  useEffect(() => {
+    if (!stronaPanelu) return;
+    document.documentElement.dataset.panelStrona = stronaPanelu;
+    return () => {
+      delete document.documentElement.dataset.panelStrona;
+    };
+  }, [stronaPanelu]);
+
   if (laduje)
     return (
       <main className={`container ${styles.page}`}>
