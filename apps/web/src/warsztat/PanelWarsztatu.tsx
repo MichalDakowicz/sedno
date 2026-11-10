@@ -2,11 +2,12 @@
 // treści, więc zadanie i pola odpowiedzi zostają widoczne; na wąskim ekranie zajmuje całą szerokość
 // z przyciskiem powrotu do zadania. Zostaje zamontowany po schowaniu, żeby nie gubić pracy.
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type RefObject } from "react";
-import { ArrowLeft, PanelLeft, PanelRight, X } from "lucide-react";
+import { ArrowLeft, Maximize2, Minimize2, PanelLeft, PanelRight, X } from "lucide-react";
 import type { Warsztat as Zapis } from "../arkusze/postep";
 import type { Zadanie } from "../arkusze/typy";
-import { Dane, NAZWY, Pliki, poczatekPythona, poczatekSql, Python, Skoroszyt, Sql, type Przebieg, type Tryb, type Ustaw } from "./Narzedzia";
+import { Dane, NAZWY, Pliki, poczatekPythona, poczatekSql, Python, Sql, type Przebieg, type Tryb, type Ustaw } from "./Narzedzia";
 import { useMaterialy } from "./materialy";
+import { Skoroszyt } from "./Skoroszyt";
 import type { Uklad } from "./panelUklad";
 import type { WynikSql } from "./sql";
 import styles from "./Panel.module.css";
@@ -29,7 +30,11 @@ type Props = {
 
 export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis, doWstawienia, onWstaw, uklad, otwarty, onSchowaj, przycisk }: Props) {
   const { pliki, nazwy, tabelaryczne, plikiTabel, tryby, tryb, klucz } = useMaterialy(zadanie, wszystkie, zapis);
-  const zmien = (z: Partial<Zapis>) => onZapis({ ...zapis, tryb, ...z });
+  // Skoroszyt trzyma funkcje zwrotne z chwili zamontowania, więc zapis składamy z najnowszego stanu, nie z domknięcia.
+  const najnowszy = useRef({ zapis, tryb, onZapis });
+  najnowszy.current = { zapis, tryb, onZapis };
+  const zmien = (z: Partial<Zapis>) => najnowszy.current.onZapis({ ...najnowszy.current.zapis, tryb: najnowszy.current.tryb, ...z });
+  const [pelny, setPelny] = useState(false);
   const panel = useRef<HTMLElement>(null);
   const nr = zadanie.nr;
 
@@ -47,9 +52,14 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
     bylOtwarty.current = otwarty;
   }, [otwarty, nr, przycisk]);
 
+  // Pełny ekran dotyczy tylko skoroszytu: znika po schowaniu panelu i zmianie zakładki.
+  const naPelnym = pelny && otwarty && tryb === "arkusz";
   const klawisz = (e: KeyboardEvent) => {
-    // Escape w oknie skoroszytu albo w podpowiedziach edytora należy do nich.
-    if (e.key === "Escape" && !e.defaultPrevented && panel.current?.contains(e.target as Node) && !(e.target as Element).closest("[role=dialog]")) onSchowaj();
+    // Escape w oknie dialogowym albo w podpowiedziach edytora należy do nich; na pełnym ekranie wraca do panelu.
+    if (e.key === "Escape" && !e.defaultPrevented && panel.current?.contains(e.target as Node) && !(e.target as Element).closest("[role=dialog]")) {
+      if (naPelnym) setPelny(false);
+      else onSchowaj();
+    }
   };
 
   const waski = uklad.waski;
@@ -59,13 +69,14 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
       className={styles.panel}
       data-strona={uklad.strona}
       data-waski={waski || undefined}
+      data-pelny={naPelnym || undefined}
       hidden={!otwarty}
       tabIndex={-1}
       aria-label={`Materiały do zadania ${nr}`}
-      style={waski ? undefined : { width: uklad.szerokosc }}
+      style={waski || naPelnym ? undefined : { width: uklad.szerokosc }}
       onKeyDown={klawisz}
     >
-      {!waski && <Uchwyt uklad={uklad} />}
+      {!waski && !naPelnym && <Uchwyt uklad={uklad} />}
       <header className={styles.glowa}>
         <div className={styles.gora}>
           {waski && (
@@ -76,8 +87,21 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
           <h2 className={`h3 ${styles.tytul}`}>
             Zadanie {nr}.<span className={styles.narzedzieNazwa}> {NAZWY[tryb]}</span>
           </h2>
-          {!waski && (
-            <div className={styles.przyciski}>
+          <div className={styles.przyciski}>
+            {tryb === "arkusz" && (
+              <button
+                type="button"
+                className={styles.ikona}
+                onClick={() => setPelny(!naPelnym)}
+                aria-label={naPelnym ? "Zmniejsz skoroszyt do panelu" : "Powiększ skoroszyt na cały ekran"}
+                aria-pressed={naPelnym}
+                title={naPelnym ? "Wróć do panelu (Esc)" : "Na cały ekran"}
+              >
+                {naPelnym ? <Minimize2 size={17} aria-hidden="true" /> : <Maximize2 size={17} aria-hidden="true" />}
+              </button>
+            )}
+            {!waski && (
+              <>
               <button
                 type="button"
                 className={styles.ikona}
@@ -90,8 +114,9 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
               <button type="button" className={styles.ikona} onClick={onSchowaj} aria-label="Schowaj panel" title="Schowaj (Esc)">
                 <X size={17} aria-hidden="true" />
               </button>
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </div>
         {tryby.length > 1 && (
           <div className={styles.karty} role="tablist" aria-label="Narzędzie">
@@ -104,8 +129,8 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
         )}
       </header>
 
-      <div className={styles.tresc}>
-        {nazwy.length > 0 && <Pliki pliki={pliki} zip={zip} />}
+      <div className={styles.tresc} data-tryb={tryb}>
+        {nazwy.length > 0 && tryb !== "arkusz" && <Pliki pliki={pliki} zip={zip} />}
         {tryb === "python" && (
           <Python
             key={`${nr}-python`}
@@ -133,7 +158,7 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
           />
         )}
         {tryb === "arkusz" && (
-          <Skoroszyt key={`${nr}-arkusz`} pliki={plikiTabel} operacje={zapis?.arkusz} onOperacje={(arkusz) => zmien({ arkusz })} doWstawienia={doWstawienia} onWstaw={onWstaw} klucz={klucz} />
+          <Skoroszyt key={`${nr}-arkusz`} nr={nr} pliki={plikiTabel} operacje={zapis?.arkusz} onOperacje={(arkusz) => zmien({ arkusz })} doWstawienia={doWstawienia} onWstaw={onWstaw} klucz={klucz} aktywny={otwarty} pelny={naPelnym} />
         )}
         {tryb === "dane" && <Dane key={`${nr}-dane`} pliki={pliki} />}
       </div>

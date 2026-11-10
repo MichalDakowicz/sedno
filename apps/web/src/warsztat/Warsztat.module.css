@@ -238,16 +238,145 @@ pre.blad {
   color: var(--success-strong);
 }
 
-/* Arkusz kalkulacyjny (FortuneSheet) potrzebuje stałej wysokości; można go rozciągnąć za róg. */
-.arkusz {
+/* Skoroszyt w panelu: informacje u góry, siatka wypełnia resztę wysokości, wynik z zaznaczenia pod nią. */
+.skoroszyt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(220px, 1fr) auto;
+  gap: 10px;
+  height: 100%;
+  min-height: 480px;
+}
+
+.skoroszyt > * {
+  min-width: 0;
+}
+
+.skoroszytInfo {
+  display: grid;
+  gap: 4px;
+}
+
+.skoroszytInfo p {
+  margin: 0;
+}
+
+.skoroszytNazwa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px 12px;
+}
+
+.nazwyPlikow {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+.zapis {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.zapis[data-stan="zapisano"],
+.zapis[data-stan="lokalnie"] {
+  color: var(--success-strong);
+}
+
+.zapis[data-stan="blad"] {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.kreci {
+  animation: kreci 0.9s linear infinite;
+}
+
+@keyframes kreci {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Siatka FortuneSheet liczy rozmiar z kontenera (ResizeObserver w ArkuszKalkulacyjny.tsx). To jedyne miejsce w panelu z własnym przewijaniem. */
+.skoroszytSiatka {
   position: relative;
-  height: 480px;
-  min-height: 300px;
-  max-height: 85vh;
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   overflow: hidden;
-  resize: vertical;
+}
+
+.arkuszObudowa {
+  position: absolute;
+  inset: 0;
+}
+
+/* Wynik z zaznaczenia: stały pasek pod siatką w panelu, kolumna obok niej na pełnym ekranie. */
+.wynik {
+  display: grid;
+  gap: 8px;
+  max-height: 38vh;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  overflow-y: auto;
+}
+
+.wskazowka {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+}
+
+.wskazowka svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.zakres {
+  margin: 0;
+}
+
+.statystyki {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+}
+
+.statystyki div {
+  display: flex;
+  gap: 5px;
+  font-size: 14px;
+}
+
+.statystyki dt {
+  color: var(--muted);
+}
+
+.statystyki dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.wynik .plotno {
+  height: 240px;
+}
+
+.podglad {
+  margin: 0;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font: inherit;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .wykres {
@@ -275,35 +404,21 @@ pre.blad {
   height: 340px;
 }
 
-/* Okno arkusza kalkulacyjnego na pełnym ekranie (FortuneSheet działa tylko, gdy jest otwarte). */
-.oknoArkusza {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg);
-}
+@media (min-width: 900px) {
+  .skoroszyt[data-pelny] {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 16px;
+  }
 
-.oknoGlowa {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--line);
-  background: var(--surface);
-}
+  .skoroszyt[data-pelny] .skoroszytInfo {
+    grid-column: 1 / -1;
+  }
 
-.oknoTresc {
-  flex: 1;
-  overflow: auto;
-  display: grid;
-  align-content: start;
-  gap: 12px;
-  padding: 12px 16px 24px;
-}
-
-.oknoTresc .arkusz {
-  height: 70vh;
+  .skoroszyt[data-pelny] .wynik {
+    max-height: none;
+    padding-top: 0;
+    border-top: 0;
+    align-content: start;
+  }
 }
