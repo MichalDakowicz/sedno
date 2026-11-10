@@ -1640,3 +1640,118 @@
   margin: 0;
   padding-left: 1.2em;
 }
+
+/* Informatyka: zgodność z egzaminem. Linie zamiast kart. */
+.wskazowka {
+  margin: 4px 0 8px;
+  padding-left: 12px;
+  border-left: 2px solid var(--primary);
+  color: var(--muted);
+  max-width: 68ch;
+}
+
+.wskazowka strong {
+  color: var(--primary-text);
+}
+
+.znacznik {
+  display: grid;
+  gap: 2px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+  max-width: 68ch;
+}
+
+.znacznik p {
+  margin: 0;
+}
+
+.znacznikStan {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.znacznik[data-stan="jest"] .znacznikStan {
+  border-color: var(--success);
+  color: var(--success-strong);
+}
+
+.znacznik[data-stan="czesc"] .znacznikStan {
+  border-color: var(--primary);
+  color: var(--primary-text);
+}
+
+.oddajesz {
+  display: grid;
+  border-bottom: 1px solid var(--line);
+}
+
+.oddajeszTresc {
+  display: grid;
+  gap: 12px;
+  max-width: 68ch;
+  padding: 4px 0 16px;
+}
+
+.oddajeszTresc > div {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.oddajeszTresc > div:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.oddajeszTresc h3,
+.oddajeszTresc p {
+  margin: 0 0 4px;
+}
+
+.braki {
+  flex: 1 0 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.braki p {
+  margin: 0;
+}
+
+.brakiLista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.brakiLista button {
+  min-width: 44px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.brakiLista button[data-stan="czesc"],
+.brakiLista button:hover {
+  border-color: var(--primary);
+}
+
+.brakiLista button span {
+  color: var(--muted);
+}
