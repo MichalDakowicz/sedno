@@ -129,6 +129,54 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* Informacja wspólna dla kilku podpunktów: linia z lewej w kolorze akcentu i podpis z zakresem. */
+.grupa {
+  display: grid;
+  gap: 14px;
+  padding-left: 20px;
+  border-left: 2px solid var(--accent);
+}
+
+.grupaPodpis {
+  letter-spacing: 0.02em;
+}
+
+.podpunkt {
+  display: grid;
+  gap: 6px;
+}
+
+.podglad {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.podgladPrzycisk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.podgladPrzycisk:hover {
+  text-decoration: underline;
+}
+
+.podgladPrzycisk svg {
+  transition: transform 0.15s;
+}
+
+.podgladPrzycisk svg[data-otwarta="true"] {
+  transform: rotate(180deg);
+}
+
 .para {
   max-width: 72ch;
   line-height: 1.85;

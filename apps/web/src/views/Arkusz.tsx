@@ -1,4 +1,4 @@
-import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { createContext, Fragment, useCallback, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
@@ -1083,17 +1083,18 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
                 <Tekst tekst={c.polecenie} />
               </p>
             )}
-            {c.elementy.map((b, j) =>
-              Array.isArray(b) ? (
-                <PrawdaFalsz key={j} pytania={b} />
-              ) : b.typ === "pytanie" && pisanie ? (
-                <WypowiedzWidok key={j} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} />
-              ) : (
-                <Fragment key={j}>
-                  <BlokWidok blok={b} zadanie={zadanie.nr} />
-                  {arkusz.przedmiot === "informatyka" && <WskazowkaAplikacji rodzaj={wskazowkaPodAkapitem(b)} />}
-                </Fragment>
-              ),
+            {arkusz.przedmiot === "informatyka" ? (
+              <ElementyZGrupami elementy={c.elementy} grupy={grupyInformacji(zadanie)} zadanie={zadanie.nr} wskazowki />
+            ) : (
+              c.elementy.map((b, j) =>
+                Array.isArray(b) ? (
+                  <PrawdaFalsz key={j} pytania={b} />
+                ) : b.typ === "pytanie" && pisanie ? (
+                  <WypowiedzWidok key={j} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} />
+                ) : (
+                  <BlokWidok key={j} blok={b} zadanie={zadanie.nr} />
+                ),
+              )
             )}
           </div>
         ))}
@@ -1793,6 +1794,129 @@ function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniet
   return <>{wynik}</>;
 }
 
+// Informacja wspólna dla kilku podpunktów („Informacja do zadań 4.2.–4.4.”, „… 2.2. i 2.3.”)
+// i opis zadania przed pierwszym podpunktem (rysunek hierarchii, schemat plików). CKE kładzie
+// je raz, przed pierwszym podpunktem, a dotyczą kilku, więc je wyróżniamy i dajemy do nich
+// dostęp od każdego podpunktu z zakresu. Rozpoznajemy po treści, importer zostaje bez zmian.
+type GrupaInfo = { rodzaj: "info" | "wstep"; zadanie: number; od: number; do: number; bloki: Blok[]; id: string };
+const INFORMACJA_DO_ZADAN = /^Informacja do zadań\s+(\d+)\.(\d+)\.?\s*(?:–|-|i)\s*(?:\d+\.)?(\d+)\.?\s*$/;
+const NAGLOWEK_PODPUNKTU = /^Zadanie\s+(\d+)\.(\d+)\b/;
+const grupyCache = new WeakMap<Zadanie, GrupaInfo[]>();
+
+function grupyInformacji(z: Zadanie): GrupaInfo[] {
+  const znane = grupyCache.get(z);
+  if (znane) return znane;
+  const wynik: GrupaInfo[] = [];
+  const naglowki = z.bloki.map((b, i) => (b.typ === "naglowek" && NAGLOWEK_PODPUNKTU.test(b.tekst) ? i : -1)).filter((i) => i >= 0);
+  const nrPodpunktu = (i: number) => Number(z.bloki[i].typ === "naglowek" ? z.bloki[i].tekst.match(NAGLOWEK_PODPUNKTU)?.[2] : NaN);
+  if (naglowki.length >= 2) {
+    // Opis przed pierwszym podpunktem: tylko dłuższy (rysunek, pliki z przykładami), nie jedno zdanie.
+    const wstep = z.bloki.slice(0, naglowki[0]).filter((b) => !czyPytanie(b));
+    if (wstep.length >= 4) wynik.push({ rodzaj: "wstep", zadanie: z.nr, od: nrPodpunktu(naglowki[0]), do: nrPodpunktu(naglowki.at(-1)!), bloki: wstep, id: `wstep-${z.nr}` });
+  }
+  z.bloki.forEach((b, i) => {
+    const m = b.typ === "akapit" ? b.tekst.trim().match(INFORMACJA_DO_ZADAN) : null;
+    if (!m || Number(m[1]) !== z.nr) return;
+    const koniec = naglowki.find((n) => n > i);
+    if (koniec === undefined) return;
+    wynik.push({ rodzaj: "info", zadanie: z.nr, od: Number(m[2]), do: Number(m[3]), bloki: z.bloki.slice(i, koniec).filter((x) => !czyPytanie(x)), id: `info-${z.nr}-${m[2]}` });
+  });
+  grupyCache.set(z, wynik);
+  return wynik;
+}
+
+const zakresGrupy = (g: GrupaInfo) => (g.od === g.do ? `${g.zadanie}.${g.od}` : `${g.zadanie}.${g.od}–${g.zadanie}.${g.do}`);
+
+// Nagłówek podpunktu; w zakresie informacji wspólnej dokłada przycisk z jej podglądem w tym
+// samym miejscu, żeby nie trzeba było przewijać ani tracić pozycji. Pomijamy podpunkt, który
+// leży tuż pod samą informacją (jest wtedy na oczach).
+function NaglowekZGrupa({ blok, zadanie }: { blok: Blok & { tekst: string }; zadanie: number }) {
+  const { arkusz } = useCtx();
+  const z = arkusz.przedmiot === "informatyka" ? arkusz.zadania.find((x) => x.nr === zadanie) : undefined;
+  const m = z ? blok.tekst.match(NAGLOWEK_PODPUNKTU) : null;
+  const i = z ? z.bloki.indexOf(blok) : -1;
+  const grupy =
+    z && m && i >= 0
+      ? grupyInformacji(z).filter((g) => {
+          const nr = Number(m[2]);
+          if (nr < g.od || nr > g.do) return false;
+          const ostatni = g.bloki.at(-1)!;
+          return !(z.bloki[i - 1] === ostatni && (ostatni.strona ?? z.strona) === (blok.strona ?? z.strona));
+        })
+      : [];
+  if (!grupy.length) return <h3 className={styles.textTitle}>{blok.tekst}</h3>;
+  return (
+    <div className={styles.podpunkt}>
+      <h3 className={styles.textTitle}>{blok.tekst}</h3>
+      {grupy.map((g) => (
+        <PodgladGrupy key={g.id} grupa={g} zadanie={zadanie} />
+      ))}
+    </div>
+  );
+}
+
+function PodgladGrupy({ grupa, zadanie }: { grupa: GrupaInfo; zadanie: number }) {
+  const [otwarta, setOtwarta] = useState(false);
+  const idPanelu = `podglad-${grupa.id}-${useId()}`;
+  const nazwa = grupa.rodzaj === "info" ? `Informacja wspólna do zadań ${zakresGrupy(grupa)}` : `Opis zadania ${grupa.zadanie}`;
+  return (
+    <div className={styles.podglad}>
+      <button type="button" className={styles.podgladPrzycisk} aria-expanded={otwarta} aria-controls={idPanelu} onClick={() => setOtwarta(!otwarta)}>
+        <ChevronDown size={14} aria-hidden="true" data-otwarta={otwarta} />
+        {grupa.rodzaj === "info" ? "Informacja wspólna" : "Opis zadania"}
+        <span className="muted"> · {zakresGrupy(grupa)}</span>
+        <span className="sr-only">{otwarta ? ", ukryj" : ", pokaż"}: {nazwa}</span>
+      </button>
+      {otwarta && (
+        <div id={idPanelu} className={styles.grupa} role="region" aria-label={nazwa}>
+          {grupa.bloki.filter((b) => !(grupa.rodzaj === "info" && b === grupa.bloki[0])).map((b, j) => (
+            <BlokWidok key={j} blok={b} zadanie={zadanie} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Ciąg elementów zadania z informacją wspólną w jednym opakowaniu z linią z lewej. */
+function ElementyZGrupami({ elementy, grupy, zadanie, wskazowki }: { elementy: ElementZadania[]; grupy: GrupaInfo[]; zadanie: number; wskazowki: boolean }) {
+  const odcinki: { grupa?: GrupaInfo; elementy: ElementZadania[] }[] = [];
+  for (const e of elementy) {
+    const grupa = Array.isArray(e) ? undefined : grupy.find((g) => g.bloki.includes(e));
+    const ost = odcinki.at(-1);
+    if (ost && ost.grupa === grupa) ost.elementy.push(e);
+    else odcinki.push({ grupa, elementy: [e] });
+  }
+  const wyrenderuj = (e: ElementZadania, j: number) =>
+    Array.isArray(e) ? (
+      <PrawdaFalsz key={j} pytania={e} />
+    ) : (
+      <Fragment key={j}>
+        <BlokWidok blok={e} zadanie={zadanie} />
+        {wskazowki && <WskazowkaAplikacji rodzaj={wskazowkaPodAkapitem(e)} />}
+      </Fragment>
+    );
+  return (
+    <>
+      {odcinki.map((o, k) => {
+        if (!o.grupa) return o.elementy.map((e, j) => wyrenderuj(e, k * 1000 + j));
+        const g = o.grupa;
+        const pierwszyNaStronie = o.elementy[0] === g.bloki[0];
+        const bezZnacznika = g.rodzaj === "info" ? o.elementy.filter((e) => e !== g.bloki[0]) : o.elementy;
+        return (
+          <aside key={k} id={pierwszyNaStronie ? g.id : undefined} className={styles.grupa} aria-label={g.rodzaj === "info" ? `Informacja wspólna do zadań ${zakresGrupy(g)}` : `Opis zadania ${g.zadanie}`}>
+            <p className={`small muted ${styles.grupaPodpis}`}>
+              {g.rodzaj === "info" ? `Dotyczy zadań ${zakresGrupy(g)}` : `Dotyczy zadań ${zakresGrupy(g)} (opis wspólny)`}
+              {!pierwszyNaStronie && " · ciąg dalszy"}
+            </p>
+            {bezZnacznika.map((e, j) => wyrenderuj(e, j))}
+          </aside>
+        );
+      })}
+    </>
+  );
+}
+
 function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
   const { pytania, luki, lukiKadrow } = useCtx();
   const kompakt = useContext(Kompakt);
@@ -1865,7 +1989,7 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
         </div>
       );
     case "naglowek":
-      return <h3 className={styles.textTitle}>{blok.tekst}</h3>;
+      return <NaglowekZGrupa blok={blok} zadanie={zadanie} />;
     case "zrodlo":
       return <Zrodlo tekst={blok.tekst} />;
     case "kadr":
