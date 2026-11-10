@@ -8,6 +8,7 @@ import type { Zadanie } from "../arkusze/typy";
 import { Dane, NAZWY, Pliki, poczatekPythona, poczatekSql, Python, Sql, type Przebieg, type Tryb, type Ustaw } from "./Narzedzia";
 import { useMaterialy } from "./materialy";
 import { Skoroszyt } from "./Skoroszyt";
+import { Brudnopis } from "./Brudnopis";
 import type { Uklad } from "./panelUklad";
 import type { WynikSql } from "./sql";
 import styles from "./Panel.module.css";
@@ -147,7 +148,7 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
       </header>
 
       <div className={styles.tresc} data-tryb={tryb}>
-        {nazwy.length > 0 && tryb !== "arkusz" && <Pliki pliki={pliki} zip={zip} />}
+        {nazwy.length > 0 && tryb !== "arkusz" && tryb !== "brudnopis" && <Pliki pliki={pliki} zip={zip} />}
         {tryb === "python" && (
           <Python
             key={`${nr}-python`}
@@ -178,6 +179,7 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
           <Skoroszyt key={`${nr}-arkusz`} nr={nr} pliki={plikiTabel} operacje={zapis?.arkusz} onOperacje={(arkusz) => zmien({ arkusz })} doWstawienia={doWstawienia} onWstaw={onWstaw} klucz={klucz} aktywny={otwarty} pelny={naPelnym} />
         )}
         {tryb === "dane" && <Dane key={`${nr}-dane`} pliki={pliki} />}
+        {tryb === "brudnopis" && <Brudnopis key={`${nr}-brudnopis`} tekst={zapis?.brudnopis ?? ""} onTekst={(brudnopis) => zmien({ brudnopis })} onPython={() => zmien({ tryb: "python" })} />}
       </div>
     </section>
   );

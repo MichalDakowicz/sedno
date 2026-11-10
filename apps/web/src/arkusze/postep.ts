@@ -13,7 +13,8 @@ export type Brudnopis = { elementy: readonly unknown[]; zmieniony: string };
 
 // Warsztat przy zadaniu z informatyki: kod w Pythonie, zapytanie SQL i otwarta karta.
 // arkusz: zmiany w arkuszu kalkulacyjnym jako operacje FortuneSheet (dane CKE wczytujemy za każdym razem).
-export type Warsztat = { tryb?: "python" | "sql" | "arkusz" | "dane"; python?: string; sql?: string; arkusz?: unknown[] };
+// brudnopis: swobodne notatki i obliczenia, poza odpowiedziami i oceną.
+export type Warsztat = { tryb?: "python" | "sql" | "arkusz" | "dane" | "brudnopis"; python?: string; sql?: string; arkusz?: unknown[]; brudnopis?: string };
 
 // Zegar rozwiązywania na czas. start: chwila wznowienia (ms) albo null przy pauzie; zuzyte: czas sprzed
 // ostatniego wznowienia; ogloszone: momenty, o których Pestka już powiedziała.

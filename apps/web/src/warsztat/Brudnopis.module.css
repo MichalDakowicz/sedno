@@ -1,0 +1,110 @@
+/* Brudnopis tekstowy w panelu: pole dopasowuje się do szerokości panelu, nigdy odwrotnie. */
+.brudnopis {
+  display: grid;
+  gap: 10px;
+}
+
+.nota {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.nota strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.pole {
+  position: relative;
+  min-width: 0;
+}
+
+/* Te same wymiary i zawijanie w polu i w jego lustrze, żeby kursor wypadał w tym samym miejscu. */
+.tekst,
+.lustro {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  font: 0.9375rem/1.6 var(--font);
+  letter-spacing: normal;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  tab-size: 4;
+}
+
+.tekst {
+  display: block;
+  min-height: clamp(220px, 45vh, 520px);
+  resize: vertical;
+  overflow-x: hidden;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.tekst:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.lustro {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+  height: 0;
+}
+
+/* Sugestia przy linii: nie bierze fokusu (mousedown jest wstrzymany), więc pisanie trwa bez przerwy. */
+.sugestia {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 8px);
+  padding: 3px 4px 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--primary-soft);
+  color: var(--fg);
+  font: 600 0.875rem/1.4 var(--font);
+  box-shadow: var(--shadow-float);
+  cursor: pointer;
+}
+
+.sugestia:hover {
+  border-color: var(--primary);
+}
+
+.skrot {
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.dol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.podpowiedz {
+  flex: 1 1 200px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}

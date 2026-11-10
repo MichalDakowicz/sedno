@@ -18,7 +18,7 @@ const EdytorKodu = lazy(() => import("./EdytorKodu"));
 export type Klucz = { nr: string; oczekiwane: string[] }[];
 
 export type Tryb = NonNullable<Zapis["tryb"]>;
-export const NAZWY: Record<Tryb, string> = { python: "Python", sql: "SQL", arkusz: "Arkusz (Excel)", dane: "Dane" };
+export const NAZWY: Record<Tryb, string> = { python: "Python", sql: "SQL", arkusz: "Arkusz (Excel)", dane: "Dane", brudnopis: "Brudnopis" };
 
 export function poczatekPythona(nazwy: string[]) {
   if (!nazwy.length) return "# Sprawdź tu swój algorytm na przykładach z treści zadania.\n\n";

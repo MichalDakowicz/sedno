@@ -19,7 +19,7 @@ export function MaterialyWiersz({ zadanie, pliki: wszystkie, zip, otwarty, onOtw
     <div className={styles.wiersz}>
       {Object.keys(pliki).length > 0 && <Pliki pliki={pliki} zip={zip} />}
       <button type="button" className="btn btn-ghost btn-sm" aria-expanded={otwarty} onClick={(e) => onOtworz(e.currentTarget)}>
-        {ma ? <PanelRight size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />} {ma ? "Otwórz materiały do tego zadania" : "Sprawdź coś w Pythonie"}
+        {ma ? <PanelRight size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />} {ma ? "Otwórz materiały i brudnopis do tego zadania" : "Brudnopis i Python do tego zadania"}
       </button>
     </div>
   );
