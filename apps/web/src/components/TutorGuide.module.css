@@ -85,20 +85,6 @@
   animation: hop 0.7s cubic-bezier(0.45, 0, 0.25, 1);
 }
 
-/* Panel wjeżdża z prawej i wgniata Pestkę: spłaszcza się i zostaje przesunięta w lewo, po czym odskakuje (.hop). */
-.squash {
-  transform-origin: 100% 100%;
-  animation: squash 0.38s cubic-bezier(0.4, 0, 0.6, 1) forwards;
-}
-
-@keyframes squash {
-  30% {
-    transform: translateX(-8px) scale(0.82, 1.02);
-  }
-  100% {
-    transform: translateX(-22px) scale(0.42, 1.06);
-  }
-}
 
 @keyframes pop-in {
   from {
