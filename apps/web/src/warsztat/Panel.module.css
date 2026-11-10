@@ -23,6 +23,11 @@
   right: 16px;
 }
 
+/* Pestka odpoczywa w prawym dolnym rogu (48 px, 24 px od krawędzi okna): panel kończy się nad nią. */
+.panel[data-strona="prawa"]:not([data-waski]) {
+  bottom: 80px;
+}
+
 .panel[data-strona="lewa"] {
   left: 16px;
 }
