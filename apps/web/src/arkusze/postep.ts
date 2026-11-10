@@ -1,6 +1,6 @@
 // Postęp w arkuszu: pamięć przeglądarki jako szybka kopia, konto w Supabase jako źródło prawdy.
 // Bez sieci albo przed zalogowaniem wszystko działa lokalnie, a zapis dogania konto później.
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { currentUserId } from "../auth";
 import { supabase } from "../supabase";
 import type { Odpowiedzi, Samoocena } from "./sprawdz";
@@ -48,11 +48,33 @@ export function wczytajPostep(id: string): Postep {
   }
 }
 
-function zapiszLokalnie(id: string, p: Postep) {
+// Stan ostatniego zapisu postępu, żeby narzędzia (np. skoroszyt) uczciwie pokazały, czy zmiany są już bezpieczne.
+// „lokalnie” to zapis tylko w tej przeglądarce (bez konta), „blad” to nieudany zapis.
+export type StanZapisu = "zapisywanie" | "zapisano" | "lokalnie" | "blad";
+let stanZapisu: StanZapisu = "zapisano";
+const sluchaczeStanu = new Set<() => void>();
+function ustawStan(s: StanZapisu) {
+  if (s === stanZapisu) return;
+  stanZapisu = s;
+  sluchaczeStanu.forEach((f) => f());
+}
+export function useStanZapisu(): StanZapisu {
+  return useSyncExternalStore(
+    (f) => {
+      sluchaczeStanu.add(f);
+      return () => void sluchaczeStanu.delete(f);
+    },
+    () => stanZapisu,
+  );
+}
+
+function zapiszLokalnie(id: string, p: Postep): boolean {
   try {
     localStorage.setItem(klucz(id), JSON.stringify(p));
+    return true;
   } catch {
     // brak miejsca albo zablokowany storage: postęp zostaje tylko w pamięci
+    return false;
   }
 }
 
@@ -62,13 +84,23 @@ const oczekujace = new Map<string, ReturnType<typeof setTimeout>>();
 function zapiszNaKonto(id: string, p: Postep) {
   const user = currentUserId();
   if (!user) return;
+  ustawStan("zapisywanie");
   clearTimeout(oczekujace.get(id));
   oczekujace.set(
     id,
     setTimeout(() => {
       oczekujace.delete(id);
       // Zapytanie Supabase rusza dopiero po then/await.
-      void supabase.from("sheet_progress").upsert({ user_id: user, sheet_id: id, data: p }).then();
+      void supabase
+        .from("sheet_progress")
+        .upsert({ user_id: user, sheet_id: id, data: p })
+        .then(
+          ({ error }) => {
+            // Czeka już nowszy zapis: stan zmieni dopiero on.
+            if (!oczekujace.has(id)) ustawStan(error ? "blad" : "zapisano");
+          },
+          () => ustawStan("blad"),
+        );
     }, 800),
   );
 }
@@ -130,8 +162,9 @@ export function usePostep(id: string) {
     (f: (p: Postep) => Postep) => {
       const nowy = f(pamiec.get(id) ?? wczytajPostep(id));
       wersje.set(id, (wersje.get(id) ?? 0) + 1);
-      zapiszLokalnie(id, nowy);
+      const lokalnie = zapiszLokalnie(id, nowy);
       zapiszNaKonto(id, nowy);
+      if (!currentUserId()) ustawStan(lokalnie ? "lokalnie" : "blad");
       ustaw(id, nowy);
     },
     [id],
