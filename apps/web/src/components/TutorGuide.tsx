@@ -8,6 +8,7 @@ import styles from "./TutorGuide.module.css";
 const AV = 48;
 const GAP = 12;
 const MOVE_MS = 700;
+const WGNIECENIE_MS = 380;
 const FADE_MS = 200;
 const SPOT_PAD = 8;
 
@@ -97,6 +98,7 @@ export function TutorGuide() {
   const [mode, setMode] = useState<Mode>("rest");
   const [moving, setMoving] = useState(false);
   const [hop, setHop] = useState(0);
+  const [squash, setSquash] = useState(false);
   const [talking, setTalking] = useState(false);
   const [closing, setClosing] = useState(false);
   const [spot, setSpot] = useState<Spot | null>(null);
@@ -213,10 +215,41 @@ export function TutorGuide() {
     };
     const observer = new MutationObserver(onMutate);
     observer.observe(document.body, { childList: true, subtree: true });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-panel-strona"] });
     return () => {
       observer.disconnect();
       cancelAnimationFrame(frame);
+    };
+  }, [sync]);
+
+  // Panel warsztatu wjeżdża z prawej: wgniata Pestkę w krawędź okna, a ona odskakuje łukiem na lewą stronę.
+  // Przy chowaniu panelu wraca skokiem na prawo. Ruch zaczyna się dopiero po wgnieceniu (WGNIECENIE_MS).
+  useEffect(() => {
+    let ostatnia = document.documentElement.dataset.panelStrona;
+    let timer = 0;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const observer = new MutationObserver(() => {
+      const strona = document.documentElement.dataset.panelStrona;
+      if (strona === ostatnia) return;
+      ostatnia = strona;      window.clearTimeout(timer);
+      if (modeRef.current !== "rest" || reduce) {
+        sync(false);
+        return;
+      }
+      if (strona === "prawa") {
+        setSquash(true);
+        timer = window.setTimeout(() => {
+          setSquash(false);
+          sync(true);
+        }, WGNIECENIE_MS);
+      } else {
+        setSquash(false);
+        sync(true);
+      }
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-panel-strona"] });
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timer);
     };
   }, [sync]);
 
@@ -299,7 +332,7 @@ export function TutorGuide() {
         <button
           key={`a${hop}`}
           type="button"
-          className={`${styles.avatar} ${hop === 0 ? styles.enter : styles.hop}`}
+          className={`${styles.avatar} ${squash ? styles.squash : hop === 0 ? styles.enter : styles.hop}`}
           data-pestka="przewodnik"
           onClick={onAvatar}
           aria-label={pending ? "Pestka ma dla ciebie wskazówkę" : "Porozmawiaj z Pestką"}

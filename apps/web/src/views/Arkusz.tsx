@@ -422,6 +422,13 @@ export function Arkusz() {
 
   // Pestka odpoczywa po przeciwnej stronie niż panel, żeby panel miał pełną wysokość (patrz TutorGuide).
   const stronaPanelu = materialy?.otwarty && !uklad.waski ? uklad.strona : undefined;
+  // Treść odsuwa się razem z wysuwaniem panelu; podczas ciągnięcia uchwytu odsunięcie ma śledzić myszkę bez opóźnienia.
+  const [animujOdsuniecie, setAnimujOdsuniecie] = useState(false);
+  useEffect(() => {
+    setAnimujOdsuniecie(true);
+    const t = window.setTimeout(() => setAnimujOdsuniecie(false), 600);
+    return () => window.clearTimeout(t);
+  }, [stronaPanelu]);
   useEffect(() => {
     if (!stronaPanelu) return;
     document.documentElement.dataset.panelStrona = stronaPanelu;
@@ -483,7 +490,10 @@ export function Arkusz() {
 
   const zadanieMaterialow = materialy ? dane.zadania.find((z) => z.nr === materialy.nr) : undefined;
   // Panel obok treści odsuwa arkusz od swojej krawędzi; na wąskim ekranie przykrywa go w całości.
-  const odsuniecie = materialy?.otwarty && !uklad.waski ? { [uklad.strona === "prawa" ? "paddingRight" : "paddingLeft"]: `calc(${uklad.szerokosc}px + 32px)` } : undefined;
+  const odsuniecie = {
+    [uklad.strona === "prawa" ? "paddingRight" : "paddingLeft"]: materialy?.otwarty && !uklad.waski ? `calc(${uklad.szerokosc}px + 32px)` : 0,
+    ...(animujOdsuniecie ? { transition: "padding 0.5s cubic-bezier(0.22, 1, 0.36, 1)" } : {}),
+  };
 
   return (
     <Ctx.Provider value={kontekst}>

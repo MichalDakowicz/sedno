@@ -45,12 +45,29 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
   const setWynik: Ustaw<WynikSql[] | null> = (u) => setWyniki((m) => ({ ...m, [nr]: typeof u === "function" ? u(m[nr] ?? null) : u }));
 
   // Fokus: do panelu po otwarciu (albo zmianie zadania), na przycisk po schowaniu.
+  // Panel montuje się już otwarty, więc na wysunięcie czeka dwie klatki: najpierw zamknięty, potem wjeżdża.
+  const [wysuniety, setWysuniety] = useState(false);
+  useEffect(() => {
+    if (!otwarty) {
+      setWysuniety(false);
+      return;
+    }
+    let drugi = 0;
+    const pierwszy = requestAnimationFrame(() => {
+      drugi = requestAnimationFrame(() => setWysuniety(true));
+    });
+    return () => {
+      cancelAnimationFrame(pierwszy);
+      cancelAnimationFrame(drugi);
+    };
+  }, [otwarty]);
+
   const bylOtwarty = useRef(false);
   useEffect(() => {
-    if (otwarty) panel.current?.focus({ preventScroll: true });
-    else if (bylOtwarty.current) przycisk.current?.focus();
+    if (otwarty && wysuniety) panel.current?.focus({ preventScroll: true });
+    else if (!otwarty && bylOtwarty.current) przycisk.current?.focus();
     bylOtwarty.current = otwarty;
-  }, [otwarty, nr, przycisk]);
+  }, [otwarty, wysuniety, nr, przycisk]);
 
   // Pełny ekran dotyczy tylko skoroszytu: znika po schowaniu panelu i zmianie zakładki.
   const naPelnym = pelny && otwarty && tryb === "arkusz";
@@ -70,7 +87,7 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
       data-strona={uklad.strona}
       data-waski={waski || undefined}
       data-pelny={naPelnym || undefined}
-      hidden={!otwarty}
+      data-otwarty={(otwarty && wysuniety) || undefined}
       tabIndex={-1}
       aria-label={`Materiały do zadania ${nr}`}
       style={waski || naPelnym ? undefined : { width: uklad.szerokosc }}
