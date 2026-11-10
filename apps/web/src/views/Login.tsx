@@ -48,10 +48,9 @@ export function Login() {
         <div className={styles.hero}>
           <TutorAvatar size={72} />
           <h1 className="display">
-            <span className={styles.line}>Ucz się tego,</span>
-            <span className={`accent ${styles.line}`}>czego jeszcze nie umiesz.</span>
+            <span className={styles.line}>Przygotuj się do matury</span>
+            <span className={`accent ${styles.line}`}>z tym, czego jeszcze nie umiesz.</span>
           </h1>
-          <p className="lead">Rozwiązuj arkusze maturalne. Pestka wyłapie, z czym masz jeszcze kłopot, i podpowie, od czego zacząć dziś.</p>
         </div>
 
         <form className={styles.form} onSubmit={submit}>

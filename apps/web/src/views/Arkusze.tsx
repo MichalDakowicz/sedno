@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Clock, Headphones } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
@@ -22,6 +22,12 @@ const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string; lead: string }[]
     opis: "Matematyka · poziom podstawowy · matura od 2023",
     lead: "Zadania wyglądają jak w arkuszu CKE. Przy każdym masz brudnopis do obliczeń i szkiców, a przy zadaniach z rysunkiem możesz rysować po figurze.",
   },
+  {
+    id: "informatyka",
+    nazwa: "Informatyka",
+    opis: "Informatyka · poziom rozszerzony · matura od 2023",
+    lead: "Zadania z arkusza CKE razem z plikami danych. Program napiszesz i uruchomisz w Pythonie, zapytania SQL sprawdzisz na tabelach z plików, a dane pobierzesz do Excela albo Accessa.",
+  },
 ];
 const POZIOMY: Poziom[] = ["podstawowy", "rozszerzony", "dwujezyczny"];
 const NAZWY: Record<Poziom, string> = { podstawowy: "Podstawowy", rozszerzony: "Rozszerzony", dwujezyczny: "Dwujęzyczny" };
@@ -34,9 +40,9 @@ const FORMULY = [
 export function Arkusze() {
   const { dane, blad, laduje } = useListaArkuszy();
   const profil = useProfil();
-  // Domyślnie przedmiot i poziom, które konto zdaje (angielski, jeśli zdaje oba).
+  // Domyślnie przedmiot i poziom, które konto zdaje (pierwszy z listy, jeśli zdaje kilka).
   const poziomKonta = (p: Przedmiot) => profil?.subjects.find((s) => s.id === p)?.poziom as Poziom | undefined;
-  const [przedmiot, setPrzedmiot] = useState<Przedmiot>(() => (!poziomKonta("angielski") && poziomKonta("matematyka") ? "matematyka" : "angielski"));
+  const [przedmiot, setPrzedmiot] = useState<Przedmiot>(() => PRZEDMIOTY.find((p) => poziomKonta(p.id))?.id ?? "angielski");
   const [wybranyPoziom, setPoziom] = useState<Poziom>(() => poziomKonta(przedmiot) ?? "podstawowy");
   const opis = PRZEDMIOTY.find((p) => p.id === przedmiot)!;
   const zPrzedmiotu = dane?.filter((a) => (a.przedmiot ?? "angielski") === przedmiot);
@@ -94,10 +100,11 @@ export function Arkusze() {
               <header className={styles.groupHead}>
                 <h2 className="h3">{f.nazwa}</h2>
                 <p className="small muted">{f.opis}</p>
+                <p className="small muted">{opisGrupy(arkusze).join(" · ")}</p>
               </header>
               <ul className={styles.list}>
                 {arkusze.map((a) => (
-                  <Wiersz key={a.id} arkusz={a} />
+                  <Karta key={a.id} arkusz={a} />
                 ))}
               </ul>
             </section>
@@ -107,43 +114,40 @@ export function Arkusze() {
   );
 }
 
-function Wiersz({ arkusz: a }: { arkusz: ArkuszWpis }) {
+function Karta({ arkusz: a }: { arkusz: ArkuszWpis }) {
   const postep = wczytajPostep(a.id);
   const zaczety = Object.keys(postep.odpowiedzi).length > 0;
+  const proc = postep.wynik ? Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100) : null;
   return (
     <li>
-      <Link to={`/arkusze/${a.id}`} className={styles.row}>
+      <Link to={`/arkusze/${a.id}`} className={styles.card} title={a.symbol}>
         <span className={styles.year}>{a.rok}</span>
-        <span className={styles.info}>
-          <span className={styles.title}>
-            Matura {a.sesja} {a.rok}
-          </span>
-          <span className={`small muted ${styles.meta}`}>
-            <span>{a.symbol}</span>
-            {a.czas && (
-              <span>
-                <Clock size={13} aria-hidden="true" /> {a.czas} min
-              </span>
-            )}
-            {a.przedmiot === "angielski" && (
-              <span>
-                <Headphones size={13} aria-hidden="true" /> z nagraniem
-              </span>
-            )}
-            <span>{a.punkty} pkt</span>
-          </span>
-        </span>
+        <span className={`small muted ${styles.session}`}>{a.sesja}</span>
         <span className={styles.status}>
-          {postep.wynik ? (
-            <span className={styles.score}>{Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100)}%</span>
-          ) : zaczety ? (
-            <span className="small muted">w trakcie</span>
-          ) : null}
-          <ChevronRight size={18} aria-hidden="true" />
+          {proc !== null ? <span className={styles.score}>{proc}%</span> : zaczety ? <span className="small muted">w trakcie</span> : <span className="small muted">nierozwiązany</span>}
+        </span>
+        <span className={`btn btn-ghost ${styles.action}`}>
+          {proc !== null ? "Zobacz wynik" : zaczety ? "Kontynuuj" : "Rozwiąż"}
+          <ChevronRight size={16} aria-hidden="true" />
         </span>
       </Link>
     </li>
   );
+}
+
+// Wspólne dane arkuszy z grupy (czas, punkty, nagranie) idą do nagłówka zamiast na każdą kartę.
+function opisGrupy(arkusze: ArkuszWpis[]): string[] {
+  const zakres = (w: number[], jednostka: string) => {
+    if (!w.length) return null;
+    const min = Math.min(...w);
+    const max = Math.max(...w);
+    return min === max ? `${min} ${jednostka}` : `${min}–${max} ${jednostka}`;
+  };
+  const czas = zakres(arkusze.flatMap((a) => (a.czas ? [a.czas] : [])), "min");
+  const punkty = zakres(arkusze.map((a) => a.punkty), "pkt");
+  const nagranie = arkusze.some((a) => a.przedmiot === "angielski");
+  const pliki = arkusze.some((a) => a.przedmiot === "informatyka");
+  return [czas, punkty, nagranie ? "z nagraniem" : null, pliki ? "z plikami danych" : null].filter((x): x is string => !!x);
 }
 
 function BrakDanych({ blad }: { blad: string }) {

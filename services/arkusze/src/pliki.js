@@ -1,5 +1,5 @@
-// Rozpoznaje pliki CKE po nazwie: język angielski (wszystkie poziomy)
-// i matematyka na poziomie podstawowym (formuła 2023).
+// Rozpoznaje pliki CKE po nazwie: język angielski (wszystkie poziomy),
+// matematyka na poziomie podstawowym i informatyka (formuła 2023).
 //
 // Matematyka: MMAP-P0-100-2305.pdf (2023), od 2024 MMAP-P0-100-A-2405-arkusz.pdf
 // i MMAP-P0-100-2405-zasady.pdf. Z dwóch wersji arkusza bierzemy wersję A.
@@ -15,8 +15,21 @@
 const POZIOM = { P: "podstawowy", R: "rozszerzony", D: "dwujezyczny" };
 
 export function klasyfikuj(nazwa) {
-  const k = matematyka(nazwa) ?? angielski(nazwa);
+  const k = matematyka(nazwa) ?? informatyka(nazwa) ?? angielski(nazwa);
   return k && { przedmiot: "angielski", ...k };
+}
+
+// Informatyka (tylko poziom rozszerzony, formuła 2023): MINP-R0-100-2305.pdf (2023),
+// od 2024 MINP-R0-100-A-2405-arkusz.pdf; klucz MINP-R0-100-2405-zasady.pdf;
+// pliki danych do zadań praktycznych w Dane_2305.zip, od 2024 Dane-NF-2405.zip.
+function informatyka(nazwa) {
+  const baza = { przedmiot: "informatyka", formula: "2023", poziom: POZIOM.R };
+  let m;
+  if ((m = nazwa.match(/^MINP-R0-100(?:-A)?-(\d{2})(\d{2})(?:-arkusz)?\.pdf$/))) return { typ: "arkusz", ...baza, rok: 2000 + Number(m[1]), miesiac: m[2] };
+  if ((m = nazwa.match(/^MINP-R0-100-(\d{2})\d{2}-zasady\.pdf$/))) return { typ: "zasady", ...baza, rok: 2000 + Number(m[1]) };
+  // Zipy formuły 2015 (Dane_2205.zip) mają tę samą nazwę, ale inne arkusze.
+  if ((m = nazwa.match(/^Dane(?:_|-NF-)(\d{2})05\.zip$/)) && Number(m[1]) >= 23) return { typ: "dane", ...baza, rok: 2000 + Number(m[1]) };
+  return null;
 }
 
 function matematyka(nazwa) {

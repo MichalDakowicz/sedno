@@ -41,12 +41,24 @@ export function Plywak({ zalezy, jako = "span" }: { zalezy: unknown; jako?: "spa
     const kontener = ref.current?.parentElement;
     if (!kontener) return;
     const ro = new ResizeObserver(zmierz);
-    ro.observe(kontener);
+    // Same przyciski zmieniają szerokość (np. licznik pojawia się po wczytaniu danych), kontener nie.
+    const obserwuj = () => {
+      ro.disconnect();
+      ro.observe(kontener);
+      for (const dziecko of Array.from(kontener.children)) ro.observe(dziecko);
+    };
+    obserwuj();
+    const mo = new MutationObserver(() => {
+      obserwuj();
+      zmierz();
+    });
+    mo.observe(kontener, { childList: true, subtree: true, characterData: true });
     void document.fonts?.ready.then(zmierz);
     // Animacja dopiero po pierwszym ustawieniu, żeby pigułka nie wjeżdżała przy wejściu na stronę.
     const t = window.setTimeout(() => setGotowy(true), 50);
     return () => {
       ro.disconnect();
+      mo.disconnect();
       window.clearTimeout(t);
     };
   }, [zmierz]);

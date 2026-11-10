@@ -129,6 +129,54 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* Informacja wspólna dla kilku podpunktów: linia z lewej w kolorze akcentu i podpis z zakresem. */
+.grupa {
+  display: grid;
+  gap: 14px;
+  padding-left: 20px;
+  border-left: 2px solid var(--accent);
+}
+
+.grupaPodpis {
+  letter-spacing: 0.02em;
+}
+
+.podpunkt {
+  display: grid;
+  gap: 6px;
+}
+
+.podglad {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.podgladPrzycisk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.podgladPrzycisk:hover {
+  text-decoration: underline;
+}
+
+.podgladPrzycisk svg {
+  transition: transform 0.15s;
+}
+
+.podgladPrzycisk svg[data-otwarta="true"] {
+  transform: rotate(180deg);
+}
+
 .para {
   max-width: 72ch;
   line-height: 1.85;
@@ -1378,4 +1426,380 @@
     order: 3;
     flex-basis: 100%;
   }
+}
+
+/* Informatyka: tytuł zadania („Dron”) obok numeru. */
+.taskTitle {
+  color: var(--muted);
+}
+
+/* Odpowiedź z informatyki: wiersze wyniku, algorytm albo zapytanie, więc pole wielowierszowe. */
+.codeAnswer {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font: 14px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+/* Pole na kod: jak edytor, wcięcia zostają, długie linie zawijamy. */
+.codeAnswerKod {
+  tab-size: 4;
+  white-space: pre-wrap;
+  min-height: 11em;
+  padding: 12px 14px;
+  background: var(--bg-soft, var(--surface));
+}
+
+.codeAnswer:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+[data-werdykt="dobrze"] .codeAnswer {
+  border-color: var(--success);
+}
+
+[data-werdykt="zle"] .codeAnswer,
+[data-werdykt="pusto"] .codeAnswer {
+  border-color: var(--danger);
+}
+
+.keyCode {
+  margin: 0;
+  overflow-x: auto;
+  font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: pre;
+}
+
+.keyRules {
+  white-space: pre-line;
+}
+
+/* Informatyka: pseudokod i przykłady danych z arkusza, z wcięciami jak w oryginale. */
+.codeBlock {
+  margin: 0;
+  padding: 12px 16px;
+  overflow-x: auto;
+  border-left: 3px solid var(--line);
+  font: 14px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: pre;
+}
+
+.inlineCode {
+  font: 0.92em ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+/* Informatyka: tabela z komórkami do wpisania. Pole wypełnia komórkę, jak w arkuszu CKE. */
+.fillTable td {
+  vertical-align: middle;
+}
+
+.fillCell {
+  padding: 2px !important;
+}
+
+.fillCell input {
+  width: 100%;
+  min-width: 70px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.fillCell input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.pfCell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.cellImage {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Tabele z informatyki: pierwszy wiersz bez nagłówka nie jest pogrubiony (nagłówek ma własne th). */
+.infTable tr:first-child > td {
+  font-weight: inherit;
+}
+
+/* Tabela „Oceń prawdziwość”: zdania od lewej. */
+.pfTable td {
+  text-align: left;
+}
+
+/* Spis zadań: zwijany, linie zamiast kart. */
+.spis {
+  display: grid;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.spisPrzycisk {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.spisPrzycisk > :nth-child(3) {
+  margin-left: auto;
+  font-weight: 400;
+}
+
+.spisPrzycisk svg:last-child {
+  transition: transform 0.15s ease;
+}
+
+.spisStrzalkaOtwarta {
+  transform: rotate(180deg);
+}
+
+.spisLista {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spisWiersz {
+  display: grid;
+  gap: 6px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.spisZadanie {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 8px;
+  margin: 0 -8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.spisZadanie:hover {
+  background: var(--bg);
+}
+
+.spisZadanie[aria-current="location"] {
+  background: var(--primary-soft);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.spisNr {
+  min-width: 2.2ch;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.spisTytul {
+  flex: 1;
+  min-width: 0;
+}
+
+.spisStan {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.spisStan[data-stan="jest"] {
+  color: var(--success-strong);
+  font-weight: 600;
+}
+
+.spisPodzadania {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0 0 0 calc(2.2ch + 10px);
+  list-style: none;
+}
+
+.spisPodzadania button {
+  min-width: 44px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.spisPodzadania button[data-stan="jest"] {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+  color: var(--fg);
+}
+
+.spisPodzadania button:hover {
+  color: var(--fg);
+  border-color: var(--primary);
+}
+
+/* Pod zadaniem: przejście do sąsiednich zadań. */
+.question {
+  scroll-margin-top: 96px;
+}
+
+/* Wyjaśnienie trybu na czas przed startem zegara. */
+.naCzas {
+  display: grid;
+  gap: 8px;
+  max-width: 68ch;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.naCzas ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+/* Informatyka: zgodność z egzaminem. Linie zamiast kart. */
+.wskazowka {
+  margin: 4px 0 8px;
+  padding-left: 12px;
+  border-left: 2px solid var(--primary);
+  color: var(--muted);
+  max-width: 68ch;
+}
+
+.wskazowka strong {
+  color: var(--primary-text);
+}
+
+.znacznik {
+  display: grid;
+  gap: 2px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+  max-width: 68ch;
+}
+
+.znacznik p {
+  margin: 0;
+}
+
+.znacznikStan {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.znacznik[data-stan="jest"] .znacznikStan {
+  border-color: var(--success);
+  color: var(--success-strong);
+}
+
+.znacznik[data-stan="czesc"] .znacznikStan {
+  border-color: var(--primary);
+  color: var(--primary-text);
+}
+
+.oddajesz {
+  display: grid;
+  border-bottom: 1px solid var(--line);
+}
+
+.oddajeszTresc {
+  display: grid;
+  gap: 12px;
+  max-width: 68ch;
+  padding: 4px 0 16px;
+}
+
+.oddajeszTresc > div {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.oddajeszTresc > div:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.oddajeszTresc h3,
+.oddajeszTresc p {
+  margin: 0 0 4px;
+}
+
+.braki {
+  flex: 1 0 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.braki p {
+  margin: 0;
+}
+
+.brakiLista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.brakiLista button {
+  min-width: 44px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.brakiLista button[data-stan="czesc"],
+.brakiLista button:hover {
+  border-color: var(--primary);
+}
+
+.brakiLista button span {
+  color: var(--muted);
 }

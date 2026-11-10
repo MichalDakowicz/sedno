@@ -1,0 +1,520 @@
+/* Narzędzia warsztatu (Python, SQL, dane, skoroszyt) w panelu i wiersz z materiałami przy zadaniu. */
+/* Lekki wiersz przy treści zadania: pliki i przycisk otwierający panel. Oddzielony linią. */
+.wiersz {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.karty {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.karta {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.karta:hover {
+  color: var(--fg);
+  background: var(--surface);
+}
+
+.karta[aria-selected="true"] {
+  color: var(--fg);
+  background: var(--surface);
+  border-color: transparent;
+  box-shadow: var(--shadow-float);
+}
+
+.pliki {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.plik {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font: inherit;
+  font-size: 14px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.plik:hover {
+  border-color: var(--subtle);
+}
+
+.zip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.narzedzie {
+  display: grid;
+  /* Kolumna nie rośnie pod stałą szerokość Monaco: edytor śledzi szerokość panelu przy każdym ruchu uchwytu. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+}
+
+.narzedzie > * {
+  min-width: 0;
+}
+
+/* Monaco potrzebuje stałej wysokości; uczeń może ją zmienić, ciągnąc za róg. */
+.edytor {
+  height: var(--wys-edytora, 340px);
+  min-height: 160px;
+  max-height: 80vh;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  overflow: hidden;
+  resize: vertical;
+}
+
+.akcje {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.wyjscie {
+  margin: 0;
+  max-height: 320px;
+  overflow: auto;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: var(--dark);
+  color: #f3efe9;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.wyjscie :global(.muted) {
+  color: #b9b2aa;
+}
+
+.blad {
+  color: #ff9b8a;
+}
+
+pre.blad {
+  color: #ff9b8a;
+}
+
+.utworzony summary {
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.wstaw {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+/* Przenoszenie do odpowiedzi: oddzielone linią, bez karty. */
+.przenies {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  min-width: 0;
+}
+
+.przenies p {
+  margin: 0;
+}
+
+.przeniesWiersz {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.opcja {
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.opcja[data-wybrana] {
+  border-color: var(--primary);
+  background: var(--primary-soft, transparent);
+}
+
+.podglad {
+  margin: 0;
+  max-height: 160px;
+  overflow: auto;
+  padding: 8px 10px;
+  border-left: 3px solid var(--primary);
+  background: var(--surface);
+  color: var(--fg);
+  font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+  tab-size: 4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.schemat {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.schemat > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+}
+
+.schemat dt {
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.schemat dd {
+  margin: 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.tabelaWrap {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tabelaWrap > table {
+  display: block;
+  max-width: 100%;
+  max-height: 420px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.tabela {
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela th,
+.tabela td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  /* Tabela zawija się do panelu zamiast przewijać się w poziomie. */
+  overflow-wrap: anywhere;
+}
+
+.tabela td[data-liczba] {
+  text-align: right;
+}
+
+.tabela th {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  font-weight: 600;
+}
+
+.tabela th button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Sprawdzarka: podpunkty z wynikiem zgodnym z kluczem CKE. */
+.klucz {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.kluczPozycja {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--subtle);
+}
+
+.kluczPozycja[data-ok] {
+  color: var(--success-strong);
+}
+
+/* Skoroszyt w panelu: informacje u góry, siatka wypełnia resztę wysokości, wynik z zaznaczenia pod nią. */
+.skoroszyt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(240px, 1fr) auto;
+  gap: 10px;
+  height: 100%;
+  min-height: 480px;
+}
+
+.skoroszyt > * {
+  min-width: 0;
+}
+
+.skoroszytInfo {
+  display: grid;
+  gap: 4px;
+}
+
+.skoroszytInfo p {
+  margin: 0;
+}
+
+.skoroszytNazwa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px 12px;
+}
+
+.nazwyPlikow {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+.zapis {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.zapis[data-stan="zapisano"],
+.zapis[data-stan="lokalnie"] {
+  color: var(--success-strong);
+}
+
+.zapis[data-stan="blad"] {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.kreci {
+  animation: kreci 0.9s linear infinite;
+}
+
+@keyframes kreci {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Siatka FortuneSheet liczy rozmiar z kontenera (ResizeObserver w ArkuszKalkulacyjny.tsx). To jedyne miejsce w panelu z własnym przewijaniem. */
+.skoroszytSiatka {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+
+.arkuszObudowa {
+  position: absolute;
+  inset: 0;
+}
+
+/* Wbudowany pasek statystyk liczy z tekstu z kropką i dubluje nasze statystyki zaznaczenia (Skoroszyt.tsx). */
+.arkuszObudowa :global(.fortune-stat-area) {
+  display: none;
+}
+
+/* Wynik z zaznaczenia: stały pasek pod siatką w panelu, kolumna obok niej na pełnym ekranie. */
+.wynik {
+  display: grid;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+/* W panelu wynik jest zwinięty do jednej linii z podsumowaniem; po kliknięciu rozwija się do czytelnego rozmiaru. */
+.wynikNaglowek {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wynikPodsumowanie {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wynikTresc {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  max-height: min(48vh, 440px);
+  overflow-y: auto;
+}
+
+.skoroszytSzczegoly summary {
+  cursor: pointer;
+}
+
+.wskazowka {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+}
+
+.wskazowka svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.zakres {
+  margin: 0;
+}
+
+.statystyki {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+}
+
+.statystyki div {
+  display: flex;
+  gap: 5px;
+  font-size: 14px;
+}
+
+.statystyki dt {
+  color: var(--muted);
+}
+
+.statystyki dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.wynik .plotno {
+  height: 240px;
+}
+
+.podglad {
+  margin: 0;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font: inherit;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.wykres {
+  display: grid;
+  gap: 10px;
+}
+
+.opisyWykresu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.opisyWykresu input {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font: inherit;
+  font-size: 14px;
+}
+
+.plotno {
+  position: relative;
+  height: 340px;
+}
+
+@media (min-width: 900px) {
+  .skoroszyt[data-pelny] {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 16px;
+  }
+
+  .skoroszyt[data-pelny] .skoroszytInfo {
+    grid-column: 1 / -1;
+  }
+
+  .skoroszyt[data-pelny] .wynik {
+    padding-top: 0;
+    border-top: 0;
+    align-content: start;
+  }
+
+  .skoroszyt[data-pelny] .wynikTresc {
+    max-height: none;
+  }
+}

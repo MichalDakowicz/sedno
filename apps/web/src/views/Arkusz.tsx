@@ -1,8 +1,9 @@
-import { createContext, Fragment, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { createContext, Fragment, useCallback, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
-import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep } from "../arkusze/postep";
+import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
+import { czegoZadanie, OPIS_FORMY, opisOceny, opisWypelnienia, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
 import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
@@ -10,6 +11,7 @@ import {
   nazwaPrzedmiotu,
   type Arkusz as ArkuszDane,
   type Blok,
+  type Kroj,
   type Obraz,
   type Opcja,
   type Pytanie,
@@ -24,6 +26,11 @@ import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
 import { PoleMatematyczne } from "../components/PoleMatematyczne";
+import { MaterialyWiersz } from "../warsztat/MaterialyWiersz";
+import { PanelWarsztatu } from "../warsztat/PanelWarsztatu";
+import { useUklad } from "../warsztat/panelUklad";
+import { CeleWstawiania, rodzajPytania, zaznaczenia } from "../warsztat/materialy";
+import { Przenoszenie, type Wariant } from "../warsztat/Przenoszenie";
 import { OmowienieBledow, type Wejscie } from "../components/OmowienieBledow";
 import { FragmentNagrania } from "../components/FragmentNagrania";
 import { rozklejPestke } from "../components/rozklejPestke";
@@ -42,6 +49,7 @@ type Kontekst = {
   ustaw: (nr: string, wartosc: string) => void;
   ocen: (nr: string, ocena: boolean | number) => void;
   ustawBrudnopis: (zadanie: number, zapis: ZapisBrudnopisu | null) => void;
+  ustawWarsztat: (zadanie: number, zapis: ZapisWarsztatu) => void;
   pytania: Map<string, Pytanie>;
   luki: Map<Blok, Luka>; // zdania z luką na część odpowiedzi otwartej
   kadryTekst: Map<Blok, Blok[]>; // wycinki z luką jako tekst (tylko pełny ekran)
@@ -54,14 +62,20 @@ type Kontekst = {
   tabele: Map<string, TabelaDopasowania>; // „Uzupełnij tabelę” literami A–F
   opcjeNaRysunkach: Map<string, { kadr: Blok; tekst: Blok[] }>; // opcje A–D jako rysunki w wycinku
   wBloku: Set<string>; // pytania z własnym blokiem; w tekście zostaje tylko znacznik
+  wTabeli: Set<string>; // pytania z odpowiedzią w tabeli (komórki do wpisania albo P / F, informatyka)
   opcjeDla: (nr: string) => Opcja[] | undefined;
   sprawdzone: (nr: string) => boolean;
   otwartaLuka: string | null;
   setOtwartaLuka: (nr: string | null) => void;
+  idzDoZadania: (nr: number) => void;
+  idzDoPytania: (nr: string) => void;
 };
 
 const Ctx = createContext<Kontekst | null>(null);
 const useCtx = () => useContext(Ctx)!;
+
+// Panel z materiałami do zadania (informatyka): dla którego zadania jest otwarty i jak go otworzyć.
+const MaterialyCtx = createContext<{ nr: number | null; otworz: (nr: number, przycisk: HTMLElement) => void }>({ nr: null, otworz: () => {} });
 const nrZadania = (nrPytania: string) => Number(nrPytania.split(".")[0]);
 
 export function Arkusz() {
@@ -69,6 +83,14 @@ export function Arkusz() {
   const { dane, blad, laduje } = useArkusz(id);
   const [postep, zmien] = usePostep(id);
   const [otwartaLuka, setOtwartaLuka] = useState<string | null>(null);
+  const [materialy, setMaterialy] = useState<{ nr: number; otwarty: boolean } | null>(null);
+  const przyciskMaterialow = useRef<HTMLElement | null>(null);
+  const uklad = useUklad();
+  const otworzMaterialy = useCallback((nr: number, przycisk: HTMLElement) => {
+    przyciskMaterialow.current = przycisk;
+    setMaterialy({ nr, otwarty: true });
+  }, []);
+  const materialyCtx = useMemo(() => ({ nr: materialy?.otwarty ? materialy.nr : null, otworz: otworzMaterialy }), [materialy, otworzMaterialy]);
 
   const sprawdzone = useCallback((nr: string) => postep.sprawdzony || postep.sprawdzoneZadania.includes(nrZadania(nr)), [postep]);
   useEffect(zacznijOdmierzac, [id]);
@@ -90,17 +112,31 @@ export function Arkusz() {
   const zacznijOmawianie = () => {
     if (dane && doOmowienia(dane, postep).length) setOmawiany(0);
   };
-  // Arkusz w stronach jak wydruk CKE: uczy układu i przechodzenia między stronami.
-  // Numer strony siedzi w adresie (?strona=5), więc przeżywa odświeżenie. Import bez
-  // stron (stare dane w bazie) zostaje jedną długą stroną.
-  const strony = useMemo(() => {
+  // Domyślnie cały arkusz na jednej stronie. Na życzenie arkusz w stronach jak wydruk CKE
+  // (uczy układu i przechodzenia między stronami); wybór pamięta przeglądarka. Numer strony
+  // siedzi w adresie (?strona=5), więc przeżywa odświeżenie. Import bez stron zostaje jedną stroną.
+  const [wStronach, setWStronach] = useState(() => czytajWStronach());
+  const mozliweStrony = useMemo(() => {
     if (!dane || !dane.zadania.every((z) => z.strona)) return null;
     const s = [...new Set(dane.zadania.flatMap(stronyZadania))].sort((a, b) => a - b);
     return s.length > 1 ? s : null;
   }, [dane]);
+  const strony = wStronach ? mozliweStrony : null;
   const [paramsStron, setParamsStron] = useSearchParams();
   const zAdresu = Number(paramsStron.get("strona"));
   const strona = strony ? (strony.includes(zAdresu) ? zAdresu : strony[0]) : undefined;
+  // Zadanie, nad którym uczeń ostatnio był na ekranie (nie czyści się na górze arkusza, gdzie żadne nie jest widoczne).
+  const ostatnieZadanie = useRef<{ nr: number } | null>(null);
+  useEffect(() => {
+    if (!dane) return;
+    const numery = dane.zadania.map((z) => z.nr);
+    const zapamietaj = () => {
+      const z = zadanieNaEkranie(numery);
+      if (z) ostatnieZadanie.current = { nr: z.nr };
+    };
+    window.addEventListener("scroll", zapamietaj, { passive: true });
+    return () => window.removeEventListener("scroll", zapamietaj);
+  }, [dane]);
   const idzNaStrone = useCallback(
     (s: number, naGore = true) => {
       setParamsStron(
@@ -116,20 +152,34 @@ export function Arkusz() {
     [setParamsStron],
   );
   // Do zadania na innej stronie (link „Zadanie 3.” w podsumowaniu, omawianie): najpierw strona, potem przewinięcie.
+  const pokaz = useCallback(
+    (idElementu: string, s: number | undefined, odstep: number) => {
+      if (s !== undefined && strona !== undefined && strona !== s) idzNaStrone(s, false);
+      // Nad elementem zostaje miejsce pod paskiem, żeby Pestka mogła usiąść na zadaniu.
+      window.setTimeout(() => {
+        const el = document.getElementById(idElementu);
+        if (!el) return;
+        const pasek = document.querySelector("nav[aria-label=\"Główna\"]")?.getBoundingClientRect().bottom ?? 0;
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - pasek - odstep, behavior: "smooth" });
+      }, 60);
+    },
+    [strona, idzNaStrone],
+  );
   const pokazZadanie = useCallback(
     (nr: number) => {
       const z = dane?.zadania.find((x) => x.nr === nr);
-      const s = z && strony ? stronyZadania(z) : [];
-      if (s.length && strona !== undefined && strona !== s[0]) idzNaStrone(s[0], false);
-      // Nad nagłówkiem zostaje miejsce pod paskiem, żeby Pestka mogła usiąść na zadaniu.
-      window.setTimeout(() => {
-        const el = document.getElementById(`zadanie-${nr}`);
-        if (!el) return;
-        const pasek = document.querySelector("nav[aria-label=\"Główna\"]")?.getBoundingClientRect().bottom ?? 0;
-        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - pasek - 72, behavior: "smooth" });
-      }, 60);
+      pokaz(`zadanie-${nr}`, z && strony ? stronyZadania(z)[0] : undefined, 72);
     },
-    [dane, strony, strona, idzNaStrone],
+    [dane, strony, pokaz],
+  );
+  // Do podpunktu: w arkuszu w stronach na stronę, na której leży jego pytanie.
+  const pokazPytanie = useCallback(
+    (nr: string) => {
+      const z = dane?.zadania.find((x) => x.nr === nrZadania(nr));
+      const b = z?.bloki.find((x) => (x.typ === "pytanie" ? x.nr === nr : (x.typ === "pytania" || x.typ === "tabela") && x.nr.includes(nr)));
+      pokaz(`pytanie-${nr}`, z && strony ? (b?.strona ?? z.strona ?? stronyZadania(z)[0]) : undefined, 24);
+    },
+    [dane, strony, pokaz],
   );
   useEffect(() => {
     const zHasha = () => {
@@ -300,12 +350,15 @@ export function Arkusz() {
       dwie,
       tabele,
       opcjeNaRysunkach,
+      wTabeli: new Set(dane.zadania.flatMap((z) => z.bloki.flatMap((b) => (b.typ === "tabelaTresci" && b.pytanie ? [b.pytanie] : [])))),
       postep,
       pytania,
       wBloku,
       sprawdzone,
       otwartaLuka,
       setOtwartaLuka,
+      idzDoZadania: pokazZadanie,
+      idzDoPytania: pokazPytanie,
       opcjeDla: (nr) => {
         const p = pytania.get(nr);
         return p?.typ === "zamkniete" ? (p.opcje ?? opcjeZadan.get(nrZadania(nr))) : undefined;
@@ -333,8 +386,16 @@ export function Arkusz() {
           return dodajCzas({ ...p, brudnopisy, odpowiedzi }, Number(zadanie), ms);
         });
       },
+      // Kod w warsztacie, jak brudnopis, zostaje do dyspozycji także po sprawdzeniu.
+      ustawWarsztat: (zadanie, zapis) => {
+        const ms = odmierz(ciszaTezLiczy);
+        zmien((p) => {
+          const z = { ...p, warsztat: { ...p.warsztat, [zadanie]: zapis } };
+          return p.sprawdzony || p.sprawdzoneZadania.includes(zadanie) ? z : dodajCzas(z, zadanie, ms);
+        });
+      },
     };
-  }, [dane, postep, zmien, sprawdzone, otwartaLuka, ciszaTezLiczy]);
+  }, [dane, postep, zmien, sprawdzone, otwartaLuka, ciszaTezLiczy, pokazZadanie, pokazPytanie]);
 
   // Lista zdań pod luką zamyka się kliknięciem obok albo klawiszem Escape.
   useEffect(() => {
@@ -359,6 +420,23 @@ export function Arkusz() {
   }, [zdobyte, zmien]);
 
   usePrzewiniecie(id, !!dane);
+
+  // Pestka odpoczywa po przeciwnej stronie niż panel, żeby panel miał pełną wysokość (patrz TutorGuide).
+  const stronaPanelu = materialy?.otwarty && !uklad.waski ? uklad.strona : undefined;
+  // Treść odsuwa się razem z wysuwaniem panelu; podczas ciągnięcia uchwytu odsunięcie ma śledzić myszkę bez opóźnienia.
+  const [animujOdsuniecie, setAnimujOdsuniecie] = useState(false);
+  useEffect(() => {
+    setAnimujOdsuniecie(true);
+    const t = window.setTimeout(() => setAnimujOdsuniecie(false), 600);
+    return () => window.clearTimeout(t);
+  }, [stronaPanelu]);
+  useEffect(() => {
+    if (!stronaPanelu) return;
+    document.documentElement.dataset.panelStrona = stronaPanelu;
+    return () => {
+      delete document.documentElement.dataset.panelStrona;
+    };
+  }, [stronaPanelu]);
 
   if (laduje)
     return (
@@ -411,13 +489,43 @@ export function Arkusz() {
 
   const odpowiedziane = [...kontekst.pytania.keys()].filter((nr) => postep.odpowiedzi[nr]?.trim()).length;
 
+  const zadanieMaterialow = materialy ? dane.zadania.find((z) => z.nr === materialy.nr) : undefined;
+  // Panel obok treści odsuwa arkusz od swojej krawędzi; na wąskim ekranie przykrywa go w całości.
+  const odsuniecie = {
+    [uklad.strona === "prawa" ? "paddingRight" : "paddingLeft"]: materialy?.otwarty && !uklad.waski ? `calc(${uklad.szerokosc}px + 32px)` : 0,
+    ...(animujOdsuniecie ? { transition: "padding 0.5s cubic-bezier(0.22, 1, 0.36, 1)" } : {}),
+  };
+
   return (
     <Ctx.Provider value={kontekst}>
+      <MaterialyCtx.Provider value={materialyCtx}>
+      <div style={odsuniecie}>
       <main className={`container ${styles.page}`}>
         <Naglowek
           arkusz={dane}
           onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined}
           zwiniety={!!strony && strona !== strony[0]}
+          wStronach={
+            mozliweStrony && (!strony || strona === strony[0])
+              ? {
+                  wlaczone: wStronach,
+                  onZmien: () => {
+                    // Przełącznik stoi w nagłówku, więc uczeń klika go z góry arkusza. Po zmianie sposobu
+                    // pokazania wraca więc do zadania, nad którym ostatnio pracował, a nie do początku.
+                    const miejsce = ostatnieZadanie.current;
+                    const z = miejsce && dane.zadania.find((x) => x.nr === miejsce.nr);
+                    if (!wStronach && z && mozliweStrony) idzNaStrone(stronyZadania(z)[0], false);
+                    zapiszWStronach(!wStronach);
+                    setWStronach(!wStronach);
+                    if (!miejsce) return;
+                    window.setTimeout(() => {
+                      const el = document.getElementById(`zadanie-${miejsce.nr}`);
+                      if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - 96) });
+                    }, 80);
+                  },
+                }
+              : undefined
+          }
         />
 
         {/* Wynik jak okładka: na pierwszej stronie arkusza, nie na każdej. */}
@@ -432,6 +540,9 @@ export function Arkusz() {
             omow={{ ile: doOmowienia(dane, postep).length, ai, start: lecDoBledu }}
           />
         )}
+
+        <SpisZadan />
+        {dane.przedmiot === "informatyka" && <CoOddajesz arkusz={dane} />}
 
         {dane.zadania
           .filter((z) => strona === undefined || stronyZadania(z).includes(strona))
@@ -472,6 +583,7 @@ export function Arkusz() {
             </button>
           ) : (
             <>
+              {dane.przedmiot === "informatyka" && <BrakujaceOdpowiedzi />}
               <p className="muted small">
                 Odpowiedzi: {odpowiedziane} z {kontekst.pytania.size}. Zapisują się na bieżąco w tej przeglądarce.
               </p>
@@ -487,6 +599,29 @@ export function Arkusz() {
           )}
         </footer>
       </main>
+      </div>
+      {materialy && zadanieMaterialow && (
+        <CeleWstawiania.Provider
+          value={zadanieMaterialow.pytania.flatMap((p) =>
+            p.typ === "otwarte" && !p.kod && !kontekst.sprawdzone(p.nr) ? [{ nr: p.nr, rodzaj: rodzajPytania(p, zadanieMaterialow), odpowiedz: postep.odpowiedzi[p.nr] ?? "" }] : [],
+          )}
+        >
+        <PanelWarsztatu
+          zadanie={zadanieMaterialow}
+          pliki={dane.dane?.pliki ?? {}}
+          zip={dane.dane?.zip}
+          zapis={postep.warsztat?.[zadanieMaterialow.nr]}
+          onZapis={(z) => kontekst.ustawWarsztat(zadanieMaterialow.nr, z)}
+          doWstawienia={zadanieMaterialow.pytania.filter((p) => p.typ === "otwarte" && !p.kod && !sprawdzone(p.nr)).map((p) => p.nr)}
+          onWstaw={kontekst.ustaw}
+          uklad={uklad}
+          otwarty={materialy.otwarty}
+          onSchowaj={() => setMaterialy((m) => m && { ...m, otwarty: false })}
+          przycisk={przyciskMaterialow}
+        />
+        </CeleWstawiania.Provider>
+      )}
+      </MaterialyCtx.Provider>
     </Ctx.Provider>
   );
 }
@@ -567,8 +702,26 @@ function usePrzewiniecie(id: string, gotowe: boolean) {
 
 // zwiniety: dalsza strona arkusza w stronach. Jak w wydruku pełny nagłówek jest tylko na pierwszej,
 // ale odtwarzacz zostaje w tym samym miejscu drzewa, żeby nagranie nie urwało się przy przewracaniu.
-function Naglowek({ arkusz, onNaCzas, zwiniety }: { arkusz: ArkuszDane; onNaCzas?: () => void; zwiniety?: boolean }) {
+const KLUCZ_STRON = "sedno.arkuszWStronach";
+function czytajWStronach() {
+  try {
+    return localStorage.getItem(KLUCZ_STRON) === "1";
+  } catch {
+    return false;
+  }
+}
+function zapiszWStronach(w: boolean) {
+  try {
+    localStorage.setItem(KLUCZ_STRON, w ? "1" : "0");
+  } catch {
+    // bez dostępu do pamięci przeglądarki wybór działa do zamknięcia karty
+  }
+}
+
+function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDane; onNaCzas?: () => void; zwiniety?: boolean; wStronach?: { wlaczone: boolean; onZmien: () => void } }) {
   const maSluchanie = arkusz.zadania.some((z) => z.sluchanie);
+  // Tryb na czas startuje dopiero po przeczytaniu, co obejmuje i jak działa zegar.
+  const [pytaONaCzas, setPytaONaCzas] = useState(false);
   return (
     <header className={styles.head}>
       <Link to="/arkusze" className={`small muted ${styles.back}`}>
@@ -584,7 +737,7 @@ function Naglowek({ arkusz, onNaCzas, zwiniety }: { arkusz: ArkuszDane; onNaCzas
       )}
       {!zwiniety && <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>}
       {!zwiniety && arkusz.przedmiot === "matematyka" && <p className="small muted">Brudnopis nie wpływa na wynik w zadaniach zamkniętych. Zapisuje się w postępie arkusza.</p>}
-      {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas) && (
+      {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas || wStronach) && (
         <div className={styles.pdfs}>
           {arkusz.pdf?.arkusz && (
             <a className="btn btn-secondary btn-sm" href={arkusz.pdf?.arkusz} target="_blank" rel="noreferrer">
@@ -592,11 +745,43 @@ function Naglowek({ arkusz, onNaCzas, zwiniety }: { arkusz: ArkuszDane; onNaCzas
             </a>
           )}
           {onNaCzas && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={onNaCzas}>
+            <button type="button" className="btn btn-ghost btn-sm" aria-expanded={pytaONaCzas} aria-controls="na-czas" onClick={() => setPytaONaCzas(!pytaONaCzas)}>
               <Timer size={16} aria-hidden="true" /> Rozwiąż na czas
             </button>
           )}
+          {wStronach && (
+            <button type="button" className="btn btn-ghost btn-sm" aria-pressed={wStronach.wlaczone} onClick={wStronach.onZmien}>
+              <BookOpen size={16} aria-hidden="true" /> {wStronach.wlaczone ? "Wszystko na jednej stronie" : "Podziel na strony jak w arkuszu"}
+            </button>
+          )}
         </div>
+      )}
+      {!zwiniety && onNaCzas && pytaONaCzas && (
+        <div id="na-czas" className={styles.naCzas}>
+          <p>
+            Zegar odmierza {arkusz.czas} minut na cały arkusz, tyle co na maturze. Odpowiedzi zapisują się jak zawsze, a zegar i tak ich nie blokuje: po czasie możesz pisać dalej.
+          </p>
+          <ul className="small muted">
+            <li>Zegar możesz wstrzymać albo wyłączyć. Stan trzyma postęp arkusza, więc przeżywa odświeżenie strony i zapisuje się na koncie.</li>
+            <li>Pestka odezwie się trzy razy: w połowie czasu, na 15 minut przed końcem i po czasie.</li>
+            <li>„Sprawdź cały arkusz” zatrzymuje zegar, a wynik pokaże twój czas i tempo przy zadaniach.</li>
+          </ul>
+          <div className={styles.pdfs}>
+            <button type="button" className="btn btn-primary btn-sm" onClick={onNaCzas}>
+              <Timer size={16} aria-hidden="true" /> Start, {arkusz.czas} minut
+            </button>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPytaONaCzas(false)}>
+              Nie teraz
+            </button>
+          </div>
+        </div>
+      )}
+      {!zwiniety && wStronach && (
+        <p className="small muted">
+          {wStronach.wlaczone
+            ? "Strony to tylko sposób pokazania arkusza jak na wydruku CKE. Zadania, odpowiedzi, zegar i zapis są te same, co na jednej stronie."
+            : "Podział na strony to tylko sposób pokazania arkusza jak na wydruku CKE (strzałki w lewo i w prawo przewracają). Zadania, odpowiedzi, zegar i zapis są te same."}
+        </p>
       )}
       {maSluchanie && arkusz.nagranie && <Nagranie src={arkusz.nagranie} />}
       {!zwiniety && <p className="small muted">Źródło: Centralna Komisja Egzaminacyjna, cke.gov.pl.</p>}
@@ -698,6 +883,112 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
   );
 }
 
+// Zadanie, które uczeń ma teraz na ekranie: ostatnie, którego początek minął linię pod paskiem.
+// W arkuszu w stronach liczą się tylko zadania obecne na stronie.
+function zadanieNaEkranie(numery: number[]): { nr: number; odGory: number } | null {
+  const pasek = document.querySelector("nav[aria-label=\"Główna\"]")?.getBoundingClientRect().bottom ?? 0;
+  let wynik: { nr: number; odGory: number } | null = null;
+  for (const nr of numery) {
+    const el = document.getElementById(`zadanie-${nr}`);
+    const gora = el?.getBoundingClientRect().top;
+    if (gora !== undefined && gora <= pasek + 120) wynik = { nr, odGory: gora };
+  }
+  return wynik;
+}
+
+function useAktualneZadanie(numery: number[]) {
+  const [aktualne, setAktualne] = useState<number | null>(null);
+  useEffect(() => {
+    let klatka = 0;
+    const licz = () => {
+      klatka = 0;
+      setAktualne(zadanieNaEkranie(numery)?.nr ?? null);
+    };
+    const zglos = () => {
+      if (!klatka) klatka = requestAnimationFrame(licz);
+    };
+    licz();
+    window.addEventListener("scroll", zglos, { passive: true });
+    window.addEventListener("resize", zglos);
+    // Zmiana strony arkusza podmienia zadania w drzewie bez przewinięcia.
+    const obserwator = new MutationObserver(zglos);
+    obserwator.observe(document.querySelector("main") ?? document.body, { childList: true, subtree: true });
+    return () => {
+      cancelAnimationFrame(klatka);
+      obserwator.disconnect();
+      window.removeEventListener("scroll", zglos);
+      window.removeEventListener("resize", zglos);
+    };
+  }, [numery]);
+  return aktualne;
+}
+
+// Zwijany spis zadań i podpunktów z oznaczeniem, co ma już odpowiedź, i skokiem do miejsca w arkuszu.
+function SpisZadan() {
+  const { arkusz, postep, sprawdzone, idzDoZadania, idzDoPytania } = useCtx();
+  const [otwarty, setOtwarty] = useState(false);
+  const numery = useMemo(() => arkusz.zadania.map((z) => z.nr), [arkusz]);
+  const aktualne = useAktualneZadanie(numery);
+  const maOdpowiedz = (nr: string) => !!postep.odpowiedzi[nr]?.trim();
+  const wiersze = arkusz.zadania.map((z) => {
+    const pytania = z.pytania.filter((p) => p.typ !== "wypowiedz");
+    const ile = z.pytania.filter((p) => maOdpowiedz(p.nr)).length;
+    return { z, pytania, ile, wszystkich: z.pytania.length };
+  });
+  const gotowych = wiersze.filter((w) => w.wszystkich > 0 && w.ile === w.wszystkich).length;
+  return (
+    <nav className={styles.spis} aria-label="Spis zadań">
+      <button type="button" className={styles.spisPrzycisk} aria-expanded={otwarty} aria-controls="spis-zadan" onClick={() => setOtwarty(!otwarty)}>
+        <List size={16} aria-hidden="true" />
+        <span>Spis zadań</span>
+        <span className="small muted">
+          {gotowych} z {wiersze.length} z odpowiedzią
+        </span>
+        <ChevronDown size={16} aria-hidden="true" className={otwarty ? styles.spisStrzalkaOtwarta : undefined} />
+      </button>
+      {otwarty && (
+        <ol id="spis-zadan" className={styles.spisLista}>
+          {wiersze.map(({ z, pytania, ile, wszystkich }) => {
+            const stan = ile === 0 ? "bez odpowiedzi" : ile === wszystkich ? "jest odpowiedź" : `${ile} z ${wszystkich}`;
+            return (
+              <li key={z.nr} className={styles.spisWiersz}>
+                <button
+                  type="button"
+                  className={styles.spisZadanie}
+                  aria-current={aktualne === z.nr ? "location" : undefined}
+                  onClick={() => idzDoZadania(z.nr)}
+                >
+                  <span className={styles.spisNr}>{z.nr}.</span>
+                  <span className={styles.spisTytul}>{z.tytul ?? `Zadanie ${z.nr}`}</span>
+                  <span className={styles.spisStan} data-stan={ile === 0 ? "brak" : ile === wszystkich ? "jest" : "czesc"}>
+                    {sprawdzone(`${z.nr}.`) && !postep.sprawdzony ? "sprawdzone" : stan}
+                  </span>
+                </button>
+                {pytania.length > 1 && (
+                  <ul className={styles.spisPodzadania} aria-label={`Podzadania zadania ${z.nr}`}>
+                    {pytania.map((p) => (
+                      <li key={p.nr}>
+                        <button
+                          type="button"
+                          data-stan={maOdpowiedz(p.nr) ? "jest" : "brak"}
+                          aria-label={`Zadanie ${p.nr}, ${maOdpowiedz(p.nr) ? "jest odpowiedź" : "bez odpowiedzi"}`}
+                          onClick={() => idzDoPytania(p.nr)}
+                        >
+                          {p.nr}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      )}
+    </nav>
+  );
+}
+
 // Przewracanie stron pod treścią strony, jak stopka wydruku: poprzednia, numery stron z PDF, następna.
 function Strony({ strony, strona, onZmien }: { strony: number[]; strona: number; onZmien: (s: number) => void }) {
   const i = strony.indexOf(strona);
@@ -732,6 +1023,8 @@ function stronyZadania(z: Zadanie): number[] {
 
 /** strona: arkusz w stronach; zadanie pokazuje tylko to, co leży na tej stronie. */
 function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopraw: () => void; strona?: number }) {
+  const materialy = useContext(MaterialyCtx);
+  const otworzMaterialy = materialy.otworz;
   const { arkusz, postep, wBloku, sprawdzone, ustawBrudnopis, luki, tabele, opcjeNaRysunkach, ukryteKodem } = useCtx();
   const pisemna = zadanie.pytania[0]?.typ === "wypowiedz";
   const gotowe = sprawdzone(`${zadanie.nr}.`);
@@ -758,7 +1051,9 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
       {pierwsza && (
       <>
       <header className={styles.taskHead}>
-        <h2 className="h3">Zadanie {zadanie.nr}.</h2>
+        <h2 className="h3">
+          Zadanie {zadanie.nr}.{zadanie.tytul && <span className={styles.taskTitle}> {zadanie.tytul}</span>}
+        </h2>
         <span className="small muted">
           {gotowe && !pisemna ? `${wynik.zdobyte} / ${zadanie.punkty} pkt` : `0–${zadanie.punkty} pkt`}
           {gotowe && postep.czasZadan?.[zadanie.nr] ? ` · ${minuty(postep.czasZadan[zadanie.nr]!)}` : ""}
@@ -779,7 +1074,7 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
       <div className={styles.content}>
         {podzielNaCzesci(
           grupujPrawdaFalsz(bloki, zadanie),
-          arkusz.przedmiot !== "matematyka",
+          arkusz.przedmiot === "angielski",
           new Set(zadanie.pytania.filter((p) => !p.tresc.trim()).map((p) => p.nr)),
         ).map((c, i) => (
           <div key={i} className={styles.part} data-rodzaj={c.rodzaj}>
@@ -788,14 +1083,18 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
                 <Tekst tekst={c.polecenie} />
               </p>
             )}
-            {c.elementy.map((b, j) =>
-              Array.isArray(b) ? (
-                <PrawdaFalsz key={j} pytania={b} />
-              ) : b.typ === "pytanie" && pisanie ? (
-                <WypowiedzWidok key={j} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} />
-              ) : (
-                <BlokWidok key={j} blok={b} zadanie={zadanie.nr} />
-              ),
+            {arkusz.przedmiot === "informatyka" ? (
+              <ElementyZGrupami elementy={c.elementy} grupy={grupyInformacji(zadanie)} zadanie={zadanie.nr} wskazowki />
+            ) : (
+              c.elementy.map((b, j) =>
+                Array.isArray(b) ? (
+                  <PrawdaFalsz key={j} pytania={b} />
+                ) : b.typ === "pytanie" && pisanie ? (
+                  <WypowiedzWidok key={j} pytanie={zadanie.pytania[0] as Wypowiedz} pisanie={pisanie} />
+                ) : (
+                  <BlokWidok key={j} blok={b} zadanie={zadanie.nr} />
+                ),
+              )
             )}
           </div>
         ))}
@@ -832,6 +1131,15 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           duzyRysunek={[...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie))}
         />
       )}
+      {ostatnia && arkusz.przedmiot === "informatyka" && zadanie.pytania.some((p) => p.typ === "otwarte" && !p.kod) && (
+        <MaterialyWiersz
+          zadanie={zadanie}
+          pliki={arkusz.dane?.pliki ?? {}}
+          zip={arkusz.dane?.zip}
+          otwarty={materialy.nr === zadanie.nr}
+          onOtworz={(przycisk) => otworzMaterialy(zadanie.nr, przycisk)}
+        />
+      )}
       {/* Sprawdzamy tylko cały arkusz, jak na maturze, a błędy omawia potem Pestka.
           Zadanie sprawdzone wcześniej (stary zapis postępu albo inne zadanie poprawiane
           po sprawdzeniu) pokazuje wynik i pozwala wrócić do odpowiedzi. */}
@@ -860,7 +1168,7 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
 type ElementZadania = Blok | PytanieZamkniete[];
 type Czesc = { rodzaj: "czytanie" | "tresc" | "pytania"; elementy: ElementZadania[]; polecenie?: string };
 
-const TRESC = new Set<Blok["typ"]>(["akapit", "wzor", "rysunek", "tabelaTresci", "naglowek", "zrodlo", "kadr"]);
+const TRESC = new Set<Blok["typ"]>(["akapit", "wzor", "rysunek", "tabelaTresci", "naglowek", "zrodlo", "kadr", "kod"]);
 const jestTrescia = (e: ElementZadania | undefined) => !!e && !Array.isArray(e) && TRESC.has(e.typ);
 
 // Polecenie do grupy pytań w środku zadania, np. „For questions 4.1.–4.4.,
@@ -1183,6 +1491,7 @@ function pytaniaZObliczeniami(z: Zadanie): string[] {
 // pod ostatnim zdaniem stoi wtedy lista opcji.
 type Luka = { pytanie: PytanieOtwarte; czesc: number; ile: number; opcje?: Opcja[] };
 const ZNACZNIK_LUKI = /…{2,}|\.{4,}/;
+const LUKI_W_ZDANIU = new RegExp(ZNACZNIK_LUKI.source, "g");
 
 function lukiZadania(z: Zadanie): Map<Blok, Luka> | null {
   const [p] = z.pytania;
@@ -1223,7 +1532,11 @@ function pojedynczeLuki(z: Zadanie): Map<Blok, Luka> {
     const p = z.pytania.find((q) => q.nr === b.nr);
     const zLuka = sekcja.filter((x) => x.typ === "akapit" && !x.polecenie && ZNACZNIK_LUKI.test(x.tekst));
     const obliczenia = POLECENIE_OBLICZEN.test(sekcja.map((x) => ("tekst" in x ? x.tekst : "")).join(" "));
-    if (p?.typ === "otwarte" && !p.tresc && !p.kod && !obliczenia && zLuka.length === 1) wynik.set(zLuka[0], { pytanie: p, czesc: 0, ile: 1 });
+    if (p?.typ === "otwarte" && !p.tresc && !p.kod && !obliczenia && zLuka.length === 1) {
+      // Jedno zdanie z kilkoma lukami (informatyka, zadanie 5): każda luka to osobna część odpowiedzi.
+      const ile = zLuka[0].typ === "akapit" ? (zLuka[0].tekst.match(LUKI_W_ZDANIU) ?? []).length : 1;
+      wynik.set(zLuka[0], { pytanie: p, czesc: 0, ile: Math.max(ile, 1) });
+    }
     sekcja = [];
   }
   return wynik;
@@ -1234,15 +1547,49 @@ const czesciOdpowiedzi = (odpowiedz: string | undefined, ile: number) => {
   return Array.from({ length: ile }, (_, i) => czesci[i] ?? "");
 };
 
-function ZdanieZLuka({ tekst, luka, bezOpcji }: { tekst: string; luka: Luka; bezOpcji?: boolean }) {
-  const { postep, ustaw, sprawdzone } = useCtx();
+function ZdanieZLuka({ tekst, luka, bezOpcji, formaty }: { tekst: string; luka: Luka; bezOpcji?: boolean; formaty?: [number, number, Kroj][] }) {
+  const { arkusz, postep, ustaw, sprawdzone } = useCtx();
   const { pytanie: p, czesc, ile } = luka;
   const czesci = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
   const m = tekst.match(ZNACZNIK_LUKI)!;
   const [przed, po] = [tekst.slice(0, m.index), tekst.slice(m.index! + m[0].length)];
+  // Informatyka: formatowanie (indeksy podstaw systemów, kursywa) przycięte do części przed i po luce.
+  const kawalek = (od: number, do_: number) =>
+    formaty ? (
+      <TekstFormaty tekst={tekst.slice(od, do_)} formaty={formaty.filter(([a, b]) => b > od && a < do_).map(([a, b, k]) => [Math.max(a, od) - od, Math.min(b, do_) - od, k] as [number, number, Kroj])} />
+    ) : null;
+  const zapisz = (wartosc: string, i = czesc) => {
+    const nowe = czesciOdpowiedzi(postep.odpowiedzi[p.nr], ile);
+    nowe[i] = wartosc.replace(/\n/g, " ");
+    // Puste części na końcu nie liczą się jako odpowiedź.
+    ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
+  };
+  // Zdanie z kilkoma lukami (informatyka): każda ma własne pole i własną część odpowiedzi.
+  const luki = [...tekst.matchAll(LUKI_W_ZDANIU)];
+  if (arkusz.przedmiot === "informatyka" && !luka.opcje && luki.length > 1 && ile >= luki.length) {
+    const od = (i: number) => (i ? luki[i - 1].index! + luki[i - 1][0].length : 0);
+    const ostatnia = luki[luki.length - 1];
+    const koniec = ostatnia.index! + ostatnia[0].length;
+    return (
+      <div className={`${styles.para} ${styles.zdanieLuka}`}>
+        {luki.map((l, i) => {
+          const wartosc = czesci[czesc + i] ?? "";
+          return (
+            <Fragment key={i}>
+              {kawalek(od(i), l.index!) ?? <Tekst tekst={tekst.slice(od(i), l.index!)} />}
+              <span className={styles.inlineGap}>
+                <input type="text" value={wartosc} size={Math.max(12, wartosc.length + 2)} readOnly={sprawdzone(p.nr)} autoComplete="off" spellCheck={false} onChange={(e) => zapisz(e.target.value, czesc + i)} aria-label={`Odpowiedź ${p.nr}, luka ${i + 1}`} />
+              </span>
+            </Fragment>
+          );
+        })}
+        {kawalek(koniec, tekst.length) ?? <Tekst tekst={tekst.slice(koniec)} />}
+      </div>
+    );
+  }
   return (
     <div className={`${styles.para} ${styles.zdanieLuka}`}>
-      <Tekst tekst={przed} />
+      {kawalek(0, m.index!) ?? <Tekst tekst={przed} />}
       {luka.opcje ? (
         <PrzelacznikLiter
           litery={luka.opcje.map((o) => o.litera)}
@@ -1255,6 +1602,11 @@ function ZdanieZLuka({ tekst, luka, bezOpcji }: { tekst: string; luka: Luka; bez
             ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
           }}
         />
+      ) : arkusz.przedmiot === "informatyka" ? (
+        // Informatyka: zwykłe pole (liczba w innym systemie, wynik), bez klawiatury matematycznej.
+        <span className={styles.inlineGap}>
+          <input type="text" value={czesci[czesc] ?? ""} size={Math.max(12, (czesci[czesc] ?? "").length + 2)} readOnly={sprawdzone(p.nr)} autoComplete="off" spellCheck={false} onChange={(e) => zapisz(e.target.value)} aria-label={`Odpowiedź ${p.nr}, część ${czesc + 1}`} />
+        </span>
       ) : ile === 1 && (p.oczekiwane?.length || p.akceptowane?.length) ? (
         // Odpowiedź porównywana z kluczem jako tekst: zwykłe pole w luce.
         <LukaTekst pytanie={p} bezNumeru />
@@ -1271,7 +1623,7 @@ function ZdanieZLuka({ tekst, luka, bezOpcji }: { tekst: string; luka: Luka; bez
         }}
       />
       )}
-      <Tekst tekst={po} />
+      {kawalek(m.index! + m[0].length, tekst.length) ?? <Tekst tekst={po} />}
       {luka.opcje && czesc === ile - 1 && !bezOpcji && <ListaOpcjiLiter opcje={luka.opcje} />}
     </div>
   );
@@ -1442,13 +1794,142 @@ function BlokiKompakt({ elementy, zadanie }: { elementy: (Blok | PytanieZamkniet
   return <>{wynik}</>;
 }
 
+// Informacja wspólna dla kilku podpunktów („Informacja do zadań 4.2.–4.4.”, „… 2.2. i 2.3.”)
+// i opis zadania przed pierwszym podpunktem (rysunek hierarchii, schemat plików). CKE kładzie
+// je raz, przed pierwszym podpunktem, a dotyczą kilku, więc je wyróżniamy i dajemy do nich
+// dostęp od każdego podpunktu z zakresu. Rozpoznajemy po treści, importer zostaje bez zmian.
+type GrupaInfo = { rodzaj: "info" | "wstep"; zadanie: number; od: number; do: number; bloki: Blok[]; id: string };
+const INFORMACJA_DO_ZADAN = /^Informacja do zadań\s+(\d+)\.(\d+)\.?\s*(?:–|-|i)\s*(?:\d+\.)?(\d+)\.?\s*$/;
+const NAGLOWEK_PODPUNKTU = /^Zadanie\s+(\d+)\.(\d+)\b/;
+const grupyCache = new WeakMap<Zadanie, GrupaInfo[]>();
+
+function grupyInformacji(z: Zadanie): GrupaInfo[] {
+  const znane = grupyCache.get(z);
+  if (znane) return znane;
+  const wynik: GrupaInfo[] = [];
+  const naglowki = z.bloki.map((b, i) => (b.typ === "naglowek" && NAGLOWEK_PODPUNKTU.test(b.tekst) ? i : -1)).filter((i) => i >= 0);
+  const nrPodpunktu = (i: number) => Number(z.bloki[i].typ === "naglowek" ? z.bloki[i].tekst.match(NAGLOWEK_PODPUNKTU)?.[2] : NaN);
+  if (naglowki.length >= 2) {
+    // Opis przed pierwszym podpunktem: tylko dłuższy (rysunek, pliki z przykładami), nie jedno zdanie.
+    const wstep = z.bloki.slice(0, naglowki[0]).filter((b) => !czyPytanie(b));
+    if (wstep.length >= 4) wynik.push({ rodzaj: "wstep", zadanie: z.nr, od: nrPodpunktu(naglowki[0]), do: nrPodpunktu(naglowki.at(-1)!), bloki: wstep, id: `wstep-${z.nr}` });
+  }
+  z.bloki.forEach((b, i) => {
+    const m = b.typ === "akapit" ? b.tekst.trim().match(INFORMACJA_DO_ZADAN) : null;
+    if (!m || Number(m[1]) !== z.nr) return;
+    const koniec = naglowki.find((n) => n > i);
+    if (koniec === undefined) return;
+    wynik.push({ rodzaj: "info", zadanie: z.nr, od: Number(m[2]), do: Number(m[3]), bloki: z.bloki.slice(i, koniec).filter((x) => !czyPytanie(x)), id: `info-${z.nr}-${m[2]}` });
+  });
+  grupyCache.set(z, wynik);
+  return wynik;
+}
+
+const zakresGrupy = (g: GrupaInfo) => (g.od === g.do ? `${g.zadanie}.${g.od}` : `${g.zadanie}.${g.od}–${g.zadanie}.${g.do}`);
+
+// Nagłówek podpunktu; w zakresie informacji wspólnej dokłada przycisk z jej podglądem w tym
+// samym miejscu, żeby nie trzeba było przewijać ani tracić pozycji. Pomijamy podpunkt, który
+// leży tuż pod samą informacją (jest wtedy na oczach).
+function NaglowekZGrupa({ blok, zadanie }: { blok: Blok & { tekst: string }; zadanie: number }) {
+  const { arkusz } = useCtx();
+  const z = arkusz.przedmiot === "informatyka" ? arkusz.zadania.find((x) => x.nr === zadanie) : undefined;
+  const m = z ? blok.tekst.match(NAGLOWEK_PODPUNKTU) : null;
+  const i = z ? z.bloki.indexOf(blok) : -1;
+  const grupy =
+    z && m && i >= 0
+      ? grupyInformacji(z).filter((g) => {
+          const nr = Number(m[2]);
+          if (nr < g.od || nr > g.do) return false;
+          const ostatni = g.bloki.at(-1)!;
+          return !(z.bloki[i - 1] === ostatni && (ostatni.strona ?? z.strona) === (blok.strona ?? z.strona));
+        })
+      : [];
+  if (!grupy.length) return <h3 className={styles.textTitle}>{blok.tekst}</h3>;
+  return (
+    <div className={styles.podpunkt}>
+      <h3 className={styles.textTitle}>{blok.tekst}</h3>
+      {grupy.map((g) => (
+        <PodgladGrupy key={g.id} grupa={g} zadanie={zadanie} />
+      ))}
+    </div>
+  );
+}
+
+function PodgladGrupy({ grupa, zadanie }: { grupa: GrupaInfo; zadanie: number }) {
+  const [otwarta, setOtwarta] = useState(false);
+  const idPanelu = `podglad-${grupa.id}-${useId()}`;
+  const nazwa = grupa.rodzaj === "info" ? `Informacja wspólna do zadań ${zakresGrupy(grupa)}` : `Opis zadania ${grupa.zadanie}`;
+  return (
+    <div className={styles.podglad}>
+      <button type="button" className={styles.podgladPrzycisk} aria-expanded={otwarta} aria-controls={idPanelu} onClick={() => setOtwarta(!otwarta)}>
+        <ChevronDown size={14} aria-hidden="true" data-otwarta={otwarta} />
+        {grupa.rodzaj === "info" ? "Informacja wspólna" : "Opis zadania"}
+        <span className="muted"> · {zakresGrupy(grupa)}</span>
+        <span className="sr-only">{otwarta ? ", ukryj" : ", pokaż"}: {nazwa}</span>
+      </button>
+      {otwarta && (
+        <div id={idPanelu} className={styles.grupa} role="region" aria-label={nazwa}>
+          {grupa.bloki.filter((b) => !(grupa.rodzaj === "info" && b === grupa.bloki[0])).map((b, j) => (
+            <BlokWidok key={j} blok={b} zadanie={zadanie} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Ciąg elementów zadania z informacją wspólną w jednym opakowaniu z linią z lewej. */
+function ElementyZGrupami({ elementy, grupy, zadanie, wskazowki }: { elementy: ElementZadania[]; grupy: GrupaInfo[]; zadanie: number; wskazowki: boolean }) {
+  const odcinki: { grupa?: GrupaInfo; elementy: ElementZadania[] }[] = [];
+  for (const e of elementy) {
+    const grupa = Array.isArray(e) ? undefined : grupy.find((g) => g.bloki.includes(e));
+    const ost = odcinki.at(-1);
+    if (ost && ost.grupa === grupa) ost.elementy.push(e);
+    else odcinki.push({ grupa, elementy: [e] });
+  }
+  const wyrenderuj = (e: ElementZadania, j: number) =>
+    Array.isArray(e) ? (
+      <PrawdaFalsz key={j} pytania={e} />
+    ) : (
+      <Fragment key={j}>
+        <BlokWidok blok={e} zadanie={zadanie} />
+        {wskazowki && <WskazowkaAplikacji rodzaj={wskazowkaPodAkapitem(e)} />}
+      </Fragment>
+    );
+  return (
+    <>
+      {odcinki.map((o, k) => {
+        if (!o.grupa) return o.elementy.map((e, j) => wyrenderuj(e, k * 1000 + j));
+        const g = o.grupa;
+        const pierwszyNaStronie = o.elementy[0] === g.bloki[0];
+        const bezZnacznika = g.rodzaj === "info" ? o.elementy.filter((e) => e !== g.bloki[0]) : o.elementy;
+        return (
+          <aside key={k} id={pierwszyNaStronie ? g.id : undefined} className={styles.grupa} aria-label={g.rodzaj === "info" ? `Informacja wspólna do zadań ${zakresGrupy(g)}` : `Opis zadania ${g.zadanie}`}>
+            <p className={`small muted ${styles.grupaPodpis}`}>
+              {g.rodzaj === "info" ? `Dotyczy zadań ${zakresGrupy(g)}` : `Dotyczy zadań ${zakresGrupy(g)} (opis wspólny)`}
+              {!pierwszyNaStronie && " · ciąg dalszy"}
+            </p>
+            {bezZnacznika.map((e, j) => wyrenderuj(e, j))}
+          </aside>
+        );
+      })}
+    </>
+  );
+}
+
 function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
   const { pytania, luki, lukiKadrow } = useCtx();
   const kompakt = useContext(Kompakt);
   switch (blok.typ) {
     case "akapit": {
       const luka = luki.get(blok) ?? (kompakt ? lukiKadrow.get(blok) : undefined);
-      if (luka) return <ZdanieZLuka tekst={blok.tekst} luka={luka} />;
+      if (luka) return <ZdanieZLuka tekst={blok.tekst} luka={luka} formaty={blok.formaty} />;
+      if (blok.formaty)
+        return (
+          <div className={styles.para}>
+            <TekstFormaty tekst={blok.tekst} formaty={blok.formaty} />
+          </div>
+        );
     }
       return (
         <div className={blok.polecenie ? `${styles.para} ${styles.command}` : styles.para}>
@@ -1460,6 +1941,7 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
     case "rysunek":
       return <Kadr obraz={blok.obraz} tekst="Rysunek do zadania" />;
     case "tabelaTresci":
+      if (blok.naglowek !== undefined || blok.pytanie || blok.zakresy || blok.obrazy) return <TabelaInformatyki blok={blok} />;
       // Na pełnym ekranie wąska, wysoka tabela (Ocena | Liczba uczniów, 6 wierszy) idzie
       // w poprzek: nagłówki w pierwszej kolumnie, wartości obok, więc zajmuje dwa wiersze.
       if (kompakt && blok.wiersze[0]?.length <= 3 && blok.wiersze.length > 3)
@@ -1507,11 +1989,13 @@ function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
         </div>
       );
     case "naglowek":
-      return <h3 className={styles.textTitle}>{blok.tekst}</h3>;
+      return <NaglowekZGrupa blok={blok} zadanie={zadanie} />;
     case "zrodlo":
       return <Zrodlo tekst={blok.tekst} />;
     case "kadr":
       return <Kadr obraz={blok.obraz} tekst={blok.tekst} />;
+    case "kod":
+      return <pre className={styles.codeBlock}>{blok.tekst}</pre>;
     case "opcje":
       return <OpcjeZadania opcje={blok.opcje} zadanie={zadanie} />;
     case "pytanie": {
@@ -1555,6 +2039,149 @@ function OpcjeZadania({ opcje, zadanie }: { opcje: Opcja[]; zadanie: number }) {
         </div>
       ))}
     </dl>
+  );
+}
+
+// Akapit z informatyki: pogrubienie, kursywa (nazwy funkcji i zmiennych) i krój kodu (nazwy plików, symbole).
+function TekstFormaty({ tekst, formaty }: { tekst: string; formaty: [number, number, Kroj][] }) {
+  const czesci: ReactNode[] = [];
+  let poz = 0;
+  for (const [od, do_, kroj] of [...formaty].sort((a, b) => a[0] - b[0])) {
+    if (od < poz) continue;
+    if (od > poz) czesci.push(tekst.slice(poz, od));
+    const s = tekst.slice(od, do_);
+    czesci.push(
+      kroj === "b" ? <strong key={od}>{s}</strong> : kroj === "i" ? <em key={od}>{s}</em> : kroj === "sup" ? <sup key={od}>{s}</sup> : kroj === "sub" ? <sub key={od}>{s}</sub> : <code key={od} className={styles.inlineCode}>{s}</code>,
+    );
+    poz = do_;
+  }
+  if (poz < tekst.length) czesci.push(tekst.slice(poz));
+  return <>{czesci}</>;
+}
+
+// Tabela z informatyki: nagłówek, scalone komórki, komórki-wycinki. Gdy odpowiedź na pytanie jest
+// w tabeli, puste komórki są polami do wpisania, a kolumny P i F przełącznikiem w każdym wierszu.
+// Wpisane komórki leżą pod kluczem „<nr>:tabela” (JSON), a odpowiedź pytania to wiersze tabeli
+// tekstem (komórki spacją), sprawdzane z wierszami klucza.
+function TabelaInformatyki({ blok }: { blok: Extract<Blok, { typ: "tabelaTresci" }> }) {
+  const { postep, ustaw, sprawdzone, pytania } = useCtx();
+  const naglowek = blok.naglowek ?? 1;
+  const p = blok.pytanie ? pytania.get(blok.pytanie) : undefined;
+  const gotowe = p ? sprawdzone(p.nr) : true;
+  const pf = p?.typ === "otwarte" && p.kod;
+  const obrazy = new Map((blok.obrazy ?? []).map((o) => [`${o.r},${o.c}`, o.obraz]));
+  const klucz = p ? `${p.nr}:tabela` : "";
+  const komorki: Record<string, string> = (() => {
+    try {
+      return p ? JSON.parse(postep.odpowiedzi[klucz] || "{}") : {};
+    } catch {
+      return {};
+    }
+  })();
+  // Wiersze z przełącznikiem P / F, w kolejności, i litera wybrana w każdym.
+  const wierszePF = pf ? blok.wiersze.map((w, r) => (w.includes("P") && w.includes("F") ? r : -1)).filter((r) => r >= 0) : [];
+  const literyPF = (postep.odpowiedzi[p?.nr ?? ""] ?? "").padEnd(wierszePF.length, "_");
+  const poprawnePF = p?.typ === "otwarte" ? p.oczekiwane?.[0] : undefined;
+
+  const wpisz = (r: number, c: number, wartosc: string) => {
+    if (!p) return;
+    const nowe = { ...komorki, [`${r},${c}`]: wartosc };
+    if (!wartosc) delete nowe[`${r},${c}`];
+    ustaw(klucz, JSON.stringify(nowe));
+    // Odpowiedź: wiersze danych, w każdym komórki z treści i wpisane, rozdzielone spacją.
+    const wiersze = blok.wiersze.slice(naglowek).map((w, i) => w.map((k, c) => k || nowe[`${i + naglowek},${c}`] || "").join(" ").trim());
+    ustaw(p.nr, Object.keys(nowe).length ? wiersze.join("\n") : "");
+  };
+  const wybierzPF = (i: number, litera: string) => {
+    if (!p) return;
+    const litery = [...literyPF];
+    litery[i] = litera || "_";
+    const wynik = litery.join("");
+    ustaw(p.nr, /^_+$/.test(wynik) ? "" : wynik);
+  };
+
+  return (
+    <div className={styles.dataTableWrap}>
+      <table className={`${styles.dataTable} ${styles.infTable} ${pf ? styles.pfTable : p ? styles.fillTable : ""}`}>
+        <tbody>
+          {blok.wiersze.map((w, r) => {
+            const iPF = wierszePF.indexOf(r);
+            return (
+              <tr key={r}>
+                {w.map((k, c) => {
+                  const zakres = blok.zakresy?.[r]?.[c] ?? 1;
+                  const obraz = obrazy.get(`${r},${c}`);
+                  if (iPF >= 0 && (k === "P" || k === "F")) {
+                    if (k === "F") return null;
+                    const wybrana = literyPF[iPF] === "_" ? undefined : literyPF[iPF];
+                    return (
+                      <td key={c} colSpan={2} className={styles.pfCell}>
+                        <PrawdaFalszKomorka wybrana={wybrana} poprawna={gotowe ? poprawnePF?.[iPF] : undefined} gotowe={gotowe} onWybor={(l) => wybierzPF(iPF, l)} etykieta={`Zdanie ${iPF + 1}: prawda czy fałsz`} />
+                      </td>
+                    );
+                  }
+                  const tresc = obraz ? <img src={adresObrazu(obraz.src)} alt={k} width={Math.round(obraz.szer * 1.5)} className={styles.cellImage} /> : <Tekst tekst={k} />;
+                  if (r < naglowek)
+                    return (
+                      <th key={c} scope="col" colSpan={zakres}>
+                        {tresc}
+                      </th>
+                    );
+                  if (!k && p && !pf)
+                    return (
+                      <td key={c} colSpan={zakres} className={styles.fillCell}>
+                        <input
+                          type="text"
+                          value={komorki[`${r},${c}`] ?? ""}
+                          readOnly={gotowe}
+                          autoComplete="off"
+                          spellCheck={false}
+                          onChange={(e) => wpisz(r, c, e.target.value)}
+                          aria-label={`Odpowiedź ${p.nr}, wiersz ${r + 1 - naglowek}, kolumna ${c + 1}`}
+                        />
+                      </td>
+                    );
+                  return (
+                    <td key={c} colSpan={zakres}>
+                      {tresc}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Przełącznik Prawda / Fałsz w wierszu tabeli z informatyki, w stylu przełącznika z angielskiego.
+const PF_PL = [
+  { litera: "P", nazwa: "Prawda", ikona: Check },
+  { litera: "F", nazwa: "Fałsz", ikona: X },
+];
+function PrawdaFalszKomorka({ wybrana, poprawna, gotowe, onWybor, etykieta }: { wybrana?: string; poprawna?: string; gotowe: boolean; onWybor: (l: string) => void; etykieta: string }) {
+  const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  return (
+    <div ref={kontener} className={styles.tfToggle} role="radiogroup" aria-label={etykieta}>
+      {ramka && <span className={styles.tfThumb} style={ramka} aria-hidden="true" />}
+      {PF_PL.map(({ litera, nazwa, ikona: Ikona }) => (
+        <button
+          key={litera}
+          type="button"
+          role="radio"
+          aria-checked={wybrana === litera}
+          className={styles.tfOption}
+          data-stan={stanCzesci(wybrana, poprawna, litera, gotowe)}
+          disabled={gotowe}
+          onClick={() => onWybor(wybrana === litera ? "" : litera)}
+        >
+          <Ikona size={15} strokeWidth={2.4} aria-hidden="true" />
+          {nazwa}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -1659,15 +2286,17 @@ function WierszPrawdaFalsz({ pytanie: p }: { pytanie: PytanieZamkniete }) {
 }
 
 function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
-  const { luki, lukiKadrow, obliczenia, kody, pf, dwie, tabele } = useCtx();
+  const { arkusz, luki, lukiKadrow, obliczenia, kody, pf, dwie, tabele, wTabeli } = useCtx();
   const kompakt = useContext(Kompakt);
   const numerWidoku = useContext(NumerWidoku);
   if (p.typ === "wypowiedz") return null;
-  const zNumerem = p.nr.includes(".") && p.nr !== numerWidoku;
+  // Informatyka: nagłówek „Zadanie 7.1 (0–3 pkt)” już podaje numer podpunktu, więc nie powtarzamy go nad polem.
+  const wNaglowku = arkusz.przedmiot === "informatyka" && arkusz.zadania.some((z) => z.bloki.some((b) => b.typ === "naglowek" && b.tekst.startsWith(`Zadanie ${p.nr} `)));
+  const zNumerem = p.nr.includes(".") && p.nr !== numerWidoku && !wNaglowku;
   // Odpowiedź w lukach zdań (ZdanieZLuka): tu zostaje tylko informacja po sprawdzeniu.
   const wLukach = new Set([...luki.values(), ...(kompakt ? lukiKadrow.values() : [])].map((l) => l.pytanie.nr));
   return (
-    <div className={styles.question}>
+    <div className={styles.question} id={kompakt ? undefined : `pytanie-${p.nr}`}>
       {/* Numer bez podpunktu to numer zadania, który stoi już w nagłówku. */}
       {(zNumerem || p.tresc) && (
         <div className={styles.stem}>
@@ -1681,10 +2310,129 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
       {p.typ === "otwarte" && dwie.has(p.nr) && <WyborKilku pytanie={p} wybor={dwie.get(p.nr)!} />}
       {p.typ === "otwarte" && tabele.has(p.nr) && <TabelaDopasowaniaWidok pytanie={p} tabela={tabele.get(p.nr)!} />}
       {obliczenia.has(p.nr) && <p className="small muted">Rozwiązanie zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && (
+      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && !wTabeli.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
+      {!kompakt && <ZnacznikOdpowiedzi p={p} />}
       <Informacja pytanie={p} />
+    </div>
+  );
+}
+
+const ileLuk = (luki: Map<Blok, Luka>, nr: string) => [...luki.values()].find((l) => l.pytanie.nr === nr)?.ile;
+
+// Wskazówka aplikacji pod oryginalnym poleceniem CKE (polecenia nie zmieniamy): jak oddać odpowiedź tutaj
+// i czy plik albo wykres jest oceniany. Linia z lewej, bez karty.
+function WskazowkaAplikacji({ rodzaj }: { rodzaj: RodzajWskazowki | null }) {
+  if (!rodzaj) return null;
+  const w = WSKAZOWKI[rodzaj];
+  return (
+    <p className={`small ${styles.wskazowka}`}>
+      <strong>{w.tytul}:</strong> {w.tekst}
+    </p>
+  );
+}
+
+// Przy podpunkcie z informatyki: gdzie wpisać odpowiedź, w jakiej formie, czy jest zapisana i kto ją oceni.
+function ZnacznikOdpowiedzi({ p }: { p: Pytanie }) {
+  const { arkusz, postep, luki, sprawdzone } = useCtx();
+  if (arkusz.przedmiot !== "informatyka" || p.typ !== "otwarte" || sprawdzone(p.nr)) return null;
+  const z = arkusz.zadania.find((x) => x.nr === nrZadania(p.nr));
+  if (!z) return null;
+  const s = stanOdpowiedzi(z, p, postep.odpowiedzi, ileLuk(luki, p.nr));
+  const o = OPIS_FORMY[s.forma];
+  return (
+    <div className={styles.znacznik} data-stan={s.pusta ? "brak" : s.pelna ? "jest" : "czesc"}>
+      <p className="small">
+        <span className={styles.znacznikStan}>{s.pusta ? "Puste" : s.z > 1 ? `${s.ile} z ${s.z}` : "Zapisane"}</span>
+        <strong>{o.miejsce}</strong>: {o.format}.
+      </p>
+      <p className="small muted">
+        {s.z > 1 ? `${opisWypelnienia(s)} ` : ""}
+        {opisOceny(s)}
+      </p>
+    </div>
+  );
+}
+
+// Jak oddawanie wygląda tu, a jak na egzaminie: kod roboczy, odpowiedź i pliki to trzy różne rzeczy.
+function CoOddajesz({ arkusz }: { arkusz: ArkuszDane }) {
+  const [otwarty, setOtwarty] = useState(false);
+  const wg = arkusz.zadania.map((z) => ({ nr: z.nr, ...czegoZadanie(z) }));
+  const lista = (f: (x: (typeof wg)[number]) => boolean) => wg.filter(f).map((x) => x.nr).join(", ");
+  const wPliku = lista((x) => !!x.plikWynikow);
+  const zWykresem = lista((x) => x.wykres);
+  return (
+    <section className={styles.oddajesz} aria-label="Co oddajesz tutaj, a co na egzaminie">
+      <button type="button" className={styles.spisPrzycisk} aria-expanded={otwarty} aria-controls="co-oddajesz" onClick={() => setOtwarty(!otwarty)}>
+        <FileText size={16} aria-hidden="true" />
+        <span>Co oddajesz tutaj, a co na egzaminie</span>
+        <ChevronDown size={16} aria-hidden="true" className={otwarty ? styles.spisStrzalkaOtwarta : undefined} />
+      </button>
+      {otwarty && (
+        <div id="co-oddajesz" className={styles.oddajeszTresc}>
+          <div>
+            <h3 className="h4">Kod roboczy</h3>
+            <p className="small">
+              Programy, zapytania i obliczenia piszesz w panelu materiałów do zadania. Zapisują się w tej przeglądarce i nie są oceniane. Do odpowiedzi trafia tylko to, co sam wstawisz do pola pod poleceniem.
+            </p>
+          </div>
+          <div>
+            <h3 className="h4">Odpowiedź w Sedno</h3>
+            <p className="small">
+              Pola pod poleceniami, komórki tabel i luki w zdaniach. Tylko to liczy się do wyniku. Wpisany wynik porównujemy z kluczem CKE; algorytm, zapytanie i zestawienie pod wykres oceniasz sam po sprawdzeniu arkusza, z rozwiązaniem CKE przed oczami.
+            </p>
+          </div>
+          <div>
+            <h3 className="h4">Pliki i wykresy: poza Sedno</h3>
+            <p className="small">
+              Plik z wynikami, pliki z kodem, wykres i realizacja w arkuszu kalkulacyjnym albo bazie to rzeczy, które polecenia CKE każą oddać. Tu nie wysyłasz żadnych plików i Sedno ich nie sprawdza.
+              {wPliku && ` W tym arkuszu plik wyników dotyczy zadań: ${wPliku}.`}
+              {zWykresem && ` Wykres: zadania ${zWykresem}.`} Jak dokładnie przekazuje się pliki na egzaminie: do weryfikacji w informatorze CKE.
+            </p>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// Przed sprawdzeniem: podpunkty bez pełnej odpowiedzi, każdy ze skokiem do pola.
+function BrakujaceOdpowiedzi() {
+  const { arkusz, postep, luki, idzDoPytania } = useCtx();
+  const braki = arkusz.zadania.flatMap((z) =>
+    z.pytania.flatMap((p) => {
+      if (p.typ === "wypowiedz") return [];
+      const s = stanOdpowiedzi(z, p, postep.odpowiedzi, ileLuk(luki, p.nr));
+      return s.pelna ? [] : [{ nr: p.nr, s }];
+    }),
+  );
+  return (
+    <div className={styles.braki} role="group" aria-label="Brakujące odpowiedzi">
+      {braki.length === 0 ? (
+        <p className="small">Każdy podpunkt ma odpowiedź. Pamiętaj, że pliki i wykresy z poleceń CKE zostają poza Sedno.</p>
+      ) : (
+        <>
+          <p className="small">
+            <strong>Bez pełnej odpowiedzi: {braki.length}.</strong> Możesz wrócić do pola albo sprawdzić arkusz mimo braków.
+          </p>
+          <ul className={styles.brakiLista}>
+            {braki.map(({ nr, s }) => (
+              <li key={nr}>
+                <button type="button" data-stan={s.pusta ? "brak" : "czesc"} onClick={() => idzDoPytania(nr)} aria-label={`Zadanie ${nr}, ${s.pusta ? "bez odpowiedzi" : `${s.ile} z ${s.z}`}: przejdź do pola`}>
+                  {nr}
+                  {!s.pusta && (
+                    <span>
+                      {" "}
+                      {s.ile}/{s.z}
+                    </span>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }
@@ -2387,6 +3135,32 @@ function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: Pyta
         <PoleMatematyczne wartosc={wartosc} onZmiana={(latex) => ustaw(p.nr, latex)} tylkoOdczyt={gotowe} etykieta={`Odpowiedź ${p.nr}`} szerokie />
       </span>
     );
+  // Informatyka: wynik bywa kilkoma wierszami (wyjście programu, lista nazw), a odpowiedzią bywa algorytm czy zapytanie.
+  const zadanieP = arkusz.zadania.find((z) => z.nr === nrZadania(p.nr));
+  const rodzaj = zadanieP ? rodzajPytania(p, zadanieP) : "inne";
+  if (blok && arkusz.przedmiot === "informatyka" && !p.kod && (rodzaj === "kod" || rodzaj === "sql"))
+    return (
+      <span className={styles.blockGap} data-werdykt={w}>
+        <PoleKodu p={p} rodzaj={rodzaj} wartosc={wartosc} tylkoOdczyt={gotowe} />
+      </span>
+    );
+  if (blok && arkusz.przedmiot === "informatyka" && !p.kod)
+    return (
+      <span className={styles.blockGap} data-werdykt={w}>
+        <textarea
+          className={styles.codeAnswer}
+          value={wartosc}
+          rows={Math.min(14, Math.max(3, wartosc.split("\n").length + 1))}
+          readOnly={gotowe}
+          autoComplete="off"
+          autoCapitalize="off"
+          spellCheck={false}
+          onChange={(e) => ustaw(p.nr, e.target.value)}
+          placeholder={p.wynik ? "wynik: wpisz albo wstaw z programu" : "odpowiedź, algorytm albo zapytanie"}
+          aria-label={`Odpowiedź ${p.nr}`}
+        />
+      </span>
+    );
   return (
     <span className={blok ? styles.blockGap : styles.inlineGap} data-werdykt={w}>
       {!blok && !bezNumeru && <span className={styles.gapNr}>{p.nr}.</span>}
@@ -2403,6 +3177,63 @@ function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: Pyta
         aria-label={placeholder ? `Odpowiedź ${p.nr}` : `Luka ${p.nr}`}
       />
     </span>
+  );
+}
+
+// Pole na algorytm albo zapytanie SQL: czcionka stała, Tab wstawia wcięcie, a kod z edytora panelu
+// (zaznaczony albo cały) przenosi się jednym przyciskiem, po podglądzie. Pseudokod też się tu zmieści.
+function PoleKodu({ p, rodzaj, wartosc, tylkoOdczyt }: { p: PytanieOtwarte; rodzaj: "kod" | "sql"; wartosc: string; tylkoOdczyt: boolean }) {
+  const { postep, ustaw } = useCtx();
+  const [przenos, setPrzenos] = useState(false);
+  const wyjscie = useRef(false);
+  const jezyk: "sql" | "python" = rodzaj === "sql" ? "sql" : "python";
+  const zEdytora = postep.warsztat?.[nrZadania(p.nr)]?.[jezyk] ?? "";
+  const zaznaczone = zaznaczenia[jezyk];
+  const warianty: Wariant[] = [
+    ...(zaznaczone.trim() ? [{ id: "zaznaczony", etykieta: "Zaznaczony kod", tekst: zaznaczone, rodzaj: "kod" as const, jezyk }] : []),
+    ...(zEdytora.trim() ? [{ id: "caly", etykieta: "Cały kod z edytora", tekst: zEdytora.replace(/\s+$/, ""), rodzaj: "kod" as const, jezyk }] : []),
+  ];
+  return (
+    <>
+      <textarea
+        className={`${styles.codeAnswer} ${styles.codeAnswerKod}`}
+        value={wartosc}
+        rows={Math.min(20, Math.max(8, wartosc.split("\n").length + 2))}
+        readOnly={tylkoOdczyt}
+        autoComplete="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        onChange={(e) => ustaw(p.nr, e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") wyjscie.current = true;
+          else if (e.key === "Tab" && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey && !wyjscie.current && !tylkoOdczyt) {
+            e.preventDefault();
+            // execCommand zachowuje cofanie (Ctrl+Z); przy braku obsługi wstawiamy ręcznie.
+            if (!document.execCommand("insertText", false, "    ")) {
+              const t = e.currentTarget;
+              ustaw(p.nr, `${wartosc.slice(0, t.selectionStart)}    ${wartosc.slice(t.selectionEnd)}`);
+            }
+          } else wyjscie.current = false;
+        }}
+        placeholder={rodzaj === "sql" ? "zapytanie SQL (Tab wstawia wcięcie)" : "algorytm w pseudokodzie albo kod programu (Tab wstawia wcięcie)"}
+        aria-label={`Odpowiedź ${p.nr}`}
+        aria-describedby={`pomoc-${p.nr}`}
+      />
+      <span id={`pomoc-${p.nr}`} className="small muted">
+        Tab wstawia wcięcie; Esc, a potem Tab przechodzi dalej.
+      </span>
+      {!tylkoOdczyt && warianty.length > 0 && (
+        przenos ? (
+          <Przenoszenie cele={[{ nr: p.nr, rodzaj, odpowiedz: wartosc }]} warianty={warianty} onWstaw={ustaw} onZamknij={() => setPrzenos(false)} />
+        ) : (
+          <span>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPrzenos(true)}>
+              Wstaw kod z edytora…
+            </button>
+          </span>
+        )
+      )}
+    </>
   );
 }
 
@@ -2487,7 +3318,19 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
               </a>
             </p>
           )}
-          {p.oczekiwane?.length ? (
+          {p.rozwiazanie ? (
+            // Informatyka: rozwiązanie z klucza w układzie z klucza (wiersze wyniku, wcięcia pseudokodu).
+            <>
+              <span className="label">Rozwiązanie CKE</span>
+              <pre className={styles.keyCode}>{p.rozwiazanie}</pre>
+              {p.zasady && (
+                <details>
+                  <summary className="small">Zasady oceniania</summary>
+                  <p className={`small muted ${styles.keyRules}`}>{p.zasady}</p>
+                </details>
+              )}
+            </>
+          ) : p.oczekiwane?.length ? (
             <p>
               <span className="label">Oczekiwana</span> {p.oczekiwane.slice(0, 6).join(" / ")}
             </p>

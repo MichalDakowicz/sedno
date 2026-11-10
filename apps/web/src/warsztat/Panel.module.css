@@ -1,0 +1,205 @@
+/* Panel z materiałami do zadania: przypięty do krawędzi okna, treść zadania przesuwa się obok. */
+.panel {
+  --wys-edytora: clamp(220px, 40vh, 520px);
+  position: fixed;
+  /* Pod górnym paskiem (TopNav: 16 + 64 + 8 zapasu), żeby go nie zasłaniać. */
+  top: var(--panel-gora, 88px);
+  bottom: 16px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  /* Pływający biały panel jak górny pasek: zaokrąglony, z cieniem, bez ramki. */
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-float);
+  background: var(--surface);
+  outline: none;
+}
+
+/* Panel wysuwa się z krawędzi okna. Zamknięty jest niewidoczny (visibility), więc nie łapie fokusu ani kliknięć. */
+.panel {
+  transform: translateX(calc(100% + 32px));
+  visibility: hidden;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.5s;
+}
+
+.panel[data-strona="lewa"] {
+  transform: translateX(calc(-100% - 32px));
+}
+
+.panel[data-otwarty] {
+  transform: none;
+  visibility: visible;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .panel[data-otwarty] {
+    transition: none;
+  }
+}
+
+.panel[data-strona="prawa"] {
+  right: 16px;
+}
+
+.panel[data-strona="lewa"] {
+  left: 16px;
+}
+
+/* Wąski ekran: jeden widok, bez uchwytu i strony. */
+.panel[data-waski] {
+  inset: var(--panel-gora, 88px) 16px 16px;
+  width: auto;
+}
+
+.glowa {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.gora {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.tytul {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.narzedzieNazwa {
+  color: var(--muted);
+}
+
+.przyciski {
+  display: flex;
+  gap: 2px;
+}
+
+.ikona {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.ikona:hover {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.karty {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.karta {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.karta:hover {
+  color: var(--fg);
+  background: var(--bg);
+}
+
+.karta[aria-selected="true"] {
+  color: var(--fg);
+  background: var(--bg);
+  border-color: var(--subtle);
+}
+
+.tresc {
+  flex: 1;
+  display: grid;
+  /* Kolumna nie rośnie pod zawartość: edytor i wyniki dopasowują się do panelu, nigdy odwrotnie. */
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 14px;
+  min-height: 0;
+  padding: 14px 16px 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+
+.tresc > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Uchwyt na krawędzi od strony treści; szerszy obszar chwytu niż widoczna kreska. */
+.uchwyt {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  cursor: col-resize;
+  touch-action: none;
+  outline: none;
+}
+
+.panel[data-strona="prawa"] .uchwyt {
+  left: -6px;
+}
+
+.panel[data-strona="lewa"] .uchwyt {
+  right: -6px;
+}
+
+.uchwyt::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 5px;
+  width: 2px;
+  background: transparent;
+}
+
+.uchwyt:hover::after,
+.uchwyt:focus-visible::after {
+  background: var(--primary);
+}
+
+/* Skoroszyt jest zakładką o stałej wysokości: siatka wypełnia panel, a przewija się tylko ona sama. */
+.tresc[data-tryb="arkusz"],
+.tresc[data-tryb="szkic"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* Pełny ekran skoroszytu: ten sam panel (siatka zostaje zamontowana), rozciągnięty na całe okno. */
+.panel[data-pelny] {
+  inset: 0;
+  width: auto;
+  z-index: 1000;
+  border-radius: 0;
+}
+
+.panel[data-pelny] .tresc {
+  border-radius: 0;
+}

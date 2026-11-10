@@ -8,6 +8,8 @@ import styles from "./TutorGuide.module.css";
 const AV = 48;
 const GAP = 12;
 const MOVE_MS = 700;
+const PANEL_MS = 500; // jak długo panel wjeżdża (Panel.module.css)
+const LOT_MS = 850; // czas lotu Pestki na drugą stronę
 const FADE_MS = 200;
 const SPOT_PAD = 8;
 
@@ -39,9 +41,13 @@ function clampX(x: number) {
   return Math.min(Math.max(x, 8), viewW() - AV - 8);
 }
 
-// Miejsce spoczynku: prawy dolny róg, w całości na ekranie.
+// Miejsce spoczynku: dolny róg, w całości na ekranie. Prawy, chyba że po prawej stoi panel warsztatu:
+// wtedy lewy, żeby panel nie tracił miejsca w pionie. Strona zmienia się dopiero w chwili skoku (patrz
+// efekt przy data-panel-strona), a nie od razu z atrybutem, bo inaczej zwykła synchronizacja przeniosłaby
+// Pestkę bez animacji.
+let spoczynekLewy = false;
 function restPoint(): Point {
-  return { x: viewW() - AV - edge(), y: window.innerHeight - AV - edge() };
+  return { x: spoczynekLewy ? edge() : viewW() - AV - edge(), y: window.innerHeight - AV - edge() };
 }
 
 // Siada na prawym górnym rogu elementu. Gdy nad elementem nie ma miejsca (np. pasek nawigacji),
@@ -95,6 +101,7 @@ export function TutorGuide() {
   const [mode, setMode] = useState<Mode>("rest");
   const [moving, setMoving] = useState(false);
   const [hop, setHop] = useState(0);
+  const guideRef = useRef<HTMLDivElement>(null);
   const [talking, setTalking] = useState(false);
   const [closing, setClosing] = useState(false);
   const [spot, setSpot] = useState<Spot | null>(null);
@@ -217,6 +224,91 @@ export function TutorGuide() {
     };
   }, [sync]);
 
+  // Panel warsztatu wjeżdża z prawej: jego krawędź spycha Pestkę w lewo i ją spłaszcza, po czym ona bez
+  // zatrzymania odskakuje jednym łukiem na lewą stronę okna. Przy chowaniu panelu wraca skokiem na prawo.
+  useEffect(() => {
+    let ostatnia = document.documentElement.dataset.panelStrona;
+    let klatka = 0;
+    let awaria = 0;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Jeden ciągły łuk (parabola) z łagodnym rozpędem i hamowaniem na całość, bez pauzy w połowie.
+    const leć = (lewa: boolean, od: Point) => {
+      spoczynekLewy = lewa;
+      const cel = restPoint();
+      sync(true);
+      const g = guideRef.current;
+      if (!g || near(od, cel)) return;
+      const wysokosc = Math.min(180, Math.max(90, Math.abs(od.x - cel.x) / 6));
+      const KROKI = 16;
+      const klatki = Array.from({ length: KROKI + 1 }, (_, i) => {
+        const u = i / KROKI;
+        const x = od.x + (cel.x - od.x) * u;
+        const y = od.y + (cel.y - od.y) * u - 4 * wysokosc * u * (1 - u);
+        return { transform: `translate(${x}px, ${Math.max(band().top, y)}px)` };
+      });
+      g.animate(klatki, { duration: LOT_MS, easing: "cubic-bezier(0.4, 0, 0.3, 1)" });
+    };
+
+    const observer = new MutationObserver(() => {
+      const strona = document.documentElement.dataset.panelStrona;
+      if (strona === ostatnia) return;
+      ostatnia = strona;
+      cancelAnimationFrame(klatka);
+      window.clearTimeout(awaria);
+      if (modeRef.current !== "rest" || reduce) {
+        spoczynekLewy = strona === "prawa";
+        sync(false);
+        return;
+      }
+      if (strona !== "prawa") {
+        leć(false, posRef.current);
+        return;
+      }
+      const panel = document.querySelector<HTMLElement>('[aria-label^="Materiały do zadania"]');
+      const g = guideRef.current;
+      const av = g?.querySelector<HTMLElement>("[data-pestka]");
+      if (!panel || !g || !av) {
+        leć(true, posRef.current);
+        return;
+      }
+      // Krawędź panelu popycha Pestkę przed sobą; im dłużej, tym mocniej ją ściska. Gdy panel jest prawie
+      // na miejscu, ona od razu odskakuje (bez czekania), więc ruch jest ciągły.
+      const start = performance.now();
+      const x0 = posRef.current.x;
+      const y0 = posRef.current.y;
+      let x = x0;
+      let zakonczone = false;
+      // Skok jest gwarantowany także wtedy, gdy przeglądarka wstrzymuje klatki (karta w tle).
+      const zakoncz = () => {
+        if (zakonczone) return;
+        zakonczone = true;
+        cancelAnimationFrame(klatka);
+        window.clearTimeout(awaria);
+        av.style.transform = "";
+        leć(true, { x, y: y0 });
+      };
+      const krok = () => {
+        const L = panel.getBoundingClientRect().left;
+        x = Math.max(8, Math.min(x0, L - 4 - AV));
+        g.style.transform = `translate(${x}px, ${y0}px)`;
+        const docisk = Math.min(1, (x0 - x) / 60);
+        av.style.transformOrigin = "100% 100%";
+        av.style.transform = `scale(${1 - 0.5 * docisk}, ${1 + 0.08 * docisk})`;
+        if (performance.now() - start < PANEL_MS * 0.85) klatka = requestAnimationFrame(krok);
+        else zakoncz();
+      };
+      awaria = window.setTimeout(zakoncz, PANEL_MS * 0.85 + 150);
+      klatka = requestAnimationFrame(krok);
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-panel-strona"] });
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(klatka);
+      window.clearTimeout(awaria);
+    };
+  }, [sync]);
+
   // Przywołanie prawym przyciskiem dotyczy miejsca na stronie, więc po przejściu gdzie indziej wygasa.
   useEffect(() => {
     if (summon) dismiss();
@@ -290,6 +382,7 @@ export function TutorGuide() {
         />
       )}
       <div
+        ref={guideRef}
         className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""}`}
         style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
       >

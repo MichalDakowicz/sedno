@@ -9,6 +9,8 @@ import { parsujKlucz } from "./klucz.js";
 import { scal } from "./scal.js";
 import { fragmentyMatematyki, kadruj, kluczMatematyki, osadzObrazy, otworzPdf, zadaniaMatematyki } from "./matematyka.js";
 import { czytajDocx, fragmentyDocx } from "./docx.js";
+import { fragmentyInformatyki, kluczInformatyki, plikiDanych, zadaniaInformatyki } from "./informatyka.js";
+import { skladajTresc } from "./informatyka-tresc.js";
 
 // Fragmenty nagrań dopasowane do pytań (services/arkusze/nagrania/dopasuj.py) leżą osobno,
 // żeby ponowny import ich nie kasował: { "1.1": { od, do, tekst }, … }.
@@ -44,7 +46,7 @@ for (const w of katalog) {
   try {
     const strony = await tekstPdf(join(KATALOG_CKE, w.arkusz.plik));
     const metadane = czytajMetadane(strony.slice(0, 2));
-    let zadania, ostrzezenia;
+    let zadania, ostrzezenia, dane;
     if (przedmiot === "matematyka") {
       const fragmenty = fragmentyMatematyki(strony);
       // Treść ze wzorami z formy DOCX; kadry zostają dla zadań, których nie da się z niej wziąć.
@@ -62,6 +64,20 @@ for (const w of katalog) {
       // Arkusz trafia do bazy (npm run wgraj) jako jeden JSON, więc obrazy jadą w nim jako data URL.
       await osadzObrazy(zadania, KATALOG_ARKUSZY);
       if (kadry.length) process.stdout.write(`kadry: ${kadry.join("; ")} … `);
+    } else if (przedmiot === "informatyka") {
+      // Treść z PDF z krojami pisma (pogrubienie, kursywa, Courier), żeby złożyć ją jako tekst.
+      const fragmenty = fragmentyInformatyki(await tekstPdf(join(KATALOG_CKE, w.arkusz.plik), { fonty: true }));
+      const pdf = await otworzPdf(join(KATALOG_CKE, w.arkusz.plik));
+      await kadruj(pdf, fragmenty, { katalog: join(KATALOG_ARKUSZY, "obrazy", id), prefiks: `obrazy/${id}`, bezRysunkow: true, format: "webp" });
+      const tresc = await skladajTresc(pdf, fragmenty, { katalog: join(KATALOG_ARKUSZY, "obrazy", id), prefiks: `obrazy/${id}` });
+      process.stdout.write(`tekstem ${tresc.tekstem}, kadrem ${tresc.kadrem} … `);
+      const klucz = w.zasady ? kluczInformatyki(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
+      dane = w.dane ? { zip: w.dane.url, pliki: await plikiDanych(join(KATALOG_CKE, w.dane.plik)) } : undefined;
+      if (!dane) ostrzezenia = ["brak plików danych"];
+      const wynik = zadaniaInformatyki(fragmenty, klucz, dane?.pliki);
+      zadania = wynik.zadania;
+      ostrzezenia = [...(ostrzezenia ?? []), ...wynik.ostrzezenia];
+      await osadzObrazy(zadania, KATALOG_ARKUSZY);
     } else {
       zadania = parsujArkusz(strony);
       const klucz = w.zasady ? parsujKlucz(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
@@ -88,6 +104,7 @@ for (const w of katalog) {
       ...(w.nagranie ? { nagranie: w.nagranie } : {}),
       zrodlo: { arkusz: w.arkusz.plik, zasady: w.zasady?.plik ?? null },
       pdf: { arkusz: w.arkusz.url, zasady: w.zasady?.url ?? null },
+      ...(dane ? { dane } : {}),
       ostrzezenia,
       zadania,
     };
