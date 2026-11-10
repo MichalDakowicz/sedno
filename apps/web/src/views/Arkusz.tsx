@@ -28,6 +28,8 @@ import { PoleMatematyczne } from "../components/PoleMatematyczne";
 import { MaterialyWiersz } from "../warsztat/MaterialyWiersz";
 import { PanelWarsztatu } from "../warsztat/PanelWarsztatu";
 import { useUklad } from "../warsztat/panelUklad";
+import { CeleWstawiania, rodzajPytania, zaznaczenia } from "../warsztat/materialy";
+import { Przenoszenie, type Wariant } from "../warsztat/Przenoszenie";
 import { OmowienieBledow, type Wejscie } from "../components/OmowienieBledow";
 import { FragmentNagrania } from "../components/FragmentNagrania";
 import { rozklejPestke } from "../components/rozklejPestke";
@@ -576,6 +578,11 @@ export function Arkusz() {
       </main>
       </div>
       {materialy && zadanieMaterialow && (
+        <CeleWstawiania.Provider
+          value={zadanieMaterialow.pytania.flatMap((p) =>
+            p.typ === "otwarte" && !p.kod && !kontekst.sprawdzone(p.nr) ? [{ nr: p.nr, rodzaj: rodzajPytania(p, zadanieMaterialow), odpowiedz: postep.odpowiedzi[p.nr] ?? "" }] : [],
+          )}
+        >
         <PanelWarsztatu
           zadanie={zadanieMaterialow}
           pliki={dane.dane?.pliki ?? {}}
@@ -589,6 +596,7 @@ export function Arkusz() {
           onSchowaj={() => setMaterialy((m) => m && { ...m, otwarty: false })}
           przycisk={przyciskMaterialow}
         />
+        </CeleWstawiania.Provider>
       )}
       </MaterialyCtx.Provider>
     </Ctx.Provider>
@@ -2859,6 +2867,14 @@ function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: Pyta
       </span>
     );
   // Informatyka: wynik bywa kilkoma wierszami (wyjście programu, lista nazw), a odpowiedzią bywa algorytm czy zapytanie.
+  const zadanieP = arkusz.zadania.find((z) => z.nr === nrZadania(p.nr));
+  const rodzaj = zadanieP ? rodzajPytania(p, zadanieP) : "inne";
+  if (blok && arkusz.przedmiot === "informatyka" && !p.kod && (rodzaj === "kod" || rodzaj === "sql"))
+    return (
+      <span className={styles.blockGap} data-werdykt={w}>
+        <PoleKodu p={p} rodzaj={rodzaj} wartosc={wartosc} tylkoOdczyt={gotowe} />
+      </span>
+    );
   if (blok && arkusz.przedmiot === "informatyka" && !p.kod)
     return (
       <span className={styles.blockGap} data-werdykt={w}>
@@ -2892,6 +2908,63 @@ function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: Pyta
         aria-label={placeholder ? `Odpowiedź ${p.nr}` : `Luka ${p.nr}`}
       />
     </span>
+  );
+}
+
+// Pole na algorytm albo zapytanie SQL: czcionka stała, Tab wstawia wcięcie, a kod z edytora panelu
+// (zaznaczony albo cały) przenosi się jednym przyciskiem, po podglądzie. Pseudokod też się tu zmieści.
+function PoleKodu({ p, rodzaj, wartosc, tylkoOdczyt }: { p: PytanieOtwarte; rodzaj: "kod" | "sql"; wartosc: string; tylkoOdczyt: boolean }) {
+  const { postep, ustaw } = useCtx();
+  const [przenos, setPrzenos] = useState(false);
+  const wyjscie = useRef(false);
+  const jezyk: "sql" | "python" = rodzaj === "sql" ? "sql" : "python";
+  const zEdytora = postep.warsztat?.[nrZadania(p.nr)]?.[jezyk] ?? "";
+  const zaznaczone = zaznaczenia[jezyk];
+  const warianty: Wariant[] = [
+    ...(zaznaczone.trim() ? [{ id: "zaznaczony", etykieta: "Zaznaczony kod", tekst: zaznaczone, rodzaj: "kod" as const, jezyk }] : []),
+    ...(zEdytora.trim() ? [{ id: "caly", etykieta: "Cały kod z edytora", tekst: zEdytora.replace(/\s+$/, ""), rodzaj: "kod" as const, jezyk }] : []),
+  ];
+  return (
+    <>
+      <textarea
+        className={`${styles.codeAnswer} ${styles.codeAnswerKod}`}
+        value={wartosc}
+        rows={Math.min(20, Math.max(8, wartosc.split("\n").length + 2))}
+        readOnly={tylkoOdczyt}
+        autoComplete="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        onChange={(e) => ustaw(p.nr, e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") wyjscie.current = true;
+          else if (e.key === "Tab" && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey && !wyjscie.current && !tylkoOdczyt) {
+            e.preventDefault();
+            // execCommand zachowuje cofanie (Ctrl+Z); przy braku obsługi wstawiamy ręcznie.
+            if (!document.execCommand("insertText", false, "    ")) {
+              const t = e.currentTarget;
+              ustaw(p.nr, `${wartosc.slice(0, t.selectionStart)}    ${wartosc.slice(t.selectionEnd)}`);
+            }
+          } else wyjscie.current = false;
+        }}
+        placeholder={rodzaj === "sql" ? "zapytanie SQL (Tab wstawia wcięcie)" : "algorytm w pseudokodzie albo kod programu (Tab wstawia wcięcie)"}
+        aria-label={`Odpowiedź ${p.nr}`}
+        aria-describedby={`pomoc-${p.nr}`}
+      />
+      <span id={`pomoc-${p.nr}`} className="small muted">
+        Tab wstawia wcięcie; Esc, a potem Tab przechodzi dalej.
+      </span>
+      {!tylkoOdczyt && warianty.length > 0 && (
+        przenos ? (
+          <Przenoszenie cele={[{ nr: p.nr, rodzaj, odpowiedz: wartosc }]} warianty={warianty} onWstaw={ustaw} onZamknij={() => setPrzenos(false)} />
+        ) : (
+          <span>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPrzenos(true)}>
+              Wstaw kod z edytora…
+            </button>
+          </span>
+        )
+      )}
+    </>
   );
 }
 

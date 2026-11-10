@@ -1,6 +1,6 @@
 // Narzędzia warsztatu informatyki, osadzane w panelu przy zadaniu: pliki do pobrania, Python,
 // SQL, skoroszyt i podgląd danych.
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Check, Download, ExternalLink, Minus, Play, Square, Table2, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { pythonGotowy, uruchom, zatrzymaj, type Zdarzenie } from "./python";
@@ -8,6 +8,8 @@ import type { BazaZadania, WynikSql } from "./sql";
 import { czyTabelaryczny, tabela, type Tabela } from "./tabele";
 import { zgodneZKluczem } from "./klucz";
 import { Widoczny } from "./Widoczny";
+import { CeleWstawiania, zaznaczenia } from "./materialy";
+import { Przenoszenie, wariantyDla, type Wariant } from "./Przenoszenie";
 import type { Warsztat as Zapis } from "../arkusze/postep";
 import styles from "./Warsztat.module.css";
 
@@ -66,26 +68,41 @@ export function Pliki({ pliki, zip }: { pliki: Record<string, string>; zip?: str
   );
 }
 
-export function Wstaw({ tekst, doWstawienia, onWstaw }: { tekst: string; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void }) {
+// Przeniesienie do odpowiedzi jest opcjonalne i świadome: wybór podpunktu, podgląd, ochrona istniejącej treści.
+// Do podpunktu z zapytaniem albo algorytmem idzie kod z edytora (zaznaczony albo cały), nie wynik.
+export type KodDoWstawienia = { tekst: string; jezyk: "python" | "sql"; zaznaczony: boolean };
+
+export function Wstaw({ tekst, kod, doWstawienia, onWstaw }: { tekst: string; kod?: KodDoWstawienia; doWstawienia: string[]; onWstaw: (nr: string, tekst: string) => void }) {
+  const [otwarte, setOtwarte] = useState(false);
   const [wstawione, setWstawione] = useState<string | null>(null);
-  if (!tekst.trim() || !doWstawienia.length) return null;
-  return (
-    <div className={styles.wstaw}>
-      <span className="small muted">{wstawione ? `Wstawione do ${wstawione}` : "Wstaw wynik do odpowiedzi"}</span>
-      {doWstawienia.map((nr) => (
-        <button
-          key={nr}
-          type="button"
-          className="btn btn-ghost btn-sm"
-          onClick={() => {
-            onWstaw(nr, tekst.trim());
-            setWstawione(nr);
-          }}
-        >
-          {nr}
+  const celeKontekstu = useContext(CeleWstawiania);
+  const warianty: Wariant[] = [
+    ...(tekst.trim() ? [{ id: "wynik", etykieta: "Wynik", tekst: tekst.trim(), rodzaj: "wynik" as const }] : []),
+    ...(kod?.tekst.trim() ? [{ id: "kod", etykieta: kod.zaznaczony ? "Zaznaczony kod" : "Kod z edytora", tekst: kod.tekst.replace(/\s+$/, ""), rodzaj: "kod" as const, jezyk: kod.jezyk }] : []),
+  ];
+  const cele = doWstawienia
+    .map((nr) => celeKontekstu?.find((c) => c.nr === nr) ?? { nr, rodzaj: "inne" as const, odpowiedz: "" })
+    .filter((c) => wariantyDla(c, warianty).length > 0);
+  if (!cele.length) return null;
+  if (!otwarte)
+    return (
+      <div className={styles.wstaw}>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setOtwarte(true)}>
+          Przenieś do odpowiedzi…
         </button>
-      ))}
-    </div>
+        {wstawione && <span className="small muted">Wstawione do {wstawione}</span>}
+      </div>
+    );
+  return (
+    <Przenoszenie
+      cele={cele}
+      warianty={warianty}
+      onWstaw={(nr, t) => {
+        onWstaw(nr, t);
+        setWstawione(nr);
+      }}
+      onZamknij={() => setOtwarte(false)}
+    />
   );
 }
 
@@ -140,11 +157,17 @@ export function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz, przebi
   };
 
   const stdout = przebieg?.wyjscie.filter((w) => !w.blad).map((w) => w.tekst).join("") ?? "";
+  const [zaznaczony, setZaznaczony] = useState("");
+  const naZaznaczenie = (t: string) => {
+    zaznaczenia.python = t;
+    setZaznaczony(t);
+  };
+  useEffect(() => () => void (zaznaczenia.python = ""), []);
   return (
     <div className={styles.narzedzie}>
       <Widoczny wysokosc={342}>
       <Suspense fallback={<div className={styles.edytor} aria-busy="true" />}>
-        <EdytorKodu wartosc={kod} jezyk="python" pliki={pliki} onZmiana={onKod} onUruchom={start} etykieta="Kod w Pythonie" />
+        <EdytorKodu wartosc={kod} jezyk="python" pliki={pliki} onZmiana={onKod} onUruchom={start} onZaznaczenie={naZaznaczenie} etykieta="Kod w Pythonie" />
       </Suspense>
       </Widoczny>
       <div className={styles.akcje}>
@@ -182,7 +205,9 @@ export function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz, przebi
         </details>
       ))}
       {przebieg?.stan === "koniec" && <ZgodnoscZKluczem wyjscie={[stdout, ...Object.values(przebieg.utworzone)].join("\n")} klucz={klucz} />}
-      {przebieg?.stan === "koniec" && <Wstaw tekst={stdout} doWstawienia={doWstawienia} onWstaw={onWstaw} />}
+      {(przebieg?.stan === "koniec" || kod.trim()) && (
+        <Wstaw tekst={przebieg?.stan === "koniec" ? stdout : ""} kod={{ tekst: zaznaczony.trim() ? zaznaczony : kod, jezyk: "python", zaznaczony: !!zaznaczony.trim() }} doWstawienia={doWstawienia} onWstaw={onWstaw} />
+      )}
     </div>
   );
 }
@@ -208,6 +233,12 @@ export function Sql({ pliki, kod, onKod, doWstawienia, onWstaw, klucz, wyniki, s
   const start = (zEdytora?: unknown) => baza && setWyniki(baza.zapytaj(typeof zEdytora === "string" ? zEdytora : kodRef.current));
   const ostatni = wyniki?.at(-1);
   const tekstWyniku = ostatni && "wiersze" in ostatni ? ostatni.wiersze.map((w) => w.map((k) => k ?? "").join(" ")).join("\n") : "";
+  const [zaznaczony, setZaznaczony] = useState("");
+  const naZaznaczenie = (t: string) => {
+    zaznaczenia.sql = t;
+    setZaznaczony(t);
+  };
+  useEffect(() => () => void (zaznaczenia.sql = ""), []);
 
   return (
     <div className={styles.narzedzie}>
@@ -223,7 +254,7 @@ export function Sql({ pliki, kod, onKod, doWstawienia, onWstaw, klucz, wyniki, s
       )}
       <Widoczny wysokosc={342}>
       <Suspense fallback={<div className={styles.edytor} aria-busy="true" />}>
-        <EdytorKodu wartosc={kod} jezyk="sql" schemat={schemat} onZmiana={onKod} onUruchom={start} etykieta="Zapytanie SQL" />
+        <EdytorKodu wartosc={kod} jezyk="sql" schemat={schemat} onZmiana={onKod} onUruchom={start} onZaznaczenie={naZaznaczenie} etykieta="Zapytanie SQL" />
       </Suspense>
       </Widoczny>
       <div className={styles.akcje}>
@@ -246,7 +277,7 @@ export function Sql({ pliki, kod, onKod, doWstawienia, onWstaw, klucz, wyniki, s
         ),
       )}
       {wyniki && <ZgodnoscZKluczem wyjscie={tekstWyniku} klucz={klucz} />}
-      <Wstaw tekst={tekstWyniku} doWstawienia={doWstawienia} onWstaw={onWstaw} />
+      <Wstaw tekst={tekstWyniku} kod={{ tekst: zaznaczony.trim() ? zaznaczony : kod, jezyk: "sql", zaznaczony: !!zaznaczony.trim() }} doWstawienia={doWstawienia} onWstaw={onWstaw} />
     </div>
   );
 }

@@ -144,6 +144,60 @@ pre.blad {
   gap: 4px 6px;
 }
 
+/* Przenoszenie do odpowiedzi: oddzielone linią, bez karty. */
+.przenies {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  min-width: 0;
+}
+
+.przenies p {
+  margin: 0;
+}
+
+.przeniesWiersz {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.opcja {
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.opcja[data-wybrana] {
+  border-color: var(--primary);
+  background: var(--primary-soft, transparent);
+}
+
+.podglad {
+  margin: 0;
+  max-height: 160px;
+  overflow: auto;
+  padding: 8px 10px;
+  border-left: 3px solid var(--primary);
+  background: var(--surface);
+  color: var(--fg);
+  font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+  tab-size: 4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .schemat {
   display: grid;
   gap: 4px;

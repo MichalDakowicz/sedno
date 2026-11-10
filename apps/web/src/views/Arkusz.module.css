@@ -1399,6 +1399,15 @@
   transition: border-color 0.15s ease;
 }
 
+/* Pole na kod: jak edytor, wcięcia zostają, długie linie zawijamy. */
+.codeAnswerKod {
+  tab-size: 4;
+  white-space: pre-wrap;
+  min-height: 11em;
+  padding: 12px 14px;
+  background: var(--bg-soft, var(--surface));
+}
+
 .codeAnswer:focus {
   outline: none;
   border-color: var(--primary);

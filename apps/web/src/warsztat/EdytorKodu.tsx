@@ -11,6 +11,8 @@ type Props = {
   onZmiana: (kod: string) => void;
   onUruchom: (kod: string) => void;
   etykieta: string;
+  // Zaznaczony fragment (pusty tekst, gdy zaznaczenia nie ma); zostaje też po wyjściu z edytora.
+  onZaznaczenie?: (tekst: string) => void;
   // Pliki z danymi zadania (Python podpowiada je w open("…")).
   pliki?: Record<string, string>;
   // Nazwy tabel i kolumn do podpowiedzi w SQL.
@@ -49,11 +51,11 @@ monaco.languages.registerCompletionItemProvider("sql", {
   },
 });
 
-function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, etykieta, pliki, schemat }: Props) {
+function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, onZaznaczenie, etykieta, pliki, schemat }: Props) {
   const miejsce = useRef<HTMLDivElement>(null);
   const edytor = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const zwrotne = useRef({ onZmiana, onUruchom });
-  zwrotne.current = { onZmiana, onUruchom };
+  const zwrotne = useRef({ onZmiana, onUruchom, onZaznaczenie });
+  zwrotne.current = { onZmiana, onUruchom, onZaznaczenie };
   const wyslane = useRef(wartosc);
 
   useEffect(() => {
@@ -97,6 +99,7 @@ function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, etykieta, pliki, sche
       zwrotne.current.onUruchom(model.getValue());
     });
     const rozmycie = e.onDidBlurEditorText(wyslij);
+    const zaznaczenie = e.onDidChangeCursorSelection((z) => zwrotne.current.onZaznaczenie?.(model.getValueInRange(z.selection)));
 
     let czas: ReturnType<typeof setTimeout> | undefined;
     const zmiany = model.onDidChangeContent(() => {
@@ -119,6 +122,7 @@ function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, etykieta, pliki, sche
       clearTimeout(czas);
       wyslij();
       rozmycie.dispose();
+      zaznaczenie.dispose();
       zmiany.dispose();
       e.dispose();
       model.dispose();
