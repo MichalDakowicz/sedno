@@ -5,16 +5,25 @@
 import { useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type SyntheticEvent } from "react";
 import { Terminal } from "lucide-react";
 import { sugestia } from "./kalkulator";
+import type { Brudnopis as Szkicowany } from "../arkusze/postep";
+import { Szkic } from "./Szkic";
 import styles from "./Brudnopis.module.css";
+
+export type Widok = "tekst" | "szkic";
 
 type Props = {
   tekst: string;
   onTekst: (t: string) => void;
   // Przełącza na Pythona tego samego zadania; stan brudnopisu i wynik programu zostają.
   onPython: () => void;
+  nr: number;
+  widok: Widok;
+  onWidok: (w: Widok) => void;
+  szkic?: Szkicowany;
+  onSzkic: (s: Szkicowany | null) => void;
 };
 
-export function Brudnopis({ tekst, onTekst, onPython }: Props) {
+export function Brudnopis({ tekst, onTekst, onPython, nr, widok, onWidok, szkic, onSzkic }: Props) {
   const pole = useRef<HTMLTextAreaElement>(null);
   const lustro = useRef<HTMLDivElement>(null);
   const [kursor, setKursor] = useState<number | null>(null); // null: pole bez fokusu albo zaznaczenie
@@ -73,10 +82,23 @@ export function Brudnopis({ tekst, onTekst, onPython }: Props) {
   };
 
   return (
-    <div className={styles.brudnopis}>
+    <div className={widok === "szkic" ? `${styles.brudnopis} ${styles.naSzkic}` : styles.brudnopis}>
       <p className={styles.nota}>
-        <strong>Brudnopis nie jest odpowiedzią i nie podlega ocenie.</strong> Pisz tu obliczenia i notatki do zadania; zapisują się przy nim osobno od odpowiedzi.
+        <strong>Brudnopis nie jest odpowiedzią i nie podlega ocenie.</strong> Pisz lub rysuj tu obliczenia i notatki do zadania; zapisują się przy nim osobno od odpowiedzi.
       </p>
+      <div className={styles.przelacznik} role="group" aria-label="Rodzaj brudnopisu">
+        {(["tekst", "szkic"] as const).map((w) => (
+          <button key={w} type="button" className={styles.opcja} aria-pressed={widok === w} onClick={() => onWidok(w)}>
+            {w === "tekst" ? "Tekst" : "Szkic"}
+          </button>
+        ))}
+      </div>
+      {widok === "szkic" ? (
+        <div className={styles.szkic}>
+          <Szkic nr={nr} zapis={szkic} onZmiana={onSzkic} />
+        </div>
+      ) : (
+      <>
       <div className={styles.pole}>
         <textarea
           ref={pole}
@@ -120,6 +142,8 @@ export function Brudnopis({ tekst, onTekst, onPython }: Props) {
           <Terminal size={15} aria-hidden="true" /> Policz w Pythonie
         </button>
       </div>
+      </>
+      )}
     </div>
   );
 }

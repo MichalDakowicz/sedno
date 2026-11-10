@@ -8,7 +8,7 @@ import type { Zadanie } from "../arkusze/typy";
 import { Dane, NAZWY, Pliki, poczatekPythona, poczatekSql, Python, Sql, type Przebieg, type Tryb, type Ustaw } from "./Narzedzia";
 import { useMaterialy } from "./materialy";
 import { Skoroszyt } from "./Skoroszyt";
-import { Brudnopis } from "./Brudnopis";
+import { Brudnopis, type Widok } from "./Brudnopis";
 import type { Uklad } from "./panelUklad";
 import type { WynikSql } from "./sql";
 import styles from "./Panel.module.css";
@@ -44,6 +44,10 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
   const [wyniki, setWyniki] = useState<Record<number, WynikSql[] | null>>({});
   const setPrzebieg: Ustaw<Przebieg | null> = (u) => setPrzebiegi((m) => ({ ...m, [nr]: typeof u === "function" ? u(m[nr] ?? null) : u }));
   const setWynik: Ustaw<WynikSql[] | null> = (u) => setWyniki((m) => ({ ...m, [nr]: typeof u === "function" ? u(m[nr] ?? null) : u }));
+
+  // Tekst albo szkic w brudnopisie, per zadanie; panel zostaje zamontowany, więc wybór przetrwa schowanie i zmianę zakładki.
+  const [widoki, setWidoki] = useState<Record<number, Widok>>({});
+  const widok = widoki[nr] ?? "tekst";
 
   // Fokus: do panelu po otwarciu (albo zmianie zadania), na przycisk po schowaniu.
   // Panel montuje się już otwarty, więc na wysunięcie czeka dwie klatki: najpierw zamknięty, potem wjeżdża.
@@ -147,7 +151,7 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
         )}
       </header>
 
-      <div className={styles.tresc} data-tryb={tryb}>
+      <div className={styles.tresc} data-tryb={tryb === "brudnopis" && widok === "szkic" ? "szkic" : tryb}>
         {nazwy.length > 0 && tryb !== "arkusz" && tryb !== "brudnopis" && <Pliki pliki={pliki} zip={zip} />}
         {tryb === "python" && (
           <Python
@@ -179,7 +183,19 @@ export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis,
           <Skoroszyt key={`${nr}-arkusz`} nr={nr} pliki={plikiTabel} operacje={zapis?.arkusz} onOperacje={(arkusz) => zmien({ arkusz })} doWstawienia={doWstawienia} onWstaw={onWstaw} klucz={klucz} aktywny={otwarty} pelny={naPelnym} />
         )}
         {tryb === "dane" && <Dane key={`${nr}-dane`} pliki={pliki} />}
-        {tryb === "brudnopis" && <Brudnopis key={`${nr}-brudnopis`} tekst={zapis?.brudnopis ?? ""} onTekst={(brudnopis) => zmien({ brudnopis })} onPython={() => zmien({ tryb: "python" })} />}
+        {tryb === "brudnopis" && (
+          <Brudnopis
+            key={`${nr}-brudnopis`}
+            nr={nr}
+            tekst={zapis?.brudnopis ?? ""}
+            onTekst={(brudnopis) => zmien({ brudnopis })}
+            onPython={() => zmien({ tryb: "python" })}
+            widok={widok}
+            onWidok={(w) => setWidoki((m) => ({ ...m, [nr]: w }))}
+            szkic={zapis?.szkic}
+            onSzkic={(szkic) => zmien({ szkic: szkic ?? undefined })}
+          />
+        )}
       </div>
     </section>
   );

@@ -218,3 +218,25 @@
     display: none;
   }
 }
+
+/* Brudnopis w panelu informatyki: płótno wypełnia panel, narzędzia nad nim i pod nim w zawijanych rzędach. */
+.workspace.wPanelu {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  height: 100%;
+  min-height: 320px;
+  margin-inline: 0;
+}
+
+.wPanelu .toolbar {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  overflow: visible;
+}
+
+.wPanelu .sep,
+.wPanelu .grow {
+  display: none;
+}

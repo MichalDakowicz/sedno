@@ -101,8 +101,11 @@ type Props = {
   elementy?: readonly unknown[];
   onZapisz: (elementy: readonly ExcalidrawElement[] | null) => void;
   pelny: boolean;
-  onPelny: () => void;
-  onZamknij: () => void;
+  /** Bez nich przycisków pełnego ekranu i zamknięcia nie ma (brudnopis w panelu informatyki). */
+  onPelny?: () => void;
+  onZamknij?: () => void;
+  /** Płótno wypełnia wysokość i szerokość rodzica, paski narzędzi stoją nad nim i pod nim. */
+  wPanelu?: boolean;
   /** Rysunki obok rysunku zadania, np. wykresy opcji A–F do zaznaczania. */
   dodatkoweRysunki?: Obraz[];
   pokazDodatkowe?: boolean;
@@ -290,7 +293,7 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
   }
 }
 
-export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, duzyRysunek, dodatkoweRysunki = [], pokazDodatkowe = true, opcjeZWycinka }: Props) {
+export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, wPanelu, duzyRysunek, dodatkoweRysunki = [], pokazDodatkowe = true, opcjeZWycinka }: Props) {
   const [startowaGrubosc] = useState(zapamietanaGrubosc);
   const przyciete = useRef<Obraz[]>([]);
   const glownyRef = useRef<Obraz | undefined>(rysunek);
@@ -497,7 +500,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
 
   return (
     <>
-      <div className={styles.workspace}>
+      <div className={wPanelu ? `${styles.workspace} ${styles.wPanelu}` : styles.workspace}>
         {/* Pasek po obu stronach płótna: po lewej narzędzia, po prawej styl i widok. */}
         <div className={styles.toolbar} role="toolbar" aria-label="Narzędzia brudnopisu" aria-orientation="vertical">
           {NARZEDZIA.map(({ typ, nazwa, ikona: Ikona }) => (
@@ -513,12 +516,16 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             <Redo2 size={18} aria-hidden="true" />
           </button>
           <span className={styles.grow} aria-hidden="true" />
-          <button type="button" className={styles.tool} title={pelny ? "Wyjdź z pełnego ekranu" : "Pełny ekran"} aria-label={pelny ? "Wyjdź z pełnego ekranu" : "Pełny ekran"} onClick={onPelny}>
-            {pelny ? <Minimize2 size={18} aria-hidden="true" /> : <Maximize2 size={18} aria-hidden="true" />}
-          </button>
-          <button type="button" className={styles.tool} title="Zamknij brudnopis" aria-label="Zamknij brudnopis" onClick={onZamknij}>
-            <X size={18} aria-hidden="true" />
-          </button>
+          {onPelny && (
+            <button type="button" className={styles.tool} title={pelny ? "Wyjdź z pełnego ekranu" : "Pełny ekran"} aria-label={pelny ? "Wyjdź z pełnego ekranu" : "Pełny ekran"} onClick={onPelny}>
+              {pelny ? <Minimize2 size={18} aria-hidden="true" /> : <Maximize2 size={18} aria-hidden="true" />}
+            </button>
+          )}
+          {onZamknij && (
+            <button type="button" className={styles.tool} title="Zamknij brudnopis" aria-label="Zamknij brudnopis" onClick={onZamknij}>
+              <X size={18} aria-hidden="true" />
+            </button>
+          )}
         </div>
         {/* Excalidraw zna położenie płótna tylko z resize i (opóźnionego) scrolla. Gdy treść nad
             nim się przesunie, kreska wypadała obok kursora, więc odświeżamy je przed dotknięciem. */}

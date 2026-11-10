@@ -187,7 +187,8 @@
 }
 
 /* Skoroszyt jest zakładką o stałej wysokości: siatka wypełnia panel, a przewija się tylko ona sama. */
-.tresc[data-tryb="arkusz"] {
+.tresc[data-tryb="arkusz"],
+.tresc[data-tryb="szkic"] {
   grid-template-rows: minmax(0, 1fr);
 }
 
