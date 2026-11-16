@@ -1,6 +1,6 @@
 # Goal
 
-_Set 2026-11-16 · status: blocked_
+_Set 2026-11-16 · status: achieved_
 
 **Goal.** Close the in-scope items of "Do domknięcia" in `NASTEPNE.md`: Pestka chats are
 saved on the account and work on staging (PR to `main` open), the informatyka sheet view
@@ -23,7 +23,7 @@ the jury, submission drafts.
 - [x] Essay discussion by sol on a realistic essay returns a discussion consistent with the rubric, no console errors · proof: run on gpt-6-luna per change below; tester run 3 B2–B3 (149 words in range, 4 content points correct, 7/7 language errors); after the prompt fix b441768; console clean after dev server restart (earlier useTutor errors were an HMR artifact)
 
 ### Looks
-- [ ] Chat window and sheet look unchanged versus `main`, both themes, 375 px and wide, no clipping · proof: tester run 1 scenario 7 and run 2 A5 (375 px and desktop, no overflow). Open: the app has no dark theme at all, so "both themes" cannot apply; waiting for the user's OK to drop it
+- [x] Chat window and sheet look unchanged versus `main`, both themes, 375 px and wide, no clipping · proof: light: tester run 1 scenario 7 and run 2 A5; dark (PR https://github.com/MichalDakowicz/sedno/pull/48): dark-theme tester runs 1–2 over every view at desktop and 375 px (no overflow, spreadsheet and CKE images stay light), audits 1–2 with no blockers or majors and no light regression; console clean on a fresh dev server
 
 ### Feels
 - [x] Saving a chat does not block typing (debounced save), no visible jank · proof: tester run 1 scenario 1
@@ -37,10 +37,11 @@ the jury, submission drafts.
 - [x] `NASTEPNE.md` section 0 updated, Brief and `handoff.md` updated · proof: commit "docs: update orchestrator handoff" (no Brief entries matched these items)
 
 ## Blocked on
-- The app has no dark theme; the user keeps "both themes" in the Looks bar open (blocks: Looks). Needs a decision: build a dark theme for the app, or change the bar
+- None
 
 ## Changes
 - 2026-11-16: goal set (approved by the user)
 - 2026-11-16: submission drafts removed from the goal; the user handles them separately (approved by the user)
 - 2026-11-16: the test account's "Ważne" tier ran on ollama qwen3:8b, not sol; switched to openai gpt-6-luna for the essay bar. A check on sol itself stays open in NASTEPNE.md (approved by the user)
 - 2026-11-16: the user kept "both themes" in the Looks bar although the app has no dark theme; goal blocked on it
+- 2026-11-16: dark theme for the app added to scope (branch `ciemny-motyw`, follows the system setting, palette from `docs/style.css`) to meet the Looks bar (approved by the user)
