@@ -291,13 +291,17 @@ function naBialym(dataURL: string): Promise<string> {
   return new Promise((ok) => {
     const img = new Image();
     img.onload = () => {
-      const c = Object.assign(document.createElement("canvas"), { width: img.naturalWidth, height: img.naturalHeight });
-      const ctx = c.getContext("2d");
-      if (!ctx || !c.width || !c.height) return ok(dataURL);
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, c.width, c.height);
-      ctx.drawImage(img, 0, 0);
-      ok(c.toDataURL("image/png"));
+      try {
+        const c = Object.assign(document.createElement("canvas"), { width: img.naturalWidth, height: img.naturalHeight });
+        const ctx = c.getContext("2d");
+        if (!ctx || !c.width || !c.height) return ok(dataURL);
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0);
+        ok(c.toDataURL("image/png"));
+      } catch {
+        ok(dataURL); // np. za duże płótno: bez spłaszczenia obraz i tak się wczyta
+      }
     };
     img.onerror = () => ok(dataURL);
     img.src = dataURL;
@@ -306,7 +310,7 @@ function naBialym(dataURL: string): Promise<string> {
 
 async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileData | null> {
   try {
-    // Data URL z importu idzie wprost do Excalidraw; fetch obsłuży też starszą ścieżkę.
+    // Data URL z importu nie wymaga pobierania; fetch obsłuży też starszą ścieżkę. Oba przechodzą przez naBialym.
     if (rysunek.src.startsWith("data:")) return { id: plik as FileId, dataURL: (await naBialym(rysunek.src)) as DataURL, mimeType: "image/png", created: Date.now() };
     const odp = await fetch(adresObrazu(rysunek.src));
     if (!odp.ok) return null;

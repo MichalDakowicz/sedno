@@ -58,7 +58,7 @@
   --font: "Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-/* Element z .motyw-jasny zostaje jasny w ciemnym motywie (np. arkusz kalkulacyjny, obrazy z CKE na bieli):
+/* Element z .motyw-jasny zostaje jasny w ciemnym motywie (np. arkusz kalkulacyjny):
    deklaruje jasne tokeny u siebie, więc wszystko w środku dziedziczy jasne wartości. */
 .motyw-jasny {
   color: var(--fg);
