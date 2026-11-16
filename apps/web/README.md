@@ -57,3 +57,4 @@ Tokeny w `packages/ui` (`tokens.css` dla web, `tokens.ts` dla mobile). Ikony: `l
 - Sekcje rozdzielają linie. Karta tylko tam, gdzie treść musi się wyróżnić (rekomendacja „Dziś warto”, okno rozmowy).
 - Jeden akcent: pomarańczowy `#ff7448`, drugi kolor jasnoniebieski `#d3e1ff` dla akcji pobocznych. Każdy przedmiot ma swój kolor ikony (`--tone-*`).
 - Pasek nawigacji ma tło z zanikaniem, żeby przewijana treść nie prześwitywała nad nim.
+- Ciemny motyw idzie za ustawieniem systemu (`prefers-color-scheme`), bez przełącznika. Kolory zmienia blok `@media` na końcu `tokens.css`, więc w CSS używamy tokenów, nie wpisanych na sztywno barw. Excalidraw, Monaco i Chart.js znają motyw przez `src/motyw.ts`. Obrazy z arkuszy zostają bez zmian (białe podłoże).

@@ -356,7 +356,7 @@
 
 .choice[data-stan="trafiona"] .letter {
   background: var(--success-strong);
-  color: #fff;
+  color: var(--primary-fg);
 }
 
 .choice[data-stan="poprawna"] {
@@ -374,7 +374,7 @@
 
 .choice[data-stan="bledna"] .letter {
   background: var(--danger);
-  color: #fff;
+  color: var(--primary-fg);
 }
 
 /* Same litery: pole na jedną literę, jak kratka w tabeli odpowiedzi na maturze */
@@ -419,13 +419,13 @@
 .letterInput[data-stan="trafiona"] {
   border-color: var(--success-strong);
   background: var(--success-strong);
-  color: #fff;
+  color: var(--primary-fg);
 }
 
 .letterInput[data-stan="bledna"] {
   border-color: var(--danger);
   background: var(--danger);
-  color: #fff;
+  color: var(--primary-fg);
 }
 
 .letterInput:disabled {
@@ -546,12 +546,12 @@
 
 .tfOption[data-stan="trafiona"] {
   background: var(--success-strong);
-  color: #fff;
+  color: var(--primary-fg);
 }
 
 .tfOption[data-stan="bledna"] {
   background: var(--danger);
-  color: #fff;
+  color: var(--primary-fg);
 }
 
 .tfOption[data-stan="poprawna"] {
@@ -1529,6 +1529,15 @@
   display: block;
   max-width: 100%;
   height: auto;
+}
+
+/* Obrazy z arkuszy CKE są rysowane pod białą kartkę (czarny tekst, często przezroczyste tło).
+   W ciemnym motywie dostają białe podłoże zamiast inwersji, żeby zostały takie jak w oryginale. */
+@media (prefers-color-scheme: dark) {
+  .kadr img,
+  .cellImage {
+    background: #fff;
+  }
 }
 
 /* Tabele z informatyki: pierwszy wiersz bez nagłówka nie jest pogrubiony (nagłówek ma własne th). */

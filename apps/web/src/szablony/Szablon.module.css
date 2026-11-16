@@ -192,7 +192,7 @@
 }
 
 .pasek span[data-poziom="sredni"] {
-  background: #ffa88d;
+  background: var(--primary-mid);
 }
 
 .pasek span[data-poziom="wysoki"] {
@@ -349,6 +349,13 @@
   border-radius: 50%;
   background: var(--surface);
   box-shadow: 0 1px 3px rgba(15, 21, 29, 0.2);
+}
+
+/* Ciemny motyw: knob --surface na torze --line miałby 1,2:1, więc w stanie wyłączonym jest --muted (5,5:1 na torze). */
+@media (prefers-color-scheme: dark) {
+  .przelacznik:not(.przelacznikWl)::after {
+    background: var(--muted);
+  }
 }
 
 .przelacznikWl {

@@ -19,7 +19,7 @@ html::-webkit-scrollbar {
 /* Przewijane obszary wewnątrz strony (np. rozmowa) dostają cienki pasek w kolorach aplikacji. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(15, 21, 29, 0.25) transparent;
+  scrollbar-color: color-mix(in srgb, var(--fg) 25%, transparent) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -34,7 +34,7 @@ html::-webkit-scrollbar {
 *::-webkit-scrollbar-thumb {
   border: 3px solid transparent;
   border-radius: 999px;
-  background: rgba(15, 21, 29, 0.25) padding-box;
+  background: color-mix(in srgb, var(--fg) 25%, transparent) padding-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
@@ -242,7 +242,7 @@ textarea {
   position: absolute;
   inset: -6px;
   border-radius: 28px;
-  box-shadow: 0 0 0 2px rgba(255, 116, 72, 0.55);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent);
   pointer-events: none;
   animation: tutor-ring 1.6s ease-out infinite;
 }
@@ -250,13 +250,13 @@ textarea {
 @keyframes tutor-ring {
   0% {
     box-shadow:
-      0 0 0 2px rgba(255, 116, 72, 0.55),
-      0 0 0 0 rgba(255, 116, 72, 0.35);
+      0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent),
+      0 0 0 0 color-mix(in srgb, var(--primary) 35%, transparent);
   }
   100% {
     box-shadow:
-      0 0 0 2px rgba(255, 116, 72, 0.55),
-      0 0 0 10px rgba(255, 116, 72, 0);
+      0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent),
+      0 0 0 10px color-mix(in srgb, var(--primary) 0%, transparent);
   }
 }
 

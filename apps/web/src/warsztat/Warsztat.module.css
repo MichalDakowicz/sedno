@@ -365,6 +365,7 @@ pre.blad {
 }
 
 .arkuszObudowa {
+  /* Fortune-sheet ma białe tło na stałe, więc zostaje jasny (.motyw-jasny z tokens.css) także w ciemnym motywie. */
   position: absolute;
   inset: 0;
 }
