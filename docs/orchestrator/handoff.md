@@ -2,25 +2,41 @@
 
 _Updated 2026-11-16_
 
-**State.** Branch `rozmowy-konto` at `6c8ffaf`, pushed. Also merged into `dev` (`0a33c9f`), staging has it. Checks: typecheck and build green. PR https://github.com/MichalDakowicz/sedno/pull/46 open, not merged. Orchestrator docs and `NASTEPNE.md` go to `main` through branch `orkiestrator-dokumenty` and its PR (a direct push to `main` was blocked).
+**State.** Three PRs open, none merged:
+- https://github.com/MichalDakowicz/sedno/pull/46 `rozmowy-konto` at `6c8ffaf`: chats with Pestka on the account, essay prompt fix. Also merged into `dev` (`0a33c9f`), so staging has it.
+- https://github.com/MichalDakowicz/sedno/pull/48 `ciemny-motyw` at `23d88c8`: dark theme. Not on `dev`.
+- https://github.com/MichalDakowicz/sedno/pull/47 `orkiestrator-dokumenty`: these docs and `NASTEPNE.md`.
 
-**Goal.** Close "Do domknięcia" (chats on the account, informatyka and essay discussion checked on staging): 11/12 bars met, status blocked. Open bar: Looks ("both themes"); the app has no dark theme and the user kept the bar open.
+All checks (typecheck, build) are green on each branch, and `rozmowy-konto` and `ciemny-motyw` merge together without conflicts. A direct push to `main` was blocked by a permission check, so docs go through PR #47.
+
+**Goal.** Achieved, 12/12 bars, archived in `goals/2026-11-16-do-domkniecia.md`.
 
 **Done this session.**
-- Chats with Pestka on the account: merged `main` into `rozmowy-konto`, fixed logout leak, then three audit rounds (confirmation flag instead of clocks, owner key, SIGNED_OUT clear, pull on tab return, logout flush with 3 s limit). Verified by three tester runs on staging, own offline check, and Opus audit 3 with no blockers or majors.
-- Informatyka after login on staging: 4 sheets, Python and SQL, answer survives reload (tester run 2).
-- Essay discussion: the model now gets the app's word count, range and the given start (b441768). Checked on gpt-6-luna (tester run 3).
+- Chats with Pestka on the account. Logout leak fixed, then three audit rounds: confirmation flag instead of clocks, owner key, SIGNED_OUT clear, pull on tab return, 3 s logout flush. Verified by three tester runs on staging, my own offline check, and a final audit with no blockers or majors.
+- Informatyka after login on staging: 4 sheets, Python and SQL run, answer survives reload.
+- Essay discussion: the model gets the app's word count, range and given start. Checked on gpt-6-luna.
+- Dark theme following the system setting. Verified by two tester runs over every view in dark and light at desktop and 375 px, and two audits with no blockers or majors and no light regression.
 
-**Not verified.** Logout and login with another account in a browser (code reading only). Essay discussion on sol (the test account has no sol provider). Dark theme (the app has none).
+**Not verified.**
+- Logout and login with another account in a browser (code reading only).
+- Essay discussion on sol (no sol provider on the test account).
+- Light theme at 375 px after the dark-theme change.
 
 **In flight.** Nothing.
 
 **Parked.** Nothing.
 
-**Claimed but unfinished.** None. Brief: repo linked to project `sedno`; no Brief entries matched this goal's items. Three Brief entries about the workspace panel are still "doing" from 9 November under another session's claim.
+**Claimed but unfinished.** None. Brief is linked to project `sedno`, and no entries matched this goal. Three workspace-panel entries from 9 November are still "doing" under another session's claim.
 
-**Next.** Merge PR #46 (user). Then the minors listed under section 0 of `NASTEPNE.md` (chat sync races, ownerless chats, deleting chats, essay discussion restart, `?omow=1` link).
+**Next.**
+- Merge #46, #47 and #48 (user).
+- Then the minors in `NASTEPNE.md` section 0: chat sync races, ownerless chats, deleting chats and retention, restarting the essay discussion, the `?omow=1` link, Excalidraw selection colour, and the light toggle.
 
 **Housekeeping.**
-- Test account changes on staging: "Ważne" tier switched from ollama-serwer to openai (gpt-6-luna); test chats ("Test synchronizacji", "Lokalna bez wlasciciela" local only, others) and the submitted 2025 English sheet with the test essay remain.
-- Worktrees `.claude/worktrees/rozmowy-konto` (runs `npm run dev:staging` in a terminal tab) and `.claude/worktrees/rozmowy-poprawki` (branch `rozmowy-poprawki`, same commit as `rozmowy-konto`) can be removed after the merge.
+- Test account on staging:
+  - "Ważne" tier is on openai gpt-6-luna; the user said to keep it.
+  - Test chats remain.
+  - The 2025 English sheet is submitted with the test essay.
+  - A local Python draft on informatyka 2023 task 2 was replaced with `print(2+2)`; it is browser-local only.
+- `npm run dev:staging` runs from `.claude/worktrees/ciemny-motyw` in a terminal tab.
+- Worktrees `.claude/worktrees/rozmowy-konto`, `rozmowy-poprawki` and `ciemny-motyw` can be removed after merging. Branch `rozmowy-poprawki` equals `rozmowy-konto`.
