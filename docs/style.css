@@ -17,7 +17,7 @@
 }
 @media (prefers-color-scheme:dark){
   :root{
-    --bg:#10151c;--surface:#1b232e;--text:#f3efec;--muted:#a3abb5;--subtle:#7d8691;
+    --bg:#10151c;--surface:#1b232e;--text:#f3efec;--muted:#a3abb5;--subtle:#8a929c;
     --line:#2a3340;--line2:#384352;--grid:rgba(255,255,255,.035);
     --accent:#ff8a5f;--accent-hover:#ff9d78;--accent-soft:#3a2219;--accent-fg:#ffab8a;
     --blue:#9db8ff;--blue-soft:#1f2c48;

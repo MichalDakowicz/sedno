@@ -21,7 +21,7 @@
   border: 0;
   border-radius: var(--r-pill);
   background: var(--fg);
-  color: #fff;
+  color: var(--surface);
   font: inherit;
   font-size: 16px;
   font-weight: 600;
@@ -31,18 +31,26 @@
 }
 
 .ikona {
-  color: rgba(255, 255, 255, 0.6);
+  color: color-mix(in srgb, var(--surface) 60%, transparent);
 }
 
 .pauzaZnak {
   font-size: 13px;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.7);
+  color: color-mix(in srgb, var(--surface) 70%, transparent);
 }
 
 .wyspa[data-stan="koncowka"] .czas,
 .wyspa[data-stan="po"] .czas {
   color: var(--primary);
+}
+
+/* W ciemnym motywie wyspa jest jasna (tło --fg), więc jasny pomarańcz zamieniamy na ciemny z motywu jasnego (4,5:1). */
+@media (prefers-color-scheme: dark) {
+  .wyspa[data-stan="koncowka"] .czas,
+  .wyspa[data-stan="po"] .czas {
+    color: #c2410c;
+  }
 }
 
 /* Pełny zegar: wysuwa się z wyspy w dół. */
@@ -52,11 +60,11 @@
   gap: 4px;
   padding: 6px 6px 6px 20px;
   border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, 0.92);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
   -webkit-backdrop-filter: blur(12px) saturate(1.6);
   backdrop-filter: blur(12px) saturate(1.6);
   box-shadow:
-    0 0 0 1px rgba(15, 21, 29, 0.06),
+    0 0 0 1px color-mix(in srgb, var(--fg) 6%, transparent),
     var(--shadow-float);
   white-space: nowrap;
 }

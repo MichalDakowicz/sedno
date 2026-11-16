@@ -36,6 +36,41 @@ export const gradient = {
   accent: ["#ff5e3a", "#ff8a3d", "#ff6f52"],
 } as const;
 
+// Ciemny motyw (prefers-color-scheme: dark), te same klucze co w `color`. Odpowiednik bloku w tokens.css.
+export const colorDark = {
+  background: "#10151c",
+  surface: "#1b232e",
+  foreground: "#f3efec",
+  muted: "#a3abb5",
+  subtle: "#8a929c",
+  line: "#2a3340",
+  grid: "rgba(255, 255, 255, 0.035)",
+  primary: "#ff8a5f",
+  primaryHover: "#ff9d78",
+  primaryText: "#ffab8a",
+  primaryForeground: "#10151c",
+  primaryStrong: "#ff8a5f",
+  primaryStrongHover: "#ff9d78",
+  primarySoft: "#3a2219",
+  secondary: "#1f2c48",
+  secondaryForeground: "#9db8ff",
+  success: "#4fcf92",
+  successStrong: "#4fcf92",
+  danger: "#ff7a82",
+  dark: "#10151c",
+} as const;
+
+export const toneDark = {
+  orange: { bg: "#3a2219", fg: "#ffab8a" },
+  blue: { bg: "#1f2c48", fg: "#9db8ff" },
+  yellow: { bg: "#352a10", fg: "#f0c15a" },
+  green: { bg: "#14301f", fg: "#4fcf92" },
+} as const;
+
+export const shadowDark = {
+  float: "0 8px 32px rgba(0, 0, 0, 0.35)",
+} as const;
+
 export const radius = {
   sm: 12,
   md: 20,

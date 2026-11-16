@@ -355,7 +355,7 @@
 .check[data-odhaczony] .checkMark {
   border-color: var(--success);
   background: var(--success-strong);
-  color: #fff;
+  color: var(--primary-fg);
 }
 
 .check[data-odhaczony] .checkText {

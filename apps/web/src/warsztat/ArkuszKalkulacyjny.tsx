@@ -10,6 +10,7 @@ import "@fortune-sheet/react/dist/index.css";
 import type { Op, Sheet } from "@fortune-sheet/core";
 import { Download } from "lucide-react";
 import { Chart, registerables, type ChartType } from "chart.js";
+import { useCiemny } from "../motyw";
 import { liczba, tabela } from "./tabele";
 import { polskieEtykiety } from "./polski";
 import styles from "./Warsztat.module.css";
@@ -209,6 +210,8 @@ const TYPY: { id: string; nazwa: string; typ: ChartType; stos?: boolean; poziomy
   { id: "kolowy", nazwa: "Kołowy", typ: "pie" },
 ];
 const KOLORY = ["#ff7448", "#2f55b4", "#17804f", "#8a5a00", "#9b3fb5", "#c2410c", "#0e7490", "#6b7280"];
+// Te same serie rozjaśnione pod ciemną powierzchnię (wszystkie min. 6:1 na #1b232e).
+const KOLORY_CIEMNE = ["#ff8a5f", "#9db8ff", "#4fcf92", "#f0c15a", "#d58de8", "#ffab8a", "#5fc6dc", "#a3abb5"];
 
 export function Wykres({ etykiety, serie }: DaneWykresu) {
   const plotno = useRef<HTMLCanvasElement>(null);
@@ -217,9 +220,16 @@ export function Wykres({ etykiety, serie }: DaneWykresu) {
   const [osX, setOsX] = useState("");
   const [osY, setOsY] = useState("");
   const wykres = useRef<Chart | null>(null);
+  const ciemny = useCiemny();
 
   useEffect(() => {
     const t = TYPY.find((x) => x.id === typ)!;
+    const KOL = ciemny ? KOLORY_CIEMNE : KOLORY;
+    // Chart.js ma własne domyślne kolory tekstu i siatki (pod jasne tło), więc bierzemy je z tokenów.
+    const css = getComputedStyle(document.documentElement);
+    // W jasnym motywie zostają domyślne kolory Chart.js (undefined).
+    const tekst = ciemny ? css.getPropertyValue("--muted").trim() : undefined;
+    const siatka = ciemny ? css.getPropertyValue("--line").trim() : undefined;
     wykres.current?.destroy();
     const kolowy = t.typ === "pie";
     wykres.current = new Chart(plotno.current!, {
@@ -229,8 +239,8 @@ export function Wykres({ etykiety, serie }: DaneWykresu) {
         datasets: (kolowy ? serie.slice(0, 1) : serie).map((s, i) => ({
           label: s.nazwa,
           data: t.typ === "scatter" ? s.dane.map((y, j) => ({ x: Number(etykiety[j]) || j + 1, y })) : s.dane,
-          backgroundColor: kolowy ? etykiety.map((_, j) => KOLORY[j % KOLORY.length]) : KOLORY[i % KOLORY.length],
-          borderColor: KOLORY[i % KOLORY.length],
+          backgroundColor: kolowy ? etykiety.map((_, j) => KOL[j % KOL.length]) : KOL[i % KOL.length],
+          borderColor: KOL[i % KOL.length],
         })),
       },
       options: {
@@ -238,20 +248,30 @@ export function Wykres({ etykiety, serie }: DaneWykresu) {
         responsive: true,
         maintainAspectRatio: false,
         animation: false,
-        plugins: { title: { display: !!tytul, text: tytul }, legend: { display: serie.length > 1 || kolowy } },
+        plugins: {
+          title: { display: !!tytul, text: tytul, color: tekst },
+          legend: { display: serie.length > 1 || kolowy, labels: { color: tekst } },
+        },
         scales: kolowy
           ? {}
           : {
-              x: { stacked: !!t.stos, title: { display: !!osX, text: osX } },
-              y: { stacked: !!t.stos, title: { display: !!osY, text: osY } },
+              x: { stacked: !!t.stos, title: { display: !!osX, text: osX, color: tekst }, ticks: { color: tekst }, grid: { color: siatka } },
+              y: { stacked: !!t.stos, title: { display: !!osY, text: osY, color: tekst }, ticks: { color: tekst }, grid: { color: siatka } },
             },
       },
     });
     return () => wykres.current?.destroy();
-  }, [typ, tytul, osX, osY, etykiety, serie]);
+  }, [typ, tytul, osX, osY, etykiety, serie, ciemny]);
 
   const pobierz = () => {
-    const a = Object.assign(document.createElement("a"), { href: plotno.current!.toDataURL("image/png"), download: "wykres.png" });
+    // Płótno wykresu jest przezroczyste; PNG dostaje tło powierzchni, żeby tekst był czytelny także w ciemnym motywie.
+    const zrodlo = plotno.current!;
+    const plansza = Object.assign(document.createElement("canvas"), { width: zrodlo.width, height: zrodlo.height });
+    const ctx = plansza.getContext("2d")!;
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--surface").trim();
+    ctx.fillRect(0, 0, plansza.width, plansza.height);
+    ctx.drawImage(zrodlo, 0, 0);
+    const a = Object.assign(document.createElement("a"), { href: plansza.toDataURL("image/png"), download: "wykres.png" });
     a.click();
   };
 

@@ -300,7 +300,7 @@
 }
 
 .bar span[data-level="mid"] {
-  background: #ffa88d;
+  background: var(--primary-mid);
 }
 
 .bar span[data-level="high"] {

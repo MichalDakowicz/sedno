@@ -27,7 +27,7 @@
   width: min(760px, calc(100vw - 112px));
   transform: translateX(calc(-50% - 36px));
   box-shadow:
-    0 12px 40px rgba(15, 21, 29, 0.16),
+    var(--shadow-raised),
     0 0 0 1px var(--line);
   animation: wjazd 0.25s ease-out;
 }

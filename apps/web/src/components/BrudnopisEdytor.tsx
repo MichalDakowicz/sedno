@@ -7,6 +7,7 @@ import type { AppState, BinaryFileData, DataURL, ExcalidrawImperativeAPI, Excali
 import type { ExcalidrawElement, FileId } from "@excalidraw/excalidraw/element/types";
 import "@excalidraw/excalidraw/index.css";
 import { Circle, Eraser, Hand, Maximize2, Minimize2, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Square, Trash2, Type, Undo2, X, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
+import { useCiemny } from "../motyw";
 import { adresObrazu, type Obraz } from "../arkusze/typy";
 import styles from "./Brudnopis.module.css";
 
@@ -61,6 +62,16 @@ const KOLORY = [
   { wartosc: "#2f55b4", nazwa: "niebieski" },
   { wartosc: "#1f9d63", nazwa: "zielony" },
 ];
+
+// Excalidraw w ciemnym motywie rysuje płótno przez filtr (invert 93% + hue-rotate 180°), więc zapisany kolor
+// kreski wygląda inaczej. Przyciski kolorów pokazują ten kolor z filtrem, żeby zgadzał się z tym, co widać na
+// płótnie (czarny #1b232e na ciemnym pasku byłby niewidoczny). Do zapisu idzie zawsze oryginał.
+const KOLOR_NA_CIEMNYM: Record<string, string> = {
+  "#1b232e": "#cad1da",
+  "#ff7448": "#d35c36",
+  "#2f55b4": "#86a6f8",
+  "#1f9d63": "#2f9b6a",
+};
 
 // Grubość kreski. Zakreślacz to gruba, półprzezroczysta kreska do oznaczania
 // fragmentów wykresu bez zasłaniania go.
@@ -295,6 +306,8 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
 
 export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, wPanelu, duzyRysunek, dodatkoweRysunki = [], pokazDodatkowe = true, opcjeZWycinka }: Props) {
   const [startowaGrubosc] = useState(zapamietanaGrubosc);
+  const ciemny = useCiemny();
+  const naEkranie = (k: string) => (ciemny ? (KOLOR_NA_CIEMNYM[k] ?? k) : k);
   const przyciete = useRef<Obraz[]>([]);
   const glownyRef = useRef<Obraz | undefined>(rysunek);
   const pokaz = useRef(pokazDodatkowe);
@@ -539,6 +552,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
           excalidrawAPI={(a) => (api.current = a)}
           initialData={poczatek}
           langCode="pl-PL"
+          theme={ciemny ? "dark" : "light"}
           UIOptions={{
             canvasActions: { loadScene: false, saveToActiveFile: false, export: false, toggleTheme: false, changeViewBackgroundColor: false, clearCanvas: false },
             tools: { image: false },
@@ -578,13 +592,13 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
         <div className={styles.toolbar} role="toolbar" aria-label="Styl i widok brudnopisu" aria-orientation="vertical">
           {KOLORY.map((k) => (
             <button key={k.wartosc} type="button" className={styles.swatch} aria-pressed={kolor === k.wartosc} title={k.nazwa} aria-label={`Kolor: ${k.nazwa}`} onClick={() => ustawKolor(k.wartosc)}>
-              <span style={{ background: k.wartosc }} />
+              <span style={{ background: naEkranie(k.wartosc) }} />
             </button>
           ))}
           <span className={styles.sep} aria-hidden="true" />
           {GRUBOSCI.map((g) => (
             <button key={g.id} type="button" className={styles.swatch} aria-pressed={grubosc === g.id} title={g.nazwa} aria-label={g.nazwa} onClick={() => ustawGrubosc(g)}>
-              <span className={styles.width} style={{ width: g.kropka, height: g.kropka, background: kolor, opacity: g.krycie / 100 }} />
+              <span className={styles.width} style={{ width: g.kropka, height: g.kropka, background: naEkranie(kolor), opacity: g.krycie / 100 }} />
             </button>
           ))}
           <span className={styles.sep} aria-hidden="true" />

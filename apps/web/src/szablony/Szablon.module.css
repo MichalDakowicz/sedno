@@ -192,7 +192,7 @@
 }
 
 .pasek span[data-poziom="sredni"] {
-  background: #ffa88d;
+  background: var(--primary-mid);
 }
 
 .pasek span[data-poziom="wysoki"] {
