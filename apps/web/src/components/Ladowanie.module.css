@@ -58,8 +58,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .szkielet,
-  .szkielet > span {
+  :root:not([data-mniej-ruchu="nie"]) .szkielet,
+  :root:not([data-mniej-ruchu="nie"]) .szkielet > span {
     animation: none;
   }
 }

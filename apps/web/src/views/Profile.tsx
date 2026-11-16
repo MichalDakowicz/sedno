@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Map as MapIcon } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ArrowRight, LogOut, Map as MapIcon } from "lucide-react";
 import { logout, saveSubjects, useProfil, useSession } from "../auth";
 import { KontoAI } from "../components/KontoAI";
 import { resetTour } from "../components/TutorContext";
@@ -51,7 +51,16 @@ export function Profile() {
 
       <KontoAI />
 
-      <Wejscia tytul="W przygotowaniu" slugi={["profil-ucznia", "ustawienia", "uklad-pulpitu"]} />
+      <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
+        <h2 className="h3">Ustawienia</h2>
+        <p className="muted small">Motyw, rozmiar tekstu, dostępność i zachowanie Pestki.</p>
+        <Link to="/ustawienia" className="link" style={{ marginTop: 12 }}>
+          Otwórz ustawienia
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
+      </section>
+
+      <Wejscia tytul="W przygotowaniu" slugi={["profil-ucznia", "uklad-pulpitu"]} />
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <button

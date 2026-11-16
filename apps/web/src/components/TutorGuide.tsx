@@ -230,7 +230,10 @@ export function TutorGuide() {
     let ostatnia = document.documentElement.dataset.panelStrona;
     let klatka = 0;
     let awaria = 0;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = () => {
+      const wybor = document.documentElement.dataset.mniejRuchu;
+      return wybor ? wybor === "tak" : window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    };
 
     // Jeden ciągły łuk (parabola) z łagodnym rozpędem i hamowaniem na całość, bez pauzy w połowie.
     const leć = (lewa: boolean, od: Point) => {
@@ -256,7 +259,7 @@ export function TutorGuide() {
       ostatnia = strona;
       cancelAnimationFrame(klatka);
       window.clearTimeout(awaria);
-      if (modeRef.current !== "rest" || reduce) {
+      if (modeRef.current !== "rest" || reduce()) {
         spoczynekLewy = strona === "prawa";
         sync(false);
         return;

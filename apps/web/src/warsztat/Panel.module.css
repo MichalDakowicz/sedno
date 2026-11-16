@@ -37,8 +37,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .panel,
-  .panel[data-otwarty] {
+  :root:not([data-mniej-ruchu="nie"]) .panel,
+  :root:not([data-mniej-ruchu="nie"]) .panel[data-otwarty] {
     transition: none;
   }
 }
@@ -116,7 +116,7 @@
   border-radius: var(--r-pill);
   background: transparent;
   font: inherit;
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   font-weight: 500;
   color: var(--muted);
   cursor: pointer;

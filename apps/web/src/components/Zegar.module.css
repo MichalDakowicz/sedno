@@ -23,7 +23,7 @@
   background: var(--fg);
   color: var(--surface);
   font: inherit;
-  font-size: 16px;
+  font-size: calc(16px * var(--skala-tekstu, 1));
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -35,7 +35,7 @@
 }
 
 .pauzaZnak {
-  font-size: 13px;
+  font-size: calc(13px * var(--skala-tekstu, 1));
   font-weight: 400;
   color: color-mix(in srgb, var(--surface) 70%, transparent);
 }
@@ -120,14 +120,14 @@
   align-items: baseline;
   gap: 8px;
   margin-right: 8px;
-  font-size: 20px;
+  font-size: calc(20px * var(--skala-tekstu, 1));
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--fg);
 }
 
 .opis {
-  font-size: 13px;
+  font-size: calc(13px * var(--skala-tekstu, 1));
   font-weight: 400;
   color: var(--subtle);
 }
@@ -156,7 +156,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wyspa {
+  :root:not([data-mniej-ruchu="nie"]) .wyspa {
     animation: none;
   }
 }

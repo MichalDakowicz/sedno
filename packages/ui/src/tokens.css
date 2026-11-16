@@ -64,11 +64,12 @@
   color: var(--fg);
 }
 
-/* Ciemny motyw: za ustawieniem systemu, bez przełącznika. Paleta jak w docs/style.css. Jedyne odstępstwo:
+/* Ciemny motyw: domyślnie za ustawieniem systemu, w Ustawieniach można go wymusić (data-motyw). Paleta jak w docs/style.css. Jedyne odstępstwo:
    pod ciemnym tekstem --primary-fg stoją jasne wersje --primary-strong i --success-strong
    (biały tekst nie miałby kontrastu). */
+/* Paleta ciemna występuje dwa razy (tu i w :root[data-motyw="ciemny"] niżej): wartości muszą być identyczne i zgodne z docs/style.css. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-motyw="jasny"]) {
     --bg: #10151c;
     --surface: #1b232e;
     --fg: #f3efec;
@@ -108,5 +109,69 @@
     --scrim-strong: rgba(0, 0, 0, 0.6);
 
     color-scheme: dark;
+  }
+}
+
+/* Wybór w Ustawieniach: ciemny wymuszony niezależnie od systemu. Wartości muszą być identyczne jak w bloku @media wyżej (i w docs/style.css). */
+:root[data-motyw="ciemny"] {
+  --bg: #10151c;
+  --surface: #1b232e;
+  --fg: #f3efec;
+  --muted: #a3abb5;
+  --subtle: #8a929c;
+  --line: #2a3340;
+  --shimmer: #384352;
+  --grid: rgba(255, 255, 255, 0.035);
+  --primary: #ff8a5f;
+  --primary-hover: #ff9d78;
+  --primary-text: #ffab8a;
+  --primary-fg: #10151c;
+  --primary-strong: #ff8a5f;
+  --primary-strong-hover: #ff9d78;
+  --primary-soft: #3a2219;
+  /* 60% pomarańczu na tle strony. */
+  --primary-mid: #9f5b44;
+  --secondary: #1f2c48;
+  --secondary-fg: #9db8ff;
+  --success: #4fcf92;
+  --success-strong: #4fcf92;
+  --danger: #ff7a82;
+  --dark: #10151c;
+
+  --tone-orange-bg: #3a2219;
+  --tone-orange-fg: #ffab8a;
+  --tone-blue-bg: #1f2c48;
+  --tone-blue-fg: #9db8ff;
+  --tone-yellow-bg: #352a10;
+  --tone-yellow-fg: #f0c15a;
+  --tone-green-bg: #14301f;
+  --tone-green-fg: #4fcf92;
+
+  --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --shadow-raised: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.5);
+  --scrim-strong: rgba(0, 0, 0, 0.6);
+
+  color-scheme: dark;
+}
+
+/* Większy kontrast (Ustawienia albo prefers-contrast): ciemniejszy tekst pomocniczy i wyraźniejsze linie. */
+:root[data-kontrast="wysoki"] {
+  --muted: #2b3138;
+  --subtle: #363c43;
+  --line: #b9aca4;
+}
+
+:root[data-kontrast="wysoki"][data-motyw="ciemny"] {
+  --muted: #d4d9df;
+  --subtle: #c2c8cf;
+  --line: #5a6678;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-kontrast="wysoki"]:not([data-motyw="jasny"]) {
+    --muted: #d4d9df;
+    --subtle: #c2c8cf;
+    --line: #5a6678;
   }
 }

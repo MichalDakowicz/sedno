@@ -49,8 +49,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .prawo,
-  .lewo {
+  :root:not([data-mniej-ruchu="nie"]) .prawo,
+  :root:not([data-mniej-ruchu="nie"]) .lewo {
     transition: none;
   }
 }
