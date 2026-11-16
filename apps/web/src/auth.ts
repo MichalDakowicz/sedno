@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import { poprawne, type MojPrzedmiot } from "./konto/przedmioty";
+import { wyczyscRozmowy } from "./konto/rozmowy";
 
 export type Profil = {
   id: string;
@@ -61,6 +62,8 @@ export async function loginPassword(email: string, password: string): Promise<st
 }
 
 export async function logout(): Promise<void> {
+  // Przed wylogowaniem: żeby zaległy zapis nie poszedł już bez sesji ani na cudze konto.
+  wyczyscRozmowy();
   await supabase.auth.signOut();
   // Lokalna kopia postępu należy do konta; następna osoba na tym komputerze zaczyna od zera.
   try {

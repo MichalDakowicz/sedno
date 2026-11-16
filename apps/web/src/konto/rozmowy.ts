@@ -70,6 +70,19 @@ function zapiszNaKonto(r: Rozmowa) {
   );
 }
 
+/** Przy wylogowaniu: rozmowy należą do konta, więc następna osoba na tym komputerze zaczyna od zera,
+ *  a zaległe zapisy nie trafią na jej konto. */
+export function wyczyscRozmowy() {
+  oczekujace.forEach((t) => clearTimeout(t));
+  oczekujace.clear();
+  try {
+    localStorage.removeItem(KLUCZ);
+    localStorage.removeItem(BIEZACA);
+  } catch {
+    // zablokowany storage: nic do sprzątania
+  }
+}
+
 /** Zapisuje rozmowę, gdy uczeń już coś napisał; najnowsze na początku, najwyżej LIMIT. */
 export function zapiszRozmowe(id: string, wiadomosci: WiadomoscRozmowy[]): Rozmowa[] {
   const t = tytul(wiadomosci);
@@ -86,18 +99,20 @@ export function zapiszRozmowe(id: string, wiadomosci: WiadomoscRozmowy[]): Rozmo
 }
 
 /** Po zalogowaniu: łączy rozmowy z konta z tymi z przeglądarki (nowsza wersja wygrywa) i wysyła
- *  na konto te, których tam jeszcze nie ma (rozmowy sprzed synchronizacji). */
+ *  na konto te, których tam nie ma albo są nowsze lokalnie (rozmowy sprzed synchronizacji, nieudany zapis). */
 export async function pobierzRozmowy(user: string): Promise<void> {
   const { data, error } = await supabase.from("tutor_chats").select("id, title, messages, updated_at").eq("user_id", user).order("updated_at", { ascending: false }).limit(LIMIT);
   if (error || !data) return;
   const zKonta = new Map<string, Rozmowa>(data.map((r) => [r.id, { id: r.id, tytul: r.title, kiedy: r.updated_at, wiadomosci: r.messages as WiadomoscRozmowy[] }]));
-  const lokalne = wczytajRozmowy();
-  for (const r of lokalne) {
+  // Znaczniki czasu mają różne formaty (lokalny „Z”, serwer „+00:00” z mikrosekundami), więc porównujemy daty, nie napisy.
+  const czas = (r: Rozmowa) => Date.parse(r.kiedy);
+  for (const r of wczytajRozmowy()) {
     const k = zKonta.get(r.id);
-    if (!k) zapiszNaKonto(r);
-    if (!k || r.kiedy > k.kiedy) zKonta.set(r.id, r);
+    if (k && czas(r) <= czas(k)) continue;
+    zapiszNaKonto(r);
+    zKonta.set(r.id, r);
   }
-  zapiszLokalnie([...zKonta.values()].sort((a, b) => b.kiedy.localeCompare(a.kiedy)).slice(0, LIMIT));
+  zapiszLokalnie([...zKonta.values()].sort((a, b) => czas(b) - czas(a)).slice(0, LIMIT));
   window.dispatchEvent(new Event(ZMIANA_ROZMOW));
 }
 

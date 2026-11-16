@@ -27,6 +27,10 @@ export function AppLayout() {
     if (!userId) return;
     void pobierzPostepy(userId);
     void pobierzRozmowy(userId);
+    // Zapis rozmów mógł paść bez sieci: po jej powrocie nowsza lokalna wersja idzie na konto.
+    const ponow = () => void pobierzRozmowy(userId);
+    window.addEventListener("online", ponow);
+    return () => window.removeEventListener("online", ponow);
   }, [userId]);
 
   if (session === null) return null;
