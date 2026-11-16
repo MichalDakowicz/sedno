@@ -64,8 +64,8 @@ export function Ustawienia() {
       <section className={s.sekcja}>
         <h2 className="h2">Dostępność</h2>
         <ul className={s.wiersze}>
-          <Przelacznik tytul="Mniej ruchu" opis="Bez animacji Pestki i przejść" wl={u.mniejRuchu ?? ruchWSystemie()} onChange={(mniejRuchu) => zmienUstawienia({ mniejRuchu })} />
-          <Przelacznik tytul="Większy kontrast" opis="Ciemniejszy tekst pomocniczy i linie" wl={u.kontrast ?? kontrastWSystemie()} onChange={(kontrast) => zmienUstawienia({ kontrast })} />
+          <Przelacznik tytul="Mniej ruchu" opis="Bez animacji Pestki i przejść" wl={u.mniejRuchu ?? ruchWSystemie()} onChange={(v) => zmienUstawienia({ mniejRuchu: v === ruchWSystemie() ? null : v })} />
+          <Przelacznik tytul="Większy kontrast" opis="Ciemniejszy tekst pomocniczy i linie" wl={u.kontrast ?? kontrastWSystemie()} onChange={(v) => zmienUstawienia({ kontrast: v === kontrastWSystemie() ? null : v })} />
         </ul>
       </section>
 
