@@ -6,6 +6,7 @@ import { KontoAI } from "../components/KontoAI";
 import { resetTour } from "../components/TutorContext";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import type { MojPrzedmiot } from "../konto/przedmioty";
+import { Wejscia } from "../szablony/Wejscia";
 
 export function Profile() {
   const navigate = useNavigate();
@@ -49,6 +50,8 @@ export function Profile() {
       </section>
 
       <KontoAI />
+
+      <Wejscia tytul="W przygotowaniu" slugi={["profil-ucznia", "ustawienia", "uklad-pulpitu"]} />
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <button

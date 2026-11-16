@@ -1,0 +1,508 @@
+/* Wspólne klocki pustych prototypów. Bez logiki: tylko układ, żeby było widać, jak widok ma działać. */
+
+.strona {
+  display: grid;
+  gap: 48px;
+  padding-top: 32px;
+  padding-bottom: 120px;
+}
+
+.glowa {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+
+.glowa .lead {
+  max-width: 62ch;
+}
+
+.znacznik {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.znacznik span:first-child {
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Sekcje rozdziela linia, nie karta. */
+.sekcja {
+  display: grid;
+  gap: 20px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.sekcjaGlowa {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.wiersze {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.wiersz {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.wiersz3 {
+  grid-template-columns: minmax(140px, 1.2fr) minmax(100px, 2fr) auto;
+}
+
+.siatka2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.siatka3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.kolumna {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  justify-items: start;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.boczna {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .siatka2,
+  .siatka3,
+  .boczna {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .wiersz3 {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .wiersz3 > :nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+/* Karta tylko tam, gdzie treść musi wyskoczyć: rekomendacja, okno rozmowy, okno dialogowe. */
+.karta {
+  display: grid;
+  gap: 18px;
+  justify-items: start;
+  padding: 32px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+}
+
+@media (max-width: 640px) {
+  .karta {
+    padding: 22px;
+  }
+}
+
+.akcje {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Numer przy elemencie, objaśniony w „Jak działa” na dole strony. */
+.nr {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary-strong);
+  color: var(--primary-fg);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.zNumerem {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Zastępczy tekst: szara kreska w miejscu treści, która przyjdzie z danych. */
+.kreska {
+  display: block;
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+}
+
+.kreski {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.pasek {
+  display: block;
+  width: 100%;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+  overflow: hidden;
+}
+
+.pasek span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+
+.pasek span[data-poziom="sredni"] {
+  background: #ffa88d;
+}
+
+.pasek span[data-poziom="wysoki"] {
+  background: var(--success);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.chipAktywny {
+  color: var(--fg);
+  background: var(--surface);
+  border-color: transparent;
+  box-shadow: var(--shadow-float);
+}
+
+.chipy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Udawane pole: wygląda jak input, ale nic nie robi. */
+.pole {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--subtle);
+}
+
+.poleWielo {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  width: 100%;
+  min-height: 160px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+/* Rozmowa */
+
+.rozmowa {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+.dymek {
+  max-width: 78%;
+  padding: 12px 16px;
+  border-radius: 18px 18px 18px 6px;
+  background: var(--bg);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.dymekUczen {
+  justify-self: end;
+  border-radius: 18px 18px 6px 18px;
+  background: var(--secondary);
+  color: var(--secondary-fg);
+}
+
+.ktoMowi {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--subtle);
+}
+
+/* Fragment tekstu do zaznaczania (np. błąd w pracy). */
+.zaznaczenie {
+  padding: 1px 3px;
+  border-radius: 4px;
+  background: var(--primary-soft);
+  box-shadow: inset 0 -2px 0 var(--primary);
+}
+
+.ok {
+  color: var(--success-strong);
+}
+
+.zle {
+  color: var(--danger);
+}
+
+.duzaLiczba {
+  font-size: 48px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.obszar {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 260px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--subtle);
+  text-align: center;
+}
+
+.ikonaTlo {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--tone-orange-bg);
+  color: var(--tone-orange-fg);
+}
+
+.przelacznik {
+  display: inline-block;
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+}
+
+.przelacznik::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(15, 21, 29, 0.2);
+}
+
+.przelacznikWl {
+  background: var(--success);
+}
+
+.przelacznikWl::after {
+  left: 21px;
+}
+
+/* Objaśnienie na dole strony */
+
+.jakDziala {
+  display: grid;
+  gap: 16px;
+  padding-top: 28px;
+  border-top: 2px dashed var(--line);
+}
+
+.jakDziala ol {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: krok;
+}
+
+.jakDziala li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  max-width: 72ch;
+  color: var(--muted);
+}
+
+.jakDziala li::before {
+  counter-increment: krok;
+  content: counter(krok);
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--primary-strong);
+  color: var(--primary-fg);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.jakDziala code {
+  font-size: 14px;
+}
+
+/* Spis szablonów */
+
+.spisWiersz {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr) 20px;
+  gap: 24px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.spisWiersz:hover .spisTytul {
+  color: var(--primary-text);
+}
+
+.spisTytul {
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .spisWiersz {
+    grid-template-columns: minmax(0, 1fr) 20px;
+    gap: 4px 16px;
+  }
+
+  .spisWiersz > :nth-child(2) {
+    grid-row: 2;
+  }
+
+  .spisWiersz > :nth-child(3) {
+    grid-row: 1 / 3;
+    grid-column: 2;
+  }
+}
+
+/* Schemat ścieżki nauki na stronie spisu */
+
+.sciezka {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.etap {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 18px 20px 18px 0;
+  border-top: 2px solid var(--line);
+}
+
+.etap::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.etap a {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.etap a:hover {
+  color: var(--primary-text);
+}
+
+.etapNazwa {
+  margin-bottom: 4px;
+}
+
+.prawdziwy {
+  color: var(--subtle);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+@media (max-width: 860px) {
+  .sciezka {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .etap {
+    padding: 0 0 22px 24px;
+    border-top: 0;
+    border-left: 2px solid var(--line);
+  }
+
+  .etap::before {
+    top: 0;
+    left: -6px;
+  }
+}
