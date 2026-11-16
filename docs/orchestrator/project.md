@@ -30,6 +30,12 @@ lives in goal.md; the last session's state lives in handoff.md.
 
 builder `sonnet` · tester `haiku` · gap auditor `opus`
 
+## Decisions
+
+- 2026-11-16: templates go in two phases: first the ones without the skill model (search, settings, student profile, dashboard layout, exam countdown), then the learning loop for English.
+- Skill taxonomy comes from CKE marking rules; student-facing names need the user's approval before merge.
+- Dashboard layout is per subject. The „Do matury” widget is optional (on in „Egzamin”, off in „Nauka”).
+
 ## Open questions
 
 - What "wersja binarna" means for a web app (contest rules PDF not read in full) (blocks: final submission, not this goal)
