@@ -285,10 +285,29 @@ async function naWykresy(obraz: Obraz): Promise<Obraz[]> {
 const zDodatkowymi = (els: readonly ExcalidrawElement[], pokaz: boolean) =>
   els.map((e) => (czyBazowy(e.id) && e.id !== ID_RYSUNKU && e.isDeleted === pokaz ? newElementWith(e, { isDeleted: !pokaz }) : e));
 
+// Obraz na białym tle. Excalidraw w ciemnym motywie odwraca obrazy, a potem filtr płótna odwraca je jeszcze raz;
+// przezroczyste tło zostałoby czarne i czarne linie rysunku zniknęłyby. Z białym tłem wygląda to jak w jasnym motywie.
+function naBialym(dataURL: string): Promise<string> {
+  return new Promise((ok) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = Object.assign(document.createElement("canvas"), { width: img.naturalWidth, height: img.naturalHeight });
+      const ctx = c.getContext("2d");
+      if (!ctx || !c.width || !c.height) return ok(dataURL);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0);
+      ok(c.toDataURL("image/png"));
+    };
+    img.onerror = () => ok(dataURL);
+    img.src = dataURL;
+  });
+}
+
 async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileData | null> {
   try {
     // Data URL z importu idzie wprost do Excalidraw; fetch obsłuży też starszą ścieżkę.
-    if (rysunek.src.startsWith("data:")) return { id: plik as FileId, dataURL: rysunek.src as DataURL, mimeType: "image/png", created: Date.now() };
+    if (rysunek.src.startsWith("data:")) return { id: plik as FileId, dataURL: (await naBialym(rysunek.src)) as DataURL, mimeType: "image/png", created: Date.now() };
     const odp = await fetch(adresObrazu(rysunek.src));
     if (!odp.ok) return null;
     const blob = await odp.blob();
@@ -298,7 +317,7 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
       r.onerror = blad;
       r.readAsDataURL(blob);
     });
-    return { id: plik as FileId, dataURL: dataURL as DataURL, mimeType: "image/png", created: Date.now() };
+    return { id: plik as FileId, dataURL: (await naBialym(dataURL)) as DataURL, mimeType: "image/png", created: Date.now() };
   } catch {
     return null; // bez rysunku brudnopis nadal działa, w miejscu obrazka zostaje ramka
   }

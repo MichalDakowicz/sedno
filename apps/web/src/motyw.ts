@@ -14,4 +14,7 @@ export function naZmianeMotywu(fn: (ciemny: boolean) => void) {
   return () => mq.removeEventListener("change", nasluch);
 }
 
-export const useCiemny = () => useSyncExternalStore((zmiana) => naZmianeMotywu(zmiana), czyCiemny);
+// Stała funkcja: nowa przy każdym renderze odpinałaby i podpinała nasłuch od nowa.
+const subskrybuj = (zmiana: () => void) => naZmianeMotywu(zmiana);
+
+export const useCiemny = () => useSyncExternalStore(subskrybuj, czyCiemny);

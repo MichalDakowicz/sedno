@@ -1,5 +1,7 @@
 /* Odpowiednik tokens.ts dla web. Zmieniaj oba pliki razem. */
-:root {
+:root,
+.motyw-jasny {
+  color-scheme: light;
   --bg: #fff9f6;
   --surface: #ffffff;
   --fg: #0f151d;
@@ -56,9 +58,15 @@
   --font: "Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-/* Ciemny motyw: za ustawieniem systemu, bez przełącznika. Paleta jak w docs/style.css. Odstępstwa:
-   --subtle jaśniejszy niż w dokumentach (tam 4,3:1 na powierzchni, tu 5:1), a pod ciemnym tekstem
-   --primary-fg stoją jasne wersje --primary-strong i --success-strong (biały tekst nie miałby kontrastu). */
+/* Element z .motyw-jasny zostaje jasny w ciemnym motywie (np. arkusz kalkulacyjny, obrazy z CKE na bieli):
+   deklaruje jasne tokeny u siebie, więc wszystko w środku dziedziczy jasne wartości. */
+.motyw-jasny {
+  color: var(--fg);
+}
+
+/* Ciemny motyw: za ustawieniem systemu, bez przełącznika. Paleta jak w docs/style.css. Jedyne odstępstwo:
+   pod ciemnym tekstem --primary-fg stoją jasne wersje --primary-strong i --success-strong
+   (biały tekst nie miałby kontrastu). */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #10151c;

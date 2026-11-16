@@ -156,7 +156,7 @@ function ArkuszKalkulacyjny({ pliki, operacje, onOperacje, onZmiana, onZaznaczen
   };
 
   return (
-    <div ref={obudowa} className={styles.arkuszObudowa}>
+    <div ref={obudowa} className={`${styles.arkuszObudowa} motyw-jasny`}>
       <Workbook
         ref={ref}
         data={dane}
@@ -255,8 +255,8 @@ export function Wykres({ etykiety, serie }: DaneWykresu) {
         scales: kolowy
           ? {}
           : {
-              x: { stacked: !!t.stos, title: { display: !!osX, text: osX, color: tekst }, ticks: { color: tekst }, grid: { color: siatka } },
-              y: { stacked: !!t.stos, title: { display: !!osY, text: osY, color: tekst }, ticks: { color: tekst }, grid: { color: siatka } },
+              x: { stacked: !!t.stos, title: { display: !!osX, text: osX, color: tekst }, ticks: { color: tekst }, grid: { color: siatka }, border: { color: siatka } },
+              y: { stacked: !!t.stos, title: { display: !!osY, text: osY, color: tekst }, ticks: { color: tekst }, grid: { color: siatka }, border: { color: siatka } },
             },
       },
     });

@@ -22,6 +22,10 @@ export const color = {
   successStrong: "#17804f",
   danger: "#e40014",
   dark: "#1b232e",
+  shimmer: "#f7f0eb",
+  primaryMid: "#ffa88d",
+  scrim: "rgba(15, 21, 29, 0.18)",
+  scrimStrong: "rgba(28, 22, 17, 0.5)",
 } as const;
 
 // Kolory przedmiotów: tło ikony i sama ikona.
@@ -58,6 +62,10 @@ export const colorDark = {
   successStrong: "#4fcf92",
   danger: "#ff7a82",
   dark: "#10151c",
+  shimmer: "#384352",
+  primaryMid: "#9f5b44",
+  scrim: "rgba(0, 0, 0, 0.5)",
+  scrimStrong: "rgba(0, 0, 0, 0.6)",
 } as const;
 
 export const toneDark = {
@@ -69,6 +77,7 @@ export const toneDark = {
 
 export const shadowDark = {
   float: "0 8px 32px rgba(0, 0, 0, 0.35)",
+  raised: "0 12px 40px rgba(0, 0, 0, 0.5)",
 } as const;
 
 export const radius = {
@@ -105,4 +114,5 @@ export const type = {
 
 export const shadow = {
   float: "0 8px 32px rgba(15, 21, 29, 0.08)",
+  raised: "0 12px 40px rgba(15, 21, 29, 0.16)",
 } as const;
