@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { AvatarState } from "./TutorAvatar";
 import { aiErrorText, AiError, streamAi } from "../ai";
-import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, type Rozmowa } from "../konto/rozmowy";
+import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA_ROZMOW, type Rozmowa } from "../konto/rozmowy";
 import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
 
 export type Message = { id: number; from: "tutor" | "student"; text: string };
@@ -124,6 +124,27 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
   const nextId = useRef(1000);
   const history = useRef<Message[]>([]);
   history.current = messages;
+  const stanRef = useRef(state);
+  stanRef.current = state;
+  const biezacaRef = useRef(biezacaRozmowa);
+  biezacaRef.current = biezacaRozmowa;
+
+  // Rozmowy z konta (z innego urządzenia) dochodzą po zalogowaniu: lista się odświeża, a otwarta rozmowa
+  // bierze wersję z zapisu, żeby kolejna wiadomość nie nadpisała cudzych. W trakcie odpowiedzi nic nie podmieniamy.
+  useEffect(() => {
+    const odswiez = () => {
+      const lista = wczytajRozmowy();
+      setRozmowy(lista);
+      if (stanRef.current !== "idle") return;
+      const zapis = lista.find((r) => r.id === biezacaRef.current);
+      if (!zapis) return;
+      const naEkranie = JSON.stringify(history.current.map((m) => ({ from: m.from, text: m.text })));
+      if (naEkranie === JSON.stringify(zapis.wiadomosci)) return;
+      setMessages(zapis.wiadomosci.map((m) => ({ id: nextId.current++, from: m.from, text: m.text })));
+    };
+    window.addEventListener(ZMIANA_ROZMOW, odswiez);
+    return () => window.removeEventListener(ZMIANA_ROZMOW, odswiez);
+  }, []);
 
   // Odpowiedź modelu z konta: dopisujemy ją do jednej wiadomości w miarę, jak przychodzi.
   const askModel = useCallback(async (all: Message[]) => {

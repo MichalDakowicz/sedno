@@ -8,6 +8,7 @@ import { ZegarWPasku } from "./ZegarWPasku";
 import { useProfil, useSession } from "../auth";
 import { useAiReady } from "../ai";
 import { pobierzPostepy } from "../arkusze/postep";
+import { pobierzRozmowy } from "../konto/rozmowy";
 import { opisPrzedmiotow } from "../konto/przedmioty";
 
 export function AppLayout() {
@@ -21,9 +22,28 @@ export function AppLayout() {
     if (!location.hash) window.scrollTo(0, 0);
   }, [location.pathname, location.hash]);
 
-  // Po zalogowaniu ściągamy postęp z konta, żeby lista arkuszy pokazała go od razu.
+  // Po zalogowaniu ściągamy postęp i rozmowy z Pestką z konta, żeby były od razu, także z innego urządzenia.
   useEffect(() => {
-    if (userId) void pobierzPostepy(userId);
+    if (!userId) return;
+    void pobierzPostepy(userId);
+    void pobierzRozmowy(userId);
+    // Zapis rozmów mógł paść bez sieci: po jej powrocie nowsza lokalna wersja idzie na konto.
+    const ponow = () => void pobierzRozmowy(userId);
+    window.addEventListener("online", ponow);
+    // Karta otwarta długo bez pobrania ma nieświeże rozmowy: pobieramy po powrocie do niej, najwyżej raz na 10 s.
+    let ostatnie = Date.now();
+    const odswiez = () => {
+      if (document.visibilityState !== "visible" || Date.now() - ostatnie < 10_000) return;
+      ostatnie = Date.now();
+      ponow();
+    };
+    document.addEventListener("visibilitychange", odswiez);
+    window.addEventListener("focus", odswiez);
+    return () => {
+      window.removeEventListener("online", ponow);
+      document.removeEventListener("visibilitychange", odswiez);
+      window.removeEventListener("focus", odswiez);
+    };
   }, [userId]);
 
   if (session === null) return null;
