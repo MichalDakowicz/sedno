@@ -4,7 +4,7 @@ Puste prototypy funkcji, których jeszcze nie ma w aplikacji: sam układ i przeb
 
 - Spis i schemat ścieżki nauki: `/szablony` (`Spis.tsx`).
 - Każdy szablon: `/szablony/<slug>`, wyjątki z własnym miejscem w menu: `/nauka`, `/umiejetnosci`, `/powtorki`.
-- Wejścia z działającej aplikacji: menu (Nauka, Mapa umiejętności, Powtórki), lupa w pasku (Wyszukiwanie), sekcja „W przygotowaniu” na pulpicie i w profilu (`Wejscia.tsx`), linki „Dalej w ścieżce” na dole każdego szablonu.
+- Wejścia z działającej aplikacji: menu (Nauka, Mapa umiejętności, Powtórki), sekcja „W przygotowaniu” na pulpicie i w profilu (`Wejscia.tsx`), linki „Dalej w ścieżce” na dole każdego szablonu.
 - Pomarańczowe numery na stronie objaśnia sekcja „Jak to działa” na dole tej samej strony.
 - Każdy folder ma `README.md`: co to jest, po co, jak działa, od czego zależy i lista zadań.
 
@@ -47,7 +47,6 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 
 - [ ] [Profil ucznia](profil-ucznia/README.md): styl nauki, czas, cel, priorytety
 - [ ] [Analiza zdjęcia](zdjecie/README.md): rozwiązanie z kartki omówione przez Pestkę
-- [ ] [Wyszukiwanie](wyszukiwanie/README.md): Ctrl+K do arkuszy, umiejętności, akcji
 - [ ] [Ustawienia](ustawienia/README.md): wygląd, dostępność, Pestka, powiadomienia
 - [ ] [Układ pulpitu](uklad-pulpitu/README.md): widgety i gotowe układy
 

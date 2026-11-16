@@ -4,6 +4,7 @@ import { TopNav } from "./TopNav";
 import { TutorDock } from "./TutorDock";
 import { TutorGuide } from "./TutorGuide";
 import { TutorProvider } from "./TutorContext";
+import { Wyszukiwanie } from "./Wyszukiwanie";
 import { ZegarWPasku } from "./ZegarWPasku";
 import { useProfil, useSession } from "../auth";
 import { useAiReady } from "../ai";
@@ -56,6 +57,7 @@ export function AppLayout() {
     <TutorProvider ai={ai === true} przedmioty={opisPrzedmiotow(profil?.subjects ?? [])}>
       <TopNav />
       <ZegarWPasku />
+      <Wyszukiwanie />
       <Outlet />
       {ai === true && location.pathname !== "/tutor" && (
         <>
