@@ -6,10 +6,12 @@ import { currentUserId } from "../auth";
 import { supabase } from "../supabase";
 
 export type WiadomoscRozmowy = { from: "tutor" | "student"; text: string };
-export type Rozmowa = { id: string; tytul: string; kiedy: string; wiadomosci: WiadomoscRozmowy[] };
+/** naKoncie: ta wersja jest potwierdzona zapisem na koncie; każda lokalna zmiana to zdejmuje (zegary klienta i serwera się nie porównują). */
+export type Rozmowa = { id: string; tytul: string; kiedy: string; wiadomosci: WiadomoscRozmowy[]; naKoncie?: boolean };
 
 const KLUCZ = "sedno.pestka.rozmowy";
 const BIEZACA = "sedno.pestka.biezaca";
+const WLASCICIEL = "sedno.pestka.wlasciciel";
 const LIMIT = 20;
 /** Zdarzenie po ściągnięciu rozmów z konta: TutorContext odświeża wtedy listę. */
 export const ZMIANA_ROZMOW = "sedno-rozmowy";
@@ -43,7 +45,9 @@ export function ustawBiezaca(id: string) {
 export function tytul(wiadomosci: WiadomoscRozmowy[]): string | null {
   const pierwsze = wiadomosci.find((m) => m.from === "student")?.text.replace(/\s+/g, " ").trim();
   if (!pierwsze) return null;
-  return pierwsze.length > 48 ? `${pierwsze.slice(0, 46).replace(/\s+\S*$/, "")}…` : pierwsze;
+  // Po punktach kodowych, żeby nie przeciąć pary zastępczej (emoji).
+  const znaki = Array.from(pierwsze);
+  return znaki.length > 48 ? `${znaki.slice(0, 46).join("").replace(/\s+\S*$/, "")}…` : pierwsze;
 }
 
 function zapiszLokalnie(lista: Rozmowa[]) {
@@ -54,30 +58,49 @@ function zapiszLokalnie(lista: Rozmowa[]) {
   }
 }
 
-const oczekujace = new Map<string, ReturnType<typeof setTimeout>>();
+type Oczekujacy = { timer: ReturnType<typeof setTimeout>; wyslij: () => Promise<void> };
+const oczekujace = new Map<string, Oczekujacy>();
+
+const tresc = (w: WiadomoscRozmowy[]) => JSON.stringify(w);
+
+// Po udanym zapisie oznaczamy rozmowę jako potwierdzoną, o ile w międzyczasie się nie zmieniła.
+function oznaczNaKoncie(r: Rozmowa) {
+  const lista = wczytajRozmowy();
+  const lokalna = lista.find((x) => x.id === r.id);
+  if (!lokalna || lokalna.naKoncie || tresc(lokalna.wiadomosci) !== tresc(r.wiadomosci)) return;
+  zapiszLokalnie(lista.map((x) => (x.id === r.id ? { ...x, naKoncie: true } : x)));
+}
 
 // Na konto z opóźnieniem, żeby strumień odpowiedzi i szybkie wiadomości nie szły osobno.
+// Błąd zapisu zostawia rozmowę niepotwierdzoną: wyśle ją następne pobranie (np. po powrocie sieci).
 function zapiszNaKonto(r: Rozmowa) {
   const user = currentUserId();
   if (!user) return;
-  clearTimeout(oczekujace.get(r.id));
-  oczekujace.set(
-    r.id,
-    setTimeout(() => {
-      oczekujace.delete(r.id);
-      void supabase.from("tutor_chats").upsert({ user_id: user, id: r.id, title: r.tytul, messages: r.wiadomosci }).then();
-    }, 1000),
-  );
+  clearTimeout(oczekujace.get(r.id)?.timer);
+  const wyslij = async () => {
+    oczekujace.delete(r.id);
+    const { error } = await supabase.from("tutor_chats").upsert({ user_id: user, id: r.id, title: r.tytul, messages: r.wiadomosci });
+    if (!error && currentUserId() === user) oznaczNaKoncie(r);
+  };
+  oczekujace.set(r.id, { timer: setTimeout(() => void wyslij(), 1000), wyslij });
+}
+
+/** Przed wylogowaniem: zaległe zapisy idą od razu, jeszcze z sesją tego konta. */
+export async function wyslijOczekujace() {
+  const zalegle = [...oczekujace.values()];
+  zalegle.forEach((o) => clearTimeout(o.timer));
+  await Promise.allSettled(zalegle.map((o) => o.wyslij()));
 }
 
 /** Przy wylogowaniu: rozmowy należą do konta, więc następna osoba na tym komputerze zaczyna od zera,
  *  a zaległe zapisy nie trafią na jej konto. */
 export function wyczyscRozmowy() {
-  oczekujace.forEach((t) => clearTimeout(t));
+  oczekujace.forEach((o) => clearTimeout(o.timer));
   oczekujace.clear();
   try {
     localStorage.removeItem(KLUCZ);
     localStorage.removeItem(BIEZACA);
+    localStorage.removeItem(WLASCICIEL);
   } catch {
     // zablokowany storage: nic do sprzątania
   }
@@ -90,29 +113,46 @@ export function zapiszRozmowe(id: string, wiadomosci: WiadomoscRozmowy[]): Rozmo
   const poprzednia = wszystkie.find((r) => r.id === id);
   const reszta = wszystkie.filter((r) => r.id !== id);
   // Otwarcie starej rozmowy bez nowych wiadomości nie przesuwa jej na górę i nie idzie na konto.
-  const bezZmian = !!poprzednia && JSON.stringify(poprzednia.wiadomosci) === JSON.stringify(wiadomosci);
-  const rozmowa = t ? { id, tytul: t, kiedy: bezZmian ? poprzednia.kiedy : new Date().toISOString(), wiadomosci } : null;
-  const lista = rozmowa ? [rozmowa, ...reszta].sort((a, b) => b.kiedy.localeCompare(a.kiedy)).slice(0, LIMIT) : reszta;
+  const bezZmian = !!poprzednia && tresc(poprzednia.wiadomosci) === tresc(wiadomosci);
+  const rozmowa: Rozmowa | null = t
+    ? bezZmian
+      ? { ...poprzednia, tytul: t }
+      : { id, tytul: t, kiedy: new Date().toISOString(), wiadomosci }
+    : null;
+  // Znaczniki czasu mają różne formaty (lokalny „Z”, serwer „+00:00”), więc porównujemy daty, nie napisy.
+  const lista = rozmowa ? [rozmowa, ...reszta].sort((a, b) => Date.parse(b.kiedy) - Date.parse(a.kiedy)).slice(0, LIMIT) : reszta;
   zapiszLokalnie(lista);
   if (rozmowa && !bezZmian) zapiszNaKonto(rozmowa);
   return lista;
 }
 
-/** Po zalogowaniu: łączy rozmowy z konta z tymi z przeglądarki (nowsza wersja wygrywa) i wysyła
- *  na konto te, których tam nie ma albo są nowsze lokalnie (rozmowy sprzed synchronizacji, nieudany zapis). */
+/** Po zalogowaniu: łączy rozmowy z konta z tymi z przeglądarki. Lokalna rozmowa niepotwierdzona na koncie
+ *  (zmieniona, po nieudanym zapisie albo sprzed synchronizacji) wygrywa i idzie na konto; potwierdzona ustępuje
+ *  wersji z konta, a jeśli jej tam nie ma (poza ostatnimi LIMIT), zostaje lokalnie bez ponownego wysyłania. */
 export async function pobierzRozmowy(user: string): Promise<void> {
   const { data, error } = await supabase.from("tutor_chats").select("id, title, messages, updated_at").eq("user_id", user).order("updated_at", { ascending: false }).limit(LIMIT);
   if (error || !data) return;
-  const zKonta = new Map<string, Rozmowa>(data.map((r) => [r.id, { id: r.id, tytul: r.title, kiedy: r.updated_at, wiadomosci: r.messages as WiadomoscRozmowy[] }]));
-  // Znaczniki czasu mają różne formaty (lokalny „Z”, serwer „+00:00” z mikrosekundami), więc porównujemy daty, nie napisy.
-  const czas = (r: Rozmowa) => Date.parse(r.kiedy);
-  for (const r of wczytajRozmowy()) {
-    const k = zKonta.get(r.id);
-    if (k && czas(r) <= czas(k)) continue;
-    zapiszNaKonto(r);
-    zKonta.set(r.id, r);
+  // Rozmowy innego konta (sesja skończyła się bez wylogowania) nie mogą trafić na to konto. Bez zapisanego
+  // właściciela (sprzed synchronizacji) rozmowy przejmuje pierwsze konto, które się zaloguje.
+  try {
+    const wlasciciel = localStorage.getItem(WLASCICIEL);
+    if (wlasciciel && wlasciciel !== user) wyczyscRozmowy();
+  } catch {
+    // zablokowany storage: nie ma lokalnych rozmów do pomylenia
   }
-  zapiszLokalnie([...zKonta.values()].sort((a, b) => czas(b) - czas(a)).slice(0, LIMIT));
+  const wynik = new Map<string, Rozmowa>(data.map((r) => [r.id, { id: r.id, tytul: r.title, kiedy: r.updated_at, wiadomosci: r.messages as WiadomoscRozmowy[], naKoncie: true }]));
+  for (const r of wczytajRozmowy()) {
+    if (!r.naKoncie) {
+      zapiszNaKonto(r);
+      wynik.set(r.id, r);
+    } else if (!wynik.has(r.id)) wynik.set(r.id, r);
+  }
+  zapiszLokalnie([...wynik.values()].sort((a, b) => Date.parse(b.kiedy) - Date.parse(a.kiedy)).slice(0, LIMIT));
+  try {
+    localStorage.setItem(WLASCICIEL, user);
+  } catch {
+    // zablokowany storage: nic do zapamiętania
+  }
   window.dispatchEvent(new Event(ZMIANA_ROZMOW));
 }
 

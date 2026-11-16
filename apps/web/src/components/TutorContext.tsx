@@ -112,12 +112,6 @@ const noAi = "Żeby odpowiadać, potrzebuję AI podpiętego do konta. Zrobisz to
 export function TutorProvider({ children, ai = false, przedmioty = "" }: { children: ReactNode; ai?: boolean; przedmioty?: string }) {
   // Bieżąca rozmowa wraca po odświeżeniu; wcześniejsze można otworzyć (konto/rozmowy.ts).
   const [rozmowy, setRozmowy] = useState<Rozmowa[]>(wczytajRozmowy);
-  // Rozmowy z konta (z innego urządzenia) dochodzą do listy po zalogowaniu.
-  useEffect(() => {
-    const odswiez = () => setRozmowy(wczytajRozmowy());
-    window.addEventListener(ZMIANA_ROZMOW, odswiez);
-    return () => window.removeEventListener(ZMIANA_ROZMOW, odswiez);
-  }, []);
   const [biezacaRozmowa, setBiezacaRozmowa] = useState(() => idBiezacej() ?? noweId());
   const [messages, setMessages] = useState<Message[]>(() => {
     const zapis = wczytajRozmowy().find((r) => r.id === idBiezacej());
@@ -130,6 +124,27 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
   const nextId = useRef(1000);
   const history = useRef<Message[]>([]);
   history.current = messages;
+  const stanRef = useRef(state);
+  stanRef.current = state;
+  const biezacaRef = useRef(biezacaRozmowa);
+  biezacaRef.current = biezacaRozmowa;
+
+  // Rozmowy z konta (z innego urządzenia) dochodzą po zalogowaniu: lista się odświeża, a otwarta rozmowa
+  // bierze wersję z zapisu, żeby kolejna wiadomość nie nadpisała cudzych. W trakcie odpowiedzi nic nie podmieniamy.
+  useEffect(() => {
+    const odswiez = () => {
+      const lista = wczytajRozmowy();
+      setRozmowy(lista);
+      if (stanRef.current !== "idle") return;
+      const zapis = lista.find((r) => r.id === biezacaRef.current);
+      if (!zapis) return;
+      const naEkranie = JSON.stringify(history.current.map((m) => ({ from: m.from, text: m.text })));
+      if (naEkranie === JSON.stringify(zapis.wiadomosci)) return;
+      setMessages(zapis.wiadomosci.map((m) => ({ id: nextId.current++, from: m.from, text: m.text })));
+    };
+    window.addEventListener(ZMIANA_ROZMOW, odswiez);
+    return () => window.removeEventListener(ZMIANA_ROZMOW, odswiez);
+  }, []);
 
   // Odpowiedź modelu z konta: dopisujemy ją do jednej wiadomości w miarę, jak przychodzi.
   const askModel = useCallback(async (all: Message[]) => {
