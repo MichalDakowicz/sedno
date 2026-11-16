@@ -3,7 +3,7 @@
 import { askAi, type AiMessage, type Tier } from "../ai";
 import { promptPestki } from "../pestka";
 import type { Postep } from "./postep";
-import { policzPytania, werdykt } from "./sprawdz";
+import { liczSlowa, policzPytania, werdykt, zakresSlow } from "./sprawdz";
 import { nazwaPrzedmiotu, type Arkusz, type Pytanie, type Zadanie } from "./typy";
 
 export type DoOmowienia = { zadanie: Zadanie; wypracowanie: boolean };
@@ -29,10 +29,18 @@ function ocena(q: Pytanie, odp: string | undefined): string {
   return w === "dobrze" ? "dobrze" : w === "zle" ? "źle" : w === "pusto" ? "brak odpowiedzi" : "do oceny według zasad";
 }
 
-function opisPytania(q: Pytanie, odp: string | undefined): string {
+/** Zakres długości z polecenia, liczony z tego samego tekstu co zakres przy polu pisania. */
+function zakresZadania(z: Zadanie): [number, number] | null {
+  return zakresSlow([...z.polecenie, ...z.bloki.map((b) => ("tekst" in b ? b.tekst : ""))].join(" "));
+}
+
+function opisPytania(q: Pytanie, odp: string | undefined, z: Zadanie): string {
   const linie = [`Pytanie ${q.nr} (${q.punkty} pkt): ${tex(q.tresc)}`];
   if (q.typ === "wypowiedz") {
+    if (q.poczatek) linie.push(`Początek podany w arkuszu (nie wlicza się do limitu słów):\n${q.poczatek}`);
     linie.push(`Tekst ucznia:\n${odp ?? ""}`);
+    const zakres = zakresZadania(z);
+    linie.push(`Liczba słów ucznia (policzona przez aplikację, bez początku): ${liczSlowa(odp ?? "")}${zakres ? `; wymagane: ${zakres[0]}–${zakres[1]}` : ""}.`);
     return linie.join("\n");
   }
   if (q.typ === "zamkniete") q.opcje?.forEach((o) => linie.push(`${o.litera}. ${tex(o.tresc)}`));
@@ -64,11 +72,11 @@ export function tekstZadania(z: Zadanie, p: Postep): string {
       for (const nr of b.typ === "pytanie" ? [b.nr] : b.nr) {
         const q = pytania.get(nr);
         if (!q) continue;
-        linie.push(opisPytania(q, p.odpowiedzi[nr]));
+        linie.push(opisPytania(q, p.odpowiedzi[nr], z));
         uzyte.add(nr);
       }
   }
-  for (const q of z.pytania) if (!uzyte.has(q.nr)) linie.push(opisPytania(q, p.odpowiedzi[q.nr]));
+  for (const q of z.pytania) if (!uzyte.has(q.nr)) linie.push(opisPytania(q, p.odpowiedzi[q.nr], z));
   return linie.join("\n\n");
 }
 
@@ -80,6 +88,7 @@ export function promptOmowienia(a: Arkusz, d: DoOmowienia, p: Postep): string {
         "Omawiasz z uczniem jego wypracowanie z tego arkusza.",
         "Zacznij od jednej mocnej strony tekstu, potem wskaż jedną, najważniejszą rzecz do poprawy i zapytaj, jak by ją poprawił.",
         "Nie przepisuj wypracowania za ucznia. Cytuj krótkie fragmenty, gdy pokazujesz błąd.",
+        "Nie oceniaj długości na oko: opieraj się na podanej liczbie słów i wspominaj o długości tylko wtedy, gdy wypada poza wymaganym zakresem.",
       ]
     : [
         "Omawiasz z uczniem jego błąd w tym zadaniu z arkusza. Znasz jego odpowiedź i klucz CKE; klucz jest pewny, nie podważaj go.",
