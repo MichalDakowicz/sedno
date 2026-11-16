@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import { poprawne, type MojPrzedmiot } from "./konto/przedmioty";
-import { wyczyscRozmowy } from "./konto/rozmowy";
+import { wyczyscRozmowy, wyslijOczekujace } from "./konto/rozmowy";
 
 export type Profil = {
   id: string;
@@ -25,7 +25,9 @@ supabase.auth.getSession().then(({ data }) => {
   notify();
 });
 
-supabase.auth.onAuthStateChange((_event, session) => {
+supabase.auth.onAuthStateChange((event, session) => {
+  // Także gdy sesja wygasła bez logout() (odrzucone odświeżenie tokenu): rozmowy nie mogą przejść na następne konto.
+  if (event === "SIGNED_OUT") wyczyscRozmowy();
   current = session;
   ready = true;
   notify();
@@ -62,7 +64,12 @@ export async function loginPassword(email: string, password: string): Promise<st
 }
 
 export async function logout(): Promise<void> {
-  // Przed wylogowaniem: żeby zaległy zapis nie poszedł już bez sesji ani na cudze konto.
+  // Zaległe zapisy rozmów idą jeszcze z sesją, potem czyścimy; nieudany ani zawieszony (limit 3 s) zapis nie blokuje wylogowania.
+  try {
+    await Promise.race([wyslijOczekujace(), new Promise((r) => setTimeout(r, 3000))]);
+  } catch {
+    // zostaje lokalna kopia, która i tak jest czyszczona
+  }
   wyczyscRozmowy();
   await supabase.auth.signOut();
   // Lokalna kopia postępu należy do konta; następna osoba na tym komputerze zaczyna od zera.
