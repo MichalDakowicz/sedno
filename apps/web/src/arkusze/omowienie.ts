@@ -57,6 +57,7 @@ export function tekstZadania(z: Zadanie, p: Postep): string {
     else if (b.typ === "wzor") linie.push(`$$${b.tex}$$`);
     else if (b.typ === "tabelaTresci") linie.push(b.wiersze.map((w) => w.join(" | ")).join("\n"));
     else if (b.typ === "kadr") linie.push(tex(b.tekst));
+    else if (b.typ === "kod") linie.push(["```", b.tekst, "```"].join("\n"));
     else if (b.typ === "rysunek") linie.push("[W zadaniu jest rysunek, którego nie widzisz. Nie zgaduj jego szczegółów.]");
     else if (b.typ === "opcje") linie.push(b.opcje.map((o) => `${o.litera}. ${tex(o.tresc)}`).join("\n"));
     else if (b.typ === "pytanie" || b.typ === "pytania" || b.typ === "tabela")

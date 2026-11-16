@@ -29,6 +29,7 @@ export const tone = {
   orange: { bg: "#ffe6dc", fg: "#d94a1f" },
   blue: { bg: "#d3e1ff", fg: "#2f55b4" },
   yellow: { bg: "#fdf0c4", fg: "#8a5a00" },
+  green: { bg: "#d5f2e2", fg: "#17804f" },
 } as const;
 
 export const gradient = {

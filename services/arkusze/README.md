@@ -1,6 +1,6 @@
 # arkusze
 
-Import arkuszy maturalnych CKE do JSON dla aplikacji: język angielski (formuła 2015 i 2023, wszystkie lata dostępne na stronie CKE) i matematyka na poziomie podstawowym (formuła 2023). Na razie bez AI: parser oparty na regułach i układzie tekstu w PDF.
+Import arkuszy maturalnych CKE do JSON dla aplikacji: język angielski (formuła 2015 i 2023, wszystkie lata dostępne na stronie CKE), matematyka na poziomie podstawowym i informatyka (formuła 2023). Na razie bez AI: parser oparty na regułach i układzie tekstu w PDF.
 
 Pliki CKE i wynikowe JSON-y lądują w `data/` w katalogu głównym, który jest w `.gitignore`. Materiały CKE mają prawa autorskie i nie trafiają do repozytorium, dopóki nie ustalimy warunków użycia.
 
@@ -14,6 +14,8 @@ npm run importuj   # JSON-y do data/arkusze/
 npm run kontrola   # spójność danych: klucze, luki, punkty
 npm run wgraj      # data/arkusze/ do tabeli sheets w Supabase (ssh na serwer)
 ```
+
+Na staging: `SEDNO_DB=sb-sedno-dev-db npm run wgraj`. Z prefiksem (`npm run wgraj -- informatyka`) wgrywa tylko pasujące arkusze i nie usuwa pozostałych z bazy.
 
 Aplikacja webowa czyta arkusze z tabeli `sheets` w Supabase (tylko zalogowani), więc po każdym imporcie trzeba je wgrać (`wgraj.js`). Na hosting nie trafiają. Nagrań nie pobieramy: JSON ma adres pliku mp3 na stronie CKE.
 
@@ -46,6 +48,17 @@ Tekst z PDF gubi ułamki, potęgi i pierwiastki. Treść ze wzorami bierzemy wi�
 - Klucz (`kluczMatematyki`): kolumna „Wersja A” tabeli rozwiązań. Pojedyncza litera A–D przy zadaniu „Wybierz właściwą odpowiedź” daje pytanie zamknięte (z opcjami z DOCX); kod (PF, A2, CE) albo krótki wynik daje pytanie otwarte z `oczekiwane`; resztę uczeń ocenia według schematu ze strony `zasadyStrona` w PDF zasad.
 - `kontrola` renderuje każdy wzór przez KaTeX. Podgląd DOCX: `node src/podglad-docx.js <plik.docx> [numery]`.
 - Import tylko matematyki: `node src/importuj.js matematyka`.
+
+## Informatyka
+
+Arkusz nie ma formy DOCX, więc treść składamy z PDF razem z krojami pisma (`tekstPdf(…, { fonty: true })`: pogrubienie, kursywa, Courier, Symbol). `informatyka-tresc.js` dzieli linie fragmentu na akapity z zakresami `formaty`, bloki `kod` (pseudokod po strzałce i słowach „jeżeli”, „dopóki”…, dane Courierem, wiersze liczb; wcięcia z położenia linii), tabele o równej liczbie kolumn i wycinki (wykresy, rysunki, wzory z drobnym pismem albo nieznanym znakiem z fontu Symbol). Fragment z co najmniej dwoma wycinkami albo z wycinkami na ponad 60% wysokości zostaje jednym kadrem (WebP). Akapity „A.–D.” przy pytaniu zamkniętym stają się opcjami. Wykładniki i indeksy (drobne pismo nad linią bazową albo na niej) to zakresy `sup` i `sub`.
+- Tabele (`tabeleZSiatki`): linie siatki szukane na wyrenderowanej stronie, poziome na całej szerokości, pionowe w każdym wierszu osobno (scalone komórki nagłówka). Tekst trafia do komórki ze środkiem kawałka, wykładniki w komórkach jako znaki Unicode, ułamek piętrowy jako `a/b`, komórka z klamrą jako wycinek. Odrzucamy rysunki z linii (ponad 60% pustych komórek, wiersze różnej szerokości, jedna kolumna). Tabela z pustymi komórkami w podpunkcie dostaje `pytanie` (komórki do wpisania, pytanie `tabela: true`), a tabela z kolumnami P i F przy kluczu P/F to przełączniki.
+
+- `informatyka.js`, PDF: fragment to „Zadanie N. Tytuł” (wstęp, tytuł trafia do pola `tytul`), „Zadanie N.M. (0–X)” albo „Informacja do zadań …” (osobny fragment bez punktów przed pierwszym z podpunktów). Tabelka egzaminatora stoi na marginesie raz z lewej, raz z prawej. Fragment kończą „Miejsce na obliczenia / zapis algorytmu / zapis zapytania”, „Do oceny oddajesz” i „BRUDNOPIS”.
+- Klucz (`kluczInformatyki`): przy każdym podpunkcie tekst po „Zasady oceniania” i po nagłówku rozwiązania („Rozwiązanie”, „Poprawna odpowiedź”, „Przykładowe rozwiązanie” itd.). Wcięcia pseudokodu odtwarzamy z położenia linii, „•” zamieniamy na „←”. Przypis z podstawą prawną kończy stronę.
+- Typ pytania z rozwiązania: litera A–D przy „Zaznacz właściwą odpowiedź” to pytanie zamknięte, ciąg P/F to kod, krótki wynik (do 8 wierszy, bez pseudokodu i SQL) to `oczekiwane` z `wynik: true` (aplikacja porównuje bez spacji, jednostek i formatu liczb), reszta to samoocena z rozwiązaniem obok.
+- Pliki danych: zip z CKE (`Dane_2305.zip`, od 2024 `Dane-NF-<sesja>.zip`) rozpakowany do pola `dane.pliki` arkusza (UTF-8, w razie błędu Windows-1250). Zadanie dostaje listę plików, o których mówi treść (`pliki`), oraz flagi `program` i `sql`.
+- Import tylko informatyki: `node src/importuj.js informatyka`.
 
 ## Znane ograniczenia
 

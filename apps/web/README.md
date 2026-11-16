@@ -20,7 +20,8 @@ npm run build
 | `/profil` | Przedmioty, ponowne uruchomienie przewodnika, wylogowanie |
 | `/arkusze` | Lista arkuszy CKE: angielski według poziomu, matematyka (poziom podstawowy) |
 | `/arkusze/:id` | Rozwiązywanie arkusza i sprawdzanie z kluczem CKE |
-| `/nauka`, `/umiejetnosci`, `/powtorki` | Zaślepki |
+| `/nauka`, `/umiejetnosci`, `/powtorki` | Szablony (puste prototypy) z `src/szablony/` |
+| `/szablony`, `/szablony/:slug` | Spis pustych prototypów ze schematem ścieżki nauki; opis w `src/szablony/README.md` |
 
 ## Pestka (tutor AI)
 

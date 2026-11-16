@@ -1,6 +1,6 @@
 // Postęp w arkuszu: pamięć przeglądarki jako szybka kopia, konto w Supabase jako źródło prawdy.
 // Bez sieci albo przed zalogowaniem wszystko działa lokalnie, a zapis dogania konto później.
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { currentUserId } from "../auth";
 import { supabase } from "../supabase";
 import type { Odpowiedzi, Samoocena } from "./sprawdz";
@@ -10,6 +10,11 @@ import type { Odpowiedzi, Samoocena } from "./sprawdz";
 // przy otwarciu, a własnych obrazków brudnopis nie przyjmuje. Zwykłe dane,
 // więc synchronizują się razem z resztą postępu.
 export type Brudnopis = { elementy: readonly unknown[]; zmieniony: string };
+
+// Warsztat przy zadaniu z informatyki: kod w Pythonie, zapytanie SQL i otwarta karta.
+// arkusz: zmiany w arkuszu kalkulacyjnym jako operacje FortuneSheet (dane CKE wczytujemy za każdym razem).
+// brudnopis: swobodne notatki i obliczenia, poza odpowiedziami i oceną.
+export type Warsztat = { tryb?: "python" | "sql" | "arkusz" | "dane" | "brudnopis"; python?: string; sql?: string; arkusz?: unknown[]; brudnopis?: string; szkic?: Brudnopis };
 
 // Zegar rozwiązywania na czas. start: chwila wznowienia (ms) albo null przy pauzie; zuzyte: czas sprzed
 // ostatniego wznowienia; ogloszone: momenty, o których Pestka już powiedziała.
@@ -27,6 +32,7 @@ export type Postep = {
   omowione?: Record<number, "dobrze" | "zle">;
   // Rozmowy z Pestką z omawiania błędów, żeby po powrocie do zadania były na miejscu. Klucz: numer zadania.
   rozmowyOmowien?: Record<number, { od: "tutor" | "uczen"; tekst: string }[]>;
+  warsztat?: Record<number, Warsztat>; // klucz: numer zadania
   czasZadan?: Record<number, number>; // ms myślenia nad zadaniem, klucz: numer zadania (arkusze/czasZadan.ts)
 };
 
@@ -43,11 +49,33 @@ export function wczytajPostep(id: string): Postep {
   }
 }
 
-function zapiszLokalnie(id: string, p: Postep) {
+// Stan ostatniego zapisu postępu, żeby narzędzia (np. skoroszyt) uczciwie pokazały, czy zmiany są już bezpieczne.
+// „lokalnie” to zapis tylko w tej przeglądarce (bez konta), „blad” to nieudany zapis.
+export type StanZapisu = "zapisywanie" | "zapisano" | "lokalnie" | "blad";
+let stanZapisu: StanZapisu = "zapisano";
+const sluchaczeStanu = new Set<() => void>();
+function ustawStan(s: StanZapisu) {
+  if (s === stanZapisu) return;
+  stanZapisu = s;
+  sluchaczeStanu.forEach((f) => f());
+}
+export function useStanZapisu(): StanZapisu {
+  return useSyncExternalStore(
+    (f) => {
+      sluchaczeStanu.add(f);
+      return () => void sluchaczeStanu.delete(f);
+    },
+    () => stanZapisu,
+  );
+}
+
+function zapiszLokalnie(id: string, p: Postep): boolean {
   try {
     localStorage.setItem(klucz(id), JSON.stringify(p));
+    return true;
   } catch {
     // brak miejsca albo zablokowany storage: postęp zostaje tylko w pamięci
+    return false;
   }
 }
 
@@ -57,13 +85,23 @@ const oczekujace = new Map<string, ReturnType<typeof setTimeout>>();
 function zapiszNaKonto(id: string, p: Postep) {
   const user = currentUserId();
   if (!user) return;
+  ustawStan("zapisywanie");
   clearTimeout(oczekujace.get(id));
   oczekujace.set(
     id,
     setTimeout(() => {
       oczekujace.delete(id);
       // Zapytanie Supabase rusza dopiero po then/await.
-      void supabase.from("sheet_progress").upsert({ user_id: user, sheet_id: id, data: p }).then();
+      void supabase
+        .from("sheet_progress")
+        .upsert({ user_id: user, sheet_id: id, data: p })
+        .then(
+          ({ error }) => {
+            // Czeka już nowszy zapis: stan zmieni dopiero on.
+            if (!oczekujace.has(id)) ustawStan(error ? "blad" : "zapisano");
+          },
+          () => ustawStan("blad"),
+        );
     }, 800),
   );
 }
@@ -125,8 +163,9 @@ export function usePostep(id: string) {
     (f: (p: Postep) => Postep) => {
       const nowy = f(pamiec.get(id) ?? wczytajPostep(id));
       wersje.set(id, (wersje.get(id) ?? 0) + 1);
-      zapiszLokalnie(id, nowy);
+      const lokalnie = zapiszLokalnie(id, nowy);
       zapiszNaKonto(id, nowy);
+      if (!currentUserId()) ustawStan(lokalnie ? "lokalnie" : "blad");
       ustaw(id, nowy);
     },
     [id],

@@ -191,8 +191,21 @@
   color: var(--primary-text);
 }
 
+/* Kolumna obok karty trzyma jej linie: etykieta na wysokości „Dziś warto”, ostatnie arkusze przy dolnej krawędzi. */
 .side {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  padding: 37px 0 16px;
+}
+
+.side > .block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  border-bottom: 0;
 }
 
 .block {
@@ -400,6 +413,13 @@
 
 .block .wynikiNaglowek :global(.link) {
   margin-top: 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--subtle);
+}
+
+.block .wynikiNaglowek :global(.link):hover {
+  color: var(--fg);
 }
 
 .wynikiGlowa {
@@ -502,7 +522,7 @@
 
 .ostatnie {
   width: 100%;
-  margin: 4px 0 0;
+  margin: auto 0 0;
   padding: 0;
   list-style: none;
 }
@@ -551,6 +571,10 @@
   .top {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
+  }
+
+  .side {
+    padding: 8px 0 0;
   }
 
   .skill {

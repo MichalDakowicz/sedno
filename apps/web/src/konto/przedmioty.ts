@@ -1,14 +1,15 @@
 // Przedmioty maturalne, które konto wybiera w onboardingu i profilu (profiles.subjects).
 import type { Poziom } from "../arkusze/typy";
 
-export type PrzedmiotId = "polski" | "matematyka" | "angielski";
-export type Ton = "orange" | "blue" | "yellow";
+export type PrzedmiotId = "polski" | "matematyka" | "angielski" | "informatyka";
+export type Ton = "orange" | "blue" | "yellow" | "green";
 export type MojPrzedmiot = { id: PrzedmiotId; poziom: Poziom };
 
 export const PRZEDMIOTY: { id: PrzedmiotId; nazwa: string; tone: Ton; poziomy: Poziom[] }[] = [
   { id: "polski", nazwa: "Polski", tone: "orange", poziomy: ["podstawowy", "rozszerzony"] },
   { id: "matematyka", nazwa: "Matematyka", tone: "blue", poziomy: ["podstawowy", "rozszerzony"] },
   { id: "angielski", nazwa: "Angielski", tone: "yellow", poziomy: ["podstawowy", "rozszerzony", "dwujezyczny"] },
+  { id: "informatyka", nazwa: "Informatyka", tone: "green", poziomy: ["rozszerzony"] },
 ];
 
 export const nazwaPoziomu: Record<Poziom, string> = { podstawowy: "podstawowy", rozszerzony: "rozszerzony", dwujezyczny: "dwujęzyczny" };

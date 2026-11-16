@@ -61,11 +61,13 @@
   padding: 16px 20px;
 }
 
-.zapowiedz {
-  margin: 0;
+/* Fragmenty nagrania błędnych pytań nad rozmową, oddzielone linią. */
+.nagrania {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--line);
-  color: var(--muted);
 }
 
 .przyklad {
@@ -144,6 +146,36 @@
   padding: 10px 16px 14px;
 }
 
-.akcje :global(.btn-dark) {
+.akcje :global(.btn-primary) {
   margin-left: auto;
+}
+
+/* Ładowanie przykładu: kropki jak przy pisaniu Pestki i zwykły, czytelny tekst. */
+.laduje {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.kolko {
+  animation: kreci 0.9s linear infinite;
+}
+
+@keyframes kreci {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kolko {
+    animation: none;
+  }
+}
+
+/* Miejsce avatara: tu ląduje Pestka po rozklejeniu (OmowienieBledow.tsx). */
+.avatarMiejsce {
+  display: inline-flex;
+  flex: none;
 }

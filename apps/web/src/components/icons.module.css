@@ -34,3 +34,8 @@
   background: var(--tone-yellow-bg);
   color: var(--tone-yellow-fg);
 }
+
+.badge[data-tone="green"] {
+  background: var(--tone-green-bg);
+  color: var(--tone-green-fg);
+}

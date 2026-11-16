@@ -5,3 +5,5 @@ export const KORZEN = fileURLToPath(new URL("../../../", import.meta.url));
 // Pobrane PDF-y CKE i wynikowe JSON-y leżą poza repozytorium (data/ jest w .gitignore).
 export const KATALOG_CKE = join(KORZEN, "data", "cke");
 export const KATALOG_ARKUSZY = join(KORZEN, "data", "arkusze");
+// Nagrania CKE, ich transkrypcje i dopasowane fragmenty (services/arkusze/nagrania).
+export const KATALOG_NAGRAN = join(KORZEN, "data", "nagrania");

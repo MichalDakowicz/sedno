@@ -64,6 +64,21 @@ const ZADANIA: Record<PrzedmiotId, Pokazowe> = {
     druga:
       "Dokładnie: *by the time* z czasem przeszłym to sygnał, że druga czynność skończyła się **wcześniej**, więc *past perfect*. Tak pracujemy: ja pytam, ty dochodzisz do odpowiedzi.",
   },
+  informatyka: {
+    opis: "Informatyka · algorytmy · zadanie zamknięte",
+    umiejetnosc: "liczba wykonań pętli zagnieżdżonych",
+    polecenie: "Ile razy wykona się przypisanie $x \leftarrow x + 1$?\n\n**dla** $i = 1, 2, \dots, n$ **wykonuj**\n\n  **dla** $j = i, i+1, \dots, n$ **wykonuj** $x \leftarrow x + 1$",
+    opcje: { A: "$\dfrac{n(n+1)}{2}$", B: "$n^{2}$", C: "$\dfrac{n(n-1)}{2}$", D: "$2n$" },
+    poprawna: "A",
+    reakcja: {
+      A: "Zgadza się. Sprawdź się na małym przykładzie: ile wykonań wyjdzie dla $n = 3$ i czy pasuje to do wzoru?",
+      B: "$n^{2}$ wyszłoby, gdyby $j$ zawsze zaczynało od 1. Od czego zaczyna się wewnętrzna pętla, gdy $i = n$? Ile razy się wtedy wykona?",
+      C: "Blisko. Policz dla $n = 1$: ile razy wykona się przypisanie, a ile daje twój wzór?",
+      D: "Wewnętrzna pętla nie wykonuje się stałą liczbę razy. Ile obrotów robi dla $i = 1$, a ile dla $i = n$?",
+    },
+    druga:
+      "Właśnie: wewnętrzna pętla robi kolejno $n, n-1, \dots, 1$ obrotów, a ich suma to $\frac{n(n+1)}{2}$ Tak pracujemy: ja pytam, ty dochodzisz do odpowiedzi.",
+  },
   polski: {
     opis: "Polski · środki stylistyczne · zadanie zamknięte",
     umiejetnosc: "rozpoznawanie środków stylistycznych",

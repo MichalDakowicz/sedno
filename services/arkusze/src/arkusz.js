@@ -40,7 +40,7 @@ export function parsujArkusz(strony) {
   for (const l of linie.slice(start)) {
     const m = l.s.match(NAGLOWEK_ZADANIA);
     if (m && l.seg.length === 1) {
-      akt = { nr: Number(m[1]), punkty: Number(m[2]), linie: [] };
+      akt = { nr: Number(m[1]), punkty: Number(m[2]), strona: l.strona, linie: [] };
       zadania.push(akt);
     } else if (akt) {
       akt.linie.push(l);
@@ -133,7 +133,7 @@ function oznaczLuki(tekst, nrZadania, luki) {
     .replace(/_{2,}/g, "_____");
 }
 
-function parsujZadanie({ nr, punkty, linie }) {
+function parsujZadanie({ nr, punkty, strona, linie }) {
   const luki = new Set();
   const pytania = [];
   const bloki = [];
@@ -142,7 +142,7 @@ function parsujZadanie({ nr, punkty, linie }) {
   // Wypowiedź pisemna: brak etykiet pytań i luk w całym zadaniu.
   const luka = new RegExp(`(^|\\s)${nr}\\.\\d+\\.?\\s*((\\([^)]*\\)\\s*)?_{2,}|\\([A-Z]+\\)\\s*$)`);
   const maEtykiety = linie.some((l) => l.seg.some((g) => etykietaNaPoczatku(g.s, nr)) || luka.test(l.s));
-  if (!maEtykiety) return wypowiedzPisemna(nr, punkty, linie);
+  if (!maEtykiety) return { ...wypowiedzPisemna(nr, punkty, linie), strona };
 
   let tekst = null; // otwarty akapit
   let opcjeWspolne = null;
@@ -151,13 +151,13 @@ function parsujZadanie({ nr, punkty, linie }) {
   const dodajTekst = (l) => {
     const s = oznaczLuki(l.s, nr, luki);
     if (ZRODLO.test(s)) {
-      bloki.push({ typ: "zrodlo", tekst: s });
+      bloki.push({ typ: "zrodlo", tekst: s, strona: l.strona });
       tekst = null;
       return;
     }
     const naglowek = s.length < 70 && s === s.toUpperCase() && /[A-Z]{3}/.test(s) && !s.includes("{{");
     if (naglowek) {
-      bloki.push({ typ: "naglowek", tekst: s });
+      bloki.push({ typ: "naglowek", tekst: s, strona: l.strona });
       tekst = null;
       return;
     }
@@ -168,7 +168,7 @@ function parsujZadanie({ nr, punkty, linie }) {
     const wPunkcie = tekst && /^[•●]/.test(tekst.tekst) && l.x > tekst.x;
     const nowy = !tekst || !blisko(tekst, l) || /^([•●]|[A-Z]:)\s/.test(s) || (l.x - tekst.x > 8 && !odLuki && !wPunkcie);
     if (nowy) {
-      tekst = { typ: "akapit", tekst: s, x: l.x, ostatnia: l };
+      tekst = { typ: "akapit", tekst: s, x: l.x, ostatnia: l, strona: l.strona };
       bloki.push(tekst);
     } else {
       tekst.tekst = polacz(tekst.tekst, s);
@@ -201,7 +201,7 @@ function parsujZadanie({ nr, punkty, linie }) {
         j++;
       }
       const maOpcje = j > i + 1;
-      bloki.push({ typ: maOpcje ? "pytania" : "tabela", nr: kolumny.map((k) => k.q.nr) });
+      bloki.push({ typ: maOpcje ? "pytania" : "tabela", nr: kolumny.map((k) => k.q.nr), strona: l.strona });
       i = j - 1;
       continue;
     }
@@ -233,7 +233,7 @@ function parsujZadanie({ nr, punkty, linie }) {
       tekst = null;
       p = { nr: e.nr, tresc: oznaczLuki(tresc, nr, luki), opcje: [], x: l.x, sekcja: !tresc, ostatnia };
       pytania.push(p);
-      bloki.push({ typ: "pytanie", nr: e.nr });
+      bloki.push({ typ: "pytanie", nr: e.nr, strona: l.strona });
       if (wierszTabeli) p = null; // wiersz tabeli jest kompletny
       continue;
     }
@@ -267,7 +267,7 @@ function parsujZadanie({ nr, punkty, linie }) {
     if (opcja) {
       tekst = null;
       if (!opcjeWspolne) {
-        opcjeWspolne = { typ: "opcje", opcje: [] };
+        opcjeWspolne = { typ: "opcje", opcje: [], strona: l.strona };
         bloki.push(opcjeWspolne);
       }
       opcjeWspolne.opcje.push({ litera: opcja[1], tresc: opcja[2], x: l.x });
@@ -297,6 +297,7 @@ function parsujZadanie({ nr, punkty, linie }) {
   return {
     nr,
     punkty,
+    strona,
     sluchanie,
     polecenie,
     bloki: bloki.map(czyscBlok),
@@ -345,14 +346,14 @@ function wypowiedzPisemna(nr, punkty, linie) {
     // punkcie („Napisz swoją wypowiedź…”) to już osobny akapit polecenia.
     const poPunkcie = akt && /^[•●]/.test(akt.tekst) && /^[A-ZĄĆĘŁŃÓŚŹŻ]/.test(l.s);
     const nowy = !akt || !blisko(akt, l) || /^([•●]|\d+\.)\s/.test(l.s) || poPunkcie;
-    if (nowy) bloki.push((akt = { typ: "akapit", tekst: l.s, ostatnia: l }));
+    if (nowy) bloki.push((akt = { typ: "akapit", tekst: l.s, ostatnia: l, strona: l.strona }));
     else {
       akt.tekst = polacz(akt.tekst, l.s);
       dopisz(akt, l);
     }
   }
   const polecenie = wydzielPolecenie(bloki);
-  bloki.push({ typ: "pytanie", nr: String(nr) });
+  bloki.push({ typ: "pytanie", nr: String(nr), strona: tresc.at(-1)?.strona });
   return {
     nr,
     punkty,

@@ -78,7 +78,9 @@ const akapitowa = (l) => l.seg[0].x <= 90 && l.seg[0].s.length >= 4;
 
 // zRysunkiem: numery fragmentów, w których forma DOCX ma rysunek; tam szukamy
 // figury z niższym progiem wysokości (pojedyncza oś liczbowa ma ok. 26 pt).
-export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {}, zRysunkiem = new Set() }) {
+// bezRysunkow: same kadry (informatyka). format „webp” waży kilka razy mniej niż PNG,
+// co ma znaczenie przy arkuszu złożonym z samych kadrów.
+export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {}, zRysunkiem = new Set(), bezRysunkow = false, format = "png" }) {
   await mkdir(katalog, { recursive: true });
   const strony = new Map();
   const strona = async (n) => {
@@ -107,13 +109,13 @@ export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {}, 
       // Dół kadru to ostatni wiersz z tuszem: jasna kratka na rozwiązanie zostaje poza nim.
       let ostatni = c.gora;
       for (const [y, ciemny] of tusz) if (ciemny) ostatni = Math.min(ostatni, y);
-      const plik = i ? `${f.nr}-${i + 1}.png` : `${f.nr}.png`;
+      const plik = i ? `${f.nr}-${i + 1}.${format}` : `${f.nr}.${format}`;
       // Pasek „Zadanie N. (0–X)” dubluje nagłówek w aplikacji, więc go obcinamy.
       // Zostaje tylko przy podpunktach (12.2), bo tam niesie numer i punktację.
       const gora = c.naglowek && !f.nr.includes(".") ? c.gora - 6 : c.gora + 13;
       f.kadry.push(await zapiszWycinek(s, [KADR_X[0], Math.max(dol, ostatni - 6), KADR_X[1], gora], katalog, prefiks, plik));
 
-      if (f.rysunek || poprawka === null || (poprawka && poprawka.strona !== c.strona)) continue;
+      if (bezRysunkow || f.rysunek || poprawka === null || (poprawka && poprawka.strona !== c.strona)) continue;
       const rysunek = poprawka ? { ramka: poprawka.ramka } : tabelaWyboru ? null : znajdzRysunek(s, c, tusz, zRysunkiem.has(f.nr) ? 20 : MIN_RYSUNEK.wys);
       if (rysunek) f.rysunek = await zapiszWycinek(s, rysunek.ramka, katalog, prefiks, `${f.nr}-rysunek.png`);
     }
@@ -184,14 +186,14 @@ function zakresPoziomy(s, gora, dol) {
 
 // Zapisuje wycinek strony jako PNG. Zwraca opis obrazu dla aplikacji:
 // ścieżkę względem data/arkusze i wymiary w punktach PDF.
-async function zapiszWycinek(s, [x0, y0, x1, y1], katalog, prefiks, plik) {
+export async function zapiszWycinek(s, [x0, y0, x1, y1], katalog, prefiks, plik) {
   const px = Math.round(x0 * SKALA);
   const py = Math.round((s.wys - y1) * SKALA);
   const w = Math.round((x1 - x0) * SKALA);
   const h = Math.round((y1 - y0) * SKALA);
   const cel = s.fabryka.create(w, h);
   cel.context.putImageData(s.context.getImageData(px, py, w, h), 0, 0);
-  await writeFile(join(katalog, plik), cel.canvas.toBuffer("image/png"));
+  await writeFile(join(katalog, plik), plik.endsWith(".webp") ? cel.canvas.toBuffer("image/webp", 80) : cel.canvas.toBuffer("image/png"));
   return { src: `${prefiks}/${plik}`, szer: Math.round(x1 - x0), wys: Math.round(y1 - y0) };
 }
 
@@ -222,6 +224,12 @@ export function kluczMatematyki(strony) {
         tryb = "wersje";
         continue;
       }
+      // Klucz po zdaniach („29.1. C”, „29.2. A”): litera dla każdej luki z osobna.
+      const wybor = tryb === "wersje" && l.seg[0].s.match(/^(\d+\.\d+)\.\s*([A-Z])$/);
+      if (wybor) {
+        (akt.wybory ??= {})[wybor[1]] = wybor[2];
+        continue;
+      }
       if (tryb === "wersje" && KOD.test(l.seg[0].s)) {
         akt.kod = (akt.kod ?? "") + l.seg[0].s;
         continue;
@@ -239,12 +247,15 @@ export async function osadzObrazy(zadania, katalog) {
   const cache = new Map();
   const osadz = async (obraz) => {
     if (!obraz || obraz.src.startsWith("data:")) return;
-    if (!cache.has(obraz.src)) cache.set(obraz.src, `data:image/png;base64,${(await readFile(join(katalog, obraz.src))).toString("base64")}`);
+    if (!cache.has(obraz.src)) cache.set(obraz.src, `data:image/${obraz.src.endsWith(".webp") ? "webp" : "png"};base64,${(await readFile(join(katalog, obraz.src))).toString("base64")}`);
     obraz.src = cache.get(obraz.src);
   };
   for (const z of zadania) {
     await osadz(z.rysunek);
-    for (const b of z.bloki) await osadz(b.obraz);
+    for (const b of z.bloki) {
+      await osadz(b.obraz);
+      for (const o of b.obrazy ?? []) await osadz(o.obraz); // komórki tabel z informatyki
+    }
   }
 }
 
@@ -300,6 +311,26 @@ function podobienstwo(a, b) {
   return (2 * poprz[b.length]) / (a.length + b.length);
 }
 
+// „Uzupełnij zdania 1. i 2. Zapisz po numerze zdania właściwą odpowiedź, wybraną spośród
+// oznaczonych literami A–E” z kluczem po zdaniach (29.1. C, 29.2. A): luka „……” w zdaniu
+// „1. …” staje się znacznikiem {{29.1}}, a opcja dopisana akapitem („E. 5,70 zł”, DOCX
+// nie trzyma jej w liście) dołącza do bloku opcji. Bez pasujących zdań zwraca null.
+function lukiZWyborem(z, od, f, k) {
+  const wybory = Object.entries(k.wybory).sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }));
+  const bloki = z.bloki.slice(od);
+  const zdania = wybory.map(([nr]) => bloki.find((b) => b.typ === "akapit" && b.tekst.startsWith(`${nr.split(".")[1]}. `) && /…{2,}|\.{4,}/.test(b.tekst)));
+  const opcje = bloki.find((b) => b.typ === "opcje");
+  if (zdania.some((b) => !b) || !opcje) return null;
+  zdania.forEach((b, i) => (b.tekst = b.tekst.replace(/…{2,}|\.{4,}/, `{{${wybory[i][0]}}}`)));
+  const dopisane = bloki.filter((b) => b.typ === "akapit" && /^[A-Z]\.\s/.test(b.tekst));
+  for (const b of dopisane) {
+    opcje.opcje.push({ litera: b.tekst[0], tresc: b.tekst.slice(3).trim() });
+    z.bloki.splice(z.bloki.indexOf(b), 1);
+  }
+  opcje.opcje.sort((a, b) => a.litera.localeCompare(b.litera));
+  return { wybory, litery: opcje.opcje.map((o) => o.litera) };
+}
+
 // Fragmenty z kluczem składamy w zadania w formacie aplikacji (apps/web/src/arkusze/typy.ts).
 export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
   const ostrzezenia = [];
@@ -307,7 +338,10 @@ export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
   const kadry = []; // fragmenty pokazane jako obraz, z powodem
   for (const f of fragmenty) {
     let z = zadania.find((x) => x.nr === f.zadanie);
-    if (!z) zadania.push((z = { nr: f.zadanie, punkty: 0, sluchanie: false, polecenie: [], bloki: [], pytania: [] }));
+    if (!z) zadania.push((z = { nr: f.zadanie, punkty: 0, strona: f.czesci[0].strona, sluchanie: false, polecenie: [], bloki: [], pytania: [] }));
+    // Bloki fragmentu stoją na jego pierwszej stronie (kadry mają własną); finally łapie też „continue”.
+    const od = z.bloki.length;
+    try {
     const tekst = f.czesci.flatMap((c) => c.linie.map((l) => l.s)).join(" ");
     if (f.rysunek && !z.rysunek) z.rysunek = f.rysunek;
 
@@ -316,7 +350,7 @@ export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
     const opcje = [];
     if (powod) {
       kadry.push(`${f.nr}: ${powod}`);
-      f.czesci.forEach((c, i) => z.bloki.push({ typ: "kadr", obraz: f.kadry[i], tekst: c.linie.map((l) => l.s).join(" ") }));
+      f.czesci.forEach((c, i) => z.bloki.push({ typ: "kadr", obraz: f.kadry[i], tekst: c.linie.map((l) => l.s).join(" "), strona: c.strona }));
     } else {
       // Podpunkt (12.2) dostaje nagłówek jak pasek w arkuszu; całe zadanie ma go w aplikacji.
       if (f.nr.includes(".")) z.bloki.push({ typ: "naglowek", tekst: `Zadanie ${f.nr} (0–${f.punkty} pkt)` });
@@ -340,6 +374,14 @@ export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
     if (!k) ostrzezenia.push(`${f.nr}: brak w kluczu`);
     else if (k.punkty !== f.punkty) ostrzezenia.push(`${f.nr}: ${f.punkty} pkt w arkuszu, ${k.punkty} w kluczu`);
     const baza = { nr: f.nr, tresc: "", punkty: f.punkty, ...(k ? { zasadyStrona: k.strona } : {}) };
+    const luki = !zamkniete && k?.wybory ? lukiZWyborem(z, od, f, k) : null;
+    if (luki) {
+      // Każda luka to osobne pytanie zamknięte w tekście ({{29.1}}), sprawdzane z kluczem.
+      for (const [nr, poprawna] of luki.wybory)
+        z.pytania.push({ nr, tresc: "", punkty: f.punkty / luki.wybory.length, zasadyStrona: k.strona, typ: "zamkniete", litery: luki.litery, poprawna });
+      z.punkty += f.punkty;
+      continue;
+    }
     if (zamkniete) {
       z.pytania.push({ ...baza, typ: "zamkniete", litery: ["A", "B", "C", "D"], poprawna: k.kod, ...(pelneOpcje ? { opcje } : {}) });
     } else if (k?.kod || k?.odpowiedz) {
@@ -351,6 +393,9 @@ export function zadaniaMatematyki(fragmenty, klucz, docx = null) {
     }
     z.bloki.push({ typ: "pytanie", nr: f.nr });
     z.punkty += f.punkty;
+    } finally {
+      for (const b of z.bloki.slice(od)) b.strona ??= f.czesci[0].strona;
+    }
   }
   return { zadania, ostrzezenia, kadry };
 }

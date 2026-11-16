@@ -190,17 +190,6 @@ textarea {
   background: var(--primary-strong-hover);
 }
 
-/* Akcja główna w małych miejscach (dymek Pestki, karta omawiania): ciemny pomarańcz w kolorze Pestki.
-   Biały tekst zwykłej wielkości ma na nim 5,2:1 (WCAG AA), więc pasuje do przycisków obok. */
-.btn-dark {
-  background: var(--primary-text);
-  color: #fff;
-}
-
-.btn-dark:hover {
-  background: #9a3412;
-}
-
 .btn-secondary {
   background: var(--secondary);
   color: var(--secondary-fg);
