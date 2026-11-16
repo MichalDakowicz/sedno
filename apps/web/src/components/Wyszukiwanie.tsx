@@ -20,7 +20,7 @@ const GRUPY: { rodzaj: RodzajWyniku; nazwa: string; limit: number }[] = [
 ];
 
 const AKCJE: Wynik[] = [
-  { id: "akcja:pulpit", rodzaj: "akcja", tytul: "Pulpit", szukaj: "pulpit strona glowna start", sciezka: "/" },
+  { id: "akcja:pulpit", rodzaj: "akcja", tytul: "Pulpit", szukaj: "strona glowna start", sciezka: "/" },
   { id: "akcja:arkusze", rodzaj: "akcja", tytul: "Arkusze", opis: "Arkusze maturalne CKE", szukaj: "arkusze arkusz matura cke", sciezka: "/arkusze" },
   { id: "akcja:pestka", rodzaj: "akcja", tytul: "Rozmowa z Pestką", opis: "Tutor AI", szukaj: "rozmowa pestka tutor czat pytanie", sciezka: "/tutor" },
   { id: "akcja:profil", rodzaj: "akcja", tytul: "Profil", opis: "Przedmioty i ustawienia konta", szukaj: "profil konto przedmioty ustawienia", sciezka: "/profil" },
@@ -30,13 +30,33 @@ type Pozycja = Wynik | "pestka";
 
 export function Wyszukiwanie() {
   const [otwarte, setOtwarte] = useState(false);
+  // Element, który miał fokus w chwili otwarcia: autoFocus w oknie przejmuje fokus, więc zapamiętujemy go wcześniej.
+  const opener = useRef<HTMLElement | null>(null);
+  const bylOtwarte = useRef(false);
+
+  const otworz = () => {
+    if (!bylOtwarte.current) opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setOtwarte(true);
+  };
+
+  // Po zamknięciu okna (już usuniętego z drzewa) fokus wraca do opener, a gdy go nie ma, na początek strony.
+  useEffect(() => {
+    bylOtwarte.current = otwarte;
+    if (otwarte) return;
+    const el = opener.current;
+    opener.current = null;
+    if (!el) return;
+    if (el.isConnected) el.focus();
+    else document.body.focus();
+  }, [otwarte]);
 
   useEffect(() => {
-    const otworz = () => setOtwarte(true);
     const klawisz = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") {
+        // Monaco ma własne akordy zaczynające się od Ctrl+K.
+        if (e.target instanceof Element && e.target.closest(".monaco-editor")) return;
         e.preventDefault();
-        setOtwarte(true);
+        otworz();
       }
     };
     window.addEventListener(OTWORZ_SZUKAJ, otworz);
@@ -61,11 +81,8 @@ function Okno({ zamknij }: { zamknij: () => void }) {
   const listaRef = useRef<HTMLDivElement>(null);
   const id = useId();
 
-  // Fokus wraca tam, skąd okno otwarto (lupa, skrót z dowolnego miejsca).
   useLayoutEffect(() => {
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     dialogRef.current?.showModal();
-    return () => opener?.focus();
   }, []);
 
   const indeks = useMemo<Wynik[]>(() => {
@@ -118,7 +135,12 @@ function Okno({ zamknij }: { zamknij: () => void }) {
 
   useEffect(() => setWybrany(0), [pytanie]);
   useEffect(() => {
-    listaRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
+    const lista = listaRef.current;
+    const el = lista?.querySelector('[aria-selected="true"]');
+    if (!lista || !el) return;
+    if (wybrany === 0) lista.scrollTop = 0;
+    else if (!el.previousElementSibling) el.closest('[role="group"]')?.scrollIntoView({ block: "nearest" });
+    else el.scrollIntoView({ block: "nearest" });
   }, [wybrany, plaska]);
 
   function otworz(p: Pozycja) {

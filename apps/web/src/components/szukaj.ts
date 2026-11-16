@@ -58,7 +58,10 @@ function ocenSlowo(q: string, slowaTekstu: string[]): number {
 
 /** Wszystkie słowa zapytania muszą coś trafić. Zwraca ocenę (0 = nie pasuje; puste zapytanie pasuje do wszystkiego). */
 export function dopasuj(zapytanie: string, tekst: string): number {
-  const qs = slowa(zapytanie);
+  const wszystkie = slowa(zapytanie);
+  // Jednoliterowe spójniki („z”, „w”, „i”) nie blokują dopasowania, gdy są inne słowa.
+  const dluzsze = wszystkie.filter((q) => q.length > 1);
+  const qs = dluzsze.length ? dluzsze : wszystkie;
   if (qs.length === 0) return 1;
   const ws = slowa(tekst);
   let suma = 0;
@@ -72,7 +75,7 @@ export function dopasuj(zapytanie: string, tekst: string): number {
 
 export function szukaj(zapytanie: string, wyniki: Wynik[]): Wynik[] {
   return wyniki
-    .map((w, i) => ({ w, i, o: dopasuj(zapytanie, w.szukaj) }))
+    .map((w, i) => ({ w, i, o: dopasuj(zapytanie, `${w.tytul} ${w.opis ?? ""} ${w.szukaj}`) }))
     .filter((x) => x.o > 0)
     .sort((a, b) => b.o + (b.w.premia ?? 0) - (a.o + (a.w.premia ?? 0)) || a.i - b.i)
     .map((x) => x.w);
