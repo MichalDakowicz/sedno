@@ -64,9 +64,9 @@ export async function loginPassword(email: string, password: string): Promise<st
 }
 
 export async function logout(): Promise<void> {
-  // Zaległe zapisy rozmów idą jeszcze z sesją, potem czyścimy; nieudany zapis nie blokuje wylogowania.
+  // Zaległe zapisy rozmów idą jeszcze z sesją, potem czyścimy; nieudany ani zawieszony (limit 3 s) zapis nie blokuje wylogowania.
   try {
-    await wyslijOczekujace();
+    await Promise.race([wyslijOczekujace(), new Promise((r) => setTimeout(r, 3000))]);
   } catch {
     // zostaje lokalna kopia, która i tak jest czyszczona
   }

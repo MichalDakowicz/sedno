@@ -132,20 +132,25 @@ export function zapiszRozmowe(id: string, wiadomosci: WiadomoscRozmowy[]): Rozmo
 export async function pobierzRozmowy(user: string): Promise<void> {
   const { data, error } = await supabase.from("tutor_chats").select("id, title, messages, updated_at").eq("user_id", user).order("updated_at", { ascending: false }).limit(LIMIT);
   if (error || !data) return;
-  // Rozmowy innego konta (sesja skończyła się bez wylogowania) nie mogą trafić na to konto. Bez zapisanego
-  // właściciela (sprzed synchronizacji) rozmowy przejmuje pierwsze konto, które się zaloguje.
+  if (currentUserId() !== user) return;
+  // Rozmowy innego konta (sesja skończyła się bez wylogowania) nie mogą trafić na to konto. Rozmowy bez zapisanego
+  // właściciela (sprzed synchronizacji) zostają lokalnie i nie są wysyłane na konto.
+  let bezWlasciciela = false;
   try {
     const wlasciciel = localStorage.getItem(WLASCICIEL);
+    bezWlasciciela = !wlasciciel;
     if (wlasciciel && wlasciciel !== user) wyczyscRozmowy();
   } catch {
     // zablokowany storage: nie ma lokalnych rozmów do pomylenia
   }
   const wynik = new Map<string, Rozmowa>(data.map((r) => [r.id, { id: r.id, tytul: r.title, kiedy: r.updated_at, wiadomosci: r.messages as WiadomoscRozmowy[], naKoncie: true }]));
   for (const r of wczytajRozmowy()) {
-    if (!r.naKoncie) {
+    // Bez właściciela rozmowa może być cudza (poprzednia wersja aplikacji, wspólny komputer): zostaje lokalnie, nie idzie na konto.
+    if (!r.naKoncie && !bezWlasciciela) {
       zapiszNaKonto(r);
       wynik.set(r.id, r);
-    } else if (!wynik.has(r.id)) wynik.set(r.id, r);
+    } else if (!r.naKoncie) wynik.set(r.id, { ...r, naKoncie: true });
+    else if (!wynik.has(r.id)) wynik.set(r.id, r);
   }
   zapiszLokalnie([...wynik.values()].sort((a, b) => Date.parse(b.kiedy) - Date.parse(a.kiedy)).slice(0, LIMIT));
   try {

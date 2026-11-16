@@ -30,7 +30,20 @@ export function AppLayout() {
     // Zapis rozmów mógł paść bez sieci: po jej powrocie nowsza lokalna wersja idzie na konto.
     const ponow = () => void pobierzRozmowy(userId);
     window.addEventListener("online", ponow);
-    return () => window.removeEventListener("online", ponow);
+    // Karta otwarta długo bez pobrania ma nieświeże rozmowy: pobieramy po powrocie do niej, najwyżej raz na 10 s.
+    let ostatnie = Date.now();
+    const odswiez = () => {
+      if (document.visibilityState !== "visible" || Date.now() - ostatnie < 10_000) return;
+      ostatnie = Date.now();
+      ponow();
+    };
+    document.addEventListener("visibilitychange", odswiez);
+    window.addEventListener("focus", odswiez);
+    return () => {
+      window.removeEventListener("online", ponow);
+      document.removeEventListener("visibilitychange", odswiez);
+      window.removeEventListener("focus", odswiez);
+    };
   }, [userId]);
 
   if (session === null) return null;
