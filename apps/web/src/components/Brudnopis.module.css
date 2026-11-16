@@ -148,12 +148,24 @@
 .canvas :global(.excalidraw) {
   --color-primary: var(--primary);
   --color-primary-darker: var(--primary-hover);
-  --color-primary-darkest: #d94a1f;
+  --color-primary-darkest: var(--tone-orange-fg);
   --color-primary-light: var(--primary-soft);
   --color-primary-light-darker: #ffd3c2;
   --color-primary-hover: var(--primary-hover);
   --ui-font: var(--font);
   --border-radius-lg: var(--r-sm);
+}
+
+/* .theme--dark ma własne --color-primary* o tej samej sile i jest ładowane później, więc podnosimy specyficzność. */
+@media (prefers-color-scheme: dark) {
+  .canvas :global(.excalidraw.theme--dark) {
+    --color-primary: var(--primary);
+    --color-primary-darker: var(--primary-hover);
+    --color-primary-darkest: var(--tone-orange-fg);
+    --color-primary-light: var(--primary-soft);
+    --color-primary-hover: var(--primary-hover);
+    --color-primary-light-darker: color-mix(in srgb, var(--primary) 18%, var(--primary-soft));
+  }
 }
 
 /* Na pełnym ekranie płótno dzieli wysokość z treścią zadania: na niższym oknie

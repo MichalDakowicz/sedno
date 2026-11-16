@@ -80,7 +80,7 @@ export function Zegar({
       width: `${w.width}px`,
       height: `${w.height}px`,
       transform: `translateY(${w.top - r.top}px)`,
-      backgroundColor: "#0f151d",
+      backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--fg").trim(),
       boxShadow: "0 0 0 0 rgba(0,0,0,0)",
     };
     const duze = { width: `${r.width}px`, height: `${r.height}px`, transform: "translateY(0)" };

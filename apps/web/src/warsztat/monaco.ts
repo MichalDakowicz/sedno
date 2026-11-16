@@ -5,6 +5,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import "monaco-editor/esm/vs/basic-languages/python/python.contribution";
 import "monaco-editor/esm/vs/basic-languages/sql/sql.contribution";
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
+import { czyCiemny, naZmianeMotywu } from "../motyw";
 import type { BladSkladni, Odpowiedz, Podpowiedz, Sygnatura, Zapytanie } from "./podpowiedzi.worker";
 
 (self as unknown as { MonacoEnvironment: { getWorker: () => Worker } }).MonacoEnvironment = { getWorker: () => new EditorWorker() };
@@ -38,6 +39,43 @@ monaco.editor.defineTheme("sedno", {
     "list.hoverBackground": "#fff4ef",
   },
 });
+
+// Wersja ciemna w kolorach docs/style.css (ciemny blok tokens.css): powierzchnia #1b232e, tekst #f3efec.
+monaco.editor.defineTheme("sedno-ciemny", {
+  base: "vs-dark",
+  inherit: true,
+  rules: [
+    { token: "comment", foreground: "8b95a1", fontStyle: "italic" },
+    { token: "keyword", foreground: "ffab8a" },
+    { token: "string", foreground: "4fcf92" },
+    { token: "number", foreground: "9db8ff" },
+  ],
+  colors: {
+    "editor.background": "#1b232e",
+    "editor.foreground": "#f3efec",
+    "editor.lineHighlightBackground": "#3a221940",
+    "editorLineNumber.foreground": "#8a929c",
+    "editorLineNumber.activeForeground": "#f3efec",
+    "editorCursor.foreground": "#ff8a5f",
+    "editor.selectionBackground": "#5a3626",
+    "editorSuggestWidget.background": "#1b232e",
+    "editorSuggestWidget.selectedBackground": "#3a2219",
+    "editorSuggestWidget.selectedForeground": "#f3efec",
+    "editorSuggestWidget.selectedIconForeground": "#f3efec",
+    "editorSuggestWidget.highlightForeground": "#ffab8a",
+    "editorSuggestWidget.focusHighlightForeground": "#ffab8a",
+    "list.activeSelectionBackground": "#3a2219",
+    "list.activeSelectionForeground": "#f3efec",
+    "list.focusBackground": "#3a2219",
+    "list.focusForeground": "#f3efec",
+    "list.hoverBackground": "#2a3340",
+  },
+});
+
+/** Motyw edytora zgodny z ustawieniem systemu. */
+export const motywEdytora = () => (czyCiemny() ? "sedno-ciemny" : "sedno");
+// setTheme dotyczy wszystkich edytorów naraz, więc jeden nasłuch na cały moduł wystarcza.
+naZmianeMotywu(() => monaco.editor.setTheme(motywEdytora()));
 
 export { monaco };
 

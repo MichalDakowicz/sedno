@@ -4,7 +4,7 @@
   top: 0;
   z-index: 30;
   padding: 16px 24px 20px;
-  background: linear-gradient(to bottom, var(--bg) 75%, rgba(255, 249, 246, 0));
+  background: linear-gradient(to bottom, var(--bg) 75%, color-mix(in srgb, var(--bg) 0%, transparent));
 }
 
 .nav,
@@ -26,7 +26,7 @@
 }
 
 .logo {
-  font-size: 20px;
+  font-size: calc(20px * var(--skala-tekstu, 1));
   font-weight: 700;
   letter-spacing: -0.04em;
   white-space: nowrap;
@@ -59,7 +59,7 @@
   gap: 8px;
   padding: 10px 14px;
   border-radius: var(--r-pill);
-  font-size: 15px;
+  font-size: calc(15px * var(--skala-tekstu, 1));
   color: var(--muted);
   white-space: nowrap;
   transition:
@@ -95,7 +95,7 @@
   border-radius: 50%;
   background: var(--primary-strong);
   color: var(--primary-fg);
-  font-size: 19px;
+  font-size: calc(19px * var(--skala-tekstu, 1));
   font-weight: 700;
   cursor: pointer;
 }
@@ -150,7 +150,7 @@
   gap: 12px;
   padding: 12px 0;
   border-bottom: 1px solid var(--line);
-  font-size: 18px;
+  font-size: calc(18px * var(--skala-tekstu, 1));
   letter-spacing: -0.01em;
   color: var(--muted);
 }

@@ -2,7 +2,7 @@
 // metody, pliki z danymi, parametry funkcji, opis pod kursorem, błędy składni na żywo), SQL
 // z kolorowaniem i nazwami tabel i kolumn. Ctrl+Enter uruchamia.
 import { memo, useEffect, useRef } from "react";
-import { monaco, rozgrzej, sprawdzSkladnie, ustawPliki } from "./monaco";
+import { monaco, motywEdytora, rozgrzej, sprawdzSkladnie, ustawPliki } from "./monaco";
 import styles from "./Warsztat.module.css";
 
 type Props = {
@@ -62,7 +62,7 @@ function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, onZaznaczenie, etykie
     const model = monaco.editor.createModel(wartosc, jezyk);
     const e = monaco.editor.create(miejsce.current!, {
       model,
-      theme: "sedno",
+      theme: motywEdytora(),
       fontSize: 14,
       fontFamily: "ui-monospace, SFMono-Regular, Consolas, 'Cascadia Code', monospace",
       tabSize: 4,
