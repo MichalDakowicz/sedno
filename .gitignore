@@ -16,3 +16,6 @@ data/
 
 # Cache Pythona (skrypty nagrań)
 __pycache__/
+
+# Prywatne fakty orkiestratora
+docs/orchestrator/local.md
