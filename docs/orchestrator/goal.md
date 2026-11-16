@@ -1,10 +1,10 @@
 # Goal
 
-_Set 2026-11-16 · status: active_
+_Set 2026-11-16 · status: blocked_
 
 **Goal.** Close the in-scope items of "Do domknięcia" in `NASTEPNE.md`: Pestka chats are
 saved on the account and work on staging (PR to `main` open), the informatyka sheet view
-and the essay discussion by sol are verified after login on staging, on staging.
+and the essay discussion by sol are verified after login on staging.
 
 **In scope.** Branch `rozmowy-konto`, staging `sedno-dev`, informatyka sheet view, essay
 discussion (sol) on a realistic English essay written by the orchestrator.
@@ -37,9 +37,10 @@ the jury, submission drafts.
 - [x] `NASTEPNE.md` section 0 updated, Brief and `handoff.md` updated · proof: commit "docs: update orchestrator handoff" (no Brief entries matched these items)
 
 ## Blocked on
-- The user's OK to drop "both themes" from the Looks bar: the app has no dark theme (blocks: Looks)
+- The app has no dark theme; the user keeps "both themes" in the Looks bar open (blocks: Looks). Needs a decision: build a dark theme for the app, or change the bar
 
 ## Changes
 - 2026-11-16: goal set (approved by the user)
 - 2026-11-16: submission drafts removed from the goal; the user handles them separately (approved by the user)
 - 2026-11-16: the test account's "Ważne" tier ran on ollama qwen3:8b, not sol; switched to openai gpt-6-luna for the essay bar. A check on sol itself stays open in NASTEPNE.md (approved by the user)
+- 2026-11-16: the user kept "both themes" in the Looks bar although the app has no dark theme; goal blocked on it

@@ -2,9 +2,9 @@
 
 _Updated 2026-11-16_
 
-**State.** Branch `rozmowy-konto` at `6c8ffaf`, pushed. Also merged into `dev` (`0a33c9f`), staging has it. Checks: typecheck and build green. PR https://github.com/MichalDakowicz/sedno/pull/46 open, not merged. `main` has local docs commits not pushed yet (the push was blocked by a permission check; the user decides).
+**State.** Branch `rozmowy-konto` at `6c8ffaf`, pushed. Also merged into `dev` (`0a33c9f`), staging has it. Checks: typecheck and build green. PR https://github.com/MichalDakowicz/sedno/pull/46 open, not merged. Orchestrator docs and `NASTEPNE.md` go to `main` through branch `orkiestrator-dokumenty` and its PR (a direct push to `main` was blocked).
 
-**Goal.** Close "Do domknięcia" (chats on the account, informatyka and essay discussion checked on staging): 11/12 bars met, status active. Open bar: Looks, because the app has no dark theme and "both themes" cannot apply; waiting for the user's OK to drop it.
+**Goal.** Close "Do domknięcia" (chats on the account, informatyka and essay discussion checked on staging): 11/12 bars met, status blocked. Open bar: Looks ("both themes"); the app has no dark theme and the user kept the bar open.
 
 **Done this session.**
 - Chats with Pestka on the account: merged `main` into `rozmowy-konto`, fixed logout leak, then three audit rounds (confirmation flag instead of clocks, owner key, SIGNED_OUT clear, pull on tab return, logout flush with 3 s limit). Verified by three tester runs on staging, own offline check, and Opus audit 3 with no blockers or majors.
