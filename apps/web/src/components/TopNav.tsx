@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { CircleHelp, FileText, GraduationCap, LayoutGrid, Menu, RotateCcw, Target, X } from "lucide-react";
+import { CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Menu, RotateCcw, Target, X } from "lucide-react";
 import { logout } from "../auth";
 import { Plywak } from "./Plywak";
 import { resetTour, useTutor } from "./TutorContext";
@@ -96,6 +96,9 @@ export function TopNav() {
         </div>
 
         <div className={styles.right}>
+          <Link to="/szablony/wyszukiwanie" className={styles.pomoc} aria-label="Szukaj" title="Szukaj">
+            <Search size={22} aria-hidden="true" />
+          </Link>
           <button type="button" className={styles.pomoc} onClick={przewodnik} aria-label="Pokaż przewodnik z Pestką" title="Przewodnik z Pestką">
             <CircleHelp size={22} aria-hidden="true" />
           </button>

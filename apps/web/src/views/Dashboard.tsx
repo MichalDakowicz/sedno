@@ -11,6 +11,7 @@ import { propozycja, useWynikiKonta, type Podsumowanie, type Propozycja, type Wy
 import type { ArkuszWpis } from "../arkusze/typy";
 import { Plywak } from "../components/Plywak";
 import { Ladowanie } from "../components/Ladowanie";
+import { Wejscia } from "../szablony/Wejscia";
 import styles from "./Dashboard.module.css";
 
 function Kicker({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode }) {
@@ -394,8 +395,13 @@ export function Dashboard() {
             <Network size={16} aria-hidden="true" style={{ verticalAlign: "-3px", marginRight: 6 }} />
             Opanowanie poszczególnych umiejętności policzymy z twoich odpowiedzi w arkuszach. Na razie widzisz wyniki całych arkuszy.
           </p>
+          <Link to="/umiejetnosci" className="link" style={{ justifySelf: "start" }}>
+            Zobacz szablon mapy <ArrowRight size={14} aria-hidden="true" />
+          </Link>
         </section>
       )}
+
+      <Wejscia tytul="W przygotowaniu" slugi={["nauka", "do-matury", "powtorki", "mapa-wiedzy", "uklad-pulpitu"]} />
     </main>
   );
 }
