@@ -49,12 +49,15 @@ export function CzasICel({ przedmioty }: { przedmioty: PrzedmiotId[] }) {
   );
 }
 
+const LIMIT_LICZNIKA = 100;
+
 const kiedy = (iso: string) => new Date(iso).toLocaleDateString("pl-PL", { day: "numeric", month: "short" }).replace(".", "");
 
 export function ProfilUcznia() {
   const profil = useProfil();
   const u = useUczenie();
   const [szkic, setSzkic] = useState("");
+  const [powtorka, setPowtorka] = useState(false);
   const moje = profil?.subjects ?? [];
   const wyniki = useWynikiKonta(moje);
   const wnioski = useWnioski(wyniki?.podsumowania ?? null, wyniki?.wiersze ?? null);
@@ -63,9 +66,12 @@ export function ProfilUcznia() {
 
   function dodaj(e: FormEvent) {
     e.preventDefault();
+    const t = szkic.trim().replace(/\s+/g, " ").toLowerCase();
+    if (priorytety.some((p) => p.tekst.toLowerCase() === t)) return setPowtorka(true);
     if (dodajPriorytet(szkic, "uczen")) setSzkic("");
   }
 
+  const zNajmniejDwoma = !!wyniki?.podsumowania.some((p) => p.wyniki.length >= 2);
   const grupy = wnioski.stan === "gotowe" ? wnioski.przedmioty.map((p) => ({ ...p, wnioski: p.wnioski.filter((w) => !ukryte.has(w.id)) })).filter((p) => p.wnioski.length) : [];
 
   return (
@@ -114,7 +120,10 @@ export function ProfilUcznia() {
             <label htmlFor="pu-nowy" className="visually-hidden">
               Nowy priorytet
             </label>
-            <input id="pu-nowy" className="input" placeholder="Np. najpierw słuchanie" maxLength={MAX_DLUGOSC} value={szkic} onChange={(e) => setSzkic(e.target.value)} autoComplete="off" />
+            <input id="pu-nowy" className="input" placeholder="Np. najpierw słuchanie" maxLength={MAX_DLUGOSC} value={szkic} onChange={(e) => {
+                setSzkic(e.target.value);
+                setPowtorka(false);
+              }} autoComplete="off" />
             <button type="submit" className="btn btn-secondary" disabled={!szkic.trim()}>
               Dodaj
             </button>
@@ -122,6 +131,9 @@ export function ProfilUcznia() {
         ) : (
           <p className="muted small">Lista jest pełna. Usuń któryś priorytet, żeby dodać nowy.</p>
         )}
+        <p className="muted small" aria-live="polite">
+          {powtorka ? "Ten priorytet już jest na liście." : szkic.length >= LIMIT_LICZNIKA ? `${szkic.length}/${MAX_DLUGOSC} znaków` : ""}
+        </p>
         <p className="muted small">Pestka może dopisać priorytet sama, gdy powiesz o nim w rozmowie. Zawsze dostaniesz o tym informację.</p>
       </section>
 
@@ -132,7 +144,11 @@ export function ProfilUcznia() {
         {wnioski.stan === "laduje" ? (
           <p className="muted">Liczę wnioski z twoich arkuszy…</p>
         ) : grupy.length === 0 ? (
-          <p className="muted">Pojawią się po dwóch sprawdzonych arkuszach z jednego przedmiotu. Liczę je tylko z twoich wyników, a ty decydujesz, co zostaje.</p>
+          <p className="muted">
+            {zNajmniejDwoma
+              ? "Na razie nie widać wyraźnych różnic. Wnioski pojawią się, gdy wyniki zaczną się różnić albo zapiszą się czasy zadań."
+              : "Pojawią się po dwóch sprawdzonych arkuszach z jednego przedmiotu. Liczę je tylko z twoich wyników, a ty decydujesz, co zostaje."}
+          </p>
         ) : (
           grupy.map((g) => (
             <div key={`${g.przedmiotId}-${g.poziom}`} className={s.grupaWnioskow}>
