@@ -251,7 +251,7 @@
 
 .options div {
   display: grid;
-  grid-template-columns: 28px 1fr;
+  grid-template-columns: 28px minmax(0, 1fr);
   gap: 8px;
   transition: opacity 0.2s ease;
 }
@@ -266,6 +266,8 @@
 }
 
 .options dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
   margin: 0;
   line-height: 1.65;
 }
@@ -1230,6 +1232,13 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* Wzór w osobnej linii nigdy nie rozpycha strony: przewija się w poziomie. */
+.page :global(.katex-display) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0;
 }
 
 /* Wzór wystawiony przy lewej krawędzi, jak tekst obok, zamiast na środku szerokiego ekranu. */
