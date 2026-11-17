@@ -36,6 +36,10 @@ type TutorValue = {
   open: () => void;
   close: () => void;
   send: (text: string) => void;
+  /** Pytanie z wyszukiwania: zaczyna nową rozmowę i od razu w niej pyta. Nic nie robi, gdy AI nie jest gotowe albo Pestka odpowiada. */
+  zapytajWNowej: (text: string) => void;
+  /** true: AI podpięte, false: brak, undefined: jeszcze sprawdzamy. */
+  aiGotowe: boolean | undefined;
   suggestions: string[];
   /** Ustawienia Pestki ucznia (Ustawienia): sama podpowiada, krótkie odpowiedzi. */
   pestka: { sama: boolean; krotko: boolean };
@@ -114,7 +118,8 @@ const greeting = "Cześć, jestem Pestka. Wklej zadanie albo napisz, z czym masz
 const noAi = "Żeby odpowiadać, potrzebuję AI podpiętego do konta. Zrobisz to w profilu, w sekcji „AI na koncie”.";
 
 /** przedmioty: opis przedmiotów konta do kontekstu rozmowy, np. „polski (podstawowy), angielski (rozszerzony)”. */
-export function TutorProvider({ children, ai = false, przedmioty = "" }: { children: ReactNode; ai?: boolean; przedmioty?: string }) {
+export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { children: ReactNode; ai?: boolean | undefined; przedmioty?: string }) {
+  const ai = aiStan === true;
   const { pestkaSama: sama, pestkaKrotko: krotko } = useUstawienia();
   const samaRef = useRef(sama);
   samaRef.current = sama;
@@ -211,6 +216,26 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
     }, 500);
   }, [ai, askModel]);
 
+  // Historię dla modelu budujemy tu wprost (powitanie + pytanie), bez odwoływania się do poprzedniej rozmowy.
+  const zapytajWNowej = useCallback(
+    (text: string) => {
+      const clean = text.trim();
+      if (!clean || !ai || stanRef.current !== "idle") return;
+      const id = noweId();
+      setBiezacaRozmowa(id);
+      ustawBiezaca(id);
+      const wiadomosci: Message[] = [
+        { id: nextId.current++, from: "tutor", text: greeting },
+        { id: nextId.current++, from: "student", text: clean },
+      ];
+      history.current = wiadomosci;
+      setMessages(wiadomosci);
+      setState("thinking");
+      void askModel(wiadomosci);
+    },
+    [ai, askModel],
+  );
+
   // „Na wezwanie”: wskazówki, o które uczeń nie prosił (pulpit, zegar), nie wyskakują same.
   // Przepuszczamy te z jego kliknięcia: „Co dziś robić?” (ask-) i omówienie arkusza (omow).
   const showHints = useCallback((key: string, hints: Hint[]) => {
@@ -294,6 +319,8 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
       open,
       close: () => setOpen(false),
       send,
+      zapytajWNowej,
+      aiGotowe: aiStan,
       pestka: { sama, krotko },
       suggestions:
         messages.length <= 1
@@ -307,7 +334,7 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
       dismiss,
       summonAt,
     }),
-    [messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, send, sama, krotko, guide, summon, showHints, startTour, next, dismiss, summonAt],
+    [messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, send, zapytajWNowej, aiStan, sama, krotko, guide, summon, showHints, startTour, next, dismiss, summonAt],
   );
 
   return <TutorContext.Provider value={value}>{children}</TutorContext.Provider>;

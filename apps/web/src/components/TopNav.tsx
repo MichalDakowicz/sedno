@@ -4,6 +4,7 @@ import { CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Menu, RotateCc
 import { logout } from "../auth";
 import { Plywak } from "./Plywak";
 import { resetTour, useTutor } from "./TutorContext";
+import { OTWORZ_SZUKAJ } from "./Wyszukiwanie";
 import styles from "./TopNav.module.css";
 
 const links = [
@@ -96,9 +97,16 @@ export function TopNav() {
         </div>
 
         <div className={styles.right}>
-          <Link to="/szablony/wyszukiwanie" className={styles.pomoc} aria-label="Szukaj" title="Szukaj">
+          <button
+            type="button"
+            className={styles.pomoc}
+            onClick={() => window.dispatchEvent(new Event(OTWORZ_SZUKAJ))}
+            aria-label="Szukaj"
+            aria-keyshortcuts="Control+K Meta+K"
+            title="Szukaj (Ctrl+K)"
+          >
             <Search size={22} aria-hidden="true" />
-          </Link>
+          </button>
           <button type="button" className={styles.pomoc} onClick={przewodnik} aria-label="Pokaż przewodnik z Pestką" title="Przewodnik z Pestką">
             <CircleHelp size={22} aria-hidden="true" />
           </button>
