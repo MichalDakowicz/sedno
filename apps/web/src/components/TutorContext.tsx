@@ -2,14 +2,14 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { AvatarState } from "./TutorAvatar";
 import { aiErrorText, AiError, streamAi } from "../ai";
 import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA_ROZMOW, type Rozmowa } from "../konto/rozmowy";
-import { bezEmoji, powtarzaTutora, priorytetDozwolony, rozmowa, wytnijPriorytety } from "../pestka";
+import { bezEmoji, powtarzaTutora, priorytetDozwolony, rozmowa, trudnaSprawa, wytnijPriorytety } from "../pestka";
 import { dodajPriorytet, listaPelna, opisProfilu, usunPriorytet } from "../konto/profilUcznia";
 import { useUstawienia } from "../konto/ustawienia";
 
 /** Priorytet, który Pestka zapisała w profilu ucznia z danej wypowiedzi (tylko na ekranie); cofniete: uczeń go cofnął. */
 export type ZapisPriorytetu = { id: string; tekst: string; cofniete?: boolean };
 /** zapisane i pelna: informacja pod wypowiedzią Pestki o zapisie w profilu albo o pełnej liście (tylko na ekranie). */
-export type Message = { id: number; from: "tutor" | "student"; text: string; zapisane?: ZapisPriorytetu[]; pelna?: boolean };
+export type Message = { id: number; from: "tutor" | "student"; text: string; zapisane?: ZapisPriorytetu[]; pelna?: boolean; wsparcie?: boolean };
 
 // Wskazówka tutora przypięta do elementu z atrybutem data-tutor. Lista celów: pierwszy widoczny wygrywa,
 // np. linki w pasku na desktopie, a przycisk menu na telefonie.
@@ -166,19 +166,23 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     const id = nextId.current++;
     let started = false;
     // Flagę czytamy przed setMessages: updater wykonuje się dopiero przy renderze.
+    const historia = all.map((m) => ({ od: m.from === "tutor" ? ("tutor" as const) : ("uczen" as const), tekst: m.text }));
+    const ostatniaUcznia = [...historia].reverse().find((m) => m.od === "uczen")?.tekst ?? "";
+    // Stała informacja o wsparciu pod odpowiedzią na taką wiadomość, niezależnie od tego, co napisze model.
+    const wsparcie = trudnaSprawa(ostatniaUcznia);
     const write = (text: string, dodatek?: Pick<Message, "zapisane" | "pelna">) => {
       const first = !started;
       started = true;
-      setMessages((m) => (first ? [...m, { id, from: "tutor", text, ...dodatek }] : m.map((x) => (x.id === id ? { ...x, text, ...dodatek } : x))));
+      const pola = { ...dodatek, ...(wsparcie ? { wsparcie: true } : {}) };
+      setMessages((m) => (first ? [...m, { id, from: "tutor", text, ...pola }] : m.map((x) => (x.id === id ? { ...x, text, ...pola } : x))));
     };
     let text = "";
-    const historia = all.map((m) => ({ od: m.from === "tutor" ? ("tutor" as const) : ("uczen" as const), tekst: m.text }));
     try {
       await streamAi(
         {
           tier: "lekkie",
           task: "pestka-czat",
-          messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura", krotko, czat: true, profil: opisProfilu() }, historia),
+          messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura", krotko, czat: true, profil: opisProfilu(), listaPelna: listaPelna() }, historia),
         },
         (delta) => {
           text += delta;
@@ -192,7 +196,6 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       else {
         // Zapis dopiero po całej odpowiedzi i najwyżej jeden na odpowiedź; uczeń zawsze widzi w czacie, co trafiło do profilu.
         // Twarda ochrona obok promptu: priorytet musi wynikać z ostatniej wiadomości ucznia; odrzucony znika po cichu.
-        const ostatniaUcznia = [...historia].reverse().find((m) => m.od === "uczen")?.tekst ?? "";
         const propozycja = priorytety.find((p) => priorytetDozwolony(p, ostatniaUcznia));
         if (propozycja && listaPelna()) write(widoczny, { pelna: true });
         else {
@@ -213,7 +216,9 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
 
   const send = useCallback((text: string) => {
     const clean = text.trim();
-    if (!clean) return;
+    // Jedna odpowiedź naraz: także w trakcie strumienia („talking”), inaczej druga trafiłaby do innej rozmowy.
+    if (!clean || stanRef.current !== "idle") return;
+    stanRef.current = "thinking";
     const student: Message = { id: nextId.current++, from: "student", text: clean };
     setMessages((m) => [...m, student]);
     setState("thinking");

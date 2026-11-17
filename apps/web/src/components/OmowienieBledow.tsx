@@ -4,7 +4,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, Lightbulb, LoaderCircle, X } from "lucide-react";
 import { aiErrorText, AiError, streamAi, type AiMessage } from "../ai";
-import { bezEmoji } from "../pestka";
+import { bezEmoji, trudnaSprawa } from "../pestka";
+import { useUstawienia } from "../konto/ustawienia";
 import { poziomAI, promptOmowienia, zrobPrzyklad, type DoOmowienia, type Przyklad } from "../arkusze/omowienie";
 import type { Postep } from "../arkusze/postep";
 import type { Arkusz } from "../arkusze/typy";
@@ -13,6 +14,7 @@ import { FragmentNagrania } from "./FragmentNagrania";
 import { Markdown } from "./Markdown";
 import { TutorAvatar } from "./TutorAvatar";
 import chat from "./TutorChat.module.css";
+import { WsparcieNota } from "./TutorChat";
 import styles from "./OmowienieBledow.module.css";
 import { mniejRuchu } from "../motyw";
 
@@ -90,6 +92,7 @@ export function OmowienieBledow({
   // Wcześniejsza rozmowa o tym zadaniu wraca z postępu arkusza (synchronizowanego z kontem).
   const zapisana = postep.rozmowyOmowien?.[d.zadanie.nr];
   const [rozmowa, setRozmowa] = useState<Wiadomosc[]>(zapisana ?? []);
+  const { pestkaKrotko: krotko } = useUstawienia();
   const [mysli, setMysli] = useState(false);
   const [przyklad, setPrzyklad] = useState<StanPrzykladu | null>(null);
   const [szkic, setSzkic] = useState("");
@@ -197,7 +200,7 @@ export function OmowienieBledow({
     setRozmowa(historia);
     setMysli(true);
     const wiadomosci: AiMessage[] = [
-      { role: "system", content: promptOmowienia(arkusz, d, postep) },
+      { role: "system", content: promptOmowienia(arkusz, d, postep, krotko) },
       { role: "user", content: START },
       ...historia.map((m): AiMessage => ({ role: m.od === "tutor" ? "assistant" : "user", content: m.tekst })),
     ];
@@ -249,10 +252,12 @@ export function OmowienieBledow({
   }
 
   function wiadomosc(m: Wiadomosc, i: number) {
+    const poprzednia = rozmowa[i - 1];
     return m.od === "tutor" ? (
-      <Markdown key={i} className={chat.tutorText}>
-        {m.tekst}
-      </Markdown>
+      <div key={i}>
+        <Markdown className={chat.tutorText}>{m.tekst}</Markdown>
+        {poprzednia?.od === "uczen" && trudnaSprawa(poprzednia.tekst) && <WsparcieNota />}
+      </div>
     ) : (
       <p key={i} className={chat.studentText}>
         {m.tekst}
