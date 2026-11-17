@@ -328,7 +328,7 @@ language sql stable set search_path = '' as $$
       end
     )),
     array[q.item->>'poprawna'],
-    'Klucz CKE: ' || (q.item->>'poprawna') || '.',
+    'W kluczu CKE poprawna jest odpowiedź ' || (q.item->>'poprawna') || '.',
     '{}'::text[],
     null::text
   from arkusze a
@@ -340,9 +340,13 @@ language sql stable set search_path = '' as $$
   join private.cke_learning_map m on m.sheet_id = a.sheet_id and m.question = q.item->>'nr'
   cross join lateral (
     select array_agg(option.value order by option.position) as options
-    from jsonb_array_elements_text(case when jsonb_typeof(q.item->'litery') = 'array'
-      then q.item->'litery' else '[]'::jsonb end) with ordinality as option(value, position)
-    where option.value ~ '^[A-HT]$'
+    from (
+      select letter.value, min(letter.position) as position
+      from jsonb_array_elements_text(case when jsonb_typeof(q.item->'litery') = 'array'
+        then q.item->'litery' else '[]'::jsonb end) with ordinality as letter(value, position)
+      where letter.value ~ '^[A-HT]$'
+      group by letter.value
+    ) option
   ) l
   cross join lateral (select case when p_skill like 'sluchanie-%' then nullif(s.data->>'nagranie', '') end as url) audio
   where m.skill_id = p_skill and m.level = p_level
