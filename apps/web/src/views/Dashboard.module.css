@@ -111,6 +111,29 @@
   align-items: start;
 }
 
+/* Bez widgetu obok karta „Dziś warto” zajmuje cały wiersz. */
+.topSam {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Wyniki w osobnym wierszu (nie obok karty): wąsko, jak w bocznej kolumnie. */
+.wynikiSam {
+  max-width: 480px;
+}
+
+/* Małe wejście do ustawień układu pulpitu, pod powitaniem. */
+.ukladLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
+  color: var(--muted);
+}
+
+.ukladLink:hover {
+  color: var(--primary-text);
+}
+
 .today {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

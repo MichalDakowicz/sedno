@@ -14,7 +14,7 @@ type Koperta = { kto: string | null; wire: Wire };
 export type Opcje<T> = {
   /** Klucz w localStorage; flaga niezapisanych zmian: `${klucz}.niezapisane`. */
   klucz: string;
-  kolumna: "settings" | "learning";
+  kolumna: "settings" | "learning" | "dashboard";
   domyslne: T;
   /** Z obiektu z konta albo z dysku do wartości (nieznane klucze pomija, braki uzupełnia). */
   zWire: (raw: unknown) => T;

@@ -1,0 +1,85 @@
+import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { FileText, MessagesSquare, Sparkles } from "lucide-react";
+import { useTutor } from "../../components/TutorContext";
+import { SubjectIcon } from "../../components/icons";
+import { nazwaPoziomu, przedmiot } from "../../konto/przedmioty";
+import type { KontekstPulpitu } from "./widgety";
+import { Kicker, procent, tytul } from "./wspolne";
+import styles from "../Dashboard.module.css";
+
+export function Dzis({ co, aktywny, ai }: KontekstPulpitu) {
+  const { open: openTutor } = useTutor();
+  if (!co) return null;
+  const showSubject = !aktywny;
+  const p = przedmiot(co.przedmiot.id)!;
+  const poziom = nazwaPoziomu[co.przedmiot.poziom];
+
+  let naglowek: string;
+  let powod: string;
+  let akcja: ReactNode;
+  if (co.rodzaj === "dokoncz") {
+    naglowek = "Dokończ arkusz";
+    powod = `${tytul(co.zaczety.arkusz)}, poziom ${poziom}. Masz już ${co.zaczety.odpowiedzi} odpowiedzi z ${co.zaczety.arkusz.pytan}, wynik zobaczysz po sprawdzeniu.`;
+    akcja = (
+      <Link to={`/arkusze/${co.zaczety.arkusz.id}`} className="btn btn-primary" data-tutor="today-cta">
+        <FileText size={18} aria-hidden="true" />
+        Wróć do arkusza
+      </Link>
+    );
+  } else if (co.rodzaj === "nowy") {
+    naglowek = tytul(co.arkusz);
+    powod = co.ostatni
+      ? `Ostatni wynik: ${procent(co.ostatni)}% (${tytul(co.ostatni.arkusz).toLowerCase()}). Kolejny arkusz pokaże, czy to stały poziom.`
+      : `Nie masz jeszcze wyniku z tego przedmiotu. Najnowszy arkusz na poziomie ${poziom} pokaże, od czego zacząć.`;
+    akcja = (
+      <Link to={`/arkusze/${co.arkusz.id}`} className="btn btn-primary" data-tutor="today-cta">
+        <FileText size={18} aria-hidden="true" />
+        Rozwiąż arkusz{co.arkusz.czas ? ` · ${co.arkusz.czas} min` : ""}
+      </Link>
+    );
+  } else if (co.rodzaj === "wszystko") {
+    naglowek = "Wszystkie arkusze rozwiązane";
+    powod = `Masz wyniki ze wszystkich arkuszy na poziomie ${poziom}, które są w Sedno.${co.ostatni ? ` Ostatni: ${procent(co.ostatni)}%.` : ""}`;
+    akcja = (
+      <Link to="/arkusze" className="btn btn-primary" data-tutor="today-cta">
+        <FileText size={18} aria-hidden="true" />
+        Przejrzyj arkusze
+      </Link>
+    );
+  } else {
+    naglowek = `${p.nazwa}: arkusze w drodze`;
+    powod = `W Sedno nie ma jeszcze arkuszy z tego przedmiotu na poziomie ${poziom}. Dodajemy je po kolei.`;
+    akcja = ai ? (
+      <button type="button" className="btn btn-primary" data-tutor="today-cta" onClick={openTutor}>
+        <MessagesSquare size={18} aria-hidden="true" />
+        Porozmawiaj z Pestką
+      </button>
+    ) : (
+      <Link to="/arkusze" className="btn btn-primary" data-tutor="today-cta">
+        <FileText size={18} aria-hidden="true" />
+        Zobacz dostępne arkusze
+      </Link>
+    );
+  }
+
+  return (
+    // Jedyna karta na pulpicie: propozycja to główne działanie, więc dostaje wyróżnienie.
+    <article className={styles.today} aria-labelledby="today-title" data-tutor-about="To propozycja na dziś. Wybieram ją z twoich arkuszy: najpierw dokończenie zaczętego, potem najnowszy nierozwiązany.">
+      <div className={styles.todayHead}>
+        <Kicker icon={Sparkles}>Dziś warto</Kicker>
+        {showSubject && (
+          <Link to={`/przedmiot/${p.id}`} className={styles.tag}>
+            <SubjectIcon subject={p} size="sm" />
+            {p.nazwa}
+          </Link>
+        )}
+      </div>
+      <h2 id="today-title" className="h1">
+        {naglowek}
+      </h2>
+      <p className={styles.reason}>{powod}</p>
+      <div className={styles.actions}>{akcja}</div>
+    </article>
+  );
+}

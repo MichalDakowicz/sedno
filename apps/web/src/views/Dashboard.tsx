@@ -1,30 +1,22 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, Navigate, useParams } from "react-router-dom";
-import { ArrowRight, ChevronRight, FileText, LayoutGrid, MessagesSquare, Network, Plus, Sparkles, Target, type LucideIcon } from "lucide-react";
-import { useTutor, isTourDone, type Hint } from "../components/TutorContext";
+import { ArrowRight, ChevronRight, LayoutGrid, LayoutList, Plus } from "lucide-react";
+import { isTourDone, useTutor, type Hint } from "../components/TutorContext";
 import { SubjectIcon } from "../components/icons";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import { saveSubjects, useProfil, useSession } from "../auth";
 import { useAiReady } from "../ai";
 import { dniDoMatury, nazwaPoziomu, opisPoziomow, przedmiot, zgrupuj, type MojPrzedmiot } from "../konto/przedmioty";
-import { propozycja, useWynikiKonta, type Podsumowanie, type Propozycja, type Wynik } from "../konto/wyniki";
-import type { ArkuszWpis } from "../arkusze/typy";
+import { useUstawienia } from "../konto/ustawienia";
+import { propozycja, useWynikiKonta, type Podsumowanie } from "../konto/wyniki";
+import { WSZYSTKIE, useUklad } from "../konto/ukladPulpitu";
 import { Plywak } from "../components/Plywak";
 import { Ladowanie } from "../components/Ladowanie";
 import { Wejscia } from "../szablony/Wejscia";
+import { Dzis } from "./pulpit/Dzis";
+import { widget, type KontekstPulpitu } from "./pulpit/widgety";
+import { Wynikowy, procent, tytul } from "./pulpit/wspolne";
 import styles from "./Dashboard.module.css";
-
-function Kicker({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode }) {
-  return (
-    <span className={styles.kicker}>
-      <Icon size={14} strokeWidth={2.2} aria-hidden="true" />
-      {children}
-    </span>
-  );
-}
-
-const tytul = (a: ArkuszWpis) => `Matura ${a.sesja} ${a.rok}`;
-const procent = (w: Wynik) => Math.round((w.zdobyte / w.mozliwe) * 100);
 
 function SubjectBar({ moje: wpisy, active }: { moje: MojPrzedmiot[]; active?: string }) {
   const moje = zgrupuj(wpisy);
@@ -56,197 +48,6 @@ function SubjectBar({ moje: wpisy, active }: { moje: MojPrzedmiot[]; active?: st
         {moje.length ? "Zmień przedmioty" : "Dodaj przedmiot"}
       </Link>
     </nav>
-  );
-}
-
-function Wynikowy({ value }: { value: number }) {
-  const level = value < 50 ? "low" : value < 75 ? "mid" : "high";
-  return (
-    <span className={styles.bar} aria-hidden="true">
-      <span style={{ width: `${value}%` }} data-level={level} />
-    </span>
-  );
-}
-
-function Today({ co, showSubject, ai }: { co: Propozycja; showSubject: boolean; ai: boolean }) {
-  const { open: openTutor } = useTutor();
-  const p = przedmiot(co.przedmiot.id)!;
-  const poziom = nazwaPoziomu[co.przedmiot.poziom];
-
-  let naglowek: string;
-  let powod: string;
-  let akcja: ReactNode;
-  if (co.rodzaj === "dokoncz") {
-    naglowek = "Dokończ arkusz";
-    powod = `${tytul(co.zaczety.arkusz)}, poziom ${poziom}. Masz już ${co.zaczety.odpowiedzi} odpowiedzi z ${co.zaczety.arkusz.pytan}, wynik zobaczysz po sprawdzeniu.`;
-    akcja = (
-      <Link to={`/arkusze/${co.zaczety.arkusz.id}`} className="btn btn-primary" data-tutor="today-cta">
-        <FileText size={18} aria-hidden="true" />
-        Wróć do arkusza
-      </Link>
-    );
-  } else if (co.rodzaj === "nowy") {
-    naglowek = tytul(co.arkusz);
-    powod = co.ostatni
-      ? `Ostatni wynik: ${procent(co.ostatni)}% (${tytul(co.ostatni.arkusz).toLowerCase()}). Kolejny arkusz pokaże, czy to stały poziom.`
-      : `Nie masz jeszcze wyniku z tego przedmiotu. Najnowszy arkusz na poziomie ${poziom} pokaże, od czego zacząć.`;
-    akcja = (
-      <Link to={`/arkusze/${co.arkusz.id}`} className="btn btn-primary" data-tutor="today-cta">
-        <FileText size={18} aria-hidden="true" />
-        Rozwiąż arkusz{co.arkusz.czas ? ` · ${co.arkusz.czas} min` : ""}
-      </Link>
-    );
-  } else if (co.rodzaj === "wszystko") {
-    naglowek = "Wszystkie arkusze rozwiązane";
-    powod = `Masz wyniki ze wszystkich arkuszy na poziomie ${poziom}, które są w Sedno.${co.ostatni ? ` Ostatni: ${procent(co.ostatni)}%.` : ""}`;
-    akcja = (
-      <Link to="/arkusze" className="btn btn-primary" data-tutor="today-cta">
-        <FileText size={18} aria-hidden="true" />
-        Przejrzyj arkusze
-      </Link>
-    );
-  } else {
-    naglowek = `${p.nazwa}: arkusze w drodze`;
-    powod = `W Sedno nie ma jeszcze arkuszy z tego przedmiotu na poziomie ${poziom}. Dodajemy je po kolei.`;
-    akcja = ai ? (
-      <button type="button" className="btn btn-primary" data-tutor="today-cta" onClick={openTutor}>
-        <MessagesSquare size={18} aria-hidden="true" />
-        Porozmawiaj z Pestką
-      </button>
-    ) : (
-      <Link to="/arkusze" className="btn btn-primary" data-tutor="today-cta">
-        <FileText size={18} aria-hidden="true" />
-        Zobacz dostępne arkusze
-      </Link>
-    );
-  }
-
-  return (
-    // Jedyna karta na pulpicie: propozycja to główne działanie, więc dostaje wyróżnienie.
-    <article className={styles.today} aria-labelledby="today-title" data-tutor-about="To propozycja na dziś. Wybieram ją z twoich arkuszy: najpierw dokończenie zaczętego, potem najnowszy nierozwiązany.">
-      <div className={styles.todayHead}>
-        <Kicker icon={Sparkles}>Dziś warto</Kicker>
-        {showSubject && (
-          <Link to={`/przedmiot/${p.id}`} className={styles.tag}>
-            <SubjectIcon subject={p} size="sm" />
-            {p.nazwa}
-          </Link>
-        )}
-      </div>
-      <h2 id="today-title" className="h1">
-        {naglowek}
-      </h2>
-      <p className={styles.reason}>{powod}</p>
-      <div className={styles.actions}>{akcja}</div>
-    </article>
-  );
-}
-
-// Próg zdania matury z przedmiotu obowiązkowego na poziomie podstawowym.
-const PROG = 30;
-
-function kiedyTemu(iso: string): string {
-  const dni = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
-  return dni <= 0 ? "dziś" : dni === 1 ? "wczoraj" : `${dni} dni temu`;
-}
-
-/** Linia wyników kolejnych arkuszy jednego przedmiotu, od najstarszego. */
-function Trend({ wyniki, podpis }: { wyniki: Wynik[]; podpis: string }) {
-  const pkt = wyniki.slice(0, 8).reverse().map(procent);
-  const w = 120;
-  const h = 40;
-  const x = (i: number) => (pkt.length === 1 ? w / 2 : (i / (pkt.length - 1)) * w);
-  const y = (v: number) => h - 3 - (v / 100) * (h - 6);
-  return (
-    <span className={styles.trendWrap}>
-      <svg className={styles.trend} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
-        <line x1="0" x2={w} y1={y(PROG)} y2={y(PROG)} className={styles.trendProg} />
-        <polyline points={pkt.map((v, i) => `${x(i)},${y(v)}`).join(" ")} className={styles.trendLinia} />
-        <circle cx={x(pkt.length - 1)} cy={y(pkt.at(-1)!)} r="3.5" className={styles.trendKropka} />
-      </svg>
-      <span className={styles.trendPodpis}>{podpis}</span>
-    </span>
-  );
-}
-
-const nazwaArkusza = (a: ArkuszWpis) => przedmiot(a.przedmiot)?.nazwa ?? a.przedmiot;
-
-/** Wyniki z tego samego przedmiotu i poziomu co najnowszy: porównanie angielskiego z matematyką nic nie mówi. */
-function tegoSamego(wszystkie: Wynik[]): Wynik[] {
-  const [o] = wszystkie;
-  return o ? wszystkie.filter((w) => w.arkusz.przedmiot === o.arkusz.przedmiot && w.arkusz.poziom === o.arkusz.poziom) : [];
-}
-
-function wniosek(seria: Wynik[]): string {
-  const [ostatni, poprzedni] = seria;
-  if (!ostatni) return "";
-  const nazwa = nazwaArkusza(ostatni.arkusz);
-  if (!poprzedni)
-    return procent(ostatni) < PROG
-      ? `${nazwa}: pierwszy wynik, poniżej progu ${PROG}%. Kolejny arkusz pokaże, czy idzie w górę.`
-      : `${nazwa}: pierwszy wynik. Kolejny arkusz pokaże, czy idzie w górę.`;
-  const roznica = procent(ostatni) - procent(poprzedni);
-  if (Math.abs(roznica) < 3) return `${nazwa}: ostatni arkusz na podobnym poziomie co poprzedni.`;
-  return roznica > 0 ? `${nazwa}: o ${roznica} pkt proc. lepiej niż w poprzednim arkuszu.` : `${nazwa}: o ${-roznica} pkt proc. słabiej niż w poprzednim arkuszu.`;
-}
-
-function Wyniki({ podsumowania }: { podsumowania: Podsumowanie[] }) {
-  const wszystkie = podsumowania.flatMap((p) => p.wyniki).sort((a, b) => b.kiedy.localeCompare(a.kiedy));
-  const srednia = wszystkie.length ? Math.round(wszystkie.reduce((s, w) => s + procent(w), 0) / wszystkie.length) : null;
-  return (
-    <div className={styles.block} data-tutor="results" data-tutor-about="Średnia z arkuszy, które sprawdziłeś w Sedno. Z nich wybieram, co polecić.">
-      <div className={styles.wynikiNaglowek}>
-        <Kicker icon={Target}>Wyniki</Kicker>
-        <Link to="/arkusze" className="link">
-          Arkusze <ArrowRight size={14} aria-hidden="true" />
-        </Link>
-      </div>
-      {srednia === null ? (
-        <>
-          <p className="h2">Jeszcze bez wyniku</p>
-          <p className="muted">Sprawdź pierwszy arkusz, a pokażę ci, gdzie jesteś i ile brakuje do progu.</p>
-        </>
-      ) : (
-        <>
-          <div className={styles.wynikiGlowa}>
-            <p className={styles.stat}>
-              {srednia}
-              <span>%</span>
-              <span className={styles.statOpis}>średnio z {wszystkie.length} {wszystkie.length === 1 ? "arkusza" : "arkuszy"}</span>
-            </p>
-            {tegoSamego(wszystkie).length > 1 && <Trend wyniki={tegoSamego(wszystkie)} podpis={nazwaArkusza(wszystkie[0]!.arkusz).toLowerCase()} />}
-          </div>
-          <div className={styles.skala} role="img" aria-label={`Średnio ${srednia}%, próg zdania ${PROG}%`}>
-            <span className={styles.skalaPasek}>
-              <span style={{ width: `${Math.max(srednia, 1)}%` }} />
-              <span className={styles.skalaProg} style={{ left: `${PROG}%` }} />
-            </span>
-            <span className={styles.skalaOpis} style={{ left: `${PROG}%` }}>
-              próg {PROG}%
-            </span>
-          </div>
-          <p className={styles.wniosek}>{wniosek(tegoSamego(wszystkie))}</p>
-          <ul className={styles.ostatnie}>
-            {wszystkie.slice(0, 2).map((w) => (
-              <li key={w.arkusz.id + w.kiedy}>
-                <Link to={`/arkusze/${w.arkusz.id}`}>
-                  <span>
-                    {nazwaArkusza(w.arkusz)} · {w.arkusz.sesja} {w.arkusz.rok}
-                    <span className="muted small"> · {kiedyTemu(w.kiedy)}</span>
-                  </span>
-                  <span className={styles.ostatniWynik}>{procent(w)}%</span>
-                </Link>
-                {w.zdobyte < w.mozliwe && (
-                  <Link to={`/arkusze/${w.arkusz.id}?omow=1`} className={styles.omow}>
-                    omów błędy
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-    </div>
   );
 }
 
@@ -285,6 +86,9 @@ export function Dashboard() {
   const aktywny = zgrupuj(moje).find((m) => m.id === id);
   const dane = useWynikiKonta(moje);
   const { showHints, startTour } = useTutor();
+  const { pestkaSama } = useUstawienia();
+  const klucz = aktywny?.id ?? WSZYSTKIE;
+  const uklad = useUklad(klucz);
 
   const zakres = dane ? (aktywny ? dane.podsumowania.filter((p) => p.przedmiot.id === aktywny.id) : dane.podsumowania) : [];
   const propozycje = dane ? zakres.map((p) => propozycja(p, dane.wiersze)) : [];
@@ -295,11 +99,17 @@ export function Dashboard() {
   useEffect(() => {
     if (!co) return;
     const hints: Hint[] = [{ target: "today-cta", text: "To polecam na dziś. Wybrałam to z twoich arkuszy." }];
-    const t = window.setTimeout(() => (isTourDone() ? showHints(`dash-${id ?? "all"}`, hints) : startTour()), 900);
+    const t = window.setTimeout(() => (isTourDone() ? showHints(`dash-${id ?? "all"}`, hints) : pestkaSama && startTour()), 900);
     return () => window.clearTimeout(t);
   }, [id, !!co]);
 
   if (id && profil && !aktywny) return <Navigate to="/" replace />;
+
+  // Widgety w zapisanej kolejności, bez wyłączonych. Pierwszy może stanąć obok „Dziś warto”, reszta idzie pod sekcjami przedmiotów.
+  const wlaczone = uklad.filter((p) => p.wl).flatMap((p) => widget(p.id) ?? []);
+  const obok = co && wlaczone[0]?.obok ? wlaczone[0] : undefined;
+  const reszta = wlaczone.slice(obok ? 1 : 0);
+  const kontekst: KontekstPulpitu = { zakres, co, aktywny: aktywny?.id, ai, maPrzedmioty: moje.length > 0, obok: false };
 
   const imie = profil?.display_name?.split(" ")[0];
   const p = aktywny ? przedmiot(aktywny.id)! : null;
@@ -327,6 +137,10 @@ export function Dashboard() {
           )}
         </h1>
         <p className="muted">Sesja majowa 2027. Dokładne daty egzaminów poda harmonogram CKE.</p>
+        <Link to={aktywny ? `/uklad-pulpitu?przedmiot=${aktywny.id}` : "/uklad-pulpitu"} className={styles.ukladLink}>
+          <LayoutList size={14} aria-hidden="true" />
+          Układ pulpitu
+        </Link>
       </section>
 
       {profil && !moje.length && <BezPrzedmiotow />}
@@ -334,11 +148,13 @@ export function Dashboard() {
       {!dane && <Ladowanie ksztalt="pulpit" ile={3} etykieta="Wczytuję twoje arkusze i wyniki" />}
 
       {dane && co && (
-        <section className={`${styles.top} wejscie`}>
-          <Today co={co} showSubject={!aktywny} ai={ai} />
-          <div className={styles.side}>
-            <Wyniki podsumowania={zakres} />
-          </div>
+        <section className={`${styles.top} ${obok ? "" : styles.topSam} wejscie`}>
+          <Dzis {...kontekst} />
+          {obok && (
+            <div className={styles.side}>
+              <obok.Komponent {...kontekst} obok />
+            </div>
+          )}
         </section>
       )}
 
@@ -384,24 +200,9 @@ export function Dashboard() {
         </section>
       )}
 
-      {dane && moje.length > 0 && (
-        <section className={`${styles.section} wejscie`} aria-labelledby="map-title">
-          <div className={styles.sectionHead}>
-            <h2 id="map-title" className="h2">
-              Mapa umiejętności
-            </h2>
-          </div>
-          <p className="muted">
-            <Network size={16} aria-hidden="true" style={{ verticalAlign: "-3px", marginRight: 6 }} />
-            Opanowanie poszczególnych umiejętności policzymy z twoich odpowiedzi w arkuszach. Na razie widzisz wyniki całych arkuszy.
-          </p>
-          <Link to="/umiejetnosci" className="link" style={{ justifySelf: "start" }}>
-            Zobacz szablon mapy <ArrowRight size={14} aria-hidden="true" />
-          </Link>
-        </section>
-      )}
+      {dane && reszta.map((w) => <w.Komponent key={w.id} {...kontekst} />)}
 
-      <Wejscia tytul="W przygotowaniu" slugi={["nauka", "do-matury", "powtorki", "mapa-wiedzy", "uklad-pulpitu"]} />
+      <Wejscia tytul="W przygotowaniu" slugi={["nauka", "do-matury", "powtorki", "mapa-wiedzy"]} />
     </main>
   );
 }

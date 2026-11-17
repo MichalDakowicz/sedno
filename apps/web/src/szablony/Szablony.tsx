@@ -13,7 +13,6 @@ import { Powtorki } from "./powtorki/Powtorki";
 import { MapaWiedzy } from "./mapa-wiedzy/MapaWiedzy";
 import { DoMatury } from "./do-matury/DoMatury";
 import { Zdjecie } from "./zdjecie/Zdjecie";
-import { UkladPulpitu } from "./uklad-pulpitu/UkladPulpitu";
 
 export { Nauka, Umiejetnosci, Powtorki };
 export { Spis } from "./Spis";
@@ -32,7 +31,6 @@ const WIDOKI: Record<string, ComponentType> = {
   "mapa-wiedzy": MapaWiedzy,
   "do-matury": DoMatury,
   zdjecie: Zdjecie,
-  "uklad-pulpitu": UkladPulpitu,
 };
 
 export function SzablonWidok() {
