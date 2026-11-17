@@ -2,10 +2,12 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { AvatarState } from "./TutorAvatar";
 import { aiErrorText, AiError, streamAi } from "../ai";
 import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA_ROZMOW, type Rozmowa } from "../konto/rozmowy";
-import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
+import { bezEmoji, powtarzaTutora, rozmowa, wytnijPriorytety } from "../pestka";
+import { dodajPriorytet, opisProfilu } from "../konto/profilUcznia";
 import { useUstawienia } from "../konto/ustawienia";
 
-export type Message = { id: number; from: "tutor" | "student"; text: string };
+/** zapisane: priorytety, które Pestka właśnie zapisała w profilu ucznia z tej wypowiedzi (tylko na ekranie). */
+export type Message = { id: number; from: "tutor" | "student"; text: string; zapisane?: string[] };
 
 // Wskazówka tutora przypięta do elementu z atrybutem data-tutor. Lista celów: pierwszy widoczny wygrywa,
 // np. linki w pasku na desktopie, a przycisk menu na telefonie.
@@ -162,10 +164,10 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     const id = nextId.current++;
     let started = false;
     // Flagę czytamy przed setMessages: updater wykonuje się dopiero przy renderze.
-    const write = (text: string) => {
+    const write = (text: string, zapisane?: string[]) => {
       const first = !started;
       started = true;
-      setMessages((m) => (first ? [...m, { id, from: "tutor", text }] : m.map((x) => (x.id === id ? { ...x, text } : x))));
+      setMessages((m) => (first ? [...m, { id, from: "tutor", text, zapisane }] : m.map((x) => (x.id === id ? { ...x, text, zapisane } : x))));
     };
     let text = "";
     const historia = all.map((m) => ({ od: m.from === "tutor" ? ("tutor" as const) : ("uczen" as const), tekst: m.text }));
@@ -174,16 +176,22 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
         {
           tier: "lekkie",
           task: "pestka-czat",
-          messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura", krotko }, historia),
+          messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura", krotko, czat: true, profil: opisProfilu() }, historia),
         },
         (delta) => {
           text += delta;
           if (!started) setState("talking");
-          write(bezEmoji(text));
+          write(wytnijPriorytety(bezEmoji(text)).widoczny);
         },
       );
-      if (!text.trim()) write("Zamyśliłam się i nic nie napisałam. Zapytaj jeszcze raz?");
-      else if (powtarzaTutora(bezEmoji(text), historia)) write("Powtarzam się. Napisz własnymi słowami, co jest dla ciebie niejasne, a wyjaśnię to inaczej.");
+      const { widoczny, priorytety } = wytnijPriorytety(bezEmoji(text));
+      if (!widoczny.trim()) write("Zamyśliłam się i nic nie napisałam. Zapytaj jeszcze raz?");
+      else if (powtarzaTutora(widoczny, historia)) write("Powtarzam się. Napisz własnymi słowami, co jest dla ciebie niejasne, a wyjaśnię to inaczej.");
+      else {
+        // Zapis dopiero po całej odpowiedzi; uczeń zawsze widzi w czacie, co trafiło do profilu.
+        const zapisane = priorytety.filter((p) => dodajPriorytet(p, "pestka"));
+        write(widoczny, zapisane.length ? zapisane : undefined);
+      }
     } catch (e) {
       write(aiErrorText(e instanceof AiError ? e.code : "server_error"));
     }

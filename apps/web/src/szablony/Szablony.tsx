@@ -12,7 +12,6 @@ import { Umiejetnosci } from "./umiejetnosci/Umiejetnosci";
 import { Powtorki } from "./powtorki/Powtorki";
 import { MapaWiedzy } from "./mapa-wiedzy/MapaWiedzy";
 import { DoMatury } from "./do-matury/DoMatury";
-import { ProfilUcznia } from "./profil-ucznia/ProfilUcznia";
 import { Zdjecie } from "./zdjecie/Zdjecie";
 import { UkladPulpitu } from "./uklad-pulpitu/UkladPulpitu";
 
@@ -32,7 +31,6 @@ const WIDOKI: Record<string, ComponentType> = {
   powtorki: Powtorki,
   "mapa-wiedzy": MapaWiedzy,
   "do-matury": DoMatury,
-  "profil-ucznia": ProfilUcznia,
   zdjecie: Zdjecie,
   "uklad-pulpitu": UkladPulpitu,
 };

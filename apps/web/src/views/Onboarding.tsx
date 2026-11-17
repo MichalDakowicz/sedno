@@ -14,6 +14,7 @@ import { SubjectIcon } from "../components/icons";
 import { markOnboarded, saveSubjects, useProfil, useSession } from "../auth";
 import { streamAi, useAiReady } from "../ai";
 import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
+import { CzasICel, PytaniaOSposobie } from "./ProfilUcznia";
 import { przedmiot, zgrupuj, type MojPrzedmiot, type PrzedmiotId } from "../konto/przedmioty";
 import styles from "./Onboarding.module.css";
 
@@ -96,7 +97,7 @@ const ZADANIA: Record<PrzedmiotId, Pokazowe> = {
   },
 };
 
-const KROKI = ["Cześć", "Przedmioty", "Pokaz", "Gdzie mnie spotkasz", "Start"];
+const KROKI = ["Cześć", "Przedmioty", "Pokaz", "Jak się uczysz", "Gdzie mnie spotkasz", "Start"];
 
 export function Onboarding() {
   const session = useSession();
@@ -173,6 +174,24 @@ export function Onboarding() {
         {krok === 3 && (
           <section className={styles.step}>
             <TutorAvatar size={64} />
+            <h1 className="h1">Jak się uczysz?</h1>
+            <p className="lead">Kilka krótkich pytań, żebym lepiej dopasowała propozycje. Każde możesz pominąć, a odpowiedzi zmienisz później w profilu.</p>
+            <div className={styles.profil}>
+              <PytaniaOSposobie />
+              <CzasICel przedmioty={zgrupuj(przedmioty).map((m) => m.id)} />
+            </div>
+            <button type="button" className="btn btn-primary" onClick={() => setKrok(4)}>
+              Dalej
+            </button>
+            <button type="button" className={styles.later} onClick={() => setKrok(4)}>
+              Pomiń
+            </button>
+          </section>
+        )}
+
+        {krok === 4 && (
+          <section className={styles.step}>
+            <TutorAvatar size={64} />
             <h1 className="h1">Gdzie mnie spotkasz</h1>
             <ul className={styles.where}>
               <li>
@@ -192,13 +211,13 @@ export function Onboarding() {
                 <span>W trybie egzaminu milczę. Odezwę się dopiero przy sprawdzaniu.</span>
               </li>
             </ul>
-            <button type="button" className="btn btn-primary" onClick={() => setKrok(4)}>
+            <button type="button" className="btn btn-primary" onClick={() => setKrok(5)}>
               Dalej
             </button>
           </section>
         )}
 
-        {krok === 4 &&
+        {krok === 5 &&
           (ai ? (
             <section className={styles.step}>
               <TutorAvatar size={64} state="talking" />

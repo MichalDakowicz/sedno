@@ -192,3 +192,14 @@
     padding: 12px 16px 16px;
   }
 }
+
+.zapisano {
+  margin: 8px 0 0;
+  font-size: calc(13px * var(--skala-tekstu, 1));
+  color: var(--muted);
+}
+
+.zapisano a {
+  color: var(--primary-text);
+  text-decoration: underline;
+}
