@@ -60,7 +60,7 @@ export function WynikiZArkuszy({ zakres: podsumowania, co, obok }: KontekstPulpi
   const wszystkie = podsumowania.flatMap((p) => p.wyniki).sort((a, b) => b.kiedy.localeCompare(a.kiedy));
   const srednia = wszystkie.length ? Math.round(wszystkie.reduce((s, w) => s + procent(w), 0) / wszystkie.length) : null;
   const blok = (
-    <div className={styles.block} data-tutor="results" data-tutor-about="Średnia z arkuszy, które sprawdziłeś w Sedno. Z nich wybieram, co polecić.">
+    <div className={styles.block} data-tutor="results" data-tutor-about="Średnia z arkuszy sprawdzonych w Sedno. Z nich wybieram, co polecić.">
       <div className={styles.wynikiNaglowek}>
         <Kicker icon={Target}>Wyniki</Kicker>
         <Link to="/arkusze" className="link">

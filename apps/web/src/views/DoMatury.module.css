@@ -1,0 +1,74 @@
+.strona {
+  display: grid;
+  gap: 40px;
+  padding-top: 32px;
+  padding-bottom: 120px;
+}
+
+.glowa {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+/* Sekcje rozdziela linia, nie karta. */
+.sekcja {
+  display: grid;
+  gap: 20px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.pierwszy {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.liczba {
+  font-size: calc(48px * var(--skala-tekstu, 1));
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.liczba > span {
+  font-size: calc(28px * var(--skala-tekstu, 1));
+  color: var(--subtle);
+  letter-spacing: 0;
+}
+
+.wiersze {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.wiersz {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.wierszTekst {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dni {
+  font-size: calc(18px * var(--skala-tekstu, 1));
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cel {
+  font-weight: 500;
+}
+
+.przypis {
+  margin: 0;
+}

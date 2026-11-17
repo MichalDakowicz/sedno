@@ -1,56 +1,28 @@
 // Układ pulpitu: które widgety są włączone i w jakiej kolejności, osobno dla „Wszystkie” i każdego przedmiotu
-// (profiles.dashboard). Kopia w localStorage działa od razu, konto wygrywa po zalogowaniu, a znacznik „niezapisane”
-// chroni świeżą zmianę przed starą wartością z konta (jak w konto/ustawienia.ts i konto/profilUcznia.ts).
-import { useMemo, useSyncExternalStore } from "react";
-import { supabase } from "../supabase";
-import { WIDGETY } from "../views/pulpit/widgety";
+// (profiles.dashboard). Synchronizacja z kontem (kopia lokalna, konto po zalogowaniu, zapisy) jest we wspólnym konto/kontoSync.ts.
+import { useMemo } from "react";
+import { WIDGETY_DANE } from "../views/pulpit/widgetyDane";
+import { gotowy as gotowyCzysty, nazwaUkladu as nazwaCzysta, kolejnosc, normalizuj, przelacz, przesun, przesunDo, type GotowyUklad, type Pozycja } from "../views/pulpit/ukladCzysty";
+import { utworzMagazyn } from "./kontoSync";
 import { PRZEDMIOTY } from "./przedmioty";
 
 export const WSZYSTKIE = "wszystkie";
 
-export type GotowyUklad = "nauka" | "egzamin";
+export type { GotowyUklad, Pozycja };
 export type Uklad = GotowyUklad | "wlasny";
-export type Pozycja = { id: string; wl: boolean };
 
 /** Co leży na koncie: nazwa gotowego układu (nowe widgety dochodzą wtedy same) albo własna lista. */
 type Zapis = Partial<Record<string, "egzamin" | Pozycja[]>>;
 
 /** Widgety do ułożenia, w domyślnej kolejności. Stałe („Dziś warto”) są zawsze na górze i nie należą do listy. */
-const RUCHOME = WIDGETY.filter((w) => !w.staly);
+const RUCHOME = WIDGETY_DANE.filter((w) => !w.staly);
 
 const MAX_POZYCJI = 20;
 const KLUCZE = new Set<string>([WSZYSTKIE, ...PRZEDMIOTY.map((p) => p.id)]);
 
-export function gotowy(nazwa: GotowyUklad): Pozycja[] {
-  return RUCHOME.map((w) => ({ id: w.id, wl: w[nazwa] }));
-}
-
-/** Wyrzuca nieznane i powtórzone widgety, a brakujące (dodane w nowszej wersji) wstawia na ich domyślne miejsce. */
-function uzupelnij(lista: Pozycja[]): Pozycja[] {
-  const wynik: Pozycja[] = [];
-  for (const p of lista) if (RUCHOME.some((w) => w.id === p.id) && !wynik.some((x) => x.id === p.id)) wynik.push(p);
-  RUCHOME.forEach((w, i) => {
-    if (wynik.some((x) => x.id === w.id)) return;
-    // Przed pierwszym widgetem, który w rejestrze jest po nim; jeśli takiego nie ma, na końcu.
-    const nastepny = wynik.findIndex((x) => RUCHOME.findIndex((r) => r.id === x.id) > i);
-    wynik.splice(nastepny === -1 ? wynik.length : nastepny, 0, { id: w.id, wl: w.nauka });
-  });
-  return wynik;
-}
-
-const rowne = (a: Pozycja[], b: Pozycja[]) => a.length === b.length && a.every((p, i) => p.id === b[i]!.id && p.wl === b[i]!.wl);
-
-/** Nazwa układu, który odpowiada liście; każda inna lista to „własny”. */
-export function nazwaUkladu(lista: Pozycja[]): Uklad {
-  if (rowne(lista, gotowy("nauka"))) return "nauka";
-  if (rowne(lista, gotowy("egzamin"))) return "egzamin";
-  return "wlasny";
-}
-
-function rozwin(z: Zapis[string]): Pozycja[] {
-  if (z === "egzamin") return gotowy("egzamin");
-  return z ? uzupelnij(z) : gotowy("nauka");
-}
+export const gotowy = (nazwa: GotowyUklad) => gotowyCzysty(RUCHOME, nazwa);
+export const nazwaUkladu = (lista: Pozycja[]): Uklad => nazwaCzysta(lista, RUCHOME);
+const rozwin = (z: Zapis[string]) => normalizuj(z, RUCHOME);
 
 /** Przyjmuje tylko znane klucze, widgety i kształty (dane z konta albo z dysku mogą być stare lub uszkodzone). */
 function poprawne(v: unknown): Zapis {
@@ -71,97 +43,42 @@ function poprawne(v: unknown): Zapis {
   return wynik;
 }
 
-const KLUCZ = "sedno.ukladPulpitu";
-const NIEZAPISANE = "sedno.ukladPulpitu.niezapisane";
-
-function wczytajLokalne(): Zapis {
-  try {
-    const t = localStorage.getItem(KLUCZ);
-    if (t) return poprawne(JSON.parse(t));
-  } catch {
-    // zablokowany storage albo uszkodzony zapis: układy domyślne
-  }
-  return {};
-}
-
-function zapiszLokalne(z: Zapis) {
-  try {
-    localStorage.setItem(KLUCZ, JSON.stringify(z));
-  } catch {
-    // zostaje wartość w pamięci
-  }
-}
-
-const niezapisane = () => {
-  try {
-    return localStorage.getItem(NIEZAPISANE) === "1";
-  } catch {
-    return false;
-  }
-};
-function oznaczNiezapisane(tak: boolean) {
-  try {
-    if (tak) localStorage.setItem(NIEZAPISANE, "1");
-    else localStorage.removeItem(NIEZAPISANE);
-  } catch {
-    // brak storage
-  }
-}
-
-let biezace: Zapis = {};
-const sluchacze = new Set<() => void>();
-const ustawBiezace = (z: Zapis) => {
-  biezace = z;
-  sluchacze.forEach((l) => l());
-};
+const magazyn = utworzMagazyn<Zapis>({
+  klucz: "sedno.ukladPulpitu",
+  kolumna: "dashboard",
+  domyslne: {},
+  zWire: poprawne,
+  doWire: (z) => ({ ...z }),
+});
 
 /** Układ (lista widgetów w kolejności) wskazanego przedmiotu albo „wszystkie”; zmienia się razem z zapisem. */
 export function useUklad(klucz: string): Pozycja[] {
-  const z = useSyncExternalStore(
-    (l) => {
-      sluchacze.add(l);
-      return () => void sluchacze.delete(l);
-    },
-    () => biezace,
-  );
+  const z = magazyn.useStan();
   return useMemo(() => rozwin(z[klucz]), [z, klucz]);
 }
 
-let wersja = 0;
-let idKonta: string | null = null;
-let kolejka: number | undefined;
+/** true, gdy ostatni zapis układu na konto się nie udał. */
+export const useBladUkladu = () => magazyn.useBlad();
 
-async function zapiszNaKoncie(z: Zapis, id: string) {
-  const ta = wersja;
-  const { error } = await supabase.from("profiles").update({ dashboard: z }).eq("id", id);
-  if (!error && ta === wersja) oznaczNiezapisane(false);
-}
+/** Wysyła zaległe zmiany na konto, np. przed wylogowaniem. */
+export const splukajUklad = () => magazyn.flush();
 
-function zapisz(z: Zapis) {
-  zapiszLokalne(z);
-  wersja++;
-  oznaczNiezapisane(true);
-  ustawBiezace(z);
-  const id = idKonta;
-  if (!id) return;
-  window.clearTimeout(kolejka);
-  kolejka = window.setTimeout(() => {
-    kolejka = undefined;
-    void zapiszNaKoncie(biezace, id);
-  }, 500);
-}
+/** Wołane raz przy starcie aplikacji: pulpit ma od razu zapisany lokalnie układ, zanim odpowie sieć. */
+export const uruchomUkladPulpitu = () => magazyn.uruchom();
 
-/** Ustawia układ jednego przedmiotu. Lista równa gotowemu układowi zapisuje się jako jego nazwa, a „Nauka” wcale. */
+/** Ustawia układ jednego przedmiotu. Lista równa gotowemu układowi zapisuje się jako jego nazwa, a „Nauka” jako brak klucza. */
 function ustaw(klucz: string, lista: Pozycja[]) {
   if (!KLUCZE.has(klucz)) return;
-  const nowe: Zapis = { ...biezace };
   const nazwa = nazwaUkladu(lista);
-  if (nazwa === "nauka") delete nowe[klucz];
-  else nowe[klucz] = nazwa === "egzamin" ? "egzamin" : lista;
-  zapisz(nowe);
+  magazyn.zmien((z) => {
+    const nowe: Zapis = { ...z };
+    if (nazwa === "nauka") delete nowe[klucz];
+    else nowe[klucz] = nazwa === "egzamin" ? "egzamin" : lista;
+    return nowe;
+  });
 }
 
-const biezacy = (klucz: string) => rozwin(biezace[klucz]);
+const biezacy = (klucz: string) => rozwin(magazyn.biezace()[klucz]);
 
 /** Wybór gotowego układu ustawia listę od nowa. */
 export const ustawGotowy = (klucz: string, nazwa: GotowyUklad) => ustaw(klucz, gotowy(nazwa));
@@ -169,68 +86,13 @@ export const ustawGotowy = (klucz: string, nazwa: GotowyUklad) => ustaw(klucz, g
 /** „Przywróć domyślny”: układ „Nauka”. */
 export const przywrocUklad = (klucz: string) => ustawGotowy(klucz, "nauka");
 
-export function przelaczWidget(klucz: string, id: string) {
-  ustaw(klucz, biezacy(klucz).map((p) => (p.id === id ? { ...p, wl: !p.wl } : p)));
-}
+export const przelaczWidget = (klucz: string, id: string) => ustaw(klucz, przelacz(biezacy(klucz), id));
+
+/** Przesuwa widget o `delta` miejsc (−1 w górę, +1 w dół). */
+export const przesunWidgetO = (klucz: string, id: string, delta: number) => ustaw(klucz, przesun(biezacy(klucz), id, delta));
 
 /** Przesuwa widget na miejsce o danym indeksie na liście ruchomych widgetów (bez stałych). */
-export function przesunWidget(klucz: string, id: string, doIndeksu: number) {
-  const lista = biezacy(klucz);
-  const z = lista.findIndex((p) => p.id === id);
-  const na = Math.max(0, Math.min(lista.length - 1, doIndeksu));
-  if (z === -1 || z === na) return;
-  const nowa = [...lista];
-  const [p] = nowa.splice(z, 1);
-  nowa.splice(na, 0, p!);
-  ustaw(klucz, nowa);
-}
+export const przesunWidget = (klucz: string, id: string, doIndeksu: number) => ustaw(klucz, przesunDo(biezacy(klucz), id, doIndeksu));
 
-function wyslijOczekujace() {
-  if (kolejka === undefined || !idKonta) return;
-  window.clearTimeout(kolejka);
-  kolejka = undefined;
-  void zapiszNaKoncie(biezace, idKonta);
-}
-
-async function zKonta(id: string) {
-  idKonta = id;
-  const { data, error } = await supabase.from("profiles").select("dashboard").eq("id", id).maybeSingle();
-  if (error || idKonta !== id) return;
-  const zapisane = poprawne(data?.dashboard);
-  if (niezapisane() || Object.keys(zapisane).length === 0) {
-    if (niezapisane() || Object.keys(biezace).length > 0) void zapiszNaKoncie(biezace, id);
-    return;
-  }
-  zapiszLokalne(zapisane);
-  ustawBiezace(zapisane);
-}
-
-let uruchomione = false;
-
-/** Wołane raz przy starcie aplikacji: pulpit ma od razu zapisany lokalnie układ, zanim odpowie sieć. */
-export function uruchomUkladPulpitu() {
-  if (uruchomione) return;
-  uruchomione = true;
-  ustawBiezace(wczytajLokalne());
-  window.addEventListener("pagehide", wyslijOczekujace);
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") wyslijOczekujace();
-  });
-  supabase.auth.onAuthStateChange((zdarzenie, sesja) => {
-    if (sesja) {
-      // Poza callbackiem: zapytania do Supabase w środku onAuthStateChange mogą się zakleszczyć.
-      window.setTimeout(() => void zKonta(sesja.user.id), 0);
-    } else if (zdarzenie === "SIGNED_OUT") {
-      idKonta = null;
-      window.clearTimeout(kolejka);
-      kolejka = undefined;
-      oznaczNiezapisane(false);
-      try {
-        localStorage.removeItem(KLUCZ);
-      } catch {
-        // nic do sprzątania
-      }
-      ustawBiezace({});
-    }
-  });
-}
+/** Zapisuje kolejność widgetów po przeciągnięciu (jeden zapis na upuszczenie). */
+export const ustawKolejnosc = (klucz: string, ids: string[]) => ustaw(klucz, kolejnosc(biezacy(klucz), ids));

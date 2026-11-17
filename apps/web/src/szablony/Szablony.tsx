@@ -11,7 +11,6 @@ import { Rozbior } from "./rozbior/Rozbior";
 import { Umiejetnosci } from "./umiejetnosci/Umiejetnosci";
 import { Powtorki } from "./powtorki/Powtorki";
 import { MapaWiedzy } from "./mapa-wiedzy/MapaWiedzy";
-import { DoMatury } from "./do-matury/DoMatury";
 import { Zdjecie } from "./zdjecie/Zdjecie";
 
 export { Nauka, Umiejetnosci, Powtorki };
@@ -29,7 +28,6 @@ const WIDOKI: Record<string, ComponentType> = {
   umiejetnosci: Umiejetnosci,
   powtorki: Powtorki,
   "mapa-wiedzy": MapaWiedzy,
-  "do-matury": DoMatury,
   zdjecie: Zdjecie,
 };
 

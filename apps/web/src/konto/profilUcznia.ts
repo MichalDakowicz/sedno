@@ -1,8 +1,9 @@
 // Profil ucznia: jak się uczy, ile ma czasu, cel z każdego przedmiotu i priorytety (profiles.learning).
 // Wszystko dobrowolne i do zmiany. Kopia w localStorage działa od razu, konto wygrywa po zalogowaniu,
-// a znacznik „niezapisane” chroni świeżą zmianę przed starą wartością z konta (jak w konto/ustawienia.ts).
-import { useEffect, useState, useSyncExternalStore } from "react";
+// a flaga niezapisanych zmian z id konta chroni świeżą zmianę przed starą wartością z konta (konto/kontoSync.ts).
+import { useEffect, useState } from "react";
 import { supabase } from "../supabase";
+import { utworzMagazyn } from "./kontoSync";
 import type { Arkusz } from "../arkusze/typy";
 import { norma } from "../arkusze/czasZadan";
 import type { Postep } from "../arkusze/postep";
@@ -72,10 +73,9 @@ export type Uczenie = {
 
 export const MAX_PRIORYTETOW = 15;
 export const MAX_DLUGOSC = 120;
-const MAX_USUNIETYCH = 60;
+const MAX_USUNIETYCH = 30;
 
 const KLUCZ = "sedno.profilUcznia";
-const NIEZAPISANE = "sedno.profilUcznia.niezapisane";
 
 const wOpcjach = (lista: Opcja[], v: unknown): v is string => typeof v === "string" && lista.some((o) => o.id === v);
 
@@ -114,134 +114,25 @@ function poprawne(v: unknown): Uczenie {
   return w;
 }
 
-function wczytajLokalne(): Uczenie {
-  try {
-    const t = localStorage.getItem(KLUCZ);
-    if (t) return poprawne(JSON.parse(t));
-  } catch {
-    // zablokowany storage albo uszkodzony zapis: pusty profil
-  }
-  return {};
-}
+const magazyn = utworzMagazyn<Uczenie>({
+  klucz: KLUCZ,
+  kolumna: "learning",
+  domyslne: {},
+  zWire: poprawne,
+  doWire: (u) => ({ ...u }),
+});
 
-function zapiszLokalne(u: Uczenie) {
-  try {
-    localStorage.setItem(KLUCZ, JSON.stringify(u));
-  } catch {
-    // zostaje wartość w pamięci
-  }
-}
-
-const niezapisane = () => {
-  try {
-    return localStorage.getItem(NIEZAPISANE) === "1";
-  } catch {
-    return false;
-  }
-};
-function oznaczNiezapisane(tak: boolean) {
-  try {
-    if (tak) localStorage.setItem(NIEZAPISANE, "1");
-    else localStorage.removeItem(NIEZAPISANE);
-  } catch {
-    // brak storage
-  }
-}
-
-let biezace: Uczenie = {};
-const sluchacze = new Set<() => void>();
-const ustawBiezace = (u: Uczenie) => {
-  biezace = u;
-  sluchacze.forEach((l) => l());
-};
-
-export const uczenie = () => biezace;
-
-export function useUczenie(): Uczenie {
-  return useSyncExternalStore(
-    (l) => {
-      sluchacze.add(l);
-      return () => void sluchacze.delete(l);
-    },
-    uczenie,
-  );
-}
-
-let wersja = 0;
-let idKonta: string | null = null;
-let kolejka: number | undefined;
-
-async function zapiszNaKoncie(u: Uczenie, id: string) {
-  const ta = wersja;
-  const { error } = await supabase.from("profiles").update({ learning: u }).eq("id", id);
-  if (!error && ta === wersja) oznaczNiezapisane(false);
-}
-
-/** Zmiana od razu na ekranie i lokalnie, na koncie po krótkiej chwili. */
-export function zmienUczenie(f: (u: Uczenie) => Uczenie) {
-  const nowe = poprawne(f(biezace));
-  zapiszLokalne(nowe);
-  wersja++;
-  oznaczNiezapisane(true);
-  ustawBiezace(nowe);
-  const id = idKonta;
-  if (!id) return;
-  window.clearTimeout(kolejka);
-  kolejka = window.setTimeout(() => {
-    kolejka = undefined;
-    void zapiszNaKoncie(biezace, id);
-  }, 500);
-}
-
-function wyslijOczekujace() {
-  if (kolejka === undefined || !idKonta) return;
-  window.clearTimeout(kolejka);
-  kolejka = undefined;
-  void zapiszNaKoncie(biezace, idKonta);
-}
-
-async function zKonta(id: string) {
-  idKonta = id;
-  const { data, error } = await supabase.from("profiles").select("learning").eq("id", id).maybeSingle();
-  if (error || idKonta !== id) return;
-  const zapisane = poprawne(data?.learning);
-  if (niezapisane() || Object.keys(zapisane).length === 0) {
-    if (niezapisane() || Object.keys(biezace).length > 0) void zapiszNaKoncie(biezace, id);
-    return;
-  }
-  zapiszLokalne(zapisane);
-  ustawBiezace(zapisane);
-}
-
-let uruchomione = false;
-
+export const uczenie = () => magazyn.biezace();
+export const useUczenie = (): Uczenie => magazyn.useStan();
+/** true, gdy ostatni zapis profilu na konto się nie udał. */
+export const useBladProfilu = () => magazyn.useBlad();
+/** true po pierwszym odczycie profilu z konta. */
+export const useProfilOdczytany = () => magazyn.useOdczytano();
+export const zmienUczenie = (f: (u: Uczenie) => Uczenie) => magazyn.zmien(f);
+/** Wysyła zaległe zmiany na konto, np. przed wylogowaniem. */
+export const splukajProfil = () => magazyn.flush();
 /** Wołane raz przy starcie aplikacji. */
-export function uruchomProfilUcznia() {
-  if (uruchomione) return;
-  uruchomione = true;
-  ustawBiezace(wczytajLokalne());
-  window.addEventListener("pagehide", wyslijOczekujace);
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") wyslijOczekujace();
-  });
-  supabase.auth.onAuthStateChange((zdarzenie, sesja) => {
-    if (sesja) {
-      // Poza callbackiem: zapytania do Supabase w środku onAuthStateChange mogą się zakleszczyć.
-      window.setTimeout(() => void zKonta(sesja.user.id), 0);
-    } else if (zdarzenie === "SIGNED_OUT") {
-      idKonta = null;
-      window.clearTimeout(kolejka);
-      kolejka = undefined;
-      oznaczNiezapisane(false);
-      try {
-        localStorage.removeItem(KLUCZ);
-      } catch {
-        // nic do sprzątania
-      }
-      ustawBiezace({});
-    }
-  });
-}
+export const uruchomProfilUcznia = () => magazyn.uruchom();
 
 /** Wybrana ponownie odpowiedź znika: wszystko jest dobrowolne i zmienialne. */
 export function ustawOdpowiedz(klucz: KluczPytania | "czas", id: string) {
@@ -262,14 +153,16 @@ export function ustawCel(przedmiotId: PrzedmiotId, id: string) {
   });
 }
 
-/** Zwraca false, gdy tekst pusty, już jest na liście albo lista jest pełna. */
-export function dodajPriorytet(tekst: string, zrodlo: "uczen" | "pestka"): boolean {
+export const listaPelna = () => (uczenie().priorytety?.length ?? 0) >= MAX_PRIORYTETOW;
+
+/** Id nowego priorytetu albo null, gdy tekst pusty, już jest na liście albo lista jest pełna. */
+export function dodajPriorytet(tekst: string, zrodlo: "uczen" | "pestka"): string | null {
   const t = tekst.trim().replace(/\s+/g, " ").slice(0, MAX_DLUGOSC);
-  const lista = biezace.priorytety ?? [];
-  if (!t || lista.length >= MAX_PRIORYTETOW || lista.some((p) => p.tekst.toLowerCase() === t.toLowerCase())) return false;
+  const lista = uczenie().priorytety ?? [];
+  if (!t || lista.length >= MAX_PRIORYTETOW || lista.some((p) => p.tekst.toLowerCase() === t.toLowerCase())) return null;
   const p: Priorytet = { id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, tekst: t, zrodlo, kiedy: new Date().toISOString() };
   zmienUczenie((u) => ({ ...u, priorytety: [...(u.priorytety ?? []), p] }));
-  return true;
+  return p.id;
 }
 
 export function usunPriorytet(id: string) {
@@ -280,20 +173,27 @@ export function usunWniosek(id: string) {
   zmienUczenie((u) => ({ ...u, usuniete: [...(u.usuniete ?? []).filter((x) => x !== id), id] }));
 }
 
+/** Zostawia tylko ukryte wnioski, które nadal istnieją (reszta niczego już nie ukrywa). */
+export function przytnijUsuniete(istniejace: Set<string>) {
+  const u = uczenie().usuniete ?? [];
+  const zostaja = u.filter((id) => istniejace.has(id));
+  if (zostaja.length !== u.length) zmienUczenie((x) => ({ ...x, usuniete: zostaja.length ? zostaja : undefined }));
+}
+
 const nazwa = (lista: Opcja[], id?: string) => lista.find((o) => o.id === id)?.nazwa;
 
-/** Zapisane odpowiedzi do kontekstu rozmowy z Pestką: priorytety, czas dziennie i cele. Pusty tekst, gdy nic nie ma. */
+/** Preferencje ucznia do kontekstu rozmowy z Pestką: priorytety, czas dziennie i cele. Pusty tekst, gdy nic nie ma. */
 export function opisProfilu(): string {
-  const u = biezace;
+  const u = uczenie();
   const czesci: string[] = [];
-  if (u.priorytety?.length) czesci.push(`Priorytety ucznia (już zapisane w profilu): ${u.priorytety.map((p) => `„${p.tekst}”`).join("; ")}.`);
+  if (u.priorytety?.length) czesci.push(`- priorytety: ${u.priorytety.map((p) => `„${p.tekst}”`).join("; ")}`);
   const czas = nazwa(CZAS, u.czas);
-  if (czas) czesci.push(`Czas na naukę dziennie: ${czas.toLowerCase()}.`);
+  if (czas) czesci.push(`- czas na naukę dziennie: ${czas.toLowerCase()}`);
   const cele = PRZEDMIOTY.flatMap((p) => {
     const c = nazwa(CELE, u.cele?.[p.id]);
     return c ? [`${p.nazwa.toLowerCase()}: ${c}`] : [];
   });
-  if (cele.length) czesci.push(`Cele ucznia: ${cele.join(", ")}.`);
+  if (cele.length) czesci.push(`- cele: ${cele.join(", ")}`);
   return czesci.join("\n");
 }
 
@@ -375,45 +275,50 @@ export function policzWnioski(przedmiotId: PrzedmiotId, poziom: string, arkusze:
 
 const cacheArkuszy = new Map<string, Arkusz>();
 
-async function pobierzArkusz(id: string): Promise<Arkusz | null> {
-  const z = cacheArkuszy.get(id);
-  if (z) return z;
-  const { data, error } = await supabase.from("sheets").select("data").eq("id", id).maybeSingle();
-  if (error || !data) return null;
-  const a = data.data as Arkusz;
-  cacheArkuszy.set(id, a);
-  return a;
+/** Jedno zapytanie o brakujące arkusze; rzuca przy błędzie. */
+async function pobierzArkusze(ids: string[]): Promise<void> {
+  const brak = ids.filter((id) => !cacheArkuszy.has(id));
+  if (!brak.length) return;
+  const { data, error } = await supabase.from("sheets").select("id, data").in("id", brak);
+  if (error) throw new Error(error.message);
+  for (const w of data ?? []) cacheArkuszy.set(w.id as string, w.data as Arkusz);
 }
 
-export type StanWnioskow = { stan: "laduje" } | { stan: "gotowe"; przedmioty: WnioskiPrzedmiotu[] };
+export type StanWnioskow = { stan: "laduje" } | { stan: "blad" } | { stan: "gotowe"; przedmioty: WnioskiPrzedmiotu[] };
 
 /** Pobiera treść sprawdzonych arkuszy (tylko przedmiotów z co najmniej 2 wynikami) i liczy wnioski. */
 export function useWnioski(podsumowania: Podsumowanie[] | null, wiersze: { sheet_id: string; data: Postep }[] | null): StanWnioskow {
   const [stan, setStan] = useState<StanWnioskow>({ stan: "laduje" });
   const klucz = podsumowania ? podsumowania.map((p) => `${p.przedmiot.id}-${p.przedmiot.poziom}:${p.wyniki.map((w) => w.arkusz.id).join(",")}`).join("|") : null;
   useEffect(() => {
+    setStan({ stan: "laduje" });
     if (!podsumowania || !wiersze) return;
     let live = true;
     void (async () => {
-      const przedmioty: WnioskiPrzedmiotu[] = [];
-      for (const p of podsumowania) {
-        if (p.wyniki.length < 2) continue;
-        const komplet: { arkusz: Arkusz; postep: Postep }[] = [];
-        for (const w of p.wyniki) {
-          const wiersz = wiersze.find((x) => x.sheet_id === w.arkusz.id);
-          const arkusz = wiersz ? await pobierzArkusz(w.arkusz.id) : null;
-          if (wiersz && arkusz) komplet.push({ arkusz, postep: wiersz.data });
+      try {
+        const doLiczenia = podsumowania.filter((p) => p.wyniki.length >= 2);
+        await pobierzArkusze([...new Set(doLiczenia.flatMap((p) => p.wyniki.map((w) => w.arkusz.id)))]);
+        const przedmioty: WnioskiPrzedmiotu[] = [];
+        for (const p of doLiczenia) {
+          const komplet: { arkusz: Arkusz; postep: Postep }[] = [];
+          for (const w of p.wyniki) {
+            const wiersz = wiersze.find((x) => x.sheet_id === w.arkusz.id);
+            const arkusz = cacheArkuszy.get(w.arkusz.id);
+            if (wiersz && arkusz) komplet.push({ arkusz, postep: wiersz.data });
+          }
+          if (komplet.length < 2) continue;
+          przedmioty.push({
+            przedmiotId: p.przedmiot.id,
+            nazwa: przedmiot(p.przedmiot.id)!.nazwa,
+            poziom: p.przedmiot.poziom,
+            arkuszy: komplet.length,
+            wnioski: policzWnioski(p.przedmiot.id, p.przedmiot.poziom, komplet),
+          });
         }
-        if (komplet.length < 2) continue;
-        przedmioty.push({
-          przedmiotId: p.przedmiot.id,
-          nazwa: przedmiot(p.przedmiot.id)!.nazwa,
-          poziom: p.przedmiot.poziom,
-          arkuszy: komplet.length,
-          wnioski: policzWnioski(p.przedmiot.id, p.przedmiot.poziom, komplet),
-        });
+        if (live) setStan({ stan: "gotowe", przedmioty });
+      } catch {
+        if (live) setStan({ stan: "blad" });
       }
-      if (live) setStan({ stan: "gotowe", przedmioty });
     })();
     return () => {
       live = false;

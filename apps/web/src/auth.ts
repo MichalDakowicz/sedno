@@ -5,6 +5,9 @@ import { supabase } from "./supabase";
 import { poprawne, type MojPrzedmiot } from "./konto/przedmioty";
 import { wyczyscRozmowy, wyslijOczekujace } from "./konto/rozmowy";
 import { wyczyscOstatnie } from "./components/szukaj";
+import { splukajProfil } from "./konto/profilUcznia";
+import { splukajUstawienia } from "./konto/ustawienia";
+import { splukajUklad } from "./konto/ukladPulpitu";
 
 export type Profil = {
   id: string;
@@ -68,9 +71,9 @@ export async function loginPassword(email: string, password: string): Promise<st
 }
 
 export async function logout(): Promise<void> {
-  // Zaległe zapisy rozmów idą jeszcze z sesją, potem czyścimy; nieudany ani zawieszony (limit 3 s) zapis nie blokuje wylogowania.
+  // Zaległe zapisy rozmów, ustawień i profilu ucznia idą jeszcze z sesją, potem czyścimy; nieudany ani zawieszony (limit 3 s) zapis nie blokuje wylogowania.
   try {
-    await Promise.race([wyslijOczekujace(), new Promise((r) => setTimeout(r, 3000))]);
+    await Promise.race([Promise.all([wyslijOczekujace(), splukajUstawienia(), splukajProfil(), splukajUklad()]), new Promise((r) => setTimeout(r, 3000))]);
   } catch {
     // zostaje lokalna kopia, która i tak jest czyszczona
   }

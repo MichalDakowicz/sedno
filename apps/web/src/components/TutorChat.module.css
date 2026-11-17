@@ -203,3 +203,27 @@
   color: var(--primary-text);
   text-decoration: underline;
 }
+
+.cofnij {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--primary-text);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.wsparcie {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: calc(13px * var(--skala-tekstu, 1));
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.wsparcie a {
+  color: var(--primary-text);
+  text-decoration: underline;
+}

@@ -1,12 +1,13 @@
 // Przetwarza pobrane PDF-y CKE (data/cke/katalog.json z pobierz.js) na pliki
 // JSON dla aplikacji: data/arkusze/<id>.json oraz data/arkusze/index.json.
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, rename } from "node:fs/promises";
 import { join } from "node:path";
 import { KATALOG_CKE, KATALOG_ARKUSZY, KATALOG_NAGRAN } from "./sciezki.js";
 import { tekstPdf } from "./tekst.js";
 import { parsujArkusz } from "./arkusz.js";
 import { parsujKlucz } from "./klucz.js";
 import { scal } from "./scal.js";
+import { przypiszWymagania } from "./wymagania.js";
 import { fragmentyMatematyki, kadruj, kluczMatematyki, osadzObrazy, otworzPdf, zadaniaMatematyki } from "./matematyka.js";
 import { czytajDocx, fragmentyDocx } from "./docx.js";
 import { fragmentyInformatyki, kluczInformatyki, plikiDanych, zadaniaInformatyki } from "./informatyka.js";
@@ -33,6 +34,7 @@ const katalog = JSON.parse(await readFile(join(KATALOG_CKE, "katalog.json"), "ut
 // Np. „2015”, „angielski-2015” albo „matematyka”: tylko pasujące wpisy (do testów).
 const tylko = process.argv[2];
 const indeks = [];
+let bledyImportu = 0;
 
 for (const w of katalog) {
   if (!w.arkusz) continue;
@@ -47,6 +49,7 @@ for (const w of katalog) {
     const strony = await tekstPdf(join(KATALOG_CKE, w.arkusz.plik));
     const metadane = czytajMetadane(strony.slice(0, 2));
     let zadania, ostrzezenia, dane;
+    let pokrycieWymagan = "";
     if (przedmiot === "matematyka") {
       const fragmenty = fragmentyMatematyki(strony);
       // Treść ze wzorami z formy DOCX; kadry zostają dla zadań, których nie da się z niej wziąć.
@@ -80,12 +83,20 @@ for (const w of katalog) {
       await osadzObrazy(zadania, KATALOG_ARKUSZY);
     } else {
       zadania = parsujArkusz(strony);
-      const klucz = w.zasady ? parsujKlucz(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
-      ({ ostrzezenia } = scal(zadania, klucz));
+      const sciezkaKlucza = w.zasady && join(KATALOG_CKE, w.zasady.plik);
+      const stronyKlucza = sciezkaKlucza ? await tekstPdf(sciezkaKlucza) : [];
+      ({ ostrzezenia } = scal(zadania, parsujKlucz(stronyKlucza)));
+      if (przedmiot === "angielski" && w.formula === "2023") {
+        const pytania = zadania.flatMap((z) => z.pytania);
+        const brak = sciezkaKlucza ? await przypiszWymagania(sciezkaKlucza, stronyKlucza, zadania) : pytania.map((p) => p.nr);
+        if (brak.length) ostrzezenia.push(`brak wymagań CKE (${brak.length}): ${brak.join(", ")}`);
+        pokrycieWymagan = `, wymagania CKE ${pytania.length - brak.length}/${pytania.length}`;
+      }
     }
     if (!w.zasady) ostrzezenia.unshift("brak pliku zasad oceniania");
 
     const pytania = zadania.flatMap((z) => z.pytania);
+    if (!pytania.length) throw new Error("arkusz bez pytań");
     await doklejFragmenty(id, pytania);
     const sumaPunktow = pytania.reduce((s, q) => s + q.punkty, 0);
     if (metadane.punkty && sumaPunktow !== metadane.punkty) ostrzezenia.push(`suma punktów ${sumaPunktow} ≠ ${metadane.punkty}`);
@@ -123,18 +134,31 @@ for (const w of katalog) {
       pytan: pytania.length,
       ostrzezen: ostrzezenia.length,
     });
-    console.log(`${zadania.length} zadań, ${pytania.length} pytań, ${sumaPunktow}/${metadane.punkty ?? "?"} pkt${ostrzezenia.length ? `, ostrzeżenia: ${ostrzezenia.slice(0, 4).join("; ")}${ostrzezenia.length > 4 ? ` (+${ostrzezenia.length - 4})` : ""}` : ""}`);
+    console.log(`${zadania.length} zadań, ${pytania.length} pytań, ${sumaPunktow}/${metadane.punkty ?? "?"} pkt${pokrycieWymagan}${ostrzezenia.length ? `, ostrzeżenia: ${ostrzezenia.slice(0, 4).join("; ")}${ostrzezenia.length > 4 ? ` (+${ostrzezenia.length - 4})` : ""}` : ""}`);
   } catch (e) {
+    bledyImportu++;
     console.log(`BŁĄD: ${e.message}`);
   }
 }
 
-// Przy imporcie części katalogu dopisujemy do istniejącego indeksu.
-const stary = tylko ? JSON.parse(await readFile(join(KATALOG_ARKUSZY, "index.json"), "utf8").catch(() => "[]")) : [];
-const wszystkie = [...stary.filter((a) => !indeks.some((n) => n.id === a.id)), ...indeks];
-wszystkie.sort((a, b) => b.rok - a.rok || (b.formula ?? "2023").localeCompare(a.formula ?? "2023") || a.poziom.localeCompare(b.poziom));
-await writeFile(join(KATALOG_ARKUSZY, "index.json"), JSON.stringify(wszystkie, null, 1));
-console.log(`Zapisano ${indeks.length} arkuszy do ${KATALOG_ARKUSZY}`);
+// Pełne wgranie usuwa arkusze nieobecne w indeksie. Publikujemy go tylko po udanym imporcie.
+if (bledyImportu || !indeks.length) {
+  console.error(`Nie zaktualizowano indeksu: ${bledyImportu ? `błędy importu (${bledyImportu})` : "brak pasujących arkuszy"}.`);
+  process.exitCode = 1;
+} else {
+  // Przy imporcie części katalogu dopisujemy do istniejącego indeksu.
+  const stary = tylko ? JSON.parse(await readFile(join(KATALOG_ARKUSZY, "index.json"), "utf8").catch((e) => {
+    if (e.code === "ENOENT") return "[]";
+    throw e;
+  })) : [];
+  const wszystkie = [...stary.filter((a) => !indeks.some((n) => n.id === a.id)), ...indeks];
+  wszystkie.sort((a, b) => b.rok - a.rok || (b.formula ?? "2023").localeCompare(a.formula ?? "2023") || a.poziom.localeCompare(b.poziom));
+  const plikIndeksu = join(KATALOG_ARKUSZY, "index.json");
+  const tymczasowy = `${plikIndeksu}.${process.pid}.tmp`;
+  await writeFile(tymczasowy, JSON.stringify(wszystkie, null, 1));
+  await rename(tymczasowy, plikIndeksu);
+  console.log(`Zapisano ${indeks.length} arkuszy do ${KATALOG_ARKUSZY}`);
+}
 
 function czytajMetadane(strony) {
   const tekst = strony.flat().map((l) => l.s).join("\n");

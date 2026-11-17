@@ -1,42 +1,31 @@
 # Orchestration: handoff
 
-_Updated 2026-11-16_
+_Updated 2026-11-17_
 
-**State.** Three PRs open, none merged:
-- https://github.com/MichalDakowicz/sedno/pull/46 `rozmowy-konto` at `6c8ffaf`: chats with Pestka on the account, essay prompt fix. Also merged into `dev` (`0a33c9f`), so staging has it.
-- https://github.com/MichalDakowicz/sedno/pull/48 `ciemny-motyw` at `23d88c8`: dark theme. Not on `dev`.
-- https://github.com/MichalDakowicz/sedno/pull/47 `orkiestrator-dokumenty`: these docs and `NASTEPNE.md`.
+**State.** Goal 2 (English learning loop) started. The backend comes from a teammate's draft PR #55 (`backend-nauki`, services only, migrations 0009–0014, contract in `services/supabase/nauka.md`); decision recorded in `project.md` and `goal.md`. Student-facing skill names (nine skills in 0009) approved by the user. Nothing deployed to staging yet.
 
-All checks (typecheck, build) are green on each branch, and `rozmowy-konto` and `ciemny-motyw` merge together without conflicts. A direct push to `main` was blocked by a permission check, so docs go through PR #47.
+**Goal.** 1/17 bars (mapping, with evidence in `goal.md`; counts once #55 is merged).
 
-**Goal.** Achieved, 12/12 bars, archived in `goals/2026-11-16-do-domkniecia.md`.
+**Verified (unit 1, on PR #55 at `d207542`).**
+- Importer run on all 12 English formuła 2023 sheets: 572/572 questions with CKE codes, 0 missing; the catalogue has no other formuła 2023 English sheets.
+- Migration 0009 vs import: all 572 match (scratch script, not committed).
+- Hand check against marking-rules PDFs: 2025 R zad. 1 and 6, 2024 P zad. 2 and 5 (26 questions) match.
+- Typecheck and build green on the branch. Deno not installed locally, so edge functions were not run.
+- Opus gap audit of 0009–0014, functions and scripts: 0 blockers, 2 majors, 10 minors (below). Both majors confirmed in the SQL by the orchestrator.
 
-**Done this session.**
-- Chats with Pestka on the account. Logout leak fixed, then three audit rounds: confirmation flag instead of clocks, owner key, SIGNED_OUT clear, pull on tab return, 3 s logout flush. Verified by three tester runs on staging, my own offline check, and a final audit with no blockers or majors.
-- Informatyka after login on staging: 4 sheets, Python and SQL run, answer survives reload.
-- Essay discussion: the model gets the app's word count, range and given start. Checked on gpt-6-luna.
-- Dark theme following the system setting. Verified by two tester runs over every view in dark and light at desktop and 375 px, and two audits with no blockers or majors and no light regression.
+**Audit findings handed to the teammate (user's decision: the teammate fixes them, as a new migration 0015, not by editing 0011/0012).**
+- Major: wrong tasks never come back. `nauka_start` orders by `last_seen nulls first` and takes no item list, so a missed task goes to the back (0011 ~l.295–322, 0012 ~l.77–89).
+- Major: `last_mistake_at` comes from any sample (sheets too) but only a session with at least 75% clears it, so after one checked sheet every skill shows „Wróć do ostatniego błędu” (0011 ~l.127, 137–142, 193–197).
+- Minors: open-session answers do not feed mastery; 10 abandoned rounds block new ones; shown `score` does not decay; before/after null in „mało danych”; `learning_map` run 3× on the last answer under the lock; nauka.md difficulty values out of date; top-up applies when the whole CKE pool is under 5; new sheets need a new migration for codes; CKE key readable from `sheets` (pre-existing, own data only); `sheet_progress` is client-controlled (own data only).
 
-**Not verified.**
-- Logout and login with another account in a browser (code reading only).
-- Essay discussion on sol (no sol provider on the test account).
-- Light theme at 375 px after the dark-theme change.
-
-**In flight.** Nothing.
+**In flight.** Waiting for the teammate's fixes on `backend-nauki`. Then re-check the fixes, merge `main` + `backend-nauki` into `dev` (push to `dev`, autodeploy), tester runs the RPCs on staging.
 
 **Parked.** Nothing.
 
-**Claimed but unfinished.** None. Brief is linked to project `sedno`, and no entries matched this goal. Three workspace-panel entries from 9 November are still "doing" under another session's claim.
+**Claimed but unfinished.** None. Related Brief ideas left open: „sekcja co musze powtorzyc”, „Poziom opanowania wymagań”.
 
-**Next.**
-- Merge #46, #47 and #48 (user).
-- Then the minors in `NASTEPNE.md` section 0: chat sync races, ownerless chats, deleting chats and retention, restarting the essay discussion, the `?omow=1` link, Excalidraw selection colour, and the light toggle.
+**Next.** Unit 3 (Mapa umiejętności `/umiejetnosci`) can start on a branch from `backend-nauki`; `nauka_mapa` is not touched by the majors. Testing it needs staging, so it waits for the deploy.
 
 **Housekeeping.**
-- Test account on staging:
-  - "Ważne" tier is on openai gpt-6-luna; the user said to keep it.
-  - Test chats remain.
-  - The 2025 English sheet is submitted with the test essay.
-  - A local Python draft on informatyka 2023 task 2 was replaced with `print(2+2)`; it is browser-local only.
-- `npm run dev:staging` runs from `.claude/worktrees/ciemny-motyw` in a terminal tab.
-- Worktrees `.claude/worktrees/rozmowy-konto`, `rozmowy-poprawki` and `ciemny-motyw` can be removed after merging. Branch `rozmowy-poprawki` equals `rozmowy-konto`.
+- Worktree `C:\sedno-pr55` (PR #55 checkout, junctions `node_modules` and `data/cke`, own `data/arkusze` from the import). Remove with `git worktree remove` when done; the junctions point into the main checkout, so delete them first.
+- Worktree `C:\sedno-dev` with local branch `dev-scal` (`origin/dev` + `main` + `backend-nauki`, merges clean, not pushed). Rebuild it after the teammate's fixes.

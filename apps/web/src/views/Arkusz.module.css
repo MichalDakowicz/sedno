@@ -6,6 +6,7 @@
 
 .page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 48px;
   max-width: 820px;
   padding-top: 24px;
@@ -16,8 +17,16 @@
 
 .head {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   justify-items: start;
+}
+
+/* Nic w nagłówku nie rozpycha kolumny: przy większym tekście na telefonie długie wiersze się zawijają. */
+.head > * {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .back {
@@ -242,7 +251,7 @@
 
 .options div {
   display: grid;
-  grid-template-columns: 28px 1fr;
+  grid-template-columns: 28px minmax(0, 1fr);
   gap: 8px;
   transition: opacity 0.2s ease;
 }
@@ -257,6 +266,8 @@
 }
 
 .options dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
   margin: 0;
   line-height: 1.65;
 }
@@ -322,6 +333,13 @@
   line-height: 1.5;
   cursor: pointer;
   transition: background-color 0.15s ease;
+}
+
+/* Długi wzór w odpowiedzi przewija się w przycisku zamiast rozpychać stronę. */
+.choice > :last-child {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .choice:hover:not(:disabled):not([data-stan="wybrana"]) {
@@ -1223,6 +1241,13 @@
   list-style: none;
 }
 
+/* Wzór w osobnej linii nigdy nie rozpycha strony: przewija się w poziomie. */
+.page :global(.katex-display) {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0;
+}
+
 /* Wzór wystawiony przy lewej krawędzi, jak tekst obok, zamiast na środku szerokiego ekranu. */
 .kompakt :global(.katex-display) {
   margin: 4px 0;
@@ -1542,11 +1567,16 @@
 /* Obrazy z arkuszy CKE są rysowane pod białą kartkę (czarny tekst, często przezroczyste tło).
    W ciemnym motywie dostają białe podłoże zamiast inwersji, żeby zostały takie jak w oryginale. */
 @media (prefers-color-scheme: dark) {
-  .kadr img,
-  .cellImage {
+  :root:not([data-motyw="jasny"]) .kadr img,
+  :root:not([data-motyw="jasny"]) .cellImage {
     background: #fff;
   }
 }
+
+  :root[data-motyw="ciemny"] .kadr img,
+  :root[data-motyw="ciemny"] .cellImage {
+    background: #fff;
+  }
 
 /* Tabele z informatyki: pierwszy wiersz bez nagłówka nie jest pogrubiony (nagłówek ma własne th). */
 .infTable tr:first-child > td {

@@ -19,7 +19,7 @@ Gdy funkcja dostaje prawdziwą implementację, widok przenosi się do `views/`, 
 
 ## Ścieżka nauki
 
-Start (profil ucznia, plan do matury, pulpit) → Wybór (Nauka) → Ćwiczenie (formaty, arkusze, zdjęcie) → Wynik (ekran rozbioru) → Postęp (mapa umiejętności, mapa wiedzy) → Powrót (powtórki) → znów Wybór.
+Start (profil ucznia, plan do matury, pulpit; plan do matury działa już jako `/do-matury`) → Wybór (Nauka) → Ćwiczenie (formaty, arkusze, zdjęcie) → Wynik (ekran rozbioru) → Postęp (mapa umiejętności, mapa wiedzy) → Powrót (powtórki) → znów Wybór.
 
 ## Lista funkcji
 
@@ -41,7 +41,6 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 - [ ] [Mapa umiejętności](umiejetnosci/README.md): opanowanie z dowodami
 - [ ] [Powtórki](powtorki/README.md): zanikające umiejętności i błędy
 - [ ] [Mapa wiedzy](mapa-wiedzy/README.md): prywatny graf notatek
-- [ ] [Plan do matury](do-matury/README.md): odliczanie, prognoza, plan tygodnia
 
 ### Konto i narzędzia
 
@@ -54,4 +53,11 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 - [ ] Silnik wariantów zadań z kluczami (szybka runda, sokratejski mini-test, powtórki)
 - [ ] Wspólny model wyniku sesji i dowodów (wszystkie formaty → rozbiór → mapa)
 - [ ] Drabina podpowiedzi jako komponent i zapis jej użycia
-- [ ] Profil ucznia w bazie (rekomendacje, plan do matury)
+- [ ] Profil ucznia w bazie: zapis jest (`profiles.learning`), do zrobienia rekomendacje i plan do matury (etap 2)
+
+### Faza 2 planu do matury (`/do-matury` ma już odliczanie i cel z profilu)
+
+- [ ] Prognoza wyniku z mapy umiejętności względem celu
+- [ ] Plan tygodnia z czasu i słabych umiejętności
+- [ ] Minuty zrobione w tygodniu
+- [ ] Zmiana planu rozmową z Pestką

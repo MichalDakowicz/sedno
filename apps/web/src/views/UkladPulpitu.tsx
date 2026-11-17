@@ -5,7 +5,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import { GripVertical } from "lucide-react";
 import { useProfil } from "../auth";
 import { przedmiot, zgrupuj } from "../konto/przedmioty";
-import { WSZYSTKIE, nazwaUkladu, przelaczWidget, przesunWidget, przywrocUklad, ustawGotowy, useUklad, type Uklad } from "../konto/ukladPulpitu";
+import { WSZYSTKIE, nazwaUkladu, przelaczWidget, przesunWidgetO, przywrocUklad, ustawGotowy, ustawKolejnosc, useBladUkladu, useUklad, type Pozycja, type Uklad } from "../konto/ukladPulpitu";
+import { Ladowanie } from "../components/Ladowanie";
 import { WIDGETY, widget } from "./pulpit/widgety";
 import s from "./UkladPulpitu.module.css";
 
@@ -26,26 +27,24 @@ export function UkladPulpitu() {
   const nazwaPrzedmiotu = klucz === WSZYSTKIE ? "Wszystkie" : przedmiot(klucz)!.nazwa;
 
   const lista = useUklad(klucz);
+  const blad = useBladUkladu();
   const aktywnyUklad = nazwaUkladu(lista);
 
   const [ogloszenie, setOgloszenie] = useState("");
-  const [przeciagany, setPrzeciagany] = useState<string | null>(null);
+  // Podczas przeciągania widać szkic kolejności; na konto idzie dopiero po upuszczeniu.
+  const [szkic, setSzkic] = useState<Pozycja[] | null>(null);
+  const przeciagany = useRef<{ id: string; pointerId: number; start: Pozycja[] } | null>(null);
+  const [trzymany, setTrzymany] = useState<string | null>(null);
   const wiersze = useRef(new Map<string, HTMLLIElement>());
   const uchwyty = useRef(new Map<string, HTMLButtonElement>());
   const zFokusem = useRef<string | null>(null);
+  const widoczna = szkic ?? lista;
   // Najświeższa lista dla nasłuchu na window, który nie odświeża się razem z renderem.
-  const biezaca = useRef(lista);
-  biezaca.current = lista;
+  const biezaca = useRef(widoczna);
+  biezaca.current = widoczna;
 
-  const ogloszPozycje = (id: string, indeks: number) =>
-    setOgloszenie(`${widget(id)!.nazwa}: pozycja ${STALE.length + indeks + 1} z ${STALE.length + lista.length}`);
-
-  function przesun(id: string, doIndeksu: number) {
-    const z = biezaca.current.findIndex((p) => p.id === id);
-    const na = Math.max(0, Math.min(biezaca.current.length - 1, doIndeksu));
-    if (na !== z) przesunWidget(klucz, id, na);
-    return na;
-  }
+  const ogloszPozycje = (id: string, indeks: number, razem: number) =>
+    setOgloszenie(`${widget(id)!.nazwa}: pozycja ${STALE.length + indeks + 1} z ${STALE.length + razem}`);
 
   // Po przesunięciu klawiszem uchwyt zostaje w fokusie, nawet gdy przeglądarka zgubiła go przy przestawieniu wiersza.
   useEffect(() => {
@@ -57,46 +56,102 @@ export function UkladPulpitu() {
   function klawisz(e: KeyboardEvent, id: string, i: number) {
     if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
     e.preventDefault();
-    const na = przesun(id, i + (e.key === "ArrowUp" ? -1 : 1));
+    const delta = e.key === "ArrowUp" ? -1 : 1;
+    const na = i + delta;
+    if (na < 0 || na >= lista.length) {
+      setOgloszenie(`${widget(id)!.nazwa}: już na ${delta < 0 ? "górze" : "dole"}`);
+      return;
+    }
+    przesunWidgetO(klucz, id, delta);
     zFokusem.current = id;
-    ogloszPozycje(id, na);
+    ogloszPozycje(id, na, lista.length);
   }
 
   function start(e: PointerEvent, id: string) {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || przeciagany.current) return;
     e.preventDefault();
-    setPrzeciagany(id);
+    // preventDefault wstrzymuje domyślne ustawienie fokusu, a strzałki mają działać zaraz po kliknięciu.
+    (e.currentTarget as HTMLElement).focus({ preventScroll: true });
+    przeciagany.current = { id, pointerId: e.pointerId, start: lista };
+    setSzkic(lista);
+    setTrzymany(id);
   }
 
   // Przeciąganie słucha okna, bo przestawiany wiersz jest w trakcie przenoszony w drzewie i tracił by przechwycony wskaźnik.
   useEffect(() => {
-    if (!przeciagany) return;
-    const id = przeciagany;
+    if (!trzymany) return;
+    const HISTEREZA = 6;
+    const srodek = (id: string | undefined) => {
+      const r = id ? wiersze.current.get(id)?.getBoundingClientRect() : undefined;
+      return r ? r.top + r.height / 2 : null;
+    };
     const ruch = (e: globalThis.PointerEvent) => {
-      const ids = biezaca.current.map((p) => p.id);
-      let cel = ids.length - 1;
-      for (let i = 0; i < ids.length; i++) {
-        const r = wiersze.current.get(ids[i]!)?.getBoundingClientRect();
-        if (r && e.clientY < r.top + r.height / 2) {
-          cel = i;
-          break;
-        }
-      }
-      if (cel !== ids.indexOf(id)) {
-        przesun(id, cel);
-        ogloszPozycje(id, cel);
+      const p = przeciagany.current;
+      if (!p || e.pointerId !== p.pointerId) return;
+      const lista = biezaca.current;
+      const i = lista.findIndex((x) => x.id === p.id);
+      // Wiersz zamienia się z sąsiadem dopiero po przekroczeniu jego środka (z zapasem), tylko w kierunku ruchu.
+      const gora = srodek(lista[i - 1]?.id);
+      const dol = srodek(lista[i + 1]?.id);
+      let na = i;
+      if (gora !== null && e.clientY < gora - HISTEREZA) na = i - 1;
+      else if (dol !== null && e.clientY > dol + HISTEREZA) na = i + 1;
+      if (na === i) return;
+      const nowa = [...lista];
+      const [x] = nowa.splice(i, 1);
+      nowa.splice(na, 0, x!);
+      biezaca.current = nowa;
+      setSzkic(nowa);
+    };
+    const zakoncz = (zapisz: boolean) => {
+      const p = przeciagany.current;
+      if (!p) return;
+      przeciagany.current = null;
+      const ids = biezaca.current.map((x) => x.id);
+      const zmiana = ids.some((id, i) => id !== p.start[i]?.id);
+      setTrzymany(null);
+      setSzkic(null);
+      if (zapisz && zmiana) {
+        ustawKolejnosc(klucz, ids);
+        ogloszPozycje(p.id, ids.indexOf(p.id), ids.length);
       }
     };
-    const koniec = () => setPrzeciagany(null);
+    const puszczono = (e: globalThis.PointerEvent) => {
+      if (e.pointerId === przeciagany.current?.pointerId) zakoncz(true);
+    };
+    const anulowano = (e: globalThis.PointerEvent) => {
+      if (e.pointerId === przeciagany.current?.pointerId) zakoncz(false);
+    };
+    const escape = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") zakoncz(false);
+    };
     window.addEventListener("pointermove", ruch);
-    window.addEventListener("pointerup", koniec);
-    window.addEventListener("pointercancel", koniec);
+    window.addEventListener("pointerup", puszczono);
+    window.addEventListener("pointercancel", anulowano);
+    window.addEventListener("keydown", escape);
     return () => {
       window.removeEventListener("pointermove", ruch);
-      window.removeEventListener("pointerup", koniec);
-      window.removeEventListener("pointercancel", koniec);
+      window.removeEventListener("pointerup", puszczono);
+      window.removeEventListener("pointercancel", anulowano);
+      window.removeEventListener("keydown", escape);
     };
-  }, [przeciagany, klucz]);
+  }, [trzymany, klucz]);
+
+  const czekaNaProfil = !profil && !!wskazany;
+  const pusty = lista.every((p) => !p.wl);
+
+  // Odświeżenie strony z ?przedmiot=: bez profilu nie wiadomo jeszcze, czyj układ edytujemy.
+  if (czekaNaProfil)
+    return (
+      <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
+        <div style={{ display: "grid", gap: 12 }}>
+          <span className="label">Profil</span>
+          <h1 className="display">Układ pulpitu</h1>
+          <p className="lead">Wybór i kolejność widgetów na pulpicie.</p>
+        </div>
+        <Ladowanie ksztalt="wiersze" ile={3} etykieta="Wczytuję twoje przedmioty" />
+      </main>
+    );
 
   return (
     <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
@@ -156,10 +211,10 @@ export function UkladPulpitu() {
                   <span className="muted small">zawsze na górze</span>
                 </span>
               </span>
-              <button type="button" role="switch" aria-checked="true" aria-label={w.nazwa} disabled className={`${s.przelacznik} ${s.przelacznikWl}`} />
+              <button type="button" role="switch" aria-checked="true" aria-label={w.nazwa} disabled className="przelacznik przelacznikWl" />
             </li>
           ))}
-          {lista.map((p, i) => {
+          {widoczna.map((p, i) => {
             const w = widget(p.id)!;
             return (
               <li
@@ -168,7 +223,7 @@ export function UkladPulpitu() {
                   if (el) wiersze.current.set(p.id, el);
                   else wiersze.current.delete(p.id);
                 }}
-                className={`${s.wiersz} ${przeciagany === p.id ? s.przeciagany : ""}`}
+                className={`${s.wiersz} ${trzymany === p.id ? s.przeciagany : ""}`}
               >
                 <span className={s.opis}>
                   <button
@@ -190,11 +245,19 @@ export function UkladPulpitu() {
                     <span className="muted small">{w.opis}</span>
                   </span>
                 </span>
-                <button type="button" role="switch" aria-checked={p.wl} aria-label={w.nazwa} className={`${s.przelacznik} ${p.wl ? s.przelacznikWl : ""}`} onClick={() => przelaczWidget(klucz, p.id)} />
+                <button type="button" role="switch" aria-checked={p.wl} aria-label={w.nazwa} className={`przelacznik ${p.wl ? "przelacznikWl" : ""}`} onClick={() => przelaczWidget(klucz, p.id)} />
               </li>
             );
           })}
         </ul>
+        {pusty && (
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
+            <p className="muted small">Na pulpicie zostanie tylko „Dziś warto”.</p>
+            <button type="button" className="btn btn-secondary" onClick={() => ustawGotowy(klucz, "nauka")}>
+              Wróć do układu Nauka
+            </button>
+          </div>
+        )}
         <p className="visually-hidden" role="status" aria-live="polite">
           {ogloszenie}
         </p>
@@ -208,6 +271,8 @@ export function UkladPulpitu() {
           Przywróć domyślny
         </button>
       </div>
+
+      {blad && <p className="muted small">Nie zapisano na koncie. Spróbuję ponownie.</p>}
     </main>
   );
 }

@@ -8,15 +8,18 @@ Backend Sedno: samodzielnie hostowany Supabase na serwerze domowym, publicznie p
 - `functions/` – Edge Functions:
   - `ai-klucz` – zapis (szyfrowanie AES-GCM) i test klucza AI konta,
   - `ai` – bramka AI: wybiera dostawcę konta dla poziomu `wazne` / `lekkie`, woła go (OpenAI-compatible, także streaming) i loguje zużycie,
+  - `nauka-ai` – Pestka w formatach nauki, odczyt zdjęcia i dane do wizualizacji,
   - `_shared/` – adapter czatu, szyfrowanie, ochrona przed SSRF, wspólne funkcje kont.
 - `deploy.sh` – wgrywa migracje i funkcje przez ssh.
 - `autodeploy/` – automatyczne wgrywanie z `main` (produkcja) i `dev` (staging) na serwerze (patrz „Wgrywanie”).
+
+Kontrakt integracji z aplikacją opisuje [Backend nauki](nauka.md).
 
 ## Schemat
 
 | Tabela | Do czego | Dostęp z aplikacji |
 | --- | --- | --- |
-| `profiles` | nazwa, avatar, `subjects` (przedmioty i poziomy maturalne), `server_ollama` (dostęp do Ollamy serwera) | odczyt własnego, zmiana nazwy, avatara, przedmiotów |
+| `profiles` | nazwa, avatar, `subjects` (przedmioty i poziomy maturalne), `server_ollama` (dostęp do Ollamy serwera), `settings` (ustawienia aplikacji), `learning` (profil ucznia), `dashboard` (układ pulpitu) | odczyt własnego, zmiana nazwy, avatara, przedmiotów oraz `settings`, `learning`, `dashboard` (jsonb pisane przez klienta, tylko właściciel wiersza dzięki RLS i uprawnieniom na poziomie kolumn; limity rozmiaru 4 KB, 8 KB, 8 KB) |
 | `sheet_progress` | postęp w arkuszu (`sheet_id`, `data` jsonb) | pełny na własnych wierszach |
 | `ai_credential` | dostawca AI konta, klucz zaszyfrowany | odczyt bez `key_cipher`, usuwanie; zapis tylko przez `ai-klucz` |
 | `ai_routing` | który dostawca (i opcjonalnie model) obsługuje `wazne` / `lekkie` | pełny na własnych wierszach |

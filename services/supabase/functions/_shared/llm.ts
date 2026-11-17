@@ -2,8 +2,12 @@
 // all speak /chat/completions with a base URL, a key and a model). Supports tool calls and
 // streaming. A key never appears in an error: provider messages are redacted and shortened.
 
+export type ImagePart = { type: "image_url"; image_url: { url: string } };
+type ContentPart = { type: "text"; text: string } | ImagePart;
+
 export type Message =
-  | { role: "system" | "user"; content: string }
+  | { role: "system"; content: string }
+  | { role: "user"; content: string | ContentPart[] }
   | { role: "assistant"; content: string | null; tool_calls?: WireToolCall[] }
   | { role: "tool"; tool_call_id: string; content: string };
 
@@ -107,15 +111,19 @@ async function failure(res: Response, key: string): Promise<LlmError> {
   } catch {
     // the status is enough
   }
-  let message = text;
+  let error: unknown = text;
   try {
     const parsed = JSON.parse(text);
-    const err = Array.isArray(parsed) ? parsed[0]?.error : parsed?.error;
-    message = typeof err === "string" ? err : (err?.message ?? text);
+    error = (Array.isArray(parsed) ? parsed[0]?.error : parsed?.error) ?? text;
   } catch {
     // not JSON: keep the text
   }
-  return new LlmError(res.status, String(message).replaceAll(key, "[key]").slice(0, 200));
+  return providerError(res.status, error, key);
+}
+
+function providerError(status: number, error: unknown, key: string): LlmError {
+  const message = typeof error === "object" && error !== null && "message" in error ? error.message : error;
+  return new LlmError(status, String(message).replaceAll(key, "[key]").slice(0, 200));
 }
 
 function toolCall(id: string, name: string, raw: string, extra?: unknown): ToolCall {
@@ -133,18 +141,27 @@ const usageOf = (u: { prompt_tokens?: number; completion_tokens?: number } | nul
   u ? { promptTokens: u.prompt_tokens ?? 0, completionTokens: u.completion_tokens ?? 0 } : null;
 
 // Ollama and some providers put a thinking model's reasoning in a separate field.
-const reasoningOf = (m: { reasoning?: string; reasoning_content?: string } | undefined) => m?.reasoning ?? m?.reasoning_content ?? "";
+function reasoningOf(message: { reasoning?: unknown; reasoning_content?: unknown } | undefined): string {
+  const value = message?.reasoning ?? message?.reasoning_content;
+  return typeof value === "string" ? value : "";
+}
 
 /** One complete answer. Throws LlmError when the provider refuses. */
 export async function chat(p: Provider, req: ChatRequest, fetchImpl: Fetch = fetch): Promise<ChatResult> {
   const res = await fetchImpl(`${p.baseUrl}/chat/completions`, requestInit(p, req, false));
   if (!res.ok) throw await failure(res, p.key);
   const data = await res.json();
-  const choice = data.choices?.[0];
+  if (data?.error) throw providerError(502, data.error, p.key);
+  const choice = data?.choices?.[0];
+  const message = choice?.message;
+  const text = typeof message?.content === "string" ? message.content : "";
+  const reasoning = reasoningOf(message);
+  const toolCalls = (message?.tool_calls ?? []).map((c: WireToolCall) => toolCall(c.id, c.function?.name ?? "", c.function?.arguments ?? "", c.extra_content));
+  if (!text.trim() && !reasoning.trim() && !toolCalls.length) throw new LlmError(502, "empty answer");
   return {
-    text: choice?.message?.content ?? "",
-    reasoning: reasoningOf(choice?.message),
-    toolCalls: (choice?.message?.tool_calls ?? []).map((c: WireToolCall) => toolCall(c.id, c.function?.name ?? "", c.function?.arguments ?? "", c.extra_content)),
+    text,
+    reasoning,
+    toolCalls,
     finishReason: choice?.finish_reason ?? null,
     usage: usageOf(data.usage),
   };
@@ -159,6 +176,7 @@ export async function* chatStream(p: Provider, req: ChatRequest, fetchImpl: Fetc
   let text = "";
   let reasoning = "";
   let finishReason: string | null = null;
+  let done = false;
   let usage: ChatResult["usage"] = null;
   const calls = new Map<number, { id: string; name: string; args: string; extra?: unknown }>();
 
@@ -173,20 +191,25 @@ export async function* chatStream(p: Provider, req: ChatRequest, fetchImpl: Fetc
         pending = pending.slice(nl + 1);
       }
     }
+    pending += decoder.decode();
     if (pending.trim()) yield pending.trim();
   };
 
   for await (const line of lines()) {
     if (!line.startsWith("data:")) continue;
     const payload = line.slice(5).trim();
-    if (payload === "[DONE]") break;
+    if (payload === "[DONE]") {
+      done = true;
+      break;
+    }
     let data;
     try {
       data = JSON.parse(payload);
     } catch {
       continue;
     }
-    if (data.error) throw new LlmError(502, String(data.error.message ?? data.error).replaceAll(p.key, "[key]").slice(0, 200));
+    if (!data || typeof data !== "object") continue;
+    if (data.error) throw providerError(502, data.error, p.key);
     if (data.usage) usage = usageOf(data.usage);
     const choice = data.choices?.[0];
     if (!choice) continue;
@@ -196,7 +219,7 @@ export async function* chatStream(p: Provider, req: ChatRequest, fetchImpl: Fetc
       reasoning += think;
       yield { type: "reasoning", delta: think };
     }
-    if (delta.content) {
+    if (typeof delta.content === "string" && delta.content) {
       text += delta.content;
       yield { type: "text", delta: delta.content };
     }
@@ -216,6 +239,8 @@ export async function* chatStream(p: Provider, req: ChatRequest, fetchImpl: Fetc
     if (choice.finish_reason) finishReason = choice.finish_reason;
   }
 
+  if (!done && !finishReason) throw new LlmError(502, "incomplete stream");
+  if (!text.trim() && !reasoning.trim() && !calls.size) throw new LlmError(502, "empty answer");
   const toolCalls = [...calls.entries()].sort(([a], [b]) => a - b).map(([i, c]) => toolCall(c.id || `call_${i}`, c.name, c.args, c.extra));
   yield { type: "done", result: { text, reasoning, toolCalls, finishReason, usage } };
 }
