@@ -27,3 +27,23 @@ export function naZmianeMotywu(fn: (ciemny: boolean) => void) {
 const subskrybuj = (zmiana: () => void) => naZmianeMotywu(zmiana);
 
 export const useCiemny = () => useSyncExternalStore(subskrybuj, czyCiemny);
+
+/** „Mniej ruchu”: wybór z Ustawień (data-mniej-ruchu na <html>), a bez niego ustawienie systemu. */
+export function mniejRuchu() {
+  const wybor = document.documentElement.dataset.mniejRuchu;
+  return wybor ? wybor === "tak" : window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+// Kolor paska przeglądarki za wybranym motywem; bez wyboru zostają meta z index.html (za systemem).
+const KOLOR_PASKA = { jasny: "#fff9f6", ciemny: "#10151c" };
+
+function odswiezKolorPaska() {
+  const wybrany = document.documentElement.dataset.motyw as keyof typeof KOLOR_PASKA | undefined;
+  document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => {
+    m.content = wybrany ? KOLOR_PASKA[wybrany] : (m.dataset.system ?? m.content);
+  });
+}
+
+document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => (m.dataset.system = m.content));
+new MutationObserver(odswiezKolorPaska).observe(document.documentElement, { attributes: true, attributeFilter: ["data-motyw"] });
+odswiezKolorPaska();

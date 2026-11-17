@@ -1,6 +1,8 @@
+import { useId } from "react";
 import {
   kontrastWSystemie,
   ruchWSystemie,
+  useBladUstawien,
   useUstawienia,
   zmienUstawienia,
   type Motyw,
@@ -33,20 +35,24 @@ function Wybor<T extends string>({ opis, opcje, wartosc, onChange }: { opis: str
 }
 
 function Przelacznik({ tytul, opis, wl, onChange }: { tytul: string; opis: string; wl: boolean; onChange: (v: boolean) => void }) {
+  const opisId = useId();
   return (
     <li className={s.wiersz}>
       <span>
         {tytul}
         <br />
-        <span className="muted small">{opis}</span>
+        <span id={opisId} className="muted small">
+          {opis}
+        </span>
       </span>
-      <button type="button" role="switch" aria-checked={wl} aria-label={tytul} className={`${s.przelacznik} ${wl ? s.przelacznikWl : ""}`} onClick={() => onChange(!wl)} />
+      <button type="button" role="switch" aria-checked={wl} aria-label={tytul} aria-describedby={opisId} className={`${s.przelacznik} ${wl ? s.przelacznikWl : ""}`} onClick={() => onChange(!wl)} />
     </li>
   );
 }
 
 export function Ustawienia() {
   const u = useUstawienia();
+  const blad = useBladUstawien();
 
   return (
     <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
@@ -76,6 +82,8 @@ export function Ustawienia() {
           <Przelacznik tytul="Krótkie odpowiedzi" opis="Najwyżej kilka zdań naraz" wl={u.pestkaKrotko} onChange={(pestkaKrotko) => zmienUstawienia({ pestkaKrotko })} />
         </ul>
       </section>
+
+      {blad && <p className="muted small">Nie zapisano na koncie. Spróbuję ponownie.</p>}
     </main>
   );
 }

@@ -47,11 +47,16 @@
 
 /* W ciemnym motywie wyspa jest jasna (tło --fg), więc jasny pomarańcz zamieniamy na ciemny z motywu jasnego (4,5:1). */
 @media (prefers-color-scheme: dark) {
-  .wyspa[data-stan="koncowka"] .czas,
-  .wyspa[data-stan="po"] .czas {
+  :root:not([data-motyw="jasny"]) .wyspa[data-stan="koncowka"] .czas,
+  :root:not([data-motyw="jasny"]) .wyspa[data-stan="po"] .czas {
     color: #c2410c;
   }
 }
+
+  :root[data-motyw="ciemny"] .wyspa[data-stan="koncowka"] .czas,
+  :root[data-motyw="ciemny"] .wyspa[data-stan="po"] .czas {
+    color: #c2410c;
+  }
 
 /* Pełny zegar: wysuwa się z wyspy w dół. */
 .panel {

@@ -1542,11 +1542,16 @@
 /* Obrazy z arkuszy CKE są rysowane pod białą kartkę (czarny tekst, często przezroczyste tło).
    W ciemnym motywie dostają białe podłoże zamiast inwersji, żeby zostały takie jak w oryginale. */
 @media (prefers-color-scheme: dark) {
-  .kadr img,
-  .cellImage {
+  :root:not([data-motyw="jasny"]) .kadr img,
+  :root:not([data-motyw="jasny"]) .cellImage {
     background: #fff;
   }
 }
+
+  :root[data-motyw="ciemny"] .kadr img,
+  :root[data-motyw="ciemny"] .cellImage {
+    background: #fff;
+  }
 
 /* Tabele z informatyki: pierwszy wiersz bez nagłówka nie jest pogrubiony (nagłówek ma własne th). */
 .infTable tr:first-child > td {
