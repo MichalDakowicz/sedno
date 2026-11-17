@@ -1,3 +1,4 @@
+import { useId } from "react";
 import {
   kontrastWSystemie,
   ruchWSystemie,
@@ -33,14 +34,17 @@ function Wybor<T extends string>({ opis, opcje, wartosc, onChange }: { opis: str
 }
 
 function Przelacznik({ tytul, opis, wl, onChange }: { tytul: string; opis: string; wl: boolean; onChange: (v: boolean) => void }) {
+  const opisId = useId();
   return (
     <li className={s.wiersz}>
       <span>
         {tytul}
         <br />
-        <span className="muted small">{opis}</span>
+        <span id={opisId} className="muted small">
+          {opis}
+        </span>
       </span>
-      <button type="button" role="switch" aria-checked={wl} aria-label={tytul} className={`${s.przelacznik} ${wl ? s.przelacznikWl : ""}`} onClick={() => onChange(!wl)} />
+      <button type="button" role="switch" aria-checked={wl} aria-label={tytul} aria-describedby={opisId} className={`${s.przelacznik} ${wl ? s.przelacznikWl : ""}`} onClick={() => onChange(!wl)} />
     </li>
   );
 }

@@ -21,6 +21,9 @@ type Props = {
 
 // Lista podpowiedzi i opisy wychodzą poza ramkę edytora. Strona arkusza ma przodków z transform
 // (animacje wejścia), przy których position: fixed liczy się od nich, więc widżety żyją w body.
+// Rozmiar tekstu z Ustawień (--skala-tekstu na <html>): Monaco nie czyta zmiennych CSS, więc pytamy go sami.
+const rozmiarEdytora = () => Math.round(14 * (parseFloat(document.documentElement.style.getPropertyValue("--skala-tekstu")) || 1));
+
 let warstwa: HTMLElement | null = null;
 function warstwaWidzetow() {
   if (!warstwa) {
@@ -63,7 +66,7 @@ function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, onZaznaczenie, etykie
     const e = monaco.editor.create(miejsce.current!, {
       model,
       theme: motywEdytora(),
-      fontSize: 14,
+      fontSize: rozmiarEdytora(),
       fontFamily: "ui-monospace, SFMono-Regular, Consolas, 'Cascadia Code', monospace",
       tabSize: 4,
       insertSpaces: true,
@@ -84,6 +87,8 @@ function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, onZaznaczenie, etykie
       scrollbar: { alwaysConsumeMouseWheel: false, horizontal: "hidden" },
     });
     edytor.current = e;
+    const skala = new MutationObserver(() => e.updateOptions({ fontSize: rozmiarEdytora() }));
+    skala.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
     // Zapis do postępu przerenderowuje cały arkusz, więc idzie dopiero po chwili bez pisania
     // (i od razu przy wyjściu z edytora, uruchomieniu i zamknięciu).
     let zapis: ReturnType<typeof setTimeout> | undefined;
@@ -121,6 +126,7 @@ function EdytorKodu({ wartosc, jezyk, onZmiana, onUruchom, onZaznaczenie, etykie
     return () => {
       clearTimeout(czas);
       wyslij();
+      skala.disconnect();
       rozmycie.dispose();
       zaznaczenie.dispose();
       zmiany.dispose();

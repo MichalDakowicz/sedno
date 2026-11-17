@@ -14,6 +14,7 @@ import { Markdown } from "./Markdown";
 import { TutorAvatar } from "./TutorAvatar";
 import chat from "./TutorChat.module.css";
 import styles from "./OmowienieBledow.module.css";
+import { mniejRuchu } from "../motyw";
 
 export type Wiadomosc = { od: "tutor" | "uczen"; tekst: string };
 
@@ -105,7 +106,7 @@ export function OmowienieBledow({
   // bez przestrzelenia celu. Cel czytamy co klatkę, bo karta w tym czasie się przewija.
   useLayoutEffect(() => {
     const cel = avatarRef.current;
-    if (!wejscie || !cel || zuzyteWejscia.has(wejscie.id) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!wejscie || !cel || zuzyteWejscia.has(wejscie.id) || mniejRuchu()) return;
     // Przy kolejnych błędach Pestka wskakuje z góry, znad miejsca, gdzie będzie siedzieć.
     const r0 = cel.getBoundingClientRect();
     const wlot = wejscie.z ?? new DOMRect(r0.left, Math.max(8, r0.top - 160), r0.width, r0.height);
@@ -151,7 +152,7 @@ export function OmowienieBledow({
     const cel = avatarRef.current;
     const karta = kartaRef.current;
     if (odchodzi) return;
-    if (!cel || !karta || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return potem();
+    if (!cel || !karta || mniejRuchu()) return potem();
     setOdchodzi(true);
     const r = cel.getBoundingClientRect();
     const klon = cel.cloneNode(true) as HTMLElement;

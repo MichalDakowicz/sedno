@@ -7,6 +7,7 @@ import { Pause, Pin, PinOff, Play, Timer, X } from "lucide-react";
 import type { Czas } from "../arkusze/postep";
 import { useTutor } from "./TutorContext";
 import styles from "./Zegar.module.css";
+import { mniejRuchu } from "../motyw";
 
 const MIN = 60_000;
 
@@ -66,7 +67,7 @@ export function Zegar({
   // żeby przeleciał płynnie zamiast skakać.
   const odpinanyZ = useRef<DOMRect | null>(null);
   const przypinanyZ = useRef<DOMRect | null>(null);
-  const bezRuchu = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const bezRuchu = () => mniejRuchu();
   // Jak Dynamic Island: przy otwarciu wyspa znika z paska (jej miejsce zostaje), a ten sam kształt
   // rozciąga się w dół w pełny zegar: rośnie szerokość, wysokość i zaokrąglenie, kolor przechodzi
   // z ciemnego w biały. Przy zamykaniu ta sama droga z powrotem, a wyspa wraca na koniec.
@@ -209,7 +210,7 @@ export function Zegar({
   // Wyłączenie: wyspa najpierw się zwija, a dopiero potem znika, więc menu obok dojeżdża płynnie.
   function wylacz() {
     const el = wyspaRef.current;
-    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return onZmien(undefined);
+    if (!el || mniejRuchu()) return onZmien(undefined);
     setWidok("schowany");
     const a = el.animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(0.4)" }], { duration: 220, easing: "ease-in", fill: "forwards" });
     a.onfinish = () => onZmien(undefined);
