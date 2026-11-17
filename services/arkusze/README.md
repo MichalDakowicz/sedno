@@ -25,6 +25,7 @@ Aplikacja webowa czyta arkusze z tabeli `sheets` w Supabase (tylko zalogowani), 
 - `tekst.js` wyciąga tekst przez pdfjs. Linia to fragmenty o tym samym `y`; fragmenty oddzielone dużą przerwą są osobnymi segmentami (kolumny tabel).
 - `arkusz.js` dzieli arkusz na zadania („Zadanie N. (0–X)” / „TASK N.”), a zadanie na bloki w kolejności z arkusza: akapit, nagłówek, źródło, opcje, pytanie, tabela odpowiedzi. Luki w tekście zamienia na znaczniki `{{3.1}}`. Akapity rozpoznaje po odstępach w pionie.
 - `klucz.js` czyta zasady oceniania: litery z kolumny „Poprawna odpowiedź” (przy dwóch wersjach arkusza bierze wersję A) oraz listy odpowiedzi oczekiwanych, akceptowanych i niepoprawnych dla zadań otwartych. Zapis typu `healthy food / dishes` rozwija na warianty.
+- `wymagania.js` przypisuje `pytanie.wymagania` w angielskiej Formule 2023. W słuchaniu i czytaniu dopasowuje podpunkt do komórki tabeli na podstawie obramowania, także gdy jeden kod obejmuje kilka wierszy. Pierwszy kod dotyczy rozumienia, kolejne wskazują m.in. przetwarzanie wypowiedzi. Środki językowe dostają kod sekcji `I`, a wypowiedź pisemna `V` oraz kody szczegółowe z tematów podanych w kluczu. Import wypisuje pokrycie i numery podpunktów bez przypisania.
 - `scal.js` łączy jedno z drugim: pytanie z literą w kluczu jest zamknięte, reszta otwarta, zadanie bez etykiet pytań to wypowiedź pisemna.
 - `importuj.js` zapisuje `<id>.json` i `index.json`, a w polu `ostrzezenia` notuje rozjazdy (pytanie bez klucza, suma punktów różna od podanej na arkuszu).
 
