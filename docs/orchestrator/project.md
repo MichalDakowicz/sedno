@@ -35,6 +35,8 @@ builder `sonnet` · tester `haiku` · gap auditor `opus`
 - 2026-11-16: templates go in two phases: first the ones without the skill model (search, settings, student profile, dashboard layout, exam countdown), then the learning loop for English.
 - Skill taxonomy comes from CKE marking rules; student-facing names need the user's approval before merge.
 - Dashboard layout is per subject. The „Do matury” widget is optional (on in „Egzamin”, off in „Nauka”).
+- 2026-11-17 (phase 2): all three English levels of formuła 2023; quick rounds draw real tasks from all sheets of the level, unseen first; mastery estimator is Elo per skill (task difficulty from type and points until there is data to calibrate).
+- Requirement codes per task are in the CKE marking-rules PDFs (`data/cke/<rok>/*-zasady.pdf`, readable with `pdftotext -layout`); requirement wording is from the core curriculum.
 
 ## Open questions
 
