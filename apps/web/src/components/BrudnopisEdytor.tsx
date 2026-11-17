@@ -1,14 +1,15 @@
 // Edytor brudnopisu: Excalidraw z opcjonalnym rysunkiem bazowym z arkusza.
 // Ładowany leniwie (Brudnopis.tsx), bo Excalidraw waży kilkaset kB.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { CaptureUpdateAction, convertToExcalidrawElements, Excalidraw, getCommonBounds, hashElementsVersion, newElementWith } from "@excalidraw/excalidraw";
 import type { AppState, BinaryFileData, DataURL, ExcalidrawImperativeAPI, ExcalidrawInitialDataState, NormalizedZoomValue } from "@excalidraw/excalidraw/types";
 import type { ExcalidrawElement, FileId } from "@excalidraw/excalidraw/element/types";
 import "@excalidraw/excalidraw/index.css";
-import { Circle, Eraser, Hand, Maximize2, Minimize2, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Square, Trash2, Type, Undo2, X, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
+import { Circle, Eraser, Hand, Maximize2, Minimize2, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Sparkles, Square, Trash2, Type, Undo2, X, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
 import { useCiemny } from "../motyw";
 import { adresObrazu, type Obraz } from "../arkusze/typy";
+import { BrudnopisPestka } from "./BrudnopisPestka";
 import styles from "./Brudnopis.module.css";
 
 export const ID_RYSUNKU = "rysunek-bazowy";
@@ -124,6 +125,7 @@ type Props = {
   opcjeZWycinka?: Obraz;
   /** Zadanie bez obliczeń (odczyt z wykresu): rysunek większy, do zaznaczania na nim. */
   duzyRysunek?: boolean;
+  poleceniePestki?: string;
 };
 
 // Rysunek zadania w (0, 0), a dodatkowe rysunki w rzędzie obok niego. Wszystkie zablokowane:
@@ -327,7 +329,7 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
   }
 }
 
-export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, wPanelu, duzyRysunek, dodatkoweRysunki = [], pokazDodatkowe = true, opcjeZWycinka }: Props) {
+export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, wPanelu, duzyRysunek, dodatkoweRysunki = [], pokazDodatkowe = true, opcjeZWycinka, poleceniePestki }: Props) {
   const [startowaGrubosc] = useState(zapamietanaGrubosc);
   const ciemny = useCiemny();
   const naEkranie = (k: string) => (ciemny ? (KOLOR_NA_CIEMNYM[k] ?? k) : k);
@@ -336,6 +338,16 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   const pokaz = useRef(pokazDodatkowe);
   pokaz.current = pokazDodatkowe;
   const api = useRef<ExcalidrawImperativeAPI | null>(null);
+  const [pestka, setPestka] = useState(false);
+  const idPestki = useId();
+  const przyciskPestki = useRef<HTMLButtonElement>(null);
+  const zamknijPestke = () => {
+    setPestka(false);
+    przyciskPestki.current?.focus();
+  };
+  useEffect(() => {
+    if (!poleceniePestki) setPestka(false);
+  }, [poleceniePestki]);
   const wersja = useRef<number | null>(null);
   const wczytana = useRef(false);
   const czeka = useRef<{ timer: number; elementy: readonly ExcalidrawElement[] } | null>(null);
@@ -635,10 +647,27 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             <Scan size={18} aria-hidden="true" />
           </button>
           <span className={styles.grow} aria-hidden="true" />
+          {poleceniePestki && (
+            <button
+              ref={przyciskPestki}
+              type="button"
+              className={styles.tool}
+              title="Pestka w brudnopisie"
+              aria-label="Pestka w brudnopisie"
+              aria-expanded={pestka}
+              aria-controls={pestka ? idPestki : undefined}
+              onClick={() => setPestka((otwarta) => !otwarta)}
+            >
+              <Sparkles size={18} aria-hidden="true" />
+            </button>
+          )}
           <button type="button" className={styles.tool} title="Wyczyść szkic" aria-label="Wyczyść szkic" onClick={wyczysc}>
             <Trash2 size={18} aria-hidden="true" />
           </button>
         </div>
+        {pestka && poleceniePestki && (
+          <BrudnopisPestka id={idPestki} api={api} polecenie={poleceniePestki} onZamknij={zamknijPestke} />
+        )}
       </div>
     </>
   );

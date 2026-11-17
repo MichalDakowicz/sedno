@@ -96,6 +96,10 @@ function zapytania(user: string, sygnal: AbortSignal): Zapytaj {
       wynik = await chat(route.p, { messages, maxTokens: limit, reasoningEffort: route.reasoningEffort, signal: sygnal }, pobierzOdpowiedz);
     } catch (e) {
       await logAiUsage({ ...base, ok: false, status: e instanceof LlmError ? e.status : 0, duration_ms: Date.now() - started });
+      if (obraz && e instanceof LlmError &&
+        (e.status === 415 || (/not support|unsupported|text.only/i.test(e.detail) && /image|vision|multimodal/i.test(e.detail)))) {
+        throw new BladApi(422, "image_not_supported");
+      }
       throw new BladApi(424, "provider_failed");
     }
     await logAiUsage({
@@ -253,6 +257,63 @@ async function omowOdczyt(body: Obiekt, zapytaj: Zapytaj) {
   return { uwaga: wymagajWyniku(tekst(wynik.uwaga, 500)), pytanie: wymagajWyniku(tekst(wynik.pytanie, 500)) };
 }
 
+const FIGURY = ["odcinek", "strzalka", "prostokat", "elipsa", "trojkat"] as const;
+type PunktFigury = [number, number];
+
+function punktFigury(raw: unknown): PunktFigury | null {
+  if (!Array.isArray(raw) || raw.length !== 2 ||
+    !raw.every((w) => typeof w === "number" && Number.isFinite(w) && w >= 0 && w <= 1)) return null;
+  return [raw[0], raw[1]];
+}
+
+function ksztaltBrudnopisu(raw: unknown) {
+  const ksztalt = obiekt(raw);
+  const typ = wybierz(ksztalt?.typ, FIGURY);
+  const rawPunkty = ksztalt?.punkty;
+  if (!typ || !Array.isArray(rawPunkty) || rawPunkty.length !== (typ === "trojkat" ? 3 : 2)) return null;
+  const punkty = rawPunkty.map(punktFigury);
+  const [a, b, c] = punkty;
+  if (!a || !b || (typ === "trojkat" && !c)) return null;
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  if (typ === "elipsa" || typ === "prostokat") {
+    if (Math.abs(dx) < 0.025 || Math.abs(dy) < 0.025) return null;
+  } else if (c) {
+    if (Math.abs(dx * (c[1] - a[1]) - dy * (c[0] - a[0])) < 0.002) return null;
+  } else if (Math.hypot(dx, dy) < 0.025) return null;
+  return { typ, punkty };
+}
+
+async function omowBrudnopis(body: Obiekt, zapytaj: Zapytaj) {
+  const polecenie = tekst(body.polecenie, 3500);
+  const pytanie = body.pytanie === undefined ? null : tekst(body.pytanie, 500);
+  const obraz = obrazWiadomosci(body.obraz);
+  if (body.obraz !== undefined && !obraz) throw new BladApi(400, "bad_image");
+  if (!polecenie || (!pytanie && body.pytanie !== undefined) || (!obraz && !pytanie)) throw new BladApi(400, "bad_input");
+  const wynik = await zapytaj(
+    "nauka-omow-brudnopis", "wazne",
+    [
+      "Jesteś Pestką. Pomagasz uczniowi z matematyką, analizując jego brudnopis lub pytanie.",
+      "W polu odczyt opisz krótko, jakie obliczenia lub rysunek faktycznie widzisz. Użyj null, jeśli nie ma obrazu.",
+      "W polu wskazowka wskaż najwcześniejszy widoczny błąd i popraw ten krok. Gdy wszystko wygląda dobrze, wyjaśnij dlaczego i podaj następny krok.",
+      "Nie zgaduj znaków ani treści nieczytelnego pisma. Wskaż niepewność i poproś o doprecyzowanie. Wzory zapisuj pomiędzy \\( i \\).",
+      "Nie rozwiązuj całego zadania za ucznia. Odpowiedz wprost na pytanie o pojedynczy krok lub konstrukcję.",
+      "Zaproponuj kształty tylko na prośbę lub gdy rzeczywiście objaśniają krok. Rysunek powstanie obok pracy ucznia, jako osobny schemat.",
+      "Każdy punkt to [x,y] w kwadracie od 0 do 1. Oś x rośnie w prawo, y w dół. Zostaw marginesy.",
+      "Typy: odcinek, strzalka (od pierwszego do drugiego punktu), prostokat, elipsa (dwa przeciwległe narożniki), trojkat (trzy wierzchołki). Koło jest elipsą o równej szerokości i wysokości.",
+      'Format: {"odczyt":"tekst lub null","wskazowka":"krótka uwaga","ksztalty":[{"typ":"odcinek","punkty":[[0.1,0.3],[0.9,0.3]]}]}. Maksymalnie 8 kształtów, pusta lista gdy rysunek nie jest potrzebny.',
+    ].join("\n"),
+    { polecenie, pytanie },
+    2800,
+    obraz ?? undefined,
+  );
+  const odczyt = obraz ? wymagajWyniku(tekst(wynik.odczyt, 1100)) : null;
+  const wskazowka = wymagajWyniku(tekst(wynik.wskazowka, 1300));
+  if (!Array.isArray(wynik.ksztalty) || wynik.ksztalty.length > 8) throw new BladApi(424, "bad_model_response");
+  const ksztalty = wynik.ksztalty.map((ksztalt) => wymagajWyniku(ksztaltBrudnopisu(ksztalt)));
+  return { odczyt, wskazowka, ksztalty };
+}
+
 async function mapaWiedzy(body: Obiekt, user: string, zapytaj: Zapytaj) {
   if (!Array.isArray(body.notatki) || body.notatki.length < 2 || body.notatki.length > 8 ||
     !body.notatki.every((id) => typeof id === "string" && UUID.test(id)) ||
@@ -325,6 +386,8 @@ export async function handle(req: Request): Promise<Response> {
         return reply(200, await zdjecie(body, zapytaj));
       case "omow-odczyt":
         return reply(200, await omowOdczyt(body, zapytaj));
+      case "omow-brudnopis":
+        return reply(200, await omowBrudnopis(body, zapytaj));
       case "mapa-wiedzy-polaczenia":
         return reply(200, await mapaWiedzy(body, user, zapytaj));
       case "wizualizacje":

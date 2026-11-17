@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, LayoutList } from "lucide-react";
-import { adres, szablon } from "./lista";
+import { adres, szablon, WDROZONE } from "./lista";
 import styles from "./Szablon.module.css";
 
 type Props = {
@@ -53,7 +53,8 @@ export function Strona({ slug, children, jakDziala }: Props) {
         {sz.dalej.length ? (
           <ul className={styles.wiersze}>
             {sz.dalej.map((d) => {
-              const n = szablon(d)!;
+              const n = szablon(d) ?? WDROZONE[d];
+              if (!n) return null;
               return (
                 <li key={d}>
                   <Link to={adres(d)} className={styles.spisWiersz}>

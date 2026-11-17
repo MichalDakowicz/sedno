@@ -45,6 +45,7 @@
 
 /* Pasek podzielony na dwie strony płótna; ujemny margines wystawia paski poza szerokość płótna. */
 .workspace {
+  position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: var(--odstep);
@@ -95,7 +96,8 @@
   background: var(--surface);
 }
 
-.tool[aria-pressed="true"] {
+.tool[aria-pressed="true"],
+.tool[aria-expanded="true"] {
   color: var(--primary-fg);
   background: var(--primary-strong);
 }
@@ -134,6 +136,55 @@
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
+}
+
+.pestkaPanel {
+  position: absolute;
+  z-index: 10;
+  top: 8px;
+  right: calc(var(--pasek) + var(--odstep) + 8px);
+  width: min(360px, calc(100% - 2 * (var(--pasek) + var(--odstep) + 8px)));
+  max-height: calc(100% - 16px);
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+}
+
+.pestkaNaglowek {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.pestkaForm,
+.pestkaWynik {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding-block: 12px;
+}
+
+.pestkaForm label {
+  width: 100%;
+}
+
+.pestkaForm input {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.pestkaForm p,
+.pestkaWynik p {
+  margin: 0;
+}
+
+.pestkaWynik {
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
 }
 
 /* Wbudowane UI Excalidraw (pasek narzędzi, panel stylu, menu, biblioteka,
@@ -190,6 +241,10 @@
   .fullscreen .grow {
     grid-column: 1 / -1;
   }
+
+  .fullscreen .pestkaPanel {
+    right: calc(2 * var(--pasek) + var(--odstep));
+  }
 }
 
 /* Bez miejsca obok kolumny tekstu paski wchodzą do karty, po bokach płótna. */
@@ -237,6 +292,12 @@
   .sep,
   .grow {
     display: none;
+  }
+
+  .pestkaPanel {
+    inset: auto 6px 92px;
+    width: auto;
+    max-height: calc(100% - 100px);
   }
 }
 
