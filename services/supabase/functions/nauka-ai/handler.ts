@@ -259,6 +259,7 @@ async function omowOdczyt(body: Obiekt, zapytaj: Zapytaj) {
 
 const FIGURY = ["odcinek", "strzalka", "prostokat", "elipsa", "trojkat"] as const;
 const TYPY_DOPISKOW = ["obliczenia", "tekst", "kod"] as const;
+const STANY_PROWADZENIA = ["czekam", "krok", "blad"] as const;
 const BRYLY = ["szescian", "prostopadloscian", "graniastoslup-trojkatny", "ostroslup-czworokatny", "walec", "stozek", "kula"] as const;
 const OZNACZENIA_BRYLY = {
   szescian: ["a", "b", "h", "przekatnaPodstawy", "przekatnaBryly"],
@@ -275,6 +276,14 @@ function punktFigury(raw: unknown): PunktFigury | null {
   if (!Array.isArray(raw) || raw.length !== 2 ||
     !raw.every((w) => typeof w === "number" && Number.isFinite(w) && w >= 0 && w <= 1)) return null;
   return [raw[0], raw[1]];
+}
+
+function ramkaBrudnopisu(raw: unknown): [PunktFigury, PunktFigury] | null {
+  if (!Array.isArray(raw) || raw.length !== 2) return null;
+  const a = punktFigury(raw[0]);
+  const b = punktFigury(raw[1]);
+  if (!a || !b || b[0] <= a[0] || b[1] <= a[1]) return null;
+  return [a, b];
 }
 
 function ksztaltBrudnopisu(raw: unknown) {
@@ -351,8 +360,15 @@ async function omowBrudnopis(body: Obiekt, zapytaj: Zapytaj) {
   const obraz = obrazWiadomosci(body.obraz);
   if (body.obraz !== undefined && !obraz) throw new BladApi(400, "bad_image");
   if (!polecenie || (!pytanie && body.pytanie !== undefined) || (!obraz && !pytanie)) throw new BladApi(400, "bad_input");
+  const prowadzenie = obiekt(body.prowadzenie);
+  const zmiana = ramkaBrudnopisu(prowadzenie?.zmiana);
+  const poprzedniaWskazowka = tekst(prowadzenie?.poprzedniaWskazowka, 360);
+  if (body.prowadzenie !== undefined && (!prowadzenie || !obraz || pytanie || !zmiana ||
+    (prowadzenie.poprzedniaWskazowka !== undefined && !poprzedniaWskazowka))) {
+    throw new BladApi(400, "bad_input");
+  }
   const wynik = await zapytaj(
-    "nauka-omow-brudnopis", "wazne",
+    prowadzenie ? "nauka-prowadz-brudnopis" : "nauka-omow-brudnopis", "wazne",
     [
       "Jesteś Pestką. Pomagasz uczniowi z matematyką, analizując jego brudnopis lub pytanie.",
       "W polu odczyt opisz krótko, jakie obliczenia lub rysunek faktycznie widzisz. Użyj null, jeśli nie ma obrazu albo zapis jest nieczytelny.",
@@ -369,18 +385,28 @@ async function omowBrudnopis(body: Obiekt, zapytaj: Zapytaj) {
       "Proponuj dopiski na tablicy, gdy uczeń o to prosi lub gdy dopisek pomaga zrozumieć wskazany krok. Typy to obliczenia, tekst i kod. Każdy dopisek ma do 12 krótkich wierszy i 480 znaków.",
       "Dopiski zapisz jako zwykły tekst, bez Markdown i LaTeX. Używaj znaków takich jak ×, ÷, √ i ². W kodzie zachowaj wcięcia i ogranicz się do przykładu związanego z zadaniem. Kod służy do przeczytania na tablicy.",
       'Format: {"odczyt":"tekst lub null","wskazowka":"krótka uwaga","ksztalty":[{"typ":"odcinek","punkty":[[0.1,0.3],[0.9,0.3]]}],"dopiski":[{"typ":"obliczenia","tekst":"2x = 10\\nx = 10 ÷ 2"}]}. Maksymalnie 8 kształtów i 3 dopiski. Użyj pustych list, gdy rysunek lub dopisek są zbędne.',
+      ...(prowadzenie ? [
+        'To prowadzenie na żywo. Obraz przedstawia pracę ucznia i ewentualnie rysunek z zadania. Pole zmiana oznacza obszar nowego lub zmienionego zapisu na przesłanym obrazie. Oceń przede wszystkim ten fragment w kontekście wcześniejszego rozumowania.',
+        'Dodaj stanProwadzenia: "czekam" dla nieczytelnego, niepełnego lub powtórzonego kroku, "krok" dla czytelnego postępu, "blad" dla wyraźnego błędu w nowym kroku. Nie powtarzaj poprzedniej wskazówki, jeśli zapis nie wnosi nic istotnego.',
+        'Dla "czekam" zwróć {"stanProwadzenia":"czekam"}. W pozostałych stanach napisz maksymalnie dwie krótkie linie wskazówki kierujące do jednego następnego kroku (do 180 znaków). Jeśli uczeń skończył poprawnie, krótko to potwierdź. Nie zdradzaj wyniku ani dalszych kroków.',
+        'Dla "blad" ramkaBledu to opcjonalnie [[lewo,góra],[prawo,dół]] we współrzędnych od 0 do 1 na przesłanym obrazie, licząc od jego lewego górnego narożnika. Obejmij wyłącznie czytelny błędny fragment powiązany z ostatnią zmianą. Jeśli miejsca nie da się wskazać, pomiń ramkę. Nigdy nie oznaczaj treści zadania ani poprawnych wcześniejszych wierszy.',
+        'Kształty, bryła i dopiski trafią automatycznie na tablicę obok pracy ucznia. Dodaj je tylko, jeśli pomagają w tym jednym kroku. Wystarczą do 4 kształtów, 2 krótkich dopisków lub jedna bryła. Nie dubluj wskazówki w dopiskach.',
+      ] : []),
     ].join("\n"),
-    { polecenie, pytanie },
-    3400,
+    prowadzenie ? { polecenie, zmiana, poprzedniaWskazowka } : { polecenie, pytanie },
+    prowadzenie ? 2200 : 3400,
     obraz ?? undefined,
   );
+  const stanProwadzenia = prowadzenie ? wymagajWyniku(wybierz(wynik.stanProwadzenia, STANY_PROWADZENIA)) : undefined;
+  if (stanProwadzenia === "czekam") return { stanProwadzenia, odczyt: null, wskazowka: "", ksztalty: [], bryla: null, dopiski: [] };
   const odczyt = obraz ? tekst(wynik.odczyt, 1100) : null;
-  const wskazowka = wymagajWyniku(tekst(wynik.wskazowka, 1300));
-  const ksztalty = elementyBrudnopisu(wynik.ksztalty, 8, ksztaltBrudnopisu);
-  const dopiski = elementyBrudnopisu(wynik.dopiski, 3, dopisekBrudnopisu);
+  const wskazowka = wymagajWyniku(tekst(wynik.wskazowka, prowadzenie ? 360 : 1300));
+  const ksztalty = elementyBrudnopisu(wynik.ksztalty, prowadzenie ? 4 : 8, ksztaltBrudnopisu);
+  const dopiski = elementyBrudnopisu(wynik.dopiski, prowadzenie ? 2 : 3, dopisekBrudnopisu);
   const { bryla, pominieto } = brylaBrudnopisu(wynik.bryla);
   return {
-    odczyt, wskazowka, ksztalty: ksztalty.elementy, dopiski: dopiski.elementy, bryla,
+    odczyt, wskazowka, ksztalty: ksztalty.elementy, dopiski: dopiski.elementy, bryla, stanProwadzenia,
+    ramkaBledu: stanProwadzenia === "blad" ? ramkaBrudnopisu(wynik.ramkaBledu) : undefined,
     pominietoElementy: ksztalty.pominieto || dopiski.pominieto || pominieto,
   };
 }
