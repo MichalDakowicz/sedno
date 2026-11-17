@@ -36,6 +36,7 @@ builder `sonnet` · tester `haiku` · gap auditor `opus`
 - Skill taxonomy comes from CKE marking rules; student-facing names need the user's approval before merge.
 - Dashboard layout is per subject. The „Do matury” widget is optional (on in „Egzamin”, off in „Nauka”).
 - 2026-11-17 (phase 2): all three English levels of formuła 2023; quick rounds draw real tasks from all sheets of the level, unseen first; mastery estimator is Elo per skill (task difficulty from type and points until there is data to calibrate).
+- 2026-11-17 (phase 2): the backend of the learning loop comes from a teammate's PR #55 (`backend-nauki`, services only). The orchestrator verifies it (import report, code spot-checks, audit, staging) and builds the frontend on its RPCs; fixes go to that branch or to the teammate. Student-facing skill names in migration 0009 approved by the user. Authored English exercises (migration 0010) may top up a quick round when fewer than 5 CKE tasks are left.
 - Requirement codes per task are in the CKE marking-rules PDFs (`data/cke/<rok>/*-zasady.pdf`, readable with `pdftotext -layout`); requirement wording is from the core curriculum.
 
 ## Open questions
