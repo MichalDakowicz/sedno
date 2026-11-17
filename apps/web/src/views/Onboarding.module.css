@@ -286,3 +286,8 @@
   border-color: var(--fg);
   color: var(--fg);
 }
+
+.profil {
+  display: grid;
+  gap: 20px;
+}
