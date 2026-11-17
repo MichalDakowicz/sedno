@@ -4,7 +4,7 @@ _Updated 2026-11-17_
 
 **State.** Templates phase 1 is merged into `main` (2026-11-17, at the user's request): #49 `ustawienia`, #50 `profil-ucznia`, #51 `wyszukiwanie`, #52 `uklad-pulpitu`, #53 `do-matury`, plus #54 with these docs. `main` matches the chain tip; typecheck and build are green. Migrations 0006–0008 go to production through the `main` autodeploy; the orchestrator could not read the autodeploy log (no server unit is in a failed state), so confirm with `journalctl --user -u sedno-autodeploy@main` if needed.
 
-**Goal.** Achieved, 17/17 bars, archived in `goals/2026-11-17-szablony-faza-1.md`. „Profile insights can be deleted” was accepted by the user on code and audit evidence (the test account has no computable insights). No active goal.
+**Goal.** Achieved, 17/17 bars, archived in `goals/2026-11-17-szablony-faza-1.md`. „Profile insights can be deleted” was accepted by the user on code and audit evidence (the test account has no computable insights). Next goal (phase 2, English learning loop) is agreed and saved in `goal.md`; no work started.
 
 **Verified.** Per unit: build, own checks, tester run on staging, gap audit, fixes, re-test. Then a full regression of all five flows, a final audit of the whole chain (0 blockers; its majors and minors fixed), and a last browser check: 375 px with large text on every touched view and both sheet pages, simulated network failure, the support note, send blocking, shared switch, new search actions.
 
@@ -24,7 +24,7 @@ _Updated 2026-11-17_
 
 **Next.**
 - User: confirm exam dates in BIP CKE; review the support note copy; check that migrations 0006–0008 reached production.
-- Then draft goal 2: learning loop for English (skill taxonomy from CKE marking rules with student-facing names for approval, mapping tasks to skills, mastery estimate, Mapa umiejętności, Nauka, Szybka runda, Rozbiór, Powtórki).
+- Start goal 2 from `goal.md` with unit 1 (Mapowanie): branch `mapowanie-umiejetnosci`, extract requirement codes for English formuła 2023, draft the taxonomy and show the student-facing names to the user for approval.
 
 **Housekeeping.**
 - `npm run dev:staging` runs from the main checkout `C:\sedno`, now on `main`.
