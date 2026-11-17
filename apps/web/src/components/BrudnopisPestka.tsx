@@ -15,6 +15,7 @@ type Props = {
   api: RefObject<ExcalidrawImperativeAPI | null>;
   polecenie: string;
   onPokaz: (dane: OdpowiedzPestki) => void;
+  onProwadz: () => void;
   onZamknij: () => void;
 };
 type Stan =
@@ -23,7 +24,7 @@ type Stan =
   | { typ: "blad"; kod: string }
   | { typ: "odpowiedz"; dane: Awaited<ReturnType<typeof omowTablice>> };
 
-function komunikat(kod: string) {
+export function komunikatPestki(kod: string) {
   if (kod === "empty_board") return "Dodaj coś na płótnie albo wpisz pytanie.";
   if (kod === "board_loading") return "Brudnopis się wczytuje. Spróbuj za chwilę.";
   if (kod === "bad_snapshot" || kod === "bad_image" || kod === "too_large") return "Nie udało się przygotować obrazu szkicu. Spróbuj ponownie.";
@@ -56,7 +57,7 @@ function PodgladBryly({ bryla, obrot, onObrot }: { bryla: BrylaPestki; obrot: nu
   );
 }
 
-export function BrudnopisPestka({ id, api, polecenie, onPokaz, onZamknij }: Props) {
+export function BrudnopisPestka({ id, api, polecenie, onPokaz, onProwadz, onZamknij }: Props) {
   const session = useSession();
   const konto = session ? session.user.id : null;
   const tytul = useId();
@@ -129,10 +130,16 @@ export function BrudnopisPestka({ id, api, polecenie, onPokaz, onZamknij }: Prop
           {zajeta ? "Pestka analizuje…" : "Zapytaj Pestkę"}
         </button>
       </form>
+      <div className={styles.pestkaTryb}>
+        <button type="button" className="btn btn-secondary btn-sm" disabled={!konto || zajeta} onClick={onProwadz}>
+          Prowadź mnie krok po kroku
+        </button>
+        <p className="small muted">Po przerwie w pisaniu Pestka przejrzy szkic i sama dopisze wskazówkę.</p>
+      </div>
       <div aria-live="polite">
         {stan.typ === "blad" && (
           <>
-            <p className="small" role="alert">{komunikat(stan.kod)}</p>
+            <p className="small" role="alert">{komunikatPestki(stan.kod)}</p>
             {(stan.kod === "no_provider" || stan.kod === "bad_credential" || stan.kod === "image_not_supported" || stan.kod === "provider_failed") && (
               <Link className="small" to="/profil">Sprawdź dostawcę AI w profilu</Link>
             )}
