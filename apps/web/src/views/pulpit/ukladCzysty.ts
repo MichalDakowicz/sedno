@@ -47,6 +47,12 @@ export function przesunDo(lista: Pozycja[], id: string, indeks: number): Pozycja
   return nowa;
 }
 
+/** Układa listę w kolejności `ids` (widgety spoza `ids` zostają na końcu), z ustawieniami przy widgetach. */
+export function kolejnosc(lista: Pozycja[], ids: string[]): Pozycja[] {
+  const wynik = ids.flatMap((id) => lista.find((p) => p.id === id) ?? []);
+  return [...wynik, ...lista.filter((p) => !ids.includes(p.id))];
+}
+
 /** Przesuwa widget o `delta` miejsc (−1 w górę, +1 w dół). */
 export function przesun(lista: Pozycja[], id: string, delta: number): Pozycja[] {
   const z = lista.findIndex((p) => p.id === id);

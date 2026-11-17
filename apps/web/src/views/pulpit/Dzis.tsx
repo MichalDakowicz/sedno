@@ -9,9 +9,9 @@ import { Kicker, procent, tytul } from "./wspolne";
 import styles from "../Dashboard.module.css";
 
 export function Dzis({ co, aktywny, ai }: KontekstPulpitu) {
+  const { open: openTutor } = useTutor();
   if (!co) return null;
   const showSubject = !aktywny;
-  const { open: openTutor } = useTutor();
   const p = przedmiot(co.przedmiot.id)!;
   const poziom = nazwaPoziomu[co.przedmiot.poziom];
 
