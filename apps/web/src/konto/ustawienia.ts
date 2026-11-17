@@ -1,7 +1,6 @@
 // Ustawienia aplikacji: wygląd, dostępność i zachowanie Pestki. Kopia w localStorage działa od razu i bez sieci,
 // wartość z konta (profiles.settings) wygrywa po zalogowaniu. Zmiana stosuje się od razu, bez przycisku „Zapisz”.
-import { useSyncExternalStore } from "react";
-import { supabase } from "../supabase";
+import { utworzMagazyn } from "./kontoSync";
 
 export type Motyw = "system" | "jasny" | "ciemny";
 export type Tekst = "maly" | "normalny" | "duzy";
@@ -54,27 +53,6 @@ function roznice(u: Ustawienia): Partial<Ustawienia> {
   return w;
 }
 
-function wczytajLokalne(): Ustawienia {
-  try {
-    const t = localStorage.getItem(KLUCZ);
-    if (t) return { ...DOMYSLNE, ...poprawne(JSON.parse(t)) };
-  } catch {
-    // zablokowany storage albo uszkodzony zapis: zostają domyślne
-  }
-  return DOMYSLNE;
-}
-
-function zapiszLokalne(u: Ustawienia) {
-  try {
-    localStorage.setItem(KLUCZ, JSON.stringify(roznice(u)));
-  } catch {
-    // zostaje wartość w pamięci
-  }
-}
-
-let biezace: Ustawienia = DOMYSLNE;
-const sluchacze = new Set<() => void>();
-
 /** Wartości wynikające z systemu, gdy uczeń nie wybrał własnych. */
 const systemowy = (zapytanie: string) => window.matchMedia(zapytanie).matches;
 export const ruchWSystemie = () => systemowy("(prefers-reduced-motion: reduce)");
@@ -92,144 +70,31 @@ export function zastosuj(u: Ustawienia) {
   else delete el.dataset.kontrast;
 }
 
-function ustawBiezace(u: Ustawienia) {
-  biezace = u;
-  zastosuj(u);
-  sluchacze.forEach((l) => l());
-}
+const magazyn = utworzMagazyn<Ustawienia>({
+  klucz: KLUCZ,
+  kolumna: "settings",
+  domyslne: DOMYSLNE,
+  zWire: (raw) => ({ ...DOMYSLNE, ...poprawne(raw) }),
+  doWire: roznice,
+  naZmiane: zastosuj,
+});
 
-export const ustawienia = () => biezace;
+export const ustawienia = () => magazyn.biezace();
 
-export function useUstawienia(): Ustawienia {
-  return useSyncExternalStore(
-    (l) => {
-      sluchacze.add(l);
-      return () => void sluchacze.delete(l);
-    },
-    ustawienia,
-  );
-}
+export const useUstawienia = (): Ustawienia => magazyn.useStan();
 
-// Znacznik zmiany, której konto jeszcze nie widziało: bez niego szybkie odświeżenie po kliknięciu
-// nadpisałoby świeżą zmianę starą wartością z konta.
-const NIEZAPISANE = "sedno.ustawienia.niezapisane";
-const niezapisane = () => {
-  try {
-    return localStorage.getItem(NIEZAPISANE) === "1";
-  } catch {
-    return false;
-  }
-};
-function oznaczNiezapisane(tak: boolean) {
-  try {
-    if (tak) localStorage.setItem(NIEZAPISANE, "1");
-    else localStorage.removeItem(NIEZAPISANE);
-  } catch {
-    // brak storage: zostaje tylko zapis na konto
-  }
-}
+/** true, gdy ostatni zapis ustawień na konto się nie udał. */
+export const useBladUstawien = () => magazyn.useBlad();
 
-let wersja = 0;
+/** Zmienia ustawienia: od razu na ekranie i lokalnie, na koncie po krótkiej chwili (szybkie klikanie to jeden zapis). */
+export const zmienUstawienia = (zmiana: Partial<Ustawienia>) => magazyn.zmien((u) => ({ ...u, ...zmiana }));
 
-// Zapisy idą jeden po drugim, żeby starszy nie wylądował na koncie po nowszym.
-let lancuch: Promise<unknown> = Promise.resolve();
-
-function zapiszNaKoncie(u: Ustawienia, id: string) {
-  const ta = wersja;
-  const wartosc = roznice(u);
-  lancuch = lancuch.then(async () => {
-    const { error } = await supabase.from("profiles").update({ settings: wartosc }).eq("id", id);
-    if (!error && ta === wersja) oznaczNiezapisane(false);
-  }).catch(() => undefined);
-  return lancuch;
-}
-
-let idKonta: string | null = null;
-let kolejka: number | undefined;
-
-/** Zmienia ustawienia: od razu na ekranie i w kopii lokalnej, na koncie po krótkiej chwili (szybkie klikanie to jeden zapis). */
-export function zmienUstawienia(zmiana: Partial<Ustawienia>) {
-  const nowe = { ...biezace, ...zmiana };
-  zapiszLokalne(nowe);
-  wersja++;
-  oznaczNiezapisane(true);
-  ustawBiezace(nowe);
-  const id = idKonta;
-  if (!id) return;
-  window.clearTimeout(kolejka);
-  kolejka = window.setTimeout(() => {
-    kolejka = undefined;
-    void zapiszNaKoncie(biezace, id);
-  }, 500);
-}
-
-// Zamknięcie lub ukrycie karty w trakcie oczekiwania: wysyłamy od razu (najlepsze, co się da; resztę dokończy zKonta).
-function wyslijOczekujace() {
-  if (kolejka === undefined || !idKonta) return;
-  window.clearTimeout(kolejka);
-  kolejka = undefined;
-  void zapiszNaKoncie(biezace, idKonta);
-}
-
-// Po zalogowaniu wartość z konta wygrywa. Konto bez zapisanych ustawień dostaje te z tego urządzenia.
-let ostatniePobranie = 0;
-
-// Konto czytamy przy pierwszej sesji, po zmianie konta i (nie częściej niż co minutę) po powrocie do karty,
-// nie przy każdym zdarzeniu logowania. Odpowiedź starsza niż zmiana lokalna nigdy jej nie nadpisuje.
-async function zKonta(id: string) {
-  idKonta = id;
-  ostatniePobranie = Date.now();
-  const ta = wersja;
-  const bylaNiezapisana = niezapisane();
-  const { data, error } = await supabase.from("profiles").select("settings").eq("id", id).maybeSingle();
-  if (error || idKonta !== id) return;
-  const zapisane = poprawne(data?.settings);
-  if (ta !== wersja || bylaNiezapisana || Object.keys(zapisane).length === 0) {
-    if (ta !== wersja || bylaNiezapisana || Object.keys(roznice(biezace)).length > 0) void zapiszNaKoncie(biezace, id);
-    return;
-  }
-  const nowe = { ...DOMYSLNE, ...zapisane };
-  zapiszLokalne(nowe);
-  ustawBiezace(nowe);
-}
-
-let uruchomione = false;
+/** Wysyła zaległe zmiany na konto, np. przed wylogowaniem. */
+export const splukajUstawienia = () => magazyn.flush();
 
 /** Wołane raz przy starcie aplikacji: stosuje zapisane lokalnie ustawienia, zanim odpowie sieć. */
 export function uruchomUstawienia() {
-  if (uruchomione) return;
-  uruchomione = true;
-  ustawBiezace(wczytajLokalne());
-
+  magazyn.uruchom();
   // „Jak system” dla kontrastu zmienia się razem z systemem.
-  window.matchMedia("(prefers-contrast: more)").addEventListener("change", () => zastosuj(biezace));
-
-  window.addEventListener("pagehide", wyslijOczekujace);
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") wyslijOczekujace();
-    else if (idKonta && Date.now() - ostatniePobranie > 60_000) void zKonta(idKonta);
-  });
-
-  supabase.auth.onAuthStateChange((zdarzenie, sesja) => {
-    if (sesja) {
-      // Zdarzenia z tą samą sesją (odświeżenie tokenu, powrót do karty) nie czytają konta jeszcze raz.
-      if (sesja.user.id === idKonta) return;
-      const id = sesja.user.id;
-      idKonta = id;
-      // Wywołanie poza callbackiem: zapytania do Supabase w środku onAuthStateChange mogą się zakleszczyć.
-      window.setTimeout(() => void zKonta(id), 0);
-    } else if (zdarzenie === "SIGNED_OUT") {
-      // Następna osoba na tym komputerze zaczyna od domyślnych, jak z rozmowami i postępem.
-      idKonta = null;
-      window.clearTimeout(kolejka);
-      kolejka = undefined;
-      oznaczNiezapisane(false);
-      try {
-        localStorage.removeItem(KLUCZ);
-      } catch {
-        // nic do sprzątania
-      }
-      ustawBiezace(DOMYSLNE);
-    }
-  });
+  window.matchMedia("(prefers-contrast: more)").addEventListener("change", () => zastosuj(magazyn.biezace()));
 }

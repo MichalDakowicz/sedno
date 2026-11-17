@@ -11,7 +11,7 @@ const kiedy = (iso: string) => {
 };
 
 export function TutorChat() {
-  const { messages, state, send, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe } = useTutor();
+  const { messages, state, send, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe } = useTutor();
   const [draft, setDraft] = useState("");
   const [lista, setLista] = useState(false);
   const wczesniejsze = rozmowy.filter((r) => r.id !== biezacaRozmowa);
@@ -72,10 +72,25 @@ export function TutorChat() {
               <div>
                 <Markdown className={styles.tutorText}>{m.text}</Markdown>
                 {m.zapisane?.map((p) => (
-                  <p key={p} className={styles.zapisano}>
-                    Zapisałam w profilu: {p}. <Link to="/profil-ucznia">Zobacz profil</Link>
+                  <p key={p.id} className={styles.zapisano}>
+                    {p.cofniete ? (
+                      <>Cofnięto zapis: {p.tekst}.</>
+                    ) : (
+                      <>
+                        Zapisałam w profilu: {p.tekst}. <Link to="/profil-ucznia">Zobacz profil</Link>
+                        {" · "}
+                        <button type="button" className={styles.cofnij} onClick={() => cofnijPriorytet(m.id, p.id)}>
+                          Cofnij
+                        </button>
+                      </>
+                    )}
                   </p>
                 ))}
+                {m.pelna && (
+                  <p className={styles.zapisano}>
+                    Lista priorytetów jest pełna. <Link to="/profil-ucznia">Usuń któryś w profilu</Link>
+                  </p>
+                )}
               </div>
             </div>
           ) : (

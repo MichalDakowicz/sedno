@@ -1,11 +1,12 @@
 // Profil ucznia: jak się uczy, czas i cel, priorytety oraz wnioski z wyników. Każda odpowiedź jest dobrowolna,
 // zmienia się od razu, a wybrana ponownie znika. Dane na koncie: konto/profilUcznia.ts.
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useProfil } from "../auth";
-import { CELE, CZAS, MAX_DLUGOSC, MAX_PRIORYTETOW, PYTANIA, dodajPriorytet, usunPriorytet, usunWniosek, ustawCel, ustawOdpowiedz, useUczenie, useWnioski, type Opcja } from "../konto/profilUcznia";
+import { CELE, CZAS, MAX_DLUGOSC, MAX_PRIORYTETOW, PYTANIA, dodajPriorytet, przytnijUsuniete, useBladProfilu, usunPriorytet, usunWniosek, ustawCel, ustawOdpowiedz, useUczenie, useWnioski, type Opcja } from "../konto/profilUcznia";
 import { PRZEDMIOTY, zgrupuj, type PrzedmiotId } from "../konto/przedmioty";
 import { useWynikiKonta } from "../konto/wyniki";
+import { useListaArkuszy } from "../arkusze/dane";
 import { adres } from "../szablony/lista";
 import s from "./ProfilUcznia.module.css";
 
@@ -60,6 +61,8 @@ export function ProfilUcznia() {
   const [powtorka, setPowtorka] = useState(false);
   const moje = profil?.subjects ?? [];
   const wyniki = useWynikiKonta(moje);
+  const bladZapisu = useBladProfilu();
+  const listaBlad = useListaArkuszy().blad;
   const wnioski = useWnioski(wyniki?.podsumowania ?? null, wyniki?.wiersze ?? null);
   const priorytety = u.priorytety ?? [];
   const ukryte = new Set(u.usuniete ?? []);
@@ -72,6 +75,12 @@ export function ProfilUcznia() {
   }
 
   const zNajmniejDwoma = !!wyniki?.podsumowania.some((p) => p.wyniki.length >= 2);
+  // Ukryte wnioski, których już nie ma, przestają zajmować miejsce (tylko gdy policzyliśmy wszystko).
+  useEffect(() => {
+    if (wnioski.stan !== "gotowe" || listaBlad) return;
+    przytnijUsuniete(new Set(wnioski.przedmioty.flatMap((p) => p.wnioski.map((w) => w.id))));
+  }, [wnioski, listaBlad]);
+
   const grupy = wnioski.stan === "gotowe" ? wnioski.przedmioty.map((p) => ({ ...p, wnioski: p.wnioski.filter((w) => !ukryte.has(w.id)) })).filter((p) => p.wnioski.length) : [];
 
   return (
@@ -143,6 +152,10 @@ export function ProfilUcznia() {
         </h2>
         {wnioski.stan === "laduje" ? (
           <p className="muted">Liczę wnioski z twoich arkuszy…</p>
+        ) : wnioski.stan === "blad" || (listaBlad && listaBlad !== "brak-danych") ? (
+          <p className="muted" role="alert">
+            Nie udało się policzyć wniosków.
+          </p>
         ) : grupy.length === 0 ? (
           <p className="muted">
             {zNajmniejDwoma
@@ -168,6 +181,7 @@ export function ProfilUcznia() {
             </div>
           ))
         )}
+        {bladZapisu && <p className="muted small">Nie zapisano na koncie. Spróbuję ponownie.</p>}
         <Link to={adres("do-matury")} className={`btn btn-primary ${s.przycisk}`}>
           Zobacz plan do matury
         </Link>

@@ -1,6 +1,7 @@
 import {
   kontrastWSystemie,
   ruchWSystemie,
+  useBladUstawien,
   useUstawienia,
   zmienUstawienia,
   type Motyw,
@@ -47,6 +48,7 @@ function Przelacznik({ tytul, opis, wl, onChange }: { tytul: string; opis: strin
 
 export function Ustawienia() {
   const u = useUstawienia();
+  const blad = useBladUstawien();
 
   return (
     <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
@@ -76,6 +78,8 @@ export function Ustawienia() {
           <Przelacznik tytul="Krótkie odpowiedzi" opis="Najwyżej kilka zdań naraz" wl={u.pestkaKrotko} onChange={(pestkaKrotko) => zmienUstawienia({ pestkaKrotko })} />
         </ul>
       </section>
+
+      {blad && <p className="muted small">Nie zapisano na koncie. Spróbuję ponownie.</p>}
     </main>
   );
 }
