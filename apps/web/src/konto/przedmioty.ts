@@ -45,7 +45,10 @@ export const POCZATEK_MATURY = "2027-05-04";
 
 /** Zapas, gdy nie znamy przedmiotów ucznia. Z przedmiotami liczymy od pierwszego egzaminu: `konto/terminy.ts`. */
 export function dniDoMatury(): number {
-  return Math.max(0, Math.ceil((new Date(POCZATEK_MATURY).getTime() - Date.now()) / 86_400_000));
+  const [r, m, d] = POCZATEK_MATURY.split("-").map(Number);
+  const dzis = new Date();
+  const poczatek = new Date(dzis.getFullYear(), dzis.getMonth(), dzis.getDate());
+  return Math.max(0, Math.round((new Date(r!, m! - 1, d!).getTime() - poczatek.getTime()) / 86_400_000));
 }
 
 /** „polski (podstawowy i rozszerzony), angielski (rozszerzony)”: do kontekstu rozmowy z Pestką. */

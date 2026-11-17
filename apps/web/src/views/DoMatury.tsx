@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useProfil } from "../auth";
 import { CELE, useUczenie } from "../konto/profilUcznia";
 import { przedmiot, zgrupuj } from "../konto/przedmioty";
-import { dniDo, egzaminyUcznia, nazwaEgzaminu, odmianaDni, opisDaty } from "../konto/terminy";
+import { dniDo, egzaminyUcznia, minal, najblizszy, nazwaEgzaminu, odmianaDni, opisDaty } from "../konto/terminy";
 import s from "./DoMatury.module.css";
 
 export function DoMatury() {
@@ -10,7 +10,7 @@ export function DoMatury() {
   const u = useUczenie();
   const moje = profil?.subjects ?? [];
   const egzaminy = egzaminyUcznia(moje);
-  const pierwszy = egzaminy[0];
+  const pierwszy = najblizszy(egzaminy);
   const przedmioty = zgrupuj(moje);
 
   return (
@@ -25,7 +25,7 @@ export function DoMatury() {
         <h2 id="odliczanie" className="h2">
           Odliczanie
         </h2>
-        {!pierwszy ? (
+        {!egzaminy.length ? (
           <>
             <p className="muted">Nie wybrałeś jeszcze przedmiotów, więc nie wiem, do którego egzaminu liczyć.</p>
             <Link to="/profil#przedmioty" className="link" style={{ justifySelf: "start" }}>
@@ -35,15 +35,21 @@ export function DoMatury() {
         ) : (
           <>
             <div className={s.pierwszy}>
-              <span className="label">Pierwszy egzamin</span>
-              <span className={s.liczba}>
-                {dniDo(pierwszy.data)} <span>{odmianaDni(dniDo(pierwszy.data))}</span>
-              </span>
-              <span className="muted small">
-                {pierwszy.znana
-                  ? `${nazwaEgzaminu(pierwszy)}, ${opisDaty(pierwszy.data)} (do weryfikacji)`
-                  : `${nazwaEgzaminu(pierwszy)}, początek sesji majowej 2027. Dokładne daty egzaminów poda harmonogram CKE.`}
-              </span>
+              {pierwszy ? (
+                <>
+                  <span className="label">Pierwszy egzamin</span>
+                  <span className={s.liczba}>
+                    {dniDo(pierwszy.data)} <span>{odmianaDni(dniDo(pierwszy.data))}</span>
+                  </span>
+                  <span className="muted small">
+                    {pierwszy.znana
+                      ? `${nazwaEgzaminu(pierwszy)}, ${opisDaty(pierwszy.data)} (do weryfikacji)`
+                      : `${nazwaEgzaminu(pierwszy)}, początek sesji majowej 2027. Dokładne daty egzaminów poda harmonogram CKE.`}
+                  </span>
+                </>
+              ) : (
+                <p className="muted">Wszystkie egzaminy za tobą.</p>
+              )}
             </div>
             <ul className={s.wiersze}>
               {egzaminy.map((e) => (
@@ -52,9 +58,13 @@ export function DoMatury() {
                     <span className="h3">{nazwaEgzaminu(e)}</span>
                     <span className="muted small">{e.znana ? opisDaty(e.data) : "data wg harmonogramu CKE"}</span>
                   </span>
-                  <span className={s.dni}>
-                    {dniDo(e.data)} {odmianaDni(dniDo(e.data))}
-                  </span>
+                  {minal(e) ? (
+                    <span className="muted small">po egzaminie</span>
+                  ) : (
+                    <span className={s.dni}>
+                      {dniDo(e.data)} {odmianaDni(dniDo(e.data))}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

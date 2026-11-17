@@ -40,11 +40,17 @@ const dzien = (iso: string) => {
   return new Date(r!, m! - 1, d!);
 };
 
+/** Dni do daty (pełne dni kalendarzowe); ujemne po egzaminie. */
 export function dniDo(iso: string): number {
   const dzis = new Date();
   const poczatek = new Date(dzis.getFullYear(), dzis.getMonth(), dzis.getDate());
-  return Math.max(0, Math.round((dzien(iso).getTime() - poczatek.getTime()) / 86_400_000));
+  return Math.round((dzien(iso).getTime() - poczatek.getTime()) / 86_400_000);
 }
+
+export const minal = (e: Egzamin) => dniDo(e.data) < 0;
+
+/** Pierwszy egzamin, który jeszcze się nie odbył (lista musi być posortowana). */
+export const najblizszy = (lista: Egzamin[]) => lista.find((e) => !minal(e));
 
 /** „4 maja 2027” */
 export const opisDaty = (iso: string) => dzien(iso).toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" });
