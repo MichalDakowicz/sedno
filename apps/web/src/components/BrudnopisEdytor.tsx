@@ -370,7 +370,11 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     const aktywna = () => !kontroler.signal.aborted && api.current === tablica && currentUserId() === konto;
     try {
       const kod = dane.dopiski.filter((d) => d.typ === "kod").map((d) => d.tekst).join("\n");
-      if (kod) await document.fonts.load("17px Cascadia", kod).catch(() => []);
+      const pismo = ["Pestka", ...dane.dopiski.filter((d) => d.typ !== "kod").map((d) => d.tekst), ...Object.values(dane.bryla?.oznaczenia ?? {})].join("\n");
+      await Promise.all([
+        document.fonts.load("20px Excalifont", pismo).catch(() => []),
+        kod ? document.fonts.load("17px Cascadia", kod).catch(() => []) : [],
+      ]);
       if (!aktywna()) return;
       const nowe = przygotujZapisPestki(tablica, dane);
       tablica.setActiveTool({ type: "selection" });
