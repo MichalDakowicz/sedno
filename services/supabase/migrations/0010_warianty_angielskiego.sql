@@ -300,15 +300,75 @@ cross join lateral (
   ) a
 ) o;
 
+-- Klucz otwartego zadania CKE zawiera przykłady. Ocena rundy wymaga pełnego,
+-- jednoznacznego klucza, więc wybieramy tylko zadania zamknięte.
+create function private.cke_round_variants(p_skill text, p_level text)
+returns table (id text, prompt jsonb, answers text[], explanation text, hints text[], error_type text)
+language sql stable set search_path = '' as $$
+  with arkusze as (
+    select distinct m.sheet_id
+    from private.cke_learning_map m
+    where m.skill_id = p_skill and m.level = p_level
+  )
+  select concat(m.sheet_id, ':', m.question),
+    jsonb_strip_nulls(jsonb_build_object(
+      'typ', 'cke',
+      'sheet_id', m.sheet_id,
+      'task_nr', z.task->'nr',
+      'question', m.question,
+      'tresc', nullif(q.item->>'tresc', ''),
+      'litery', to_jsonb(l.options),
+      'nagranie', audio.url,
+      'fragment', case when audio.url is not null and
+        jsonb_typeof(q.item #> '{fragment,od}') = 'number' and jsonb_typeof(q.item #> '{fragment,do}') = 'number'
+        then case when (q.item #> '{fragment,od}')::numeric >= 0
+          and (q.item #> '{fragment,do}')::numeric > (q.item #> '{fragment,od}')::numeric
+          then jsonb_build_object('od', q.item #> '{fragment,od}', 'do', q.item #> '{fragment,do}')
+        end
+      end
+    )),
+    array[q.item->>'poprawna'],
+    'Klucz CKE: ' || (q.item->>'poprawna') || '.',
+    '{}'::text[],
+    null::text
+  from arkusze a
+  join public.sheets s on s.id = a.sheet_id
+  cross join lateral jsonb_array_elements(case when jsonb_typeof(s.data->'zadania') = 'array'
+    then s.data->'zadania' else '[]'::jsonb end) as z(task)
+  cross join lateral jsonb_array_elements(case when jsonb_typeof(z.task->'pytania') = 'array'
+    then z.task->'pytania' else '[]'::jsonb end) as q(item)
+  join private.cke_learning_map m on m.sheet_id = a.sheet_id and m.question = q.item->>'nr'
+  cross join lateral (
+    select array_agg(option.value order by option.position) as options
+    from jsonb_array_elements_text(case when jsonb_typeof(q.item->'litery') = 'array'
+      then q.item->'litery' else '[]'::jsonb end) with ordinality as option(value, position)
+    where option.value ~ '^[A-HT]$'
+  ) l
+  cross join lateral (select case when p_skill like 'sluchanie-%' then nullif(s.data->>'nagranie', '') end as url) audio
+  where m.skill_id = p_skill and m.level = p_level
+    and q.item->>'typ' = 'zamkniete'
+    and jsonb_typeof(z.task->'nr') = 'number'
+    and cardinality(l.options) >= 2
+    and (q.item->>'poprawna') = any(l.options)
+    and (p_skill not like 'sluchanie-%' or audio.url is not null);
+$$;
+
 create function private.learning_variants(p_skill text, p_level text, p_format text)
 returns table (id text, prompt jsonb, answers text[], explanation text, hints text[], error_type text)
 language sql stable set search_path = '' as $$
+  with cke as materialized (
+    select * from private.cke_round_variants(p_skill, p_level) where p_format = 'szybka-runda'
+  )
+  select * from cke
+  union all
   select e.id, e.prompt, e.answers, e.explanation, e.hints, e.error_type
   from private.learning_exercises e
   where e.skill_id = p_skill
     and e.level = p_level
-    and e.format = case p_format when 'sokratejski' then 'szybka-runda' else p_format end;
+    and e.format = case p_format when 'sokratejski' then 'szybka-runda' else p_format end
+    and (p_format <> 'szybka-runda' or (select count(*) from cke) < 5);
 $$;
 
 revoke all on private.learning_exercises from public, anon, authenticated;
-revoke all on function private.learning_variants(text, text, text) from public, anon, authenticated;
+revoke all on function private.learning_variants(text, text, text),
+  private.cke_round_variants(text, text) from public, anon, authenticated;

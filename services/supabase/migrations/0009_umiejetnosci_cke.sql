@@ -265,7 +265,7 @@ $$;
 create function private.cke_learning_evidence(p_user uuid, p_level text)
 returns table (
   skill_id text, source_id text, sheet_id text, question text,
-  score numeric, weight numeric, happened_at timestamptz
+  score numeric, weight numeric, happened_at timestamptz, difficulty numeric
 )
 language sql stable set search_path = ''
 as $$
@@ -280,7 +280,9 @@ as $$
   ), oceny as materialized (
     select m.skill_id, m.sheet_id, m.question, m.points,
            private.cke_learning_score(q.pytanie, p.data -> 'odpowiedzi' ->> m.question) as score,
-           private.cke_learning_date(p.data #>> '{wynik,kiedy}', p.updated_at) as happened_at
+           private.cke_learning_date(p.data #>> '{wynik,kiedy}', p.updated_at) as happened_at,
+           case q.pytanie->>'typ' when 'zamkniete' then 950 else 1100 end
+             + 40 * (m.points - 1) as difficulty
     from postep p
     cross join lateral jsonb_array_elements(case when jsonb_typeof(p.zadania) = 'array'
       then p.zadania else '[]'::jsonb end) as z (zadanie)
@@ -294,7 +296,7 @@ as $$
       and jsonb_typeof(p.data -> 'odpowiedzi' -> m.question) = 'string'
   )
   select o.skill_id, concat(o.sheet_id, ':', o.question), o.sheet_id, o.question,
-         o.score, o.points::numeric, o.happened_at
+         o.score, o.points::numeric, o.happened_at, o.difficulty::numeric
   from oceny o
   where o.score is not null;
 $$;

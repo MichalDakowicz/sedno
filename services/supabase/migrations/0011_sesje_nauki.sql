@@ -76,24 +76,25 @@ $$;
 create function private.learning_evidence(p_user uuid, p_level text)
 returns table (
   skill_id text, source_id text, sheet_id text, question text, session_id uuid,
-  score numeric, weight numeric, happened_at timestamptz, hint_level int, error_type text
+  score numeric, weight numeric, happened_at timestamptz, hint_level int, error_type text, difficulty numeric
 )
 language sql stable set search_path = '' as $$
   select c.skill_id, c.source_id, c.sheet_id, c.question, null::uuid, c.score, c.weight,
-         c.happened_at, null::int, null::text
+         c.happened_at, null::int, null::text, c.difficulty
   from private.cke_learning_evidence(p_user, p_level) c
   union all
   select s.skill_id, i.variant_id, null::text, i.position::text, s.id, i.correct::int::numeric,
          case s.format when 'sokratejski' then 0.55 else 0.45 end / (1 + i.hint_level * 0.5),
-         s.completed_at, i.hint_level, case when not i.correct then i.error_type end
+         s.completed_at, i.hint_level, case when not i.correct then i.error_type end,
+         case i.prompt->>'typ' when 'luka' then 1100 when 'napraw-blad' then 1050 else 950 end::numeric
   from private.learning_sessions s
   join private.learning_session_items i on (i.user_id, i.session_id) = (s.user_id, s.id)
   where s.user_id = p_user and s.level = p_level and s.completed_at is not null
     and i.answered_at is not null
 $$;
 
--- Przejrzysty wynik to średnia ważona najświeższymi dowodami. Estymator Beta(1,1)
--- służy do sortowania sugestii. Liczbę pokazujemy od 3 dowodów i 1,2 ich łącznej wagi po zaniku.
+-- Elo aktualizuje ocenę za każdą próbę. Typ zadania ustala początkową trudność,
+-- a wiek dowodu i podpowiedzi zmniejszają wielkość aktualizacji.
 create function private.learning_map(p_user uuid, p_level text)
 returns table (
   skill_id text, area text, name text, description text, codes text[],
@@ -103,29 +104,36 @@ returns table (
   retention numeric, due_at timestamptz, formats text[]
 )
 language sql stable set search_path = '' as $$
-  with unique_attempts as (
+  with recursive unique_attempts as (
     -- Powtórka tego samego wariantu podmienia dowód w modelu, a pełna historia zostaje w rozbiorze.
     select distinct on (e.skill_id, e.source_id) e.*
     from private.learning_evidence(p_user, p_level) e
     order by e.skill_id, e.source_id, e.happened_at desc, e.session_id
   ), recent as (
     select e.*, row_number() over (
-      partition by e.skill_id order by e.happened_at desc, e.source_id, e.session_id
+      partition by e.skill_id order by e.happened_at desc, e.session_id,
+        case when e.session_id is not null then e.question::int end desc, e.source_id
     ) as n
     from unique_attempts e
   ), samples as (
-    select e.*, power(0.5::numeric, greatest(0, extract(epoch from (now() - e.happened_at))) /
-      (86400 * k.half_life_days)) as freshness
+    select e.*, row_number() over (partition by e.skill_id order by e.n desc) as ordinal,
+      e.weight * power(0.5::numeric, greatest(0, extract(epoch from (now() - e.happened_at))) /
+        (86400 * k.half_life_days)) as effective
     from recent e
     join private.learning_skills k on k.id = e.skill_id
     where e.n <= 40
   ), stats as (
     select a.skill_id, count(*) as n, max(a.happened_at) as latest,
       max(a.happened_at) filter (where a.score < 1) as mistake,
-      sum(a.score * a.weight * a.freshness) as got,
-      sum(a.weight * a.freshness) as effective
+      sum(a.effective) as effective
     from samples a
     group by a.skill_id
+  ), elo (skill_id, ordinal, rating) as (
+    select k.id, 0::bigint, 1000::numeric from private.learning_skills k
+    union all
+    select a.skill_id, a.ordinal, round(
+      e.rating + 48 * a.effective * (a.score - 1 / (1 + power(10::numeric, (a.difficulty - e.rating) / 400))), 5)
+    from elo e join samples a on a.skill_id = e.skill_id and a.ordinal = e.ordinal + 1
   ), passed as (
     select s.skill_id, max(s.completed_at) as latest
     from private.learning_sessions s
@@ -135,8 +143,8 @@ language sql stable set search_path = '' as $$
   )
   select k.id, k.area, k.name, k.description, k.codes, coalesce(w.points, 0), coalesce(a.n, 0),
     a.latest, a.mistake, p.latest,
-    case when a.n >= 3 and a.effective >= 1.2 then round(a.got / a.effective, 3) end,
-    round((1 + coalesce(a.got, 0)) / (2 + coalesce(a.effective, 0)), 3),
+    case when a.n >= 3 and a.effective >= 1.2 then ocena.estimated end,
+    ocena.estimated,
     round(coalesce(a.effective, 0) / (2 + coalesce(a.effective, 0)), 3),
     case when a.latest is not null then
       round(power(0.5::numeric, greatest(0, extract(epoch from (now() - a.latest))) / (86400 * k.half_life_days)), 3)
@@ -150,6 +158,8 @@ language sql stable set search_path = '' as $$
     )
   from private.learning_skills k
   left join stats a on a.skill_id = k.id
+  join elo e on e.skill_id = k.id and e.ordinal = coalesce(a.n, 0)
+  cross join lateral (select round(1 / (1 + power(10::numeric, (1000 - e.rating) / 400)), 3) as estimated) ocena
   left join passed p on p.skill_id = k.id
   left join private.cke_learning_weights(p_level) w on w.skill_id = k.id
 $$;
@@ -282,17 +292,34 @@ begin
   values (u, p_session, p_skill, l, p_format, cel);
 
   insert into private.learning_session_items (user_id, session_id, position, variant_id, prompt, accepted, explanation, hints, error_type)
-  select u, p_session, row_number() over (order by v.last_seen nulls first, v.shuffle, v.id),
+  select u, p_session, row_number() over (order by v.original_variant, v.last_seen nulls first, v.shuffle, v.id),
     v.id, v.prompt, v.answers, v.explanation, coalesce(v.hints, '{}'), v.error_type
   from (
-    select v.*, random() as shuffle, (
-      select max(i.answered_at)
-      from private.learning_sessions previous
-      join private.learning_session_items i on (i.user_id, i.session_id) = (previous.user_id, previous.id)
-      where previous.user_id = u and previous.level = l and previous.skill_id = p_skill and i.variant_id = v.id
-    ) as last_seen
+    select v.*, random() as shuffle, v.prompt->>'typ' is distinct from 'cke' as original_variant,
+      greatest(
+        (
+          -- Pierwsze nieukończone zadanie było już zwrócone klientowi.
+          select max(coalesce(i.answered_at, previous.updated_at))
+          from private.learning_sessions previous
+          join private.learning_session_items i on (i.user_id, i.session_id) = (previous.user_id, previous.id)
+          where previous.user_id = u and previous.level = l and previous.skill_id = p_skill and i.variant_id = v.id
+            and (i.answered_at is not null or (previous.completed_at is null and i.position = (
+              select min(next.position)
+              from private.learning_session_items next
+              where (next.user_id, next.session_id) = (i.user_id, i.session_id) and next.answered_at is null
+            )))
+        ),
+        (
+          select p.updated_at
+          from public.sheet_progress p
+          where (p.user_id, p.sheet_id) = (u, v.prompt->>'sheet_id')
+            and (nullif(btrim(p.data -> 'odpowiedzi' ->> (v.prompt->>'question')), '') is not null
+              or p.data->'sprawdzony' = 'true'::jsonb
+              or p.data->'sprawdzoneZadania' @> jsonb_build_array(v.prompt->'task_nr'))
+        )
+      ) as last_seen
     from private.learning_variants(p_skill, l, p_format) v
-    order by last_seen nulls first, shuffle, v.id
+    order by original_variant, last_seen nulls first, shuffle, v.id
     limit case when p_format = 'szybka-runda' then 8 else cel end
   ) v;
 
