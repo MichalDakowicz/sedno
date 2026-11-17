@@ -1,41 +1,14 @@
 import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
 import { logAiUsage, resolveAi } from "../_shared/ai-route.ts";
 import { readJsonObject } from "../_shared/http.ts";
-import { chat, type ImagePart, LlmError, type Message } from "../_shared/llm.ts";
+import { chat, LlmError, type Message } from "../_shared/llm.ts";
 import { ETAPY, POZIOMY, publiczneScenariusze, SCENARIUSZE, STATUSY, UMIEJETNOSCI } from "./formaty.ts";
+import { listaWariantow, ocenRozwiazanie, utworzWariant } from "./ocenianie.ts";
+import { BladApi, MAX_BODY, obiekt, type Obiekt, obrazWiadomosci, tekst, UUID, wybierz, type Zapytaj } from "./protokol.ts";
 import { katalogWizualizacji, stanWizualizacji } from "./wizualizacje.ts";
 
-const MAX_OBRAZ = 1024 * 1024;
-const MAX_BASE64 = Math.ceil(MAX_OBRAZ / 3) * 4;
-const MAX_BODY = MAX_BASE64 + 12_288;
 const MAX_MODEL_BYTES = 512 * 1024;
-const UUID = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 const RUCHY = ["wyjasnienie", "bledne-wyjasnienie", "niejasne", "nie-wiem", "poza-tematem"] as const;
-
-type Obiekt = Record<string, unknown>;
-type Tier = "wazne" | "lekkie";
-type Zapytaj = (
-  task: string, tier: Tier, instrukcja: string, dane: Obiekt, limit?: number, obraz?: ImagePart,
-) => Promise<Obiekt>;
-
-class BladApi extends Error {
-  constructor(readonly status: number, readonly kod: string) {
-    super(kod);
-  }
-}
-
-function obiekt(wartosc: unknown): Obiekt | null {
-  return wartosc !== null && typeof wartosc === "object" && !Array.isArray(wartosc) ? wartosc as Obiekt : null;
-}
-
-function tekst(wartosc: unknown, max: number): string | null {
-  if (typeof wartosc !== "string" || wartosc.length > max) return null;
-  return wartosc.trim() || null;
-}
-
-function wybierz<T extends string>(wartosc: unknown, dozwolone: readonly T[]): T | null {
-  return dozwolone.find((wartoscDozwolona) => wartoscDozwolona === wartosc) ?? null;
-}
 
 function klucz<T extends object>(wartosc: unknown, dane: T): (keyof T & string) | null {
   return typeof wartosc === "string" && Object.hasOwn(dane, wartosc) ? wartosc as keyof T & string : null;
@@ -208,25 +181,6 @@ async function uczenUczy(body: Obiekt, zapytaj: Zapytaj) {
   const kolega = pokrycie ? "Rozumiem już twój przykład. Dzięki!" :
     zakoncz && ruch !== "nie-wiem" ? "Na dziś skończmy. Dzięki za próbę wyjaśnienia." : reakcje[ruch];
   return { kolega, statusy: ocenione, ruch, zakoncz, omowienie: zakoncz ? scenariusz.reguła : null };
-}
-
-function obrazWiadomosci(raw: unknown): ImagePart | null {
-  const dane = obiekt(raw);
-  const mime = wybierz(dane?.mime, ["image/jpeg", "image/png", "image/webp"] as const);
-  const base64 = dane?.base64;
-  if (!mime || typeof base64 !== "string" || !base64.length || base64.length > MAX_BASE64 ||
-    base64.length % 4 !== 0 || /[^A-Za-z0-9+/=]/.test(base64)) return null;
-  let ciag: string;
-  try {
-    ciag = atob(base64);
-  } catch {
-    return null;
-  }
-  if (ciag.length > MAX_OBRAZ) return null;
-  const pasuje = mime === "image/png" ? ciag.startsWith("\x89PNG\r\n\x1a\n") :
-    mime === "image/jpeg" ? ciag.startsWith("\xff\xd8\xff") :
-    ciag.startsWith("RIFF") && ciag.slice(8, 12) === "WEBP";
-  return pasuje ? { type: "image_url", image_url: { url: `data:${mime};base64,${base64}` } } : null;
 }
 
 async function zdjecie(body: Obiekt, zapytaj: Zapytaj) {
@@ -472,6 +426,12 @@ export async function handle(req: Request): Promise<Response> {
     const body = parsed.data;
     const zapytaj = zapytania(user, AbortSignal.any([req.signal, AbortSignal.timeout(55_000)]));
     switch (body.action) {
+      case "warianty-katalog":
+        return reply(200, listaWariantow(body));
+      case "wariant-zadania":
+        return reply(200, await utworzWariant(body, user));
+      case "ocen-rozwiazanie":
+        return reply(200, await ocenRozwiazanie(body, user, zapytaj));
       case "dopasuj-temat":
         return reply(200, await dopasujTemat(body, zapytaj));
       case "sokratejski":
