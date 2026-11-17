@@ -4,6 +4,7 @@
 
 import { decryptKey, encryptKey, importSecret, rowId } from "../_shared/crypto.ts";
 import { UnsafeUrl } from "../_shared/hosts.ts";
+import { readJsonObject } from "../_shared/http.ts";
 import { chat, LlmError } from "../_shared/llm.ts";
 import { admin, checkUrl, cors, mayUseServer, reply, serverOllamaUrl, takeToken, userId } from "../_shared/konto.ts";
 
@@ -22,14 +23,9 @@ async function handle(req: Request): Promise<Response> {
   if (allowed === null) return reply(500, { error: "server_error" });
   if (!allowed) return reply(429, { error: "rate_limited" });
 
-  const text = await req.text();
-  if (text.length > MAX_BODY) return reply(413, { error: "too_large" });
-  let body: Record<string, unknown>;
-  try {
-    body = JSON.parse(text);
-  } catch {
-    return reply(400, { error: "bad_json" });
-  }
+  const parsed = await readJsonObject(req, MAX_BODY);
+  if ("error" in parsed) return reply(parsed.status, { error: parsed.error });
+  const body = parsed.data;
   const provider = body.provider;
   if (typeof provider !== "string" || !PROVIDER.test(provider)) return reply(400, { error: "bad_provider" });
 

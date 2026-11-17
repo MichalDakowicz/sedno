@@ -6,49 +6,14 @@
 // stream=false → { text, provider, model, usage }
 // stream=true  → text/event-stream: data: {"type":"text","delta":...} ... data: {"type":"done",...}
 
-import { decryptKey, importSecret, rowId } from "../_shared/crypto.ts";
-import { chat, chatStream, LlmError, type Message, type Provider } from "../_shared/llm.ts";
-import { admin, checkUrl, cors, reply, takeToken, userId } from "../_shared/konto.ts";
+import { logAiUsage, resolveAi } from "../_shared/ai-route.ts";
+import { readJsonObject } from "../_shared/http.ts";
+import { chat, chatStream, LlmError, type Message } from "../_shared/llm.ts";
+import { cors, reply, takeToken, userId } from "../_shared/konto.ts";
 
 const MAX_BODY = 256 * 1024;
 const TIERS = new Set(["wazne", "lekkie"]);
 const ROLES = new Set(["system", "user", "assistant"]);
-
-type Route = { provider: string; model: string; reasoningEffort?: string; p: Provider };
-
-async function resolve(user: string, tier: string, override: string | undefined): Promise<Route | Response> {
-  let provider = override;
-  let model: string | null = null;
-  let reasoningEffort: string | undefined;
-  if (!provider) {
-    const { data } = await admin.from("ai_routing").select("provider, model, reasoning_effort").eq("user_id", user).eq("tier", tier).maybeSingle();
-    provider = data?.provider;
-    model = data?.model ?? null;
-    reasoningEffort = data?.reasoning_effort ?? undefined;
-  }
-  let query = admin.from("ai_credential").select("provider, base_url, model, key_cipher").eq("user_id", user);
-  if (provider) query = query.eq("provider", provider);
-  const { data: creds, error } = await query.limit(2);
-  if (error) return reply(500, { error: "server_error" });
-  // Bez ustawionego routingu wystarczy, że konto ma dokładnie jednego dostawcę.
-  if (!creds?.length || (!provider && creds.length > 1)) return reply(409, { error: "no_provider", tier });
-  const c = creds[0]!;
-
-  let secret: CryptoKey;
-  try {
-    secret = await importSecret(Deno.env.get("LLM_KEY_SECRET"));
-  } catch {
-    return reply(503, { error: "not_configured" });
-  }
-  try {
-    const key = await decryptKey(secret, rowId(user, c.provider), c.key_cipher);
-    const baseUrl = await checkUrl(user, c.base_url);
-    const m = model ?? c.model;
-    return { provider: c.provider, model: m, reasoningEffort, p: { baseUrl, key, model: m } };
-  } catch {
-    return reply(400, { error: "bad_credential" });
-  }
-}
 
 function parseMessages(raw: unknown): Message[] | null {
   if (!Array.isArray(raw) || raw.length < 1 || raw.length > 100) return null;
@@ -58,10 +23,6 @@ function parseMessages(raw: unknown): Message[] | null {
     out.push({ role: m.role, content: m.content });
   }
   return out;
-}
-
-async function log(row: Record<string, unknown>) {
-  await admin.from("ai_usage").insert(row);
 }
 
 async function handle(req: Request): Promise<Response> {
@@ -75,14 +36,9 @@ async function handle(req: Request): Promise<Response> {
   if (allowed === null) return reply(500, { error: "server_error" });
   if (!allowed) return reply(429, { error: "rate_limited" });
 
-  const text = await req.text();
-  if (text.length > MAX_BODY) return reply(413, { error: "too_large" });
-  let body: Record<string, unknown>;
-  try {
-    body = JSON.parse(text);
-  } catch {
-    return reply(400, { error: "bad_json" });
-  }
+  const parsed = await readJsonObject(req, MAX_BODY);
+  if ("error" in parsed) return reply(parsed.status, { error: parsed.error });
+  const body = parsed.data;
 
   const tier = typeof body.tier === "string" ? body.tier : "lekkie";
   if (!TIERS.has(tier)) return reply(400, { error: "bad_tier" });
@@ -93,7 +49,7 @@ async function handle(req: Request): Promise<Response> {
   const maxTokens = typeof body.max_tokens === "number" ? Math.min(Math.max(1, body.max_tokens), 8192) : undefined;
   const temperature = typeof body.temperature === "number" ? body.temperature : undefined;
 
-  const route = await resolve(user, tier, override);
+  const route = await resolveAi(user, tier, override);
   if (route instanceof Response) return route;
 
   const started = Date.now();
@@ -101,12 +57,13 @@ async function handle(req: Request): Promise<Response> {
 
   if (body.stream !== true) {
     try {
-      const out = await chat(route.p, { messages, maxTokens, temperature, reasoningEffort: route.reasoningEffort });
-      await log({ ...base, ok: true, status: 200, prompt_tokens: out.usage?.promptTokens, completion_tokens: out.usage?.completionTokens, duration_ms: Date.now() - started });
+      const signal = AbortSignal.any([req.signal, AbortSignal.timeout(120_000)]);
+      const out = await chat(route.p, { messages, maxTokens, temperature, reasoningEffort: route.reasoningEffort, signal });
+      await logAiUsage({ ...base, ok: true, status: 200, prompt_tokens: out.usage?.promptTokens, completion_tokens: out.usage?.completionTokens, duration_ms: Date.now() - started });
       return reply(200, { text: out.text, provider: route.provider, model: route.model, usage: out.usage });
     } catch (e) {
-      const status = e instanceof LlmError ? e.status : 0;
-      await log({ ...base, ok: false, status, duration_ms: Date.now() - started });
+      const status = req.signal.aborted ? 499 : e instanceof LlmError ? e.status : 0;
+      await logAiUsage({ ...base, ok: false, status, duration_ms: Date.now() - started });
       // 424, nie 502: Cloudflare przed serwerem podmienia odpowiedzi 502 na własną stronę HTML bez CORS,
       // więc aplikacja nie widziała ani kodu, ani powodu błędu dostawcy.
       return reply(424, { error: "provider_failed", status, detail: e instanceof LlmError ? e.detail : undefined });
@@ -114,23 +71,48 @@ async function handle(req: Request): Promise<Response> {
   }
 
   const enc = new TextEncoder();
+  const cancel = new AbortController();
+  const signal = AbortSignal.any([req.signal, cancel.signal, AbortSignal.timeout(120_000)]);
+  const events = chatStream(route.p, { messages, maxTokens, temperature, reasoningEffort: route.reasoningEffort, signal });
+  let logged = false;
+  async function finish(fields: Record<string, unknown>) {
+    if (logged) return;
+    logged = true;
+    await logAiUsage({ ...base, ...fields, duration_ms: Date.now() - started });
+  }
+
   const stream = new ReadableStream({
-    async start(ctrl) {
+    async pull(ctrl) {
       const send = (data: unknown) => ctrl.enqueue(enc.encode(`data: ${JSON.stringify(data)}\n\n`));
       try {
-        for await (const ev of chatStream(route.p, { messages, maxTokens, temperature, reasoningEffort: route.reasoningEffort })) {
-          if (ev.type === "text") send({ type: "text", delta: ev.delta });
-          if (ev.type === "done") {
-            await log({ ...base, ok: true, status: 200, prompt_tokens: ev.result.usage?.promptTokens, completion_tokens: ev.result.usage?.completionTokens, duration_ms: Date.now() - started });
-            send({ type: "done", provider: route.provider, model: route.model, usage: ev.result.usage });
+        for (;;) {
+          const next = await events.next();
+          if (cancel.signal.aborted) return;
+          if (next.done) throw new LlmError(502, "empty stream");
+          const ev = next.value;
+          if (ev.type === "text") {
+            send({ type: "text", delta: ev.delta });
+            return;
           }
+          if (ev.type !== "done") continue;
+          const { usage } = ev.result;
+          await finish({ ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
+          if (cancel.signal.aborted) return;
+          send({ type: "done", provider: route.provider, model: route.model, usage });
+          break;
         }
       } catch (e) {
-        const status = e instanceof LlmError ? e.status : 0;
-        await log({ ...base, ok: false, status, duration_ms: Date.now() - started });
+        if (cancel.signal.aborted) return;
+        const status = req.signal.aborted ? 499 : e instanceof LlmError ? e.status : 0;
+        await finish({ ok: false, status });
+        if (cancel.signal.aborted) return;
         send({ type: "error", status, detail: e instanceof LlmError ? e.detail : undefined });
       }
       ctrl.close();
+    },
+    async cancel() {
+      cancel.abort();
+      await Promise.allSettled([events.return(undefined), finish({ ok: false, status: 499 })]);
     },
   });
   return new Response(stream, { headers: { ...cors, "Content-Type": "text/event-stream", "Cache-Control": "no-cache" } });
