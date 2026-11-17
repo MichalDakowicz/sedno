@@ -79,3 +79,15 @@ Deno.test("Rubryka pochodzi wyłącznie z odpowiedniego podpunktu z PDF", () => 
   assert.equal(wytnijRubryke(strony, "25.2", 4), null);
   assert.equal(wytnijRubryke("Zadanie 4. (0–2)\nZasady oceniania\n2 pkt – rozwiązanie", "4", 2), null);
 });
+
+Deno.test("Ostatnia rubryka kończy się przed odrębną częścią PDF", () => {
+  const tresc = [
+    "Zadanie 3 1 . (0 – 4)\nZasady ocenia nia\n4 pkt – rozwiązanie\n0 pkt – brak",
+    "Przykładowe pełne rozwiązanie\nPierwszy i drugi krok.",
+    "Ocena prac osób ze stwierdzoną dyskalkulią",
+    "Zadanie 31.\nInne kryteria. ".repeat(1300),
+  ].join("\n");
+  assert.deepEqual(wytnijRubryke(tresc, "31", 4), {
+    zasady: "4 pkt – rozwiązanie\n0 pkt – brak", rozwiazanie: "Pierwszy i drugi krok.",
+  });
+});
