@@ -4,7 +4,8 @@ import { X } from "lucide-react";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { AiError, aiErrorText } from "../ai";
 import { useSession } from "../auth";
-import { omowTablice, wstawRysunekPestki } from "./brudnopisPestkaApi";
+import { maOsObrotu, NAZWY_BRYL, rzutBryly, WIDOK_BRYLY } from "./brudnopisBryla";
+import { DOMYSLNY_OBROT_BRYLY, omowTablice, type BrylaPestki, type OdpowiedzPestki } from "./brudnopisPestkaApi";
 import { TekstMat } from "./TekstMat";
 import { TutorAvatar } from "./TutorAvatar";
 import styles from "./Brudnopis.module.css";
@@ -13,6 +14,7 @@ type Props = {
   id: string;
   api: RefObject<ExcalidrawImperativeAPI | null>;
   polecenie: string;
+  onPokaz: (dane: OdpowiedzPestki) => void;
   onZamknij: () => void;
 };
 type Stan =
@@ -30,13 +32,38 @@ function komunikat(kod: string) {
   return aiErrorText(kod);
 }
 
-export function BrudnopisPestka({ id, api, polecenie, onZamknij }: Props) {
+function PodgladBryly({ bryla, obrot, onObrot }: { bryla: BrylaPestki; obrot: number; onObrot: (kat: number) => void }) {
+  const rzut = rzutBryly(bryla, obrot);
+  const nazwa = NAZWY_BRYL[bryla.typ];
+  const zmienNachylenie = maOsObrotu(bryla.typ);
+  return (
+    <div className={styles.pestkaBryla}>
+      <svg viewBox={"0 0 " + WIDOK_BRYLY.join(" ")} role="img" aria-label={nazwa}>
+        {rzut.linie.map(({ punkty, ukryta }, i) => (
+          <polyline key={i} points={punkty.map(([x, y]) => x.toFixed(2) + "," + y.toFixed(2)).join(" ")}
+            fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round" strokeDasharray={ukryta ? "4 4" : undefined} />
+        ))}
+        {rzut.etykiety.map(({ punkt: [x, y], tekst }, i) => (
+          <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="central" fill="currentColor" fontSize={10}>{tekst}</text>
+        ))}
+      </svg>
+      <label className="small">
+        {zmienNachylenie ? "Nachylenie widoku" : "Obrót bryły"}
+        <input type="range" min={zmienNachylenie ? 5 : 0} max={zmienNachylenie ? 75 : 360} step={5}
+          value={obrot} onChange={(e) => onObrot(e.currentTarget.valueAsNumber)} />
+      </label>
+    </div>
+  );
+}
+
+export function BrudnopisPestka({ id, api, polecenie, onPokaz, onZamknij }: Props) {
   const session = useSession();
   const konto = session ? session.user.id : null;
   const tytul = useId();
   const polePytania = useRef<HTMLInputElement>(null);
   const zapytanie = useRef<AbortController | null>(null);
   const [pytanie, setPytanie] = useState("");
+  const [obrot, setObrot] = useState(DOMYSLNY_OBROT_BRYLY);
   const [stan, setStan] = useState<Stan>({ typ: "pusty" });
   const zajeta = stan.typ === "czyta";
 
@@ -62,7 +89,10 @@ export function BrudnopisPestka({ id, api, polecenie, onZamknij }: Props) {
     setStan({ typ: "czyta" });
     try {
       const dane = await omowTablice(api.current, konto, polecenie, pytanie.trim(), c.signal);
-      if (!c.signal.aborted) setStan({ typ: "odpowiedz", dane });
+      if (!c.signal.aborted) {
+        setObrot(DOMYSLNY_OBROT_BRYLY);
+        setStan({ typ: "odpowiedz", dane });
+      }
     } catch (e) {
       if (!c.signal.aborted) setStan({ typ: "blad", kod: e instanceof AiError ? e.code : "server_error" });
     } finally {
@@ -92,7 +122,7 @@ export function BrudnopisPestka({ id, api, polecenie, onZamknij }: Props) {
       <form className={styles.pestkaForm} onSubmit={zapytaj}>
         <label>
           <span className="small">Pytanie do Pestki (opcjonalnie)</span>
-          <input ref={polePytania} value={pytanie} maxLength={500} onChange={(e) => setPytanie(e.currentTarget.value)} placeholder="Gdzie jest błąd? Narysujesz trójkąt?" />
+          <input ref={polePytania} value={pytanie} maxLength={500} onChange={(e) => setPytanie(e.currentTarget.value)} placeholder="Gdzie jest błąd? Narysuj bryłę z zadania." />
         </label>
         <p className="small muted">Pestka otrzyma obraz obecnego szkicu.</p>
         <button type="submit" className="btn btn-primary btn-sm" disabled={!konto || zajeta}>
@@ -112,13 +142,11 @@ export function BrudnopisPestka({ id, api, polecenie, onZamknij }: Props) {
           <div className={styles.pestkaWynik}>
             {stan.dane.odczyt && <p className="small muted">Odczyt szkicu<br /><TekstMat tekst={stan.dane.odczyt} /></p>}
             <p><TekstMat tekst={stan.dane.wskazowka} /></p>
-            {stan.dane.ksztalty.length > 0 && (
-              <button type="button" className="btn btn-secondary btn-sm" onClick={() => {
-                if (!api.current) return;
-                wstawRysunekPestki(api.current, stan.dane.ksztalty);
-                onZamknij();
-              }}>
-                Dodaj rysunek obok szkicu
+            {stan.dane.pominietoElementy && <p className="small muted">Część zapisu ma błędny format. Możesz poprosić o osobny rysunek lub dopisek.</p>}
+            {stan.dane.bryla && <PodgladBryly bryla={stan.dane.bryla} obrot={obrot} onObrot={setObrot} />}
+            {(stan.dane.ksztalty.length > 0 || stan.dane.dopiski.length > 0 || stan.dane.bryla) && (
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => onPokaz({ ...stan.dane, obrotBryly: obrot })}>
+                Pokaż na tablicy
               </button>
             )}
           </div>
