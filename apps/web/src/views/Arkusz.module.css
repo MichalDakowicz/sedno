@@ -38,6 +38,14 @@
   padding-top: 4px;
 }
 
+/* Długi podpis przycisku zawija się zamiast wypychać stronę poza ekran. */
+.pdfs > :is(a, button) {
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.25;
+  text-align: left;
+}
+
 /* Podsumowanie po sprawdzeniu */
 
 .summary {
