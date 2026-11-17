@@ -2,18 +2,19 @@
 // Ładowany leniwie (Brudnopis.tsx), bo Excalidraw waży kilkaset kB.
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { CaptureUpdateAction, convertToExcalidrawElements, Excalidraw, getCommonBounds, hashElementsVersion, newElementWith } from "@excalidraw/excalidraw";
+import { CaptureUpdateAction, convertToExcalidrawElements, Excalidraw, getCommonBounds, hashElementsVersion, newElementWith, sceneCoordsToViewportCoords } from "@excalidraw/excalidraw";
 import type { AppState, BinaryFileData, DataURL, ExcalidrawImperativeAPI, ExcalidrawInitialDataState, NormalizedZoomValue } from "@excalidraw/excalidraw/types";
 import type { ExcalidrawElement, FileId } from "@excalidraw/excalidraw/element/types";
 import "@excalidraw/excalidraw/index.css";
 import { Circle, Eraser, Hand, Maximize2, Minimize2, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Sparkles, Square, Trash2, Type, Undo2, X, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
 import { mniejRuchu, useCiemny } from "../motyw";
-import { currentUserId } from "../auth";
+import { currentUserId, useSession } from "../auth";
 import { adresObrazu, type Obraz } from "../arkusze/typy";
-import { BrudnopisPestka } from "./BrudnopisPestka";
+import { BrudnopisPestka, komunikatPestki } from "./BrudnopisPestka";
 import type { OdpowiedzPestki } from "./brudnopisPestkaApi";
 import { pokazZapisPestki, przygotujZapisPestki, zapiszDopiskiPestki } from "./brudnopisPestkaRysunek";
 import { TutorAvatar } from "./TutorAvatar";
+import { useProwadzeniePestki, type ZapisProwadzenia } from "./useProwadzeniePestki";
 import styles from "./Brudnopis.module.css";
 
 export const ID_RYSUNKU = "rysunek-bazowy";
@@ -348,6 +349,10 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   const nakladkaPestki = useRef<HTMLCanvasElement>(null);
   const idPestki = useId();
   const przyciskPestki = useRef<HTMLButtonElement>(null);
+  const sesja = useSession();
+  const konto = sesja ? sesja.user.id : null;
+  const prowadzenie = useProwadzeniePestki({ api, konto, plik, polecenie: poleceniePestki, czyBazowy, pokaz: pokazNaTablicy });
+  const prowadzi = prowadzenie.stan === "czeka" || prowadzenie.stan === "czyta";
   const zamknijPestke = () => {
     setPestka(false);
     przyciskPestki.current?.focus();
@@ -357,31 +362,46 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   }, [poleceniePestki]);
   useEffect(() => () => pisaniePestki.current?.abort(), [plik, pelny, poleceniePestki]);
 
-  async function pokazNaTablicy(dane: OdpowiedzPestki) {
+  async function pokazNaTablicy(dane: OdpowiedzPestki, zapis?: ZapisProwadzenia) {
     const tablica = api.current;
     const nakladka = nakladkaPestki.current;
-    const konto = currentUserId();
-    if (!tablica || !konto || pisaniePestki.current) return;
+    const uzytkownik = currentUserId();
+    if (!tablica || !konto || uzytkownik !== konto || pisaniePestki.current || zapis?.signal.aborted) return false;
     const kontroler = new AbortController();
+    const przerwij = () => kontroler.abort();
+    zapis?.signal.addEventListener("abort", przerwij, { once: true });
     pisaniePestki.current = kontroler;
-    zamknijPestke();
+    if (!zapis) zamknijPestke();
     const animuj = Boolean(nakladka && !mniejRuchu());
     if (animuj) setPiszePestka(true);
-    const aktywna = () => !kontroler.signal.aborted && api.current === tablica && currentUserId() === konto;
+    const aktywna = () => !kontroler.signal.aborted && api.current === tablica && currentUserId() === konto && (!zapis || zapis.aktualny());
     try {
       const kod = dane.dopiski.filter((d) => d.typ === "kod").map((d) => d.tekst).join("\n");
-      const pismo = ["Pestka", ...dane.dopiski.filter((d) => d.typ !== "kod").map((d) => d.tekst), ...Object.values(dane.bryla?.oznaczenia ?? {})].join("\n");
+      const pismo = ["Pestka", dane.wskazowka, ...dane.dopiski.filter((d) => d.typ !== "kod").map((d) => d.tekst), ...Object.values(dane.bryla?.oznaczenia ?? {})].join("\n");
       await Promise.all([
         document.fonts.load("20px Excalifont", pismo).catch(() => []),
         kod ? document.fonts.load("17px Cascadia", kod).catch(() => []) : [],
       ]);
-      if (!aktywna()) return;
+      if (!aktywna()) return false;
       const nowe = przygotujZapisPestki(tablica, dane);
-      tablica.setActiveTool({ type: "selection" });
-      tablica.scrollToContent(nowe, { fitToViewport: true, viewportZoomFactor: 0.8, maxZoom: 1 });
+      if (zapis) {
+        const stan = tablica.getAppState();
+        const [x1, y1, x2, y2] = getCommonBounds(nowe);
+        const a = sceneCoordsToViewportCoords({ sceneX: x1, sceneY: y1 }, stan);
+        const b = sceneCoordsToViewportCoords({ sceneX: x2, sceneY: y2 }, stan);
+        if (a.x < stan.offsetLeft || a.y < stan.offsetTop || b.x > stan.offsetLeft + stan.width || b.y > stan.offsetTop + stan.height) {
+          tablica.scrollToContent([...zapis.zmienione, ...nowe], { fitToViewport: true, viewportZoomFactor: 0.86, maxZoom: stan.zoom.value });
+        }
+      } else {
+        tablica.setActiveTool({ type: "selection" });
+        tablica.scrollToContent(nowe, { fitToViewport: true, viewportZoomFactor: 0.8, maxZoom: 1 });
+      }
       if (animuj && nakladka) await pokazZapisPestki(nakladka, tablica, nowe, kontroler.signal);
-      if (aktywna()) zapiszDopiskiPestki(tablica, nowe);
+      if (!aktywna()) return false;
+      zapiszDopiskiPestki(tablica, nowe);
+      return true;
     } finally {
+      zapis?.signal.removeEventListener("abort", przerwij);
       pisaniePestki.current = null;
       setPiszePestka(false);
     }
@@ -635,6 +655,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             setKolor(stan.currentItemStrokeColor);
             setGrubosc(gruboscZ(stan.currentItemStrokeWidth, stan.currentItemOpacity));
             if (!wczytana.current) return; // pusta scena przed initialData
+            prowadzenie.odswiez();
             const h = hashElementsVersion(els);
             if (wersja.current === null) {
               // initialData już rozwiązane, ale elementy mogą wejść dopiero w kolejnym wywołaniu.
@@ -662,7 +683,19 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
           }}
         />
         <canvas ref={nakladkaPestki} className={styles.pestkaAnimacja} hidden={!piszePestka} aria-hidden="true" />
-        {piszePestka && <div className={styles.pestkaPisze} role="status"><TutorAvatar size={26} state="thinking" /> Pestka zapisuje na tablicy…</div>}
+        {!prowadzi && piszePestka && <div className={styles.pestkaPisze} role="status"><TutorAvatar size={26} state="thinking" /> Pestka zapisuje na tablicy…</div>}
+        {prowadzi && (
+          <div className={styles.pestkaPisze}>
+            <TutorAvatar size={26} state={prowadzenie.stan === "czyta" ? "thinking" : "idle"} />
+            <span role="status">{piszePestka ? "Pestka zapisuje na tablicy…" : prowadzenie.stan === "czyta" ? "Pestka sprawdza krok…" : "Pestka czeka na Twój krok"}</span>
+          </div>
+        )}
+        {typeof prowadzenie.stan === "object" && (
+          <div className={styles.pestkaPisze}>
+            <span role="alert">{komunikatPestki(prowadzenie.stan.blad)}</span>
+            <button className={styles.tool} type="button" aria-label="Zamknij komunikat Pestki" onClick={prowadzenie.zatrzymaj}><X size={16} /></button>
+          </div>
+        )}
         </div>
         <div className={styles.toolbar} role="toolbar" aria-label="Styl i widok brudnopisu" aria-orientation="vertical">
           {KOLORY.map((k) => (
@@ -692,12 +725,13 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
               ref={przyciskPestki}
               type="button"
               className={styles.tool}
-              title="Pestka w brudnopisie"
-              aria-label="Pestka w brudnopisie"
+              title={prowadzi ? "Zatrzymaj prowadzenie Pestki" : "Pestka w brudnopisie"}
+              aria-label={prowadzi ? "Zatrzymaj prowadzenie Pestki" : "Pestka w brudnopisie"}
+              aria-pressed={prowadzi || undefined}
               aria-expanded={pestka}
               aria-controls={pestka ? idPestki : undefined}
-              disabled={piszePestka}
-              onClick={() => setPestka((otwarta) => !otwarta)}
+              disabled={piszePestka && !prowadzi}
+              onClick={prowadzi ? prowadzenie.zatrzymaj : () => setPestka((otwarta) => !otwarta)}
             >
               <Sparkles size={18} aria-hidden="true" />
             </button>
@@ -707,7 +741,8 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
           </button>
         </div>
         {pestka && poleceniePestki && (
-          <BrudnopisPestka id={idPestki} api={api} polecenie={poleceniePestki} onPokaz={pokazNaTablicy} onZamknij={zamknijPestke} />
+          <BrudnopisPestka id={idPestki} api={api} polecenie={poleceniePestki} onPokaz={pokazNaTablicy}
+            onProwadz={() => { if (prowadzenie.wlacz()) zamknijPestke(); }} onZamknij={zamknijPestke} />
         )}
       </div>
     </>

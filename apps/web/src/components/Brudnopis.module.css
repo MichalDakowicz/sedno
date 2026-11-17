@@ -156,6 +156,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  max-width: calc(100% - 20px);
   padding: 6px 12px;
   border-radius: var(--r-sm);
   background: var(--surface);
@@ -163,6 +164,10 @@
   font-size: 0.875rem;
   box-shadow: var(--shadow-float);
   pointer-events: none;
+}
+
+.pestkaPisze button {
+  pointer-events: auto;
 }
 
 .pestkaPanel {
@@ -205,8 +210,17 @@
 }
 
 .pestkaForm p,
+.pestkaTryb p,
 .pestkaWynik p {
   margin: 0;
+}
+
+.pestkaTryb {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  padding-block: 10px;
+  border-top: 1px solid var(--line);
 }
 
 .pestkaWynik {
