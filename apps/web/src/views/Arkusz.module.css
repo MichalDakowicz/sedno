@@ -16,8 +16,16 @@
 
 .head {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   justify-items: start;
+}
+
+/* Nic w nagłówku nie rozpycha kolumny: przy większym tekście na telefonie długie wiersze się zawijają. */
+.head > * {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .back {
