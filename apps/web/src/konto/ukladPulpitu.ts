@@ -192,10 +192,28 @@ function wyslijOczekujace() {
   void zapiszNaKoncie(biezace, idKonta);
 }
 
+// Konto pobieramy tylko przy pierwszej sesji, zmianie użytkownika i po powrocie na kartę (nie częściej niż co minutę),
+// a nie przy każdym zdarzeniu logowania, które Supabase wysyła wielokrotnie.
+const ODSWIEZ_CO = 60_000;
+let pobranyDla: string | null = null;
+let pobranoOd = 0;
+
 async function zKonta(id: string) {
   idKonta = id;
+  pobranyDla = id;
+  pobranoOd = Date.now();
+  const ta = wersja;
   const { data, error } = await supabase.from("profiles").select("dashboard").eq("id", id).maybeSingle();
-  if (error || idKonta !== id) return;
+  if (idKonta !== id) return;
+  if (error) {
+    pobranyDla = null;
+    return;
+  }
+  // Zmiana w trakcie pobierania: odpowiedź mogła być sprzed niej, więc wygrywa lokalna.
+  if (wersja !== ta) {
+    void zapiszNaKoncie(biezace, id);
+    return;
+  }
   const zapisane = poprawne(data?.dashboard);
   if (niezapisane() || Object.keys(zapisane).length === 0) {
     if (niezapisane() || Object.keys(biezace).length > 0) void zapiszNaKoncie(biezace, id);
@@ -215,13 +233,17 @@ export function uruchomUkladPulpitu() {
   window.addEventListener("pagehide", wyslijOczekujace);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") wyslijOczekujace();
+    else if (idKonta && Date.now() - pobranoOd > ODSWIEZ_CO) void zKonta(idKonta);
   });
   supabase.auth.onAuthStateChange((zdarzenie, sesja) => {
     if (sesja) {
       // Poza callbackiem: zapytania do Supabase w środku onAuthStateChange mogą się zakleszczyć.
-      window.setTimeout(() => void zKonta(sesja.user.id), 0);
+      const id = sesja.user.id;
+      idKonta = id;
+      if (pobranyDla !== id) window.setTimeout(() => void zKonta(id), 0);
     } else if (zdarzenie === "SIGNED_OUT") {
       idKonta = null;
+      pobranyDla = null;
       window.clearTimeout(kolejka);
       kolejka = undefined;
       oznaczNiezapisane(false);
