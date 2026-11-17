@@ -8,9 +8,12 @@ Backend Sedno: samodzielnie hostowany Supabase na serwerze domowym, publicznie p
 - `functions/` – Edge Functions:
   - `ai-klucz` – zapis (szyfrowanie AES-GCM) i test klucza AI konta,
   - `ai` – bramka AI: wybiera dostawcę konta dla poziomu `wazne` / `lekkie`, woła go (OpenAI-compatible, także streaming) i loguje zużycie,
+  - `nauka-ai` – Pestka w formatach nauki, odczyt zdjęcia i dane do wizualizacji,
   - `_shared/` – adapter czatu, szyfrowanie, ochrona przed SSRF, wspólne funkcje kont.
 - `deploy.sh` – wgrywa migracje i funkcje przez ssh.
 - `autodeploy/` – automatyczne wgrywanie z `main` (produkcja) i `dev` (staging) na serwerze (patrz „Wgrywanie”).
+
+Kontrakt integracji z aplikacją opisuje [Backend nauki](nauka.md).
 
 ## Schemat
 

@@ -11,7 +11,7 @@ function toB64(bytes: Uint8Array): string {
   return btoa(s).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
 }
 
-function fromB64(text: string): Uint8Array {
+function fromB64(text: string) {
   const std = text.replaceAll("-", "+").replaceAll("_", "/");
   const bin = atob(std + "=".repeat((4 - (std.length % 4)) % 4));
   return Uint8Array.from(bin, (c) => c.charCodeAt(0));
@@ -19,7 +19,7 @@ function fromB64(text: string): Uint8Array {
 
 /** The secret is 32 random bytes, base64 (`openssl rand -base64 32`). */
 export async function importSecret(secretB64: string | undefined): Promise<CryptoKey> {
-  let raw: Uint8Array | undefined;
+  let raw: ReturnType<typeof fromB64> | undefined;
   try {
     raw = secretB64 ? fromB64(secretB64.trim()) : undefined;
   } catch {
