@@ -102,6 +102,14 @@ function Okno({ zamknij }: { zamknij: () => void }) {
     dialogRef.current?.showModal();
   }, []);
 
+  // Lista z pamięci podręcznej wraca od razu: komunikat o wczytywaniu pokazujemy dopiero po chwili.
+  const [dlugoLaduje, setDlugoLaduje] = useState(false);
+  useEffect(() => {
+    if (!laduje) return setDlugoLaduje(false);
+    const t = window.setTimeout(() => setDlugoLaduje(true), 300);
+    return () => window.clearTimeout(t);
+  }, [laduje]);
+
   // Słowa każdej pozycji liczymy raz tutaj, nie przy każdym znaku.
   const indeks = useMemo<Wynik[]>(() => {
     const moje = new Set<string>(profil?.subjects.map((s) => s.id));
@@ -154,11 +162,15 @@ function Okno({ zamknij }: { zamknij: () => void }) {
   const pestka: "gotowa" | "zajeta" | "brak-ai" | null = !szukane || aiGotowe === undefined ? null : aiGotowe === false ? "brak-ai" : state !== "idle" ? "zajeta" : "gotowa";
   const pozycjaPestki: Pozycja | null = pestka === "gotowa" ? "pestka" : pestka === "brak-ai" ? "ai" : null;
 
+  // Odpowiedź Pestki wpada do rozmowy, w której padło pytanie, więc w trakcie niej nie przełączamy rozmów.
+  const zajetaPestka = state !== "idle";
+  const zablokowana = (p: Pozycja) => zajetaPestka && typeof p !== "string" && !!p.rozmowaId;
+
   const plaska = useMemo<Pozycja[]>(() => {
-    const w: Pozycja[] = grupy.flatMap((g) => g.wyniki);
+    const w: Pozycja[] = grupy.flatMap((g) => g.wyniki).filter((p) => !(zajetaPestka && p.rozmowaId));
     if (!pozycjaPestki) return w;
     return pestkaPierwsza ? [pozycjaPestki, ...w] : [...w, pozycjaPestki];
-  }, [grupy, pozycjaPestki, pestkaPierwsza]);
+  }, [grupy, pozycjaPestki, pestkaPierwsza, zajetaPestka]);
 
   // Zaznaczenie trzyma id pozycji; gdy zniknie z listy, wraca na pierwszą.
   const znaleziony = plaska.findIndex((p) => idPoz(p) === wybranyId);
@@ -203,6 +215,16 @@ function Okno({ zamknij }: { zamknij: () => void }) {
   const idPozycji = (i: number) => `${id}-${i}`;
   const wiersz = (p: Pozycja) => {
     const i = plaska.indexOf(p);
+    if (zablokowana(p) && typeof p !== "string")
+      return (
+        <li key={p.id} role="option" aria-disabled="true" aria-selected="false" className={`muted ${styles.zajeta}`}>
+          <MessageCircle size={16} aria-hidden="true" />
+          <span className={styles.tekst}>
+            <span>{p.tytul}</span>
+            <span className="small">Pestka jeszcze odpowiada</span>
+          </span>
+        </li>
+      );
     const Ikona = typeof p === "string" ? Sparkles : IKONY[p.rodzaj];
     const nazwa = p === "pestka" ? `Zapytaj Pestkę: „${pytanie}”` : p === "ai" ? "Podepnij AI, żeby pytać Pestkę" : p.tytul;
     return (
@@ -258,14 +280,18 @@ function Okno({ zamknij }: { zamknij: () => void }) {
   const liczba = grupy.reduce((n, g) => n + g.wyniki.length, 0);
   const bladArkuszy = blad && blad !== "brak-danych";
   const komunikat = laduje
-    ? "Wczytuję arkusze…"
+    ? dlugoLaduje
+      ? "Wczytuję arkusze…"
+      : null
     : bladArkuszy
       ? "Nie udało się wczytać arkuszy."
-      : szukane && !dlugie && liczba === 0
-        ? aiGotowe === true
-          ? "Nic nie znalazłam. Możesz zapytać Pestkę."
-          : "Nic nie znalazłam."
-        : null;
+      : dlugie && aiGotowe === undefined
+        ? "Sprawdzam, czy Pestka jest dostępna…"
+        : szukane && !dlugie && liczba === 0
+          ? aiGotowe === true
+            ? "Nic nie znalazłam. Możesz zapytać Pestkę."
+            : "Nic nie znalazłam."
+          : null;
 
   return (
     <dialog
