@@ -29,7 +29,9 @@ export function promptPestki(k: Kontekst): string {
     "Gdy uczeń odpowiada na twoje pytanie, potwierdź krótko, co jest dobre, i idź o krok dalej. Nigdy nie zadawaj ponownie pytania, na które uczeń już odpowiedział, i nie powtarzaj swojej poprzedniej wypowiedzi.",
     "Pytajnik stawiaj tylko przy prawdziwym pytaniu, nie na końcu zdania twierdzącego.",
     k.czat
-      ? "Gdy uczeń sam powie, co jest dla niego priorytetem w nauce (np. „najpierw chcę ćwiczyć słuchanie”), dopisz na samym końcu odpowiedzi, w osobnej linii, znacznik [[priorytet: krótki zapis, do 80 znaków]]. Nie dopisuj go, gdy uczeń o priorytetach nie mówił, i nie powtarzaj priorytetów, które już są zapisane. Znacznika nie opisuj i nie cytuj w tekście."
+      ? "ZAPIS PRIORYTETU. Gdy uczeń mówi, od czego chce zacząć albo co jest dla niego najważniejsze w nauce, odpowiedz normalnie, a jako OSTATNIĄ linię odpowiedzi dopisz dokładnie: [[priorytet: krótki zapis, do 80 znaków]]. " +
+        "Znacznik jest potrzebny np. przy „Chcę zacząć od czytania ze zrozumieniem, to mój priorytet.” i „Najpierw muszę ogarnąć słuchanie.”. " +
+        "Nie jest potrzebny przy „Nie rozumiem tego zadania.”. Nie dopisuj go, gdy priorytet już jest zapisany w profilu, i nie wspominaj o znaczniku w tekście."
       : "",
     k.profil ? `Co uczeń zapisał w swoim profilu:
 ${k.profil}` : "",

@@ -171,10 +171,17 @@ let wersja = 0;
 let idKonta: string | null = null;
 let kolejka: number | undefined;
 
-async function zapiszNaKoncie(u: Uczenie, id: string) {
+// Zapisy idą jeden po drugim, żeby starszy nie wylądował na koncie po nowszym.
+let lancuch: Promise<unknown> = Promise.resolve();
+
+function zapiszNaKoncie(u: Uczenie, id: string) {
   const ta = wersja;
-  const { error } = await supabase.from("profiles").update({ learning: u }).eq("id", id);
-  if (!error && ta === wersja) oznaczNiezapisane(false);
+  const wartosc = u;
+  lancuch = lancuch.then(async () => {
+    const { error } = await supabase.from("profiles").update({ learning: wartosc }).eq("id", id);
+    if (!error && ta === wersja) oznaczNiezapisane(false);
+  }).catch(() => undefined);
+  return lancuch;
 }
 
 /** Zmiana od razu na ekranie i lokalnie, na koncie po krótkiej chwili. */
@@ -200,13 +207,20 @@ function wyslijOczekujace() {
   void zapiszNaKoncie(biezace, idKonta);
 }
 
+let ostatniePobranie = 0;
+
+// Konto czytamy przy pierwszej sesji, po zmianie konta i (nie częściej niż co minutę) po powrocie do karty,
+// nie przy każdym zdarzeniu logowania. Odpowiedź starsza niż zmiana lokalna nigdy jej nie nadpisuje.
 async function zKonta(id: string) {
   idKonta = id;
+  ostatniePobranie = Date.now();
+  const ta = wersja;
+  const bylaNiezapisana = niezapisane();
   const { data, error } = await supabase.from("profiles").select("learning").eq("id", id).maybeSingle();
   if (error || idKonta !== id) return;
   const zapisane = poprawne(data?.learning);
-  if (niezapisane() || Object.keys(zapisane).length === 0) {
-    if (niezapisane() || Object.keys(biezace).length > 0) void zapiszNaKoncie(biezace, id);
+  if (ta !== wersja || bylaNiezapisana || Object.keys(zapisane).length === 0) {
+    if (ta !== wersja || bylaNiezapisana || Object.keys(biezace).length > 0) void zapiszNaKoncie(biezace, id);
     return;
   }
   zapiszLokalne(zapisane);
@@ -223,11 +237,16 @@ export function uruchomProfilUcznia() {
   window.addEventListener("pagehide", wyslijOczekujace);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") wyslijOczekujace();
+    else if (idKonta && Date.now() - ostatniePobranie > 60_000) void zKonta(idKonta);
   });
   supabase.auth.onAuthStateChange((zdarzenie, sesja) => {
     if (sesja) {
+      // Zdarzenia z tą samą sesją (odświeżenie tokenu, powrót do karty) nie czytają konta jeszcze raz.
+      if (sesja.user.id === idKonta) return;
+      const id = sesja.user.id;
+      idKonta = id;
       // Poza callbackiem: zapytania do Supabase w środku onAuthStateChange mogą się zakleszczyć.
-      window.setTimeout(() => void zKonta(sesja.user.id), 0);
+      window.setTimeout(() => void zKonta(id), 0);
     } else if (zdarzenie === "SIGNED_OUT") {
       idKonta = null;
       window.clearTimeout(kolejka);
