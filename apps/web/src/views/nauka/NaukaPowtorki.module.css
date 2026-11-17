@@ -93,6 +93,16 @@
   overflow-wrap: anywhere;
 }
 
+.polecane {
+  --ladowanie-karta-wysokosc: 264px;
+  --ladowanie-karta-szerokosc: none;
+  min-block-size: var(--ladowanie-karta-wysokosc);
+}
+
+.miejsceOpanowania {
+  min-block-size: 1.5em;
+}
+
 .formularz {
   display: grid;
   gap: 12px;
@@ -131,6 +141,11 @@
   padding: 0;
   list-style: none;
   border-top: 1px solid var(--line);
+}
+
+.ladowanieFormatu {
+  min-block-size: 78px;
+  padding-block: 7px;
 }
 
 .wiersz {
