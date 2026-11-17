@@ -3,7 +3,7 @@ import { ArrowRight, LayoutList } from "lucide-react";
 import { adres, szablon } from "./lista";
 import styles from "./Szablon.module.css";
 
-// Wejścia do pustych prototypów z działających widoków (pulpit, profil), żeby całą ścieżkę dało się przeklikać.
+// Wejścia do pustych prototypów z działających widoków (pulpit i profil; gotowe widoki, np. Ustawienia, są stąd usuwane), żeby całą ścieżkę dało się przeklikać.
 export function Wejscia({ tytul, slugi }: { tytul: string; slugi: string[] }) {
   return (
     <section className={styles.sekcja} aria-label={tytul}>

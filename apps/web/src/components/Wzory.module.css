@@ -15,3 +15,10 @@
 .blok :global(.katex-display) {
   margin: 0;
 }
+
+/* Na wąskim ekranie wzór w linii może się łamać na operatorach, żeby nie wypychać strony. */
+@media (max-width: 640px) {
+  .inline :global(.katex) {
+    white-space: normal;
+  }
+}

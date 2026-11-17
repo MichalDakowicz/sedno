@@ -53,7 +53,7 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 - [ ] Silnik wariantów zadań z kluczami (szybka runda, sokratejski mini-test, powtórki)
 - [ ] Wspólny model wyniku sesji i dowodów (wszystkie formaty → rozbiór → mapa)
 - [ ] Drabina podpowiedzi jako komponent i zapis jej użycia
-- [ ] Profil ucznia w bazie (rekomendacje, plan do matury)
+- [ ] Profil ucznia w bazie: zapis jest (`profiles.learning`), do zrobienia rekomendacje i plan do matury (etap 2)
 
 ### Faza 2 planu do matury (`/do-matury` ma już odliczanie i cel z profilu)
 

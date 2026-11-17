@@ -1,5 +1,6 @@
 .page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 56px;
   padding-top: 8px;
   padding-bottom: 96px;
@@ -135,6 +136,7 @@
 
 .today {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   justify-items: start;
   padding: 40px;
@@ -178,6 +180,14 @@
   flex-wrap: wrap;
   gap: 12px;
   padding-top: 8px;
+}
+
+/* Długi podpis przycisku zawija się w karcie zamiast ją rozpychać (większy tekst na telefonie). */
+.actions :global(.btn) {
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.25;
+  text-align: center;
 }
 
 .alternatives {

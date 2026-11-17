@@ -45,7 +45,7 @@ function Przelacznik({ tytul, opis, wl, onChange }: { tytul: string; opis: strin
           {opis}
         </span>
       </span>
-      <button type="button" role="switch" aria-checked={wl} aria-label={tytul} aria-describedby={opisId} className={`${s.przelacznik} ${wl ? s.przelacznikWl : ""}`} onClick={() => onChange(!wl)} />
+      <button type="button" role="switch" aria-checked={wl} aria-label={tytul} aria-describedby={opisId} className={`przelacznik ${wl ? "przelacznikWl" : ""}`} onClick={() => onChange(!wl)} />
     </li>
   );
 }

@@ -1,7 +1,7 @@
 // Układ pulpitu: które widgety są włączone i w jakiej kolejności, osobno dla „Wszystkie” i każdego przedmiotu
 // (profiles.dashboard). Synchronizacja z kontem (kopia lokalna, konto po zalogowaniu, zapisy) jest we wspólnym konto/kontoSync.ts.
 import { useMemo } from "react";
-import { WIDGETY } from "../views/pulpit/widgety";
+import { WIDGETY_DANE } from "../views/pulpit/widgetyDane";
 import { gotowy as gotowyCzysty, nazwaUkladu as nazwaCzysta, kolejnosc, normalizuj, przelacz, przesun, przesunDo, type GotowyUklad, type Pozycja } from "../views/pulpit/ukladCzysty";
 import { utworzMagazyn } from "./kontoSync";
 import { PRZEDMIOTY } from "./przedmioty";
@@ -15,7 +15,7 @@ export type Uklad = GotowyUklad | "wlasny";
 type Zapis = Partial<Record<string, "egzamin" | Pozycja[]>>;
 
 /** Widgety do ułożenia, w domyślnej kolejności. Stałe („Dziś warto”) są zawsze na górze i nie należą do listy. */
-const RUCHOME = WIDGETY.filter((w) => !w.staly);
+const RUCHOME = WIDGETY_DANE.filter((w) => !w.staly);
 
 const MAX_POZYCJI = 20;
 const KLUCZE = new Set<string>([WSZYSTKIE, ...PRZEDMIOTY.map((p) => p.id)]);

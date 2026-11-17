@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useProfil } from "../auth";
-import { CELE, CZAS, MAX_DLUGOSC, MAX_PRIORYTETOW, PYTANIA, dodajPriorytet, przytnijUsuniete, useBladProfilu, usunPriorytet, usunWniosek, ustawCel, ustawOdpowiedz, useUczenie, useWnioski, type Opcja } from "../konto/profilUcznia";
+import { CELE, CZAS, MAX_DLUGOSC, MAX_PRIORYTETOW, PYTANIA, dodajPriorytet, przytnijUsuniete, useBladProfilu, useProfilOdczytany, usunPriorytet, usunWniosek, ustawCel, ustawOdpowiedz, useUczenie, useWnioski, type Opcja } from "../konto/profilUcznia";
 import { PRZEDMIOTY, zgrupuj, type PrzedmiotId } from "../konto/przedmioty";
 import { useWynikiKonta } from "../konto/wyniki";
 import { useListaArkuszy } from "../arkusze/dane";
@@ -61,6 +61,7 @@ export function ProfilUcznia() {
   const moje = profil?.subjects ?? [];
   const wyniki = useWynikiKonta(moje);
   const bladZapisu = useBladProfilu();
+  const odczytany = useProfilOdczytany();
   const listaBlad = useListaArkuszy().blad;
   const wnioski = useWnioski(wyniki?.podsumowania ?? null, wyniki?.wiersze ?? null);
   const priorytety = u.priorytety ?? [];
@@ -76,9 +77,10 @@ export function ProfilUcznia() {
   const zNajmniejDwoma = !!wyniki?.podsumowania.some((p) => p.wyniki.length >= 2);
   // Ukryte wnioski, których już nie ma, przestają zajmować miejsce (tylko gdy policzyliśmy wszystko).
   useEffect(() => {
-    if (wnioski.stan !== "gotowe" || listaBlad) return;
+    // Dopiero po odczycie konta: wcześniej lokalna kopia mogłaby nadpisać nowsze dane z konta.
+    if (wnioski.stan !== "gotowe" || listaBlad || !odczytany) return;
     przytnijUsuniete(new Set(wnioski.przedmioty.flatMap((p) => p.wnioski.map((w) => w.id))));
-  }, [wnioski, listaBlad]);
+  }, [wnioski, listaBlad, odczytany]);
 
   const grupy = wnioski.stan === "gotowe" ? wnioski.przedmioty.map((p) => ({ ...p, wnioski: p.wnioski.filter((w) => !ukryte.has(w.id)) })).filter((p) => p.wnioski.length) : [];
 
