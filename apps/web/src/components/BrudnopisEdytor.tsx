@@ -7,9 +7,13 @@ import type { AppState, BinaryFileData, DataURL, ExcalidrawImperativeAPI, Excali
 import type { ExcalidrawElement, FileId } from "@excalidraw/excalidraw/element/types";
 import "@excalidraw/excalidraw/index.css";
 import { Circle, Eraser, Hand, Maximize2, Minimize2, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Sparkles, Square, Trash2, Type, Undo2, X, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
-import { useCiemny } from "../motyw";
+import { mniejRuchu, useCiemny } from "../motyw";
+import { currentUserId } from "../auth";
 import { adresObrazu, type Obraz } from "../arkusze/typy";
 import { BrudnopisPestka } from "./BrudnopisPestka";
+import type { OdpowiedzPestki } from "./brudnopisPestkaApi";
+import { pokazZapisPestki, przygotujZapisPestki, zapiszDopiskiPestki } from "./brudnopisPestkaRysunek";
+import { TutorAvatar } from "./TutorAvatar";
 import styles from "./Brudnopis.module.css";
 
 export const ID_RYSUNKU = "rysunek-bazowy";
@@ -339,6 +343,9 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   pokaz.current = pokazDodatkowe;
   const api = useRef<ExcalidrawImperativeAPI | null>(null);
   const [pestka, setPestka] = useState(false);
+  const [piszePestka, setPiszePestka] = useState(false);
+  const pisaniePestki = useRef<AbortController | null>(null);
+  const nakladkaPestki = useRef<HTMLCanvasElement>(null);
   const idPestki = useId();
   const przyciskPestki = useRef<HTMLButtonElement>(null);
   const zamknijPestke = () => {
@@ -348,6 +355,33 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   useEffect(() => {
     if (!poleceniePestki) setPestka(false);
   }, [poleceniePestki]);
+  useEffect(() => () => pisaniePestki.current?.abort(), [plik, pelny, poleceniePestki]);
+
+  async function pokazNaTablicy(dane: OdpowiedzPestki) {
+    const tablica = api.current;
+    const nakladka = nakladkaPestki.current;
+    const konto = currentUserId();
+    if (!tablica || !konto || pisaniePestki.current) return;
+    const kontroler = new AbortController();
+    pisaniePestki.current = kontroler;
+    zamknijPestke();
+    const animuj = Boolean(nakladka && !mniejRuchu());
+    if (animuj) setPiszePestka(true);
+    const aktywna = () => !kontroler.signal.aborted && api.current === tablica && currentUserId() === konto;
+    try {
+      const kod = dane.dopiski.filter((d) => d.typ === "kod").map((d) => d.tekst).join("\n");
+      if (kod) await document.fonts.load("17px Cascadia", kod).catch(() => []);
+      if (!aktywna()) return;
+      const nowe = przygotujZapisPestki(tablica, dane);
+      tablica.setActiveTool({ type: "selection" });
+      tablica.scrollToContent(nowe, { fitToViewport: true, viewportZoomFactor: 0.8, maxZoom: 1 });
+      if (animuj && nakladka) await pokazZapisPestki(nakladka, tablica, nowe, kontroler.signal);
+      if (aktywna()) zapiszDopiskiPestki(tablica, nowe);
+    } finally {
+      pisaniePestki.current = null;
+      setPiszePestka(false);
+    }
+  }
   const wersja = useRef<number | null>(null);
   const wczytana = useRef(false);
   const czeka = useRef<{ timer: number; elementy: readonly ExcalidrawElement[] } | null>(null);
@@ -623,6 +657,8 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             };
           }}
         />
+        <canvas ref={nakladkaPestki} className={styles.pestkaAnimacja} hidden={!piszePestka} aria-hidden="true" />
+        {piszePestka && <div className={styles.pestkaPisze} role="status"><TutorAvatar size={26} state="thinking" /> Pestka zapisuje na tablicy…</div>}
         </div>
         <div className={styles.toolbar} role="toolbar" aria-label="Styl i widok brudnopisu" aria-orientation="vertical">
           {KOLORY.map((k) => (
@@ -656,6 +692,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
               aria-label="Pestka w brudnopisie"
               aria-expanded={pestka}
               aria-controls={pestka ? idPestki : undefined}
+              disabled={piszePestka}
               onClick={() => setPestka((otwarta) => !otwarta)}
             >
               <Sparkles size={18} aria-hidden="true" />
@@ -666,7 +703,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
           </button>
         </div>
         {pestka && poleceniePestki && (
-          <BrudnopisPestka id={idPestki} api={api} polecenie={poleceniePestki} onZamknij={zamknijPestke} />
+          <BrudnopisPestka id={idPestki} api={api} polecenie={poleceniePestki} onPokaz={pokazNaTablicy} onZamknij={zamknijPestke} />
         )}
       </div>
     </>

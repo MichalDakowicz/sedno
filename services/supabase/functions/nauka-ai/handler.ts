@@ -258,6 +258,17 @@ async function omowOdczyt(body: Obiekt, zapytaj: Zapytaj) {
 }
 
 const FIGURY = ["odcinek", "strzalka", "prostokat", "elipsa", "trojkat"] as const;
+const TYPY_DOPISKOW = ["obliczenia", "tekst", "kod"] as const;
+const BRYLY = ["szescian", "prostopadloscian", "graniastoslup-trojkatny", "ostroslup-czworokatny", "walec", "stozek", "kula"] as const;
+const OZNACZENIA_BRYLY = {
+  szescian: ["a", "b", "h", "przekatnaPodstawy", "przekatnaBryly"],
+  prostopadloscian: ["a", "b", "h", "przekatnaPodstawy", "przekatnaBryly"],
+  "graniastoslup-trojkatny": ["a", "b", "h", "przeciwprostokatna"],
+  "ostroslup-czworokatny": ["a", "b", "h", "przekatnaPodstawy"],
+  walec: ["r", "h"],
+  stozek: ["r", "h", "tworzaca"],
+  kula: ["r"],
+} as const;
 type PunktFigury = [number, number];
 
 function punktFigury(raw: unknown): PunktFigury | null {
@@ -268,6 +279,10 @@ function punktFigury(raw: unknown): PunktFigury | null {
 
 function ksztaltBrudnopisu(raw: unknown) {
   const ksztalt = obiekt(raw);
+  if (ksztalt?.typ === "trojkat-prostokatny") {
+    const punkty: PunktFigury[] = [[0.18, 0.19], [0.18, 0.82], [0.82, 0.82]];
+    return { typ: "trojkat", punkty } as const;
+  }
   const typ = wybierz(ksztalt?.typ, FIGURY);
   const rawPunkty = ksztalt?.punkty;
   if (!typ || !Array.isArray(rawPunkty) || rawPunkty.length !== (typ === "trojkat" ? 3 : 2)) return null;
@@ -284,6 +299,52 @@ function ksztaltBrudnopisu(raw: unknown) {
   return { typ, punkty };
 }
 
+function dopisekBrudnopisu(raw: unknown) {
+  const dopisek = obiekt(raw);
+  const typ = wybierz(dopisek?.typ, TYPY_DOPISKOW);
+  if (!typ || typeof dopisek?.tekst !== "string") return null;
+  const zapis = dopisek.tekst.replace(/\r\n?|[\u2028\u2029]/g, "\n");
+  if (zapis.length > 480 || !zapis.trim() || zapis.split("\n").length > 12) return null;
+  if (/^[\t ]*(?:\x60{3,}|~{3,})/m.test(zapis)) return null;
+  for (const znak of zapis) {
+    const kod = znak.codePointAt(0)!;
+    if ((kod < 32 && znak !== "\n" && znak !== "\t") || (kod >= 127 && kod <= 159)) return null;
+  }
+  return { typ, tekst: zapis };
+}
+
+function brylaBrudnopisu(raw: unknown) {
+  if (raw == null) return { bryla: null, pominieto: false };
+  const opis = obiekt(raw);
+  const typ = wybierz(opis?.typ, BRYLY);
+  if (!opis || !typ) return { bryla: null, pominieto: true };
+
+  const podaneWymiary = opis.wymiary;
+  const wymiary = Array.isArray(podaneWymiary) && podaneWymiary.length === 3 &&
+      podaneWymiary.every((w) => typeof w === "number" && Number.isFinite(w) && w > 0 && w <= 1e9)
+    ? podaneWymiary as [number, number, number]
+    : null;
+  const surowe = obiekt(opis.oznaczenia);
+  const oznaczenia: Record<string, string> = {};
+  let pominieto = (podaneWymiary != null && !wymiary) || (opis.oznaczenia != null && !surowe);
+  for (const [klucz, wartosc] of Object.entries(surowe ?? {})) {
+    const etykieta = tekst(wartosc, 24);
+    const dozwolone: readonly string[] = OZNACZENIA_BRYLY[typ];
+    if (dozwolone.includes(klucz) && etykieta && !/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/.test(etykieta)) {
+      oznaczenia[klucz] = etykieta;
+    } else {
+      pominieto = true;
+    }
+  }
+  return { bryla: { typ, wymiary, oznaczenia }, pominieto };
+}
+
+function elementyBrudnopisu<T>(raw: unknown, limit: number, odczytaj: (item: unknown) => T | null) {
+  if (!Array.isArray(raw)) return { elementy: [] as T[], pominieto: raw != null };
+  const elementy = raw.slice(0, limit).map(odczytaj).filter((item): item is T => item !== null);
+  return { elementy, pominieto: elementy.length !== raw.length };
+}
+
 async function omowBrudnopis(body: Obiekt, zapytaj: Zapytaj) {
   const polecenie = tekst(body.polecenie, 3500);
   const pytanie = body.pytanie === undefined ? null : tekst(body.pytanie, 500);
@@ -294,24 +355,34 @@ async function omowBrudnopis(body: Obiekt, zapytaj: Zapytaj) {
     "nauka-omow-brudnopis", "wazne",
     [
       "Jesteś Pestką. Pomagasz uczniowi z matematyką, analizując jego brudnopis lub pytanie.",
-      "W polu odczyt opisz krótko, jakie obliczenia lub rysunek faktycznie widzisz. Użyj null, jeśli nie ma obrazu.",
+      "W polu odczyt opisz krótko, jakie obliczenia lub rysunek faktycznie widzisz. Użyj null, jeśli nie ma obrazu albo zapis jest nieczytelny.",
       "W polu wskazowka wskaż najwcześniejszy widoczny błąd i popraw ten krok. Gdy wszystko wygląda dobrze, wyjaśnij dlaczego i podaj następny krok.",
-      "Nie zgaduj znaków ani treści nieczytelnego pisma. Wskaż niepewność i poproś o doprecyzowanie. Wzory zapisuj pomiędzy \\( i \\).",
+      "Nie zgaduj znaków ani treści nieczytelnego pisma. Wskaż niepewność i poproś o doprecyzowanie. W całej odpowiedzi zapisuj matematykę prostym tekstem i znakami Unicode, np. −, √, ². Unikaj LaTeX-a i Markdownu.",
       "Nie rozwiązuj całego zadania za ucznia. Odpowiedz wprost na pytanie o pojedynczy krok lub konstrukcję.",
       "Zaproponuj kształty tylko na prośbę lub gdy rzeczywiście objaśniają krok. Rysunek powstanie obok pracy ucznia, jako osobny schemat.",
       "Każdy punkt to [x,y] w kwadracie od 0 do 1. Oś x rośnie w prawo, y w dół. Zostaw marginesy.",
       "Typy: odcinek, strzalka (od pierwszego do drugiego punktu), prostokat, elipsa (dwa przeciwległe narożniki), trojkat (trzy wierzchołki). Koło jest elipsą o równej szerokości i wysokości.",
-      'Format: {"odczyt":"tekst lub null","wskazowka":"krótka uwaga","ksztalty":[{"typ":"odcinek","punkty":[[0.1,0.3],[0.9,0.3]]}]}. Maksymalnie 8 kształtów, pusta lista gdy rysunek nie jest potrzebny.',
+      'Dla prośby o przykładowy trójkąt prostokątny bez wymiarów użyj {"typ":"trojkat-prostokatny"} bez pola punkty. Dla figury o podanym położeniu lub proporcjach podaj punkty.',
+      "Jeśli treść dotyczy bryły i uczeń prosi o jej narysowanie albo bryła objaśnia krok, zwróć pojedynczy obiekt bryla. Dobierz typ i oznaczenia z polecenia. Typy: szescian, prostopadloscian, graniastoslup-trojkatny (prostokątna trójkątna podstawa), ostroslup-czworokatny (wierzchołek nad środkiem prostokątnej podstawy), walec, stozek, kula.",
+      "Opcjonalne wymiary to trzy dodatnie liczby [a,b,h] w tej samej jednostce. Dla walca i stożka użyj [średnica,średnica,wysokość]. Pomiń wymiary, jeśli brakuje znanej długości. Napisy oznaczenia mają maksymalnie 24 znaki. Dozwolone klucze to a, b, h, r, przekatnaPodstawy, przekatnaBryly, przeciwprostokatna, tworzaca. Użyj tylko właściwych dla danej bryły. Dla nieznanej długości użyj symbolu, np. d, bez wymyślania wartości.",
+      'Przykładowa bryła: "bryla":{"typ":"prostopadloscian","wymiary":[6,4,3],"oznaczenia":{"a":"6 cm","b":"4 cm","h":"3 cm","przekatnaBryly":"d"}}. Nie składaj bryły z osobnych kształtów 2D. Pomiń pole bryla przy zadaniu płaskim.',
+      "Proponuj dopiski na tablicy, gdy uczeń o to prosi lub gdy dopisek pomaga zrozumieć wskazany krok. Typy to obliczenia, tekst i kod. Każdy dopisek ma do 12 krótkich wierszy i 480 znaków.",
+      "Dopiski zapisz jako zwykły tekst, bez Markdown i LaTeX. Używaj znaków takich jak ×, ÷, √ i ². W kodzie zachowaj wcięcia i ogranicz się do przykładu związanego z zadaniem. Kod służy do przeczytania na tablicy.",
+      'Format: {"odczyt":"tekst lub null","wskazowka":"krótka uwaga","ksztalty":[{"typ":"odcinek","punkty":[[0.1,0.3],[0.9,0.3]]}],"dopiski":[{"typ":"obliczenia","tekst":"2x = 10\\nx = 10 ÷ 2"}]}. Maksymalnie 8 kształtów i 3 dopiski. Użyj pustych list, gdy rysunek lub dopisek są zbędne.',
     ].join("\n"),
     { polecenie, pytanie },
-    2800,
+    3400,
     obraz ?? undefined,
   );
-  const odczyt = obraz ? wymagajWyniku(tekst(wynik.odczyt, 1100)) : null;
+  const odczyt = obraz ? tekst(wynik.odczyt, 1100) : null;
   const wskazowka = wymagajWyniku(tekst(wynik.wskazowka, 1300));
-  if (!Array.isArray(wynik.ksztalty) || wynik.ksztalty.length > 8) throw new BladApi(424, "bad_model_response");
-  const ksztalty = wynik.ksztalty.map((ksztalt) => wymagajWyniku(ksztaltBrudnopisu(ksztalt)));
-  return { odczyt, wskazowka, ksztalty };
+  const ksztalty = elementyBrudnopisu(wynik.ksztalty, 8, ksztaltBrudnopisu);
+  const dopiski = elementyBrudnopisu(wynik.dopiski, 3, dopisekBrudnopisu);
+  const { bryla, pominieto } = brylaBrudnopisu(wynik.bryla);
+  return {
+    odczyt, wskazowka, ksztalty: ksztalty.elementy, dopiski: dopiski.elementy, bryla,
+    pominietoElementy: ksztalty.pominieto || dopiski.pominieto || pominieto,
+  };
 }
 
 async function mapaWiedzy(body: Obiekt, user: string, zapytaj: Zapytaj) {
