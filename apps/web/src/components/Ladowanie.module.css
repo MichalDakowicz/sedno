@@ -17,8 +17,8 @@
 }
 
 .karta {
-  height: 240px;
-  max-width: 600px;
+  height: var(--ladowanie-karta-wysokosc, 240px);
+  max-width: var(--ladowanie-karta-szerokosc, 600px);
   border-radius: var(--r-lg) !important;
 }
 
