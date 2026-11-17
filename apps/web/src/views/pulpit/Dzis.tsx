@@ -1,15 +1,43 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { FileText, MessagesSquare, Sparkles } from "lucide-react";
+import { FileText, MessagesSquare, Sparkles, Timer } from "lucide-react";
 import { useTutor } from "../../components/TutorContext";
 import { SubjectIcon } from "../../components/icons";
 import { nazwaPoziomu, przedmiot } from "../../konto/przedmioty";
+import { adresStartu } from "../../nauka/adresy";
+import { naukaApi, nazwaFormatuNauki } from "../../nauka/api";
+import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import type { KontekstPulpitu } from "./widgety";
 import { Kicker, procent, tytul } from "./wspolne";
 import styles from "../Dashboard.module.css";
 
 export function Dzis({ co, aktywny, ai }: KontekstPulpitu) {
   const { open: openTutor } = useTutor();
+  const [poziomNauki] = usePoziomNauki();
+  const proponujNauke = aktywny === "angielski" || (!aktywny && co?.przedmiot.id === "angielski" && co.rodzaj !== "dokoncz");
+  const nauka = useZapytanieNauki(proponujNauke ? `dzis-${poziomNauki}` : null, async (signal) => {
+    const [propozycja, katalog] = await Promise.all([naukaApi.polec(poziomNauki, undefined, signal), naukaApi.katalog(poziomNauki, signal)]);
+    const umiejetnosc = katalog.skills.find((u) => u.id === propozycja?.skill_id);
+    return propozycja && umiejetnosc ? { ...propozycja, nazwa: umiejetnosc.name } : null;
+  });
+
+  if (nauka.dane) {
+    const { skill_id, format, repeat_id, minutes, reason, nazwa } = nauka.dane;
+    return (
+      <article className={styles.today} aria-labelledby="today-title" data-tutor-about="To propozycja ćwiczenia na podstawie mapy umiejętności.">
+        <div className={styles.todayHead}><Kicker icon={Sparkles}>Dziś warto</Kicker></div>
+        <h2 id="today-title" className="h1">{nazwa}</h2>
+        <p className={styles.reason}>{reason}</p>
+        <div className={styles.actions}>
+          <Link to={adresStartu(poziomNauki, skill_id, format, repeat_id ?? undefined)} className="btn btn-primary" data-tutor="today-cta">
+            <Timer size={18} aria-hidden="true" />
+            {nazwaFormatuNauki[format]} · {minutes} min
+          </Link>
+        </div>
+      </article>
+    );
+  }
+
   if (!co) return null;
   const showSubject = !aktywny;
   const p = przedmiot(co.przedmiot.id)!;

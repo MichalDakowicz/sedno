@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { GRUPY, SZABLONY, adres, szablon } from "./lista";
+import { GRUPY, SZABLONY, WDROZONE, adres, szablon } from "./lista";
 import styles from "./Szablon.module.css";
 
 // Ścieżka nauki od lewej do prawej. `prawdziwe` to widoki, które już działają w aplikacji.
@@ -15,16 +15,16 @@ const ETAPY: { nazwa: string; opis: string; szablony: string[]; prawdziwe?: { to
       { to: "/", tytul: "Pulpit" },
     ],
   },
-  { nazwa: "Wybór", opis: "Co dziś ćwiczyć i jak.", szablony: ["nauka"] },
+  { nazwa: "Wybór", opis: "Co dziś ćwiczyć i jak.", szablony: [], prawdziwe: [WDROZONE.nauka!] },
   {
     nazwa: "Ćwiczenie",
     opis: "Jeden z formatów albo arkusz.",
-    szablony: ["napraw-blad", "uczen-uczy", "krok-po-kroku", "sokratejski", "szybka-runda", "wizualizacje", "zdjecie"],
-    prawdziwe: [{ to: "/arkusze", tytul: "Arkusze CKE" }],
+    szablony: ["napraw-blad", "krok-po-kroku", "sokratejski", "wizualizacje", "zdjecie"],
+    prawdziwe: [WDROZONE["szybka-runda"]!, WDROZONE["uczen-uczy"]!, { to: "/arkusze", tytul: "Arkusze CKE" }],
   },
-  { nazwa: "Wynik", opis: "Co poszło i co dalej.", szablony: ["rozbior"] },
-  { nazwa: "Postęp", opis: "Mapa się aktualizuje.", szablony: ["umiejetnosci", "mapa-wiedzy"] },
-  { nazwa: "Powrót", opis: "Zanikające wraca do nauki.", szablony: ["powtorki"] },
+  { nazwa: "Wynik", opis: "Co poszło i co dalej.", szablony: [], prawdziwe: [WDROZONE.rozbior!] },
+  { nazwa: "Postęp", opis: "Mapa się aktualizuje.", szablony: ["mapa-wiedzy"], prawdziwe: [WDROZONE.umiejetnosci!] },
+  { nazwa: "Powrót", opis: "Zanikające wraca do nauki.", szablony: [], prawdziwe: [WDROZONE.powtorki!] },
 ];
 
 export function Spis() {

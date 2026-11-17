@@ -1111,6 +1111,17 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           plik={`${arkusz.id}-${zadanie.nr}`}
           zadanie={zadanie.nr}
           rysunek={zadanie.rysunek}
+          poleceniePestki={postep.czas && !gotowe ? undefined : [
+            `Zadanie ${zadanie.nr}.`,
+            ...zadanie.polecenie,
+            ...wszystkieBloki.flatMap((b) => {
+              if (b.typ === "akapit" || b.typ === "naglowek" || b.typ === "kadr") return [b.tekst];
+              if (b.typ === "wzor") return [b.tex];
+              if (b.typ === "tabelaTresci") return b.wiersze.map((w) => w.join(" | "));
+              return [];
+            }),
+            ...zadanie.pytania.map((p) => p.tresc),
+          ].filter(Boolean).join("\n").slice(0, 3500)}
           opcjeZWycinka={(() => {
             // Pytanie z samymi literami, którego opcje są rysunkami w wycinku (nie liczbami w tekście).
             const [p] = zadanie.pytania;

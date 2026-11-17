@@ -3,8 +3,8 @@
 Puste prototypy funkcji, których jeszcze nie ma w aplikacji: sam układ i przebieg, bez logiki i danych. Służą do pokazania, jak widok ma wyglądać i działać, zanim powstanie kod.
 
 - Spis i schemat ścieżki nauki: `/szablony` (`Spis.tsx`).
-- Każdy szablon: `/szablony/<slug>`, wyjątki z własnym miejscem w menu: `/nauka`, `/umiejetnosci`, `/powtorki`.
-- Wejścia z działającej aplikacji: menu (Nauka, Mapa umiejętności, Powtórki), sekcja „W przygotowaniu” na pulpicie (`Wejscia.tsx`), linki „Dalej w ścieżce” na dole każdego szablonu.
+- Każdy szablon ma adres `/szablony/<slug>`.
+- Wejścia do szablonów są w sekcji „W przygotowaniu” na pulpicie (`Wejscia.tsx`) i w spisie.
 - Pomarańczowe numery na stronie objaśnia sekcja „Jak to działa” na dole tej samej strony.
 - Każdy folder ma `README.md`: co to jest, po co, jak działa, od czego zależy i lista zadań.
 
@@ -19,7 +19,7 @@ Gdy funkcja dostaje prawdziwą implementację, widok przenosi się do `views/`, 
 
 ## Ścieżka nauki
 
-Start (profil ucznia, plan do matury, pulpit; plan do matury działa już jako `/do-matury`) → Wybór (Nauka) → Ćwiczenie (formaty, arkusze, zdjęcie) → Wynik (ekran rozbioru) → Postęp (mapa umiejętności, mapa wiedzy) → Powrót (powtórki) → znów Wybór.
+Profil ucznia i pulpit prowadzą do Nauki (`/nauka`). Stamtąd można zacząć szybką rundę, przejść do arkusza lub otworzyć ćwiczenie „Uczeń uczy AI”. Po rundzie rozbiór prowadzi do Mapy umiejętności (`/umiejetnosci`) i Powtórek (`/powtorki`).
 
 ## Lista funkcji
 
@@ -27,19 +27,13 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 
 ### Nauka
 
-- [ ] [Nauka](nauka/README.md): wybór formatu dla umiejętności i wolny temat
 - [ ] [Napraw błąd](napraw-blad/README.md): praca z wstrzykniętymi błędami
-- [ ] [Uczeń uczy AI](uczen-uczy/README.md): wyjaśnianie Koledze, ocena Sędziego
 - [ ] [Krok po kroku](krok-po-kroku/README.md): dłuższa odpowiedź etapami z listą kontrolną
 - [ ] [Tutor sokratejski](sokratejski/README.md): rozmowa z pytaniami i mini-testem
-- [ ] [Szybka runda](szybka-runda/README.md): 3–5 minut wariantów zadań
 - [ ] [Wizualizacje](wizualizacje/README.md): interaktywne modele pojęć
-- [ ] [Ekran rozbioru](rozbior/README.md): wspólne podsumowanie po sesji
 
 ### Postęp
 
-- [ ] [Mapa umiejętności](umiejetnosci/README.md): opanowanie z dowodami
-- [ ] [Powtórki](powtorki/README.md): zanikające umiejętności i błędy
 - [ ] [Mapa wiedzy](mapa-wiedzy/README.md): prywatny graf notatek
 
 ### Konto i narzędzia
@@ -48,12 +42,7 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 
 ### Wspólne fundamenty (potrzebne kilku szablonom)
 
-- [ ] Taksonomia umiejętności i mapowanie zadań CKE (mapa, nauka, powtórki, rozbiór)
-- [ ] Estymator opanowania z miarą pewności i model zanikania
-- [ ] Silnik wariantów zadań z kluczami (szybka runda, sokratejski mini-test, powtórki)
-- [ ] Wspólny model wyniku sesji i dowodów (wszystkie formaty → rozbiór → mapa)
-- [ ] Drabina podpowiedzi jako komponent i zapis jej użycia
-- [ ] Profil ucznia w bazie: zapis jest (`profiles.learning`), do zrobienia rekomendacje i plan do matury (etap 2)
+Silnik nauki i dane konta opisuje [kontrakt API](../../../../services/supabase/nauka.md).
 
 ### Faza 2 planu do matury (`/do-matury` ma już odliczanie i cel z profilu)
 
