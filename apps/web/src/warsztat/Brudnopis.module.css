@@ -7,7 +7,7 @@
 .nota {
   margin: 0;
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--skala-tekstu, 1));
   line-height: 1.45;
 }
 
@@ -41,7 +41,7 @@
   background: transparent;
   color: var(--muted);
   font: inherit;
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   font-weight: 500;
   cursor: pointer;
 }
@@ -69,7 +69,7 @@
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--line);
-  font: 0.9375rem/1.6 var(--font);
+  font: calc(0.9375rem * var(--skala-tekstu, 1)) / 1.6 var(--font);
   letter-spacing: normal;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -115,7 +115,7 @@
   border-radius: var(--r-pill);
   background: var(--primary-soft);
   color: var(--fg);
-  font: 600 0.875rem/1.4 var(--font);
+  font: 600 calc(0.875rem * var(--skala-tekstu, 1)) / 1.4 var(--font);
   box-shadow: var(--shadow-float);
   cursor: pointer;
 }
@@ -129,7 +129,7 @@
   border-radius: var(--r-pill);
   background: var(--surface);
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--skala-tekstu, 1));
   font-weight: 500;
 }
 
@@ -146,6 +146,6 @@
   flex: 1 1 200px;
   margin: 0;
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--skala-tekstu, 1));
   line-height: 1.4;
 }

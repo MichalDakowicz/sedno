@@ -5,6 +5,7 @@ import { logout } from "../auth";
 import { Plywak } from "./Plywak";
 import { resetTour, useTutor } from "./TutorContext";
 import styles from "./TopNav.module.css";
+import { mniejRuchu } from "../motyw";
 
 const links = [
   { to: "/", label: "Pulpit", icon: LayoutGrid, end: true },
@@ -31,7 +32,7 @@ export function TopNav() {
     let ostatnio = ul.getBoundingClientRect().left;
     const zmiana = () => {
       const r = ul.getBoundingClientRect();
-      if (r.width && Math.abs(ostatnio - r.left) > 1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+      if (r.width && Math.abs(ostatnio - r.left) > 1 && !mniejRuchu())
         ul.animate([{ transform: `translateX(${ostatnio - r.left}px)` }, { transform: "translateX(0)" }], {
           duration: 420,
           easing: "cubic-bezier(0.32, 1.2, 0.5, 1)",

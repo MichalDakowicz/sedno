@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { X } from "lucide-react";
 import { TutorAvatar } from "./TutorAvatar";
 import { useTutor, type Hint } from "./TutorContext";
+import { mniejRuchu } from "../motyw";
 import styles from "./TutorGuide.module.css";
 
 const AV = 48;
@@ -230,7 +231,7 @@ export function TutorGuide() {
     let ostatnia = document.documentElement.dataset.panelStrona;
     let klatka = 0;
     let awaria = 0;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = mniejRuchu;
 
     // Jeden ciągły łuk (parabola) z łagodnym rozpędem i hamowaniem na całość, bez pauzy w połowie.
     const leć = (lewa: boolean, od: Point) => {
@@ -256,7 +257,7 @@ export function TutorGuide() {
       ostatnia = strona;
       cancelAnimationFrame(klatka);
       window.clearTimeout(awaria);
-      if (modeRef.current !== "rest" || reduce) {
+      if (modeRef.current !== "rest" || reduce()) {
         spoczynekLewy = strona === "prawa";
         sync(false);
         return;

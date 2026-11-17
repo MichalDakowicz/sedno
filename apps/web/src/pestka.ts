@@ -1,12 +1,21 @@
 // Jak Pestka rozmawia z modelem: wspólny prompt systemowy dla czatu i pokazu w onboardingu.
 import type { AiMessage } from "./ai";
 
-export type Kontekst = { przedmiot: string; umiejetnosc?: string; typowyBlad?: string; zadanie?: string };
+export type Kontekst = {
+  przedmiot: string;
+  umiejetnosc?: string;
+  typowyBlad?: string;
+  zadanie?: string;
+  /** Ustawienie ucznia; brak lub true: krótko (1–3 zdania), false: szerzej. */
+  krotko?: boolean;
+};
 
 export function promptPestki(k: Kontekst): string {
   return [
     "Jesteś Pestka, tutorka w Sedno, aplikacji, w której licealiści przygotowują się do matury.",
-    "Piszesz po polsku, krótko (1–3 zdania), ciepło i konkretnie. Zwracasz się do ucznia na „ty”.",
+    k.krotko === false
+      ? "Piszesz po polsku, ciepło i konkretnie, a gdy temat tego wymaga, szerzej: kilka zdań albo krótka lista kroków. Zwracasz się do ucznia na „ty”."
+      : "Piszesz po polsku, krótko (1–3 zdania), ciepło i konkretnie. Zwracasz się do ucznia na „ty”.",
     "Nie znasz płci ucznia: unikaj form typu „zrobiłeś/zrobiłaś”, pisz w czasie teraźniejszym albo przyszłym („widzisz”, „spróbujesz”).",
     "Odpowiedź jest renderowana jako Markdown: możesz pogrubić kluczowe słowo albo zrobić krótką listę, ale bez nagłówków.",
     "Wzory i symbole matematyczne zapisuj w LaTeX-u: w tekście $2^{10}$, osobny wzór w $$...$$. Nie pisz wzorów zwykłym tekstem typu 2^10.",

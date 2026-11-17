@@ -45,7 +45,7 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: var(--font);
-  font-size: 16px;
+  font-size: calc(16px * var(--skala-tekstu, 1));
   line-height: 1.5;
   color: var(--fg);
   background-color: var(--bg);
@@ -85,41 +85,41 @@ textarea {
 /* Typografia */
 
 .display {
-  font-size: clamp(40px, 6vw, 56px);
+  font-size: calc(clamp(40px, 6vw, 56px) * var(--skala-tekstu, 1));
   line-height: 1.02;
   letter-spacing: -0.05em;
   font-weight: 400;
 }
 
 .h1 {
-  font-size: clamp(32px, 4.4vw, 40px);
+  font-size: calc(clamp(32px, 4.4vw, 40px) * var(--skala-tekstu, 1));
   line-height: 1.08;
   letter-spacing: -0.04em;
   font-weight: 400;
 }
 
 .h2 {
-  font-size: clamp(24px, 3vw, 28px);
+  font-size: calc(clamp(24px, 3vw, 28px) * var(--skala-tekstu, 1));
   line-height: 1.15;
   letter-spacing: -0.03em;
   font-weight: 400;
 }
 
 .h3 {
-  font-size: 20px;
+  font-size: calc(20px * var(--skala-tekstu, 1));
   line-height: 1.3;
   letter-spacing: -0.015em;
   font-weight: 500;
 }
 
 .lead {
-  font-size: 19px;
+  font-size: calc(19px * var(--skala-tekstu, 1));
   line-height: 1.65;
   color: var(--muted);
 }
 
 .small {
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   line-height: 1.45;
 }
 
@@ -128,7 +128,7 @@ textarea {
 }
 
 .label {
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   line-height: 1.3;
   letter-spacing: 0.08em;
   font-weight: 600;
@@ -165,7 +165,7 @@ textarea {
   padding: 12px 22px;
   border: 0;
   border-radius: var(--r-pill);
-  font-size: 16px;
+  font-size: calc(16px * var(--skala-tekstu, 1));
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
@@ -182,7 +182,7 @@ textarea {
 .btn-primary {
   background: var(--primary-strong);
   color: var(--primary-fg);
-  font-size: 19px;
+  font-size: calc(19px * var(--skala-tekstu, 1));
   font-weight: 700;
 }
 
@@ -208,12 +208,12 @@ textarea {
 .btn-sm {
   min-height: 40px;
   padding: 8px 16px;
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
 }
 
 /* Biały na pomarańczu wymaga dużego tekstu także w małym przycisku. */
 .btn-primary.btn-sm {
-  font-size: 19px;
+  font-size: calc(19px * var(--skala-tekstu, 1));
 }
 
 .link {
@@ -268,7 +268,7 @@ textarea {
 }
 
 .field label {
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   font-weight: 500;
 }
 
@@ -279,7 +279,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   background: var(--surface);
-  font-size: 16px;
+  font-size: calc(16px * var(--skala-tekstu, 1));
   transition: border-color 0.15s ease;
 }
 
@@ -316,13 +316,22 @@ textarea {
   white-space: nowrap;
 }
 
+/* „Mniej ruchu”: z systemu, chyba że uczeń wybrał inaczej w Ustawieniach (data-mniej-ruchu="tak" albo "nie"). */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  :root:not([data-mniej-ruchu="nie"]) *,
+  :root:not([data-mniej-ruchu="nie"]) *::before,
+  :root:not([data-mniej-ruchu="nie"]) *::after {
     animation: none !important;
     transition: none !important;
   }
+}
+
+:root[data-mniej-ruchu="tak"] *,
+:root[data-mniej-ruchu="tak"] *::before,
+:root[data-mniej-ruchu="tak"] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
 }
 
 /* Treść, która dochodzi po wczytaniu danych, wchodzi łagodnie zamiast wskakiwać. */

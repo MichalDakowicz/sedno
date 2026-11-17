@@ -7,7 +7,7 @@
 }
 
 .czas {
-  font-size: 13px;
+  font-size: calc(13px * var(--skala-tekstu, 1));
   font-weight: 400;
   color: var(--subtle);
   font-variant-numeric: tabular-nums;
@@ -18,7 +18,7 @@
   margin: 0;
   padding-left: 14px;
   border-left: 2px solid var(--line);
-  font-size: 15px;
+  font-size: calc(15px * var(--skala-tekstu, 1));
   line-height: 1.6;
   color: var(--muted);
 }

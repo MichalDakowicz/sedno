@@ -1,5 +1,6 @@
 .page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 56px;
   padding-top: 8px;
   padding-bottom: 96px;
@@ -34,7 +35,7 @@
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   background: transparent;
-  font-size: 15px;
+  font-size: calc(15px * var(--skala-tekstu, 1));
   font-weight: 500;
   color: var(--muted);
   white-space: nowrap;
@@ -90,7 +91,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -112,6 +113,7 @@
 
 .today {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   justify-items: start;
   padding: 40px;
@@ -139,13 +141,13 @@
   padding: 2px 12px 2px 2px;
   border-radius: var(--r-pill);
   background: var(--bg);
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   font-weight: 500;
 }
 
 .reason {
   max-width: 52ch;
-  font-size: 17px;
+  font-size: calc(17px * var(--skala-tekstu, 1));
   line-height: 1.6;
   color: var(--muted);
 }
@@ -155,6 +157,14 @@
   flex-wrap: wrap;
   gap: 12px;
   padding-top: 8px;
+}
+
+/* Długi podpis przycisku zawija się w karcie zamiast ją rozpychać (większy tekst na telefonie). */
+.actions :global(.btn) {
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.25;
+  text-align: center;
 }
 
 .alternatives {
@@ -314,7 +324,7 @@
 }
 
 .note {
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   color: var(--muted);
 }
 
@@ -392,14 +402,14 @@
 }
 
 .stat {
-  font-size: 48px;
+  font-size: calc(48px * var(--skala-tekstu, 1));
   line-height: 1;
   letter-spacing: -0.05em;
 }
 
 .stat > span {
   color: var(--subtle);
-  font-size: 28px;
+  font-size: calc(28px * var(--skala-tekstu, 1));
 }
 
 /* Panel wyników: liczba z trendem, skala do progu, wniosek i ostatnie arkusze. */
@@ -413,7 +423,7 @@
 
 .block .wynikiNaglowek :global(.link) {
   margin-top: 0;
-  font-size: 13px;
+  font-size: calc(13px * var(--skala-tekstu, 1));
   font-weight: 400;
   color: var(--subtle);
 }
@@ -433,7 +443,7 @@
 .stat > .statOpis {
   display: block;
   margin-top: 8px;
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   letter-spacing: 0;
   color: var(--subtle);
 }
@@ -445,7 +455,7 @@
 }
 
 .trendPodpis {
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   color: var(--subtle);
 }
 
@@ -510,7 +520,7 @@
   position: absolute;
   bottom: 0;
   transform: translateX(-50%);
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   color: var(--subtle);
   white-space: nowrap;
 }
@@ -540,7 +550,7 @@
 
 .ostatnie a.omow {
   flex: none;
-  font-size: 13px;
+  font-size: calc(13px * var(--skala-tekstu, 1));
   color: var(--primary-text);
 }
 

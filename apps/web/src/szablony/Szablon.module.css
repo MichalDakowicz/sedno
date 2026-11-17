@@ -28,7 +28,7 @@
   border-radius: var(--r-pill);
   background: var(--primary-soft);
   color: var(--primary-text);
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -149,7 +149,7 @@
   border-radius: 50%;
   background: var(--primary-strong);
   color: var(--primary-fg);
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   font-weight: 700;
   line-height: 1;
   vertical-align: middle;
@@ -208,7 +208,7 @@
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   background: transparent;
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   font-weight: 500;
   color: var(--muted);
   white-space: nowrap;
@@ -266,7 +266,7 @@
   padding: 12px 16px;
   border-radius: 18px 18px 18px 6px;
   background: var(--bg);
-  font-size: 15px;
+  font-size: calc(15px * var(--skala-tekstu, 1));
   line-height: 1.5;
 }
 
@@ -280,7 +280,7 @@
 .ktoMowi {
   display: block;
   margin-bottom: 2px;
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   font-weight: 600;
   color: var(--subtle);
 }
@@ -302,7 +302,7 @@
 }
 
 .duzaLiczba {
-  font-size: 48px;
+  font-size: calc(48px * var(--skala-tekstu, 1));
   line-height: 1;
   letter-spacing: -0.05em;
 }
@@ -353,10 +353,14 @@
 
 /* Ciemny motyw: knob --surface na torze --line miałby 1,2:1, więc w stanie wyłączonym jest --muted (5,5:1 na torze). */
 @media (prefers-color-scheme: dark) {
-  .przelacznik:not(.przelacznikWl)::after {
+  :root:not([data-motyw="jasny"]) .przelacznik:not(.przelacznikWl)::after {
     background: var(--muted);
   }
 }
+
+  :root[data-motyw="ciemny"] .przelacznik:not(.przelacznikWl)::after {
+    background: var(--muted);
+  }
 
 .przelacznikWl {
   background: var(--success);
@@ -404,12 +408,12 @@
   border-radius: 50%;
   background: var(--primary-strong);
   color: var(--primary-fg);
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   font-weight: 700;
 }
 
 .jakDziala code {
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
 }
 
 /* Spis szablonów */
@@ -479,7 +483,7 @@
 }
 
 .etap a {
-  font-size: 15px;
+  font-size: calc(15px * var(--skala-tekstu, 1));
   font-weight: 500;
 }
 
@@ -493,7 +497,7 @@
 
 .prawdziwy {
   color: var(--subtle);
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   font-weight: 500;
 }
 

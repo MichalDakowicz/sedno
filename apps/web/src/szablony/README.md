@@ -48,7 +48,6 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 - [ ] [Profil ucznia](profil-ucznia/README.md): styl nauki, czas, cel, priorytety
 - [ ] [Analiza zdjęcia](zdjecie/README.md): rozwiązanie z kartki omówione przez Pestkę
 - [ ] [Wyszukiwanie](wyszukiwanie/README.md): Ctrl+K do arkuszy, umiejętności, akcji
-- [ ] [Ustawienia](ustawienia/README.md): wygląd, dostępność, Pestka, powiadomienia
 - [ ] [Układ pulpitu](uklad-pulpitu/README.md): widgety i gotowe układy
 
 ### Wspólne fundamenty (potrzebne kilku szablonom)
@@ -58,4 +57,4 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 - [ ] Silnik wariantów zadań z kluczami (szybka runda, sokratejski mini-test, powtórki)
 - [ ] Wspólny model wyniku sesji i dowodów (wszystkie formaty → rozbiór → mapa)
 - [ ] Drabina podpowiedzi jako komponent i zapis jej użycia
-- [ ] Profil ucznia w bazie (rekomendacje, plan do matury)
+- [ ] Profil ucznia w bazie: zapis jest (`profiles.learning`), do zrobienia rekomendacje i plan do matury (etap 2)
