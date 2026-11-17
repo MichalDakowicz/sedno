@@ -3,6 +3,8 @@
 // omawiania (OmowienieBledow), a pierwsza wraca na spoczynek (TutorGuide po dismiss).
 // Cała sekwencja to kopie avatara nad stroną; prawdziwa Pestka jest na ten czas ukryta.
 
+import { mniejRuchu } from "../motyw";
+
 const czekaj = (ms: number) => new Promise((r) => window.setTimeout(r, ms));
 
 function kopia(zrodlo: Element, r: DOMRect): HTMLElement {
@@ -140,7 +142,7 @@ export async function rozklejPestke(): Promise<Rozklejenie | null> {
   const svg = avatar?.querySelector("svg");
   if (!avatar || !svg) return null;
   const r = svg.getBoundingClientRect();
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return { doKarty: r, powrot: Promise.resolve() };
+  if (mniejRuchu()) return { doKarty: r, powrot: Promise.resolve() };
 
   const przewodnik = avatar.parentElement as HTMLElement;
   przewodnik.style.opacity = "0";
