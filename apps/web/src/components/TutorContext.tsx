@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { AvatarState } from "./TutorAvatar";
 import { aiErrorText, AiError, streamAi } from "../ai";
 import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA_ROZMOW, type Rozmowa } from "../konto/rozmowy";
-import { bezEmoji, powtarzaTutora, rozmowa, wytnijPriorytety } from "../pestka";
+import { bezEmoji, powtarzaTutora, priorytetDozwolony, rozmowa, wytnijPriorytety } from "../pestka";
 import { dodajPriorytet, listaPelna, opisProfilu, usunPriorytet } from "../konto/profilUcznia";
 import { useUstawienia } from "../konto/ustawienia";
 
@@ -186,7 +186,9 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
       else if (powtarzaTutora(widoczny, historia)) write("Powtarzam się. Napisz własnymi słowami, co jest dla ciebie niejasne, a wyjaśnię to inaczej.");
       else {
         // Zapis dopiero po całej odpowiedzi i najwyżej jeden na odpowiedź; uczeń zawsze widzi w czacie, co trafiło do profilu.
-        const propozycja = priorytety[0];
+        // Twarda ochrona obok promptu: priorytet musi wynikać z ostatniej wiadomości ucznia; odrzucony znika po cichu.
+        const ostatniaUcznia = [...historia].reverse().find((m) => m.od === "uczen")?.tekst ?? "";
+        const propozycja = priorytety.find((p) => priorytetDozwolony(p, ostatniaUcznia));
         if (propozycja && listaPelna()) write(widoczny, { pelna: true });
         else {
           const idP = propozycja ? dodajPriorytet(propozycja, "pestka") : null;
