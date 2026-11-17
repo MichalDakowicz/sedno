@@ -118,14 +118,6 @@ export const SZABLONY: Szablon[] = [
     dalej: ["rozbior"],
     wejscie: "Arkusz: zadanie otwarte; rozmowa z Pestką",
   },
-  {
-    slug: "uklad-pulpitu",
-    tytul: "Układ pulpitu",
-    opis: "Wybór i kolejność widgetów na pulpicie.",
-    grupa: "Konto i narzędzia",
-    dalej: [],
-    wejscie: "Pulpit; Profil",
-  },
 ];
 
 export const GRUPY: Grupa[] = ["Nauka", "Postęp", "Konto i narzędzia"];

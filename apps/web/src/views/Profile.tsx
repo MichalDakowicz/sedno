@@ -6,7 +6,6 @@ import { KontoAI } from "../components/KontoAI";
 import { resetTour } from "../components/TutorContext";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import type { MojPrzedmiot } from "../konto/przedmioty";
-import { Wejscia } from "../szablony/Wejscia";
 
 export function Profile() {
   const navigate = useNavigate();
@@ -69,7 +68,14 @@ export function Profile() {
         </Link>
       </section>
 
-      <Wejscia tytul="W przygotowaniu" slugi={["uklad-pulpitu"]} />
+      <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
+        <h2 className="h3">Układ pulpitu</h2>
+        <p className="muted small">Wybór i kolejność widgetów na pulpicie.</p>
+        <Link to="/uklad-pulpitu" className="link" style={{ marginTop: 12 }}>
+          Otwórz układ pulpitu
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
+      </section>
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <button
