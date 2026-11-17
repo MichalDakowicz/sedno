@@ -15,6 +15,9 @@ export function TutorChat() {
   const [draft, setDraft] = useState("");
   const [lista, setLista] = useState(false);
   const wczesniejsze = rozmowy.filter((r) => r.id !== biezacaRozmowa);
+  // Odpowiedź wpada do rozmowy, w której padło pytanie, więc w trakcie niej nie przełączamy rozmów.
+  const zajeta = state !== "idle";
+  const powod = zajeta ? "Pestka jeszcze odpowiada" : undefined;
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,13 +33,15 @@ export function TutorChat() {
   return (
     <div className={styles.chat}>
       <div className={styles.rozmowyPasek}>
-        <button type="button" className={styles.rozmowyPrzycisk} onClick={() => setLista((l) => !l)} disabled={!wczesniejsze.length} aria-expanded={lista}>
+        <button type="button" className={styles.rozmowyPrzycisk} onClick={() => setLista((l) => !l)} disabled={lista ? false : !wczesniejsze.length || zajeta} title={lista ? undefined : powod} aria-expanded={lista}>
           {lista ? "Wróć do rozmowy" : `Wcześniejsze rozmowy${wczesniejsze.length ? ` (${wczesniejsze.length})` : ""}`}
         </button>
         {messages.some((m) => m.from === "student") && (
           <button
             type="button"
             className={styles.rozmowyPrzycisk}
+            disabled={zajeta}
+            title={powod}
             onClick={() => {
               nowaRozmowa();
               setLista(false);
@@ -52,6 +57,8 @@ export function TutorChat() {
             <li key={r.id}>
               <button
                 type="button"
+                disabled={zajeta}
+                title={powod}
                 onClick={() => {
                   otworzRozmowe(r.id);
                   setLista(false);

@@ -287,6 +287,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   }, [messages, state, biezacaRozmowa]);
 
   const nowaRozmowa = useCallback(() => {
+    if (stanRef.current !== "idle") return;
     const id = noweId();
     setBiezacaRozmowa(id);
     ustawBiezaca(id);
@@ -294,6 +295,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   }, []);
 
   const otworzRozmowe = useCallback((id: string) => {
+    if (stanRef.current !== "idle") return;
     const r = wczytajRozmowy().find((x) => x.id === id);
     if (!r) return;
     setBiezacaRozmowa(id);
