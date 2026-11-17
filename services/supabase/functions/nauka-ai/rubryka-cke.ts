@@ -84,10 +84,11 @@ export function wytnijRubryke(tresc: string, numer: string, punkty: number) {
   const i = naglowki.findIndex((w) => w[1].replace(/\s/g, "") === numer && Number(w[2]) === punkty);
   if (i < 0) return null;
   const poczatek = naglowki[i].index + naglowki[i][0].length;
-  const sekcja = tresc.slice(poczatek, naglowki[i + 1]?.index);
-  const rubryka = sekcja.match(/\bZasady\s+oceniania\b([\s\S]*)/i)?.[1]?.trim();
+  const sekcja = tresc.slice(poczatek, naglowki[i + 1]?.index)
+    .split(/(?:^|\n)\s*Ocena\s+prac\s+osób\s+ze\s+stwierdzoną\s+dyskalkulią\s*(?:\n|$)/i)[0];
+  const rubryka = sekcja.match(/\bZasa\s*dy\s+ocen\s*ia\s*nia\b([\s\S]*)/i)?.[1]?.trim();
   if (!rubryka) return null;
-  const [zasady, ...przyklady] = rubryka.split(/(?:^|\n)\s*(?:Przykładowe pełne rozwiązania|Przykładowe rozwiązania|Rozwiązanie)\s*(?:\n|$)/i);
+  const [zasady, ...przyklady] = rubryka.split(/(?:^|\n)\s*(?:Przykładowe\s+(?:pełne\s+)?rozwiązani[ae]|Rozwiązanie)\s*(?:\n|$)/i);
   // Nie przekazujemy urwanej punktacji. Próg dla zera zamyka sekcję oceniania.
   if (!new RegExp(String.raw`\b${punkty}\s*punkt(?:y|ów)?\b|\b${punkty}\s*pkt\b`, "i").test(zasady) ||
     !/\b0\s*(?:pkt|punktów)\b/i.test(zasady) || zasady.length > 13_000) return null;
