@@ -42,7 +42,7 @@
   background: transparent;
   color: var(--fg);
   font: inherit;
-  font-size: 1.0625rem;
+  font-size: calc(17px * var(--skala-tekstu, 1));
 }
 
 .input:focus-visible {
@@ -111,6 +111,33 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.zamknij {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.zamknij:hover {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.zajeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 6px 10px;
+  cursor: not-allowed;
 }
 
 .pusto {

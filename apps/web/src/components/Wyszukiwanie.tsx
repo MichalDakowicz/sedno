@@ -1,12 +1,12 @@
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CornerDownLeft, FileText, LayoutGrid, MessageCircle, Search, Sparkles } from "lucide-react";
+import { CornerDownLeft, FileText, LayoutGrid, MessageCircle, Search, Sparkles, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useListaArkuszy } from "../arkusze/dane";
-import { useProfil } from "../auth";
+import { currentUserId, useProfil } from "../auth";
 import { nazwaPoziomu, przedmiot } from "../konto/przedmioty";
 import { useTutor } from "./TutorContext";
-import { szukaj, wczytajOstatnie, zapamietajOstatnie, type RodzajWyniku, type Wynik } from "./szukaj";
+import { slowaTekstu, szukaj, wczytajOstatnie, zapamietajOstatnie, type RodzajWyniku, type Wynik } from "./szukaj";
 import styles from "./Wyszukiwanie.module.css";
 
 /** Zdarzenie, którym lupa w pasku otwiera okno. */
@@ -19,14 +19,30 @@ const GRUPY: { rodzaj: RodzajWyniku; nazwa: string; limit: number }[] = [
   { rodzaj: "rozmowa", nazwa: "Rozmowy z Pestką", limit: 4 },
 ];
 
-const AKCJE: Wynik[] = [
-  { id: "akcja:pulpit", rodzaj: "akcja", tytul: "Pulpit", szukaj: "strona glowna start", sciezka: "/" },
-  { id: "akcja:arkusze", rodzaj: "akcja", tytul: "Arkusze", opis: "Arkusze maturalne CKE", szukaj: "arkusze arkusz matura cke", sciezka: "/arkusze" },
-  { id: "akcja:pestka", rodzaj: "akcja", tytul: "Rozmowa z Pestką", opis: "Tutor AI", szukaj: "rozmowa pestka tutor czat pytanie", sciezka: "/tutor" },
-  { id: "akcja:profil", rodzaj: "akcja", tytul: "Profil", opis: "Przedmioty i ustawienia konta", szukaj: "profil konto przedmioty ustawienia", sciezka: "/profil" },
+const DEFINICJE_AKCJI = [
+  { id: "akcja:pulpit", tytul: "Pulpit", opis: "", klucze: "strona glowna start", sciezka: "/" },
+  { id: "akcja:arkusze", tytul: "Arkusze", opis: "Arkusze maturalne CKE", klucze: "arkusz matura cke", sciezka: "/arkusze" },
+  { id: "akcja:pestka", tytul: "Rozmowa z Pestką", opis: "Tutor AI", klucze: "tutor czat pytanie", sciezka: "/tutor" },
+  { id: "akcja:profil", tytul: "Profil", opis: "Przedmioty i konto AI", klucze: "konto przedmioty ai klucz", sciezka: "/profil" },
+  { id: "akcja:ustawienia", tytul: "Ustawienia", opis: "Wygląd, dostępność i Pestka", klucze: "motyw ciemny jasny tekst rozmiar dostepnosc pestka wyglad", sciezka: "/ustawienia" },
 ];
+const AKCJE: Wynik[] = DEFINICJE_AKCJI.map((a) => ({
+  id: a.id,
+  rodzaj: "akcja",
+  tytul: a.tytul,
+  opis: a.opis || undefined,
+  slowa: slowaTekstu(`${a.tytul} ${a.opis} ${a.klucze}`),
+  sciezka: a.sciezka,
+}));
 
-type Pozycja = Wynik | "pestka";
+// Dłuższy tekst to pytanie dla Pestki, nie hasło: nie ma sensu go dopasowywać.
+const MAX_HASLO = 120;
+const MAX_CZAT = 300;
+
+const liczbaWynikow = (n: number) => (n === 1 ? "1 wynik" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 > 20) ? `${n} wyniki` : `${n} wyników`);
+
+type Pozycja = Wynik | "pestka" | "ai";
+const idPoz = (p: Pozycja) => (typeof p === "string" ? p : p.id);
 
 export function Wyszukiwanie() {
   const [otwarte, setOtwarte] = useState(false);
@@ -72,11 +88,12 @@ export function Wyszukiwanie() {
 
 function Okno({ zamknij }: { zamknij: () => void }) {
   const navigate = useNavigate();
-  const { rozmowy, otworzRozmowe, send } = useTutor();
-  const { dane: arkusze } = useListaArkuszy();
+  const { rozmowy, otworzRozmowe, zapytajWNowej, aiGotowe, state } = useTutor();
+  const { dane: arkusze, laduje, blad } = useListaArkuszy();
   const profil = useProfil();
+  const wlasciciel = currentUserId();
   const [tekst, setTekst] = useState("");
-  const [wybrany, setWybrany] = useState(0);
+  const [wybranyId, setWybranyId] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const listaRef = useRef<HTMLDivElement>(null);
   const id = useId();
@@ -85,24 +102,27 @@ function Okno({ zamknij }: { zamknij: () => void }) {
     dialogRef.current?.showModal();
   }, []);
 
+  // Słowa każdej pozycji liczymy raz tutaj, nie przy każdym znaku.
   const indeks = useMemo<Wynik[]>(() => {
     const moje = new Set<string>(profil?.subjects.map((s) => s.id));
     const sheety = (arkusze ?? []).map<Wynik>((a) => {
       const nazwa = przedmiot(a.przedmiot)?.nazwa ?? a.przedmiot;
+      const tytul = `${nazwa} ${nazwaPoziomu[a.poziom]}, ${a.sesja} ${a.rok}`;
       return {
         id: `arkusz:${a.id}`,
         rodzaj: "arkusz",
-        tytul: `${nazwa} ${nazwaPoziomu[a.poziom]}, ${a.sesja} ${a.rok}`,
-        szukaj: `${nazwa} ${nazwaPoziomu[a.poziom]} ${a.sesja} ${a.rok} ${a.symbol} arkusz`,
+        tytul,
+        slowa: slowaTekstu(`${tytul} ${a.symbol} arkusz`),
         sciezka: `/arkusze/${a.id}`,
         premia: moje.has(a.przedmiot) ? 0.5 : 0,
       };
     });
+    // Rozmowy: tytuł i własne wiadomości ucznia, skrócone.
     const chaty = rozmowy.map<Wynik>((r) => ({
       id: `rozmowa:${r.id}`,
       rodzaj: "rozmowa",
       tytul: r.tytul,
-      szukaj: `${r.tytul} ${r.wiadomosci.map((m) => m.text).join(" ")}`,
+      slowa: slowaTekstu(`${r.tytul} ${r.wiadomosci.filter((m) => m.from === "student").map((m) => m.text).join(" ")}`.slice(0, MAX_CZAT)),
       sciezka: "/tutor",
       rozmowaId: r.id,
     }));
@@ -110,30 +130,41 @@ function Okno({ zamknij }: { zamknij: () => void }) {
   }, [arkusze, profil, rozmowy]);
 
   const pytanie = tekst.trim();
+  const szukane = useDeferredValue(pytanie);
+  const dlugie = szukane.length > MAX_HASLO;
   // Pytanie pełnym zdaniem trafia do Pestki przed wynikami, krótkie hasło za nimi.
-  const pestkaPierwsza = pytanie.includes("?") || pytanie.split(/\s+/).length >= 4;
+  const pestkaPierwsza = dlugie || szukane.includes("?") || szukane.split(/\s+/).length >= 4;
 
   const grupy = useMemo(() => {
-    if (!pytanie) {
+    if (!szukane) {
       const poId = new Map(indeks.map((w) => [w.id, w]));
-      const ostatnie = wczytajOstatnie().flatMap((x) => poId.get(x) ?? []);
+      const ostatnie = wczytajOstatnie(wlasciciel).flatMap((x) => poId.get(x) ?? []);
       const polecane = AKCJE.filter((a) => !ostatnie.some((o) => o.id === a.id));
       return [
         { nazwa: "Ostatnie", wyniki: ostatnie },
         { nazwa: "Polecane", wyniki: polecane },
       ].filter((g) => g.wyniki.length);
     }
-    const trafione = szukaj(pytanie, indeks);
+    if (dlugie) return [];
+    const trafione = szukaj(szukane, indeks);
     return GRUPY.map((g) => ({ nazwa: g.nazwa, wyniki: trafione.filter((w) => w.rodzaj === g.rodzaj).slice(0, g.limit) })).filter((g) => g.wyniki.length);
-  }, [pytanie, indeks]);
+  }, [szukane, dlugie, indeks, wlasciciel]);
+
+  // Pestka: gotowa, zajęta (odpowiada), bez AI (odsyłamy do profilu) albo jeszcze sprawdzamy (ukryta).
+  const pestka: "gotowa" | "zajeta" | "brak-ai" | null = !szukane || aiGotowe === undefined ? null : aiGotowe === false ? "brak-ai" : state !== "idle" ? "zajeta" : "gotowa";
+  const pozycjaPestki: Pozycja | null = pestka === "gotowa" ? "pestka" : pestka === "brak-ai" ? "ai" : null;
 
   const plaska = useMemo<Pozycja[]>(() => {
-    const w = grupy.flatMap((g) => g.wyniki);
-    if (!pytanie) return w;
-    return pestkaPierwsza ? ["pestka", ...w] : [...w, "pestka"];
-  }, [grupy, pytanie, pestkaPierwsza]);
+    const w: Pozycja[] = grupy.flatMap((g) => g.wyniki);
+    if (!pozycjaPestki) return w;
+    return pestkaPierwsza ? [pozycjaPestki, ...w] : [...w, pozycjaPestki];
+  }, [grupy, pozycjaPestki, pestkaPierwsza]);
 
-  useEffect(() => setWybrany(0), [pytanie]);
+  // Zaznaczenie trzyma id pozycji; gdy zniknie z listy, wraca na pierwszą.
+  const znaleziony = plaska.findIndex((p) => idPoz(p) === wybranyId);
+  const wybrany = znaleziony >= 0 ? znaleziony : 0;
+
+  useEffect(() => setWybranyId(null), [szukane]);
   useEffect(() => {
     const lista = listaRef.current;
     const el = lista?.querySelector('[aria-selected="true"]');
@@ -145,10 +176,13 @@ function Okno({ zamknij }: { zamknij: () => void }) {
 
   function otworz(p: Pozycja) {
     if (p === "pestka") {
-      send(pytanie);
+      // Pytanie z wyszukiwania zaczyna nową rozmowę.
+      zapytajWNowej(pytanie);
       navigate("/tutor");
+    } else if (p === "ai") {
+      navigate("/profil#ai");
     } else {
-      zapamietajOstatnie(p.id);
+      zapamietajOstatnie(wlasciciel, p.id);
       if (p.rozmowaId) otworzRozmowe(p.rozmowaId);
       navigate(p.sciezka);
     }
@@ -159,7 +193,7 @@ function Okno({ zamknij }: { zamknij: () => void }) {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       const n = plaska.length;
-      if (n) setWybrany((i) => (i + (e.key === "ArrowDown" ? 1 : -1) + n) % n);
+      if (n) setWybranyId(idPoz(plaska[(wybrany + (e.key === "ArrowDown" ? 1 : -1) + n) % n]));
     } else if (e.key === "Enter" && plaska[wybrany]) {
       e.preventDefault();
       otworz(plaska[wybrany]);
@@ -169,35 +203,49 @@ function Okno({ zamknij }: { zamknij: () => void }) {
   const idPozycji = (i: number) => `${id}-${i}`;
   const wiersz = (p: Pozycja) => {
     const i = plaska.indexOf(p);
-    const Ikona = p === "pestka" ? Sparkles : IKONY[p.rodzaj];
+    const Ikona = typeof p === "string" ? Sparkles : IKONY[p.rodzaj];
+    const nazwa = p === "pestka" ? `Zapytaj Pestkę: „${pytanie}”` : p === "ai" ? "Podepnij AI, żeby pytać Pestkę" : p.tytul;
     return (
       <li
-        key={p === "pestka" ? "pestka" : p.id}
+        key={idPoz(p)}
         id={idPozycji(i)}
         role="option"
         aria-selected={i === wybrany}
         className={styles.wiersz}
-        onMouseMove={() => i !== wybrany && setWybrany(i)}
+        onMouseMove={() => i !== wybrany && setWybranyId(idPoz(p))}
         onClick={() => otworz(p)}
       >
         <Ikona size={16} aria-hidden="true" />
         <span className={styles.tekst}>
-          <span>{p === "pestka" ? `Zapytaj Pestkę: „${pytanie}”` : p.tytul}</span>
-          {p !== "pestka" && p.opis && <span className="muted small">{p.opis}</span>}
+          <span>{nazwa}</span>
+          {typeof p !== "string" && p.opis && <span className="muted small">{p.opis}</span>}
         </span>
         {i === wybrany && <CornerDownLeft size={14} aria-hidden="true" />}
       </li>
     );
   };
 
-  const blokPestki = pytanie ? (
-    <div key="pestka" className={styles.grupa} role="group" aria-label="Pestka">
-      <span className="label" aria-hidden="true">
-        Pestka
-      </span>
-      <ul role="presentation">{wiersz("pestka")}</ul>
-    </div>
-  ) : null;
+  const blokPestki =
+    pestka === "zajeta" ? (
+      <div key="pestka" className={styles.grupa} role="group" aria-label="Pestka">
+        <span className="label" aria-hidden="true">
+          Pestka
+        </span>
+        <ul role="presentation">
+          <li role="option" aria-disabled="true" aria-selected="false" className={`muted ${styles.zajeta}`}>
+            <Sparkles size={16} aria-hidden="true" />
+            <span>Zapytaj Pestkę: Pestka jeszcze odpowiada</span>
+          </li>
+        </ul>
+      </div>
+    ) : pozycjaPestki ? (
+      <div key="pestka" className={styles.grupa} role="group" aria-label="Pestka">
+        <span className="label" aria-hidden="true">
+          Pestka
+        </span>
+        <ul role="presentation">{wiersz(pozycjaPestki)}</ul>
+      </div>
+    ) : null;
   const bloki = grupy.map((g) => (
     <div key={g.nazwa} className={styles.grupa} role="group" aria-label={g.nazwa}>
       <span className="label" aria-hidden="true">
@@ -206,6 +254,18 @@ function Okno({ zamknij }: { zamknij: () => void }) {
       <ul role="presentation">{g.wyniki.map(wiersz)}</ul>
     </div>
   ));
+
+  const liczba = grupy.reduce((n, g) => n + g.wyniki.length, 0);
+  const bladArkuszy = blad && blad !== "brak-danych";
+  const komunikat = laduje
+    ? "Wczytuję arkusze…"
+    : bladArkuszy
+      ? "Nie udało się wczytać arkuszy."
+      : szukane && !dlugie && liczba === 0
+        ? aiGotowe === true
+          ? "Nic nie znalazłam. Możesz zapytać Pestkę."
+          : "Nic nie znalazłam."
+        : null;
 
   return (
     <dialog
@@ -237,10 +297,19 @@ function Okno({ zamknij }: { zamknij: () => void }) {
           onChange={(e) => setTekst(e.target.value)}
           onKeyDown={klawisz}
         />
+        <button type="button" className={styles.zamknij} onClick={zamknij} aria-label="Zamknij">
+          <X size={18} aria-hidden="true" />
+        </button>
       </div>
       <div ref={listaRef} className={styles.lista} id={`${id}-lista`} role="listbox" aria-label="Wyniki">
         {pestkaPierwsza ? [blokPestki, ...bloki] : [...bloki, blokPestki]}
-        {pytanie && grupy.length === 0 && <p className={`muted small ${styles.pusto}`}>Nic nie znalazłam. Możesz zapytać Pestkę.</p>}
+      </div>
+      <div role="status" aria-live="polite">
+        {komunikat ? (
+          <p className={`muted small ${styles.pusto}`}>{komunikat}</p>
+        ) : szukane && !dlugie ? (
+          <span className="visually-hidden">{liczbaWynikow(liczba)}</span>
+        ) : null}
       </div>
       <p className={`muted small ${styles.stopka}`}>↑↓ wybierz · Enter otwórz · Esc zamknij</p>
     </dialog>

@@ -54,7 +54,7 @@ export function AppLayout() {
 
   // Pestka pojawia się dopiero, gdy konto ma podpięte AI.
   return (
-    <TutorProvider ai={ai === true} przedmioty={opisPrzedmiotow(profil?.subjects ?? [])}>
+    <TutorProvider ai={ai} przedmioty={opisPrzedmiotow(profil?.subjects ?? [])}>
       <TopNav />
       <ZegarWPasku />
       <Wyszukiwanie />
