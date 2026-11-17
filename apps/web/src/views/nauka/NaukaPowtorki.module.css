@@ -5,6 +5,12 @@
   padding-bottom: 120px;
 }
 
+.tresc {
+  display: grid;
+  gap: inherit;
+  min-width: 0;
+}
+
 .glowa,
 .sekcja {
   display: grid;
