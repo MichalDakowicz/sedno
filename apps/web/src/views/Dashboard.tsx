@@ -7,6 +7,7 @@ import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import { saveSubjects, useProfil, useSession } from "../auth";
 import { useAiReady } from "../ai";
 import { dniDoMatury, nazwaPoziomu, opisPoziomow, przedmiot, zgrupuj, type MojPrzedmiot } from "../konto/przedmioty";
+import { dniDo, egzaminyUcznia, najblizszy, odmianaDni } from "../konto/terminy";
 import { useUstawienia } from "../konto/ustawienia";
 import { propozycja, useWynikiKonta, type Podsumowanie } from "../konto/wyniki";
 import { WSZYSTKIE, useUklad } from "../konto/ukladPulpitu";
@@ -84,6 +85,9 @@ export function Dashboard() {
   const ai = useAiReady(session ? session.user.id : null) === true;
   const moje = profil?.subjects ?? [];
   const aktywny = zgrupuj(moje).find((m) => m.id === id);
+  const egzaminy = egzaminyUcznia(moje);
+  const nastepny = najblizszy(egzaminy);
+  const dniHero = nastepny ? dniDo(nastepny.data) : egzaminy.length ? null : dniDoMatury();
   const dane = useWynikiKonta(moje);
   const { showHints, startTour } = useTutor();
   const { pestkaSama } = useUstawienia();
@@ -132,11 +136,11 @@ export function Dashboard() {
               <span className={styles.line} data-tutor="hero">
                 Cześć{imie ? `, ${imie}` : ""}.
               </span>
-              <span className={`accent ${styles.line}`}>Do matury ok. {dniDoMatury()} dni.</span>
+              <span className={`accent ${styles.line}`}>{dniHero === null ? "Wszystkie egzaminy za tobą." : `Do matury ok. ${dniHero} ${odmianaDni(dniHero)}.`}</span>
             </>
           )}
         </h1>
-        <p className="muted">Sesja majowa 2027. Dokładne daty egzaminów poda harmonogram CKE.</p>
+        <p className="muted">{egzaminy.length ? "Sesja majowa 2027. Terminy z komunikatu CKE, do weryfikacji." : "Sesja majowa 2027. Dokładne daty egzaminów poda harmonogram CKE."}</p>
         <Link to={aktywny ? `/uklad-pulpitu?przedmiot=${aktywny.id}` : "/uklad-pulpitu"} className={styles.ukladLink}>
           <LayoutList size={14} aria-hidden="true" />
           Układ pulpitu
@@ -202,7 +206,7 @@ export function Dashboard() {
 
       {dane && reszta.map((w) => <w.Komponent key={w.id} {...kontekst} />)}
 
-      <Wejscia tytul="W przygotowaniu" slugi={["nauka", "do-matury", "powtorki", "mapa-wiedzy"]} />
+      <Wejscia tytul="W przygotowaniu" slugi={["nauka", "powtorki", "mapa-wiedzy"]} />
     </main>
   );
 }

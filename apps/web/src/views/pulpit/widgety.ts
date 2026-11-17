@@ -4,6 +4,7 @@ import type { Podsumowanie, Propozycja } from "../../konto/wyniki";
 import type { PrzedmiotId } from "../../konto/przedmioty";
 import { WIDGETY_DANE, type WidgetDane } from "./widgetyDane";
 import { Dzis } from "./Dzis";
+import { DoMatury } from "./DoMatury";
 import { MapaUmiejetnosci } from "./MapaUmiejetnosci";
 import { WynikiZArkuszy } from "./WynikiZArkuszy";
 
@@ -26,6 +27,7 @@ export type Widget = WidgetDane & { Komponent: ComponentType<KontekstPulpitu> };
 const KOMPONENTY: Record<string, ComponentType<KontekstPulpitu>> = {
   dzis: Dzis,
   wyniki: WynikiZArkuszy,
+  matura: DoMatury,
   mapa: MapaUmiejetnosci,
 };
 

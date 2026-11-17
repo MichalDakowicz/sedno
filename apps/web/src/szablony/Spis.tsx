@@ -8,8 +8,9 @@ const ETAPY: { nazwa: string; opis: string; szablony: string[]; prawdziwe?: { to
   {
     nazwa: "Start",
     opis: "Kim jest uczeń i ile ma czasu.",
-    szablony: ["do-matury"],
+    szablony: [],
     prawdziwe: [
+      { to: "/do-matury", tytul: "Plan do matury" },
       { to: "/profil-ucznia", tytul: "Profil ucznia" },
       { to: "/", tytul: "Pulpit" },
     ],

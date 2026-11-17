@@ -7,7 +7,6 @@ import { CELE, CZAS, MAX_DLUGOSC, MAX_PRIORYTETOW, PYTANIA, dodajPriorytet, przy
 import { PRZEDMIOTY, zgrupuj, type PrzedmiotId } from "../konto/przedmioty";
 import { useWynikiKonta } from "../konto/wyniki";
 import { useListaArkuszy } from "../arkusze/dane";
-import { adres } from "../szablony/lista";
 import s from "./ProfilUcznia.module.css";
 
 function Wybor({ pytanie, opcje, wybrana, onZmiana }: { pytanie: string; opcje: Opcja[]; wybrana?: string; onZmiana: (id: string) => void }) {
@@ -184,7 +183,7 @@ export function ProfilUcznia() {
           ))
         )}
         {bladZapisu && <p className="muted small">Nie zapisano na koncie. Spróbuję ponownie.</p>}
-        <Link to={adres("do-matury")} className={`btn btn-primary ${s.przycisk}`}>
+        <Link to="/do-matury" className={`btn btn-primary ${s.przycisk}`}>
           Zobacz plan do matury
         </Link>
       </section>

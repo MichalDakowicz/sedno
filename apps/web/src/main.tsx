@@ -14,6 +14,7 @@ import { uruchomUstawienia } from "./konto/ustawienia";
 import { uruchomProfilUcznia } from "./konto/profilUcznia";
 import { uruchomUkladPulpitu } from "./konto/ukladPulpitu";
 import { ProfilUcznia } from "./views/ProfilUcznia";
+import { DoMatury } from "./views/DoMatury";
 import { UkladPulpitu } from "./views/UkladPulpitu";
 import { Arkusze } from "./views/Arkusze";
 import { Arkusz } from "./views/Arkusz";
@@ -45,6 +46,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="profil" element={<Profile />} />
           <Route path="profil-ucznia" element={<ProfilUcznia />} />
           <Route path="ustawienia" element={<Ustawienia />} />
+          <Route path="do-matury" element={<DoMatury />} />
           <Route path="uklad-pulpitu" element={<UkladPulpitu />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
