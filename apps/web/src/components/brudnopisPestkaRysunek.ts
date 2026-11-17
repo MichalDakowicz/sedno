@@ -8,6 +8,25 @@ type Szkielet = NonNullable<Parameters<typeof convertToExcalidrawElements>[0]>[n
 type PunktLinii = Extract<ExcalidrawElement, { type: "arrow" | "line" }>["points"][number];
 const RYSUNEK = { strokeColor: "#2f55b4", strokeWidth: 2, roughness: 0 };
 const ROZMIAR = 300;
+const ZAPAS_TEKSTU = 8;
+
+function czcionka(fontFamily: number, fontSize: number) {
+  const rodzina = fontFamily === FONT_FAMILY.Cascadia ? "Cascadia, monospace" : "Excalifont, sans-serif";
+  return fontSize + "px " + rodzina;
+}
+
+function dopasujTekst(e: ExcalidrawElement, ctx: CanvasRenderingContext2D | null) {
+  if (e.type !== "text") return e;
+  if (ctx) ctx.font = czcionka(e.fontFamily, e.fontSize);
+  const linie = e.text.replace(/\t/g, "        ").split("\n");
+  const szerokosci = linie.map((linia) => {
+    const metryka = ctx?.measureText(linia);
+    const zapasNaKod = e.fontFamily === FONT_FAMILY.Cascadia ? Array.from(linia).length * e.fontSize * 0.62 : 0;
+    return Math.max(metryka?.width ?? 0, metryka?.actualBoundingBoxRight ?? 0, zapasNaKod);
+  });
+  // Bufor tekstu w Excalidraw odcina glify wystające poza zmierzoną szerokość.
+  return { ...e, width: Math.max(e.width, ...szerokosci) + ZAPAS_TEKSTU };
+}
 
 function odcinek(punkty: Punkt[], type: "line" | "arrow" = "line", ukryta = false): Szkielet {
   const [[x, y]] = punkty;
@@ -28,6 +47,7 @@ export function przygotujZapisPestki(api: ExcalidrawImperativeAPI, { dopiski, ks
   })() : [0, 0];
   const grupa = crypto.randomUUID();
   const styl = { strokeColor: RYSUNEK.strokeColor, groupIds: [grupa] };
+  const pomiar = document.createElement("canvas").getContext("2d");
   let y = y0;
   const teksty = [{ typ: "tekst", tekst: "Pestka" } as const, ...dopiski].map((dopisek, indeks) => {
     const fontSize = indeks === 0 ? 15 : dopisek.typ === "kod" ? 17 : 20;
@@ -36,12 +56,7 @@ export function przygotujZapisPestki(api: ExcalidrawImperativeAPI, { dopiski, ks
       fontFamily: dopisek.typ === "kod" ? FONT_FAMILY.Cascadia : FONT_FAMILY.Excalifont,
     }])[0]!;
     y += element.height + 16;
-    if (dopisek.typ === "kod") {
-      // Font może być niedostępny. Zostaw wtedy miejsce na wszystkie kolumny kodu.
-      const kolumny = dopisek.tekst.replace(/\t/g, "        ").split("\n").map((linia) => Array.from(linia).length);
-      return { ...element, width: Math.max(element.width, Math.max(...kolumny) * fontSize * 0.62 + 2) };
-    }
-    return element;
+    return dopasujTekst(element, pomiar);
   });
   const przesun = ([x, lokalneY]: Punkt): Punkt => [x0 + x * ROZMIAR, y + lokalneY * ROZMIAR];
   const figury = ksztalty.flatMap((ksztalt): Szkielet[] => {
@@ -73,7 +88,10 @@ export function przygotujZapisPestki(api: ExcalidrawImperativeAPI, { dopiski, ks
   return [
     ...elementy,
     ...convertToExcalidrawElements(linie),
-    ...convertToExcalidrawElements(etykiety).map((e) => ({ ...e, x: e.x - e.width / 2, y: e.y - e.height / 2 })),
+    ...convertToExcalidrawElements(etykiety).map((e) => {
+      const napis = dopasujTekst(e, pomiar);
+      return { ...napis, x: e.x - (napis.width - ZAPAS_TEKSTU) / 2, y: e.y - e.height / 2 };
+    }),
   ];
 }
 
@@ -85,8 +103,7 @@ export function zapiszDopiskiPestki(api: ExcalidrawImperativeAPI, nowe: readonly
 }
 
 function pisz(ctx: CanvasRenderingContext2D, e: Extract<ExcalidrawElement, { type: "text" }>, znaki: string[], postep: number) {
-  const font = e.fontFamily === FONT_FAMILY.Cascadia ? "Cascadia, monospace" : "Excalifont, sans-serif";
-  ctx.font = `${e.fontSize}px ${font}`;
+  ctx.font = czcionka(e.fontFamily, e.fontSize);
   ctx.textBaseline = "top";
   const linie = znaki.slice(0, Math.ceil(znaki.length * postep)).join("").replace(/\t/g, "        ").split("\n");
   const odstep = e.fontSize * e.lineHeight;
