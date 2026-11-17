@@ -5,7 +5,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { GripVertical } from "lucide-react";
 import { useProfil } from "../auth";
 import { przedmiot, zgrupuj } from "../konto/przedmioty";
-import { WSZYSTKIE, nazwaUkladu, przelaczWidget, przesunWidget, przesunWidgetO, przywrocUklad, ustawGotowy, useUklad, type Uklad } from "../konto/ukladPulpitu";
+import { WSZYSTKIE, nazwaUkladu, przelaczWidget, przesunWidget, przesunWidgetO, przywrocUklad, ustawGotowy, useBladUkladu, useUklad, type Uklad } from "../konto/ukladPulpitu";
 import { WIDGETY, widget } from "./pulpit/widgety";
 import s from "./UkladPulpitu.module.css";
 
@@ -26,6 +26,7 @@ export function UkladPulpitu() {
   const nazwaPrzedmiotu = klucz === WSZYSTKIE ? "Wszystkie" : przedmiot(klucz)!.nazwa;
 
   const lista = useUklad(klucz);
+  const blad = useBladUkladu();
   const aktywnyUklad = nazwaUkladu(lista);
 
   const [ogloszenie, setOgloszenie] = useState("");
@@ -210,6 +211,8 @@ export function UkladPulpitu() {
           Przywróć domyślny
         </button>
       </div>
+
+      {blad && <p className="muted small">Nie zapisano na koncie. Spróbuję ponownie.</p>}
     </main>
   );
 }

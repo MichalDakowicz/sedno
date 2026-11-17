@@ -1,10 +1,9 @@
 // Układ pulpitu: które widgety są włączone i w jakiej kolejności, osobno dla „Wszystkie” i każdego przedmiotu
-// (profiles.dashboard). Kopia w localStorage działa od razu, konto wygrywa po zalogowaniu, a znacznik „niezapisane”
-// chroni świeżą zmianę przed starą wartością z konta (jak w konto/ustawienia.ts i konto/profilUcznia.ts).
-import { useMemo, useSyncExternalStore } from "react";
-import { supabase } from "../supabase";
+// (profiles.dashboard). Synchronizacja z kontem (kopia lokalna, konto po zalogowaniu, zapisy) jest we wspólnym konto/kontoSync.ts.
+import { useMemo } from "react";
 import { WIDGETY } from "../views/pulpit/widgety";
 import { gotowy as gotowyCzysty, nazwaUkladu as nazwaCzysta, normalizuj, przelacz, przesun, przesunDo, type GotowyUklad, type Pozycja } from "../views/pulpit/ukladCzysty";
+import { utworzMagazyn } from "./kontoSync";
 import { PRZEDMIOTY } from "./przedmioty";
 
 export const WSZYSTKIE = "wszystkie";
@@ -44,97 +43,42 @@ function poprawne(v: unknown): Zapis {
   return wynik;
 }
 
-const KLUCZ = "sedno.ukladPulpitu";
-const NIEZAPISANE = "sedno.ukladPulpitu.niezapisane";
-
-function wczytajLokalne(): Zapis {
-  try {
-    const t = localStorage.getItem(KLUCZ);
-    if (t) return poprawne(JSON.parse(t));
-  } catch {
-    // zablokowany storage albo uszkodzony zapis: układy domyślne
-  }
-  return {};
-}
-
-function zapiszLokalne(z: Zapis) {
-  try {
-    localStorage.setItem(KLUCZ, JSON.stringify(z));
-  } catch {
-    // zostaje wartość w pamięci
-  }
-}
-
-const niezapisane = () => {
-  try {
-    return localStorage.getItem(NIEZAPISANE) === "1";
-  } catch {
-    return false;
-  }
-};
-function oznaczNiezapisane(tak: boolean) {
-  try {
-    if (tak) localStorage.setItem(NIEZAPISANE, "1");
-    else localStorage.removeItem(NIEZAPISANE);
-  } catch {
-    // brak storage
-  }
-}
-
-let biezace: Zapis = {};
-const sluchacze = new Set<() => void>();
-const ustawBiezace = (z: Zapis) => {
-  biezace = z;
-  sluchacze.forEach((l) => l());
-};
+const magazyn = utworzMagazyn<Zapis>({
+  klucz: "sedno.ukladPulpitu",
+  kolumna: "dashboard",
+  domyslne: {},
+  zWire: poprawne,
+  doWire: (z) => ({ ...z }),
+});
 
 /** Układ (lista widgetów w kolejności) wskazanego przedmiotu albo „wszystkie”; zmienia się razem z zapisem. */
 export function useUklad(klucz: string): Pozycja[] {
-  const z = useSyncExternalStore(
-    (l) => {
-      sluchacze.add(l);
-      return () => void sluchacze.delete(l);
-    },
-    () => biezace,
-  );
+  const z = magazyn.useStan();
   return useMemo(() => rozwin(z[klucz]), [z, klucz]);
 }
 
-let wersja = 0;
-let idKonta: string | null = null;
-let kolejka: number | undefined;
+/** true, gdy ostatni zapis układu na konto się nie udał. */
+export const useBladUkladu = () => magazyn.useBlad();
 
-async function zapiszNaKoncie(z: Zapis, id: string) {
-  const ta = wersja;
-  const { error } = await supabase.from("profiles").update({ dashboard: z }).eq("id", id);
-  if (!error && ta === wersja) oznaczNiezapisane(false);
-}
+/** Wysyła zaległe zmiany na konto, np. przed wylogowaniem. */
+export const splukajUklad = () => magazyn.flush();
 
-function zapisz(z: Zapis) {
-  zapiszLokalne(z);
-  wersja++;
-  oznaczNiezapisane(true);
-  ustawBiezace(z);
-  const id = idKonta;
-  if (!id) return;
-  window.clearTimeout(kolejka);
-  kolejka = window.setTimeout(() => {
-    kolejka = undefined;
-    void zapiszNaKoncie(biezace, id);
-  }, 500);
-}
+/** Wołane raz przy starcie aplikacji: pulpit ma od razu zapisany lokalnie układ, zanim odpowie sieć. */
+export const uruchomUkladPulpitu = () => magazyn.uruchom();
 
-/** Ustawia układ jednego przedmiotu. Lista równa gotowemu układowi zapisuje się jako jego nazwa, a „Nauka” wcale. */
+/** Ustawia układ jednego przedmiotu. Lista równa gotowemu układowi zapisuje się jako jego nazwa, a „Nauka” jako brak klucza. */
 function ustaw(klucz: string, lista: Pozycja[]) {
   if (!KLUCZE.has(klucz)) return;
-  const nowe: Zapis = { ...biezace };
   const nazwa = nazwaUkladu(lista);
-  if (nazwa === "nauka") delete nowe[klucz];
-  else nowe[klucz] = nazwa === "egzamin" ? "egzamin" : lista;
-  zapisz(nowe);
+  magazyn.zmien((z) => {
+    const nowe: Zapis = { ...z };
+    if (nazwa === "nauka") delete nowe[klucz];
+    else nowe[klucz] = nazwa === "egzamin" ? "egzamin" : lista;
+    return nowe;
+  });
 }
 
-const biezacy = (klucz: string) => rozwin(biezace[klucz]);
+const biezacy = (klucz: string) => rozwin(magazyn.biezace()[klucz]);
 
 /** Wybór gotowego układu ustawia listę od nowa. */
 export const ustawGotowy = (klucz: string, nazwa: GotowyUklad) => ustaw(klucz, gotowy(nazwa));
@@ -149,75 +93,3 @@ export const przesunWidgetO = (klucz: string, id: string, delta: number) => usta
 
 /** Przesuwa widget na miejsce o danym indeksie na liście ruchomych widgetów (bez stałych). */
 export const przesunWidget = (klucz: string, id: string, doIndeksu: number) => ustaw(klucz, przesunDo(biezacy(klucz), id, doIndeksu));
-
-function wyslijOczekujace() {
-  if (kolejka === undefined || !idKonta) return;
-  window.clearTimeout(kolejka);
-  kolejka = undefined;
-  void zapiszNaKoncie(biezace, idKonta);
-}
-
-// Konto pobieramy tylko przy pierwszej sesji, zmianie użytkownika i po powrocie na kartę (nie częściej niż co minutę),
-// a nie przy każdym zdarzeniu logowania, które Supabase wysyła wielokrotnie.
-const ODSWIEZ_CO = 60_000;
-let pobranyDla: string | null = null;
-let pobranoOd = 0;
-
-async function zKonta(id: string) {
-  idKonta = id;
-  pobranyDla = id;
-  pobranoOd = Date.now();
-  const ta = wersja;
-  const { data, error } = await supabase.from("profiles").select("dashboard").eq("id", id).maybeSingle();
-  if (idKonta !== id) return;
-  if (error) {
-    pobranyDla = null;
-    return;
-  }
-  // Zmiana w trakcie pobierania: odpowiedź mogła być sprzed niej, więc wygrywa lokalna.
-  if (wersja !== ta) {
-    void zapiszNaKoncie(biezace, id);
-    return;
-  }
-  const zapisane = poprawne(data?.dashboard);
-  if (niezapisane() || Object.keys(zapisane).length === 0) {
-    if (niezapisane() || Object.keys(biezace).length > 0) void zapiszNaKoncie(biezace, id);
-    return;
-  }
-  zapiszLokalne(zapisane);
-  ustawBiezace(zapisane);
-}
-
-let uruchomione = false;
-
-/** Wołane raz przy starcie aplikacji: pulpit ma od razu zapisany lokalnie układ, zanim odpowie sieć. */
-export function uruchomUkladPulpitu() {
-  if (uruchomione) return;
-  uruchomione = true;
-  ustawBiezace(wczytajLokalne());
-  window.addEventListener("pagehide", wyslijOczekujace);
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") wyslijOczekujace();
-    else if (idKonta && Date.now() - pobranoOd > ODSWIEZ_CO) void zKonta(idKonta);
-  });
-  supabase.auth.onAuthStateChange((zdarzenie, sesja) => {
-    if (sesja) {
-      // Poza callbackiem: zapytania do Supabase w środku onAuthStateChange mogą się zakleszczyć.
-      const id = sesja.user.id;
-      idKonta = id;
-      if (pobranyDla !== id) window.setTimeout(() => void zKonta(id), 0);
-    } else if (zdarzenie === "SIGNED_OUT") {
-      idKonta = null;
-      pobranyDla = null;
-      window.clearTimeout(kolejka);
-      kolejka = undefined;
-      oznaczNiezapisane(false);
-      try {
-        localStorage.removeItem(KLUCZ);
-      } catch {
-        // nic do sprzątania
-      }
-      ustawBiezace({});
-    }
-  });
-}
