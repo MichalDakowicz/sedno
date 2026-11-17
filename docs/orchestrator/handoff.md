@@ -2,6 +2,16 @@
 
 _Updated 2026-11-17_
 
+## Phase 2 release
+
+[PR #56](https://github.com/MichalDakowicz/sedno/pull/56) merged into `main` at `423698d`. Production serves the connected Nauka, Mapa umiejętności, Szybka runda, Rozbiór, Powtórki and Uczeń uczy AI views. Pestka can inspect the mathematics scratchpad and offer figures for the student to insert. The staging branch received the same code at `386f911`. [Firebase Hosting](https://trafwsedno.web.app/)
+
+Migration 0015 addresses both audit findings below. The selected incorrect item comes first, a correct retry removes that item, and a subsequent strong score in a checked sheet clears older errors in the skill.
+
+Production checks confirmed the released Firebase assets, login redirect and availability of the updated `nauka_start` signature. A local Chromium test at 375 px exercised the full loop using PGlite and imported CKE sheets, including a failed save and reload. The scratchpad and Uczeń uczy AI tests used simulated model responses. Authenticated staging smoke and the quality of handwriting feedback with the account's Luna model remain open.
+
+## Unit 1 handoff
+
 **State.** Goal 2 (English learning loop) started. The backend comes from a teammate's draft PR #55 (`backend-nauki`, services only, migrations 0009–0014, contract in `services/supabase/nauka.md`); decision recorded in `project.md` and `goal.md`. Student-facing skill names (nine skills in 0009) approved by the user. The teammate merged #55 into `main` as is (`eccbca7`, 2026-11-17 21:39), before the audit fixes, so migrations 0009–0014 go to production through the `main` autodeploy. `main` was then pushed to `dev` (staging, `a420413`).
 
 **Goal.** 1/17 bars (mapping, with evidence in `goal.md`).
