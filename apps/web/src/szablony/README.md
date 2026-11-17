@@ -45,7 +45,6 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 
 ### Konto i narzędzia
 
-- [ ] [Profil ucznia](profil-ucznia/README.md): styl nauki, czas, cel, priorytety
 - [ ] [Analiza zdjęcia](zdjecie/README.md): rozwiązanie z kartki omówione przez Pestkę
 - [ ] [Wyszukiwanie](wyszukiwanie/README.md): Ctrl+K do arkuszy, umiejętności, akcji
 - [ ] [Układ pulpitu](uklad-pulpitu/README.md): widgety i gotowe układy

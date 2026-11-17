@@ -60,7 +60,16 @@ export function Profile() {
         </Link>
       </section>
 
-      <Wejscia tytul="W przygotowaniu" slugi={["profil-ucznia", "uklad-pulpitu"]} />
+      <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
+        <h2 className="h3">Profil ucznia</h2>
+        <p className="muted small">Jak się uczysz, ile masz czasu, cele, priorytety i to, co Sedno wie z twoich wyników.</p>
+        <Link to="/profil-ucznia" className="link" style={{ marginTop: 12 }}>
+          Otwórz profil ucznia
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
+      </section>
+
+      <Wejscia tytul="W przygotowaniu" slugi={["uklad-pulpitu"]} />
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <button
