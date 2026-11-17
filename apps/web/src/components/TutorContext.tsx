@@ -177,7 +177,7 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
         {
           tier: "lekkie",
           task: "pestka-czat",
-          messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura", krotko, czat: true, profil: opisProfilu() }, historia),
+          messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura", krotko, czat: true, profil: opisProfilu(), listaPelna: listaPelna() }, historia),
         },
         (delta) => {
           text += delta;
@@ -211,7 +211,9 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
 
   const send = useCallback((text: string) => {
     const clean = text.trim();
-    if (!clean) return;
+    // Jedna odpowiedź naraz: także w trakcie strumienia („talking”), inaczej druga trafiłaby do innej rozmowy.
+    if (!clean || stanRef.current !== "idle") return;
+    stanRef.current = "thinking";
     const student: Message = { id: nextId.current++, from: "student", text: clean };
     setMessages((m) => [...m, student]);
     setState("thinking");
@@ -278,6 +280,7 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
   }, [messages, state, biezacaRozmowa]);
 
   const nowaRozmowa = useCallback(() => {
+    if (stanRef.current !== "idle") return;
     const id = noweId();
     setBiezacaRozmowa(id);
     ustawBiezaca(id);
@@ -285,6 +288,7 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
   }, []);
 
   const otworzRozmowe = useCallback((id: string) => {
+    if (stanRef.current !== "idle") return;
     const r = wczytajRozmowy().find((x) => x.id === id);
     if (!r) return;
     setBiezacaRozmowa(id);

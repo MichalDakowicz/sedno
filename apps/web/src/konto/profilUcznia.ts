@@ -126,6 +126,8 @@ export const uczenie = () => magazyn.biezace();
 export const useUczenie = (): Uczenie => magazyn.useStan();
 /** true, gdy ostatni zapis profilu na konto się nie udał. */
 export const useBladProfilu = () => magazyn.useBlad();
+/** true po pierwszym odczycie profilu z konta. */
+export const useProfilOdczytany = () => magazyn.useOdczytano();
 export const zmienUczenie = (f: (u: Uczenie) => Uczenie) => magazyn.zmien(f);
 /** Wysyła zaległe zmiany na konto, np. przed wylogowaniem. */
 export const splukajProfil = () => magazyn.flush();
@@ -185,7 +187,6 @@ export function opisProfilu(): string {
   const u = uczenie();
   const czesci: string[] = [];
   if (u.priorytety?.length) czesci.push(`- priorytety: ${u.priorytety.map((p) => `„${p.tekst}”`).join("; ")}`);
-  if (listaPelna()) czesci.push("- lista priorytetów jest pełna: nie dopisuj znacznika priorytetu");
   const czas = nazwa(CZAS, u.czas);
   if (czas) czesci.push(`- czas na naukę dziennie: ${czas.toLowerCase()}`);
   const cele = PRZEDMIOTY.flatMap((p) => {

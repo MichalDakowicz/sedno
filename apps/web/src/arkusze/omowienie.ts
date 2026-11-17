@@ -81,7 +81,7 @@ export function tekstZadania(z: Zadanie, p: Postep): string {
 }
 
 /** Prompt systemowy rozmowy o jednym zadaniu. */
-export function promptOmowienia(a: Arkusz, d: DoOmowienia, p: Postep): string {
+export function promptOmowienia(a: Arkusz, d: DoOmowienia, p: Postep, krotko?: boolean): string {
   const przedmiot = `${nazwaPrzedmiotu[a.przedmiot] ?? a.przedmiot}, poziom ${a.poziom}`;
   const zasady = d.wypracowanie
     ? [
@@ -95,7 +95,7 @@ export function promptOmowienia(a: Arkusz, d: DoOmowienia, p: Postep): string {
         "Na start krótko nazwij, co uczeń zaznaczył lub napisał, i zadaj jedno pytanie, które naprowadzi go na błąd. Nie podawaj od razu poprawnej odpowiedzi.",
         "Gdy uczeń dojdzie do rozwiązania albo dwa razy utknie, wyjaśnij krótko, dlaczego poprawna odpowiedź jest poprawna, a jego nie.",
       ];
-  return [promptPestki({ przedmiot, zadanie: tekstZadania(d.zadanie, p) }), ...zasady].join("\n");
+  return [promptPestki({ przedmiot, krotko, zadanie: tekstZadania(d.zadanie, p) }), ...zasady].join("\n");
 }
 
 export type Przyklad = { tresc: string; opcje: Record<string, string>; poprawna: string; wyjasnienie: string };

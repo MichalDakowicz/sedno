@@ -31,6 +31,8 @@ export type Magazyn<T> = {
   useStan: () => T;
   /** true, gdy ostatni zapis na konto się nie udał. */
   useBlad: () => boolean;
+  /** true po pierwszym udanym odczycie konta w tej sesji (wcześniej lokalne dane mogą być nieaktualne). */
+  useOdczytano: () => boolean;
   /** Wysyła zaległe zmiany i czeka na koniec zapisów (np. przed wylogowaniem). */
   flush: () => Promise<void>;
   /** Wołane raz przy starcie aplikacji. */
@@ -47,6 +49,7 @@ export function utworzMagazyn<T>(o: Opcje<T>): Magazyn<T> {
   let t = o.domyslne;
   let zapisano = 0;
   let blad = false;
+  let odczytano = false;
   let wersja = 0;
   let idKonta: string | null = null;
   let kolejka: number | undefined;
@@ -132,6 +135,7 @@ export function utworzMagazyn<T>(o: Opcje<T>): Magazyn<T> {
       // nic do sprzątania
     }
     blad = false;
+    odczytano = false;
     ustaw(o.domyslne, 0);
   }
 
@@ -201,6 +205,9 @@ export function utworzMagazyn<T>(o: Opcje<T>): Magazyn<T> {
     const ta = wersja;
     const { data, error } = await supabase.from("profiles").select(o.kolumna).eq("id", id).maybeSingle();
     if (error || idKonta !== id) return;
+    odczytano = true;
+    // Powiadomienie po zastosowaniu wartości z konta (poniżej, bez await).
+    queueMicrotask(powiadom);
     // Niezapisane zmiany tego konta wygrywają i idą na konto.
     if (flagaMoja(id)) {
       void zapisz();
@@ -277,6 +284,14 @@ export function utworzMagazyn<T>(o: Opcje<T>): Magazyn<T> {
           return () => void sluchacze.delete(l);
         },
         () => blad,
+      ),
+    useOdczytano: () =>
+      useSyncExternalStore(
+        (l) => {
+          sluchacze.add(l);
+          return () => void sluchacze.delete(l);
+        },
+        () => odczytano,
       ),
     flush,
     uruchom,
