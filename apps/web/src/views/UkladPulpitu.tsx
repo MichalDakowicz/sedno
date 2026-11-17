@@ -70,6 +70,8 @@ export function UkladPulpitu() {
   function start(e: PointerEvent, id: string) {
     if (e.button !== 0 || przeciagany.current) return;
     e.preventDefault();
+    // preventDefault wstrzymuje domyślne ustawienie fokusu, a strzałki mają działać zaraz po kliknięciu.
+    (e.currentTarget as HTMLElement).focus({ preventScroll: true });
     przeciagany.current = { id, pointerId: e.pointerId, start: lista };
     setSzkic(lista);
     setTrzymany(id);
