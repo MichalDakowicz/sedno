@@ -1,6 +1,6 @@
 # Goal
 
-_Set 2026-11-16 · status: active_
+_Set 2026-11-16 · status: active (16/17 bars met; one waits for the user's call)_
 
 **Goal.** Five templates from „Konto i narzędzia” plus the exam countdown stop being prototypes: they run on real account data, live in `views/` (or `components/`), and their template folders and entries are gone.
 
@@ -16,28 +16,28 @@ _Set 2026-11-16 · status: active_
 ## Done when
 
 ### Works
-- [ ] Every in-scope flow runs on staging after login · proof: tester run on `npm run dev:staging`
-- [ ] Settings, profile and layout survive a reload and show up in a second tab after reload · proof: tester run
-- [ ] Typecheck and build green · proof: `npm run typecheck`, `npm run build`
-- [ ] No console errors in touched views · proof: tester console read
+- [x] Every in-scope flow runs on staging after login · proof: tester run on `npm run dev:staging` — final regression 2026-11-17 on 9301885 plus final verify on 1c9be9d, all five flows pass
+- [x] Settings, profile and layout survive a reload and show up in a second tab after reload · proof: tester run — settings and profile sync live between two tabs; layouts survive reload and localStorage clear (restored from account)
+- [x] Typecheck and build green · proof: `npm run typecheck`, `npm run build` — green on every branch of the chain, last on do-matury 1c9be9d
+- [x] No console errors in touched views · proof: tester console read — no errors in the regression runs (only React Router future-flag warnings)
 
 ### Looks
-- [ ] Matches the template and `docs/dash-szukaj.html`, `docs/dashboard-ustawienia.html`, `docs/dash-uklad.html`, `docs/dash-matura.html`, `docs/dash-start.html` · proof: tester screenshots side by side
-- [ ] Empty, loading and error states where the design draws them · proof: tester screenshots
-- [ ] Light and dark theme, 375 px and desktop, no overflow or clipping · proof: tester screenshots
-- [ ] Separators instead of cards per `CLAUDE.md` · proof: diff review
+- [x] Matches the template and `docs/dash-szukaj.html`, `docs/dashboard-ustawienia.html`, `docs/dash-uklad.html`, `docs/dash-matura.html`, `docs/dash-start.html` · proof: tester screenshots side by side — template copy and sections kept; docs updated where decisions changed them (szukaj, uklad, matura, ustawienia, start)
+- [x] Empty, loading and error states where the design draws them · proof: tester screenshots — search loading/error/empty, insights empty/error, save-failure line, profile loading on /uklad-pulpitu
+- [x] Light and dark theme, 375 px and desktop, no overflow or clipping · proof: tester screenshots — scrollWidth = 375 on all touched views and sheet pages incl. text size „Większy” (measured 2026-11-17 on 1c9be9d)
+- [x] Separators instead of cards per `CLAUDE.md` · proof: diff review and audits
 
 ### Feels
-- [ ] Full keyboard path: Ctrl+K, arrows, Enter, Escape, widget reorder by keyboard · proof: tester run
-- [ ] Visible focus, labels on controls, readable contrast · proof: tester run, audit
+- [x] Full keyboard path: Ctrl+K, arrows, Enter, Escape, widget reorder by keyboard · proof: tester run — incl. edge announcements and focus on handle click
+- [x] Visible focus, labels on controls, readable contrast · proof: tester run, audit — one shared switch with 3:1 off state, aria-describedby, live regions
 
 ### Holds up
-- [ ] No network or no AI gives a message, not a blank screen · proof: tester offline run
-- [ ] New tables have RLS limited to the owner · proof: migration review, audit
-- [ ] Profile insights can be deleted · proof: tester run
-- [ ] Final gap audit has no blocker or major findings · proof: audit report
+- [x] No network or no AI gives a message, not a blank screen · proof: simulated network failure 2026-11-17 — /ustawienia shows „Nie zapisano na koncie. Spróbuję ponownie.”, search shows „Nie udało się wczytać arkuszy.”; without AI search offers „Podepnij AI”
+- [x] New tables have RLS limited to the owner · proof: migration review, audit — new columns on profiles (owner-only RLS from 0001) with column-level update grants only
+- [ ] Profile insights can be deleted · proof: tester run — NOT verified live: the test account has no computable insights (2 checked English sheets without clear differences). „Usuń” verified in code and two audits only
+- [x] Final gap audit has no blocker or major findings · proof: audit report — final audit on 9301885 had 0 blockers; its 3 majors and 9 minors were fixed and re-verified
 
 ### Shipped
-- [ ] Branch per unit, PRs open, migrations on staging only · proof: PR links
-- [ ] Template folders, `lista.ts`, `Szablony.tsx`, `Spis.tsx` and `szablony/README.md` updated for moved templates · proof: diff
-- [ ] Handoff updated · proof: `docs/orchestrator/handoff.md`
+- [x] Branch per unit, PRs open, migrations on staging only · proof: PR links — #49–#53 (stacked), 0006–0008 on staging via `dev`
+- [x] Template folders, `lista.ts`, `Szablony.tsx`, `Spis.tsx` and `szablony/README.md` updated for moved templates · proof: diff, final audit grep
+- [x] Handoff updated · proof: `docs/orchestrator/handoff.md`
