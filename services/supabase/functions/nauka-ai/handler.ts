@@ -7,7 +7,7 @@ import { katalogWizualizacji, stanWizualizacji } from "./wizualizacje.ts";
 
 const MAX_OBRAZ = 1024 * 1024;
 const MAX_BASE64 = Math.ceil(MAX_OBRAZ / 3) * 4;
-const MAX_BODY = MAX_BASE64 + 8192;
+const MAX_BODY = MAX_BASE64 + 12_288;
 const MAX_MODEL_BYTES = 512 * 1024;
 const UUID = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
 const RUCHY = ["wyjasnienie", "bledne-wyjasnienie", "niejasne", "nie-wiem", "poza-tematem"] as const;
@@ -363,8 +363,10 @@ async function omowBrudnopis(body: Obiekt, zapytaj: Zapytaj) {
   const prowadzenie = obiekt(body.prowadzenie);
   const zmiana = ramkaBrudnopisu(prowadzenie?.zmiana);
   const poprzedniaWskazowka = tekst(prowadzenie?.poprzedniaWskazowka, 360);
+  const zapisUcznia = tekst(prowadzenie?.zapisUcznia, 500);
   if (body.prowadzenie !== undefined && (!prowadzenie || !obraz || pytanie || !zmiana ||
-    (prowadzenie.poprzedniaWskazowka !== undefined && !poprzedniaWskazowka))) {
+    (prowadzenie.poprzedniaWskazowka !== undefined && !poprzedniaWskazowka) ||
+    (prowadzenie.zapisUcznia !== undefined && !zapisUcznia))) {
     throw new BladApi(400, "bad_input");
   }
   const wynik = await zapytaj(
@@ -388,12 +390,13 @@ async function omowBrudnopis(body: Obiekt, zapytaj: Zapytaj) {
       ...(prowadzenie ? [
         'To prowadzenie na żywo. Obraz przedstawia pracę ucznia i ewentualnie rysunek z zadania. Pole zmiana oznacza obszar nowego lub zmienionego zapisu na przesłanym obrazie. Oceń przede wszystkim ten fragment w kontekście wcześniejszego rozumowania.',
         'Dodaj stanProwadzenia: "czekam" dla nieczytelnego, niepełnego lub powtórzonego kroku, "krok" dla czytelnego postępu, "blad" dla wyraźnego błędu w nowym kroku. Nie powtarzaj poprzedniej wskazówki, jeśli zapis nie wnosi nic istotnego.',
+        'Pole zapisUcznia zawiera nowy tekst wpisany w edytorze, jeśli jest dostępny. Czytelne pytanie o kolejny krok lub prośba o szkic na tablicy wymagają odpowiedzi w stanie "krok", także bez obliczeń. Na prośbę o rysunek zwróć odpowiedni kształt lub bryłę z zadania. Jeżeli szkic ułatwi odróżnienie przekątnej ściany od przekątnej bryły, możesz dorysować bryłę z właściwym odcinkiem także bez pytania.',
         'Dla "czekam" zwróć {"stanProwadzenia":"czekam"}. W pozostałych stanach napisz maksymalnie dwie krótkie linie wskazówki kierujące do jednego następnego kroku (do 180 znaków). Jeśli uczeń skończył poprawnie, krótko to potwierdź. Nie zdradzaj wyniku ani dalszych kroków.',
         'Dla "blad" ramkaBledu to opcjonalnie [[lewo,góra],[prawo,dół]] we współrzędnych od 0 do 1 na przesłanym obrazie, licząc od jego lewego górnego narożnika. Obejmij wyłącznie czytelny błędny fragment powiązany z ostatnią zmianą. Jeśli miejsca nie da się wskazać, pomiń ramkę. Nigdy nie oznaczaj treści zadania ani poprawnych wcześniejszych wierszy.',
         'Kształty, bryła i dopiski trafią automatycznie na tablicę obok pracy ucznia. Dodaj je tylko, jeśli pomagają w tym jednym kroku. Wystarczą do 4 kształtów, 2 krótkich dopisków lub jedna bryła. Nie dubluj wskazówki w dopiskach.',
       ] : []),
     ].join("\n"),
-    prowadzenie ? { polecenie, zmiana, poprzedniaWskazowka } : { polecenie, pytanie },
+    prowadzenie ? { polecenie, zmiana, poprzedniaWskazowka, zapisUcznia } : { polecenie, pytanie },
     prowadzenie ? 2200 : 3400,
     obraz ?? undefined,
   );
