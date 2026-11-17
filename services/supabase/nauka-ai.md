@@ -33,3 +33,5 @@ Po włączeniu prowadzenia klient wysyła `omow-brudnopis` z obrazem i `prowadze
 `bryla` ma pola `typ`, `wymiary` (trzy długości albo `null`) i `oznaczenia` (napisy przy krawędziach i odcinkach pomocniczych). Obsługiwane są sześcian, prostopadłościan, graniastosłup o podstawie trójkąta prostokątnego, ostrosłup o podstawie prostokątnej z wierzchołkiem nad środkiem podstawy, walec, stożek i kula. Uczeń może obrócić bryłę w podglądzie. Na tablicę trafia wybrany rzut z liniami przerywanymi dla niewidocznych krawędzi i odcinków pomocniczych. Niepoprawny element zostaje pominięty lub zastąpiony domyślną wartością, co sygnalizuje `pominietoElementy`.
 
 Odpowiedzi błędów mają kształt `{error}`. Typowe kody to `bad_input`, `bad_image`, `no_provider`, `rate_limited`, `provider_failed` i `bad_model_response`. `notes_not_found` dotyczy każdej brakującej lub niedostępnej notatki. `notes_changed` pozwala ponowić żądanie po odświeżeniu listy.
+
+Akcje `warianty-katalog`, `wariant-zadania` i `ocen-rozwiazanie` opisano w [Wariantach i ocenie rozwiązań otwartych](warianty-i-ocena.md).
