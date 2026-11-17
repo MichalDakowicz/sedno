@@ -110,8 +110,31 @@ export function useUstawienia(): Ustawienia {
   );
 }
 
+// Znacznik zmiany, której konto jeszcze nie widziało: bez niego szybkie odświeżenie po kliknięciu
+// nadpisałoby świeżą zmianę starą wartością z konta.
+const NIEZAPISANE = "sedno.ustawienia.niezapisane";
+const niezapisane = () => {
+  try {
+    return localStorage.getItem(NIEZAPISANE) === "1";
+  } catch {
+    return false;
+  }
+};
+function oznaczNiezapisane(tak: boolean) {
+  try {
+    if (tak) localStorage.setItem(NIEZAPISANE, "1");
+    else localStorage.removeItem(NIEZAPISANE);
+  } catch {
+    // brak storage: zostaje tylko zapis na konto
+  }
+}
+
+let wersja = 0;
+
 async function zapiszNaKoncie(u: Ustawienia, id: string) {
-  await supabase.from("profiles").update({ settings: roznice(u) }).eq("id", id);
+  const ta = wersja;
+  const { error } = await supabase.from("profiles").update({ settings: roznice(u) }).eq("id", id);
+  if (!error && ta === wersja) oznaczNiezapisane(false);
 }
 
 let idKonta: string | null = null;
@@ -121,11 +144,24 @@ let kolejka: number | undefined;
 export function zmienUstawienia(zmiana: Partial<Ustawienia>) {
   const nowe = { ...biezace, ...zmiana };
   zapiszLokalne(nowe);
+  wersja++;
+  oznaczNiezapisane(true);
   ustawBiezace(nowe);
   const id = idKonta;
   if (!id) return;
   window.clearTimeout(kolejka);
-  kolejka = window.setTimeout(() => void zapiszNaKoncie(biezace, id), 500);
+  kolejka = window.setTimeout(() => {
+    kolejka = undefined;
+    void zapiszNaKoncie(biezace, id);
+  }, 500);
+}
+
+// Zamknięcie lub ukrycie karty w trakcie oczekiwania: wysyłamy od razu (najlepsze, co się da; resztę dokończy zKonta).
+function wyslijOczekujace() {
+  if (kolejka === undefined || !idKonta) return;
+  window.clearTimeout(kolejka);
+  kolejka = undefined;
+  void zapiszNaKoncie(biezace, idKonta);
 }
 
 // Po zalogowaniu wartość z konta wygrywa. Konto bez zapisanych ustawień dostaje te z tego urządzenia.
@@ -134,8 +170,8 @@ async function zKonta(id: string) {
   const { data, error } = await supabase.from("profiles").select("settings").eq("id", id).maybeSingle();
   if (error || idKonta !== id) return;
   const zapisane = poprawne(data?.settings);
-  if (Object.keys(zapisane).length === 0) {
-    if (Object.keys(roznice(biezace)).length > 0) void zapiszNaKoncie(biezace, id);
+  if (niezapisane() || Object.keys(zapisane).length === 0) {
+    if (niezapisane() || Object.keys(roznice(biezace)).length > 0) void zapiszNaKoncie(biezace, id);
     return;
   }
   const nowe = { ...DOMYSLNE, ...zapisane };
@@ -154,6 +190,11 @@ export function uruchomUstawienia() {
   // „Jak system” dla kontrastu zmienia się razem z systemem.
   window.matchMedia("(prefers-contrast: more)").addEventListener("change", () => zastosuj(biezace));
 
+  window.addEventListener("pagehide", wyslijOczekujace);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") wyslijOczekujace();
+  });
+
   supabase.auth.onAuthStateChange((zdarzenie, sesja) => {
     if (sesja) {
       // Wywołanie poza callbackiem: zapytania do Supabase w środku onAuthStateChange mogą się zakleszczyć.
@@ -162,6 +203,8 @@ export function uruchomUstawienia() {
       // Następna osoba na tym komputerze zaczyna od domyślnych, jak z rozmowami i postępem.
       idKonta = null;
       window.clearTimeout(kolejka);
+      kolejka = undefined;
+      oznaczNiezapisane(false);
       try {
         localStorage.removeItem(KLUCZ);
       } catch {

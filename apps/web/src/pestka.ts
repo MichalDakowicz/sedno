@@ -8,6 +8,10 @@ export type Kontekst = {
   zadanie?: string;
   /** Ustawienie ucznia; brak lub true: krótko (1–3 zdania), false: szerzej. */
   krotko?: boolean;
+  /** Tylko czat: Pestka może zapisać priorytet ucznia znacznikiem [[priorytet: …]]. */
+  czat?: boolean;
+  /** Zapisane w profilu priorytety, czas dziennie i cele ucznia. */
+  profil?: string;
 };
 
 export function promptPestki(k: Kontekst): string {
@@ -24,6 +28,11 @@ export function promptPestki(k: Kontekst): string {
     "Gdy uczeń ma rację, mówisz to wprost i sprawdzasz, czy rozumie dlaczego. Nie chwal przesadnie i nie używaj emoji.",
     "Gdy uczeń odpowiada na twoje pytanie, potwierdź krótko, co jest dobre, i idź o krok dalej. Nigdy nie zadawaj ponownie pytania, na które uczeń już odpowiedział, i nie powtarzaj swojej poprzedniej wypowiedzi.",
     "Pytajnik stawiaj tylko przy prawdziwym pytaniu, nie na końcu zdania twierdzącego.",
+    k.czat
+      ? "Gdy uczeń sam powie, co jest dla niego priorytetem w nauce (np. „najpierw chcę ćwiczyć słuchanie”), dopisz na samym końcu odpowiedzi, w osobnej linii, znacznik [[priorytet: krótki zapis, do 80 znaków]]. Nie dopisuj go, gdy uczeń o priorytetach nie mówił, i nie powtarzaj priorytetów, które już są zapisane. Znacznika nie opisuj i nie cytuj w tekście."
+      : "",
+    k.profil ? `Co uczeń zapisał w swoim profilu:
+${k.profil}` : "",
     `Przedmiot: ${k.przedmiot}.`,
     k.umiejetnosc ? `Ćwiczona umiejętność: ${k.umiejetnosc}.` : "",
     k.typowyBlad ? `Typowy błąd ucznia w tym temacie: ${k.typowyBlad}.` : "",
@@ -55,4 +64,13 @@ export function powtarzaTutora(odpowiedz: string, historia: Wypowiedz[]): boolea
   const b = litery(odpowiedz);
   if (!a || !b) return false;
   return a === b || (a.length >= 50 && b.length >= 50 && a.slice(0, 50) === b.slice(0, 50));
+}
+
+const ZNACZNIK = /\[\[\s*priorytet\s*:([^\]]*)\]\]/gi;
+
+/** Tekst bez znaczników priorytetu (także niedokończonego na końcu strumienia) i priorytety, które w nim były. */
+export function wytnijPriorytety(tekst: string): { widoczny: string; priorytety: string[] } {
+  const priorytety = [...tekst.matchAll(ZNACZNIK)].map((m) => m[1]!.trim()).filter(Boolean);
+  const widoczny = tekst.replace(ZNACZNIK, "").replace(/\[\[[^\]]*\]?$/, "").trimEnd();
+  return { widoczny, priorytety };
 }

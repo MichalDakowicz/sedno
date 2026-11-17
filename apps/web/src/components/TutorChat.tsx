@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { TutorAvatar } from "./TutorAvatar";
 import { Markdown } from "./Markdown";
 import { useTutor } from "./TutorContext";
@@ -68,7 +69,14 @@ export function TutorChat() {
           m.from === "tutor" ? (
             <div key={m.id} className={styles.tutorRow}>
               <TutorAvatar size={28} />
-              <Markdown className={styles.tutorText}>{m.text}</Markdown>
+              <div>
+                <Markdown className={styles.tutorText}>{m.text}</Markdown>
+                {m.zapisane?.map((p) => (
+                  <p key={p} className={styles.zapisano}>
+                    Zapisałam w profilu: {p}. <Link to="/profil-ucznia">Zobacz profil</Link>
+                  </p>
+                ))}
+              </div>
             </div>
           ) : (
             <p key={m.id} className={styles.studentText}>

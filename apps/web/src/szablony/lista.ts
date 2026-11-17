@@ -111,14 +111,6 @@ export const SZABLONY: Szablon[] = [
     wejscie: "Pulpit: widget „Do matury”",
   },
   {
-    slug: "profil-ucznia",
-    tytul: "Profil ucznia",
-    opis: "Jak uczeń się uczy, ile ma czasu i co jest dla niego priorytetem.",
-    grupa: "Konto i narzędzia",
-    dalej: ["do-matury"],
-    wejscie: "Profil; pierwsze uruchomienie",
-  },
-  {
     slug: "zdjecie",
     tytul: "Analiza zdjęcia",
     opis: "Zdjęcie rozwiązania z kartki, które Pestka czyta i omawia.",
