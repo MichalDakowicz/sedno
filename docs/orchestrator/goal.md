@@ -20,7 +20,7 @@ _Set 2026-11-17 · status: active_
 ## Done when
 
 ### Works
-- [ ] Every English task in formuła 2023 (all three levels) has at least one requirement code and a skill; unmapped tasks = 0 · proof: import report
+- [x] Every English task in formuła 2023 (all three levels) has at least one requirement code and a skill; unmapped tasks = 0 · proof: import report · _2026-11-17, PR #55 at `d207542`: import 572/572 with codes across 12 sheets (the whole catalogue); migration 0009 matches the import on all 572; 26 questions (2025 R zad. 1, 6; 2024 P zad. 2, 5) checked by hand against the CKE marking-rules PDFs. Counts once PR #55 is merged._
 - [ ] Mastery on the map matches a hand calculation for the test account · proof: tester + script
 - [ ] Quick round → breakdown → map change → Powtórki works end to end on staging after login · proof: tester run
 - [ ] Attempts survive reload and show on a second device/tab after reload · proof: tester run

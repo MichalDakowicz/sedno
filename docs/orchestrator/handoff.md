@@ -2,33 +2,30 @@
 
 _Updated 2026-11-17_
 
-**State.** Templates phase 1 is merged into `main` (2026-11-17, at the user's request): #49 `ustawienia`, #50 `profil-ucznia`, #51 `wyszukiwanie`, #52 `uklad-pulpitu`, #53 `do-matury`, plus #54 with these docs. `main` matches the chain tip; typecheck and build are green. Migrations 0006–0008 go to production through the `main` autodeploy; the orchestrator could not read the autodeploy log (no server unit is in a failed state), so confirm with `journalctl --user -u sedno-autodeploy@main` if needed.
+**State.** Goal 2 (English learning loop) started. The backend comes from a teammate's draft PR #55 (`backend-nauki`, services only, migrations 0009–0014, contract in `services/supabase/nauka.md`); decision recorded in `project.md` and `goal.md`. Student-facing skill names (nine skills in 0009) approved by the user. Nothing deployed to staging yet.
 
-**Goal.** Achieved, 17/17 bars, archived in `goals/2026-11-17-szablony-faza-1.md`. „Profile insights can be deleted” was accepted by the user on code and audit evidence (the test account has no computable insights). Next goal (phase 2, English learning loop) is agreed and saved in `goal.md`; no work started.
+**Goal.** 1/17 bars (mapping, with evidence in `goal.md`; counts once #55 is merged).
 
-**Verified.** Per unit: build, own checks, tester run on staging, gap audit, fixes, re-test. Then a full regression of all five flows, a final audit of the whole chain (0 blockers; its majors and minors fixed), and a last browser check: 375 px with large text on every touched view and both sheet pages, simulated network failure, the support note, send blocking, shared switch, new search actions.
+**Verified (unit 1, on PR #55 at `d207542`).**
+- Importer run on all 12 English formuła 2023 sheets: 572/572 questions with CKE codes, 0 missing; the catalogue has no other formuła 2023 English sheets.
+- Migration 0009 vs import: all 572 match (scratch script, not committed).
+- Hand check against marking-rules PDFs: 2025 R zad. 1 and 6, 2024 P zad. 2 and 5 (26 questions) match.
+- Typecheck and build green on the branch. Deno not installed locally, so edge functions were not run.
+- Opus gap audit of 0009–0014, functions and scripts: 0 blockers, 2 majors, 10 minors (below). Both majors confirmed in the SQL by the orchestrator.
 
-**Not verified.**
-- The onboarding step „Jak się uczysz?” (test account has finished onboarding; code only).
-- Deleting a profile insight live (see goal).
-- Past-exam display on /do-matury (no past dates yet).
-- Pestka's reply quality on the light model: it sometimes uses masculine forms and repeated the support sentence once with a grammar slip; the fixed support note under the reply is deterministic.
+**Audit findings handed to the teammate (user's decision: the teammate fixes them, as a new migration 0015, not by editing 0011/0012).**
+- Major: wrong tasks never come back. `nauka_start` orders by `last_seen nulls first` and takes no item list, so a missed task goes to the back (0011 ~l.295–322, 0012 ~l.77–89).
+- Major: `last_mistake_at` comes from any sample (sheets too) but only a session with at least 75% clears it, so after one checked sheet every skill shows „Wróć do ostatniego błędu” (0011 ~l.127, 137–142, 193–197).
+- Minors: open-session answers do not feed mastery; 10 abandoned rounds block new ones; shown `score` does not decay; before/after null in „mało danych”; `learning_map` run 3× on the last answer under the lock; nauka.md difficulty values out of date; top-up applies when the whole CKE pool is under 5; new sheets need a new migration for codes; CKE key readable from `sheets` (pre-existing, own data only); `sheet_progress` is client-controlled (own data only).
 
-**Decisions this run.** Two phases (this one, then the English learning loop). Dashboard layout per subject; „Do matury” widget optional (on in Egzamin, off in Nauka). Search question starts a new chat. Exam dates 2027 from the CKE communiqué of 20 Aug 2026 via a news site, marked „do weryfikacji”. Support note copy for difficult messages (trusted adult + 116 111) written by the orchestrator; the user should review it. Round 4 on the settings test stage approved by the user.
+**In flight.** Waiting for the teammate's fixes on `backend-nauki`. Then re-check the fixes, merge `main` + `backend-nauki` into `dev` (push to `dev`, autodeploy), tester runs the RPCs on staging.
 
-**In flight.** Nothing.
+**Parked.** Nothing.
 
-**Parked.** Nothing. Small leftovers are in `NASTEPNE.md` (section 0, „Szablony, faza 1”).
+**Claimed but unfinished.** None. Related Brief ideas left open: „sekcja co musze powtorzyc”, „Poziom opanowania wymagań”.
 
-**Claimed but unfinished.** None. No Brief entries matched this goal.
-
-**Next.**
-- User: confirm exam dates in BIP CKE; review the support note copy; check that migrations 0006–0008 reached production.
-- Start goal 2 from `goal.md` with unit 1 (Mapowanie): branch `mapowanie-umiejetnosci`, extract requirement codes for English formuła 2023, draft the taxonomy and show the student-facing names to the user for approval.
+**Next.** Unit 3 (Mapa umiejętności `/umiejetnosci`) can start on a branch from `backend-nauki`; `nauka_mapa` is not touched by the majors. Testing it needs staging, so it waits for the deploy.
 
 **Housekeeping.**
-- `npm run dev:staging` runs from the main checkout `C:\sedno`, now on `main`.
-- This run's worktrees are removed; its branches (`ustawienia`, `profil-ucznia`, `wyszukiwanie`, `uklad-pulpitu`, `do-matury`, `orkiestrator-cel`) are merged and kept.
-- Testing from a worktree without its own `node_modules` resolves `@sedno/ui` from the main checkout and 403s fonts; test from the main checkout instead.
-- The built-in browser loses the staging session when the pane restarts; the user signs in again (agents never type the password).
-- Test account: several test chats with Pestka remain; settings, layouts and profile were reset; profile answers left: motywacja, czas 20 min, cele.
+- Worktree `C:\sedno-pr55` (PR #55 checkout, junctions `node_modules` and `data/cke`, own `data/arkusze` from the import). Remove with `git worktree remove` when done; the junctions point into the main checkout, so delete them first.
+- Worktree `C:\sedno-dev` with local branch `dev-scal` (`origin/dev` + `main` + `backend-nauki`, merges clean, not pushed). Rebuild it after the teammate's fixes.
