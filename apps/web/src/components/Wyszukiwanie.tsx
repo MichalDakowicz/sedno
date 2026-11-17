@@ -25,6 +25,9 @@ const DEFINICJE_AKCJI = [
   { id: "akcja:pestka", tytul: "Rozmowa z Pestką", opis: "Tutor AI", klucze: "tutor czat pytanie", sciezka: "/tutor" },
   { id: "akcja:profil", tytul: "Profil", opis: "Przedmioty i konto AI", klucze: "konto przedmioty ai klucz", sciezka: "/profil" },
   { id: "akcja:ustawienia", tytul: "Ustawienia", opis: "Wygląd, dostępność i Pestka", klucze: "motyw ciemny jasny tekst rozmiar dostepnosc pestka wyglad", sciezka: "/ustawienia" },
+  { id: "akcja:profil-ucznia", tytul: "Profil ucznia", opis: "Sposób nauki, cele i priorytety", klucze: "profil uczen cel cele priorytety czas nauka", sciezka: "/profil-ucznia" },
+  { id: "akcja:uklad-pulpitu", tytul: "Układ pulpitu", opis: "Widgety na pulpicie", klucze: "uklad pulpit widgety kolejnosc egzamin", sciezka: "/uklad-pulpitu" },
+  { id: "akcja:do-matury", tytul: "Do matury", opis: "Odliczanie do egzaminów", klucze: "matura odliczanie dni egzamin termin", sciezka: "/do-matury" },
 ];
 const AKCJE: Wynik[] = DEFINICJE_AKCJI.map((a) => ({
   id: a.id,
