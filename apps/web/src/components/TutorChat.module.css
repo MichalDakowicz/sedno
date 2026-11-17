@@ -203,3 +203,13 @@
   color: var(--primary-text);
   text-decoration: underline;
 }
+
+.cofnij {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--primary-text);
+  text-decoration: underline;
+  cursor: pointer;
+}

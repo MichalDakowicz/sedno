@@ -50,6 +50,8 @@
   box-shadow: var(--shadow-float);
 }
 
+/* Wyłączony: pusty tor z obwódką i pełna gałka w --subtle (ponad 3:1 na tle, WCAG 1.4.11), także w ciemnym
+   motywie i przy większym kontraście. Włączony: tor --success i gałka --surface. */
 .przelacznik {
   display: inline-block;
   position: relative;
@@ -58,38 +60,33 @@
   padding: 0;
   border: 0;
   border-radius: var(--r-pill);
-  background: var(--line);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--subtle);
   cursor: pointer;
 }
 
 .przelacznik::after {
   content: "";
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 20px;
-  height: 20px;
+  top: 5px;
+  left: 5px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: var(--surface);
-  box-shadow: 0 1px 3px rgba(15, 21, 29, 0.2);
+  background: var(--subtle);
   transition: left 0.15s ease;
-}
-
-/* Ciemny motyw: knob --surface na torze --line miałby 1,2:1, więc w stanie wyłączonym jest --muted. */
-:root[data-motyw="ciemny"] .przelacznik:not(.przelacznikWl)::after {
-  background: var(--muted);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-motyw="jasny"]) .przelacznik:not(.przelacznikWl)::after {
-    background: var(--muted);
-  }
 }
 
 .przelacznikWl {
   background: var(--success);
+  box-shadow: none;
 }
 
 .przelacznikWl::after {
+  top: 3px;
   left: 21px;
+  width: 20px;
+  height: 20px;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(15, 21, 29, 0.2);
 }
