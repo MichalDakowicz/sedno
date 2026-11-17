@@ -18,7 +18,7 @@ export function DoMatury() {
       <header className={s.glowa}>
         <span className="label">Matura 2027</span>
         <h1 className="display">Do matury</h1>
-        <p className="lead">Ile czasu zostało do twoich egzaminów i jaki cel sobie postawiłeś.</p>
+        <p className="lead">Ile czasu zostało do twoich egzaminów i jaki masz cel.</p>
       </header>
 
       <section className={s.sekcja} aria-labelledby="odliczanie">
@@ -27,7 +27,7 @@ export function DoMatury() {
         </h2>
         {!egzaminy.length ? (
           <>
-            <p className="muted">Nie wybrałeś jeszcze przedmiotów, więc nie wiem, do którego egzaminu liczyć.</p>
+            <p className="muted">Nie ma jeszcze wybranych przedmiotów, więc nie wiem, do którego egzaminu liczyć.</p>
             <Link to="/profil#przedmioty" className="link" style={{ justifySelf: "start" }}>
               Wybierz przedmioty
             </Link>

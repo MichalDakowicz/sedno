@@ -29,13 +29,13 @@ export function DoMatury({ aktywny, maPrzedmioty }: KontekstPulpitu) {
       {!e ? (
         <p className="muted">Wszystkie egzaminy za tobą.</p>
       ) : (
-      <p className={styles.stat}>
-        {dni}
-        <span> {odmianaDni(dni)}</span>
-        <span className={styles.statOpis}>
-          {e.znana ? `${nazwaEgzaminu(e)}, ${opisDaty(e.data)} (do weryfikacji)` : `${nazwaEgzaminu(e)}, początek sesji majowej 2027`}
-        </span>
-      </p>
+        <p className={styles.stat}>
+          {dni}
+          <span> {odmianaDni(dni)}</span>
+          <span className={styles.statOpis}>
+            {e.znana ? `${nazwaEgzaminu(e)}, ${opisDaty(e.data)} (do weryfikacji)` : `${nazwaEgzaminu(e)}, początek sesji majowej 2027`}
+          </span>
+        </p>
       )}
       {!e ? null : cel ? (
         <p className="muted small">
