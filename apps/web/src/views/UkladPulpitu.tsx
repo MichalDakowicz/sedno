@@ -211,7 +211,7 @@ export function UkladPulpitu() {
                   <span className="muted small">zawsze na górze</span>
                 </span>
               </span>
-              <button type="button" role="switch" aria-checked="true" aria-label={w.nazwa} disabled className={`${s.przelacznik} ${s.przelacznikWl} ${s.przelacznikStaly}`} />
+              <button type="button" role="switch" aria-checked="true" aria-label={w.nazwa} disabled className="przelacznik przelacznikWl" />
             </li>
           ))}
           {widoczna.map((p, i) => {
@@ -245,7 +245,7 @@ export function UkladPulpitu() {
                     <span className="muted small">{w.opis}</span>
                   </span>
                 </span>
-                <button type="button" role="switch" aria-checked={p.wl} aria-label={w.nazwa} className={`${s.przelacznik} ${p.wl ? s.przelacznikWl : ""}`} onClick={() => przelaczWidget(klucz, p.id)} />
+                <button type="button" role="switch" aria-checked={p.wl} aria-label={w.nazwa} className={`przelacznik ${p.wl ? "przelacznikWl" : ""}`} onClick={() => przelaczWidget(klucz, p.id)} />
               </li>
             );
           })}

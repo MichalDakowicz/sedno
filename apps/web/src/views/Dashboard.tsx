@@ -7,6 +7,7 @@ import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import { saveSubjects, useProfil, useSession } from "../auth";
 import { useAiReady } from "../ai";
 import { dniDoMatury, nazwaPoziomu, opisPoziomow, przedmiot, zgrupuj, type MojPrzedmiot } from "../konto/przedmioty";
+import { useUstawienia } from "../konto/ustawienia";
 import { propozycja, useWynikiKonta, type Podsumowanie } from "../konto/wyniki";
 import { WSZYSTKIE, useUklad } from "../konto/ukladPulpitu";
 import { Plywak } from "../components/Plywak";
@@ -85,6 +86,7 @@ export function Dashboard() {
   const aktywny = zgrupuj(moje).find((m) => m.id === id);
   const dane = useWynikiKonta(moje);
   const { showHints, startTour } = useTutor();
+  const { pestkaSama } = useUstawienia();
   const klucz = aktywny?.id ?? WSZYSTKIE;
   const uklad = useUklad(klucz);
 
@@ -97,7 +99,7 @@ export function Dashboard() {
   useEffect(() => {
     if (!co) return;
     const hints: Hint[] = [{ target: "today-cta", text: "To polecam na dziś. Wybrałam to z twoich arkuszy." }];
-    const t = window.setTimeout(() => (isTourDone() ? showHints(`dash-${id ?? "all"}`, hints) : startTour()), 900);
+    const t = window.setTimeout(() => (isTourDone() ? showHints(`dash-${id ?? "all"}`, hints) : pestkaSama && startTour()), 900);
     return () => window.clearTimeout(t);
   }, [id, !!co]);
 
