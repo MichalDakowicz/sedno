@@ -19,7 +19,13 @@ import { UkladPulpitu } from "./views/UkladPulpitu";
 import { Arkusze } from "./views/Arkusze";
 import { Arkusz } from "./views/Arkusz";
 import { Onboarding } from "./views/Onboarding";
-import { Nauka, Powtorki, Spis, SzablonWidok, Umiejetnosci } from "./szablony/Szablony";
+import { Spis, SzablonWidok } from "./szablony/Szablony";
+import { Nauka } from "./views/nauka/Nauka";
+import { Powtorki } from "./views/nauka/Powtorki";
+import { Rozbior } from "./views/nauka/Rozbior";
+import { SzybkaRunda } from "./views/nauka/SzybkaRunda";
+import { UczenUczy } from "./views/nauka/UczenUczy";
+import { Umiejetnosci } from "./views/nauka/Umiejetnosci";
 
 // Ustawienia stosują się od startu, nie dopiero na ich stronie.
 uruchomUstawienia();
@@ -37,6 +43,10 @@ createRoot(document.getElementById("root")!).render(
           <Route path="przedmiot/:id" element={<Dashboard />} />
           <Route path="tutor" element={<Tutor />} />
           <Route path="nauka" element={<Nauka />} />
+          <Route path="nauka/runda" element={<SzybkaRunda />} />
+          <Route path="nauka/runda/:id" element={<SzybkaRunda />} />
+          <Route path="nauka/rozbior/:id" element={<Rozbior />} />
+          <Route path="nauka/uczen-uczy" element={<UczenUczy />} />
           <Route path="arkusze" element={<Arkusze />} />
           <Route path="arkusze/:id" element={<Arkusz />} />
           <Route path="umiejetnosci" element={<Umiejetnosci />} />

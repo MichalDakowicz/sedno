@@ -15,25 +15,9 @@ export type Szablon = {
 
 export const SZABLONY: Szablon[] = [
   {
-    slug: "nauka",
-    tytul: "Nauka",
-    opis: "Wybór formatu nauki dla umiejętności albo wolnego tematu.",
-    grupa: "Nauka",
-    dalej: ["napraw-blad", "uczen-uczy", "krok-po-kroku", "sokratejski", "szybka-runda", "wizualizacje"],
-    wejscie: "Menu: Nauka; pulpit: „Dziś warto”",
-  },
-  {
     slug: "napraw-blad",
     tytul: "Napraw błąd",
     opis: "Praca z wstrzykniętymi błędami: uczeń je znajduje, nazywa i poprawia.",
-    grupa: "Nauka",
-    dalej: ["rozbior"],
-    wejscie: "Nauka",
-  },
-  {
-    slug: "uczen-uczy",
-    tytul: "Uczeń uczy AI",
-    opis: "Uczeń tłumaczy pojęcie Koledze, Sędzia ocenia wyjaśnienie.",
     grupa: "Nauka",
     dalej: ["rozbior"],
     wejscie: "Nauka",
@@ -55,44 +39,12 @@ export const SZABLONY: Szablon[] = [
     wejscie: "Nauka; rozmowa z Pestką",
   },
   {
-    slug: "szybka-runda",
-    tytul: "Szybka runda",
-    opis: "3–5 minut wariantów zadań z jednej umiejętności.",
-    grupa: "Nauka",
-    dalej: ["rozbior"],
-    wejscie: "Nauka; Powtórki",
-  },
-  {
     slug: "wizualizacje",
     tytul: "Wizualizacje",
     opis: "Interaktywny model do pojęcia: wykres z suwakiem, algorytm krok po kroku.",
     grupa: "Nauka",
     dalej: ["szybka-runda"],
     wejscie: "Nauka",
-  },
-  {
-    slug: "rozbior",
-    tytul: "Ekran rozbioru",
-    opis: "Podsumowanie po sesji: co poszło, co nie, wpływ na mapę i następny krok.",
-    grupa: "Nauka",
-    dalej: ["umiejetnosci", "powtorki"],
-    wejscie: "Koniec każdego formatu",
-  },
-  {
-    slug: "umiejetnosci",
-    tytul: "Mapa umiejętności",
-    opis: "Opanowanie umiejętności przedmiotu z kodami wymagań w drugim planie.",
-    grupa: "Postęp",
-    dalej: ["nauka", "powtorki"],
-    wejscie: "Menu: Mapa umiejętności",
-  },
-  {
-    slug: "powtorki",
-    tytul: "Powtórki",
-    opis: "Umiejętności, które zanikają, i błędy do przećwiczenia.",
-    grupa: "Postęp",
-    dalej: ["szybka-runda", "napraw-blad"],
-    wejscie: "Menu: Powtórki; pulpit",
   },
   {
     slug: "mapa-wiedzy",
@@ -118,13 +70,15 @@ export function szablon(slug: string) {
   return SZABLONY.find((s) => s.slug === slug);
 }
 
-/** Szablony, które mają własny adres w menu aplikacji zamiast `/szablony/:slug`. */
-export const ADRES_W_MENU: Record<string, string> = {
-  nauka: "/nauka",
-  umiejetnosci: "/umiejetnosci",
-  powtorki: "/powtorki",
+export const WDROZONE: Record<string, { to: string; tytul: string; opis: string }> = {
+  nauka: { to: "/nauka", tytul: "Nauka", opis: "Wybierz umiejętność i format." },
+  "uczen-uczy": { to: "/nauka/uczen-uczy", tytul: "Uczeń uczy AI", opis: "Wytłumacz Koledze, jak działa angielska reguła." },
+  "szybka-runda": { to: "/nauka/runda", tytul: "Szybka runda", opis: "Krótka runda jednej umiejętności." },
+  rozbior: { to: "/nauka", tytul: "Rozbiór po rundzie", opis: "Po zakończeniu rundy zobacz wynik i zmianę opanowania." },
+  umiejetnosci: { to: "/umiejetnosci", tytul: "Mapa umiejętności", opis: "Sprawdź opanowanie i przejrzyj dowody." },
+  powtorki: { to: "/powtorki", tytul: "Powtórki", opis: "Wróć do błędu albo umiejętności, która zanika." },
 };
 
 export function adres(slug: string) {
-  return ADRES_W_MENU[slug] ?? `/szablony/${slug}`;
+  return WDROZONE[slug]?.to ?? `/szablony/${slug}`;
 }

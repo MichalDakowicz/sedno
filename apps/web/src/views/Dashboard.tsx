@@ -102,7 +102,7 @@ export function Dashboard() {
   // Przy pierwszym wejściu Pestka prowadzi przewodnik, potem zwykła wskazówka do propozycji.
   useEffect(() => {
     if (!co) return;
-    const hints: Hint[] = [{ target: "today-cta", text: "To polecam na dziś. Wybrałam to z twoich arkuszy." }];
+    const hints: Hint[] = [{ target: "today-cta", text: "To moja propozycja ćwiczenia na dziś." }];
     const t = window.setTimeout(() => (isTourDone() ? showHints(`dash-${id ?? "all"}`, hints) : pestkaSama && startTour()), 900);
     return () => window.clearTimeout(t);
   }, [id, !!co]);
@@ -206,7 +206,7 @@ export function Dashboard() {
 
       {dane && reszta.map((w) => <w.Komponent key={w.id} {...kontekst} />)}
 
-      <Wejscia tytul="W przygotowaniu" slugi={["nauka", "powtorki", "mapa-wiedzy"]} />
+      <Wejscia tytul="W przygotowaniu" slugi={["mapa-wiedzy"]} />
     </main>
   );
 }
