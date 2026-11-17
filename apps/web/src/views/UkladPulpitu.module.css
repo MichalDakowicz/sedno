@@ -113,7 +113,17 @@
 
 .przelacznik:disabled {
   cursor: default;
-  opacity: 0.6;
+}
+
+/* Stały widget nie daje się wyłączyć: tor i gałka są wyszarzone, żeby przełącznik nie wyglądał na działający. */
+.przelacznikStaly,
+.przelacznikStaly.przelacznikWl {
+  background: var(--line);
+  opacity: 0.7;
+}
+
+.przelacznikStaly::after {
+  background: var(--muted);
 }
 
 .przelacznik::after {

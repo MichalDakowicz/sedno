@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Navigate, useParams } from "react-router-dom";
-import { ArrowRight, ChevronRight, LayoutGrid, Plus } from "lucide-react";
+import { ArrowRight, ChevronRight, LayoutGrid, LayoutList, Plus } from "lucide-react";
 import { isTourDone, useTutor, type Hint } from "../components/TutorContext";
 import { SubjectIcon } from "../components/icons";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
@@ -137,6 +137,10 @@ export function Dashboard() {
           )}
         </h1>
         <p className="muted">Sesja majowa 2027. Dokładne daty egzaminów poda harmonogram CKE.</p>
+        <Link to={aktywny ? `/uklad-pulpitu?przedmiot=${aktywny.id}` : "/uklad-pulpitu"} className={styles.ukladLink}>
+          <LayoutList size={14} aria-hidden="true" />
+          Układ pulpitu
+        </Link>
       </section>
 
       {profil && !moje.length && <BezPrzedmiotow />}
@@ -197,12 +201,6 @@ export function Dashboard() {
       )}
 
       {dane && reszta.map((w) => <w.Komponent key={w.id} {...kontekst} />)}
-
-      <Link to={aktywny ? `/uklad-pulpitu?przedmiot=${aktywny.id}` : "/uklad-pulpitu"} className={styles.ukladLink}>
-        <span className={styles.ukladTytul}>Układ pulpitu</span>
-        <span className="muted small">Wybór i kolejność widgetów na pulpicie.</span>
-        <ArrowRight size={18} aria-hidden="true" />
-      </Link>
 
       <Wejscia tytul="W przygotowaniu" slugi={["nauka", "powtorki", "mapa-wiedzy"]} />
     </main>
