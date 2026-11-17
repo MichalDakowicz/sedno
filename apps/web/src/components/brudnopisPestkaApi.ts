@@ -117,6 +117,7 @@ export async function omowTablice(
   const scena = api.getSceneElements();
   const elementy = prowadzenie ? bezZapisowPestki(scena) : scena;
   const wspolrzedne = prowadzenie && elementy.length ? wspolrzedneObrazu(elementy, prowadzenie.zmienione) : undefined;
+  const zapisUcznia = prowadzenie?.zmienione.flatMap((e) => e.type === "text" ? [e.text] : []).join("\n").trim().slice(0, 500);
   const obraz = await obrazTablicy(api, elementy, signal);
   if (!obraz && !pytanie) throw new AiError("empty_board", 400);
   signal.throwIfAborted();
@@ -124,7 +125,9 @@ export async function omowTablice(
   const { data, error } = await supabase.functions.invoke<OdpowiedzPestki>("nauka-ai", {
     body: {
       action: "omow-brudnopis", polecenie, pytanie: pytanie || undefined, obraz,
-      prowadzenie: wspolrzedne && { zmiana: wspolrzedne.zmiana, poprzedniaWskazowka: prowadzenie?.poprzedniaWskazowka },
+      prowadzenie: wspolrzedne && {
+        zmiana: wspolrzedne.zmiana, poprzedniaWskazowka: prowadzenie?.poprzedniaWskazowka, zapisUcznia: zapisUcznia || undefined,
+      },
     },
     signal,
     timeout: 65_000,
