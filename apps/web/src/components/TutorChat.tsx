@@ -86,6 +86,11 @@ export function TutorChat() {
                     )}
                   </p>
                 ))}
+                {m.wsparcie && (
+                  <p className={styles.wsparcie} role="note">
+                    Jeśli coś cię martwi, porozmawiaj z kimś, komu ufasz: z rodzicem lub opiekunem, wychowawcą, pedagogiem albo psychologiem szkolnym. Możesz też zadzwonić pod bezpłatny, całodobowy Telefon Zaufania dla Dzieci i Młodzieży: <a href="tel:116111">116 111</a>.
+                  </p>
+                )}
                 {m.pelna && (
                   <p className={styles.zapisano}>
                     Lista priorytetów jest pełna. <Link to="/profil-ucznia">Usuń któryś w profilu</Link>
