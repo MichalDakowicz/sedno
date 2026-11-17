@@ -3,6 +3,7 @@ import type { AvatarState } from "./TutorAvatar";
 import { aiErrorText, AiError, streamAi } from "../ai";
 import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA_ROZMOW, type Rozmowa } from "../konto/rozmowy";
 import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
+import { useUstawienia } from "../konto/ustawienia";
 
 export type Message = { id: number; from: "tutor" | "student"; text: string };
 
@@ -34,6 +35,8 @@ type TutorValue = {
   close: () => void;
   send: (text: string) => void;
   suggestions: string[];
+  /** Ustawienia Pestki ucznia (Ustawienia): sama podpowiada, krótkie odpowiedzi. */
+  pestka: { sama: boolean; krotko: boolean };
 
   guide: Guide | null;
   summon: Summon | null;
@@ -110,6 +113,9 @@ const noAi = "Żeby odpowiadać, potrzebuję AI podpiętego do konta. Zrobisz to
 
 /** przedmioty: opis przedmiotów konta do kontekstu rozmowy, np. „polski (podstawowy), angielski (rozszerzony)”. */
 export function TutorProvider({ children, ai = false, przedmioty = "" }: { children: ReactNode; ai?: boolean; przedmioty?: string }) {
+  const { pestkaSama: sama, pestkaKrotko: krotko } = useUstawienia();
+  const samaRef = useRef(sama);
+  samaRef.current = sama;
   // Bieżąca rozmowa wraca po odświeżeniu; wcześniejsze można otworzyć (konto/rozmowy.ts).
   const [rozmowy, setRozmowy] = useState<Rozmowa[]>(wczytajRozmowy);
   const [biezacaRozmowa, setBiezacaRozmowa] = useState(() => idBiezacej() ?? noweId());
@@ -163,7 +169,7 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
         {
           tier: "lekkie",
           task: "pestka-czat",
-          messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura" }, historia),
+          messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura", krotko }, historia),
         },
         (delta) => {
           text += delta;
@@ -177,7 +183,7 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
       write(aiErrorText(e instanceof AiError ? e.code : "server_error"));
     }
     setState("idle");
-  }, [przedmioty]);
+  }, [przedmioty, krotko]);
 
   const send = useCallback((text: string) => {
     const clean = text.trim();
@@ -197,7 +203,10 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
     }, 500);
   }, [ai, askModel]);
 
+  // „Na wezwanie”: wskazówki, o które uczeń nie prosił (pulpit, zegar), nie wyskakują same.
+  // Przepuszczamy te z jego kliknięcia: „Co dziś robić?” (ask-) i omówienie arkusza (omow).
   const showHints = useCallback((key: string, hints: Hint[]) => {
+    if (!samaRef.current && !key.startsWith("ask-") && !key.startsWith("omow")) return;
     if (shownHints.has(key) || hints.length === 0) return;
     shownHints.add(key);
     setSummon(null);
@@ -277,6 +286,7 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
       open,
       close: () => setOpen(false),
       send,
+      pestka: { sama, krotko },
       suggestions:
         messages.length <= 1
           ? ["Co powtórzyć przed maturą?", "Wyjaśnij mi zadanie", "Sprawdź, czy rozumiem temat"]
@@ -289,7 +299,7 @@ export function TutorProvider({ children, ai = false, przedmioty = "" }: { child
       dismiss,
       summonAt,
     }),
-    [messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, send, guide, summon, showHints, startTour, next, dismiss, summonAt],
+    [messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, send, sama, krotko, guide, summon, showHints, startTour, next, dismiss, summonAt],
   );
 
   return <TutorContext.Provider value={value}>{children}</TutorContext.Provider>;

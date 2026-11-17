@@ -22,7 +22,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .karta {
+  :root:not([data-mniej-ruchu="nie"]) .karta {
     animation: none;
   }
 }
@@ -122,12 +122,12 @@
   height: 26px;
   border-radius: 50%;
   background: var(--bg);
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   font-weight: 600;
 }
 
 .wyjasnienie {
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
 }
 
 .form {
@@ -169,7 +169,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .kolko {
+  :root:not([data-mniej-ruchu="nie"]) .kolko {
     animation: none;
   }
 }

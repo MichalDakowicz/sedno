@@ -127,14 +127,6 @@ export const SZABLONY: Szablon[] = [
     wejscie: "Arkusz: zadanie otwarte; rozmowa z Pestką",
   },
   {
-    slug: "ustawienia",
-    tytul: "Ustawienia",
-    opis: "Wygląd, dostępność, powiadomienia i Pestka.",
-    grupa: "Konto i narzędzia",
-    dalej: [],
-    wejscie: "Profil",
-  },
-  {
     slug: "uklad-pulpitu",
     tytul: "Układ pulpitu",
     opis: "Wybór i kolejność widgetów na pulpicie.",

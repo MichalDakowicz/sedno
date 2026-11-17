@@ -78,7 +78,7 @@
   border: 0;
   border-radius: var(--r-pill);
   background: transparent;
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
@@ -92,7 +92,7 @@
 .time {
   flex-shrink: 0;
   min-width: 38px;
-  font-size: 13px;
+  font-size: calc(13px * var(--skala-tekstu, 1));
   font-variant-numeric: tabular-nums;
   color: var(--muted);
   text-align: center;

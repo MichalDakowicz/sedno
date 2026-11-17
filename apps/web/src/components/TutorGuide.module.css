@@ -38,7 +38,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spot {
+  :root:not([data-mniej-ruchu="nie"]) .spot {
     transition: none;
     animation: none;
   }
@@ -201,7 +201,7 @@
 }
 
 .step {
-  font-size: 12px;
+  font-size: calc(12px * var(--skala-tekstu, 1));
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -215,7 +215,7 @@
 }
 
 .text {
-  font-size: 15px;
+  font-size: calc(15px * var(--skala-tekstu, 1));
   line-height: 1.5;
 }
 
@@ -233,7 +233,7 @@
 
 /* W dymku oba przyciski tej samej wielkości, obok siebie (główny tylko kolorem i pogrubieniem). */
 .actions :global(.btn-primary.btn-sm) {
-  font-size: 15px;
+  font-size: calc(15px * var(--skala-tekstu, 1));
 }
 
 /* Dymek bez przycisków (np. „Zaczynamy od zadania 1.”) nie trzyma pustego miejsca. */
@@ -245,7 +245,7 @@
   padding: 8px 4px;
   border: 0;
   background: none;
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   color: var(--muted);
   cursor: pointer;
 }
@@ -255,7 +255,7 @@
 }
 
 .wait {
-  font-size: 14px;
+  font-size: calc(14px * var(--skala-tekstu, 1));
   color: var(--primary-text);
   font-weight: 500;
 }

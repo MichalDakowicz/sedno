@@ -1,17 +1,26 @@
-// Motyw aplikacji idzie za ustawieniem systemu (tokens.css). Ten plik jest dla bibliotek, które muszą znać
-// motyw w JS (Excalidraw, Monaco, Chart.js): nie czytają zmiennych CSS same.
+// Motyw aplikacji idzie za ustawieniem systemu (tokens.css), chyba że uczeń wybrał go w Ustawieniach
+// (atrybut data-motyw na <html>). Ten plik jest dla bibliotek, które muszą znać motyw w JS
+// (Excalidraw, Monaco, Chart.js): nie czytają zmiennych CSS same.
 import { useSyncExternalStore } from "react";
 
 const zapytanie = "(prefers-color-scheme: dark)";
 
-export const czyCiemny = () => window.matchMedia(zapytanie).matches;
+export const czyCiemny = () => {
+  const wybrany = document.documentElement.dataset.motyw;
+  return wybrany ? wybrany === "ciemny" : window.matchMedia(zapytanie).matches;
+};
 
-/** Wywołuje `fn` przy każdej zmianie motywu systemu; zwraca funkcję odpinającą nasłuch. */
+/** Wywołuje `fn` przy każdej zmianie motywu (systemu albo wyboru ucznia); zwraca funkcję odpinającą nasłuch. */
 export function naZmianeMotywu(fn: (ciemny: boolean) => void) {
   const mq = window.matchMedia(zapytanie);
-  const nasluch = () => fn(mq.matches);
+  const nasluch = () => fn(czyCiemny());
   mq.addEventListener("change", nasluch);
-  return () => mq.removeEventListener("change", nasluch);
+  const obserwator = new MutationObserver(nasluch);
+  obserwator.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motyw"] });
+  return () => {
+    mq.removeEventListener("change", nasluch);
+    obserwator.disconnect();
+  };
 }
 
 // Stała funkcja: nowa przy każdym renderze odpinałaby i podpinała nasłuch od nowa.

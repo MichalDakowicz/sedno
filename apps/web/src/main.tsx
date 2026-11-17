@@ -9,10 +9,15 @@ import { Login } from "./views/Login";
 import { Dashboard } from "./views/Dashboard";
 import { Tutor } from "./views/Tutor";
 import { Profile } from "./views/Profile";
+import { Ustawienia } from "./views/Ustawienia";
+import { uruchomUstawienia } from "./konto/ustawienia";
 import { Arkusze } from "./views/Arkusze";
 import { Arkusz } from "./views/Arkusz";
 import { Onboarding } from "./views/Onboarding";
 import { Nauka, Powtorki, Spis, SzablonWidok, Umiejetnosci } from "./szablony/Szablony";
+
+// Ustawienia stosują się od startu, nie dopiero na ich stronie.
+uruchomUstawienia();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -32,6 +37,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="szablony" element={<Spis />} />
           <Route path="szablony/:slug" element={<SzablonWidok />} />
           <Route path="profil" element={<Profile />} />
+          <Route path="ustawienia" element={<Ustawienia />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
