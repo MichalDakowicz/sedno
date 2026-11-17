@@ -12,7 +12,7 @@ _Updated 2026-11-17_
 
 Later fixes were committed on the lowest branch that owns the file and merged up the chain, so every branch contains everything below it. Typecheck and build are green on every branch. Migrations 0006–0008 are on staging (`dev`); production gets them with the merge. This branch (`orkiestrator-cel`) holds the goal, this handoff and `NASTEPNE.md`.
 
-**Goal.** 16/17 bars met (`goal.md`). Open: „Profile insights can be deleted” was not verified live, because the test account has no computable insights; „Usuń” is verified in code and two audits only. The user decides whether that is enough.
+**Goal.** Achieved, 17/17 bars, archived in `goals/2026-11-17-szablony-faza-1.md`. „Profile insights can be deleted” was accepted by the user on code and audit evidence (the test account has no computable insights). No active goal.
 
 **Verified.** Per unit: build, own checks, tester run on staging, gap audit, fixes, re-test. Then a full regression of all five flows, a final audit of the whole chain (0 blockers; its majors and minors fixed), and a last browser check: 375 px with large text on every touched view and both sheet pages, simulated network failure, the support note, send blocking, shared switch, new search actions.
 

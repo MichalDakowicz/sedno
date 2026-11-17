@@ -1,6 +1,6 @@
 # Goal
 
-_Set 2026-11-16 · status: active (16/17 bars met; one waits for the user's call)_
+_Set 2026-11-16 · status: achieved 2026-11-17 (17/17; one bar accepted by the user on code and audit evidence)_
 
 **Goal.** Five templates from „Konto i narzędzia” plus the exam countdown stop being prototypes: they run on real account data, live in `views/` (or `components/`), and their template folders and entries are gone.
 
@@ -34,7 +34,7 @@ _Set 2026-11-16 · status: active (16/17 bars met; one waits for the user's call
 ### Holds up
 - [x] No network or no AI gives a message, not a blank screen · proof: simulated network failure 2026-11-17 — /ustawienia shows „Nie zapisano na koncie. Spróbuję ponownie.”, search shows „Nie udało się wczytać arkuszy.”; without AI search offers „Podepnij AI”
 - [x] New tables have RLS limited to the owner · proof: migration review, audit — new columns on profiles (owner-only RLS from 0001) with column-level update grants only
-- [ ] Profile insights can be deleted · proof: tester run — NOT verified live: the test account has no computable insights (2 checked English sheets without clear differences). „Usuń” verified in code and two audits only
+- [x] Profile insights can be deleted · proof: accepted by the user 2026-11-17 on code and audit evidence — not verified live: the test account has no computable insights (2 checked English sheets without clear differences). „Usuń” verified in code and two audits only
 - [x] Final gap audit has no blocker or major findings · proof: audit report — final audit on 9301885 had 0 blockers; its 3 majors and 9 minors were fixed and re-verified
 
 ### Shipped
