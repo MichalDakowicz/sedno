@@ -21,7 +21,20 @@ for f in "$DIR"/migrations/*.sql; do
     ssh "$HOST" "docker exec -i sb-sedno-db psql -U postgres -v ON_ERROR_STOP=1 -q"
 done
 
-# Funkcje: podmieniamy tylko własne katalogi; main i hello zostają z obrazu Supabase.
-tar -C "$DIR/functions" -cf - _shared ai ai-klucz |
-  ssh "$HOST" "cd $PROJECT/volumes/functions && rm -rf _shared ai ai-klucz && tar -xf - && cd $PROJECT && docker compose restart functions >/dev/null"
+# Najpierw rozpakuj cały transfer, żeby zerwane połączenie nie usunęło działającej funkcji.
+tar -C "$DIR/functions" -cf - . |
+  ssh "$HOST" "set -eu
+cd $PROJECT/volumes/functions
+tmp=\$(mktemp -d .sedno-functions.XXXXXX)
+trap 'rm -rf -- \"\$tmp\"' EXIT
+tar -xf - -C \"\$tmp\"
+for d in \"\$tmp\"/*/; do
+  [ -d \"\$d\" ] || continue
+  name=\$(basename \"\$d\")
+  case \"\$name\" in main | hello) continue ;; esac
+  rm -rf -- \"\$name\"
+  mv -- \"\$d\" \"\$name\"
+done
+cd $PROJECT
+docker compose restart functions >/dev/null"
 echo "gotowe"
