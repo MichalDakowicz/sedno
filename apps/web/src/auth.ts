@@ -4,6 +4,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import { poprawne, type MojPrzedmiot } from "./konto/przedmioty";
 import { wyczyscRozmowy, wyslijOczekujace } from "./konto/rozmowy";
+import { wyczyscOstatnie } from "./components/szukaj";
 import { splukajProfil } from "./konto/profilUcznia";
 import { splukajUstawienia } from "./konto/ustawienia";
 
@@ -29,7 +30,10 @@ supabase.auth.getSession().then(({ data }) => {
 
 supabase.auth.onAuthStateChange((event, session) => {
   // Także gdy sesja wygasła bez logout() (odrzucone odświeżenie tokenu): rozmowy nie mogą przejść na następne konto.
-  if (event === "SIGNED_OUT") wyczyscRozmowy();
+  if (event === "SIGNED_OUT") {
+    wyczyscRozmowy();
+    wyczyscOstatnie();
+  }
   current = session;
   ready = true;
   notify();
@@ -73,6 +77,7 @@ export async function logout(): Promise<void> {
     // zostaje lokalna kopia, która i tak jest czyszczona
   }
   wyczyscRozmowy();
+  wyczyscOstatnie();
   await supabase.auth.signOut();
   // Lokalna kopia postępu należy do konta; następna osoba na tym komputerze zaczyna od zera.
   try {

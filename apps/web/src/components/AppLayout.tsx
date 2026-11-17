@@ -4,6 +4,7 @@ import { TopNav } from "./TopNav";
 import { TutorDock } from "./TutorDock";
 import { TutorGuide } from "./TutorGuide";
 import { TutorProvider } from "./TutorContext";
+import { Wyszukiwanie } from "./Wyszukiwanie";
 import { ZegarWPasku } from "./ZegarWPasku";
 import { useProfil, useSession } from "../auth";
 import { useAiReady } from "../ai";
@@ -53,9 +54,10 @@ export function AppLayout() {
 
   // Pestka pojawia się dopiero, gdy konto ma podpięte AI.
   return (
-    <TutorProvider ai={ai === true} przedmioty={opisPrzedmiotow(profil?.subjects ?? [])}>
+    <TutorProvider ai={ai} przedmioty={opisPrzedmiotow(profil?.subjects ?? [])}>
       <TopNav />
       <ZegarWPasku />
+      <Wyszukiwanie />
       <Outlet />
       {ai === true && location.pathname !== "/tutor" && (
         <>
