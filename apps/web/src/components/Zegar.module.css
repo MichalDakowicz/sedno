@@ -67,6 +67,8 @@
     0 0 0 1px color-mix(in srgb, var(--fg) 6%, transparent),
     var(--shadow-float);
   white-space: nowrap;
+  /* Przy większym tekście panel nie wychodzi poza ekran telefonu; opis ucina się wielokropkiem. */
+  max-width: calc(100vw - 16px);
 }
 
 /* Pełny zegar pod wyspą. Kształt (z wyspy w pełny zegar) animuje Zegar.tsx przez Web Animations API. */
@@ -116,6 +118,7 @@
 }
 
 .panelCzas {
+  min-width: 0;
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -127,6 +130,9 @@
 }
 
 .opis {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: calc(13px * var(--skala-tekstu, 1));
   font-weight: 400;
   color: var(--subtle);

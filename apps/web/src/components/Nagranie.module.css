@@ -132,6 +132,20 @@
 
   .player {
     gap: 6px;
+    padding: 6px 10px 6px 6px;
+  }
+
+  /* Przy większym tekście wszystko ma się zmieścić w przypiętym pasku (ok. 280 px). */
+  .small {
+    padding: 0 6px;
+  }
+
+  .time {
+    min-width: 0;
+  }
+
+  .seek {
+    min-width: 24px;
   }
 
   .pinned {
