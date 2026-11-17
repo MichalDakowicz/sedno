@@ -4,13 +4,13 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { supabase } from "../supabase";
 import { WIDGETY } from "../views/pulpit/widgety";
+import { gotowy as gotowyCzysty, nazwaUkladu as nazwaCzysta, normalizuj, przelacz, przesun, przesunDo, type GotowyUklad, type Pozycja } from "../views/pulpit/ukladCzysty";
 import { PRZEDMIOTY } from "./przedmioty";
 
 export const WSZYSTKIE = "wszystkie";
 
-export type GotowyUklad = "nauka" | "egzamin";
+export type { GotowyUklad, Pozycja };
 export type Uklad = GotowyUklad | "wlasny";
-export type Pozycja = { id: string; wl: boolean };
 
 /** Co leży na koncie: nazwa gotowego układu (nowe widgety dochodzą wtedy same) albo własna lista. */
 type Zapis = Partial<Record<string, "egzamin" | Pozycja[]>>;
@@ -21,36 +21,9 @@ const RUCHOME = WIDGETY.filter((w) => !w.staly);
 const MAX_POZYCJI = 20;
 const KLUCZE = new Set<string>([WSZYSTKIE, ...PRZEDMIOTY.map((p) => p.id)]);
 
-export function gotowy(nazwa: GotowyUklad): Pozycja[] {
-  return RUCHOME.map((w) => ({ id: w.id, wl: w[nazwa] }));
-}
-
-/** Wyrzuca nieznane i powtórzone widgety, a brakujące (dodane w nowszej wersji) wstawia na ich domyślne miejsce. */
-function uzupelnij(lista: Pozycja[]): Pozycja[] {
-  const wynik: Pozycja[] = [];
-  for (const p of lista) if (RUCHOME.some((w) => w.id === p.id) && !wynik.some((x) => x.id === p.id)) wynik.push(p);
-  RUCHOME.forEach((w, i) => {
-    if (wynik.some((x) => x.id === w.id)) return;
-    // Przed pierwszym widgetem, który w rejestrze jest po nim; jeśli takiego nie ma, na końcu.
-    const nastepny = wynik.findIndex((x) => RUCHOME.findIndex((r) => r.id === x.id) > i);
-    wynik.splice(nastepny === -1 ? wynik.length : nastepny, 0, { id: w.id, wl: w.nauka });
-  });
-  return wynik;
-}
-
-const rowne = (a: Pozycja[], b: Pozycja[]) => a.length === b.length && a.every((p, i) => p.id === b[i]!.id && p.wl === b[i]!.wl);
-
-/** Nazwa układu, który odpowiada liście; każda inna lista to „własny”. */
-export function nazwaUkladu(lista: Pozycja[]): Uklad {
-  if (rowne(lista, gotowy("nauka"))) return "nauka";
-  if (rowne(lista, gotowy("egzamin"))) return "egzamin";
-  return "wlasny";
-}
-
-function rozwin(z: Zapis[string]): Pozycja[] {
-  if (z === "egzamin") return gotowy("egzamin");
-  return z ? uzupelnij(z) : gotowy("nauka");
-}
+export const gotowy = (nazwa: GotowyUklad) => gotowyCzysty(RUCHOME, nazwa);
+export const nazwaUkladu = (lista: Pozycja[]): Uklad => nazwaCzysta(lista, RUCHOME);
+const rozwin = (z: Zapis[string]) => normalizuj(z, RUCHOME);
 
 /** Przyjmuje tylko znane klucze, widgety i kształty (dane z konta albo z dysku mogą być stare lub uszkodzone). */
 function poprawne(v: unknown): Zapis {
@@ -169,21 +142,13 @@ export const ustawGotowy = (klucz: string, nazwa: GotowyUklad) => ustaw(klucz, g
 /** „Przywróć domyślny”: układ „Nauka”. */
 export const przywrocUklad = (klucz: string) => ustawGotowy(klucz, "nauka");
 
-export function przelaczWidget(klucz: string, id: string) {
-  ustaw(klucz, biezacy(klucz).map((p) => (p.id === id ? { ...p, wl: !p.wl } : p)));
-}
+export const przelaczWidget = (klucz: string, id: string) => ustaw(klucz, przelacz(biezacy(klucz), id));
+
+/** Przesuwa widget o `delta` miejsc (−1 w górę, +1 w dół). */
+export const przesunWidgetO = (klucz: string, id: string, delta: number) => ustaw(klucz, przesun(biezacy(klucz), id, delta));
 
 /** Przesuwa widget na miejsce o danym indeksie na liście ruchomych widgetów (bez stałych). */
-export function przesunWidget(klucz: string, id: string, doIndeksu: number) {
-  const lista = biezacy(klucz);
-  const z = lista.findIndex((p) => p.id === id);
-  const na = Math.max(0, Math.min(lista.length - 1, doIndeksu));
-  if (z === -1 || z === na) return;
-  const nowa = [...lista];
-  const [p] = nowa.splice(z, 1);
-  nowa.splice(na, 0, p!);
-  ustaw(klucz, nowa);
-}
+export const przesunWidget = (klucz: string, id: string, doIndeksu: number) => ustaw(klucz, przesunDo(biezacy(klucz), id, doIndeksu));
 
 function wyslijOczekujace() {
   if (kolejka === undefined || !idKonta) return;

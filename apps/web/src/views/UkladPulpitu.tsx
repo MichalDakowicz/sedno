@@ -5,7 +5,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { GripVertical } from "lucide-react";
 import { useProfil } from "../auth";
 import { przedmiot, zgrupuj } from "../konto/przedmioty";
-import { WSZYSTKIE, nazwaUkladu, przelaczWidget, przesunWidget, przywrocUklad, ustawGotowy, useUklad, type Uklad } from "../konto/ukladPulpitu";
+import { WSZYSTKIE, nazwaUkladu, przelaczWidget, przesunWidget, przesunWidgetO, przywrocUklad, ustawGotowy, useUklad, type Uklad } from "../konto/ukladPulpitu";
 import { WIDGETY, widget } from "./pulpit/widgety";
 import s from "./UkladPulpitu.module.css";
 
@@ -57,7 +57,9 @@ export function UkladPulpitu() {
   function klawisz(e: KeyboardEvent, id: string, i: number) {
     if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
     e.preventDefault();
-    const na = przesun(id, i + (e.key === "ArrowUp" ? -1 : 1));
+    const delta = e.key === "ArrowUp" ? -1 : 1;
+    const na = Math.max(0, Math.min(biezaca.current.length - 1, i + delta));
+    przesunWidgetO(klucz, id, delta);
     zFokusem.current = id;
     ogloszPozycje(id, na);
   }
@@ -156,7 +158,7 @@ export function UkladPulpitu() {
                   <span className="muted small">zawsze na górze</span>
                 </span>
               </span>
-              <button type="button" role="switch" aria-checked="true" aria-label={w.nazwa} disabled className={`${s.przelacznik} ${s.przelacznikWl}`} />
+              <button type="button" role="switch" aria-checked="true" aria-label={w.nazwa} disabled className={`${s.przelacznik} ${s.przelacznikWl} ${s.przelacznikStaly}`} />
             </li>
           ))}
           {lista.map((p, i) => {
