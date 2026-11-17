@@ -335,6 +335,13 @@
   transition: background-color 0.15s ease;
 }
 
+/* Długi wzór w odpowiedzi przewija się w przycisku zamiast rozpychać stronę. */
+.choice > :last-child {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 .choice:hover:not(:disabled):not([data-stan="wybrana"]) {
   background: color-mix(in srgb, var(--surface) 70%, transparent);
 }
