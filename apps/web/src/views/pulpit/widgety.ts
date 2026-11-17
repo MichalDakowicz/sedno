@@ -1,10 +1,11 @@
 // Rejestr widgetów pulpitu. Nowy widget to jeden wpis tutaj (plus komponent): kolejność wpisów jest domyślną
 // kolejnością na pulpicie i w ustawieniach, a pola `nauka` i `egzamin` mówią, czy gotowy układ go włącza.
-// Widgetów, których aplikacja jeszcze nie ma („Powtórki”, „Wybierz temat”, „Do matury”), tu nie ma.
+// Widgetów, których aplikacja jeszcze nie ma („Powtórki”, „Wybierz temat”), tu nie ma.
 import type { ComponentType } from "react";
 import type { Podsumowanie, Propozycja } from "../../konto/wyniki";
 import type { PrzedmiotId } from "../../konto/przedmioty";
 import { Dzis } from "./Dzis";
+import { DoMatury } from "./DoMatury";
 import { MapaUmiejetnosci } from "./MapaUmiejetnosci";
 import { WynikiZArkuszy } from "./WynikiZArkuszy";
 
@@ -38,6 +39,7 @@ export type Widget = {
 export const WIDGETY: Widget[] = [
   { id: "dzis", nazwa: "Dziś warto", opis: "Rekomendacja na dziś", staly: true, nauka: true, egzamin: true, Komponent: Dzis },
   { id: "wyniki", nazwa: "Wyniki z arkuszy", opis: "Średnia i ostatnie arkusze", obok: true, nauka: true, egzamin: true, Komponent: WynikiZArkuszy },
+  { id: "matura", nazwa: "Do matury", opis: "Odliczanie do egzaminów", nauka: false, egzamin: true, Komponent: DoMatury },
   { id: "mapa", nazwa: "Mapa umiejętności", opis: "Najsłabsze umiejętności przedmiotu", nauka: true, egzamin: false, Komponent: MapaUmiejetnosci },
 ];
 

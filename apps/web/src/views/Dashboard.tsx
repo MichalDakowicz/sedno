@@ -7,6 +7,7 @@ import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import { saveSubjects, useProfil, useSession } from "../auth";
 import { useAiReady } from "../ai";
 import { dniDoMatury, nazwaPoziomu, opisPoziomow, przedmiot, zgrupuj, type MojPrzedmiot } from "../konto/przedmioty";
+import { dniDo, egzaminyUcznia } from "../konto/terminy";
 import { propozycja, useWynikiKonta, type Podsumowanie } from "../konto/wyniki";
 import { WSZYSTKIE, useUklad } from "../konto/ukladPulpitu";
 import { Plywak } from "../components/Plywak";
@@ -83,6 +84,7 @@ export function Dashboard() {
   const ai = useAiReady(session ? session.user.id : null) === true;
   const moje = profil?.subjects ?? [];
   const aktywny = zgrupuj(moje).find((m) => m.id === id);
+  const pierwszy = egzaminyUcznia(moje)[0];
   const dane = useWynikiKonta(moje);
   const { showHints, startTour } = useTutor();
   const klucz = aktywny?.id ?? WSZYSTKIE;
@@ -130,7 +132,7 @@ export function Dashboard() {
               <span className={styles.line} data-tutor="hero">
                 Cześć{imie ? `, ${imie}` : ""}.
               </span>
-              <span className={`accent ${styles.line}`}>Do matury ok. {dniDoMatury()} dni.</span>
+              <span className={`accent ${styles.line}`}>Do matury ok. {pierwszy ? dniDo(pierwszy.data) : dniDoMatury()} dni.</span>
             </>
           )}
         </h1>
@@ -202,7 +204,7 @@ export function Dashboard() {
         <ArrowRight size={18} aria-hidden="true" />
       </Link>
 
-      <Wejscia tytul="W przygotowaniu" slugi={["nauka", "do-matury", "powtorki", "mapa-wiedzy"]} />
+      <Wejscia tytul="W przygotowaniu" slugi={["nauka", "powtorki", "mapa-wiedzy"]} />
     </main>
   );
 }

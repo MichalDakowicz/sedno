@@ -43,6 +43,7 @@ export const opisPoziomow = (poziomy: Poziom[]) => poziomy.map((l) => nazwaPozio
 // dlatego w interfejsie zawsze „ok. N dni”.
 export const POCZATEK_MATURY = "2027-05-04";
 
+/** Zapas, gdy nie znamy przedmiotów ucznia. Z przedmiotami liczymy od pierwszego egzaminu: `konto/terminy.ts`. */
 export function dniDoMatury(): number {
   return Math.max(0, Math.ceil((new Date(POCZATEK_MATURY).getTime() - Date.now()) / 86_400_000));
 }

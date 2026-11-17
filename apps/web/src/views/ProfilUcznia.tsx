@@ -6,7 +6,6 @@ import { useProfil } from "../auth";
 import { CELE, CZAS, MAX_DLUGOSC, MAX_PRIORYTETOW, PYTANIA, dodajPriorytet, usunPriorytet, usunWniosek, ustawCel, ustawOdpowiedz, useUczenie, useWnioski, type Opcja } from "../konto/profilUcznia";
 import { PRZEDMIOTY, zgrupuj, type PrzedmiotId } from "../konto/przedmioty";
 import { useWynikiKonta } from "../konto/wyniki";
-import { adres } from "../szablony/lista";
 import s from "./ProfilUcznia.module.css";
 
 function Wybor({ pytanie, opcje, wybrana, onZmiana }: { pytanie: string; opcje: Opcja[]; wybrana?: string; onZmiana: (id: string) => void }) {
@@ -152,7 +151,7 @@ export function ProfilUcznia() {
             </div>
           ))
         )}
-        <Link to={adres("do-matury")} className={`btn btn-primary ${s.przycisk}`}>
+        <Link to="/do-matury" className={`btn btn-primary ${s.przycisk}`}>
           Zobacz plan do matury
         </Link>
       </section>
