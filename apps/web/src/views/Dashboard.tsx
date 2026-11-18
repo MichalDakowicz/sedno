@@ -15,6 +15,7 @@ import { Plywak } from "../components/Plywak";
 import { Ladowanie } from "../components/Ladowanie";
 import { Wejscia } from "../szablony/Wejscia";
 import { Dzis } from "./pulpit/Dzis";
+import { trwa, useDiagnoza } from "../nauka/diagnoza";
 import { widget, type KontekstPulpitu } from "./pulpit/widgety";
 import { Wynikowy, procent, tytul } from "./pulpit/wspolne";
 import styles from "./Dashboard.module.css";
@@ -94,6 +95,7 @@ export function Dashboard() {
   const { pestkaSama } = useUstawienia();
   const klucz = aktywny?.id ?? WSZYSTKIE;
   const uklad = useUklad(klucz);
+  const diagnoza = useDiagnoza();
 
   const zakres = dane ? (aktywny ? dane.podsumowania.filter((p) => p.przedmiot.id === aktywny.id) : dane.podsumowania) : [];
   const propozycje = dane ? zakres.map((p) => propozycja(p, dane.wiersze)) : [];
@@ -142,6 +144,12 @@ export function Dashboard() {
           )}
         </h1>
         <p className="muted">{egzaminy.length ? "Sesja majowa 2027. Terminy z komunikatu CKE, do weryfikacji." : "Sesja majowa 2027. Dokładne daty egzaminów poda harmonogram CKE."}</p>
+        {/* Diagnoza na start (nauka/diagnoza.ts): zaproszenie, póki nie skończona ani pominięta; po przerwie „Dokończ”. */}
+        {moje.some((m) => m.id === "angielski") && (!aktywny || aktywny.id === "angielski") && !diagnoza.koniec && !diagnoza.pominieta && (
+          <Link to="/nauka/diagnoza" className="link">
+            {trwa(diagnoza) ? "Dokończ diagnozę" : "Sprawdźmy, od czego zacząć"} <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        )}
         <Link to={aktywny ? `/uklad-pulpitu?przedmiot=${aktywny.id}` : "/uklad-pulpitu"} className={styles.ukladLink}>
           <LayoutList size={14} aria-hidden="true" />
           Układ pulpitu

@@ -222,10 +222,24 @@ export function Onboarding() {
             <section className={styles.step}>
               <TutorAvatar size={64} state="talking" />
               <h1 className="h1">Wszystko gotowe</h1>
-              <p className="lead">Twoje konto ma podpięte AI, więc odpowiadam naprawdę. Na pulpicie oprowadzę cię po aplikacji.</p>
-              <button type="button" className="btn btn-primary" onClick={() => void zakoncz("/")}>
-                Przejdź do pulpitu
-              </button>
+              <p className="lead">
+                Twoje konto ma podpięte AI, więc odpowiadam naprawdę.{" "}
+                {przedmioty.some((p) => p.id === "angielski") ? "Kilka krótkich rund pokaże mi, od czego zacząć." : "Na pulpicie oprowadzę cię po aplikacji."}
+              </p>
+              {przedmioty.some((p) => p.id === "angielski") ? (
+                <>
+                  <button type="button" className="btn btn-primary" onClick={() => void zakoncz("/nauka/diagnoza")}>
+                    Sprawdźmy, od czego zacząć
+                  </button>
+                  <button type="button" className={styles.later} onClick={() => void zakoncz("/")}>
+                    Przejdź do pulpitu
+                  </button>
+                </>
+              ) : (
+                <button type="button" className="btn btn-primary" onClick={() => void zakoncz("/")}>
+                  Przejdź do pulpitu
+                </button>
+              )}
             </section>
           ) : (
             <section className={styles.step}>

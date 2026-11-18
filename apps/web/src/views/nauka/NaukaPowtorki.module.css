@@ -281,3 +281,13 @@ a.wiersz:hover .wierszBoczny {
 .sposoby :global(.wiersz-ikona) {
   justify-self: start;
 }
+
+/* Kroki diagnozy: wspólny .wiersz; zrobiony krok ma zieloną ikonę „dobrze”. */
+.kroki {
+  --wiersz-wartosc: 10rem;
+}
+
+.kroki .ikona[data-zrobiony] {
+  background: color-mix(in srgb, var(--success) 16%, transparent);
+  color: var(--success-strong);
+}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, ChevronRight, CircleAlert, CircleMinus, Sparkles } from "lucide-react";
+import { trwa, useDiagnoza } from "../../nauka/diagnoza";
 import { Link, useParams } from "react-router-dom";
 import { nazwaPoziomu, nazwaZadaniaCke } from "../../arkusze/typy";
 import { useSession } from "../../auth";
@@ -118,6 +119,7 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
   const nazwa = umiejetnosc?.name;
   const dalej = result.nastepny_krok;
   const nastepna = mapa?.skills.find((m) => m.skill_id === dalej?.skill_id)?.name;
+  const diagnoza = useDiagnoza();
   // Rozbiór liczy opanowanie bez zaniku, a mapa z zanikiem: wyjaśnienie tylko wtedy, gdy liczby się różnią.
   const naMapie = umiejetnosc?.score ?? null;
   const inneNaMapie = naMapie != null && result.opanowanie_po != null && Math.round(naMapie * 100) !== Math.round(result.opanowanie_po * 100);
@@ -150,7 +152,12 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
         {inneNaMapie && <p className="small muted" data-tutor-about="Na mapie opanowanie powoli maleje, gdy długo nie ćwiczysz, a rozbiór pokazuje stan zaraz po rundzie.">Na mapie jest {opanowanie(naMapie)}.</p>}
         <div><Link to={adresMapy(level, skill_id)} className="link">Zobacz umiejętność na mapie</Link></div>
       </section>
-      {dalej && (
+      {/* W trakcie diagnozy następnym krokiem jest kolejny obszar, nie polecenie z mapy. */}
+      {trwa(diagnoza) ? (
+        <div className={s.akcje}>
+          <Link className="btn btn-primary" to="/nauka/diagnoza">Dalej w diagnozie <ArrowRight size={17} aria-hidden="true" /></Link>
+        </div>
+      ) : dalej && (
         <section className={s.nastepnyKrok} aria-labelledby="dalej-po-rundzie">
           <span className="kicker"><Sparkles size={14} strokeWidth={2.2} aria-hidden="true" /> Dalej</span>
           <h2 id="dalej-po-rundzie" className="h2">{nastepna ?? "Następne ćwiczenie"}</h2>

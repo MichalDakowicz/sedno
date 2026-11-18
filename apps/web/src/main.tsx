@@ -21,6 +21,7 @@ import { Arkusz } from "./views/Arkusz";
 import { Onboarding } from "./views/Onboarding";
 import { Spis, SzablonWidok } from "./szablony/Szablony";
 import { Nauka } from "./views/nauka/Nauka";
+import { Diagnoza } from "./views/nauka/Diagnoza";
 import { Powtorki } from "./views/nauka/Powtorki";
 import { Rozbior } from "./views/nauka/Rozbior";
 import { SzybkaRunda } from "./views/nauka/SzybkaRunda";
@@ -47,6 +48,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="nauka/runda/:id" element={<SzybkaRunda />} />
           <Route path="nauka/rozbior/:id" element={<Rozbior />} />
           <Route path="nauka/uczen-uczy" element={<UczenUczy />} />
+          <Route path="nauka/diagnoza" element={<Diagnoza />} />
           <Route path="arkusze" element={<Arkusze />} />
           <Route path="arkusze/:id" element={<Arkusz />} />
           <Route path="umiejetnosci" element={<Umiejetnosci />} />
