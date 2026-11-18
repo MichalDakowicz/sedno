@@ -6,16 +6,11 @@ import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/a
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { Angielski, BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
+import { etykietaZrodla, kluczPowtorki, szacowanyCzas, unikalnePowtorki } from "../pulpit/czasPowtorek";
 import s from "./Powtorki.module.css";
 
 type Powtorka = Awaited<ReturnType<typeof naukaApi.powtorki>>["queue"][number];
 const odOstatniego = new Intl.RelativeTimeFormat("pl-PL");
-
-function kluczPowtorki(p: Powtorka) {
-  const m = p.mistake;
-  if (!m) return p.skill_id;
-  return `${p.skill_id}:${m.source_id ?? m.sheet_id ?? m.session_id ?? ""}:${m.question ?? ""}`;
-}
 
 // Kolejka z serwera ma błędy jednej umiejętności obok siebie, od najnowszego. Grupa zachowuje tę kolejność.
 function grupujBledy(kolejka: Powtorka[]) {
@@ -39,13 +34,8 @@ export function Powtorki() {
   const [poziom, ustawPoziom] = usePoziomNauki();
   const powtorki = useZapytanieNauki(`nauka:powtorki:${poziom}`, (signal) => naukaApi.powtorki(poziom, signal));
   const dzis = powtorki.dane?.today;
-  const wykorzystane = new Set(dzis ? [kluczPowtorki(dzis)] : []);
-  const pozostale = (powtorki.dane?.queue ?? []).filter((p) => {
-    const klucz = kluczPowtorki(p);
-    if (wykorzystane.has(klucz)) return false;
-    wykorzystane.add(klucz);
-    return true;
-  });
+  const pozostale = unikalnePowtorki(powtorki.dane?.queue ?? []).filter((p) => !dzis || kluczPowtorki(p) !== kluczPowtorki(dzis));
+  const rundy = pozostale.length + (dzis ? 1 : 0);
   const zanikajace = pozostale.filter((p) => !p.mistake);
   const bledy = grupujBledy(pozostale.filter((p) => p.mistake));
 
@@ -74,6 +64,8 @@ export function Powtorki() {
           </div>
         </section>
       )}
+
+      {rundy > 0 && <p className="muted"><strong>Szacowany czas</strong> · {szacowanyCzas(rundy)}</p>}
 
       {dzis && (
         <article className={s.karta} aria-labelledby="powtorka-dzis">
@@ -189,12 +181,11 @@ function ZrodloPowtorki({ powtorka }: { powtorka: Powtorka }) {
   if (!blad) return null;
   if (blad.sheet_id) {
     const numer = blad.question?.match(/^\d+/)?.[0];
-    const rok = blad.sheet_id.match(/-(20\d{2})-/)?.[1];
-    const etykieta = [rok ? `Arkusz CKE ${rok}` : "Arkusz CKE", blad.question ? `zad. ${blad.question}` : null].filter(Boolean).join(" · ");
+    const etykieta = etykietaZrodla(blad);
     return <Link className="link" to={`/arkusze/${encodeURIComponent(blad.sheet_id)}${numer ? `#zadanie-${numer}` : ""}`}>{etykieta}</Link>;
   }
   if (blad.session_id) {
-    const etykieta = blad.question ? `Poprzednie ćwiczenie · zad. ${blad.question}` : "Wynik poprzedniego ćwiczenia";
+    const etykieta = etykietaZrodla(blad);
     return <Link className="link" to={adresRozbioru(blad.session_id)}>{etykieta}</Link>;
   }
   return null;
