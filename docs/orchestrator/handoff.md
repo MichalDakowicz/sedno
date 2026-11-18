@@ -8,14 +8,13 @@ _Updated 2026-11-18_
 
 **Decisions this run.** Backend and views from the teammate, orchestrator verifies and fixes. Student-facing skill names approved (migration 0009). Displayed mastery = Elo estimate × retention; breakdown before/after = estimate without decay. Skills without scored CKE evidence (pisanie) are left out of automatic recommendations and the weekly plan. „Usuń” for unfinished rounds without confirm (as in the student profile).
 
-**Not verified / left.** Listed in `NASTEPNE.md` section 0 („Pętla nauki angielskiego, faza 2”): micro-skills, weekly trend, low-confidence bar and names/codes toggle on the map; diagnosis prompt at „mało danych”; „Odłóż” in Powtórki; listening segment seek on iOS Safari; per-question fragment after answering inside „Treść zadania”; dashboard runs the map 3–4 times per load (not measured); an occasional „Failed to load resource: 400” on page load (not seen on the last clean load). The production frontend (Firebase Hosting `trafwsedno`) was redeployed by the orchestrator from `main` at the user's request on 2026-11-18 (`firebase deploy --only hosting`); production serves the new bundle (contains the #66–#71 views); signed-in views on production not yet smoke-tested.
+**Not verified / left.** Listed in `NASTEPNE.md` section 0 („Pętla nauki angielskiego, faza 2”): micro-skills, weekly trend, low-confidence bar and names/codes toggle on the map; diagnosis prompt at „mało danych”; „Odłóż” in Powtórki; listening segment seek on iOS Safari; per-question fragment after answering inside „Treść zadania”; dashboard runs the map 3–4 times per load (not measured); an occasional „Failed to load resource: 400” on page load (not seen on the last clean load). The production frontend (Firebase Hosting `trafwsedno`) was redeployed by the orchestrator from `main` at the user's request on 2026-11-18 (`firebase deploy --only hosting`); production serves the new bundle (contains the #66–#71 views); smoke-tested signed in (read-only, no rounds started): dashboard shows Powtórki, Kontynuuj and the map widget; /umiejetnosci, /nauka and /powtorki (with „Szacowany czas”) load; no console errors.
 
 **In flight.** Nothing. Test data on the staging account: a few unfinished rounds and many listening mistakes in Powtórki.
 
 **Claimed but unfinished.** None.
 
 **Next.**
-- Smoke-test signed-in views on production (/umiejetnosci, /nauka, a round, /powtorki, dashboard widgets).
 - User: agree with the teammate on the split of work for the next goal (two agent teams worked on the same goal twice this run).
 - Next orchestrator: draft goal 3 with the user (candidates in `NASTEPNE.md`: other subjects, „Do matury” forecast and weekly plan, other formats).
 
