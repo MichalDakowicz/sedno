@@ -25,13 +25,16 @@ npm run build
 
 ## Pestka (tutor AI)
 
-Pestka pojawia się tylko na kontach z podpiętym AI (`useAiReady` w `ai.ts`) i nie ma stałego miejsca w treści (`TutorGuide.tsx`, stan w `TutorContext.tsx`):
+Pestka jest na każdym koncie i nie ma stałego miejsca w treści (`TutorGuide.tsx`, stan w `TutorContext.tsx`). Przewodnik, reakcje i dymki z gotowych tekstów działają bez AI; to, co woła model (rozmowa, „Wyjaśnij z Pestką”, omawianie błędów), sprawdza `aiGotowe` i bez AI odsyła do profilu („Podepnij AI w profilu”).
 
 - **Spoczynek:** gdy nie ma nic do powiedzenia, siedzi w prawym dolnym rogu ekranu, w całości widoczna. Kropka oznacza czekającą wskazówkę; kliknięcie przewija do niej.
-- **Wskazówki:** strona wywołuje `showHints(klucz, wskazówki)`. Pestka skacze do elementu z `data-tutor="…"`, siada na jego rogu, podświetla go i pokazuje dymek. Zwykła wskazówka nie przewija strony: Pestka czeka na spoczynku, aż element wjedzie w ekran.
+- **Wskazówki:** strona wywołuje `showHints(klucz, wskazówki)`. Pestka skacze do elementu z `data-tutor="…"`, siada na jego rogu, podświetla go i pokazuje dymek. Zwykła wskazówka nie przewija strony: Pestka czeka na spoczynku, aż element wjedzie w ekran. Dymek staje po tej stronie, gdzie mieści się na ekranie i nie zasłania elementu, o którym mówi.
+- **Spoczynek:** na przyciskach, polach i paskach narzędzi Pestka nie siada (podnosi się nad nie); na telefonie strona ma zapas na końcu, żeby ostatnie przyciski dało się przewinąć nad nią.
+- **W rundzie nauki:** Pestka stoi w treści przy werdykcie i przy podsumowaniu rozbioru (`views/nauka/PestkaRundy.tsx`), z gotowymi tekstami z kilku list, więc nie zasłania opcji ani przycisków i nie zabiera fokusu.
+- **Kontekst:** strona zgłasza, na co patrzy uczeń (`useKontekstPestki`), a zadanie w arkuszu niesie go w `data-tutor-kontekst` (prawy przycisk). Otwarcie rozmowy przy innym zadaniu zaczyna nową rozmowę o nim; przed sprawdzeniem bez klucza odpowiedzi.
 - **Przewijanie i zmiany treści:** podąża za elementem. Gdy element wyjedzie z ekranu albo zniknie (przejście na inną stronę, przełączenie karty), wraca na spoczynek, a przy powrocie elementu skacze do niego z powrotem. Zmiany w treści strony wykrywa `MutationObserver`.
 - **Przewodnik:** przy pierwszym wejściu na pulpit (`tourHints`). Przyciemnia resztę ekranu wokół wskazanego elementu (`.spot`), a zwykła wskazówka tylko obwodzi element pierścieniem. Ostatni krok czeka na przywołanie. Ponownie tylko z `/profil` („Pokaż przewodnik z Pestką”), nie z dymka Pestki: tam zostają rzeczy na co dzień.
-- **Przywołanie:** prawy przycisk (na telefonie przytrzymanie) w dowolnym miejscu poza polami tekstowymi. Jeśli element pod kursorem ma `data-tutor-about="…"`, Pestka wyjaśnia go w dymku.
+- **Przywołanie:** prawy przycisk (na telefonie przytrzymanie) w dowolnym miejscu poza polami tekstowymi i płótnem tablicy (tam jest menu Excalidraw i panel „Pestka w brudnopisie”). Jeśli element pod kursorem ma `data-tutor-about="…"`, Pestka wyjaśnia go w dymku.
 - **Odprawienie:** krzyżyk w dymku albo Escape: dymek gaśnie, Pestka skacze na spoczynek. Kliknięcie w avatar otwiera rozmowę w panelu bocznym (`TutorDock.tsx`).
 
 ## Arkusze
@@ -53,8 +56,14 @@ Logowanie to Supabase Auth (`src/auth.ts`). Pestka odpowiada modelem z konta prz
 
 Tokeny w `packages/ui` (`tokens.css` dla web, `tokens.ts` dla mobile). Ikony: `lucide-react`. Zasady:
 
-- Hierarchia przez typografię (rozmiar, kolor), nagłówki w wadze 400 z ciasnym trackingiem.
-- Sekcje rozdzielają linie. Karta tylko tam, gdzie treść musi się wyróżnić (rekomendacja „Dziś warto”, okno rozmowy).
+- Hierarchia przez typografię (rozmiar, kolor), nagłówki w wadze 400 z ciasnym trackingiem. Sekcje stron to `.h2`, `.h3` tylko w środku sekcji.
+- **Skala tekstu:** tylko tokeny `--t-xs` 13, `--t-sm` 15, `--t-md` 17, `--t-lg` 20 px (rosną z ustawieniem „Rozmiar tekstu” przez `--skala-tekstu`), tekst ciągły 16 px, nagłówki z klas `.display`, `.h1`–`.h3`. Tekst do czytania (treść zadań, wyjaśnienia, opisy w wierszach) co najmniej `--t-sm`; `--t-xs` tylko etykiety wersalikami i metadane. Nie wpisujemy pikseli w `font-size`.
+- **Zaokrąglenia:** tylko `--r-xs` 6 (znaczniki, małe pola), `--r-sm` 12, `--r-md` 20, `--r-lg` 28 i `--r-pill`; koła `50%`. Dymek rozmowy: `--r-md` z jednym rogiem `--r-xs`, wszędzie tak samo.
+- **Nagłówek strony:** `components/NaglowekStrony.tsx` (link powrotu albo etykieta kontekstu, tytuł, lead, linia pod spodem). Strony nie składają własnych nagłówków.
+- Sekcje rozdzielają linie. Karta (`.karta` w `global.css`, w modułach przez `composes: karta from global`) tylko tam, gdzie treść musi się wyróżnić: rekomendacja „Dziś warto”, „Polecam”, „Na dziś”, „Dalej”, okno rozmowy, dialogi.
+- **Jeden główny przycisk na ekran** (`btn-primary`). Akcje poboczne w osobnym rzędzie pod nim jako `.link` ze strzałką; w wierszach list linki, nie powtórzone przyciski. Metadane bez stylu linku.
+- **Wybór:** pola wyboru to `.select` (wysokość i promień `.input`, własna strzałka), pigułki to `.pigulki` / `.pigulka` z jednym stanem zaznaczenia (`aria-pressed` albo `aria-current`). Poziom matury wszędzie jako pigułki pod nagłówkiem. Przełącznik `.przelacznik`: włączony pomarańczowy.
+- **Nazwy zadań:** „Matura maj 2026 · zadanie 1.3” (`nazwaZadaniaCke`) i „Szybka runda z 18 listopada · zadanie 5” (`nazwaZadaniaRundy`, oba w `arkusze/typy.ts`), tak samo na Nauce, w Powtórkach, na mapie i na pulpicie.
 - Jeden akcent: pomarańczowy `#ff7448`, drugi kolor jasnoniebieski `#d3e1ff` dla akcji pobocznych. Każdy przedmiot ma swój kolor ikony (`--tone-*`).
 - Pasek nawigacji ma tło z zanikaniem, żeby przewijana treść nie prześwitywała nad nim.
 - Ciemny motyw idzie za ustawieniem systemu (`prefers-color-scheme`), bez przełącznika. Kolory zmienia blok `@media` na końcu `tokens.css`, więc w CSS używamy tokenów, nie wpisanych na sztywno barw. Excalidraw, Monaco i Chart.js znają motyw przez `src/motyw.ts`. Obrazy z arkuszy zostają bez zmian (białe podłoże).
