@@ -5,6 +5,7 @@ import { supabase } from "./supabase";
 import { poprawne, type MojPrzedmiot } from "./konto/przedmioty";
 import { wyczyscRozmowy, wyslijOczekujace } from "./konto/rozmowy";
 import { wyczyscOstatnie } from "./components/szukaj";
+import { wyczyscArkusze } from "./arkusze/dane";
 import { splukajProfil } from "./konto/profilUcznia";
 import { splukajUstawienia } from "./konto/ustawienia";
 import { splukajUklad } from "./konto/ukladPulpitu";
@@ -34,6 +35,7 @@ supabase.auth.onAuthStateChange((event, session) => {
   if (event === "SIGNED_OUT") {
     wyczyscRozmowy();
     wyczyscOstatnie();
+    wyczyscArkusze();
   }
   current = session;
   ready = true;
