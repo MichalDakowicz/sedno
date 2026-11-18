@@ -1204,12 +1204,26 @@
   list-style: none;
 }
 
+/* Numer, czas z normą (bez łamania w środku) i komentarz; gdy brakuje miejsca, komentarz schodzi do osobnej linii. */
 .tempo li {
-  display: grid;
-  grid-template-columns: 110px 14em minmax(0, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
   gap: 4px 16px;
   padding: 10px 0;
   border-top: 1px solid var(--line);
+}
+
+.tempo li > :first-child {
+  flex: 0 0 7em;
+}
+
+.tempo li > :nth-child(2) {
+  white-space: nowrap;
+}
+
+.tempo li > :last-child {
+  flex: 1 1 14em;
 }
 
 .tempo li a {
@@ -1217,15 +1231,6 @@
   font-weight: 500;
 }
 
-@media (max-width: 640px) {
-  .tempo li {
-    grid-template-columns: auto 1fr;
-  }
-
-  .tempo li > :last-child {
-    grid-column: 1 / -1;
-  }
-}
 
 .przejscie {
   padding-inline: 6px;
