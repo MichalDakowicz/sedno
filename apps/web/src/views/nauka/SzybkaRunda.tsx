@@ -56,11 +56,9 @@ function NowaRunda({ user, poziom, umiejetnosc, format, powtorz }: Start & { use
     setBlad(null);
     // Zacznij od niedokończonej rundy z tą samą umiejętnością, formatem i poziomem zamiast zakładać kolejną.
     const otworz = async () => {
-      if (!powtorz) {
-        const otwarte = await naukaApi.ostatnie(poziom).catch(() => []);
-        const istniejaca = otwarte.find((o) => o.skill_id === umiejetnosc && o.format === format && o.level === poziom && (o.repeat_item ?? undefined) === powtorz);
-        if (istniejaca) return istniejaca.id;
-      }
+      const otwarte = await naukaApi.ostatnie(poziom).catch(() => []);
+      const istniejaca = otwarte.find((o) => o.skill_id === umiejetnosc && o.format === format && o.level === poziom && (o.repeat_item ?? undefined) === powtorz);
+      if (istniejaca) return istniejaca.id;
       return (await zacznij(user, id, { poziom, umiejetnosc, format, powtorz })).id;
     };
     void otworz().then(
