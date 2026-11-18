@@ -7,6 +7,9 @@ import { Dzis } from "./Dzis";
 import { DoMatury } from "./DoMatury";
 import { MapaUmiejetnosci } from "./MapaUmiejetnosci";
 import { WynikiZArkuszy } from "./WynikiZArkuszy";
+import { PowtorkiWidget } from "./PowtorkiWidget";
+import { Kontynuuj } from "./Kontynuuj";
+import { WybierzTemat } from "./WybierzTemat";
 
 /** Dane, które pulpit przekazuje widgetom. */
 export type KontekstPulpitu = {
@@ -27,6 +30,9 @@ export type Widget = WidgetDane & { Komponent: ComponentType<KontekstPulpitu> };
 const KOMPONENTY: Record<string, ComponentType<KontekstPulpitu>> = {
   dzis: Dzis,
   wyniki: WynikiZArkuszy,
+  powtorki: PowtorkiWidget,
+  kontynuuj: Kontynuuj,
+  temat: WybierzTemat,
   matura: DoMatury,
   mapa: MapaUmiejetnosci,
 };
