@@ -71,8 +71,42 @@ Innych wartości nie używamy. Cienie: `--shadow-float` (karta, panel pływając
 - **Separatory zamiast kart.** Sekcje i wiersze rozdziela linia `1px solid var(--line)` i odstęp. Karta (`.karta`) tylko tam, gdzie treść musi wyskoczyć: polecenie Pestki („Dziś warto”, „Polecam”, „Na dziś”, „Dalej”), okno rozmowy, okna dialogowe. Listy, ustawienia i statystyki nie stoją w kartach.
 - **Blok obok karty** (`.obok-karty`): pierwsza linia tekstu na wysokości wnętrza karty (`--wnetrze-karty` ustawia strona: padding karty obok) albo cały blok wyśrodkowany w pionie, gdy jest dużo niższy. Nigdy przyklejony do górnej krawędzi wyższego sąsiada. Poniżej 900 px kolumny idą jedna pod drugą.
 - **Wiersz listy** (`.wiersze` / `.wiersz`): nazwa z opisem | wartość | akcja. Kolumny wartości i akcji mają stałą szerokość, więc wartości w kolejnych wierszach stoją na jednej osi. Części: `.wiersz-ikona` (opcjonalna, 48 px), `.wiersz-tresc` z `.wiersz-nazwa` i `.wiersz-opis` (15 px), `.wiersz-wartosc` (tu `.wiersz-pasek`: pasek i procent), `.wiersz-akcja` (strzałka, link, przyciski). Szerokości ustawia lista: `--wiersz-wartosc` (domyślnie 12rem) i `--wiersz-akcja` (20 px; `auto`, gdy akcja to słowo jednakowe we wszystkich wierszach). Wiersz bez wartości albo bez akcji ma o kolumnę mniej. Na telefonie wartość schodzi pod nazwę.
-- Odstępy z jednej drabinki: 4, 8, 12, 16, 24, 32, 48 px. Między sekcjami strony 48 px, między wierszami listy min. 16 px.
 - Telefon 375 px: bez przewijania w poziomie, cele dotyku min. 44 px, elementy pływające niczego nie zasłaniają.
+
+## Odstępy
+
+Jedna drabinka, tokeny w `tokens.css`. Innych wartości w `gap`, `margin` i `padding` nie wpisujemy (wyjątek: 1–2 px na obwódki i korekty optyczne).
+
+| Token | Wartość | Do czego |
+| --- | --- | --- |
+| `--s-1` | 4 px | ikona i tekst w etykiecie, drobne korekty |
+| `--s-2` | 8 px | ikona i tekst w przycisku, elementy jednej kontrolki |
+| `--s-3` | 12 px | nazwa i opis, pola w jednej grupie |
+| `--s-4` | 16 px | wiersze listy, akapity, przycisk i link pod nim |
+| `--s-5` | 24 px | bloki wewnątrz sekcji, kolumny obok siebie |
+| `--s-6` | 32 px | wnętrze karty, nagłówek sekcji i jej treść na dużym ekranie |
+| `--s-7` | 48 px | między sekcjami strony |
+| `--s-8` | 64 px | nagłówek strony i pierwsza sekcja, koniec strony |
+
+- **Bliskość znaczy powiązanie.** Odstęp wewnątrz grupy jest zawsze mniejszy niż między grupami: tytuł bliżej swojej treści niż poprzedniej sekcji, opis bliżej nazwy niż następnego wiersza.
+- Ten sam rodzaj przerwy ma tę samą wartość na każdym ekranie (np. tytuł sekcji → treść zawsze `--s-4`, sekcja → sekcja zawsze `--s-7`).
+- Na telefonie drabinka schodzi o jeden stopień dla odstępów od `--s-6` w górę.
+- Stan na 19 listopada 2026: tokenów `--s-*` jeszcze nie ma, a w modułach są wartości spoza drabinki (6, 10, 14, 20, 28, 40 px). Do wprowadzenia razem z porządkiem jak przy skali tekstu.
+
+## Hierarchia
+
+Na każdym ekranie od razu widać, co jest najważniejsze, co jest drugie i co jest tłem. Najwyżej trzy poziomy naraz.
+
+1. **Poziom pierwszy: jedna rzecz.** Tytuł strony i jedno działanie (przycisk główny albo karta polecenia). Jedyne miejsce z pełnym akcentem.
+2. **Poziom drugi: treść.** Sekcje z nagłówkiem `.h2`, nazwy w wierszach, tekst zadań. Kolor `--fg`, bez akcentu.
+3. **Poziom trzeci: pomoc.** Opisy, metadane, etykiety, akcje poboczne. Kolor `--muted` albo `--subtle`, mniejszy stopień skali.
+
+- Ważność pokazujemy w tej kolejności: położenie (wyżej i z lewej), rozmiar, kolor, dopiero potem waga. Nie pogrubiamy, żeby coś „wybić”.
+- Akcent pomarańczowy zużywa się szybko: jeden przycisk główny, zaznaczenie, postęp. Trzy pomarańczowe rzeczy obok siebie to brak hierarchii.
+- Kolejność na ekranie = kolejność działania: najpierw to, co uczeń ma zrobić, potem to, co może zmienić (filtry, ustawienia), na końcu historia i szczegóły.
+- Elementy tej samej wagi wyglądają tak samo (ten sam styl przycisków w grupie, ten sam stopień tekstu w wierszach).
+- Liczba ważniejsza od podpisu: wynik, procent i czas dużym stopniem, jednostka i opis małym.
+- Jedna karta na ekran. Dwie karty obok siebie znoszą się nawzajem.
 
 ## Elementy wspólne
 
