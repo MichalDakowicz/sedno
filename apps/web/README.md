@@ -11,17 +11,30 @@ npm run build
 
 ## Widoki
 
+Menu ma trzy pozycje: Pulpit, Nauka, Arkusze. Mapa umiejętności i Powtórki to zakładki w Nauce (`views/nauka/ZakladkiNauki.tsx`) pod własnymi adresami.
+
 | Ścieżka | Widok |
 | --- | --- |
 | `/logowanie` | Logowanie: Google, e-mail, wejście na konto demo |
-| `/` | Pulpit ogólny: rekomendacja z najsłabszego przedmiotu, powtórki ze wszystkich, lista przedmiotów |
-| `/przedmiot/:id` | Pulpit zawężony do przedmiotu (`polski`, `matematyka`, `angielski`) z mapą umiejętności |
+| `/witaj` | Onboarding: Pestka, przedmioty, kilka pytań o naukę, na końcu diagnoza albo pulpit |
+| `/` | Pulpit ogólny: propozycja dnia (`nauka/dzis.ts`, karta `components/KartaDnia.tsx`), widgety z układu pulpitu, lista przedmiotów |
+| `/przedmiot/:id` | Pulpit zawężony do przedmiotu: propozycja dnia, arkusze przedmiotu, widgety |
+| `/uklad-pulpitu` | Wybór i kolejność widgetów pulpitu, osobno dla każdego przedmiotu |
+| `/nauka` | Nauka (angielski): propozycja dnia, Wolny temat, sposoby nauki z polecanym, inne przedmioty, „Chcę coś innego” (poziom i umiejętność), niedokończone rundy |
+| `/nauka/runda`, `/nauka/runda/:id` | Szybka runda albo „Napraw błąd”: start z parametrów (`?poziom&umiejetnosc&format&powtorz`) i trwająca runda |
+| `/nauka/rozbior/:id` | Rozbiór zakończonej rundy: zmiana opanowania, zadania, następny krok |
+| `/nauka/uczen-uczy` | Uczeń uczy AI: wyjaśnienie zasady Koledze, ocena sędziego |
+| `/nauka/diagnoza` | Diagnoza na start: po jednej rundzie z każdego obszaru, potem pierwsze wyniki i propozycja dnia (`nauka/diagnoza.ts`, stan w przeglądarce) |
+| `/umiejetnosci` | Mapa umiejętności (zakładka Nauki): opanowanie umiejętności, panel z próbami (`?umiejetnosc=`) |
+| `/powtorki` | Powtórki (zakładka Nauki): propozycja dnia, błędy do przećwiczenia, umiejętności do odświeżenia |
+| `/arkusze` | Lista arkuszy CKE: angielski według poziomu, matematyka (podstawowy), informatyka (rozszerzony); `?przedmiot&poziom` |
+| `/arkusze/:id` | Rozwiązywanie arkusza i sprawdzanie z kluczem CKE, omawianie błędów z Pestką |
 | `/tutor` | Pełny widok rozmowy z Pestką |
-| `/profil` | Przedmioty, ponowne uruchomienie przewodnika, wylogowanie |
-| `/arkusze` | Lista arkuszy CKE: angielski według poziomu, matematyka (poziom podstawowy) |
-| `/arkusze/:id` | Rozwiązywanie arkusza i sprawdzanie z kluczem CKE |
-| `/nauka`, `/umiejetnosci`, `/powtorki` | Szablony (puste prototypy) z `src/szablony/` |
-| `/szablony`, `/szablony/:slug` | Spis pustych prototypów ze schematem ścieżki nauki; opis w `src/szablony/README.md` |
+| `/do-matury` | Odliczanie do egzaminów i cele z profilu ucznia |
+| `/profil` | Przedmioty, AI na koncie, wejścia do ustawień, profilu ucznia i układu pulpitu |
+| `/profil-ucznia` | Jak się uczysz, czas i cel, priorytety, wnioski z wyników |
+| `/ustawienia` | Motyw, rozmiar tekstu, dostępność, zachowanie Pestki |
+| `/szablony`, `/szablony/:slug` | Prototypy z `src/szablony/` (tylko w trybie deweloperskim na pulpicie); opis w `src/szablony/README.md` |
 
 ## Pestka (tutor AI)
 
@@ -43,7 +56,7 @@ Dane arkuszy nie są w repo ani w buildzie. `npm run pobierz`, `npm run importuj
 
 - `src/arkusze/typy.ts`: format danych z importu.
 - `src/arkusze/sprawdz.ts`: sprawdzanie bez AI. Zamknięte z klucza; otwarte zgodne z listą CKE są zaliczone, z listy niepoprawnych niezaliczone, reszta idzie do samooceny.
-- `src/arkusze/postep.ts`: odpowiedzi, wynik i szkice z brudnopisu (`brudnopisy`, elementy sceny Excalidraw per zadanie) w `localStorage` (`sedno.arkusz.<id>`), dopóki nie ma backendu.
+- `src/arkusze/postep.ts`: odpowiedzi, wynik i szkice z brudnopisu (`brudnopisy`, elementy sceny Excalidraw per zadanie). Kopia w `localStorage` (`sedno.arkusz.<id>`), źródłem prawdy jest tabela `sheet_progress`. Niewysłana zmiana ma znacznik w `sedno.arkusze.niewyslane` (z kontem): wygrywa ze starszą kopią z konta i idzie na konto przy pobraniu, po błędzie (co 30 s), po powrocie sieci i przy `pagehide`. Wylogowanie i zmiana konta czyszczą pamięć i lokalne kopie (`sedno.arkusze.wlasciciel`).
 - Matematyka: treść to tekst ze wzorami LaTeX w `\( … \)` i bloki `wzor`, `rysunek`, `tabelaTresci`. `components/TekstMat.tsx` renderuje je przez KaTeX (`Wzory.tsx`, osobny leniwy chunk z CSS i fontami w paczce). Zadania, których treść różni się od arkusza standardowego, są kadrem (blok `kadr`); kadry i rysunki przychodzą w JSON-ie arkusza jako data URL (`adresObrazu` w `typy.ts`). Zadania wielopunktowe uczeń ocenia sam (0–N pkt) z linkiem do strony schematu w zasadach CKE.
 - `src/components/Brudnopis.tsx`: brudnopis przy zadaniu z matematyki. Excalidraw (`BrudnopisEdytor.tsx`) ładuje się leniwie po otwarciu. Wbudowane UI Excalidraw jest ukryte; własny pasek obok płótna (na telefonie nad nim) ma okrojony zestaw narzędzi, 4 kolory, 3 grubości i zakreślacz, cofnij/ponów (skrót klawiszowy wysyłany do edytora, bo 0.18 nie ma na to API), zoom i „pokaż całość”. Start: ołówek ze średnią kreską (cienka do rysowania po wykresach), przybliżenie najwyżej 75% (odręczna kreska Excalidraw ma ok. 4× „grubości”, przy 100% wygląda jak marker), figura w prawym górnym rogu i zajmuje do 60% widoku (90% na wąskim ekranie; „pokaż całość” centruje), domyślny rozmiar tekstu dobrany do ok. 16 px na ekranie. Panel na szerokim ekranie wychodzi poza kolumnę tekstu (do 1100 px). Rysunek bazowy z arkusza jest zablokowanym obrazem o id `rysunek-bazowy`, dokładanym przy każdym otwarciu, więc w postępie zostają same elementy (bez pliku obrazu). Fonty Excalidraw serwuje Vite pod `/excalidraw/fonts` (z `node_modules`, przy buildzie kopia bez fontów CJK), żeby nie pobierać ich z CDN.
 - Widok arkusza (`src/views/Arkusz.tsx`): linki do PDF arkusza i zasad oceniania na stronie CKE, sprawdzanie pojedynczego zadania z możliwością poprawy, luki na brakujące zdania rozwijane pod luką, suwak liter przy dopasowaniach.
@@ -54,16 +67,9 @@ Logowanie to Supabase Auth (`src/auth.ts`). Pestka odpowiada modelem z konta prz
 
 ## Styl
 
-Tokeny w `packages/ui` (`tokens.css` dla web, `tokens.ts` dla mobile). Ikony: `lucide-react`. Zasady:
+Zasady wyglądu dla wszystkich ekranów (kolory, skala tekstu, odstępy, zaokrąglenia, układ, wspólne elementy, tekst w interfejsie, Pestka, lista kontrolna) są w [`DESIGN.md`](../../DESIGN.md) w katalogu głównym. Tu tylko to, co dotyczy kodu:
 
-- Hierarchia przez typografię (rozmiar, kolor), nagłówki w wadze 400 z ciasnym trackingiem. Sekcje stron to `.h2`, `.h3` tylko w środku sekcji.
-- **Skala tekstu:** tylko tokeny `--t-xs` 13, `--t-sm` 15, `--t-md` 17, `--t-lg` 20 px (rosną z ustawieniem „Rozmiar tekstu” przez `--skala-tekstu`), tekst ciągły 16 px, nagłówki z klas `.display`, `.h1`–`.h3`. Tekst do czytania (treść zadań, wyjaśnienia, opisy w wierszach) co najmniej `--t-sm`; `--t-xs` tylko etykiety wersalikami i metadane. Nie wpisujemy pikseli w `font-size`.
-- **Zaokrąglenia:** tylko `--r-xs` 6 (znaczniki, małe pola), `--r-sm` 12, `--r-md` 20, `--r-lg` 28 i `--r-pill`; koła `50%`. Dymek rozmowy: `--r-md` z jednym rogiem `--r-xs`, wszędzie tak samo.
-- **Nagłówek strony:** `components/NaglowekStrony.tsx` (link powrotu albo etykieta kontekstu, tytuł, lead, linia pod spodem). Strony nie składają własnych nagłówków.
-- Sekcje rozdzielają linie. Karta (`.karta` w `global.css`, w modułach przez `composes: karta from global`) tylko tam, gdzie treść musi się wyróżnić: rekomendacja „Dziś warto”, „Polecam”, „Na dziś”, „Dalej”, okno rozmowy, dialogi.
-- **Jeden główny przycisk na ekran** (`btn-primary`). Akcje poboczne w osobnym rzędzie pod nim jako `.link` ze strzałką; w wierszach list linki, nie powtórzone przyciski. Metadane bez stylu linku.
-- **Wybór:** pola wyboru to `.select` (wysokość i promień `.input`, własna strzałka), pigułki to `.pigulki` / `.pigulka` z jednym stanem zaznaczenia (`aria-pressed` albo `aria-current`). Poziom matury wszędzie jako pigułki pod nagłówkiem. Przełącznik `.przelacznik`: włączony pomarańczowy.
-- **Nazwy zadań:** „Matura maj 2026 · zadanie 1.3” (`nazwaZadaniaCke`) i „Szybka runda z 18 listopada · zadanie 5” (`nazwaZadaniaRundy`, oba w `arkusze/typy.ts`), tak samo na Nauce, w Powtórkach, na mapie i na pulpicie.
-- Jeden akcent: pomarańczowy `#ff7448`, drugi kolor jasnoniebieski `#d3e1ff` dla akcji pobocznych. Każdy przedmiot ma swój kolor ikony (`--tone-*`).
+- Tokeny w `packages/ui` (`tokens.css` dla web, `tokens.ts` dla mobile), wspólne klasy w `src/styles/global.css`; w modułach CSS przez `composes: karta from global` albo `:global(...)`. Ikony: `lucide-react`.
+- Nazwy zadań z `nazwaZadaniaCke` i `nazwaZadaniaRundy` (`arkusze/typy.ts`).
+- Ciemny motyw: blok `@media` na końcu `tokens.css` i `:root[data-motyw]`; Excalidraw, Monaco i Chart.js znają motyw przez `src/motyw.ts`. Obrazy z arkuszy zostają bez zmian (białe podłoże).
 - Pasek nawigacji ma tło z zanikaniem, żeby przewijana treść nie prześwitywała nad nim.
-- Ciemny motyw idzie za ustawieniem systemu (`prefers-color-scheme`), bez przełącznika. Kolory zmienia blok `@media` na końcu `tokens.css`, więc w CSS używamy tokenów, nie wpisanych na sztywno barw. Excalidraw, Monaco i Chart.js znają motyw przez `src/motyw.ts`. Obrazy z arkuszy zostają bez zmian (białe podłoże).
