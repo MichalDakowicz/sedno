@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { FileText, MessagesSquare, Sparkles, Timer } from "lucide-react";
+import { Ladowanie } from "../../components/Ladowanie";
 import { useTutor } from "../../components/TutorContext";
 import { SubjectIcon } from "../../components/icons";
 import { nazwaPoziomu, przedmiot } from "../../konto/przedmioty";
@@ -20,6 +21,8 @@ export function Dzis({ co, aktywny, ai }: KontekstPulpitu) {
     const umiejetnosc = katalog.skills.find((u) => u.id === propozycja?.skill_id);
     return propozycja && umiejetnosc ? { ...propozycja, nazwa: umiejetnosc.name } : null;
   });
+
+  if (nauka.stan === "ladowanie") return <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie" />;
 
   if (nauka.dane) {
     const { skill_id, format, repeat_id, minutes, reason, nazwa } = nauka.dane;
