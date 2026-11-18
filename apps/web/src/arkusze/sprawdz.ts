@@ -44,12 +44,13 @@ export function werdykt(p: Pytanie, odpowiedz: string | undefined): Werdykt {
   if (!o) return "pusto";
   if (p.typ === "zamkniete") return o === p.poprawna ? "dobrze" : "zle";
   if (p.typ === "wypowiedz") return "do-oceny";
-  // Tabela (informatyka): każdy wiersz odpowiedzi musi być którymś wierszem rozwiązania z klucza.
-  // Klucz bywa rozbity na linie inaczej niż tabela, więc przy braku zgodności decyduje uczeń.
+  // Tabela (informatyka): tyle różnych wierszy, ile ma rozwiązanie z klucza, każdy z klucza, bez powtórzeń
+  // i bez dodatkowych. Klucz bywa rozbity na linie inaczej niż tabela, więc przy braku zgodności decyduje uczeń.
   if (p.tabela && p.rozwiazanie) {
     const klucz = new Set(p.rozwiazanie.split("\n").map(normalizujWynik).filter(Boolean));
     const wiersze = o.split("\n").map(normalizujWynik).filter(Boolean);
-    return wiersze.length && wiersze.every((w) => klucz.has(w)) ? "dobrze" : "do-oceny";
+    const trafione = new Set(wiersze.filter((w) => klucz.has(w)));
+    return trafione.size === klucz.size && wiersze.length === trafione.size ? "dobrze" : "do-oceny";
   }
   // Odpowiedź z kilku luk (informatyka): klucz CKE ma ją pogrubioną w rozwiązaniu, a lista oczekiwanych
   // bywa rozsypanym zapisem z PDF. Każda luka musi się zgadzać, w kolejności.
