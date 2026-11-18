@@ -94,8 +94,9 @@ function CkeOdczyt({ prompt, pole, poOcenie, ponow }: { prompt: Cke; pole?: Pole
   const fragment = poOcenie ? prompt.fragment ?? pytanie.fragment : undefined;
   // Przed sprawdzeniem gra cały fragment zadania (od najwcześniejszego do najpóźniejszego pytania),
   // bo fragment samego pytania wskazywałby odpowiedź.
+  // Zakres zadania liczymy tylko, gdy fragment ma każde pytanie. Inaczej mógłby ominąć szukane pytanie.
   const czasyZadania = zadanie.pytania.flatMap((p) => p.fragment ? [p.fragment] : []);
-  const fragmentZadania = czasyZadania.length
+  const fragmentZadania = czasyZadania.length && czasyZadania.length === zadanie.pytania.length
     ? { od: Math.min(...czasyZadania.map((f) => f.od)), do: Math.max(...czasyZadania.map((f) => f.do)), tekst: "" }
     : undefined;
   const pf = prompt.litery.join("") === "TF" || prompt.litery.join("") === "PF";
