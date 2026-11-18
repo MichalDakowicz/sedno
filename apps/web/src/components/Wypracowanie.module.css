@@ -209,7 +209,7 @@
   min-width: 120px;
   max-width: 260px;
   height: 8px;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: var(--bg);
   overflow: hidden;
 }
@@ -226,7 +226,7 @@
   top: 0;
   bottom: 0;
   left: 0;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: var(--primary);
   transition: width 0.2s ease;
 }

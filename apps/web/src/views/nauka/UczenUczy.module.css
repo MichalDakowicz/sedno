@@ -123,14 +123,14 @@
 .kolega {
   justify-self: start;
   background: var(--bg);
-  border-radius: 16px 16px 16px 4px;
+  border-radius: var(--r-md) var(--r-md) var(--r-md) var(--r-xs);
 }
 
 .uczen {
   justify-self: end;
   background: var(--secondary);
   color: var(--secondary-fg);
-  border-radius: 16px 16px 4px 16px;
+  border-radius: var(--r-md) var(--r-md) var(--r-xs) var(--r-md);
 }
 
 .kompozytor {

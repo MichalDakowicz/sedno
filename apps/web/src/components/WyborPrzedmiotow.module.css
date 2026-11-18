@@ -46,7 +46,7 @@
   display: grid;
   place-items: center;
   border: 1.5px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--r-xs);
   flex: none;
   color: var(--primary-fg);
 }

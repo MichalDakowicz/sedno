@@ -20,7 +20,7 @@
   top: 0;
   right: 4px;
   width: 6px;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: color-mix(in srgb, var(--fg) 28%, transparent);
   cursor: grab;
   touch-action: none;

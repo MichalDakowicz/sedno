@@ -33,7 +33,7 @@ html::-webkit-scrollbar {
 
 *::-webkit-scrollbar-thumb {
   border: 3px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: color-mix(in srgb, var(--fg) 25%, transparent) padding-box;
 }
 
@@ -247,7 +247,7 @@ textarea {
   content: "";
   position: absolute;
   inset: -6px;
-  border-radius: 28px;
+  border-radius: var(--r-lg);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent);
   pointer-events: none;
   animation: tutor-ring 1.6s ease-out infinite;

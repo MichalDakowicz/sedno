@@ -171,7 +171,7 @@ pre.blad {
 .opcja {
   padding: 3px 10px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: transparent;
   color: var(--fg);
   font: inherit;

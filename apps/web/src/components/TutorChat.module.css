@@ -32,7 +32,7 @@
   align-self: flex-end;
   max-width: 80%;
   padding: 12px 18px;
-  border-radius: 22px 22px 6px 22px;
+  border-radius: var(--r-md) var(--r-md) var(--r-xs) var(--r-md);
   background: var(--secondary);
   color: var(--secondary-fg);
   line-height: 1.45;
