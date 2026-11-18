@@ -4,7 +4,7 @@ import { ArrowRight, ChevronRight, LayoutGrid, LayoutList, Plus } from "lucide-r
 import { isTourDone, useTutor, type Hint } from "../components/TutorContext";
 import { SubjectIcon } from "../components/icons";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
-import { saveSubjects, useProfil, useSession } from "../auth";
+import { saveSubjects, useProfil, useSession, imieZNazwy } from "../auth";
 import { useAiReady } from "../ai";
 import { dniDoMatury, nazwaPoziomu, opisPoziomow, przedmiot, zgrupuj, type MojPrzedmiot } from "../konto/przedmioty";
 import { dniDo, egzaminyUcznia, najblizszy, odmianaDni } from "../konto/terminy";
@@ -117,7 +117,7 @@ export function Dashboard() {
   const reszta = wlaczone.slice(obok ? 1 : 0);
   const kontekst: KontekstPulpitu = { zakres, co, aktywny: aktywny?.id, ai, maPrzedmioty: moje.length > 0, obok: false };
 
-  const imie = profil?.display_name?.split(" ")[0];
+  const imie = imieZNazwy(profil?.display_name);
   const p = aktywny ? przedmiot(aktywny.id)! : null;
 
   return (

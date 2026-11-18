@@ -11,7 +11,7 @@ import { PodlaczAI } from "../components/PodlaczAI";
 import { Markdown } from "../components/Markdown";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import { SubjectIcon } from "../components/icons";
-import { markOnboarded, saveSubjects, useProfil, useSession } from "../auth";
+import { markOnboarded, saveSubjects, useProfil, useSession, imieZNazwy } from "../auth";
 import { streamAi, useAiReady } from "../ai";
 import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
 import { CzasICel, PytaniaOSposobie } from "./ProfilUcznia";
@@ -111,7 +111,7 @@ export function Onboarding() {
   if (session === false) return <Navigate to="/logowanie" replace />;
   if (!session || profil === undefined || ai === undefined) return null;
 
-  const imie = profil?.display_name?.split(" ")[0];
+  const imie = imieZNazwy(profil?.display_name);
   const przedmioty = wybor ?? profil?.subjects ?? [];
 
   async function zakoncz(dokad: string) {

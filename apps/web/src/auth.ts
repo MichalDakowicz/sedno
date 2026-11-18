@@ -140,3 +140,13 @@ export async function saveSubjects(subjects: MojPrzedmiot[]): Promise<boolean> {
   profilListeners.forEach((l) => l());
   return true;
 }
+
+// Słowa, od których zaczynają się nazwy kont niebędące imieniem (konto testowe, demo, szkolne).
+const NIE_IMIONA = new Set(["konto", "test", "testowe", "demo", "uczeń", "uczen", "user", "admin", "jury", "gość", "gosc", "klasa", "szkoła", "szkola"]);
+
+/** Imię do powitania („Cześć, Ola.”) albo null, gdy nazwa konta nie wygląda na imię („Konto testowe”, adres, cyfry). */
+export function imieZNazwy(nazwa: string | null | undefined): string | null {
+  const pierwsze = nazwa?.trim().split(/\s+/)[0];
+  if (!pierwsze || /[\d@_.]/.test(pierwsze) || NIE_IMIONA.has(pierwsze.toLocaleLowerCase("pl"))) return null;
+  return pierwsze;
+}
