@@ -58,7 +58,7 @@ function NowaRunda({ user, poziom, umiejetnosc, format, powtorz }: Start & { use
     const otworz = async () => {
       if (!powtorz) {
         const otwarte = await naukaApi.ostatnie(poziom).catch(() => []);
-        const istniejaca = otwarte.find((o) => o.skill_id === umiejetnosc && o.format === format && o.level === poziom);
+        const istniejaca = otwarte.find((o) => o.skill_id === umiejetnosc && o.format === format && o.level === poziom && (o.repeat_item ?? undefined) === powtorz);
         if (istniejaca) return istniejaca.id;
       }
       return (await zacznij(user, id, { poziom, umiejetnosc, format, powtorz })).id;
@@ -222,10 +222,10 @@ function OcenaRundy({ odpowiedz, id, skonczona, dalej }: {
   );
 }
 
+// Werdykt ogłasza nagłówek z fokusem, więc tu zostaje reszta oceny.
 function opisOceny(o: OdpowiedzNauki): string {
-  const wynik = o.correct ? "Dobra odpowiedź." : o.answer.trim() ? "Tym razem nie." : "Pominięte zadanie.";
-  const poprawna = o.correct ? "" : ` Poprawna odpowiedź: ${o.solutions.map((a) => nazwaOdpowiedzi(a, o.prompt)).join(" / ")}.`;
-  return `${wynik}${poprawna} ${o.explanation}`;
+  const poprawna = o.correct ? "" : `Poprawna odpowiedź: ${o.solutions.map((a) => nazwaOdpowiedzi(a, o.prompt)).join(" / ")}. `;
+  return `${poprawna}${o.explanation}`;
 }
 
 function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string; ponow: () => void }) {
