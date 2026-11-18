@@ -342,9 +342,15 @@ export function TutorGuide() {
       if (isOpen || t.closest("input, textarea, select, [contenteditable='true']")) return;
       if (String(window.getSelection() ?? "").trim()) return;
       if (t.closest(`.${styles.guide}`)) return;
+      // Tablica (Excalidraw) ma własne menu i własny panel Pestki: dwa menu naraz tylko by przeszkadzały.
+      if (t.closest(".excalidraw")) return;
       e.preventDefault();
       const about = t.closest<HTMLElement>("[data-tutor-about]")?.dataset.tutorAbout ?? null;
-      summonAt({ x: e.pageX, y: e.pageY, about });
+      const zadanie = t.closest<HTMLElement>("[data-tutor-kontekst]");
+      const kontekst = zadanie?.dataset.tutorKontekst
+        ? { klucz: zadanie.dataset.tutorKlucz ?? zadanie.dataset.tutorKontekst, tytul: zadanie.dataset.tutorTytul ?? "to zadanie", opis: zadanie.dataset.tutorKontekst }
+        : null;
+      summonAt({ x: e.pageX, y: e.pageY, about, kontekst });
     };
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     document.addEventListener("contextmenu", onContext);
@@ -413,10 +419,10 @@ export function TutorGuide() {
 
             {summon ? (
               <>
-                <p className={styles.text}>{summon.about ?? "Jestem. W czym ci pomóc?"}</p>
+                <p className={styles.text}>{summon.about ?? (summon.kontekst ? `Widzę: ${summon.kontekst.tytul}. Zapytasz mnie o nie?` : "Jestem. W czym ci pomóc?")}</p>
                 <div className={styles.actions}>
-                  <button type="button" className="btn btn-primary btn-sm" onClick={open}>
-                    Porozmawiajmy
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => open(summon.kontekst)}>
+                    {summon.kontekst ? "Zapytaj o to zadanie" : "Porozmawiajmy"}
                   </button>
                   {hasToday && (
                     <button

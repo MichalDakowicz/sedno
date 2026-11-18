@@ -82,7 +82,7 @@ export function Dzis({ co, aktywny, ai }: KontekstPulpitu) {
     naglowek = `${p.nazwa}: arkusze w drodze`;
     powod = `W Sedno nie ma jeszcze arkuszy z tego przedmiotu na poziomie ${poziom}. Dodajemy je po kolei.`;
     akcja = ai ? (
-      <button type="button" className="btn btn-primary" data-tutor="today-cta" onClick={openTutor}>
+      <button type="button" className="btn btn-primary" data-tutor="today-cta" onClick={() => openTutor()}>
         <MessagesSquare size={18} aria-hidden="true" />
         Porozmawiaj z Pestką
       </button>

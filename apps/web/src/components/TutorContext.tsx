@@ -25,7 +25,13 @@ export type Hint = {
 
 export type Guide = { key: string; kind: "tour" | "hint"; hints: Hint[]; index: number };
 
-export type Summon = { x: number; y: number; about: string | null };
+/**
+ * To, na co uczeń patrzy (zadanie w rundzie albo w arkuszu). klucz: to samo zadanie przed i po sprawdzeniu;
+ * opis: tekst dla modelu (przed sprawdzeniem bez klucza odpowiedzi).
+ */
+export type KontekstPestki = { klucz: string; tytul: string; opis: string };
+
+export type Summon = { x: number; y: number; about: string | null; kontekst?: KontekstPestki | null };
 
 type TutorValue = {
   messages: Message[];
@@ -35,7 +41,12 @@ type TutorValue = {
   otworzRozmowe: (id: string) => void;
   state: AvatarState;
   isOpen: boolean;
-  open: () => void;
+  /** Z kontekstem (albo z kontekstem strony) innym niż w bieżącej rozmowie zaczyna nową rozmowę o tym zadaniu. */
+  open: (kontekst?: KontekstPestki | null) => void;
+  /** Strona mówi, na co uczeń teraz patrzy; null, gdy na nic konkretnego. */
+  ustawKontekst: (kontekst: KontekstPestki | null) => void;
+  /** Tytuł zadania, o którym jest bieżąca rozmowa. */
+  tematRozmowy: string | null;
   close: () => void;
   send: (text: string) => void;
   /** Pytanie z wyszukiwania: zaczyna nową rozmowę i od razu w niej pyta. Nic nie robi, gdy AI nie jest gotowe albo Pestka odpowiada. */
@@ -106,8 +117,12 @@ export const tourHints: Hint[] = [
   },
   {
     target: "hero",
-    text: "Każdy dymek zamkniesz krzyżykiem. A gdy będę potrzebny, kliknij prawym przyciskiem w dowolnym miejscu (na telefonie przytrzymaj palec). Spróbuj teraz.",
+    text: "Każdy dymek zamkniesz krzyżykiem. A gdy będę potrzebna, kliknij prawym przyciskiem w dowolnym miejscu (na telefonie przytrzymaj palec). Spróbuj teraz.",
     waitFor: "summon",
+  },
+  {
+    target: "today-cta",
+    text: "Właśnie tak. To tyle. Zacznij od tego przycisku.",
   },
 ];
 
@@ -116,7 +131,7 @@ const shownHints = new Set<string>();
 // Bez listy przedmiotów: strona Pestki pokazuje je obok, a model i tak dostaje je w kontekście rozmowy.
 const greeting = "Cześć, jestem Pestka. Wklej zadanie albo napisz, z czym masz kłopot, a przejdziemy przez to razem.";
 
-// Bez AI na koncie Pestki nie ma w aplikacji; gdyby rozmowa jednak ruszyła, mówi wprost, czego brakuje.
+// Bez AI Pestka jest na ekranie (przewodnik, gotowe dymki), ale rozmawiać nie może: mówi wprost, czego brakuje.
 const noAi = "Żeby odpowiadać, potrzebuję AI podpiętego do konta. Zrobisz to w profilu, w sekcji „AI na koncie”.";
 
 /** przedmioty: opis przedmiotów konta do kontekstu rozmowy, np. „polski (podstawowy), angielski (rozszerzony)”. */
@@ -143,6 +158,10 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   stanRef.current = state;
   const biezacaRef = useRef(biezacaRozmowa);
   biezacaRef.current = biezacaRozmowa;
+  // Kontekst strony nie przerysowuje niczego, więc trzymamy go w ref. Rozmowa pamięta, o którym zadaniu jest.
+  const kontekstStrony = useRef<KontekstPestki | null>(null);
+  const kontekstRozmowy = useRef<KontekstPestki | null>(null);
+  const [tematRozmowy, setTematRozmowy] = useState<string | null>(null);
 
   // Rozmowy z konta (z innego urządzenia) dochodzą po zalogowaniu: lista się odświeża, a otwarta rozmowa
   // bierze wersję z zapisu, żeby kolejna wiadomość nie nadpisała cudzych. W trakcie odpowiedzi nic nie podmieniamy.
@@ -159,6 +178,24 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     };
     window.addEventListener(ZMIANA_ROZMOW, odswiez);
     return () => window.removeEventListener(ZMIANA_ROZMOW, odswiez);
+  }, []);
+
+  const ustawKontekst = useCallback((k: KontekstPestki | null) => {
+    kontekstStrony.current = k;
+    // To samo zadanie po sprawdzeniu: rozmowa dostaje pełny opis (z kluczem), ale się nie zmienia.
+    if (k && kontekstRozmowy.current?.klucz === k.klucz) kontekstRozmowy.current = k;
+  }, []);
+
+  const zacznijRozmowe = useCallback((k: KontekstPestki | null, powitanie = greeting) => {
+    const id = noweId();
+    kontekstRozmowy.current = k;
+    setTematRozmowy(k?.tytul ?? null);
+    setBiezacaRozmowa(id);
+    ustawBiezaca(id);
+    const wiadomosci: Message[] = [{ id: nextId.current++, from: "tutor", text: powitanie }];
+    history.current = wiadomosci;
+    setMessages(wiadomosci);
+    return wiadomosci;
   }, []);
 
   // Odpowiedź modelu z konta: dopisujemy ją do jednej wiadomości w miarę, jak przychodzi.
@@ -182,7 +219,10 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
         {
           tier: "lekkie",
           task: "pestka-czat",
-          messages: rozmowa({ przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura", krotko, czat: true, profil: opisProfilu(), listaPelna: listaPelna() }, historia),
+          messages: rozmowa(
+            { przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura", krotko, czat: true, profil: opisProfilu(), listaPelna: listaPelna(), zadanie: kontekstRozmowy.current?.opis },
+            historia,
+          ),
         },
         (delta) => {
           text += delta;
@@ -239,19 +279,13 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     (text: string) => {
       const clean = text.trim();
       if (!clean || !ai || stanRef.current !== "idle") return;
-      const id = noweId();
-      setBiezacaRozmowa(id);
-      ustawBiezaca(id);
-      const wiadomosci: Message[] = [
-        { id: nextId.current++, from: "tutor", text: greeting },
-        { id: nextId.current++, from: "student", text: clean },
-      ];
+      const wiadomosci: Message[] = [...zacznijRozmowe(null), { id: nextId.current++, from: "student", text: clean }];
       history.current = wiadomosci;
       setMessages(wiadomosci);
       setState("thinking");
       void askModel(wiadomosci);
     },
-    [ai, askModel],
+    [ai, askModel, zacznijRozmowe],
   );
 
   // „Na wezwanie”: wskazówki, o które uczeń nie prosił (pulpit, zegar), nie wyskakują same.
@@ -287,10 +321,15 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     setGuide(null);
   }, [guide]);
 
-  // Przywołanie zastępuje bieżącą wskazówkę. Ostatni krok przewodnika właśnie o nie prosi, więc wtedy go kończy.
+  // Przywołanie zastępuje bieżącą wskazówkę. Krok przewodnika, który o nie prosi, przechodzi wtedy do puenty.
   const summonAt = useCallback(
     (s: Summon) => {
-      if (guide?.kind === "tour" && guide.hints[guide.index]?.waitFor === "summon") markTourDone(true);
+      if (guide?.kind === "tour" && guide.hints[guide.index]?.waitFor === "summon") {
+        markTourDone(true);
+        setSummon(null);
+        setGuide({ ...guide, index: guide.index + 1 });
+        return;
+      }
       setGuide(null);
       setSummon(s);
     },
@@ -306,26 +345,30 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
 
   const nowaRozmowa = useCallback(() => {
     if (stanRef.current !== "idle") return;
-    const id = noweId();
-    setBiezacaRozmowa(id);
-    ustawBiezaca(id);
-    setMessages([{ id: nextId.current++, from: "tutor", text: greeting }]);
-  }, []);
+    zacznijRozmowe(null);
+  }, [zacznijRozmowe]);
 
   const otworzRozmowe = useCallback((id: string) => {
     if (stanRef.current !== "idle") return;
     const r = wczytajRozmowy().find((x) => x.id === id);
     if (!r) return;
+    kontekstRozmowy.current = null;
+    setTematRozmowy(null);
     setBiezacaRozmowa(id);
     ustawBiezaca(id);
     setMessages(r.wiadomosci.map((m) => ({ id: nextId.current++, from: m.from, text: m.text })));
   }, []);
 
-  const open = useCallback(() => {
+  // Otwarcie przy zadaniu zaczyna rozmowę o nim, zamiast pokazywać poprzednią, niezwiązaną.
+  const open = useCallback((kontekst?: KontekstPestki | null) => {
+    const k = kontekst ?? kontekstStrony.current;
+    if (k && k.klucz !== kontekstRozmowy.current?.klucz && stanRef.current === "idle") {
+      zacznijRozmowe(k, `Patrzę razem z tobą: ${k.tytul}. O co chcesz zapytać?`);
+    } else if (k && k.klucz === kontekstRozmowy.current?.klucz) kontekstRozmowy.current = k;
     setGuide(null);
     setSummon(null);
     setOpen(true);
-  }, []);
+  }, [zacznijRozmowe]);
 
   const value = useMemo<TutorValue>(
     () => ({
@@ -337,6 +380,8 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       state,
       isOpen,
       open,
+      ustawKontekst,
+      tematRozmowy,
       close: () => setOpen(false),
       send,
       zapytajWNowej,
@@ -354,7 +399,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       dismiss,
       summonAt,
     }),
-    [messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, send, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
+    [messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, send, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
   );
 
   return <TutorContext.Provider value={value}>{children}</TutorContext.Provider>;
@@ -364,4 +409,17 @@ export function useTutor(): TutorValue {
   const ctx = useContext(TutorContext);
   if (!ctx) throw new Error("useTutor poza TutorProvider");
   return ctx;
+}
+
+/** Strona zgłasza, na co uczeń patrzy; po odejściu ze strony kontekst znika. */
+export function useKontekstPestki(kontekst: KontekstPestki | null) {
+  const { ustawKontekst } = useContext(TutorContext) ?? {};
+  const klucz = kontekst ? `${kontekst.klucz}\n${kontekst.opis}` : null;
+  useEffect(() => {
+    if (!ustawKontekst) return;
+    ustawKontekst(kontekst);
+    return () => ustawKontekst(null);
+    // Kontekst porównujemy po treści, nie po tożsamości obiektu.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ustawKontekst, klucz]);
 }

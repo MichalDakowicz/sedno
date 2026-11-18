@@ -9,6 +9,7 @@ import {
   nazwaPoziomu,
   adresObrazu,
   nazwaPrzedmiotu,
+  nazwaZadaniaCke,
   type Arkusz as ArkuszDane,
   type Blok,
   type Kroj,
@@ -35,7 +36,7 @@ import { OmowienieBledow, type Wejscie } from "../components/OmowienieBledow";
 import { FragmentNagrania } from "../components/FragmentNagrania";
 import { rozklejPestke } from "../components/rozklejPestke";
 import { useTutor } from "../components/TutorContext";
-import { doOmowienia } from "../arkusze/omowienie";
+import { doOmowienia, kontekstZadania } from "../arkusze/omowienie";
 import { useSession } from "../auth";
 import { useAiReady } from "../ai";
 import { uplynelo, zapisCzasu, zatrzymaj } from "../components/Zegar";
@@ -1040,12 +1041,17 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
   // Na pełnym ekranie brudnopisu całe zadanie; na stronie arkusza tylko bloki tej strony.
   const wszystkieBloki = (pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki).filter((b) => !ukryteKodem.has(b));
   const bloki = wszystkieBloki.filter((b) => strona === undefined || (b.strona ?? zadanie.strona) === strona);
+  // Prawy przycisk na zadaniu: Pestka dostaje jego treść i odpowiedzi ucznia (klucz dopiero po sprawdzeniu).
+  const kontekst = useMemo(() => kontekstZadania(zadanie, postep, gotowe), [zadanie, postep, gotowe]);
 
   return (
     <section
       className={styles.task}
       id={pierwsza ? `zadanie-${zadanie.nr}` : undefined}
       data-tutor={pierwsza ? `zadanie-${zadanie.nr}` : undefined}
+      data-tutor-kontekst={kontekst}
+      data-tutor-klucz={`arkusz:${arkusz.id}:${zadanie.nr}`}
+      data-tutor-tytul={nazwaZadaniaCke(arkusz.id, String(zadanie.nr))}
     >
       {!pierwsza && <p className={`small muted ${styles.ciagDalszy}`}>Zadanie {zadanie.nr}. · ciąg dalszy</p>}
       {pierwsza && (

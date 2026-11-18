@@ -140,3 +140,14 @@ export async function zrobPrzyklad(a: Arkusz, d: DoOmowienia, p: Postep): Promis
   }
   return null;
 }
+
+// Linie z kluczem i oceną z opisu pytania (opisPytania): przed sprawdzeniem nie mogą trafić do modelu.
+const KLUCZ = /^(Poprawna odpowiedź|Poprawne odpowiedzi|Też akceptowane|Zasady oceniania|Ocena:)/;
+
+/** Zadanie jako kontekst rozmowy z Pestką. Przed sprawdzeniem bez klucza, żeby nie zdradziła odpowiedzi. */
+export function kontekstZadania(z: Zadanie, p: Pick<Postep, "odpowiedzi" | "samoocena">, sprawdzone: boolean): string {
+  const tekst = tekstZadania(z, { sprawdzony: sprawdzone, sprawdzoneZadania: [], ...p });
+  if (sprawdzone) return tekst;
+  const bez = tekst.split("\n").filter((l) => !KLUCZ.test(l)).join("\n");
+  return `${bez}\n\nUczeń jeszcze nie sprawdził tego zadania. Nie podawaj poprawnej odpowiedzi ani nie mów, czy jego odpowiedź jest dobra: naprowadzaj pytaniami.`;
+}

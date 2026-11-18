@@ -7,7 +7,7 @@ import styles from "./TutorDock.module.css";
 
 // Wysuwany panel rozmowy z Pestką. Otwiera się kliknięciem w wędrującego avatara albo z jego dymka.
 export function TutorDock() {
-  const { isOpen, close, state } = useTutor();
+  const { isOpen, close, state, tematRozmowy } = useTutor();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -26,7 +26,7 @@ export function TutorDock() {
               <TutorAvatar size={40} state={state} />
               <div className={styles.headerText}>
                 <p className={styles.title}>Pestka</p>
-                <p className={styles.context}>tutor</p>
+                <p className={styles.context}>{tematRozmowy ?? "tutor"}</p>
               </div>
               <Link to="/tutor" className={styles.iconBtn} onClick={close} aria-label="Otwórz na pełnym ekranie">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
