@@ -161,7 +161,11 @@
 }
 
 .usun {
-  padding: 0;
+  min-width: 44px;
+  min-height: 44px;
+  margin-inline-start: 8px;
+  padding: 0 8px;
+  text-decoration: underline;
   border: 0;
   background: none;
   font: inherit;

@@ -43,7 +43,7 @@ export function Nauka() {
   const umiejetnosc = wybrana ?? umiejetnosci.find((u) => u.skill_id === polecenie.dane?.skill_id);
   const powtorz = polecenie.dane?.repeat_id ?? undefined;
   const format = powtorz ? "szybka-runda" : formatRundy(polecenie.dane?.format);
-  const sesje = (ostatnie.dane?.sesje ?? []).filter((sesja) => sesja.format === "szybka-runda" || sesja.format === "napraw-blad");
+  const sesje = ostatnie.dane?.sesje ?? [];
   const kilkaPoziomow = new Set(sesje.map((sesja) => sesja.level)).size > 1;
   const polecenieGotowe = mapa.stan !== "ladowanie" && polecenie.stan !== "ladowanie";
 
