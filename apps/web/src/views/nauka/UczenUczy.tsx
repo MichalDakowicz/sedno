@@ -176,7 +176,7 @@ function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void 
             </form>
           )}
         </section>
-        <aside className={styles.sedzia} aria-labelledby="uczen-sedzia">
+        <aside className={`obok-karty ${styles.sedzia}`} aria-labelledby="uczen-sedzia">
           <h3 className="h3" id="uczen-sedzia">Sędzia sprawdza</h3>
           <ul className={styles.kryteria} aria-live="polite">
             {scenariusz.kryteria.map((id) => {

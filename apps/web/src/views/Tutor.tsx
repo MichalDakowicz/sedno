@@ -30,7 +30,7 @@ export function Tutor() {
 
   return (
     <main className={`container ${styles.page}`}>
-      <section className={styles.intro}>
+      <section className={`obok-karty ${styles.intro}`}>
         <TutorAvatar size={96} state={state} className={styles.avatar} />
         <h1 className="h1">Pestka</h1>
         <p className="muted">Twoja tutorka. Prowadzi cię pytaniami do zrozumienia, zamiast podawać gotowe odpowiedzi. Wklej zadanie albo opisz, co sprawia ci kłopot.</p>

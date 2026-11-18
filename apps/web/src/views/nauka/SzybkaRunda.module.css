@@ -2,8 +2,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 30px;
-  max-width: 820px;
-  padding-top: 30px;
+  padding-top: 32px;
   padding-bottom: 112px;
   overflow-wrap: anywhere;
 }

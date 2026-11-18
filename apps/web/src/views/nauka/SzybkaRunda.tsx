@@ -75,7 +75,7 @@ function NowaRunda({ user, poziom, umiejetnosc, format, powtorz }: Start & { use
   }, [format, klucz, liczbaProb, nawiguj, poziom, powtorz, umiejetnosc, user]);
 
   return (
-    <main className={`container ${s.strona}`}>
+    <main className={`container czytanie ${s.strona}`}>
       <NaglowekRundy tytul={nazwaFormatuNauki[format]} adres={adresNauki(poziom, umiejetnosc)} />
       {blad ? (
         <section className={s.sekcja}>
@@ -357,7 +357,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
   const pozycja = ocena?.position ?? pytanie?.position;
 
   return (
-    <main className={`container ${s.strona}`}>
+    <main className={`container czytanie ${s.strona}`}>
       <NaglowekRundy tytul={nazwaFormatuNauki[sesja.format]} adres={adresNauki(sesja.level, sesja.skill_id)}>
         <p className="small muted">Język angielski · {nazwaPoziomu[sesja.level]}</p>
       </NaglowekRundy>
@@ -397,7 +397,7 @@ function OdczytanaRunda({ id, user }: { id: string; user: string }) {
   const [stan, ponow] = useSesjaRundy(id);
   if (stan.status === "gotowa") return <OtwartaRunda start={stan.sesja} user={user} ponow={ponow} />;
   return (
-    <main className={`container ${s.strona}`}>
+    <main className={`container czytanie ${s.strona}`}>
       <NaglowekRundy tytul="Runda nauki" />
       {stan.status === "laduje" ? <Ladowanie ksztalt="tekst" etykieta="Wczytywanie rundy" /> : (
         <div className={s.komunikat}>
@@ -423,7 +423,7 @@ export function SzybkaRunda() {
   if (id) return <OdczytanaRunda key={`${user}:${id}`} user={user} id={id} />;
   if (umiejetnosc) return <NowaRunda user={user} poziom={poziom} umiejetnosc={umiejetnosc} format={format} powtorz={powtorz} />;
   return (
-    <main className={`container ${s.strona}`}>
+    <main className={`container czytanie ${s.strona}`}>
       <NaglowekRundy tytul="Szybka runda" />
       <p><Link to={adresNauki(poziom)} className="btn btn-primary">Wybierz umiejętność</Link></p>
     </main>

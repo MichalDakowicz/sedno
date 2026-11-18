@@ -3,8 +3,10 @@
   grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
   gap: 64px;
   align-items: start;
-  padding-top: 16px;
+  padding-top: 32px;
   padding-bottom: 32px;
+  /* Wstęp (.obok-karty) zaczyna się na wysokości pierwszej wiadomości w karcie rozmowy. */
+  --wnetrze-karty: 24px;
 }
 
 .intro {

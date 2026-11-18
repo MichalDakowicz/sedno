@@ -1,7 +1,7 @@
 .strona {
   display: grid;
   gap: 28px;
-  padding-top: 16px;
+  padding-top: 32px;
   padding-bottom: 110px;
 }
 
@@ -13,8 +13,7 @@
   justify-items: start;
 }
 
-.sekcja,
-.sedzia {
+.sekcja {
   padding-top: 20px;
   border-top: 1px solid var(--line);
 }
@@ -78,6 +77,8 @@
   grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
   align-items: start;
   gap: 32px;
+  /* „Sędzia sprawdza” (.obok-karty) zaczyna się na wysokości pierwszej wiadomości w karcie rozmowy. */
+  --wnetrze-karty: 20px;
 }
 
 .rozmowa {
@@ -174,7 +175,7 @@
   gap: 8px;
 }
 
-@media (max-width: 765px) {
+@media (max-width: 900px) {
   .uklad {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
