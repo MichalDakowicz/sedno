@@ -63,7 +63,7 @@ Arkusz nie ma formy DOCX, więc treść składamy z PDF razem z krojami pisma (`
 
 ## Znane ograniczenia
 
-- Wszystkie 39 arkuszy importują się bez ostrzeżeń, a suma punktów zgadza się z arkuszem. Wyjątek znany ręcznie: w dwujęzycznym 2018 klucz pytania 3.4 skleja kilka krótkich odpowiedzi z sąsiednich komórek; uczeń ocenia je sam.
+- Wszystkie 47 arkuszy w bazie (39 z angielskiego, 4 z matematyki, 4 z informatyki; stan z 19 listopada 2026) mają import bez ostrzeżeń. Zgodność sumy punktów z arkuszem sprawdziliśmy dla angielskiego; dla matematyki i informatyki do weryfikacji. Wyjątek znany ręcznie: w dwujęzycznym 2018 klucz pytania 3.4 skleja kilka krótkich odpowiedzi z sąsiednich komórek; uczeń ocenia je sam.
 - Tabele kluczy mają różne układy: etykieta pytania na środku komórki (granice liczone w `granice()`) albo u góry; nagłówek „Inne akceptowane odpowiedzi:” w środku komórki; odpowiedzi w punktach; odpowiedzi pełnymi zdaniami łamanymi w kolumnie. Nowy rocznik warto sprawdzić skanem jakości (długie wpisy, polski tekst w odpowiedziach).
 - Import części katalogu do testów: `node src/importuj.js 2015` (prefiks formuła-rok-poziom albo przedmiot-formuła-rok-poziom, np. `matematyka-2023`).
 

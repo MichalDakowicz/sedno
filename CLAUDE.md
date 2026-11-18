@@ -34,7 +34,7 @@ Myślenie o aplikacji (pomysły, decyzje, kierunek, funkcje, UX) dzieje się w r
 
 - Przed zmianą przeczytaj otoczenie i dopasuj się do istniejącego stylu, nazw i poziomu komentarzy. Komentarze tylko tam, gdzie „dlaczego” nie jest oczywiste.
 - Monorepo na workspace'ach npm: `apps/web` (React + TypeScript + Vite), `packages/ui` (wspólne tokeny wizualne dla web i mobile), `apps/mobile` (miejsce na Expo, osobny projekt), `services/` (backend).
-- Komendy z katalogu głównego: `npm install`, `npm run dev` (http://localhost:5173), `npm run typecheck`, `npm run build`. Testów i lintu jeszcze nie ma.
+- Komendy z katalogu głównego: `npm install`, `npm run dev` (http://localhost:5173), `npm run typecheck`, `npm run build`. Lintu nie ma. Testy: jeden plik Deno, `services/supabase/tests/ocenianie_test.ts` (uruchamiany ręcznie przez `deno test`); w `package.json` nie ma skryptu `test`.
 - Aplikacja ma własny styl (jasne kremowe tło, pomarańczowy akcent). Dokumenty w `docs/` używają tych samych kolorów. Zasady w `apps/web/README.md`.
 - **Separatory zamiast kart.** Grupy treści oddzielaj linią (`border-top: 1px solid var(--line)`) i odstępem, nie ramką, tłem ani cieniem. Karta tylko tam, gdzie treść musi wyskoczyć ponad resztę: rekomendacja „Dziś warto”, okno rozmowy, okna dialogowe. Nie pakuj w karty list, ustawień, statystyk ani pojedynczych pozycji. Zanim dodasz kartę, sprawdź, czy bez niej treść naprawdę zginie; jeśli nie, daj linię. Dotyczy aplikacji i dokumentów w `docs/`.
 - Weryfikuj zmianę uruchomieniem lub testem, zanim uznasz ją za gotową. Jeśli czegoś nie dało się sprawdzić, powiedz o tym wprost.
