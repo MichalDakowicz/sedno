@@ -275,7 +275,7 @@ export function OmowienieBledow({
           <TutorAvatar size={40} state={stanPestki} className={styles.avatar} />
         </span>
         <span className="label">
-          {etykieta ?? `${d.wypracowanie ? "Wypracowanie" : "Błąd"} ${numer} z ${wszystkich} · zadanie ${nr}.`}
+          {etykieta ?? `${d.wypracowanie ? "Wypracowanie" : d.pusty ? "Bez odpowiedzi" : "Błąd"} · ${numer} z ${wszystkich} · zadanie ${nr}.`}
         </span>
         <button type="button" className={styles.zamknij} onClick={onZamknij} aria-label="Zakończ omawianie">
           <X size={18} />
@@ -365,7 +365,7 @@ export function OmowienieBledow({
           </button>
         )}
         <button type="button" className="btn btn-primary btn-sm" onClick={() => odejdz(ostatni ? onZamknij : onDalej)} disabled={odchodzi}>
-          {ostatni ? "Zakończ" : "Następny błąd"} <ArrowRight size={16} aria-hidden="true" />
+          {ostatni ? "Zakończ" : "Następne zadanie"} <ArrowRight size={16} aria-hidden="true" />
         </button>
       </div>
     </section>

@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, Chevr
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
 import { czegoZadanie, OPIS_FORMY, opisOceny, opisWypelnienia, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
-import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
+import { liczOdpowiedzi, policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
   adresObrazu,
@@ -36,7 +36,7 @@ import { OmowienieBledow, type Wejscie } from "../components/OmowienieBledow";
 import { FragmentNagrania } from "../components/FragmentNagrania";
 import { rozklejPestke } from "../components/rozklejPestke";
 import { useTutor } from "../components/TutorContext";
-import { doOmowienia, kontekstZadania } from "../arkusze/omowienie";
+import { doOmowienia, policzBledy, kontekstZadania } from "../arkusze/omowienie";
 import { useSession } from "../auth";
 import { useAiReady } from "../ai";
 import { uplynelo, zapisCzasu, zatrzymaj } from "../components/Zegar";
@@ -78,6 +78,9 @@ const useCtx = () => useContext(Ctx)!;
 // Panel z materiałami do zadania (informatyka): dla którego zadania jest otwarty i jak go otworzyć.
 const MaterialyCtx = createContext<{ nr: number | null; otworz: (nr: number, przycisk: HTMLElement) => void }>({ nr: null, otworz: () => {} });
 const nrZadania = (nrPytania: string) => Number(nrPytania.split(".")[0]);
+// Forma liczebnika: [1, 2–4, 5 i więcej], np. ["pytanie", "pytania", "pytań"].
+const odmiana = (n: number, [jeden, kilka, wiele]: [string, string, string]) =>
+  n === 1 ? jeden : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? kilka : wiele;
 
 export function Arkusz() {
   const { id = "" } = useParams();
@@ -256,14 +259,16 @@ export function Arkusz() {
     }, 150);
   };
   // Po sprawdzeniu arkusza Pestka przylatuje do wyniku i pyta, czy poprawiamy błędy.
-  const zaproponujOmowienie = (ile: number) => {
+  const zaproponujOmowienie = ({ bledne, bezOdpowiedzi }: { bledne: number; bezOdpowiedzi: number }) => {
     window.clearTimeout(lot.current);
     lot.current = window.setTimeout(
       () =>
         showHints(`omow-${Date.now()}`, [
           {
             target: "wynik",
-            text: `Przejrzałam arkusz: ${ile === 1 ? "błąd jest w jednym zadaniu" : `błędy są w ${ile} zadaniach`}. Poprawimy?`,
+            text: bledne
+              ? `Przejrzałam arkusz: ${bledne} ${odmiana(bledne, ["błędna odpowiedź", "błędne odpowiedzi", "błędnych odpowiedzi"])}${bezOdpowiedzi ? `, a ${bezOdpowiedzi} ${odmiana(bezOdpowiedzi, ["pytanie", "pytania", "pytań"])} bez odpowiedzi` : ""}. Poprawimy?`
+              : `Przejrzałam arkusz: ${bezOdpowiedzi} ${odmiana(bezOdpowiedzi, ["pytanie zostało", "pytania zostały", "pytań zostało"])} bez odpowiedzi. Przejdziemy je razem?`,
             trzymaj: true,
             actions: [
               { label: "Tak, poprawmy", primary: true, onClick: lecDoBledu },
@@ -465,8 +470,8 @@ export function Arkusz() {
     }));
     if (strony) idzNaStrone(strony[0], false);
     window.scrollTo({ top: 0, behavior: "smooth" });
-    const ile = doOmowienia(dane, postep).length;
-    if (ai && ile) zaproponujOmowienie(ile);
+    const bledy = policzBledy(dane, postep);
+    if (ai && doOmowienia(dane, postep).length) zaproponujOmowienie(bledy);
   };
   const odNowa = () => {
     zmien(() => pustyPostep);
@@ -488,7 +493,7 @@ export function Arkusz() {
   const listaOmowien = postep.sprawdzony ? doOmowienia(dane, postep) : [];
   const omawiane = omawiany !== null ? listaOmowien[omawiany] : undefined;
 
-  const odpowiedziane = [...kontekst.pytania.keys()].filter((nr) => postep.odpowiedzi[nr]?.trim()).length;
+  const odpowiedziane = liczOdpowiedzi(postep.odpowiedzi, kontekst.pytania.keys());
 
   const zadanieMaterialow = materialy ? dane.zadania.find((z) => z.nr === materialy.nr) : undefined;
   // Panel obok treści odsuwa arkusz od swojej krawędzi; na wąskim ekranie przykrywa go w całości.
@@ -538,7 +543,7 @@ export function Arkusz() {
             limitMin={dane.czas}
             arkusz={dane}
             postep={postep}
-            omow={{ ile: doOmowienia(dane, postep).length, ai, start: lecDoBledu }}
+            omow={{ ile: listaOmowien.length, wypracowanie: listaOmowien.some((d) => d.wypracowanie), ...policzBledy(dane, postep), ai, start: lecDoBledu }}
           />
         )}
 
@@ -615,6 +620,7 @@ export function Arkusz() {
           onZapis={(z) => kontekst.ustawWarsztat(zadanieMaterialow.nr, z)}
           doWstawienia={zadanieMaterialow.pytania.filter((p) => p.typ === "otwarte" && !p.kod && !sprawdzone(p.nr)).map((p) => p.nr)}
           onWstaw={kontekst.ustaw}
+          kluczWidoczny={sprawdzone(`${zadanieMaterialow.nr}.`)}
           uklad={uklad}
           otwarty={materialy.otwarty}
           onSchowaj={() => setMaterialy((m) => m && { ...m, otwarty: false })}
@@ -805,7 +811,7 @@ function Podsumowanie({
   limitMin?: number;
   arkusz: ArkuszDane;
   postep: Postep;
-  omow: { ile: number; ai: boolean; start: () => void };
+  omow: { ile: number; wypracowanie: boolean; bledne: number; bezOdpowiedzi: number; pytan: number; ai: boolean; start: () => void };
 }) {
   const procent = wynik.mozliwe ? Math.round((wynik.zdobyte / wynik.mozliwe) * 100) : 0;
   return (
@@ -817,7 +823,10 @@ function Podsumowanie({
       <p className="muted">
         {wynik.doOceny > 0
           ? `${wynik.doOceny} ${wynik.doOceny === 1 ? "odpowiedź otwarta czeka" : "odpowiedzi otwarte czekają"} na twoją ocenę. Porównaj z kluczem albo schematem oceniania przy pytaniu.`
+          : omow.bezOdpowiedzi
+          ? "Wpisane odpowiedzi są ocenione."
           : "Wszystkie odpowiedzi ocenione."}
+        {omow.bezOdpowiedzi > 0 && ` Bez odpowiedzi: ${omow.bezOdpowiedzi} z ${omow.pytan} ${odmiana(omow.pytan, ["pytania", "pytań", "pytań"])}.`}
         {wynik.wypowiedzi > 0 && ` Wypowiedź pisemna (${wynik.wypowiedzi} pkt) wymaga oceny według kryteriów, na razie bez punktów.`}
       </p>
       {czas && (
@@ -836,13 +845,15 @@ function Podsumowanie({
       {omow.ile > 0 &&
         (omow.ai ? (
           <button type="button" className="btn btn-primary" onClick={omow.start}>
-            <MessagesSquare size={18} aria-hidden="true" /> Omów błędy z Pestką ({omow.ile})
+            <MessagesSquare size={18} aria-hidden="true" />
+            {omow.bledne ? `Omów błędy z Pestką (${omow.bledne})` : omow.wypracowanie ? "Omów wypracowanie z Pestką" : "Przejdź z Pestką zadania bez odpowiedzi"}
           </button>
         ) : (
           <p className="small muted">
             Pestka omówi z tobą błędy, gdy podłączysz AI w <Link to="/profil">profilu</Link>.
           </p>
         ))}
+      {omow.ai && omow.bledne > 0 && omow.bezOdpowiedzi > 0 && <p className="small muted">Po błędach przejdziemy też zadania bez odpowiedzi.</p>}
       <button type="button" className="btn btn-ghost btn-sm" onClick={odNowa}>
         <RotateCcw size={16} aria-hidden="true" /> Rozwiąż od nowa
       </button>
@@ -930,20 +941,22 @@ function SpisZadan() {
   const [otwarty, setOtwarty] = useState(false);
   const numery = useMemo(() => arkusz.zadania.map((z) => z.nr), [arkusz]);
   const aktualne = useAktualneZadanie(numery);
-  const maOdpowiedz = (nr: string) => !!postep.odpowiedzi[nr]?.trim();
+  const maOdpowiedz = (nr: string) => liczOdpowiedzi(postep.odpowiedzi, [nr]) > 0;
   const wiersze = arkusz.zadania.map((z) => {
     const pytania = z.pytania.filter((p) => p.typ !== "wypowiedz");
-    const ile = z.pytania.filter((p) => maOdpowiedz(p.nr)).length;
+    const ile = liczOdpowiedzi(postep.odpowiedzi, z.pytania.map((p) => p.nr));
     return { z, pytania, ile, wszystkich: z.pytania.length };
   });
-  const gotowych = wiersze.filter((w) => w.wszystkich > 0 && w.ile === w.wszystkich).length;
+  // Ta sama miara co w stopce arkusza i na pulpicie: pytania z odpowiedzią, nie całe zadania.
+  const nrPytan = arkusz.zadania.flatMap((z) => z.pytania.map((p) => p.nr));
+  const odpowiedziane = liczOdpowiedzi(postep.odpowiedzi, nrPytan);
   return (
     <nav className={styles.spis} aria-label="Spis zadań">
       <button type="button" className={styles.spisPrzycisk} aria-expanded={otwarty} aria-controls="spis-zadan" onClick={() => setOtwarty(!otwarty)}>
         <List size={16} aria-hidden="true" />
         <span>Spis zadań</span>
         <span className="small muted">
-          {gotowych} z {wiersze.length} z odpowiedzią
+          {odpowiedziane} z {nrPytan.length} odpowiedzi
         </span>
         <ChevronDown size={16} aria-hidden="true" className={otwarty ? styles.spisStrzalkaOtwarta : undefined} />
       </button>
@@ -990,7 +1003,16 @@ function SpisZadan() {
   );
 }
 
-// Przewracanie stron pod treścią strony, jak stopka wydruku: poprzednia, numery stron z PDF, następna.
+// Numery stron do pokazania: wszystkie, gdy jest ich mało, inaczej pierwsza, ostatnia i sąsiedzi bieżącej
+// (null to przerwa „…”), żeby rząd numerów nie łamał się na dwie linie.
+function oknoStron(ile: number, i: number): (number | null)[] {
+  if (ile <= 7) return Array.from({ length: ile }, (_, k) => k);
+  const wybrane = [...new Set([0, i - 1, i, i + 1, ile - 1])].filter((k) => k >= 0 && k < ile).sort((a, b) => a - b);
+  return wybrane.flatMap((k, j) => (j > 0 && k - wybrane[j - 1]! > 1 ? [null, k] : [k]));
+}
+
+// Przewracanie stron pod treścią strony, jak stopka wydruku: poprzednia, numery, następna. Numerujemy od 1
+// (strony arkusza w PDF zaczynają się od okładki, więc pierwsza z zadaniami ma tam numer 2 albo 3).
 function Strony({ strony, strona, onZmien }: { strony: number[]; strona: number; onZmien: (s: number) => void }) {
   const i = strony.indexOf(strona);
   return (
@@ -999,13 +1021,17 @@ function Strony({ strony, strona, onZmien }: { strony: number[]; strona: number;
         <ArrowLeft size={16} aria-hidden="true" /> Poprzednia
       </button>
       <ol className={styles.numery}>
-          {strony.map((s) => (
-            <li key={s}>
-              <button type="button" aria-current={s === strona ? "page" : undefined} aria-label={`Strona ${s}`} onClick={() => onZmien(s)}>
-                {s}
-              </button>
-            </li>
-          ))}
+          {oknoStron(strony.length, i).map((k, j) =>
+            k === null ? (
+              <li key={`przerwa-${j}`} aria-hidden="true" className={styles.przerwa}>…</li>
+            ) : (
+              <li key={strony[k]}>
+                <button type="button" aria-current={k === i ? "page" : undefined} aria-label={`Strona ${k + 1} z ${strony.length}`} onClick={() => onZmien(strony[k]!)}>
+                  {k + 1}
+                </button>
+              </li>
+            ),
+          )}
       </ol>
       <button type="button" className="btn btn-ghost btn-sm" disabled={i >= strony.length - 1} onClick={() => onZmien(strony[i + 1])}>
         Następna <ArrowRight size={16} aria-hidden="true" />

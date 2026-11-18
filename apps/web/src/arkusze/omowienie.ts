@@ -6,17 +6,45 @@ import type { Postep } from "./postep";
 import { liczSlowa, policzPytania, werdykt, zakresSlow } from "./sprawdz";
 import { nazwaPrzedmiotu, type Arkusz, type Pytanie, type Zadanie } from "./typy";
 
-export type DoOmowienia = { zadanie: Zadanie; wypracowanie: boolean };
+/** pusty: zadanie bez żadnej odpowiedzi, które Pestka proponuje przejść razem po błędach. */
+export type DoOmowienia = { zadanie: Zadanie; wypracowanie: boolean; pusty?: boolean };
 
-/** Zadania z odpowiedzią i bez kompletu punktów oraz napisane wypracowania. Puste zadania pomijamy. */
+/**
+ * Najpierw zadania z odpowiedzią i bez kompletu punktów oraz napisane wypracowania, potem zadania bez żadnej
+ * odpowiedzi (bez wypracowań: pisanie od zera to osobna praca).
+ */
 export function doOmowienia(a: Arkusz, p: Postep): DoOmowienia[] {
-  return a.zadania.flatMap((z): DoOmowienia[] => {
+  const puste: DoOmowienia[] = [];
+  const bledy = a.zadania.flatMap((z): DoOmowienia[] => {
     const odpowiedziane = z.pytania.filter((q) => p.odpowiedzi[q.nr]?.trim());
-    if (!odpowiedziane.length) return [];
-    if (z.pytania.some((q) => q.typ === "wypowiedz")) return [{ zadanie: z, wypracowanie: true }];
+    const wypracowanie = z.pytania.some((q) => q.typ === "wypowiedz");
+    if (!odpowiedziane.length) {
+      if (!wypracowanie && z.pytania.length) puste.push({ zadanie: z, wypracowanie: false, pusty: true });
+      return [];
+    }
+    if (wypracowanie) return [{ zadanie: z, wypracowanie: true }];
     const w = policzPytania(z.pytania, p.odpowiedzi, p.samoocena);
     return w.zdobyte < w.mozliwe ? [{ zadanie: z, wypracowanie: false }] : [];
   });
+  return [...bledy, ...puste];
+}
+
+/**
+ * Błędne odpowiedzi (pytania z odpowiedzią i bez kompletu punktów, bez wypowiedzi pisemnych) i pytania bez odpowiedzi
+ * (wszystkie, jak w spisie zadań i na pulpicie, żeby liczby się sumowały).
+ */
+export function policzBledy(a: Arkusz, p: Postep): { bledne: number; bezOdpowiedzi: number; pytan: number } {
+  const pytania = a.zadania.flatMap((z) => z.pytania);
+  let bledne = 0;
+  let bezOdpowiedzi = 0;
+  for (const q of pytania) {
+    if (!p.odpowiedzi[q.nr]?.trim()) bezOdpowiedzi++;
+    else if (q.typ !== "wypowiedz") {
+      const w = policzPytania([q], p.odpowiedzi, p.samoocena);
+      if (w.doOceny === 0 && w.zdobyte < w.mozliwe) bledne++;
+    }
+  }
+  return { bledne, bezOdpowiedzi, pytan: pytania.length };
 }
 
 /** Luna (zadania lekkie) wystarcza do zadań każdego przedmiotu; sol (ważne) tylko do wypracowań. */
@@ -83,7 +111,13 @@ export function tekstZadania(z: Zadanie, p: Postep): string {
 /** Prompt systemowy rozmowy o jednym zadaniu. */
 export function promptOmowienia(a: Arkusz, d: DoOmowienia, p: Postep, krotko?: boolean): string {
   const przedmiot = `${nazwaPrzedmiotu[a.przedmiot] ?? a.przedmiot}, poziom ${a.poziom}`;
-  const zasady = d.wypracowanie
+  const zasady = d.pusty
+    ? [
+        "Uczeń nie odpowiedział na to zadanie. Przejdź je z nim, zanim zobaczy rozwiązanie.",
+        "Na start zapytaj, od czego by zaczął albo co rozumie z polecenia. Prowadź jednym pytaniem naraz.",
+        "Klucz CKE znasz, ale nie podawaj odpowiedzi, dopóki uczeń sam do niej nie dojdzie albo dwa razy nie utknie; wtedy wyjaśnij krótko.",
+      ]
+    : d.wypracowanie
     ? [
         "Omawiasz z uczniem jego wypracowanie z tego arkusza.",
         "Zacznij od jednej mocnej strony tekstu, potem wskaż jedną, najważniejszą rzecz do poprawy i zapytaj, jak by ją poprawił.",
