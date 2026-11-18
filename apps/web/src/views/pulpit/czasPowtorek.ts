@@ -1,8 +1,6 @@
 import { nazwaZadaniaCke, nazwaZadaniaRundy } from "../../arkusze/typy";
 import type { Powtorka } from "../../nauka/api";
-
-// Każda rekomendacja z nauka_polec i nauka_powtorki ma w SQL stałe 5 minut na jedną krótką rundę.
-const MINUTY_RUNDY = 5;
+import { MINUTY_RUNDY } from "../../nauka/dzis";
 
 export function kluczPowtorki(p: Powtorka) {
   const m = p.mistake;
