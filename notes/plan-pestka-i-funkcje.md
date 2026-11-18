@@ -56,3 +56,17 @@ Uwaga właściciela: interfejs ma być płynny i interaktywny, elementy mają si
 6. **Pestka jako miara jakości ruchu:** jej skok, lądowanie, ugięcie i podział kropli to wzorzec; reszta interfejsu ma ten sam charakter (krótko, sprężyście, bez przeciągania).
 7. **Granice:** nic nie trwa dłużej niż ok. 400 ms, ruch nie opóźnia działania (klik działa od razu), wszystko ma wersję bez ruchu („Mniej ruchu”, `prefers-reduced-motion`), 60 klatek na telefonie średniej klasy (animować tylko `transform` i `opacity`).
 8. Zasady dopisać do rozdziału „Ruch” w `DESIGN.md`.
+
+## Paczka 12. Treść sekcji, wykresy i infografiki
+
+Zasady i tabela „strona → sekcja → pytanie ucznia → forma” są w `DESIGN.md`, rozdział „Treść sekcji, wykresy i infografiki”. Robić po paczce 9 (potrzebuje jej danych: tydzień, prognoza), razem z paczkami 10 i 11.
+
+1. **Wspólne komponenty** w `apps/web/src/components/wykresy/`: pasek z progiem i celem, linia (sparkline) z podpisanym ostatnim punktem, kropki (dni tygodnia, zadania rundy, ostatnie próby), oś czasu (egzaminy, 7 dni powtórek), pierścień wyniku. Inline SVG, kolory z tokenów, tekst zastępczy, animacja dojścia do wartości, wersja bez ruchu.
+2. **Przejść każdą stronę z tabeli** i dla każdej sekcji: nazwać pytanie, ustawić kolejność wniosek → obraz → działanie, zamienić tabelki i gołe liczby na formę z tabeli, usunąć sekcje bez pytania. Najwyżej trzy infografiki na ekran.
+3. **Dane tylko prawdziwe**, z istniejących funkcji bazy i postępu arkuszy. Gdzie danych nie ma w kontrakcie (np. opanowanie w czasie dla linii na panelu umiejętności), policzyć z tego, co jest (lista prób z datami), albo zgłosić brak i nie rysować.
+4. **Stan z małą ilością danych:** jedno zdanie i przycisk zamiast pustego wykresu.
+5. Zrzuty każdej strony z tabeli (1280 jasny, 375, ciemny dla pulpitu i mapy).
+
+## Wydanie
+
+Decyzja właściciela z 19 listopada: po skończeniu wszystkich paczek i końcowym przeglądzie otwieramy PR, scalamy go sami i wdrażamy na produkcję (hosting Firebase `trafwsedno`). Zmiany w `services/` najpierw na stagingu przez gałąź `dev`.

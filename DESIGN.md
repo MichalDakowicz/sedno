@@ -145,6 +145,39 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 - Reaguje na to, co robi uczeń (dobra i zła odpowiedź, seria, koniec rundy), gotowymi kwestiami, które działają bez modelu. Przywołana wie, na co uczeń patrzy.
 - Kolory i kształt z tokenów; animacje szanują „Mniej ruchu”.
 
+## Treść sekcji, wykresy i infografiki
+
+Każda sekcja odpowiada na **jedno pytanie ucznia** i pokazuje odpowiedź w najprostszej formie, która ją niesie. Zanim dodasz sekcję, nazwij to pytanie; jeśli się nie da, sekcja jest zbędna.
+
+- **Kolejność w sekcji:** wniosek jednym zdaniem albo liczbą → obraz, który go pokazuje → jedno działanie. Szczegóły (lista prób, historia) pod rozwinięciem.
+- **Kiedy wykres, a kiedy liczba.** Jedna wartość: duża liczba z podpisem. Wartość względem celu albo progu: pasek z kreską progu. Zmiana w czasie: linia (sparkline). Części całości: pasek podzielony. Kilka pozycji do porównania: poziome paski na jednej osi. Dni: rząd kropek albo kratek. Nie używamy wykresów kołowych, 3D ani osi bez opisu.
+- **Wykres ma tytuł-wniosek** („O 6 pkt proc. więcej niż tydzień temu”), a nie nazwę („Wykres opanowania”). Najważniejszy punkt jest podpisany liczbą wprost na wykresie.
+- **Tylko prawdziwe dane.** Gdy danych jest za mało, zamiast pustego wykresu jest jedno zdanie i przycisk, który to zmieni. Nic nie udajemy.
+- **Wykonanie:** inline SVG z kolorami z tokenów (akcent dla ucznia, `--line` dla tła i progu, zielony i czerwony tylko dla dobrze i źle), wspólne komponenty w `components/wykresy/` (pasek z progiem, linia, kropki, oś czasu), tekst zastępczy dla czytników ekranu, działa w ciemnym motywie i na 375 px. Wartości dochodzą do stanu animacją z rozdziału „Ruch”.
+- **Jedna infografika na sekcję** i najwyżej trzy na ekran; reszta to tekst i wiersze.
+
+Co która strona pokazuje (pytanie → forma):
+
+| Strona | Sekcja | Pytanie ucznia | Forma |
+| --- | --- | --- | --- |
+| Pulpit | Karta dnia | Co mam zrobić teraz? | karta Pestki z powodem i jednym przyciskiem |
+| Pulpit | Twój tydzień | Czy uczę się regularnie? | 7 kropek dni, seria, minuty w tygodniu |
+| Pulpit | Prognoza | Czy zdam i ile mi brakuje do celu? | pasek na przedmiot z kreską progu 30% i kreską celu |
+| Pulpit | Mapa w skrócie | Co umiem, a co nie? | cztery obszary jako paski albo „ogród” Pestki |
+| Pulpit | Powtórki | Ile mam do powtórzenia? | liczba na dziś i rząd kratek na 7 dni |
+| Pulpit | Wyniki z arkuszy | Czy idzie mi coraz lepiej? | linia wyników z progiem |
+| Nauka | Propozycja i sposoby | Jak chcę się dziś uczyć? | karta dnia, lista sposobów z jednym polecanym |
+| Runda | Postęp | Ile jeszcze i jak mi idzie? | kropki zadań (zielona, czerwona, pusta) zamiast gołego paska |
+| Rozbiór | Wynik rundy | Co się zmieniło po tej rundzie? | pasek opanowania przed → po, kropki odpowiedzi, jedno zdanie Pestki |
+| Mapa | Lista umiejętności | W czym jestem mocny, a w czym słaby? | wiersze z paskiem i stadium Pestki, pogrupowane obszarami |
+| Mapa | Panel umiejętności | Skąd ta ocena i co dalej? | linia opanowania w czasie, kropki ostatnich prób, „Pamiętasz ok. X%”, jeden przycisk „Ćwicz” |
+| Powtórki | Na dziś i kolejka | Co i kiedy powtórzyć? | karta na dziś, oś 7 dni z liczbą powtórek, lista według umiejętności |
+| Arkusze | Lista | Które arkusze mam za sobą? | karty lat z wynikiem jako pierścień albo pasek |
+| Arkusz po sprawdzeniu | Wynik | Gdzie straciłem punkty i czas? | wynik z progiem, paski punktów według części arkusza, czas zadania względem normy |
+| Do matury | Odliczanie | Ile mam czasu i na co? | oś czasu egzaminów, dni do pierwszego, prognoza z celem |
+| Profil ucznia | Wnioski | Co Sedno o mnie wie? | kilka liczb z podpisem (tempo, pora, mocna strona), bez tabel |
+| Profil | AI na koncie | Czy Pestka działa i ile używam? | stan i dwie liczby; tabela zużycia pod rozwinięciem |
+
 ## Ruch
 
 Krótko i spokojnie: 150–300 ms, `ease`. Wejście strony nie powtarza się, gdy dane są z pamięci. Każda animacja ma wersję bez ruchu (`prefers-reduced-motion` i ustawienie „Mniej ruchu”).
