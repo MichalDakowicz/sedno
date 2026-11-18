@@ -1790,33 +1790,6 @@
   color: var(--primary-text);
 }
 
-.oddajesz {
-  display: grid;
-  border-bottom: 1px solid var(--line);
-}
-
-.oddajeszTresc {
-  display: grid;
-  gap: 12px;
-  max-width: 68ch;
-  padding: 4px 0 16px;
-}
-
-.oddajeszTresc > div {
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-}
-
-.oddajeszTresc > div:first-child {
-  border-top: 0;
-  padding-top: 0;
-}
-
-.oddajeszTresc h3,
-.oddajeszTresc p {
-  margin: 0 0 4px;
-}
-
 .braki {
   flex: 1 0 100%;
   display: grid;

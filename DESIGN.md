@@ -69,8 +69,8 @@ Innych wartości nie używamy. Cienie: `--shadow-float` (karta, panel pływając
 
 - **Dwie szerokości treści:** szeroka `.container` (1120 px: pulpit, listy) i do czytania `.container.czytanie` (820 px: runda, rozbiór, arkusz). Nagłówek zaczyna się na tej samej lewej krawędzi co treść pod nim.
 - **Separatory zamiast kart.** Sekcje i wiersze rozdziela linia `1px solid var(--line)` i odstęp. Karta (`.karta`) tylko tam, gdzie treść musi wyskoczyć: polecenie Pestki („Dziś warto”, „Polecam”, „Na dziś”, „Dalej”), okno rozmowy, okna dialogowe. Listy, ustawienia i statystyki nie stoją w kartach.
-- **Blok obok karty** (`.obok-karty`): pierwsza linia tekstu na wysokości wnętrza karty albo cały blok wyśrodkowany w pionie, gdy jest dużo niższy. Nigdy przyklejony do górnej krawędzi wyższego sąsiada.
-- **Wiersz listy** (`.wiersze` / `.wiersz`): nazwa z opisem | wartość | akcja. Kolumny wartości i akcji mają stałą szerokość, więc wartości w kolejnych wierszach stoją na jednej osi.
+- **Blok obok karty** (`.obok-karty`): pierwsza linia tekstu na wysokości wnętrza karty (`--wnetrze-karty` ustawia strona: padding karty obok) albo cały blok wyśrodkowany w pionie, gdy jest dużo niższy. Nigdy przyklejony do górnej krawędzi wyższego sąsiada. Poniżej 900 px kolumny idą jedna pod drugą.
+- **Wiersz listy** (`.wiersze` / `.wiersz`): nazwa z opisem | wartość | akcja. Kolumny wartości i akcji mają stałą szerokość, więc wartości w kolejnych wierszach stoją na jednej osi. Części: `.wiersz-ikona` (opcjonalna, 48 px), `.wiersz-tresc` z `.wiersz-nazwa` i `.wiersz-opis` (15 px), `.wiersz-wartosc` (tu `.wiersz-pasek`: pasek i procent), `.wiersz-akcja` (strzałka, link, przyciski). Szerokości ustawia lista: `--wiersz-wartosc` (domyślnie 12rem) i `--wiersz-akcja` (20 px; `auto`, gdy akcja to słowo jednakowe we wszystkich wierszach). Wiersz bez wartości albo bez akcji ma o kolumnę mniej. Na telefonie wartość schodzi pod nazwę.
 - Odstępy z jednej drabinki: 4, 8, 12, 16, 24, 32, 48 px. Między sekcjami strony 48 px, między wierszami listy min. 16 px.
 - Telefon 375 px: bez przewijania w poziomie, cele dotyku min. 44 px, elementy pływające niczego nie zasłaniają.
 
@@ -82,7 +82,7 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 | --- | --- | --- |
 | Nagłówek strony | `components/NaglowekStrony.tsx` | link powrotu albo etykieta kontekstu, tytuł, jedno zdanie, linia. Strony nie składają własnych. |
 | Przycisk główny | `.btn .btn-primary` | **jeden na ekran**. To, co uczeń ma zrobić teraz. |
-| Przycisk poboczny | `.btn .btn-ghost`, `.btn-secondary` | krótka etykieta (1–2 słowa), ten sam styl dla całej grupy |
+| Przycisk poboczny | `.btn .btn-ghost`, `.btn-secondary` | krótka etykieta (1–2 słowa), ten sam styl dla całej grupy. Przycisk-przełącznik (`aria-pressed`, np. „Strony” w arkuszu) włączony wygląda jak zaznaczona pigułka. |
 | Link-akcja | `.link` | akcje poboczne w osobnym rzędzie pod przyciskiem głównym, ze strzałką. Metadane nie wyglądają jak link. |
 | Wybór jednej z kilku | `.pigulki` / `.pigulka` | jeden stan zaznaczenia w całej aplikacji. Poziom matury zawsze jako pigułki pod nagłówkiem. |
 | Lista rozwijana | `.select` | tylko gdy opcji jest za dużo na pigułki |

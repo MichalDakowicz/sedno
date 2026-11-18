@@ -3,7 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardCheck, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
-import { czegoZadanie, OPIS_FORMY, opisOceny, opisWypelnienia, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
+import { OPIS_FORMY, opisOceny, opisWypelnienia, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
 import { liczOdpowiedzi, policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
@@ -548,7 +548,7 @@ export function Arkusz() {
         )}
 
         <SpisZadan />
-        {dane.przedmiot === "informatyka" && <CoOddajesz arkusz={dane} />}
+        {dane.przedmiot === "informatyka" && <CoOddajesz />}
 
         {dane.zadania
           .filter((z) => strona === undefined || stronyZadania(z).includes(strona))
@@ -591,7 +591,7 @@ export function Arkusz() {
             <>
               {dane.przedmiot === "informatyka" && <BrakujaceOdpowiedzi />}
               <p className="muted small">
-                Odpowiedzi: {odpowiedziane} z {kontekst.pytania.size}. Zapisują się na bieżąco w tej przeglądarce.
+                Odpowiedzi: {odpowiedziane} z {kontekst.pytania.size}
               </p>
               <button
                 type="button"
@@ -743,38 +743,35 @@ function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDan
       </h1>
       )}
       {!zwiniety && <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>}
-      {!zwiniety && arkusz.przedmiot === "matematyka" && <p className="small muted">Brudnopis nie wpływa na wynik w zadaniach zamkniętych. Zapisuje się w postępie arkusza.</p>}
       {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas || wStronach) && (
         <div className={styles.pdfs}>
           {arkusz.pdf?.arkusz && (
-            <a className="btn btn-secondary btn-sm" href={arkusz.pdf?.arkusz} target="_blank" rel="noreferrer">
-              <FileText size={16} aria-hidden="true" /> Arkusz PDF
+            <a className="btn btn-ghost btn-sm" href={arkusz.pdf?.arkusz} target="_blank" rel="noreferrer" aria-label="Arkusz PDF na stronie CKE">
+              <FileText size={16} aria-hidden="true" /> PDF
             </a>
           )}
           {onNaCzas && (
             <button type="button" className="btn btn-ghost btn-sm" aria-expanded={pytaONaCzas} aria-controls="na-czas" onClick={() => setPytaONaCzas(!pytaONaCzas)}>
-              <Timer size={16} aria-hidden="true" /> Rozwiąż na czas
+              <Timer size={16} aria-hidden="true" /> Na czas
             </button>
           )}
           {wStronach && (
             <button type="button" className="btn btn-ghost btn-sm" aria-pressed={wStronach.wlaczone} onClick={wStronach.onZmien}>
-              <BookOpen size={16} aria-hidden="true" /> {wStronach.wlaczone ? "Wszystko na jednej stronie" : "Podziel na strony jak w arkuszu"}
+              <BookOpen size={16} aria-hidden="true" /> Strony
             </button>
           )}
         </div>
       )}
       {!zwiniety && onNaCzas && pytaONaCzas && (
         <div id="na-czas" className={styles.naCzas}>
-          <p>
-            Zegar odmierza {arkusz.czas} minut na cały arkusz, tyle co na maturze. Odpowiedzi zapisują się jak zawsze, a zegar i tak ich nie blokuje: po czasie możesz pisać dalej.
-          </p>
-          <ul className="small muted">
-            <li>Zegar możesz wstrzymać albo wyłączyć. Stan trzyma postęp arkusza, więc przeżywa odświeżenie strony i zapisuje się na koncie.</li>
-            <li>Pestka odezwie się trzy razy: w połowie czasu, na 15 minut przed końcem i po czasie.</li>
-            <li>„Sprawdź cały arkusz” zatrzymuje zegar, a wynik pokaże twój czas i tempo przy zadaniach.</li>
-          </ul>
+          <p>{arkusz.czas} minut na cały arkusz, tyle co na maturze. Zegar możesz wstrzymać.</p>
           <div className={styles.pdfs}>
-            <button type="button" className="btn btn-primary btn-sm" onClick={onNaCzas}>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={onNaCzas}
+              data-tutor-about="Zegar nie blokuje odpowiedzi: po czasie możesz pisać dalej. Odezwę się w połowie czasu, 15 minut przed końcem i po czasie. „Sprawdź cały arkusz” zatrzymuje zegar, a wynik pokaże twój czas i tempo przy zadaniach."
+            >
               <Timer size={16} aria-hidden="true" /> Start, {arkusz.czas} minut
             </button>
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPytaONaCzas(false)}>
@@ -782,13 +779,6 @@ function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDan
             </button>
           </div>
         </div>
-      )}
-      {!zwiniety && wStronach && (
-        <p className="small muted">
-          {wStronach.wlaczone
-            ? "Strony to tylko sposób pokazania arkusza jak na wydruku CKE. Zadania, odpowiedzi, zegar i zapis są te same, co na jednej stronie."
-            : "Podział na strony to tylko sposób pokazania arkusza jak na wydruku CKE (strzałki w lewo i w prawo przewracają). Zadania, odpowiedzi, zegar i zapis są te same."}
-        </p>
       )}
       {maSluchanie && arkusz.nagranie && <Nagranie src={arkusz.nagranie} />}
       {!zwiniety && <p className="small muted">Źródło: Centralna Komisja Egzaminacyjna, cke.gov.pl.</p>}
@@ -844,7 +834,7 @@ function Podsumowanie({
       )}
       {omow.ile > 0 &&
         (omow.ai ? (
-          <button type="button" className="btn btn-primary" onClick={omow.start}>
+          <button type="button" className="btn btn-primary" onClick={omow.start} data-tutor-about={omow.bledne && omow.bezOdpowiedzi ? "Po błędach przejdziemy też zadania bez odpowiedzi." : undefined}>
             <MessagesSquare size={18} aria-hidden="true" />
             {omow.bledne ? `Omów błędy z Pestką (${omow.bledne})` : omow.wypracowanie ? "Omów wypracowanie z Pestką" : "Przejdź z Pestką zadania bez odpowiedzi"}
           </button>
@@ -853,7 +843,6 @@ function Podsumowanie({
             Pestka omówi z tobą błędy, gdy podłączysz AI w <Link to="/profil">profilu</Link>.
           </p>
         ))}
-      {omow.ai && omow.bledne > 0 && omow.bezOdpowiedzi > 0 && <p className="small muted">Po błędach przejdziemy też zadania bez odpowiedzi.</p>}
       <button type="button" className="btn btn-ghost btn-sm" onClick={odNowa}>
         <RotateCcw size={16} aria-hidden="true" /> Rozwiąż od nowa
       </button>
@@ -873,7 +862,7 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
     return t && t !== "w-normie" ? [{ z, ms, t, n: norma(arkusz, z)! }] : [];
   });
   return (
-    <div className={styles.tempo}>
+    <div className={styles.tempo} data-tutor-about="Czas liczę od poprzedniej czynności w arkuszu, bez chwil poza kartą. Norma to czas arkusza proporcjonalnie do punktów zadania.">
       <span className="label">Czas przy zadaniach</span>
       {wiersze.length ? (
         <ul>
@@ -890,7 +879,6 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
       ) : (
         <p className="muted">Tempo w normie przy wszystkich zadaniach, przy których był mierzony czas.</p>
       )}
-      <p className="small muted">Czas liczymy od poprzedniej czynności w arkuszu, bez chwil poza kartą. Norma to czas arkusza proporcjonalnie do punktów.</p>
     </div>
   );
 }
@@ -2352,7 +2340,7 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
       {p.typ === "otwarte" && pf.has(p.nr) && <PrawdaFalszKod pytanie={p} stwierdzenia={pf.get(p.nr)!} />}
       {p.typ === "otwarte" && dwie.has(p.nr) && <WyborKilku pytanie={p} wybor={dwie.get(p.nr)!} />}
       {p.typ === "otwarte" && tabele.has(p.nr) && <TabelaDopasowaniaWidok pytanie={p} tabela={tabele.get(p.nr)!} />}
-      {obliczenia.has(p.nr) && <p className="small muted">Rozwiązanie zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
+      {obliczenia.has(p.nr) && <p className="small muted">Rozwiązanie zapisz w brudnopisie.</p>}
       {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && !wTabeli.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
@@ -2370,7 +2358,7 @@ function WskazowkaAplikacji({ rodzaj }: { rodzaj: RodzajWskazowki | null }) {
   if (!rodzaj) return null;
   const w = WSKAZOWKI[rodzaj];
   return (
-    <p className={`small ${styles.wskazowka}`}>
+    <p className={`small ${styles.wskazowka}`} data-tutor-about={w.pestka}>
       <strong>{w.tytul}:</strong> {w.tekst}
     </p>
   );
@@ -2398,46 +2386,9 @@ function ZnacznikOdpowiedzi({ p }: { p: Pytanie }) {
   );
 }
 
-// Jak oddawanie wygląda tu, a jak na egzaminie: kod roboczy, odpowiedź i pliki to trzy różne rzeczy.
-function CoOddajesz({ arkusz }: { arkusz: ArkuszDane }) {
-  const [otwarty, setOtwarty] = useState(false);
-  const wg = arkusz.zadania.map((z) => ({ nr: z.nr, ...czegoZadanie(z) }));
-  const lista = (f: (x: (typeof wg)[number]) => boolean) => wg.filter(f).map((x) => x.nr).join(", ");
-  const wPliku = lista((x) => !!x.plikWynikow);
-  const zWykresem = lista((x) => x.wykres);
-  return (
-    <section className={styles.oddajesz} aria-label="Co oddajesz tutaj, a co na egzaminie">
-      <button type="button" className={styles.spisPrzycisk} aria-expanded={otwarty} aria-controls="co-oddajesz" onClick={() => setOtwarty(!otwarty)}>
-        <FileText size={16} aria-hidden="true" />
-        <span>Co oddajesz tutaj, a co na egzaminie</span>
-        <ChevronDown size={16} aria-hidden="true" className={otwarty ? styles.spisStrzalkaOtwarta : undefined} />
-      </button>
-      {otwarty && (
-        <div id="co-oddajesz" className={styles.oddajeszTresc}>
-          <div>
-            <h3 className="h4">Kod roboczy</h3>
-            <p className="small">
-              Programy, zapytania i obliczenia piszesz w panelu materiałów do zadania. Zapisują się w tej przeglądarce i nie są oceniane. Do odpowiedzi trafia tylko to, co sam wstawisz do pola pod poleceniem.
-            </p>
-          </div>
-          <div>
-            <h3 className="h4">Odpowiedź w Sedno</h3>
-            <p className="small">
-              Pola pod poleceniami, komórki tabel i luki w zdaniach. Tylko to liczy się do wyniku. Wpisany wynik porównujemy z kluczem CKE; algorytm, zapytanie i zestawienie pod wykres oceniasz sam po sprawdzeniu arkusza, z rozwiązaniem CKE przed oczami.
-            </p>
-          </div>
-          <div>
-            <h3 className="h4">Pliki i wykresy: poza Sedno</h3>
-            <p className="small">
-              Plik z wynikami, pliki z kodem, wykres i realizacja w arkuszu kalkulacyjnym albo bazie to rzeczy, które polecenia CKE każą oddać. Tu nie wysyłasz żadnych plików i Sedno ich nie sprawdza.
-              {wPliku && ` W tym arkuszu plik wyników dotyczy zadań: ${wPliku}.`}
-              {zWykresem && ` Wykres: zadania ${zWykresem}.`} Jak dokładnie przekazuje się pliki na egzaminie: do weryfikacji w informatorze CKE.
-            </p>
-          </div>
-        </div>
-      )}
-    </section>
-  );
+// Pliki, wykresy i realizacje z poleceń CKE oddaje się tylko na egzaminie: bez tej linii uczeń szukałby, gdzie je wysłać.
+function CoOddajesz() {
+  return <p className="small muted">Pliki i wykresy z poleceń CKE oddajesz tylko na egzaminie. Tu liczą się pola odpowiedzi.</p>;
 }
 
 // Przed sprawdzeniem: podpunkty bez pełnej odpowiedzi, każdy ze skokiem do pola.
@@ -2453,7 +2404,7 @@ function BrakujaceOdpowiedzi() {
   return (
     <div className={styles.braki} role="group" aria-label="Brakujące odpowiedzi">
       {braki.length === 0 ? (
-        <p className="small">Każdy podpunkt ma odpowiedź. Pamiętaj, że pliki i wykresy z poleceń CKE zostają poza Sedno.</p>
+        <p className="small">Każdy podpunkt ma odpowiedź.</p>
       ) : (
         <>
           <p className="small">
@@ -3303,7 +3254,7 @@ function WypowiedzWidok({ pytanie: p, pisanie }: { pytanie: Wypowiedz; pisanie: 
       />
       {sprawdzone(p.nr) && (
         <p className={`small ${styles.note}`}>
-          Wypowiedź oceniasz na razie sam według kryteriów z polecenia (treść, spójność, zakres i poprawność środków językowych). Automatyczna ocena przyjdzie razem z AI.
+          Wypowiedź oceniasz według kryteriów z polecenia.
         </p>
       )}
     </div>
