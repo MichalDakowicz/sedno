@@ -402,3 +402,12 @@ textarea {
   cursor: default;
   opacity: 0.6;
 }
+
+/* Na telefonie Pestka siedzi w prawym dolnym rogu: zapas na końcu strony pozwala przewinąć ostatnie przyciski nad nią. */
+@media (max-width: 640px) {
+  #root::after {
+    content: "";
+    display: block;
+    height: 72px;
+  }
+}

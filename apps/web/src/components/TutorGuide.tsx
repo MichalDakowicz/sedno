@@ -47,8 +47,22 @@ function clampX(x: number) {
 // efekt przy data-panel-strona), a nie od razu z atrybutem, bo inaczej zwykła synchronizacja przeniosłaby
 // Pestkę bez animacji.
 let spoczynekLewy = false;
+
+// Pestka na spoczynku nie siada na przyciskach i polach (pasek tablicy, „Poprzednia”, przypięty odtwarzacz):
+// gdy coś takiego jest pod nią, podnosi się o swoją wysokość, najwyżej kilka razy.
+const UNIKAJ = "button, a[href], input, select, textarea, [role='toolbar'], [data-pestka-unikaj]";
+function zajete(x: number, y: number): boolean {
+  const punkty = [[x + AV / 2, y + AV / 2], [x + 6, y + 6], [x + AV - 6, y + 6], [x + 6, y + AV - 6], [x + AV - 6, y + AV - 6]];
+  return punkty.some(([px, py]) =>
+    document.elementsFromPoint(px!, py!).some((el) => !el.closest(`.${styles.guide}`) && !!el.closest(UNIKAJ)),
+  );
+}
+
 function restPoint(): Point {
-  return { x: spoczynekLewy ? edge() : viewW() - AV - edge(), y: window.innerHeight - AV - edge() };
+  const x = spoczynekLewy ? edge() : viewW() - AV - edge();
+  let y = window.innerHeight - AV - edge();
+  for (let i = 0; i < 4 && zajete(x, y); i++) y -= AV + 8;
+  return { x, y };
 }
 
 // Siada na prawym górnym rogu elementu. Gdy nad elementem nie ma miejsca (np. pasek nawigacji),
@@ -60,8 +74,11 @@ function perchPoint(el: HTMLElement): Point | null {
   const x = clampX(r.right - AV * 0.75);
   const above = r.top - AV * 0.7;
   if (above >= b.top && r.top < b.bottom - AV) return { x, y: above };
+  // Pod elementem tylko wtedy, gdy co najmniej połowa elementu jest widoczna. Inaczej element schowany pod
+  // paskiem trzymał Pestkę z dymkiem nad treścią, której dymek nie dotyczy.
+  const widac = Math.min(r.bottom, b.bottom) - Math.max(r.top, b.top);
   const below = r.bottom + 4;
-  if (r.bottom > b.top && below + AV <= b.bottom) return { x, y: below };
+  if (widac >= r.height / 2 && below + AV <= b.bottom) return { x, y: below };
   return null;
 }
 
@@ -76,17 +93,36 @@ function bubbleWidth() {
   return Math.min(340, viewW() - 32);
 }
 
-function bubbleLayout(p: Point) {
+type Prost = { x: number; y: number; w: number; h: number };
+const nachodzi = (a: Prost, b: Prost) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+
+// Dymek staje po tej stronie Pestki, gdzie mieści się na ekranie i nie zasłania elementu, o którym mówi.
+// Kolejność prób: z prawej, z lewej (w dół albo w górę), nad Pestką, pod nią. Gdy nic nie pasuje w całości,
+// wygrywa miejsce, które zasłania element najmniej.
+function bubbleLayout(p: Point, h: number, cel: DOMRect | null) {
   const w = bubbleWidth();
-  let placement: Placement;
-  if (viewW() - (p.x + AV) - GAP - 16 >= w) placement = "right";
-  else if (p.x - GAP - 16 >= w) placement = "left";
-  else placement = window.innerHeight - (p.y + AV) > 240 ? "below" : "above";
-  // Przy dymku pod lub nad avatarem przesuwamy go w poziomie, żeby nie wychodził poza ekran.
   const shift = Math.min(Math.max(16 - p.x, -w + AV), viewW() - 16 - w - p.x);
-  // Dymek z boku przy dole ekranu otwiera się w górę.
-  const up = window.innerHeight - p.y < 240;
-  return { placement, shift, up, w };
+  const b = { top: 8, bottom: window.innerHeight - 8 };
+  const kandydaci: { placement: Placement; up: boolean; r: Prost }[] = [
+    { placement: "right", up: false, r: { x: p.x + AV + GAP, y: p.y - 10, w, h } },
+    { placement: "right", up: true, r: { x: p.x + AV + GAP, y: p.y + AV + 10 - h, w, h } },
+    { placement: "left", up: false, r: { x: p.x - GAP - w, y: p.y - 10, w, h } },
+    { placement: "left", up: true, r: { x: p.x - GAP - w, y: p.y + AV + 10 - h, w, h } },
+    { placement: "above", up: false, r: { x: p.x + shift, y: p.y - GAP - h, w, h } },
+    { placement: "below", up: false, r: { x: p.x + shift, y: p.y + AV + GAP, w, h } },
+  ];
+  const miesci = (r: Prost) => r.x >= 8 && r.x + r.w <= viewW() - 8 && r.y >= b.top && r.y + r.h <= b.bottom;
+  const zakryte = (r: Prost) => {
+    if (!cel) return 0;
+    const dx = Math.max(0, Math.min(r.x + r.w, cel.right) - Math.max(r.x, cel.left));
+    const dy = Math.max(0, Math.min(r.y + r.h, cel.bottom) - Math.max(r.y, cel.top));
+    return dx * dy;
+  };
+  const celProst = cel ? { x: cel.left, y: cel.top, w: cel.width, h: cel.height } : null;
+  const wybor = kandydaci.find((k) => miesci(k.r) && (!celProst || !nachodzi(k.r, celProst)))
+    ?? [...kandydaci].filter((k) => miesci(k.r)).sort((a, z) => zakryte(a.r) - zakryte(z.r))[0]
+    ?? kandydaci[window.innerHeight - (p.y + AV) > 240 ? 5 : 4];
+  return { placement: wybor.placement, shift, up: wybor.up, w };
 }
 
 const near = (a: Point, b: Point) => Math.abs(a.x - b.x) < 1 && Math.abs(a.y - b.y) < 1;
@@ -106,6 +142,13 @@ export function TutorGuide() {
   const [talking, setTalking] = useState(false);
   const [closing, setClosing] = useState(false);
   const [spot, setSpot] = useState<Spot | null>(null);
+  // Wysokość dymka z poprzedniego renderu: potrzebna, żeby wybrać stronę, po której się zmieści.
+  const bubbleRef = useRef<HTMLDivElement>(null);
+  const [bubbleH, setBubbleH] = useState(150);
+  useLayoutEffect(() => {
+    const h = bubbleRef.current?.offsetHeight;
+    if (h && Math.abs(h - bubbleH) > 4) setBubbleH(h);
+  });
 
   const modeRef = useRef<Mode>("rest");
   const posRef = useRef<Point>(pos);
@@ -368,7 +411,8 @@ export function TutorGuide() {
   const isTour = guide?.kind === "tour";
   const last = guide ? guide.index === guide.hints.length - 1 : false;
   const hasToday = !!document.querySelector('[data-tutor="today-cta"]');
-  const layout = bubbleLayout(pos);
+  const cel = !summon && hint && mode === "perch" ? findTarget(hint.target)?.getBoundingClientRect() ?? null : null;
+  const layout = bubbleLayout(pos, bubbleH, cel);
   const bubbleStyle: CSSProperties =
     layout.placement === "below" || layout.placement === "above" ? { left: layout.shift, width: layout.w } : { width: layout.w };
 
@@ -409,6 +453,7 @@ export function TutorGuide() {
         {!resting && (summon || hint) && (
           <div
             key={`b${hop}`}
+            ref={bubbleRef}
             className={`${styles.bubble} ${styles[layout.placement]} ${layout.up ? styles.up : ""} ${closing ? styles.closing : ""}`}
             style={bubbleStyle}
             role="status"
