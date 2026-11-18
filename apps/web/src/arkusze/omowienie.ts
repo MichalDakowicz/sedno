@@ -100,13 +100,49 @@ export function promptOmowienia(a: Arkusz, d: DoOmowienia, p: Postep, krotko?: b
 
 export type Przyklad = { tresc: string; opcje: Record<string, string>; poprawna: string; wyjasnienie: string };
 
-function json<T>(tekst: string): T | null {
-  const m = tekst.match(/\{[\s\S]*\}/);
-  try {
-    return m ? (JSON.parse(m[0]) as T) : null;
-  } catch {
-    return null;
+// Kolejne kandydaty na obiekt JSON w odpowiedzi modelu: od każdej klamry do pasującej zamykającej (z pominięciem
+// klamer w napisach), więc tekst przed i po JSON-ie, także z klamrami, nie psuje odczytu.
+function* obiektyJson(tekst: string): Generator<string> {
+  for (let start = tekst.indexOf("{"); start >= 0; start = tekst.indexOf("{", start + 1)) {
+    let glebokosc = 0;
+    let wNapisie = false;
+    for (let i = start; i < tekst.length; i++) {
+      const z = tekst[i];
+      if (wNapisie) {
+        if (z === "\\") i++;
+        else if (z === '"') wNapisie = false;
+      } else if (z === '"') wNapisie = true;
+      else if (z === "{") glebokosc++;
+      else if (z === "}" && --glebokosc === 0) {
+        yield tekst.slice(start, i + 1);
+        break;
+      }
+    }
   }
+}
+
+// Model wstawia LaTeX z pojedynczym ukośnikiem: „\(” czy „\sqrt” to błędne sekwencje JSON (podwajamy ukośnik),
+// a „\frac”, „\theta”, „\right”, „\beta” parsują się jako znaki sterujące (wracają do postaci z ukośnikiem).
+const naprawUkosniki = (s: string) => s.replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, "\\\\");
+
+function przywrocLatex(v: unknown): unknown {
+  if (typeof v === "string") return v.replace(/\f(?=[a-zA-Z])/g, "\\f").replace(/\x08(?=[a-zA-Z])/g, "\\b").replace(/\t(?=[a-zA-Z])/g, "\\t").replace(/\r(?=[a-zA-Z])/g, "\\r");
+  if (Array.isArray(v)) return v.map(przywrocLatex);
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, przywrocLatex(x)]));
+  return v;
+}
+
+function json<T>(tekst: string): T | null {
+  for (const kandydat of obiektyJson(tekst)) {
+    for (const wersja of [kandydat, naprawUkosniki(kandydat)]) {
+      try {
+        return przywrocLatex(JSON.parse(wersja)) as T;
+      } catch {
+        // następna próba
+      }
+    }
+  }
+  return null;
 }
 
 /**
