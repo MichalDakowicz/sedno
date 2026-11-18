@@ -43,9 +43,10 @@ Obejrzyj **wszystkie** zrzuty, nie kilkanaście. Dla każdego ekranu przejdź t�
 3. **Typografia.** Skala rozmiarów w tokenach; tekst do czytania min. 15 px; opisy pod nazwami nie drobniejsze niż reszta; interlinia; szerokość wiersza do ok. 60–70 znaków.
 4. **Zaokrąglenia i cienie.** Tylko wartości z tokenów; dymki rozmów takie same wszędzie.
 5. **Hierarchia.** Jeden główny przycisk na ekran; linki obok przycisku nie wyglądają jak przypadkowy tekst; metadane nie udają linków.
-6. **Stany.** Ładowanie (szkielet zamiast pustki, brak skoków układu), pusty stan z przyciskiem, błąd z ponowieniem, fokus klawiatury bez ramek wyglądających jak błąd.
-7. **Szybkość odczuwalna.** Czy powrót na odwiedzoną stronę ładuje wszystko od nowa (brak pamięci podręcznej danych), ile sekund trwają najwolniejsze miejsca.
-8. **Telefon i ciemny motyw.** Zasłanianie treści przez elementy pływające, przewijanie w poziomie, kontrast.
+6. **Tekst tłumaczący interfejs.** Akapit, który wyjaśnia, jak działa kontrolka („Podział na strony to tylko sposób pokazania…”, „Brudnopis nie wpływa na wynik…”), znaczy, że kontrolka jest niejasna albo zdanie jest zbędne. Dla każdego takiego zdania: usuń (domyślnie, ewentualnie popraw etykietę), przenieś do postaci-przewodnika (mówi je na żądanie) albo zostaw jedną krótką linię tylko wtedy, gdy jej brak grozi realnym błędem lub utratą danych. Opis pod tytułem strony: najwyżej jedno krótkie zdanie.
+7. **Stany.** Ładowanie (szkielet zamiast pustki, brak skoków układu), pusty stan z przyciskiem, błąd z ponowieniem, fokus klawiatury bez ramek wyglądających jak błąd.
+8. **Szybkość odczuwalna.** Czy powrót na odwiedzoną stronę ładuje wszystko od nowa (brak pamięci podręcznej danych), ile sekund trwają najwolniejsze miejsca.
+9. **Telefon i ciemny motyw.** Zasłanianie treści przez elementy pływające, przewijanie w poziomie, kontrast.
 
 Jeśli użytkownik sam wyłapie coś, czego nie było na liście, to znak, że przegląd był za płytki: przejdź tę listę jeszcze raz na wszystkich ekranach, zamiast dopisywać jeden punkt.
 
