@@ -1,33 +1,6 @@
-.wiersze {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--line);
-}
-
-.wiersze > li {
-  border-bottom: 1px solid var(--line);
-}
-
-.wiersz {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px 16px;
-  align-items: center;
-  min-height: 56px;
-  padding: 12px 6px;
-  color: inherit;
-}
-
-.wiersz:hover {
-  background: color-mix(in srgb, var(--surface) 64%, transparent);
-}
-
-.glowny {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-  overflow-wrap: anywhere;
+/* Akcja słowem („Wznów”) zamiast strzałki: kolumna na szerokość słowa. */
+.zAkcja {
+  --wiersz-akcja: auto;
 }
 
 .akcja {

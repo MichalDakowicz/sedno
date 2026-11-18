@@ -173,31 +173,30 @@ export function Dashboard() {
               Twoje przedmioty
             </h2>
           </div>
-          <ul className={styles.rows}>
+          <ul className={`wiersze ${styles.listaWynikow}`}>
             {dane.podsumowania.map((s) => {
               const pr = przedmiot(s.przedmiot.id)!;
               return (
                 <li key={`${pr.id}-${s.przedmiot.poziom}`}>
-                  <Link to={`/przedmiot/${pr.id}`} className={styles.subjectRow}>
-                    <SubjectIcon subject={pr} size="lg" />
-                    <span className={styles.subjectName}>
+                  <Link to={`/przedmiot/${pr.id}`} className="wiersz">
+                    <span className="wiersz-ikona"><SubjectIcon subject={pr} size="lg" /></span>
+                    <span className="wiersz-tresc">
                       <span className="h3">{pr.nazwa}</span>
-                      <span className="muted small">poziom {nazwaPoziomu[s.przedmiot.poziom]}</span>
+                      <span className="wiersz-opis">
+                        poziom {nazwaPoziomu[s.przedmiot.poziom]} · {s.arkusze.length ? `${s.wyniki.length} z ${s.arkusze.length} arkuszy sprawdzonych` : "arkuszy jeszcze nie ma"}
+                      </span>
                     </span>
-                    <span className={styles.subjectMastery}>
+                    <span className="wiersz-wartosc">
                       {s.srednia !== null ? (
-                        <>
+                        <span className="wiersz-pasek">
                           <Wynikowy value={s.srednia} />
-                          <span className={styles.pct}>{s.srednia}%</span>
-                        </>
+                          <span>{s.srednia}%</span>
+                        </span>
                       ) : (
-                        <span className="muted small">bez wyniku</span>
+                        <span className="muted">bez wyniku</span>
                       )}
                     </span>
-                    <span className={styles.note}>
-                      {s.arkusze.length ? `${s.wyniki.length} z ${s.arkusze.length} arkuszy sprawdzonych` : "arkusze w drodze"}
-                    </span>
-                    <ChevronRight size={20} className={styles.chevron} aria-hidden="true" />
+                    <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
                   </Link>
                 </li>
               );
@@ -227,28 +226,33 @@ function ArkuszePrzedmiotu({ podsumowanie: s, zPoziomem, wejscie }: { podsumowan
         </Link>
       </div>
       {s.wyniki.length || s.zaczete.length ? (
-        <ul className={styles.rows}>
+        <ul className={`wiersze ${styles.listaWynikow}`}>
           {s.zaczete.map((z) => (
             <li key={z.arkusz.id}>
-              <Link to={`/arkusze/${z.arkusz.id}`} className={styles.skill}>
-                <span className={styles.skillName}>{tytul(z.arkusz)}</span>
-                <span className="muted small">w trakcie</span>
-                <span className={styles.pct} />
-                <span className={styles.note}>
-                  {z.odpowiedzi} z {z.arkusz.pytan} odpowiedzi
+              <Link to={`/arkusze/${z.arkusz.id}`} className="wiersz">
+                <span className="wiersz-tresc">
+                  <span className="wiersz-nazwa">{tytul(z.arkusz)}</span>
+                  <span className="wiersz-opis">{z.odpowiedzi} z {z.arkusz.pytan} odpowiedzi</span>
                 </span>
+                <span className="wiersz-wartosc muted">w trakcie</span>
+                <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
               </Link>
             </li>
           ))}
           {s.wyniki.map((w) => (
             <li key={w.arkusz.id}>
-              <Link to={`/arkusze/${w.arkusz.id}`} className={styles.skill}>
-                <span className={styles.skillName}>{tytul(w.arkusz)}</span>
-                <Wynikowy value={procent(w)} />
-                <span className={styles.pct}>{procent(w)}%</span>
-                <span className={styles.note}>
-                  {w.zdobyte}/{w.mozliwe} pkt
+              <Link to={`/arkusze/${w.arkusz.id}`} className="wiersz">
+                <span className="wiersz-tresc">
+                  <span className="wiersz-nazwa">{tytul(w.arkusz)}</span>
+                  <span className="wiersz-opis">{w.zdobyte}/{w.mozliwe} pkt</span>
                 </span>
+                <span className="wiersz-wartosc">
+                  <span className="wiersz-pasek">
+                    <Wynikowy value={procent(w)} />
+                    <span>{procent(w)}%</span>
+                  </span>
+                </span>
+                <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
               </Link>
             </li>
           ))}

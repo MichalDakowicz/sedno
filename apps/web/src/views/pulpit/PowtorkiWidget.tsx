@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { Ladowanie } from "../../components/Ladowanie";
 import { adresNauki, adresPowtorek } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
@@ -33,22 +33,21 @@ export function PowtorkiWidget({ zakres, aktywny }: KontekstPulpitu) {
       )}
       {powtorki.stan === "gotowe" && (kolejka.length ? (
         <>
-          <ul className={w.wiersze}>
+          <ul className="wiersze">
             {kolejka.slice(0, POKAZANE).map((p) => (
               <li key={kluczPowtorki(p)}>
-                <Link to={adresPowtorek(poziom)} className={w.wiersz}>
-                  <span className={w.glowny}>
+                <Link to={adresPowtorek(poziom)} className="wiersz">
+                  <span className="wiersz-tresc">
                     <span className="h3">{p.name}</span>
                     {p.mistake && (
-                      <span className="small">
-                        {etykietaZrodla(p.mistake)}
-                      </span>
+                      <span className="wiersz-opis">{etykietaZrodla(p.mistake)}</span>
                     )}
-                    <span className="small muted">
+                    <span className="wiersz-opis">
                       {p.mistake ? "Wróć do zadania, które sprawiło trudność." : "Czas przypomnieć sobie tę umiejętność."}
                       {p.retention !== null && ` Pamiętasz ok. ${procentNauki.format(p.retention)}.`}
                     </span>
                   </span>
+                  <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
                 </Link>
               </li>
             ))}

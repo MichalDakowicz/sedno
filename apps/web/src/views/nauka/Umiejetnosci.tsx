@@ -69,7 +69,7 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
         {proby.stan === "ladowanie" && <Ladowanie ile={3} etykieta="Wczytuję próby" />}
         {proby.stan === "blad" && <Blad tekst="Nie udało się wczytać prób." ponow={proby.ponow} />}
         {proby.stan === "gotowe" && (proby.dane?.length ? (
-          <ul className={s.wiersze}>
+          <ul className="wiersze">
             {proby.dane.map((d) => <Dowod key={`${d.source_id}:${d.session_id ?? d.sheet_id}:${d.question}`} dowod={d} />)}
           </ul>
         ) : <p className="muted">Sprawdź zadania w arkuszu albo ukończ rundę, żeby zobaczyć tu pierwsze próby.</p>)}
@@ -155,13 +155,13 @@ export function Umiejetnosci() {
               return wObszarze.length > 0 && (
                 <section className={s.blok} aria-labelledby={`obszar-${i}`} key={obszar}>
                   <h2 className="h2" id={`obszar-${i}`}>{nazwa}</h2>
-                  <ul className={s.wiersze}>
+                  <ul className="wiersze">
                     {wObszarze.map((u) => (
                       <li key={u.skill_id}>
-                        <Link id={`umiejetnosc-${u.skill_id}`} to={adresMapy(poziom, u.skill_id)} className={s.wiersz} aria-current={u.skill_id === id ? "true" : undefined}>
-                          <span className={s.nazwa}>{u.name}{kody && <span className={`${s.kody} small`}>{u.codes.join(" · ")}</span>}</span>
-                          <Opanowanie {...u} />
-                          <ChevronRight className={s.wskaznik} size={18} aria-hidden="true" />
+                        <Link id={`umiejetnosc-${u.skill_id}`} to={adresMapy(poziom, u.skill_id)} className={`wiersz ${s.wiersz}`} aria-current={u.skill_id === id ? "true" : undefined}>
+                          <span className={`wiersz-tresc ${s.nazwa}`}>{u.name}{kody && <span className="wiersz-opis">{u.codes.join(" · ")}</span>}</span>
+                          <span className="wiersz-wartosc"><Opanowanie {...u} /></span>
+                          <span className="wiersz-akcja"><ChevronRight size={18} aria-hidden="true" /></span>
                         </Link>
                       </li>
                     ))}

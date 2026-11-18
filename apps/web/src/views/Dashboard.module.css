@@ -87,21 +87,6 @@
   width: fit-content;
 }
 
-.kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: var(--t-xs);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--subtle);
-}
-
-.kicker svg {
-  color: var(--primary-text);
-}
-
 /* Rekomendacja + boczna kolumna */
 
 .top {
@@ -150,10 +135,6 @@
   width: 100%;
 }
 
-.todayHead .kicker {
-  color: var(--primary-text);
-}
-
 .tag {
   display: inline-flex;
   align-items: center;
@@ -185,40 +166,6 @@
   white-space: normal;
   line-height: 1.25;
   text-align: center;
-}
-
-.alternatives {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--line);
-}
-
-.alternatives button {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 14px 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  background: none;
-  text-align: left;
-  cursor: pointer;
-}
-
-.altIcon {
-  flex-shrink: 0;
-  color: var(--primary-text);
-}
-
-.altName {
-  flex: 1;
-}
-
-.alternatives button:hover .altName {
-  color: var(--primary-text);
 }
 
 /* Kolumna obok karty trzyma jej linie: etykieta na wysokości „Dziś warto”, ostatnie arkusze przy dolnej krawędzi. */
@@ -274,11 +221,16 @@
   background: var(--primary);
 }
 
-/* Listy: umiejętności i przedmioty */
+/* Listy: przedmioty i arkusze (wspólny .wiersz z global.css) */
 
 .section {
   display: grid;
   gap: 24px;
+}
+
+/* Pasek wyniku z procentem stoi w jednej kolumnie we wszystkich wierszach. */
+.listaWynikow {
+  --wiersz-wartosc: 14rem;
 }
 
 .sectionHead {
@@ -286,29 +238,6 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 16px;
-}
-
-.rows {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--line);
-}
-
-.rows > li {
-  border-bottom: 1px solid var(--line);
-}
-
-.skill {
-  display: grid;
-  grid-template-columns: minmax(160px, 1.2fr) minmax(120px, 2fr) 48px minmax(0, 1.6fr);
-  gap: 24px;
-  align-items: center;
-  padding: 18px 0;
-}
-
-.skillName {
-  font-weight: 500;
 }
 
 .bar {
@@ -335,90 +264,6 @@
 
 .bar span[data-level="high"] {
   background: var(--success);
-}
-
-.pct {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-}
-
-.note {
-  font-size: var(--t-sm);
-  color: var(--muted);
-}
-
-.subjectRow {
-  display: grid;
-  grid-template-columns: 48px minmax(160px, 1.2fr) minmax(160px, 1.4fr) minmax(0, 1.2fr) 20px;
-  gap: 24px;
-  align-items: center;
-  padding: 20px 0;
-}
-
-.subjectName {
-  display: grid;
-  gap: 2px;
-}
-
-.subjectMastery {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 48px;
-  gap: 16px;
-  align-items: center;
-}
-
-.chevron {
-  color: var(--subtle);
-  transition:
-    transform 0.15s ease,
-    color 0.15s ease;
-}
-
-.subjectRow:hover .chevron {
-  color: var(--primary-text);
-  transform: translateX(3px);
-}
-
-/* Dolne kolumny */
-
-.columns {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 48px;
-}
-
-.column {
-  display: grid;
-  gap: 10px;
-  align-content: start;
-  justify-items: start;
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
-}
-
-.column :global(.link) {
-  margin-top: 8px;
-}
-
-.search {
-  position: relative;
-  display: block;
-  width: 100%;
-  margin-top: 8px;
-}
-
-.search svg {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--subtle);
-  pointer-events: none;
-}
-
-.search :global(.input) {
-  padding-left: 48px;
 }
 
 .stat {
@@ -605,40 +450,6 @@
 
   .side {
     padding: 8px 0 0;
-  }
-
-  .skill {
-    grid-template-columns: minmax(0, 1fr) 48px;
-    gap: 8px 16px;
-  }
-
-  .skill .bar {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
-  .skill .note {
-    grid-column: 1 / -1;
-  }
-
-  .subjectRow {
-    grid-template-columns: 48px minmax(0, 1fr) 20px;
-    gap: 8px 16px;
-  }
-
-  .subjectMastery,
-  .subjectRow .note {
-    grid-column: 2;
-  }
-
-  .chevron {
-    grid-column: 3;
-    grid-row: 1;
-  }
-
-  .columns {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
   }
 }
 

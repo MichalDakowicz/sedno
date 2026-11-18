@@ -6,7 +6,7 @@ import styles from "../Dashboard.module.css";
 
 export function Kicker({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode }) {
   return (
-    <span className={styles.kicker}>
+    <span className="kicker">
       <Icon size={14} strokeWidth={2.2} aria-hidden="true" />
       {children}
     </span>

@@ -48,17 +48,17 @@ export function DoMatury() {
                 <p className="muted">Wszystkie egzaminy za tobą.</p>
               )}
             </div>
-            <ul className={s.wiersze}>
+            <ul className="wiersze">
               {egzaminy.map((e) => (
-                <li key={`${e.przedmiotId}-${e.poziom}`} className={s.wiersz}>
-                  <span className={s.wierszTekst}>
+                <li key={`${e.przedmiotId}-${e.poziom}`} className="wiersz">
+                  <span className="wiersz-tresc">
                     <span className="h3">{nazwaEgzaminu(e)}</span>
-                    <span className="muted small">{e.znana ? opisDaty(e.data) : "data wg harmonogramu CKE"}</span>
+                    <span className="wiersz-opis">{e.znana ? opisDaty(e.data) : "data wg harmonogramu CKE"}</span>
                   </span>
                   {minal(e) ? (
-                    <span className="muted small">po egzaminie</span>
+                    <span className="wiersz-wartosc muted">po egzaminie</span>
                   ) : (
-                    <span className={s.dni}>
+                    <span className={`wiersz-wartosc ${s.dni}`}>
                       {dniDo(e.data)} {odmianaDni(dniDo(e.data))}
                     </span>
                   )}
@@ -77,18 +77,20 @@ export function DoMatury() {
           <h2 id="cel" className="h2">
             Cel z profilu
           </h2>
-          <ul className={s.wiersze}>
+          <ul className="wiersze">
             {przedmioty.map((m) => {
               const cel = CELE.find((c) => c.id === u.cele?.[m.id]);
               return (
-                <li key={m.id} className={s.wiersz}>
-                  <span className="h3">{przedmiot(m.id)!.nazwa}</span>
+                <li key={m.id} className="wiersz">
+                  <span className="wiersz-tresc h3">{przedmiot(m.id)!.nazwa}</span>
                   {cel ? (
-                    <span className={s.cel}>{cel.nazwa}</span>
+                    <span className={`wiersz-wartosc ${s.cel}`}>{cel.nazwa}</span>
                   ) : (
-                    <Link to="/profil-ucznia" className="link">
-                      Ustaw cel w profilu
-                    </Link>
+                    <span className="wiersz-wartosc">
+                      <Link to="/profil-ucznia" className="link" style={{ justifySelf: "start" }}>
+                        Ustaw cel w profilu
+                      </Link>
+                    </span>
                   )}
                 </li>
               );

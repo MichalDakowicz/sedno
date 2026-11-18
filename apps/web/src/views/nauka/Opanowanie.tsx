@@ -11,11 +11,11 @@ export function Opanowanie({ score, confidence }: Pick<Umiejetnosc, "score" | "c
   const procent = Math.round(score * 100);
   const malaPewnosc = confidence < 0.5;
   return (
-    <span className={s.opanowanie} data-pewnosc={malaPewnosc ? "mala" : undefined} data-tutor-about={OPIS_OPANOWANIA}>
+    <span className={`wiersz-pasek ${s.opanowanie}`} data-pewnosc={malaPewnosc ? "mala" : undefined} data-tutor-about={OPIS_OPANOWANIA}>
       <span className={s.pasek} aria-hidden="true">
         <span style={{ width: `${procent}%` }} />
       </span>
-      <span className="small">
+      <span>
         <span className="visually-hidden">Opanowanie </span>{procent}%
         {malaPewnosc && <span className="visually-hidden">. Niska pewność oszacowania</span>}
       </span>

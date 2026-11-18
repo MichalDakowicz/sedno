@@ -45,24 +45,9 @@
   gap: 32px;
 }
 
-.wiersze {
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--line);
-  list-style: none;
-}
-
-.wiersze > li {
-  border-bottom: 1px solid var(--line);
-}
-
+/* Wiersz mapy to wspólny .wiersz; tu tylko podświetlenie wybranej umiejętności z wcięciem na tło. */
 .wiersz {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(80px, 1fr) auto;
-  gap: 10px 16px;
-  align-items: center;
-  min-height: 56px;
-  padding: 12px 6px;
+  padding-inline: 6px;
 }
 
 .wiersz:hover,
@@ -70,8 +55,7 @@
   background: color-mix(in srgb, var(--surface) 64%, transparent);
 }
 
-.wiersz[aria-current] .nazwa,
-.wiersz:hover .wskaznik {
+.wiersz[aria-current] .nazwa {
   color: var(--primary-text);
 }
 
@@ -83,20 +67,8 @@
   overflow-wrap: anywhere;
 }
 
-.kody {
-  font-weight: 400;
-  color: var(--subtle);
-}
-
-.wskaznik {
-  color: var(--subtle);
-}
-
 .opanowanie {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
+  font-size: var(--t-sm);
   font-variant-numeric: tabular-nums;
 }
 
@@ -187,23 +159,6 @@
   .panel {
     padding: 0;
     border-left: 0;
-  }
-}
-
-@media (max-width: 460px) {
-  .wiersz {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .wiersz .opanowanie,
-  .wiersz .brak {
-    grid-row: 2;
-    grid-column: 1 / -1;
-  }
-
-  .wskaznik {
-    grid-column: 2;
-    grid-row: 1;
   }
 }
 

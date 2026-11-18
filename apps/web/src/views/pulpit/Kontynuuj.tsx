@@ -37,19 +37,19 @@ function OtwarteRundy() {
       )}
       {rundy.stan === "gotowe" && (sesje.length ? (
         <>
-          <ul className={w.wiersze}>
+          <ul className={`wiersze ${w.zAkcja}`}>
             {sesje.slice(0, POKAZANE).map((sesja) => {
               const nazwa = rundy.dane?.nazwy.get(sesja.skill_id);
               const format = nazwaFormatuNauki[sesja.format];
               const opis = [nazwa && format, kilkaPoziomow && nazwaPoziomu[sesja.level], dataNauki(sesja.updated_at)].filter(Boolean).join(" · ");
               return (
                 <li key={sesja.id}>
-                  <Link to={adresRundy(sesja.id)} className={w.wiersz}>
-                    <span className={w.glowny}>
+                  <Link to={adresRundy(sesja.id)} className="wiersz">
+                    <span className="wiersz-tresc">
                       <span className="h3">{nazwa ?? format}</span>
-                      {opis && <span className="small muted">{opis}</span>}
+                      {opis && <span className="wiersz-opis">{opis}</span>}
                     </span>
-                    <span className={w.akcja}>Wznów</span>
+                    <span className={`wiersz-akcja ${w.akcja}`}>Wznów</span>
                   </Link>
                 </li>
               );

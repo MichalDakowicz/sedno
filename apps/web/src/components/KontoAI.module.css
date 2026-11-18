@@ -8,25 +8,9 @@
   gap: 4px;
 }
 
+/* Dostawcy: wspólny .wiersz, akcje (Sprawdź, Usuń) w kolumnie na szerokość przycisków. */
 .list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--line);
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
-  flex-wrap: wrap;
-}
-
-.grow {
-  flex: 1;
-  min-width: 200px;
+  --wiersz-akcja: auto;
 }
 
 .tiers {

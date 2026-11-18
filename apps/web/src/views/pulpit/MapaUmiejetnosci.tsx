@@ -32,19 +32,22 @@ export function MapaUmiejetnosci({ zakres, aktywny }: KontekstPulpitu) {
       )}
       {umiejetnosci && (
         <>
-          <ul className={mapaStyl.wiersze}>
+          <ul className="wiersze">
             {umiejetnosci.map((u) => (
               <li key={u.skill_id}>
-                <Link to={adresMapy(poziom, u.skill_id)} className={mapaStyl.wiersz}>
-                  <span className={mapaStyl.nazwa}>{u.name}</span>
-                  <Opanowanie {...u} />
-                  <ChevronRight size={18} className={mapaStyl.wskaznik} aria-hidden="true" />
+                <Link to={adresMapy(poziom, u.skill_id)} className={`wiersz ${mapaStyl.wiersz}`}>
+                  <span className={`wiersz-tresc ${mapaStyl.nazwa}`}>{u.name}</span>
+                  <span className="wiersz-wartosc"><Opanowanie {...u} /></span>
+                  <span className="wiersz-akcja"><ChevronRight size={18} aria-hidden="true" /></span>
                 </Link>
               </li>
             ))}
           </ul>
           {umiejetnosci.every((u) => u.score === null) && (
-            <p className="muted small">Ukończ <Link to={adresNauki(poziom)} className="link">szybką rundę</Link>, żeby zacząć zbierać wyniki.</p>
+            <div className={mapaStyl.blok}>
+              <p className="muted">Wyniki pojawią się po pierwszej rundzie.</p>
+              <Link to={adresNauki(poziom)} className={`btn btn-secondary btn-sm ${mapaStyl.przycisk}`}>Zacznij szybką rundę</Link>
+            </div>
           )}
         </>
       )}

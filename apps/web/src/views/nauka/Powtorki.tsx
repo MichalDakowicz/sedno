@@ -66,7 +66,7 @@ export function Powtorki() {
 
       {dzis && (
         <article className={s.karta} aria-labelledby="powtorka-dzis">
-          <span className={`label ${s.nadtytul}`}><Timer size={16} aria-hidden="true" /> Na dziś</span>
+          <span className="kicker"><Timer size={14} strokeWidth={2.2} aria-hidden="true" /> Na dziś</span>
           <h2 id="powtorka-dzis" className="h1">{dzis.name}</h2>
           <p className="muted">
             {dzis.mistake ? "Wróć do zadania, które sprawiło trudność." : "Czas przypomnieć sobie tę umiejętność."}
@@ -88,7 +88,7 @@ export function Powtorki() {
       {bledy.length > 0 && (
         <section className={s.sekcja} aria-labelledby="bledy-powtorki">
           <h2 className="h2" id="bledy-powtorki">Błędy do przećwiczenia</h2>
-          <ul className={s.wiersze}>
+          <ul className={`wiersze ${s.wiersze}`}>
             {bledy.map((grupa) => <GrupaBledow key={grupa[0].skill_id} poziom={poziom} zadania={grupa} />)}
           </ul>
         </section>
@@ -97,7 +97,7 @@ export function Powtorki() {
       {zanikajace.length > 0 && (
         <section className={s.sekcja} aria-labelledby="zanikajace-umiejetnosci">
           <h2 className="h2" id="zanikajace-umiejetnosci">Do odświeżenia</h2>
-          <ul className={s.wiersze}>
+          <ul className={`wiersze ${s.wiersze}`}>
             {zanikajace.map((p) => <WierszPowtorki key={kluczPowtorki(p)} poziom={poziom} powtorka={p} />)}
           </ul>
         </section>
@@ -134,16 +134,17 @@ function GrupaBledow({ poziom, zadania }: { poziom: Poziom; zadania: Powtorka[] 
 
 function WierszPowtorki({ poziom, powtorka }: { poziom: Poziom; powtorka: Powtorka }) {
   return (
-    <li className={`${s.wiersz}`}>
-      <div className={s.wierszGlowny}>
+    <li className="wiersz">
+      <div className="wiersz-tresc">
         <h3 className="h3">{powtorka.name}</h3>
-        <OstatnieCwiczenie powtorka={powtorka} />
+        <OstatnieCwiczenie powtorka={powtorka} bezPamieci />
         <div className={`small ${s.akcje}`}>
           <ZrodloPowtorki powtorka={powtorka} />
           <Link className="link" to={adresMapy(poziom, powtorka.skill_id)}>Zobacz na mapie</Link>
         </div>
       </div>
-      <div className={s.wierszBoczny}>
+      <div className="wiersz-wartosc">{powtorka.retention !== null && <Pamiec retencja={powtorka.retention} />}</div>
+      <div className="wiersz-akcja">
         <Link to={adresCwiczenia(poziom, powtorka)} className={`link small ${s.cwicz}`}>
           <RotateCcw size={15} aria-hidden="true" />
           {etykietaCwiczenia(powtorka)}
@@ -153,9 +154,23 @@ function WierszPowtorki({ poziom, powtorka }: { poziom: Poziom; powtorka: Powtor
   );
 }
 
-function OstatnieCwiczenie({ powtorka }: { powtorka: Powtorka }) {
+const OPIS_PAMIECI = "To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia, a powtórka go odświeża.";
+
+function Pamiec({ retencja }: { retencja: number }) {
+  return (
+    <span className={s.retencja} data-tutor-about={OPIS_PAMIECI}>
+      <span className="muted" aria-hidden="true">Pamiętasz ok.</span>
+      <span className="wiersz-pasek">
+        <progress aria-label={`Pamiętasz ok. ${procentNauki.format(retencja)}`} value={retencja} max={1} />
+        <span aria-hidden="true">{procentNauki.format(retencja)}</span>
+      </span>
+    </span>
+  );
+}
+
+function OstatnieCwiczenie({ powtorka, bezPamieci }: { powtorka: Powtorka; bezPamieci?: boolean }) {
   const ostatnio = dataNauki(powtorka.last_practiced_at);
-  const retencja = powtorka.retention;
+  const retencja = bezPamieci ? null : powtorka.retention;
   if (!ostatnio && retencja === null) return null;
   const dni = powtorka.last_practiced_at ? Math.floor((Date.now() - Date.parse(powtorka.last_practiced_at)) / 86_400_000) : 0;
   return (
@@ -165,12 +180,7 @@ function OstatnieCwiczenie({ powtorka }: { powtorka: Powtorka }) {
           {dni < 1 ? "Ćwiczone w ciągu ostatniej doby" : `Ostatnie ćwiczenie ${odOstatniego.format(-dni, "day")}`}
         </time>
       )}
-      {retencja !== null && (
-        <span className={s.retencja} data-tutor-about="To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia, a powtórka go odświeża.">
-          <progress aria-label={`Pamiętasz ok. ${procentNauki.format(retencja)}`} value={retencja} max={1} />
-          <span aria-hidden="true">Pamiętasz ok. {procentNauki.format(retencja)}</span>
-        </span>
-      )}
+      {retencja !== null && <Pamiec retencja={retencja} />}
     </div>
   );
 }

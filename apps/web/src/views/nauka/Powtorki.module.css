@@ -16,17 +16,6 @@
   border-top: 1px solid var(--line);
 }
 
-.nadtytul {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--primary-text);
-}
-
-.nadtytul svg {
-  flex: none;
-}
-
 .karta {
   composes: karta from global;
   display: grid;
@@ -59,25 +48,13 @@
   flex-shrink: 0;
 }
 
+/* Wiersze to wspólny .wiersz: pamięć w stałej kolumnie, akcja w kolumnie na najdłuższy podpis („Powtórz zadanie”). */
 .wiersze {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--line);
+  --wiersz-wartosc: 10rem;
+  --wiersz-akcja: 11rem;
 }
 
-.wiersz {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--line);
-  color: inherit;
-}
-
-.wierszGlowny,
-.wierszBoczny {
+.wierszGlowny {
   display: grid;
   justify-items: start;
   min-width: 0;
@@ -85,17 +62,11 @@
   overflow-wrap: anywhere;
 }
 
-.wierszBoczny {
-  justify-items: end;
-  text-align: right;
-}
-
 /* Grupa błędów jednej umiejętności: nagłówek raz, zadania jako wiersze rozdzielone cienką linią. */
 .grupa {
   display: grid;
   gap: 4px;
   padding: 16px 0;
-  border-bottom: 1px solid var(--line);
 }
 
 .grupaGlowa {
@@ -132,15 +103,14 @@
 }
 
 .retencja {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 2px 8px;
-  max-width: 100%;
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  max-width: 12rem;
 }
 
 .retencja progress {
-  inline-size: 76px;
+  inline-size: 100%;
   block-size: 6px;
   max-width: 100%;
   border: 0;
@@ -163,15 +133,18 @@
     gap: 24px;
     padding-top: 24px;
   }
+}
 
-  .wiersz {
+/* Na telefonie podpis akcji nie mieści się obok nazwy: schodzi pod pamięć. */
+@media (max-width: 640px) {
+  .wiersze > :global(.wiersz) {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .wiersz .wierszBoczny {
+  .wiersze :global(.wiersz-akcja) {
+    grid-row: 3;
     grid-column: 1;
-    justify-items: start;
-    text-align: left;
+    justify-content: flex-start;
   }
 }
 

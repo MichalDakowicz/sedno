@@ -14,9 +14,9 @@ function Wybor({ pytanie, opcje, wybrana, onZmiana }: { pytanie: string; opcje: 
   return (
     <div className={s.pytanie} role="group" aria-label={pytanie}>
       <span>{pytanie}</span>
-      <div className={s.chipy}>
+      <div className="pigulki">
         {opcje.map((o) => (
-          <button key={o.id} type="button" aria-pressed={o.id === wybrana} className={`${s.chip} ${o.id === wybrana ? s.chipAktywny : ""}`} onClick={() => onZmiana(o.id)}>
+          <button key={o.id} type="button" aria-pressed={o.id === wybrana} className="pigulka" onClick={() => onZmiana(o.id)}>
             {o.nazwa}
           </button>
         ))}
@@ -108,16 +108,18 @@ export function ProfilUcznia() {
           Priorytety
         </h2>
         {priorytety.length > 0 && (
-          <ul className={s.wiersze}>
+          <ul className={`wiersze ${s.wiersze}`}>
             {priorytety.map((p) => (
-              <li key={p.id} className={s.wiersz}>
-                <span className={s.wierszTekst}>
+              <li key={p.id} className="wiersz">
+                <span className="wiersz-tresc">
                   <span>{p.tekst}</span>
-                  <span className="muted small">{p.zrodlo === "uczen" ? "dodane przez ciebie" : `Pestka, z rozmowy ${kiedy(p.kiedy)}`}</span>
+                  <span className="wiersz-opis">{p.zrodlo === "uczen" ? "dodane przez ciebie" : `Pestka, z rozmowy ${kiedy(p.kiedy)}`}</span>
                 </span>
-                <button type="button" className={`link ${s.usun}`} onClick={() => usunPriorytet(p.id)} aria-label={`Usuń priorytet: ${p.tekst}`}>
-                  Usuń
-                </button>
+                <span className="wiersz-akcja">
+                  <button type="button" className={`link ${s.usun}`} onClick={() => usunPriorytet(p.id)} aria-label={`Usuń priorytet: ${p.tekst}`}>
+                    Usuń
+                  </button>
+                </span>
               </li>
             ))}
           </ul>
@@ -166,13 +168,15 @@ export function ProfilUcznia() {
               <span className="label">
                 {g.nazwa} ({g.poziom}) · z {g.arkuszy} arkuszy
               </span>
-              <ul className={s.wiersze}>
+              <ul className={`wiersze ${s.wiersze}`}>
                 {g.wnioski.map((w) => (
-                  <li key={w.id} className={s.wiersz}>
-                    <span>{w.tekst}</span>
-                    <button type="button" className={`link ${s.usun}`} onClick={() => usunWniosek(w.id)} aria-label={`Usuń wniosek: ${w.tekst}`}>
-                      Usuń
-                    </button>
+                  <li key={w.id} className="wiersz">
+                    <span className="wiersz-tresc">{w.tekst}</span>
+                    <span className="wiersz-akcja">
+                      <button type="button" className={`link ${s.usun}`} onClick={() => usunWniosek(w.id)} aria-label={`Usuń wniosek: ${w.tekst}`}>
+                        Usuń
+                      </button>
+                    </span>
                   </li>
                 ))}
               </ul>
