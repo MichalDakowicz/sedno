@@ -109,6 +109,7 @@ export type OtwartaSesjaNauki = {
   created_at: string;
   updated_at: string;
   completed_at: string | null;
+  repeat_item?: string | null;
   target: number;
 };
 export type SesjaNauki = Omit<OtwartaSesjaNauki, "target"> & {

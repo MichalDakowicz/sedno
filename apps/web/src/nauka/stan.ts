@@ -62,11 +62,11 @@ export function useZapytanieNauki<T>(klucz: string | null, pobierz: (signal: Abo
 // Limit otwartych rund dotyczy całego konta, więc lista musi obejmować wszystkie poziomy angielskiego.
 export function useOtwarteRundy(poziom: Poziom) {
   return useZapytanieNauki(`nauka:ostatnie:wszystkie:${poziom}`, async (signal) => {
-    const [listy, katalog] = await Promise.all([
-      Promise.all(poziomyNauki.map((p) => naukaApi.ostatnie(p, signal))),
-      naukaApi.katalog(poziom, signal).catch(() => null),
-    ]);
+    const listy = await Promise.all(poziomyNauki.map((p) => naukaApi.ostatnie(p, signal)));
     const sesje = listy.flat().sort((a, b) => b.updated_at.localeCompare(a.updated_at));
-    return { sesje, nazwy: new Map((katalog?.skills ?? []).map((u) => [u.id, u.name])) };
+    const poziomy = [...new Set(sesje.map((s) => s.level))];
+    const katalogi = await Promise.all(poziomy.map((p) => naukaApi.katalog(p, signal).catch(() => null)));
+    const nazwy = new Map(katalogi.flatMap((k) => (k?.skills ?? []).map((u) => [u.id, u.name] as const)));
+    return { sesje, nazwy };
   });
 }
