@@ -15,32 +15,11 @@
   scrollbar-width: none;
 }
 
+/* Zakładki przedmiotu i poziomu: te same pigułki co poziom matury na Nauce, w Powtórkach i na mapie. */
 .level {
+  composes: pigulka from global;
   flex-shrink: 0;
-  min-height: 44px;
-  padding: 8px 20px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  background: transparent;
-  font-size: var(--t-sm);
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
-}
-
-.level:hover {
-  color: var(--fg);
-  background: var(--surface);
-}
-
-.levelActive {
-  color: var(--fg);
-  background: var(--surface);
-  border-color: transparent;
-  box-shadow: var(--shadow-float);
+  font-family: inherit;
 }
 
 .levelCount {

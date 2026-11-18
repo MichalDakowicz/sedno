@@ -7,7 +7,6 @@ import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
 import { useProfil } from "../auth";
 import { NaglowekStrony } from "../components/NaglowekStrony";
 import { Ladowanie } from "../components/Ladowanie";
-import { Plywak } from "../components/Plywak";
 import styles from "./Arkusze.module.css";
 
 const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string; lead: string }[] = [
@@ -56,12 +55,11 @@ export function Arkusze() {
       <NaglowekStrony etykieta={opis.opis} tytul="Arkusze" lead={opis.lead} />
 
       <nav className={styles.levels} aria-label="Przedmiot">
-        <Plywak zalezy={przedmiot} />
         {PRZEDMIOTY.map((p) => (
           <button
             key={p.id}
             type="button"
-            className={`${styles.level} ${przedmiot === p.id ? styles.levelActive : ""}`}
+            className={styles.level}
             onClick={() => {
               setPrzedmiot(p.id);
               setPoziom(poziomKonta(p.id) ?? "podstawowy");
@@ -75,9 +73,8 @@ export function Arkusze() {
 
       {poziomy.length > 1 && (
         <nav className={styles.levels} aria-label="Poziom">
-          <Plywak zalezy={`${przedmiot}-${poziom}-${poziomy.length}`} />
           {poziomy.map((p) => (
-            <button key={p} type="button" className={`${styles.level} ${poziom === p ? styles.levelActive : ""}`} onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
+            <button key={p} type="button" className={styles.level} onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
               {NAZWY[p]}
               {zPrzedmiotu && <span className={styles.levelCount}>{zPrzedmiotu.filter((a) => a.poziom === p).length}</span>}
             </button>
