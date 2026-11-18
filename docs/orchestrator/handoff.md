@@ -15,7 +15,8 @@ _Updated 2026-11-18_
 **Claimed but unfinished.** None.
 
 **Next.**
-- User: decide who redeploys the production frontend; agree with the teammate on the split of work for the next goal (two agent teams worked on the same goal twice this run).
+- Teammate: redeploy the production frontend from `main` (user's decision 2026-11-18); then smoke-test /umiejetnosci, /nauka, a round, /powtorki and the dashboard on production.
+- User: agree with the teammate on the split of work for the next goal (two agent teams worked on the same goal twice this run).
 - Next orchestrator: draft goal 3 with the user (candidates in `NASTEPNE.md`: other subjects, „Do matury” forecast and weekly plan, other formats).
 
 **Housekeeping.**
