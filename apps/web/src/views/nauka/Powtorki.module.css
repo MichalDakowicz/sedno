@@ -1,0 +1,189 @@
+.strona {
+  display: grid;
+  gap: 32px;
+  padding-top: 32px;
+  padding-bottom: 120px;
+}
+
+.glowa,
+.sekcja {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.glowa {
+  justify-items: start;
+  gap: 10px;
+}
+
+.sekcja {
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.nadtytul {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-text);
+}
+
+.nadtytul svg {
+  flex: none;
+}
+
+.karta {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  min-width: 0;
+  padding: clamp(18px, 4vw, 28px);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.karta h2,
+.karta p {
+  overflow-wrap: anywhere;
+}
+
+.akcje {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.przycisk {
+  min-width: 0;
+  max-width: 100%;
+  line-height: 1.25;
+  white-space: normal;
+  text-align: center;
+}
+
+.przycisk svg {
+  flex-shrink: 0;
+}
+
+.wiersze {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.wiersz {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  color: inherit;
+}
+
+.wierszGlowny,
+.wierszBoczny {
+  display: grid;
+  justify-items: start;
+  min-width: 0;
+  gap: 3px;
+  overflow-wrap: anywhere;
+}
+
+.wierszBoczny {
+  justify-items: end;
+  text-align: right;
+}
+
+/* Grupa błędów jednej umiejętności: nagłówek raz, zadania jako wiersze rozdzielone cienką linią. */
+.grupa {
+  display: grid;
+  gap: 4px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.grupaGlowa {
+  display: grid;
+  justify-items: start;
+  min-width: 0;
+  gap: 3px;
+  overflow-wrap: anywhere;
+}
+
+.mapa {
+  margin-top: 2px;
+}
+
+.zadania {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.zadanie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 8px 0 8px 14px;
+  border-left: 2px solid var(--line);
+}
+
+.zadanieOpis {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.polePoziom {
+  max-width: 320px;
+}
+
+.retencja {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  max-width: 100%;
+}
+
+.retencja progress {
+  inline-size: 76px;
+  block-size: 6px;
+  max-width: 100%;
+  border: 0;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  accent-color: var(--primary);
+}
+
+.retencja progress::-webkit-progress-bar {
+  border-radius: var(--r-pill);
+  background: var(--line);
+}
+
+.retencja progress::-webkit-progress-value {
+  background: var(--primary-mid);
+}
+
+@media (max-width: 480px) {
+  .strona {
+    gap: 24px;
+    padding-top: 24px;
+  }
+
+  .wiersz {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wiersz .wierszBoczny {
+    grid-column: 1;
+    justify-items: start;
+    text-align: left;
+  }
+}

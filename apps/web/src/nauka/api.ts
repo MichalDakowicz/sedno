@@ -50,6 +50,7 @@ export type Powtorka = {
   format: FormatNauki;
   mistake: null | Pick<DowodNauki, "sheet_id" | "session_id" | "question" | "error_type"> & {
     source_id?: string;
+    happened_at?: string;
     repeat_id?: string | null;
   };
 };
