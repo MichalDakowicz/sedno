@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useProfil, useSession } from "../auth";
 import type { Poziom } from "../arkusze/typy";
+import { naukaApi } from "./api";
 
 export const poziomyNauki: readonly Poziom[] = ["podstawowy", "rozszerzony", "dwujezyczny"];
 export const czyPoziomNauki = (wartosc: unknown): wartosc is Poziom => poziomyNauki.some((poziom) => poziom === wartosc);
@@ -56,4 +57,16 @@ export function useZapytanieNauki<T>(klucz: string | null, pobierz: (signal: Abo
   const aktualny = wynik?.klucz === kluczKonta && wynik.proba === proba ? wynik : null;
   const stan = kluczKonta === null ? "pominiete" : !aktualny ? "ladowanie" : aktualny.blad ? "blad" : "gotowe";
   return { stan, dane: aktualny?.dane ?? null, blad: aktualny?.blad ?? null, ponow: () => ustawProbe((n) => n + 1) } as const;
+}
+
+// Limit otwartych rund dotyczy całego konta, więc lista musi obejmować wszystkie poziomy angielskiego.
+export function useOtwarteRundy(poziom: Poziom) {
+  return useZapytanieNauki(`nauka:ostatnie:wszystkie:${poziom}`, async (signal) => {
+    const listy = await Promise.all(poziomyNauki.map((p) => naukaApi.ostatnie(p, signal)));
+    const sesje = listy.flat().sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+    const poziomy = [...new Set(sesje.map((s) => s.level))];
+    const katalogi = await Promise.all(poziomy.map((p) => naukaApi.katalog(p, signal).catch(() => null)));
+    const nazwy = new Map(katalogi.flatMap((k) => (k?.skills ?? []).map((u) => [u.id, u.name] as const)));
+    return { sesje, nazwy };
+  });
 }

@@ -109,6 +109,7 @@ export type OtwartaSesjaNauki = {
   created_at: string;
   updated_at: string;
   completed_at: string | null;
+  repeat_item?: string | null;
   target: number;
 };
 export type SesjaNauki = Omit<OtwartaSesjaNauki, "target"> & {
@@ -122,16 +123,28 @@ const KOMUNIKATY: Record<string, string> = {
   not_signed_in: "Zaloguj się ponownie, aby kontynuować naukę.",
   session_not_found: "Ta sesja jest niedostępna na tym koncie.",
   question_changed: "Odpowiedź do tego zadania została już zapisana. Odśwież rundę.",
-  too_many_open_sessions: "Masz już 10 rozpoczętych sesji. Wróć do jednej z nich z listy w Nauce.",
+  too_many_open_sessions: "Masz już 10 rozpoczętych rund. Wznów albo usuń jedną z nich na liście „Ostatnio” w Nauce.",
+  invalid_session: "Nie ma takiego ćwiczenia. Wróć do Nauki i wybierz umiejętność z listy.",
+  invalid_level: "Nie ma takiego poziomu. Wróć do Nauki i wybierz poziom z listy.",
+  skill_not_found: "Nie ma takiej umiejętności. Wróć do Nauki i wybierz ją z listy.",
   no_exercises_for_format: "Brakuje zadań do tego ćwiczenia na wybranym poziomie.",
   review_item_unavailable: "To zadanie nie jest już w kolejce. Odśwież Powtórki lub zacznij zwykłą rundę.",
   session_id_in_use: "Ta sesja jest już przypisana do innego ćwiczenia. Wróć do Nauki i zacznij ponownie.",
 };
 
+export class BladRpcNauki extends Error {
+  constructor(message: string, readonly kod?: string) {
+    super(message);
+  }
+}
+
+// Te błędy powodują parametry w adresie, więc ponowienie tego samego żądania nic nie zmieni.
+export const bledyBezPonowienia = ["invalid_session", "invalid_level", "skill_not_found"];
+
 async function rpc<T>(name: string, args: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
   const query = supabase.rpc(name, args);
   const { data, error } = await (signal ? query.abortSignal(signal) : query);
-  if (error) throw new Error(KOMUNIKATY[error.message] ?? "Nie udało się połączyć z Nauką. Spróbuj ponownie.");
+  if (error) throw new BladRpcNauki(KOMUNIKATY[error.message] ?? "Nie udało się połączyć z Nauką. Spróbuj ponownie.", error.message);
   return data as T;
 }
 

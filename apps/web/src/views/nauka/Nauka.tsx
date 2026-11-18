@@ -1,15 +1,23 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, ChevronRight, FileText, GraduationCap, MessagesSquare, Sparkles, Timer, Wrench } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
 import { Ladowanie } from "../../components/Ladowanie";
 import { useTutor } from "../../components/TutorContext";
 import { nazwaPoziomu } from "../../konto/przedmioty";
 import { adresMapy, adresRundy, adresStartu } from "../../nauka/adresy";
-import { naukaApi, nazwaFormatuNauki, type Umiejetnosc } from "../../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki, type Umiejetnosc } from "../../nauka/api";
+import { useOtwarteRundy, usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { Angielski, BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
 import s from "./NaukaPowtorki.module.css";
+
+// Te same nazwy obszarów co na mapie umiejętności (Umiejetnosci.tsx).
+const NAZWY_OBSZAROW: Record<string, string> = {
+  "słuchanie": "Rozumienie ze słuchu",
+  czytanie: "Rozumienie tekstów pisanych",
+  "środki językowe": "Środki językowe",
+  pisanie: "Wypowiedź pisemna",
+};
 
 export function Nauka() {
   const [poziom, ustawPoziom] = usePoziomNauki();
@@ -22,11 +30,49 @@ export function Nauka() {
     mapa.stan === "gotowe" ? `nauka:polec:${poziom}:${wybrana?.skill_id ?? ""}` : null,
     (signal) => naukaApi.polec(poziom, wybrana?.skill_id, signal),
   );
-  const ostatnie = useZapytanieNauki(`nauka:ostatnie:${poziom}`, (signal) => naukaApi.ostatnie(poziom, signal));
+  const ostatnie = useOtwarteRundy(poziom);
+  const { hash } = useLocation();
+  const naglowek = useRef<HTMLHeadingElement>(null);
+  const naglowekPolecenia = useRef<HTMLHeadingElement>(null);
+  const naglowekOstatnio = useRef<HTMLHeadingElement>(null);
+  const [usuwane, ustawUsuwane] = useState<string | null>(null);
+  const [bladUsuwania, ustawBladUsuwania] = useState("");
+  // Fokus przenosimy tylko po wejściu z parametrem (np. „Ćwicz”), nie przy zwykłym otwarciu strony.
+  const fokusPolecenia = useRef(params.get("umiejetnosc") !== null);
+  const fokusOstatnio = useRef(hash === "#ostatnio");
   const umiejetnosc = wybrana ?? umiejetnosci.find((u) => u.skill_id === polecenie.dane?.skill_id);
   const powtorz = polecenie.dane?.repeat_id ?? undefined;
   const format = powtorz ? "szybka-runda" : formatRundy(polecenie.dane?.format);
-  const sesje = (ostatnie.dane ?? []).filter((sesja) => sesja.format === "szybka-runda" || sesja.format === "napraw-blad");
+  const sesje = ostatnie.dane?.sesje ?? [];
+  const kilkaPoziomow = new Set(sesje.map((sesja) => sesja.level)).size > 1;
+  const polecenieGotowe = mapa.stan !== "ladowanie" && polecenie.stan !== "ladowanie";
+
+  useEffect(() => {
+    if (!fokusPolecenia.current || !polecenieGotowe) return;
+    fokusPolecenia.current = false;
+    (naglowekPolecenia.current ?? naglowek.current)?.focus();
+  }, [polecenieGotowe, polecenie.stan]);
+
+  useEffect(() => {
+    if (!fokusOstatnio.current || ostatnie.stan === "ladowanie") return;
+    fokusOstatnio.current = false;
+    naglowekOstatnio.current?.scrollIntoView();
+    naglowekOstatnio.current?.focus();
+  }, [ostatnie.stan]);
+
+  async function odrzuc(sesja: OtwartaSesjaNauki) {
+    ustawUsuwane(sesja.id);
+    ustawBladUsuwania("");
+    try {
+      await naukaApi.usun(sesja.id);
+      ostatnie.ponow();
+      naglowekOstatnio.current?.focus();
+    } catch (e) {
+      ustawBladUsuwania(e instanceof Error ? e.message : "Nie udało się usunąć rundy.");
+    } finally {
+      ustawUsuwane(null);
+    }
+  }
 
   function ustawUmiejetnosc(id: string) {
     ustawParams((aktualne) => {
@@ -41,7 +87,7 @@ export function Nauka() {
     <main className={`container ${s.strona}`}>
       <header className={s.glowa}>
         <Angielski />
-        <h1 className="display">Nauka</h1>
+        <h1 className="display" tabIndex={-1} ref={naglowek}>Nauka</h1>
         <p className="lead">Wybierz umiejętność i zrób krótką rundę przed maturą.</p>
       </header>
 
@@ -53,7 +99,7 @@ export function Nauka() {
             <select value={wybrana?.skill_id ?? ""} onChange={(e) => ustawUmiejetnosc(e.target.value)} disabled={mapa.stan !== "gotowe"}>
               <option value="">Dobierz dla mnie</option>
               {[...new Set(umiejetnosci.map((u) => u.area))].map((obszar) => (
-                <optgroup key={obszar} label={obszar}>
+                <optgroup key={obszar} label={NAZWY_OBSZAROW[obszar] ?? obszar}>
                   {umiejetnosci.filter((u) => u.area === obszar).map((u) => <option key={u.skill_id} value={u.skill_id}>{u.name}</option>)}
                 </optgroup>
               ))}
@@ -80,7 +126,7 @@ export function Nauka() {
         ) : polecenie.dane && umiejetnosc ? (
           <article className={s.karta} aria-labelledby="nauka-polecenie">
             <span className={`label ${s.nadtytul}`}><Sparkles size={16} aria-hidden="true" /> Polecam</span>
-            <h2 id="nauka-polecenie" className="h1">{powtorz ? "Powtórz zadanie" : nazwaFormatuNauki[format]}</h2>
+            <h2 id="nauka-polecenie" className="h1" tabIndex={-1} ref={naglowekPolecenia}>{powtorz ? "Powtórz zadanie" : nazwaFormatuNauki[format]}</h2>
             <p className="h3">{umiejetnosc.name}</p>
             <p className="muted">{polecenie.dane.reason}</p>
             <Link to={adresStartu(poziom, umiejetnosc.skill_id, format, powtorz)} className={`btn btn-primary ${s.przycisk}`}>
@@ -141,49 +187,59 @@ export function Nauka() {
       </section>
 
       <section className={s.sekcja} aria-labelledby="ostatnio">
-        <h2 className="h2" id="ostatnio">Ostatnio</h2>
+        <h2 className="h2" id="ostatnio" tabIndex={-1} ref={naglowekOstatnio}>Ostatnio</h2>
         {ostatnie.stan === "ladowanie" && <Ladowanie ile={2} etykieta="Wczytuję niedokończone ćwiczenia" />}
         {ostatnie.stan === "blad" && <BladNauki komunikat="Nie udało się wczytać ostatnich ćwiczeń." ponow={ostatnie.ponow} />}
         {ostatnie.stan === "gotowe" && (
           sesje.length ? (
             <ul className={s.wiersze}>
               {sesje.map((sesja) => {
-                const nazwa = umiejetnosci.find((u) => u.skill_id === sesja.skill_id)?.name;
+                const nazwa = ostatnie.dane?.nazwy.get(sesja.skill_id);
                 const format = nazwaFormatuNauki[sesja.format];
                 return (
-                  <WierszFormat
-                    key={sesja.id}
-                    to={adresRundy(sesja.id)}
-                    nazwa={nazwa ?? format}
-                    opis={[nazwa && format, dataNauki(sesja.updated_at)].filter(Boolean).join(" · ")}
-                    ikona={<Timer size={18} aria-hidden="true" />}
-                    akcja="Wznów"
-                  />
+                  <li key={sesja.id} className={s.wierszRundy}>
+                    <WierszFormat
+                      to={adresRundy(sesja.id)}
+                      nazwa={nazwa ?? format}
+                      opis={[nazwa && format, kilkaPoziomow && nazwaPoziomu[sesja.level], dataNauki(sesja.updated_at)].filter(Boolean).join(" · ")}
+                      ikona={<Timer size={18} aria-hidden="true" />}
+                      akcja="Wznów"
+                    />
+                    <button
+                      type="button"
+                      className={`link ${s.usun}`}
+                      disabled={usuwane !== null}
+                      onClick={() => void odrzuc(sesja)}
+                      aria-label={`Usuń rundę: ${nazwa ?? format}`}
+                    >
+                      {usuwane === sesja.id ? "Usuwanie…" : "Usuń"}
+                    </button>
+                  </li>
                 );
               })}
             </ul>
-          ) : <p className="muted">Nie masz niedokończonych ćwiczeń na tym poziomie.</p>
+          ) : <p className="muted">Nie masz niedokończonych ćwiczeń.</p>
         )}
+        {bladUsuwania && <p role="alert" className={s.blad}>{bladUsuwania}</p>}
       </section>
     </main>
   );
 }
 
 function WierszFormat({ to, nazwa, opis, ikona, akcja }: { to: string; nazwa: string; opis: string; ikona: ReactNode; akcja?: string }) {
-  return (
-    <li>
-      <Link to={to} className={akcja ? `${s.wiersz} ${s.wierszWznow}` : s.wiersz}>
-        <span className={s.ikona}>{ikona}</span>
-        <span className={s.wierszGlowny}>
-          <span className="h3">{nazwa}</span>
-          <span className="muted small">{opis}</span>
-        </span>
-        <span className={s.wierszBoczny}>
-          {akcja ? <span className="link">{akcja}</span> : <ChevronRight size={18} aria-hidden="true" />}
-        </span>
-      </Link>
-    </li>
+  const wiersz = (
+    <Link to={to} className={akcja ? `${s.wiersz} ${s.wierszWznow}` : s.wiersz}>
+      <span className={s.ikona}>{ikona}</span>
+      <span className={s.wierszGlowny}>
+        <span className="h3">{nazwa}</span>
+        <span className="muted small">{opis}</span>
+      </span>
+      <span className={s.wierszBoczny}>
+        {akcja ? <span className="link">{akcja}</span> : <ChevronRight size={18} aria-hidden="true" />}
+      </span>
+    </Link>
   );
+  return akcja ? wiersz : <li>{wiersz}</li>;
 }
 
 function WolnyTemat({ poziom, umiejetnosci }: { poziom: Poziom; umiejetnosci: Umiejetnosc[] }) {

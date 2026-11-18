@@ -8,7 +8,7 @@ import { adresNauki, adresPowtorek, adresRozbioru, adresRundy } from "../../nauk
 import { naukaApi, nazwaFormatuNauki, type FormatNauki, type OdpowiedzNauki, type PytanieNauki, type SesjaNauki } from "../../nauka/api";
 import { usePoziomNauki } from "../../nauka/stan";
 import { TrescRundy } from "./TrescRundy";
-import { komunikatRundy, nazwaOdpowiedzi, odczytajRunde, useSesjaRundy, UUID_SESJI, zapiszRunde } from "./sesjaRundy";
+import { czyBladBezPonowienia, czyZaDuzoSesji, komunikatRundy, nazwaOdpowiedzi, odczytajRunde, useSesjaRundy, UUID_SESJI, zapiszRunde } from "./sesjaRundy";
 import s from "./SzybkaRunda.module.css";
 
 type Start = { poziom: Poziom; umiejetnosc: string; format: FormatNauki; powtorz?: string };
@@ -40,6 +40,7 @@ function NowaRunda({ user, poziom, umiejetnosc, format, powtorz }: Start & { use
   const { key } = useLocation();
   const proba = useRef<{ klucz: string; id: string } | null>(null);
   const [blad, setBlad] = useState<string | null>(null);
+  const [rodzajBledu, setRodzajBledu] = useState<"ponowienie" | "bez-ponowienia" | "za-duzo">("ponowienie");
   const [liczbaProb, setLiczbaProb] = useState(0);
   const klucz = `sedno.nauka.start:${JSON.stringify([user, key, poziom, umiejetnosc, format, powtorz])}`;
 
@@ -53,14 +54,23 @@ function NowaRunda({ user, poziom, umiejetnosc, format, powtorz }: Start & { use
     // UUID powstaje przed żądaniem i pozostaje ten sam po błędzie lub odświeżeniu.
     zapiszRunde(klucz, id);
     setBlad(null);
-    void zacznij(user, id, { poziom, umiejetnosc, format, powtorz }).then(
-      (sesja) => {
+    // Zacznij od niedokończonej rundy z tą samą umiejętnością, formatem i poziomem zamiast zakładać kolejną.
+    const otworz = async () => {
+      const otwarte = await naukaApi.ostatnie(poziom).catch(() => []);
+      const istniejaca = otwarte.find((o) => o.skill_id === umiejetnosc && o.format === format && o.level === poziom && (o.repeat_item ?? undefined) === powtorz);
+      if (istniejaca) return istniejaca.id;
+      return (await zacznij(user, id, { poziom, umiejetnosc, format, powtorz })).id;
+    };
+    void otworz().then(
+      (sesjaId) => {
         if (!aktualna) return;
         zapiszRunde(klucz, null);
-        nawiguj(adresRundy(sesja.id), { replace: true });
+        nawiguj(adresRundy(sesjaId), { replace: true });
       },
       (e: unknown) => {
-        if (aktualna) setBlad(komunikatRundy(e, "Nie udało się rozpocząć rundy. Możesz ponowić tę samą próbę."));
+        if (!aktualna) return;
+        setBlad(komunikatRundy(e, "Nie udało się rozpocząć rundy. Możesz ponowić tę samą próbę."));
+        setRodzajBledu(czyBladBezPonowienia(e) ? "bez-ponowienia" : czyZaDuzoSesji(e) ? "za-duzo" : "ponowienie");
       },
     );
     return () => { aktualna = false; };
@@ -73,7 +83,9 @@ function NowaRunda({ user, poziom, umiejetnosc, format, powtorz }: Start & { use
         <section className={s.sekcja}>
           <p role="alert">{blad}</p>
           <div className={s.akcje}>
-            <button type="button" className="btn btn-primary" onClick={() => setLiczbaProb((n) => n + 1)}>Spróbuj ponownie</button>
+            {rodzajBledu === "ponowienie" && <button type="button" className="btn btn-primary" onClick={() => setLiczbaProb((n) => n + 1)}>Spróbuj ponownie</button>}
+            {rodzajBledu === "za-duzo" && <Link to={`${adresNauki(poziom)}#ostatnio`} className="btn btn-primary">Przejdź do ostatnich ćwiczeń</Link>}
+            {rodzajBledu === "bez-ponowienia" && <Link to={adresNauki(poziom)} className="btn btn-primary">Wróć do Nauki</Link>}
             {powtorz && <Link to={adresPowtorek(poziom)} className="btn btn-ghost">Wróć do powtórek</Link>}
           </div>
         </section>
@@ -171,11 +183,9 @@ function PytanieRundy({
           </>
         )} />
       </form>
-      {!!pytanie.hints?.length && (
-        <div className={s.podpowiedzi} role="status">
-          {pytanie.hints.map((tekst, i) => <p key={i} className="small"><strong>Podpowiedź {i + 1}.</strong> {tekst}</p>)}
-        </div>
-      )}
+      <div className={pytanie.hints?.length ? s.podpowiedzi : undefined} role="status">
+        {pytanie.hints?.map((tekst, i) => <p key={i} className="small"><strong>Podpowiedź {i + 1}.</strong> {tekst}</p>)}
+      </div>
     </section>
   );
 }
@@ -210,6 +220,12 @@ function OcenaRundy({ odpowiedz, id, skonczona, dalej }: {
   );
 }
 
+// Werdykt ogłasza nagłówek z fokusem, więc tu zostaje reszta oceny.
+function opisOceny(o: OdpowiedzNauki): string {
+  const poprawna = o.correct ? "" : `Poprawna odpowiedź: ${o.solutions.map((a) => nazwaOdpowiedzi(a, o.prompt)).join(" / ")}. `;
+  return `${poprawna}${o.explanation}`;
+}
+
 function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string; ponow: () => void }) {
   const klucz = `sedno.nauka.odpowiedz:${user}:${start.id}`;
   const [sesja, setSesja] = useState(start);
@@ -232,10 +248,6 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
     return () => { aktualna.current = false; };
   }, []);
 
-  useEffect(() => {
-    if (ocena && szkic?.pozycja === ocena.position) zapiszRunde(klucz, null);
-  }, [klucz, ocena, szkic]);
-
   function zachowaj(nowy: Szkic | null) {
     setSzkic(nowy);
     zapiszRunde(klucz, nowy);
@@ -245,7 +257,6 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
     if (!aktualna.current) return;
     setSesja(zapis);
     setOcenaPoz(pozycja);
-    zachowaj(null);
   }
 
   async function odpowiedz(tekst: string) {
@@ -306,6 +317,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
         <p className={s.blad} role="alert">{blad}</p>
         <button type="button" className="btn btn-ghost btn-sm" onClick={ponow}>Wczytaj stan rundy</button>
       </div>}
+      <div className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">{ocena ? opisOceny(ocena) : ""}</div>
       {ocena ? (
         <OcenaRundy key={ocena.position} odpowiedz={ocena} id={sesja.id} skonczona={!!sesja.result}
           dalej={() => { zachowaj(null); setUstalFokus(true); setOcenaPoz(null); }} />
