@@ -300,6 +300,87 @@
   box-shadow: inset 0 0 0 1px var(--line);
 }
 
+/* Przełącznik liter i prawda/fałsz: kafle jak odpowiedzi A–D (to samo tło, promień, stany po sprawdzeniu),
+   a wybrana litera dostaje przesuwaną pomarańczową podkładkę (.thumb, usePodswietlenie). */
+.slider {
+  position: relative;
+  display: inline-flex;
+  gap: var(--s-1);
+  width: fit-content;
+  max-width: 100%;
+  padding: var(--s-1);
+  border-radius: calc(var(--r-md) + 4px);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.thumb {
+  position: absolute;
+  z-index: 0;
+  border-radius: var(--r-md);
+  background: var(--primary-strong);
+  transition:
+    left 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
+    width 0.25s ease;
+}
+
+.segment {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.15s ease;
+}
+
+.segment:hover:not(:disabled):not([data-stan="wybrana"]) {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  color: var(--fg);
+}
+
+.segment:disabled {
+  cursor: default;
+}
+
+/* Biały na pomarańczu: duży, pogrubiony tekst (WCAG AA dla dużego tekstu). */
+.segment[data-stan="wybrana"] {
+  color: var(--primary-fg);
+  font-size: var(--t-lg);
+  font-weight: 700;
+}
+
+/* Bez podkładki (np. przed pomiarem albo przy wyłączonym ruchu) wybrana litera ma własne tło. */
+.slider:not(:has(.thumb)) .segment[data-stan="wybrana"] {
+  background: var(--primary-strong);
+}
+
+.segment[data-stan="trafiona"] {
+  border-color: var(--success);
+  background: var(--success-strong);
+  color: var(--primary-fg);
+}
+
+.segment[data-stan="poprawna"] {
+  border: 1.5px dashed var(--success);
+  color: var(--success-strong);
+}
+
+.segment[data-stan="bledna"] {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: var(--primary-fg);
+}
+
 .highlight {
   position: absolute;
   z-index: 0;

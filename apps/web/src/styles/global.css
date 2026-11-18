@@ -686,3 +686,39 @@ a.wiersz:hover .wiersz-akcja {
     height: 72px;
   }
 }
+
+/* Kontrolki bez własnego stylu: bez systemowego trójkąta i szarych kontrolek przeglądarki.
+   Rozwijana sekcja bez ikony w summary dostaje szewron z CSS (z ikoną obraca go sam widok). */
+summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary:not(:has(svg))::before {
+  content: "";
+  display: inline-block;
+  width: 0.42em;
+  height: 0.42em;
+  margin: 0 0.6em 0.12em 0.1em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.2s ease;
+}
+
+details[open] > summary:not(:has(svg))::before {
+  transform: rotate(45deg);
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-strong);
+  cursor: pointer;
+}
+
