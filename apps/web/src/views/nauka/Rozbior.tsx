@@ -41,6 +41,27 @@ function ProbaRozbioru({ odpowiedz }: { odpowiedz: OdpowiedzNauki }) {
   );
 }
 
+const nazwyBledow: Record<string, string> = { "jezyk-i-forma": "Błędy językowe i dotyczące formy" };
+
+function Podsumowanie({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
+  const dobre = odpowiedzi.filter((a) => a.correct).length;
+  const pominiete = odpowiedzi.filter((a) => !a.correct && !a.answer.trim()).length;
+  const bledne = odpowiedzi.length - dobre - pominiete;
+  const bledy = new Map<string, number>();
+  for (const a of odpowiedzi) {
+    if (!a.correct && a.answer.trim() && a.error_type && nazwyBledow[a.error_type]) bledy.set(a.error_type, (bledy.get(a.error_type) ?? 0) + 1);
+  }
+  return (
+    <section className={s.sekcja} aria-labelledby="podsumowanie-rundy">
+      <h2 id="podsumowanie-rundy" className="h2">Co poszło dobrze, a co nie</h2>
+      <p>Poprawne: {dobre} · Do poprawy: {bledne} · Pominięte: {pominiete}</p>
+      {bledy.size > 0 && <ul className="small muted">
+        {[...bledy].map(([typ, ile]) => <li key={typ}>{nazwyBledow[typ]}: {ile}</li>)}
+      </ul>}
+    </section>
+  );
+}
+
 function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<SesjaNauki["result"]> } }) {
   const { level, result, skill_id, format } = sesja;
   const [mapa, setMapa] = useState<MapaNauki | null>(null);
@@ -66,12 +87,14 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
         <h2 id="wynik-rundy" className="h1">{result.wynik.poprawne} z {result.wynik.wszystkich} poprawnie</h2>
         <ul className={s.wierszeRozbioru}>{sesja.answers.map((a) => <ProbaRozbioru key={a.position} odpowiedz={a} />)}</ul>
       </section>
+      <Podsumowanie odpowiedzi={sesja.answers} />
       <section className={s.sekcja} aria-labelledby="mapa-po-rundzie">
         <h2 className="h2" id="mapa-po-rundzie">Zmiana opanowania{nazwa && ` · ${nazwa}`}</h2>
         <dl className={s.mapaRozbioru}>
           <div><dt className="small muted">Przed rundą</dt><dd>{opanowanie(result.opanowanie_przed)}</dd></div>
           <div><dt className="small muted">Po rundzie</dt><dd>{opanowanie(result.opanowanie_po)}</dd></div>
         </dl>
+        <p className="small muted">Na mapie opanowanie maleje, gdy długo nie ćwiczysz.</p>
         <div><Link to={adresMapy(level, skill_id)} className="link">Zobacz umiejętność na mapie</Link></div>
       </section>
       {dalej && (

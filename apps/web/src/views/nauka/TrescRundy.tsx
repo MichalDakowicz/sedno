@@ -92,6 +92,13 @@ function CkeOdczyt({ prompt, pole, poOcenie, ponow }: { prompt: Cke; pole?: Pole
   const nagranie = prompt.nagranie ?? (zadanie.sluchanie ? dane?.nagranie : undefined);
   // Dopasowane fragmenty wskazują miejsce odpowiedzi, więc pokazujemy je po sprawdzeniu.
   const fragment = poOcenie ? prompt.fragment ?? pytanie.fragment : undefined;
+  // Przed sprawdzeniem gra cały fragment zadania (od najwcześniejszego do najpóźniejszego pytania),
+  // bo fragment samego pytania wskazywałby odpowiedź.
+  // Zakres zadania liczymy tylko, gdy fragment ma każde pytanie. Inaczej mógłby ominąć szukane pytanie.
+  const czasyZadania = zadanie.pytania.flatMap((p) => p.fragment ? [p.fragment] : []);
+  const fragmentZadania = czasyZadania.length && czasyZadania.length === zadanie.pytania.length
+    ? { od: Math.min(...czasyZadania.map((f) => f.od)), do: Math.max(...czasyZadania.map((f) => f.do)), tekst: "" }
+    : undefined;
   const pf = prompt.litery.join("") === "TF" || prompt.litery.join("") === "PF";
   const opcje = prompt.litery.map((id) => ({
     id,
@@ -104,8 +111,10 @@ function CkeOdczyt({ prompt, pole, poOcenie, ponow }: { prompt: Cke; pole?: Pole
         {zadanie.polecenie.map((tekst, i) => <p key={i}>{tekst}</p>)}
         {nagranie && (
           <>
-            {fragment && <FragmentNagrania src={nagranie} fragment={{ od: fragment.od, do: fragment.do, tekst: "" }} />}
-            {fragment ? (
+            {poOcenie && fragment
+              ? <FragmentNagrania key="pytanie" src={nagranie} fragment={{ od: fragment.od, do: fragment.do, tekst: "" }} />
+              : fragmentZadania && <FragmentNagrania key="zadanie" src={nagranie} fragment={fragmentZadania} />}
+            {fragment || fragmentZadania ? (
               <details className={s.pelneNagranie}>
                 <summary>Pełne nagranie z arkusza</summary>
                 <audio className={s.audio} controls preload="none" src={nagranie} aria-label="Pełne nagranie CKE" />
