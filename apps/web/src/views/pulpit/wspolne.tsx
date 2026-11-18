@@ -14,7 +14,8 @@ export function Kicker({ icon: Icon, children }: { icon: LucideIcon; children: R
 }
 
 export const tytul = (a: ArkuszWpis) => `Matura ${a.sesja} ${a.rok}`;
-export const procent = (w: Wynik) => Math.round((w.zdobyte / w.mozliwe) * 100);
+// Arkusz bez punktów do zdobycia (same wypowiedzi pisemne) nie daje „NaN%”.
+export const procent = (w: Pick<Wynik, "zdobyte" | "mozliwe">) => (w.mozliwe > 0 ? Math.round((w.zdobyte / w.mozliwe) * 100) : 0);
 
 export function Wynikowy({ value }: { value: number }) {
   const level = value < 50 ? "low" : value < 75 ? "mid" : "high";

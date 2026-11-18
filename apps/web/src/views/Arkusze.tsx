@@ -111,7 +111,7 @@ export function Arkusze() {
 function Karta({ arkusz: a }: { arkusz: ArkuszWpis }) {
   const postep = wczytajPostep(a.id);
   const zaczety = Object.keys(postep.odpowiedzi).length > 0;
-  const proc = postep.wynik ? Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100) : null;
+  const proc = postep.wynik && postep.wynik.mozliwe > 0 ? Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100) : null;
   return (
     <li>
       <Link to={`/arkusze/${a.id}`} className={styles.card} title={a.symbol}>

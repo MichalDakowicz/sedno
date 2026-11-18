@@ -64,7 +64,8 @@ export function podsumuj(przedmiot: MojPrzedmiot, lista: ArkuszWpis[], wiersze: 
   for (const w of wiersze) {
     const arkusz = wgId.get(w.sheet_id);
     if (!arkusz) continue;
-    if (w.data.wynik) wyniki.push({ arkusz, ...w.data.wynik });
+    // Wynik bez punktów do zdobycia (same wypowiedzi pisemne) nie wchodzi do średniej ani procentów.
+    if (w.data.wynik && w.data.wynik.mozliwe > 0) wyniki.push({ arkusz, ...w.data.wynik });
     else {
       const odpowiedzi = Object.keys(w.data.odpowiedzi ?? {}).length;
       if (odpowiedzi > 0) zaczete.push({ arkusz, odpowiedzi, kiedy: w.updated_at });
