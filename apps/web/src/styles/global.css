@@ -455,6 +455,8 @@ textarea {
   color: inherit;
 }
 
+/* Każde połączenie części ma własny szablon: kolumna treści zawsze minmax(0, 1fr) i bierze wolne miejsce.
+   (Reguły z :has i :not(:has) mają tę samą wagę, więc nie mogą się nadpisywać kolejnością.) */
 .wiersz:has(> .wiersz-ikona) {
   grid-template-columns: 48px minmax(0, 1fr) var(--wiersz-wartosc, 12rem) var(--wiersz-akcja, 20px);
 }
@@ -467,6 +469,22 @@ textarea {
 /* Lista bez akcji (np. terminy egzaminów): treść i wartość. */
 .wiersz:not(:has(> .wiersz-akcja)) {
   grid-template-columns: minmax(0, 1fr) var(--wiersz-wartosc, 12rem);
+}
+
+.wiersz:not(:has(> .wiersz-wartosc)):not(:has(> .wiersz-akcja)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.wiersz:has(> .wiersz-ikona):not(:has(> .wiersz-wartosc)) {
+  grid-template-columns: 48px minmax(0, 1fr) var(--wiersz-akcja, 20px);
+}
+
+.wiersz:has(> .wiersz-ikona):not(:has(> .wiersz-akcja)) {
+  grid-template-columns: 48px minmax(0, 1fr) var(--wiersz-wartosc, 12rem);
+}
+
+.wiersz:has(> .wiersz-ikona):not(:has(> .wiersz-wartosc)):not(:has(> .wiersz-akcja)) {
+  grid-template-columns: 48px minmax(0, 1fr);
 }
 
 a.wiersz:hover .wiersz-akcja {
@@ -521,12 +539,18 @@ a.wiersz:hover .wiersz-akcja {
 }
 
 @media (max-width: 640px) {
+  /* Te same selektory co wyżej, żeby wygrały wagą: wartość schodzi pod nazwę, zostają treść i akcja. */
   .wiersz,
-  .wiersz:not(:has(> .wiersz-wartosc)) {
+  .wiersz:not(:has(> .wiersz-wartosc)),
+  .wiersz:not(:has(> .wiersz-akcja)),
+  .wiersz:not(:has(> .wiersz-wartosc)):not(:has(> .wiersz-akcja)) {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .wiersz:has(> .wiersz-ikona) {
+  .wiersz:has(> .wiersz-ikona),
+  .wiersz:has(> .wiersz-ikona):not(:has(> .wiersz-wartosc)),
+  .wiersz:has(> .wiersz-ikona):not(:has(> .wiersz-akcja)),
+  .wiersz:has(> .wiersz-ikona):not(:has(> .wiersz-wartosc)):not(:has(> .wiersz-akcja)) {
     grid-template-columns: 40px minmax(0, 1fr) auto;
   }
 
