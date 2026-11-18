@@ -9,6 +9,7 @@ import { wyczyscArkusze } from "./arkusze/dane";
 import { splukajProfil } from "./konto/profilUcznia";
 import { splukajUstawienia } from "./konto/ustawienia";
 import { splukajUklad } from "./konto/ukladPulpitu";
+import { splukajPostepy, wyczyscPostepyLokalne } from "./arkusze/postep";
 
 export type Profil = {
   id: string;
@@ -73,23 +74,18 @@ export async function loginPassword(email: string, password: string): Promise<st
 }
 
 export async function logout(): Promise<void> {
-  // Zaległe zapisy rozmów, ustawień i profilu ucznia idą jeszcze z sesją, potem czyścimy; nieudany ani zawieszony (limit 3 s) zapis nie blokuje wylogowania.
+  // Zaległe zapisy rozmów, postępu w arkuszach, ustawień i profilu ucznia idą jeszcze z sesją, potem czyścimy; nieudany ani zawieszony (limit 3 s) zapis nie blokuje wylogowania.
   try {
-    await Promise.race([Promise.all([wyslijOczekujace(), splukajUstawienia(), splukajProfil(), splukajUklad()]), new Promise((r) => setTimeout(r, 3000))]);
+    await Promise.race([Promise.all([wyslijOczekujace(), splukajPostepy(), splukajUstawienia(), splukajProfil(), splukajUklad()]), new Promise((r) => setTimeout(r, 3000))]);
   } catch {
     // zostaje lokalna kopia, która i tak jest czyszczona
   }
   wyczyscRozmowy();
   wyczyscOstatnie();
+  // Lokalna kopia postępu należy do konta; następna osoba na tym komputerze zaczyna od zera. Pamięć postępu
+  // czyści zdarzenie SIGNED_OUT w postep.ts, więc otwarte widoki dostają już pustą przeglądarkę.
+  wyczyscPostepyLokalne();
   await supabase.auth.signOut();
-  // Lokalna kopia postępu należy do konta; następna osoba na tym komputerze zaczyna od zera.
-  try {
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith("sedno.arkusz."))
-      .forEach((k) => localStorage.removeItem(k));
-  } catch {
-    // zablokowany storage: nic do sprzątania
-  }
 }
 
 // Profil wspólny dla całej aplikacji: jedno zapytanie na konto, zmiany widzą wszystkie widoki.
