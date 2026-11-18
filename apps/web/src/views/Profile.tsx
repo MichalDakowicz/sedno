@@ -29,7 +29,7 @@ export function Profile() {
   }
 
   return (
-    <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
+    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: 120, display: "grid", gap: "var(--s-6)" }}>
       <NaglowekStrony etykieta="Profil" tytul={profil?.display_name ?? "Twoje konto"} lead={session ? session.user.email : undefined} />
 
       <section id="przedmioty" ref={przedmiotyRef} style={{ display: "grid", gap: 16, justifyItems: "start" }}>
@@ -44,7 +44,7 @@ export function Profile() {
 
       <KontoAI />
 
-      <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
+      <section style={{ display: "grid", gap: 4, paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)", justifyItems: "start" }}>
         <h2 className="h2">Ustawienia</h2>
         <Link to="/ustawienia" className="link" style={{ marginTop: 12 }}>
           Otwórz ustawienia
@@ -52,7 +52,7 @@ export function Profile() {
         </Link>
       </section>
 
-      <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
+      <section style={{ display: "grid", gap: 4, paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)", justifyItems: "start" }}>
         <h2 className="h2" data-tutor-about="Jak się uczysz, ile masz czasu, cele, priorytety i to, co wiem z twoich wyników.">Profil ucznia</h2>
         <Link to="/profil-ucznia" className="link" style={{ marginTop: 12 }}>
           Otwórz profil ucznia
@@ -60,7 +60,7 @@ export function Profile() {
         </Link>
       </section>
 
-      <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
+      <section style={{ display: "grid", gap: 4, paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)", justifyItems: "start" }}>
         <h2 className="h2">Układ pulpitu</h2>
         <Link to="/uklad-pulpitu" className="link" style={{ marginTop: 12 }}>
           Otwórz układ pulpitu

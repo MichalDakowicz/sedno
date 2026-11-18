@@ -208,7 +208,7 @@ export function Nauka() {
             ) : polecenie.stan === "ladowanie" ? (
               <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie" />
             ) : polecenie.dane ? (
-              <article className={s.karta} aria-labelledby="nauka-polecenie">
+              <article className={s.polecenieBlok} aria-labelledby="nauka-polecenie">
                 <span className="kicker"><Sparkles size={14} strokeWidth={2.2} aria-hidden="true" /> Polecam</span>
                 <h3 id="nauka-polecenie" className="h1" tabIndex={-1} ref={naglowekPolecenia}>{powtorz ? "Powtórz zadanie" : nazwaFormatuNauki[format]}</h3>
                 <p className="h3">{wybrana.name}</p>

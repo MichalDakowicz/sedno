@@ -91,7 +91,7 @@ Jedna drabinka, tokeny w `tokens.css`. Innych wartości w `gap`, `margin` i `pad
 - **Bliskość znaczy powiązanie.** Odstęp wewnątrz grupy jest zawsze mniejszy niż między grupami: tytuł bliżej swojej treści niż poprzedniej sekcji, opis bliżej nazwy niż następnego wiersza.
 - Ten sam rodzaj przerwy ma tę samą wartość na każdym ekranie (np. tytuł sekcji → treść zawsze `--s-4`, sekcja → sekcja zawsze `--s-7`).
 - Na telefonie drabinka schodzi o jeden stopień dla odstępów od `--s-6` w górę.
-- Stan na 19 listopada 2026: tokenów `--s-*` jeszcze nie ma, a w modułach są wartości spoza drabinki (6, 10, 14, 20, 28, 40 px). Do wprowadzenia razem z porządkiem jak przy skali tekstu.
+- Wyjątki: 1–3 px (obwódki, korekty optyczne), paddingi ustalające wysokość przycisków, pól i pigułek, zapas na końcu strony (ok. 100–160 px) pod Pestkę na spoczynku.
 
 ## Hierarchia
 
@@ -123,6 +123,8 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 | Pole | `.input` | |
 | Przełącznik | `.przelacznik` | włączony pomarańczowy |
 | Karta polecenia | `.karta` + `.kicker` | etykieta z ikoną, tytuł, powód, jeden przycisk |
+| Propozycja dnia | `components/KartaDnia.tsx` + `nauka/dzis.ts` | ta sama karta i ten sam wybór na pulpicie, w Nauce, w Powtórkach i na końcu diagnozy |
+| Zakładki działu | `views/nauka/ZakladkiNauki.tsx` | pigułki z `aria-current`: Ćwiczenia, Mapa umiejętności, Powtórki pod nagłówkiem Nauki |
 | Odpowiedzi A–F | kafle (`views/nauka/TrescRundy.tsx`, arkusz) | litera i tekst w jednym kaflu; po sprawdzeniu zielony i czerwony |
 | Rozwijana sekcja | ikona `ChevronRight` z obrotem | bez systemowych trójkątów |
 | Ładowanie | `components/Ladowanie` | szkielet w kształcie treści, bez skoku układu. Dane już raz pobrane pokazujemy od razu (pamięć w `nauka/pamiec.ts`). |

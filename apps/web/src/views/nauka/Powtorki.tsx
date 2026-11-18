@@ -52,6 +52,8 @@ export function Powtorki() {
         <ZakladkiNauki />
       </NaglowekStrony>
 
+      {dzien.stan === "ladowanie" ? <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie na dziś" /> : dzien.dzis && <KartaDnia dzis={dzien.dzis} />}
+
       <div className={s.sekcja}>
         <div className={s.polePoziom}>
           <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />
@@ -70,9 +72,8 @@ export function Powtorki() {
         </section>
       )}
 
-      {rundy > 0 && <p className="muted"><strong>Szacowany czas</strong> · {szacowanyCzas(rundy)}</p>}
+      {rundy > 0 && <p className="muted">Szacowany czas: {szacowanyCzas(rundy)}</p>}
 
-      {dzien.stan === "ladowanie" ? <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie na dziś" /> : dzien.dzis && <KartaDnia dzis={dzien.dzis} />}
 
       {bledy.length > 0 && (
         <section className={s.sekcja} aria-labelledby="bledy-powtorki">
