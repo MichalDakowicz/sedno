@@ -21,7 +21,7 @@ _Set 2026-11-17 · status: active_
 
 ### Works
 - [x] Every English task in formuła 2023 (all three levels) has at least one requirement code and a skill; unmapped tasks = 0 · proof: import report · _2026-11-17, PR #55 at `d207542`: import 572/572 with codes across 12 sheets (the whole catalogue); migration 0009 matches the import on all 572; 26 questions (2025 R zad. 1, 6; 2024 P zad. 2, 5) checked by hand against the CKE marking-rules PDFs. PR #55 merged into `main` by the teammate the same day (`eccbca7`)._
-- [ ] Mastery on the map matches a hand calculation for the test account · proof: tester + script
+- [x] Mastery on the map matches a hand calculation for the test account · proof: tester + script · _2026-11-18, staging after 0017/0018: recomputed in the browser from `nauka_dowody` rows (dedupe by source, last 40, Elo from 1000 with K = 48 × weight, estimate × retention, threshold n ≥ 3 and aged weight ≥ 1.2): „Uchwyć sens nagrania” 0.289 / confidence 0.848 and „Dobieraj słownictwo i gramatykę” 0.542 / 0.643, identical to `nauka_mapa`._
 - [x] Quick round → breakdown → map change → Powtórki works end to end on staging after login · proof: tester run · _2026-11-18, staging, main `904d468`: round on „Dobieraj słownictwo i gramatykę” 6→8 tasks with 2 wrong; breakdown „6 z 8 poprawnie”, before „Mało danych”, after 54%; map shows 54% and 8 attempts; Powtórki lists both wrong tasks and a round started from 9.3 opens with that task._
 - [x] Attempts survive reload and show on a second device/tab after reload · proof: tester run · _2026-11-18: reload mid-round kept „Zadanie 3 z 6” and the streak; a second tab on the same round URL showed the same state._
 - [x] Typecheck and build green; no console errors in touched views · proof: checks, tester console read · _2026-11-18, `904d468`: typecheck and build green; no console errors on /, /umiejetnosci, /nauka, round, breakdown, /powtorki._
@@ -34,7 +34,7 @@ _Set 2026-11-17 · status: active_
 
 ### Feels
 - [ ] Full keyboard path through map, panel, round and breakdown · proof: tester run
-- [ ] Visible focus, labels, live announcements for round feedback · proof: tester run, audit
+- [x] Visible focus, labels, live announcements for round feedback · proof: tester run, audit · _2026-11-18, PR #66: one persistent `role=status` region carries the correct answer and explanation (tester read „Poprawna odpowiedź: B. W kluczu CKE…”), the verdict is the focused heading; focus outline 2px on rows and buttons; hints region always mounted._
 
 ### Holds up
 - [x] No network / failed save gives a message, a round in progress is not lost on reload · proof: simulated failure · _2026-11-18: rejected fetch on answer gives „Nie udało się połączyć z Nauką” with „Ponów zapis odpowiedzi”; retry saved it. Map load failure gives a message and retry works._
@@ -42,6 +42,6 @@ _Set 2026-11-17 · status: active_
 - [ ] Final gap audit has no blocker or major findings · proof: audit report
 
 ### Shipped
-- [ ] Branch per unit, PRs open, migrations on staging only until merge · proof: PR links
-- [ ] Template folders and registry entries removed for moved templates; docs updated for decisions · proof: diff
+- [x] Branch per unit, PRs open, migrations on staging only until merge · proof: PR links · _Backend and views from the teammate's PRs #55, #56; fixes in PRs #66, #67, #68 (merged 2026-11-18 at the user's yes); 0017 and 0018 ran on staging before merge, production got them from the `main` autodeploy at `5c5d329`._
+- [x] Template folders and registry entries removed for moved templates; docs updated for decisions · proof: diff · _Templates for Nauka, Mapa umiejętności, Szybka runda, Rozbiór, Powtórki and Uczeń uczy removed in #56 (audit found no dead links); `nauka.md` and `docs/mapa-dowody.html` updated for the decay decision in #68._
 - [ ] Handoff updated · proof: `docs/orchestrator/handoff.md`
