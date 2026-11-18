@@ -298,6 +298,81 @@ textarea {
   border-color: var(--primary);
 }
 
+/* Pole wyboru: ta sama wysokość, promień i ramka co .input, własna strzałka zamiast systemowej. */
+.select {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 48px 14px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  font: inherit;
+  font-size: calc(16px * var(--skala-tekstu, 1));
+  color: var(--fg);
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 26px) 50%,
+    calc(100% - 20px) 50%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.select:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.select:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Pigułki wyboru (poziom matury, przedmiot, motyw): jeden wygląd zaznaczenia w całej aplikacji. */
+.pigulki {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pigulka {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.pigulka:hover {
+  color: var(--fg);
+}
+
+.pigulka[aria-pressed="true"],
+.pigulka[aria-current="page"],
+.pigulka[aria-checked="true"] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+
+@media (pointer: coarse) {
+  .pigulka {
+    min-height: 44px;
+  }
+}
+
 /* Układ */
 
 .container {

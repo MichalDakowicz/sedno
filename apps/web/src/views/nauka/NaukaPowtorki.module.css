@@ -42,8 +42,8 @@
 
 .pola {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  align-items: start;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
   gap: 16px 24px;
 }
 
@@ -52,17 +52,6 @@
   justify-items: stretch;
   gap: 6px;
   min-width: 0;
-}
-
-.pole select {
-  width: 100%;
-  min-height: 44px;
-  padding: 8px 12px;
-  font: inherit;
-  color: var(--fg);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
 }
 
 .pole input {
@@ -106,6 +95,12 @@
 .formularz label,
 .formularz input {
   width: 100%;
+}
+
+.opanowanieWybranej {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
 }
 
 .akcje {

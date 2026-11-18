@@ -8,6 +8,7 @@ import { nazwaPoziomu } from "../../konto/przedmioty";
 import { adresMapy, adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki, type Umiejetnosc } from "../../nauka/api";
 import { useOtwarteRundy, usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { OPIS_OPANOWANIA } from "./Opanowanie";
 import { Angielski, BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
 import s from "./NaukaPowtorki.module.css";
 
@@ -96,7 +97,7 @@ export function Nauka() {
           <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />
           <label className={s.pole}>
             <span className="small muted">Umiejętność</span>
-            <select value={wybrana?.skill_id ?? ""} onChange={(e) => ustawUmiejetnosc(e.target.value)} disabled={mapa.stan !== "gotowe"}>
+            <select className="select" value={wybrana?.skill_id ?? ""} onChange={(e) => ustawUmiejetnosc(e.target.value)} disabled={mapa.stan !== "gotowe"}>
               <option value="">Dobierz dla mnie</option>
               {[...new Set(umiejetnosci.map((u) => u.area))].map((obszar) => (
                 <optgroup key={obszar} label={NAZWY_OBSZAROW[obszar] ?? obszar}>
@@ -106,12 +107,13 @@ export function Nauka() {
             </select>
           </label>
         </div>
-        {umiejetnosc && (
-          <div className={s.akcje}>
-            <Link to={adresMapy(poziom, umiejetnosc.skill_id)} className="link">Zobacz opanowanie</Link>
-            <span className="small muted">
-              {umiejetnosc.score === null ? "Za mało danych" : procentNauki.format(umiejetnosc.score)}
-            </span>
+        {/* Przy „Dobierz dla mnie” umiejętność pokazuje karta polecenia; tu tylko wtedy, gdy uczeń sam ją wybrał. */}
+        {wybrana && (
+          <div className={s.opanowanieWybranej}>
+            <p className="small muted" data-tutor-about={OPIS_OPANOWANIA}>
+              Opanowanie: {wybrana.score === null ? "za mało danych" : procentNauki.format(wybrana.score)}
+            </p>
+            <Link to={adresMapy(poziom, wybrana.skill_id)} className="link small">Zobacz na mapie <ArrowRight size={14} aria-hidden="true" /></Link>
           </div>
         )}
       </section>

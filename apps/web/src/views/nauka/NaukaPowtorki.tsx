@@ -16,14 +16,19 @@ export function Angielski() {
   );
 }
 
+/** Poziom matury jako pigułki, jak w Arkuszach: ta sama kontrolka i to samo miejsce na Nauce, Powtórkach i mapie. */
 export function WyborPoziomuNauki({ poziom, ustawPoziom }: { poziom: Poziom; ustawPoziom: (poziom: Poziom) => void }) {
   return (
-    <label className={s.pole}>
-      <span className="small muted">Poziom matury</span>
-      <select value={poziom} onChange={(e) => ustawPoziom(e.target.value as Poziom)}>
-        {poziomyNauki.map((p) => <option key={p} value={p}>{nazwaPoziomu[p]}</option>)}
-      </select>
-    </label>
+    <div className={s.pole} role="group" aria-labelledby="poziom-matury">
+      <span id="poziom-matury" className="small muted">Poziom matury</span>
+      <div className="pigulki">
+        {poziomyNauki.map((p) => (
+          <button key={p} type="button" className="pigulka" aria-pressed={p === poziom} onClick={() => ustawPoziom(p)}>
+            {nazwaPoziomu[p]}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 

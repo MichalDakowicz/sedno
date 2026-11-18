@@ -35,48 +35,9 @@
 
 .filtry {
   gap: 16px 24px;
-  justify-content: space-between;
-}
-
-.filtry label {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  color: var(--muted);
-}
-
-.filtry select {
-  max-width: 100%;
-  min-height: 44px;
-  padding: 6px 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  color: var(--fg);
-  background: var(--surface);
-  font: inherit;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 8px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  color: var(--muted);
-  font-size: var(--t-sm);
-  font-weight: 500;
-}
-
-.chip:hover,
-.chip[aria-current] {
-  color: var(--fg);
-  background: var(--surface);
-}
-
-.chip[aria-current] {
-  border-color: var(--primary-text);
+  /* Poziom pod przedmiotami, po lewej: tak samo jak na Nauce i w Powtórkach. */
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .uklad {

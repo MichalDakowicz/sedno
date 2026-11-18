@@ -4,10 +4,11 @@ import { Link, useSearchParams } from "react-router-dom";
 import type { Poziom } from "../../arkusze/typy";
 import { useProfil } from "../../auth";
 import { Ladowanie } from "../../components/Ladowanie";
-import { PRZEDMIOTY, nazwaPoziomu, przedmiot } from "../../konto/przedmioty";
+import { PRZEDMIOTY, przedmiot } from "../../konto/przedmioty";
 import { adresMapy, adresNauki, adresRozbioru } from "../../nauka/adresy";
 import { naukaApi, type DowodNauki, type Umiejetnosc } from "../../nauka/api";
-import { czyPoziomNauki, poziomyNauki, usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie } from "./Opanowanie";
 import s from "./Umiejetnosci.module.css";
 
@@ -113,24 +114,14 @@ export function Umiejetnosci() {
         <p className="muted">Zobacz, jak radzisz sobie z poszczególnymi wymaganiami matury.</p>
       </header>
       <div className={s.filtry}>
-        <nav className={s.chipy} aria-label="Przedmioty">
+        <nav className="pigulki" aria-label="Przedmioty">
           {przedmioty.map((p) => (
-            <Link key={p.id} to={p.id === "angielski" ? adresMapy(poziom) : `${adresMapy(poziom)}&przedmiot=${p.id}`} className={s.chip} aria-current={p.id === wybranyPrzedmiot ? "page" : undefined}>
+            <Link key={p.id} to={p.id === "angielski" ? adresMapy(poziom) : `${adresMapy(poziom)}&przedmiot=${p.id}`} className="pigulka" aria-current={p.id === wybranyPrzedmiot ? "page" : undefined}>
               {p.nazwa}
             </Link>
           ))}
         </nav>
-        {angielski && (
-          <label>
-            <span className="small">Poziom matury</span>
-            <select value={poziom} onChange={(e) => {
-              const nowy = e.currentTarget.value;
-              if (czyPoziomNauki(nowy)) ustawPoziom(nowy);
-            }}>
-              {poziomyNauki.map((p) => <option value={p} key={p}>{nazwaPoziomu[p]}</option>)}
-            </select>
-          </label>
-        )}
+        {angielski && <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />}
       </div>
       {!angielski && (
         <div className={s.blok}>
