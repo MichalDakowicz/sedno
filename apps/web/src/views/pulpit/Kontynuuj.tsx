@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Ladowanie } from "../../components/Ladowanie";
 import { nazwaPoziomu } from "../../konto/przedmioty";
-import { adresRundy } from "../../nauka/adresy";
+import { adresNauki, adresRundy } from "../../nauka/adresy";
 import { nazwaFormatuNauki } from "../../nauka/api";
 import { useOtwarteRundy, usePoziomNauki } from "../../nauka/stan";
 import { dataNauki } from "../nauka/NaukaPowtorki";
@@ -61,7 +61,12 @@ function OtwarteRundy() {
             </Link>
           </div>
         </>
-      ) : <p className="muted">Nie masz niedokończonych ćwiczeń.</p>)}
+      ) : (
+        <div className={w.blad}>
+          <p className="muted">Nie masz niedokończonych ćwiczeń.</p>
+          <Link to={adresNauki(poziom)} className="btn btn-secondary btn-sm">Przejdź do nauki</Link>
+        </div>
+      ))}
     </section>
   );
 }

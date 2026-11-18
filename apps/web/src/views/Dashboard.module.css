@@ -404,3 +404,10 @@
   }
 }
 
+
+/* Pusty stan sekcji: jedno zdanie i jeden przycisk, który to zmienia. */
+.pusty {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+}

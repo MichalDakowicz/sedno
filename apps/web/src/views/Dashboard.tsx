@@ -257,7 +257,14 @@ function ArkuszePrzedmiotu({ podsumowanie: s, zPoziomem, wejscie }: { podsumowan
           ))}
         </ul>
       ) : (
-        <p className="muted">Nie masz jeszcze rozwiązanych arkuszy z tego przedmiotu.</p>
+        <div className={styles.pusty}>
+          <p className="muted">Nie masz jeszcze rozwiązanych arkuszy z tego przedmiotu.</p>
+          {s.arkusze[0] && (
+            <Link to={`/arkusze/${s.arkusze[0].id}`} className="btn btn-secondary btn-sm">
+              Rozwiąż pierwszy arkusz
+            </Link>
+          )}
+        </div>
       )}
     </section>
   );
