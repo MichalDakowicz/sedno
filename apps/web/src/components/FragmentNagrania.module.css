@@ -22,3 +22,20 @@
   line-height: 1.6;
   color: var(--muted);
 }
+
+/* Postęp fragmentu: cienki pasek pod przyciskiem, szerokości przycisku. */
+.pasek {
+  display: block;
+  width: min(100%, 320px);
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--line);
+}
+
+.pasek > span {
+  display: block;
+  height: 100%;
+  background: var(--primary-strong);
+  transition: width 0.25s linear;
+}

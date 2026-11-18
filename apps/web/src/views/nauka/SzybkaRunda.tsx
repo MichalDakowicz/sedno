@@ -282,7 +282,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
   const [blad, setBlad] = useState<string | null>(null);
   // Pierwsze zadanie też dostaje fokus, bo do rundy wchodzi się nawigacją.
   const [ustalFokus, setUstalFokus] = useState(true);
-  const [startZegara, setStartZegara] = useState(() => startyZegara.get(start.id) ?? null);
+  const [startZegara, setStartZegara] = useState(() => startyZegara.get(start.id) ?? (start.answers.length ? Date.parse(start.created_at) : null));
   // Runda wydłuża się po błędzie: Pestka mówi o tym przy werdykcie, zamiast zmieniać licznik bez słowa.
   const [dolozone, setDolozone] = useState<number | null>(null);
   const zapisuje = useRef(false);
