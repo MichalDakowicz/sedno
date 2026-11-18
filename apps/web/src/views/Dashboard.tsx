@@ -208,7 +208,8 @@ export function Dashboard() {
 
       {dane && reszta.map((w) => <w.Komponent key={w.id} {...kontekst} />)}
 
-      <Wejscia tytul="W przygotowaniu" slugi={["mapa-wiedzy"]} />
+      {/* Prototypy z src/szablony są dla nas, nie dla ucznia ani jury: tylko w trybie deweloperskim. */}
+      {import.meta.env.DEV && <Wejscia tytul="W przygotowaniu" slugi={["mapa-wiedzy"]} />}
     </main>
   );
 }
