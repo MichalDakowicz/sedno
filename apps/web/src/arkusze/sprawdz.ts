@@ -68,6 +68,12 @@ export function werdykt(p: Pytanie, odpowiedz: string | undefined): Werdykt {
   return "do-oceny";
 }
 
+/** Pytania z niepustą odpowiedzią (wszystkie albo z listy numerów): jedna miara dla pulpitu, stopki arkusza i spisu zadań. */
+export function liczOdpowiedzi(odpowiedzi: Odpowiedzi | undefined, numery?: Iterable<string>): number {
+  const o = odpowiedzi ?? {};
+  return [...(numery ?? Object.keys(o))].filter((nr) => typeof o[nr] === "string" && !!o[nr].trim()).length;
+}
+
 export type Wynik = {
   zdobyte: number;
   mozliwe: number;

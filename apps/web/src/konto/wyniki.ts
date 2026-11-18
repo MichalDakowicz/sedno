@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { useListaArkuszy } from "../arkusze/dane";
 import type { Postep } from "../arkusze/postep";
-import type { ArkuszWpis } from "../arkusze/typy";
+import type { ArkuszWpis, Poziom } from "../arkusze/typy";
+import { liczOdpowiedzi } from "../arkusze/sprawdz";
 import { currentUserId } from "../auth";
 import { supabase } from "../supabase";
 import type { MojPrzedmiot } from "./przedmioty";
@@ -15,6 +16,7 @@ export type Wynik = { arkusz: ArkuszWpis; zdobyte: number; mozliwe: number; kied
 export type Podsumowanie = {
   przedmiot: MojPrzedmiot;
   arkusze: ArkuszWpis[]; // dostępne w Sedno dla przedmiotu i poziomu, od najnowszego
+  innePoziomy: Poziom[]; // poziomy tego przedmiotu z arkuszami, gdy na wybranym ich brak
   wyniki: Wynik[]; // sprawdzone, od najnowszego
   zaczete: ZaczetyArkusz[]; // z odpowiedziami, niesprawdzone, od ostatnio ruszanego
   srednia: number | null; // procent
@@ -23,7 +25,8 @@ export type Podsumowanie = {
 export type Propozycja =
   | { rodzaj: "dokoncz"; przedmiot: MojPrzedmiot; zaczety: ZaczetyArkusz }
   | { rodzaj: "nowy"; przedmiot: MojPrzedmiot; arkusz: ArkuszWpis; ostatni: Wynik | null }
-  | { rodzaj: "brak-arkuszy"; przedmiot: MojPrzedmiot }
+  /** inne: poziomy tego przedmiotu, na których arkusze już są. */
+  | { rodzaj: "brak-arkuszy"; przedmiot: MojPrzedmiot; inne: Poziom[] }
   | { rodzaj: "wszystko"; przedmiot: MojPrzedmiot; ostatni: Wynik | null };
 
 // Ostatnio pobrane wiersze konta: powrót na pulpit pokazuje je od razu, a świeże dochodzą w tle.
@@ -58,6 +61,7 @@ export function usePostepyKonta(): Wiersz[] | null {
 
 export function podsumuj(przedmiot: MojPrzedmiot, lista: ArkuszWpis[], wiersze: Wiersz[]): Podsumowanie {
   const arkusze = lista.filter((a) => a.przedmiot === przedmiot.id && a.poziom === przedmiot.poziom);
+  const innePoziomy = arkusze.length ? [] : [...new Set(lista.filter((a) => a.przedmiot === przedmiot.id).map((a) => a.poziom))];
   const wgId = new Map(arkusze.map((a) => [a.id, a]));
   const wyniki: Wynik[] = [];
   const zaczete: ZaczetyArkusz[] = [];
@@ -67,20 +71,20 @@ export function podsumuj(przedmiot: MojPrzedmiot, lista: ArkuszWpis[], wiersze: 
     // Wynik bez punktów do zdobycia (same wypowiedzi pisemne) nie wchodzi do średniej ani procentów.
     if (w.data.wynik && w.data.wynik.mozliwe > 0) wyniki.push({ arkusz, ...w.data.wynik });
     else {
-      const odpowiedzi = Object.keys(w.data.odpowiedzi ?? {}).length;
+      const odpowiedzi = liczOdpowiedzi(w.data.odpowiedzi);
       if (odpowiedzi > 0) zaczete.push({ arkusz, odpowiedzi, kiedy: w.updated_at });
     }
   }
   wyniki.sort((a, b) => b.kiedy.localeCompare(a.kiedy));
   zaczete.sort((a, b) => b.kiedy.localeCompare(a.kiedy));
   const srednia = wyniki.length ? Math.round((wyniki.reduce((s, w) => s + w.zdobyte / w.mozliwe, 0) / wyniki.length) * 100) : null;
-  return { przedmiot, arkusze, wyniki, zaczete, srednia };
+  return { przedmiot, arkusze, innePoziomy, wyniki, zaczete, srednia };
 }
 
 /** Co polecić w przedmiocie: dokończyć zaczęty arkusz, a jeśli nie ma, najnowszy jeszcze nieruszony. */
 export function propozycja(p: Podsumowanie, wiersze: Wiersz[]): Propozycja {
   if (p.zaczete[0]) return { rodzaj: "dokoncz", przedmiot: p.przedmiot, zaczety: p.zaczete[0] };
-  if (!p.arkusze.length) return { rodzaj: "brak-arkuszy", przedmiot: p.przedmiot };
+  if (!p.arkusze.length) return { rodzaj: "brak-arkuszy", przedmiot: p.przedmiot, inne: p.innePoziomy };
   const ruszone = new Set(wiersze.map((w) => w.sheet_id));
   const nowy = p.arkusze.find((a) => !ruszone.has(a.id));
   const ostatni = p.wyniki[0] ?? null;
