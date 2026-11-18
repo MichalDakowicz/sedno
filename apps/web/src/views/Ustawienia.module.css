@@ -21,34 +21,3 @@
   border-bottom: 1px solid var(--line);
 }
 
-.chipy {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 6px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  background: transparent;
-  font-size: var(--t-sm);
-  font-weight: 500;
-  color: var(--muted);
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.chipAktywny {
-  color: var(--fg);
-  background: var(--surface);
-  border-color: transparent;
-  box-shadow: var(--shadow-float);
-}
-
-/* Wyłączony: pusty tor z obwódką i pełna gałka w --subtle (ponad 3:1 na tle, WCAG 1.4.11), także w ciemnym
-   motywie i przy większym kontraście. Włączony: tor --success i gałka --surface. */

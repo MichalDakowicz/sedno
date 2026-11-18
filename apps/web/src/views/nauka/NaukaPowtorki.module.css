@@ -68,14 +68,11 @@
 }
 
 .karta {
+  composes: karta from global;
   display: grid;
   justify-items: start;
   gap: 12px;
   min-width: 0;
-  padding: clamp(18px, 4vw, 28px);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  background: var(--surface);
 }
 
 .karta h2,

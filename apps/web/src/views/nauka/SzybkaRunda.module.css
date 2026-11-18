@@ -299,12 +299,9 @@
 .proba > summary { cursor: pointer; }
 .probaTresc { display: grid; gap: 12px; margin-top: 12px; }
 .nastepnyKrok {
+  composes: karta from global;
   display: grid;
   gap: 18px;
-  padding: 24px;
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-float);
 }
 
 /* Rozbiór: wiersz zadania z ikoną wyniku i jednym zdaniem treści. */

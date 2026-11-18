@@ -24,9 +24,9 @@ const TEKSTY: { id: Tekst; nazwa: string }[] = [
 
 function Wybor<T extends string>({ opis, opcje, wartosc, onChange }: { opis: string; opcje: { id: T; nazwa: string }[]; wartosc: T; onChange: (v: T) => void }) {
   return (
-    <div className={s.chipy} role="group" aria-label={opis}>
+    <div className="pigulki" role="group" aria-label={opis}>
       {opcje.map((o) => (
-        <button key={o.id} type="button" className={`${s.chip} ${o.id === wartosc ? s.chipAktywny : ""}`} aria-pressed={o.id === wartosc} onClick={() => onChange(o.id)}>
+        <button key={o.id} type="button" className="pigulka" aria-pressed={o.id === wartosc} onClick={() => onChange(o.id)}>
           {o.nazwa}
         </button>
       ))}

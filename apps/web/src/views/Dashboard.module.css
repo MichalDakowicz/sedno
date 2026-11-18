@@ -135,14 +135,11 @@
 }
 
 .today {
+  composes: karta from global;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   justify-items: start;
-  padding: 40px;
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-float);
 }
 
 .todayHead {
@@ -646,10 +643,6 @@
 }
 
 @media (max-width: 640px) {
-  .today {
-    padding: 28px 24px;
-  }
-
   .actions,
   .actions :global(.btn) {
     width: 100%;
