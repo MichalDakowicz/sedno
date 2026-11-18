@@ -238,8 +238,8 @@
   cursor: pointer;
 }
 .rozwijane > summary::-webkit-details-marker { display: none; }
-.rozwijane > summary svg { flex-shrink: 0; transition: transform 0.2s ease; }
-.rozwijane[open] > summary svg { transform: rotate(90deg); }
+.rozwijane > summary:not(.wierszProby) svg { flex-shrink: 0; transition: transform 0.2s ease; }
+.rozwijane[open] > summary:not(.wierszProby) svg { transform: rotate(90deg); }
 .rozwijane[open] > summary + * { margin-top: 12px; }
 
 .material { align-content: start; }
@@ -297,7 +297,6 @@
 .wierszeRozbioru > li { border-bottom: 1px solid var(--line); }
 .proba { padding-block: 16px; }
 .proba > summary { cursor: pointer; }
-.proba > summary span + span { margin-inline-start: 12px; }
 .probaTresc { display: grid; gap: 12px; margin-top: 12px; }
 .nastepnyKrok {
   display: grid;
@@ -307,3 +306,42 @@
   background: var(--surface);
   box-shadow: var(--shadow-float);
 }
+
+/* Rozbiór: wiersz zadania z ikoną wyniku i jednym zdaniem treści. */
+.proba > .wierszProby {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+.opisProby {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wierszProby > svg:last-child { transition: transform 0.2s ease; }
+.rozwijane[open] > .wierszProby > svg:last-child { transform: rotate(90deg); }
+.ocena[data-pominiete] svg { color: var(--subtle); }
+
+.pasekOpanowania {
+  position: relative;
+  display: block;
+  height: 10px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--line);
+}
+.pasekPrzed,
+.pasekPo {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  border-radius: var(--r-pill);
+}
+.pasekPrzed { background: var(--primary-mid); opacity: 0.5; }
+.pasekPo {
+  background: var(--primary-strong);
+  transition: width 0.9s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.zmiana { font-size: calc(15px * var(--skala-tekstu, 1)); color: var(--muted); }
+.zmiana[data-plus="true"] { color: var(--success); }

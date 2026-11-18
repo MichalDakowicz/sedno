@@ -1,38 +1,45 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, CircleAlert } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronRight, CircleAlert, CircleMinus } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import { nazwaPoziomu } from "../../arkusze/typy";
+import { nazwaPoziomu, nazwaZadaniaCke } from "../../arkusze/typy";
 import { useSession } from "../../auth";
 import { Ladowanie } from "../../components/Ladowanie";
 import { adresMapy, adresNauki, adresPowtorek, adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type MapaNauki, type OdpowiedzNauki, type SesjaNauki } from "../../nauka/api";
 import { nazwaOdpowiedzi, useSesjaRundy } from "./sesjaRundy";
+import { PestkaMowi, wybierz } from "./PestkaRundy";
 import { TrescRundy } from "./TrescRundy";
 import s from "./SzybkaRunda.module.css";
 
 const procent = new Intl.NumberFormat("pl-PL", { style: "percent", maximumFractionDigits: 0 });
 const opanowanie = (wynik: number | null) => wynik == null ? "Mało danych" : procent.format(wynik);
 
+// Jedno zdanie o zadaniu zamiast samego numeru: skąd jest (CKE) albo jego polecenie.
+const opisZadania = (o: OdpowiedzNauki) => o.prompt.typ === "cke" ? nazwaZadaniaCke(o.prompt.sheet_id, o.prompt.question) : o.prompt.tresc;
+
 function ProbaRozbioru({ odpowiedz }: { odpowiedz: OdpowiedzNauki }) {
   const [otwarta, setOtwarta] = useState(false);
   const { prompt } = odpowiedz;
+  const pominiete = !odpowiedz.correct && !odpowiedz.answer.trim();
+  const stan = odpowiedz.correct ? "Poprawne" : pominiete ? "Pominięte" : "Niepoprawne";
   return (
     <li>
-      <details className={s.proba} onToggle={(e) => setOtwarta(e.currentTarget.open)}>
-        <summary>
-          <span>Zadanie {odpowiedz.position}</span>
-          <span className={`small ${s.ocena}`} data-correct={odpowiedz.correct}>
-            {odpowiedz.correct ? <Check size={16} aria-hidden="true" /> : <CircleAlert size={16} aria-hidden="true" />}
-            {odpowiedz.correct ? "Poprawne" : odpowiedz.answer.trim() ? "Niepoprawne" : "Pominięte"}
+      <details className={`${s.proba} ${s.rozwijane}`} onToggle={(e) => setOtwarta(e.currentTarget.open)}>
+        <summary className={s.wierszProby}>
+          <span className={s.ocena} data-correct={odpowiedz.correct} data-pominiete={pominiete || undefined}>
+            {odpowiedz.correct ? <Check size={18} aria-hidden="true" /> : pominiete ? <CircleMinus size={18} aria-hidden="true" /> : <CircleAlert size={18} aria-hidden="true" />}
+            <span className="visually-hidden">{stan}: </span>
           </span>
+          <span className={s.opisProby}>{opisZadania(odpowiedz)}</span>
+          <ChevronRight size={16} aria-hidden="true" />
         </summary>
         {otwarta && <div className={s.probaTresc}>
-          {prompt.typ === "cke" ? (
-            <Link className="link" to={`/arkusze/${encodeURIComponent(prompt.sheet_id)}#zadanie-${prompt.task_nr}`}>Zadanie CKE {prompt.question} w arkuszu</Link>
-          ) : <p>{prompt.tresc}</p>}
+          {prompt.typ === "cke" && (
+            <Link className="link" to={`/arkusze/${encodeURIComponent(prompt.sheet_id)}#zadanie-${prompt.task_nr}`}>Otwórz to zadanie w arkuszu</Link>
+          )}
           <p><strong>Twoja odpowiedź</strong> · {nazwaOdpowiedzi(odpowiedz.answer, prompt)}</p>
           {!odpowiedz.correct && <p><strong>Poprawna odpowiedź</strong> · {odpowiedz.solutions.map((a) => nazwaOdpowiedzi(a, prompt)).join(" / ")}</p>}
-          <p className="muted">{odpowiedz.explanation}</p>
+          {prompt.typ !== "cke" && <p className="muted">{odpowiedz.explanation}</p>}
           {odpowiedz.hint_level > 0 && <p className="small muted">Użyte podpowiedzi: {odpowiedz.hint_level}</p>}
           <TrescRundy prompt={prompt} poOcenie />
         </div>}
@@ -43,6 +50,14 @@ function ProbaRozbioru({ odpowiedz }: { odpowiedz: OdpowiedzNauki }) {
 
 const nazwyBledow: Record<string, string> = { "jezyk-i-forma": "Błędy językowe i dotyczące formy" };
 
+const odmianaZadan = (n: number) => n === 1 ? "zadanie" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "zadania" : "zadań";
+
+const podsumowaniaPestki = {
+  bezbledna: ["Bezbłędna runda. Tak się buduje pewność.", "Wszystko dobrze. Ta umiejętność idzie w górę."],
+  dobra: ["Dobra runda. Zostało kilka rzeczy do dopracowania.", "Większość dobrze. Zerknij na to, co nie wyszło."],
+  slaba: ["Ta umiejętność potrzebuje jeszcze kilku rund. Zacznij od zadań z błędem.", "Trudna runda. Przejrzyj błędy, a następna pójdzie lepiej."],
+};
+
 function Podsumowanie({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
   const dobre = odpowiedzi.filter((a) => a.correct).length;
   const pominiete = odpowiedzi.filter((a) => !a.correct && !a.answer.trim()).length;
@@ -51,14 +66,37 @@ function Podsumowanie({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
   for (const a of odpowiedzi) {
     if (!a.correct && a.answer.trim() && a.error_type && nazwyBledow[a.error_type]) bledy.set(a.error_type, (bledy.get(a.error_type) ?? 0) + 1);
   }
+  const udzial = odpowiedzi.length ? dobre / odpowiedzi.length : 0;
+  const lista = udzial === 1 ? podsumowaniaPestki.bezbledna : udzial >= 0.6 ? podsumowaniaPestki.dobra : podsumowaniaPestki.slaba;
+  const zdania = [
+    dobre ? `Dobrze poszło: ${dobre} ${odmianaZadan(dobre)}.` : "Tym razem żadne zadanie nie wyszło.",
+    bledne ? `Do poprawy: ${bledne} ${odmianaZadan(bledne)}.` : "",
+    pominiete ? `Pominięte: ${pominiete}.` : "",
+  ].filter(Boolean);
   return (
     <section className={s.sekcja} aria-labelledby="podsumowanie-rundy">
       <h2 id="podsumowanie-rundy" className="h2">Co poszło dobrze, a co nie</h2>
-      <p>Poprawne: {dobre} · Do poprawy: {bledne} · Pominięte: {pominiete}</p>
+      <p>{zdania.join(" ")}</p>
       {bledy.size > 0 && <ul className="small muted">
         {[...bledy].map(([typ, ile]) => <li key={typ}>{nazwyBledow[typ]}: {ile}</li>)}
       </ul>}
+      <PestkaMowi tekst={wybierz(lista, odpowiedzi.length)} />
     </section>
+  );
+}
+
+// Pasek rośnie (albo maleje) od wartości sprzed rundy do wartości po niej, żeby zmiana była widoczna.
+function PasekOpanowania({ przed, po }: { przed: number | null; po: number | null }) {
+  const [szerokosc, setSzerokosc] = useState(przed ?? 0);
+  useEffect(() => {
+    const t = window.setTimeout(() => setSzerokosc(po ?? 0), 150);
+    return () => window.clearTimeout(t);
+  }, [po]);
+  return (
+    <span className={s.pasekOpanowania} aria-hidden="true">
+      {przed != null && <span className={s.pasekPrzed} style={{ width: `${przed * 100}%` }} />}
+      <span className={s.pasekPo} style={{ width: `${szerokosc * 100}%` }} />
+    </span>
   );
 }
 
@@ -75,9 +113,16 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
     );
     return () => kontroler.abort();
   }, [level]);
-  const nazwa = mapa?.skills.find((m) => m.skill_id === skill_id)?.name;
+  const umiejetnosc = mapa?.skills.find((m) => m.skill_id === skill_id);
+  const nazwa = umiejetnosc?.name;
   const dalej = result.nastepny_krok;
   const nastepna = mapa?.skills.find((m) => m.skill_id === dalej?.skill_id)?.name;
+  // Rozbiór liczy opanowanie bez zaniku, a mapa z zanikiem: wyjaśnienie tylko wtedy, gdy liczby się różnią.
+  const naMapie = umiejetnosc?.score ?? null;
+  const inneNaMapie = naMapie != null && result.opanowanie_po != null && Math.round(naMapie * 100) !== Math.round(result.opanowanie_po * 100);
+  const zmiana = result.opanowanie_przed != null && result.opanowanie_po != null
+    ? Math.round(result.opanowanie_po * 100) - Math.round(result.opanowanie_przed * 100)
+    : null;
   return (
     <main className={`container ${s.strona}`}>
       <header className={s.glowa}>
@@ -92,11 +137,18 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
       <Podsumowanie odpowiedzi={sesja.answers} />
       <section className={s.sekcja} aria-labelledby="mapa-po-rundzie">
         <h2 className="h2" id="mapa-po-rundzie">Zmiana opanowania{nazwa && ` · ${nazwa}`}</h2>
+        <PasekOpanowania przed={result.opanowanie_przed} po={result.opanowanie_po} />
         <dl className={s.mapaRozbioru}>
           <div><dt className="small muted">Przed rundą</dt><dd>{opanowanie(result.opanowanie_przed)}</dd></div>
-          <div><dt className="small muted">Po rundzie</dt><dd>{opanowanie(result.opanowanie_po)}</dd></div>
+          <div>
+            <dt className="small muted">Po rundzie</dt>
+            <dd>
+              {opanowanie(result.opanowanie_po)}
+              {zmiana ? <span className={s.zmiana} data-plus={zmiana > 0}> {zmiana > 0 ? "+" : "−"}{Math.abs(zmiana)} pkt</span> : null}
+            </dd>
+          </div>
         </dl>
-        <p className="small muted">Na mapie opanowanie maleje, gdy długo nie ćwiczysz.</p>
+        {inneNaMapie && <p className="small muted">Na mapie jest {opanowanie(naMapie)}, bo tam opanowanie maleje, gdy długo nie ćwiczysz.</p>}
         <div><Link to={adresMapy(level, skill_id)} className="link">Zobacz umiejętność na mapie</Link></div>
       </section>
       {dalej && (
