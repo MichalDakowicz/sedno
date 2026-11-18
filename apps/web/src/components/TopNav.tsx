@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Menu, RotateCcw, Target, X } from "lucide-react";
+import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Menu, MessageCircle, RotateCcw, Settings, Target, UserRound, X } from "lucide-react";
 import { logout } from "../auth";
 import { Plywak } from "./Plywak";
 import { resetTour, useTutor } from "./TutorContext";
@@ -14,6 +14,13 @@ const links = [
   { to: "/arkusze", label: "Arkusze", icon: FileText },
   { to: "/umiejetnosci", label: "Mapa umiejętności", icon: Target },
   { to: "/powtorki", label: "Powtórki", icon: RotateCcw },
+];
+
+const DODATKOWE = [
+  { to: "/tutor", label: "Rozmowa z Pestką", icon: MessageCircle },
+  { to: "/do-matury", label: "Do matury", icon: CalendarDays },
+  { to: "/profil", label: "Profil", icon: UserRound },
+  { to: "/ustawienia", label: "Ustawienia", icon: Settings },
 ];
 
 export function TopNav() {
@@ -139,11 +146,17 @@ export function TopNav() {
                 </NavLink>
               </li>
             ))}
-            <li>
-              <NavLink to="/profil" className={({ isActive }) => (isActive ? styles.mobileActive : "")}>
-                Profil
-              </NavLink>
-            </li>
+          </ul>
+          {/* Na telefonie nie ma przycisku profilu ani stałego miejsca Pestki, więc te strony są w menu. */}
+          <ul>
+            {DODATKOWE.map(({ to, label, icon: Icon }) => (
+              <li key={to}>
+                <NavLink to={to} className={({ isActive }) => (isActive ? styles.mobileActive : "")}>
+                  <Icon size={18} strokeWidth={2} aria-hidden="true" />
+                  {label}
+                </NavLink>
+              </li>
+            ))}
           </ul>
           <button type="button" className="btn btn-ghost" onClick={signOut}>
             Wyloguj
