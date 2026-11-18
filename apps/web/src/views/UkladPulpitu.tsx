@@ -169,7 +169,7 @@ export function UkladPulpitu() {
             </button>
           ))}
         </div>
-        <p className="muted small">Zmiany dotyczą pulpitu: {nazwaPrzedmiotu}. Każdy przedmiot ma własny układ.</p>
+        <p className="muted small">Pulpit: {nazwaPrzedmiotu}.</p>
       </section>
 
       <section className={s.sekcja}>

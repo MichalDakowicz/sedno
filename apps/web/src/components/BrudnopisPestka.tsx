@@ -125,16 +125,14 @@ export function BrudnopisPestka({ id, api, polecenie, onPokaz, onProwadz, onZamk
           <span className="small">Pytanie do Pestki (opcjonalnie)</span>
           <input ref={polePytania} value={pytanie} maxLength={500} onChange={(e) => setPytanie(e.currentTarget.value)} placeholder="Gdzie jest błąd? Narysuj bryłę z zadania." />
         </label>
-        <p className="small muted">Pestka otrzyma obraz obecnego szkicu.</p>
-        <button type="submit" className="btn btn-primary btn-sm" disabled={!konto || zajeta}>
+        <button type="submit" className="btn btn-primary btn-sm" disabled={!konto || zajeta} data-tutor-about="Dostanę obraz obecnego szkicu.">
           {zajeta ? "Pestka analizuje…" : "Zapytaj Pestkę"}
         </button>
       </form>
       <div className={styles.pestkaTryb}>
-        <button type="button" className="btn btn-secondary btn-sm" disabled={!konto || zajeta} onClick={onProwadz}>
+        <button type="button" className="btn btn-secondary btn-sm" disabled={!konto || zajeta} onClick={onProwadz} data-tutor-about="Po przerwie w pisaniu przejrzę szkic i sama dopiszę wskazówkę.">
           Prowadź mnie krok po kroku
         </button>
-        <p className="small muted">Po przerwie w pisaniu Pestka przejrzy szkic i sama dopisze wskazówkę.</p>
       </div>
       <div aria-live="polite">
         {stan.typ === "blad" && (

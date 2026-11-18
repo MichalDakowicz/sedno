@@ -60,7 +60,6 @@ function BezPrzedmiotow() {
       <h2 id="choose-title" className="h2">
         Które przedmioty zdajesz?
       </h2>
-      <p className="muted">Pulpit, propozycje i Pestka dopasują się do nich. Zmienisz je w profilu.</p>
       <WyborPrzedmiotow value={wybor} onChange={setWybor} />
       <button
         type="button"

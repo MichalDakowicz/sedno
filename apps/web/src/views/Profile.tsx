@@ -33,10 +33,7 @@ export function Profile() {
       <NaglowekStrony etykieta="Profil" tytul={profil?.display_name ?? "Twoje konto"} lead={session ? session.user.email : undefined} />
 
       <section id="przedmioty" ref={przedmiotyRef} style={{ display: "grid", gap: 16, justifyItems: "start" }}>
-        <div style={{ display: "grid", gap: 4 }}>
-          <h2 className="h2">Przedmioty maturalne</h2>
-          <p className="muted small">Pulpit, propozycje i Pestka dopasowują się do nich.</p>
-        </div>
+        <h2 className="h2" data-tutor-about="Pulpit, propozycje i ja dopasowujemy się do tych przedmiotów.">Przedmioty maturalne</h2>
         {profil && <WyborPrzedmiotow value={profil.subjects} onChange={(v) => void zmien(v)} />}
         {blad && (
           <p className="small" role="alert">
@@ -49,7 +46,6 @@ export function Profile() {
 
       <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
         <h2 className="h2">Ustawienia</h2>
-        <p className="muted small">Motyw, rozmiar tekstu, dostępność i zachowanie Pestki.</p>
         <Link to="/ustawienia" className="link" style={{ marginTop: 12 }}>
           Otwórz ustawienia
           <ArrowRight size={16} aria-hidden="true" />
@@ -57,8 +53,7 @@ export function Profile() {
       </section>
 
       <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
-        <h2 className="h2">Profil ucznia</h2>
-        <p className="muted small">Jak się uczysz, ile masz czasu, cele, priorytety i to, co Sedno wie z twoich wyników.</p>
+        <h2 className="h2" data-tutor-about="Jak się uczysz, ile masz czasu, cele, priorytety i to, co wiem z twoich wyników.">Profil ucznia</h2>
         <Link to="/profil-ucznia" className="link" style={{ marginTop: 12 }}>
           Otwórz profil ucznia
           <ArrowRight size={16} aria-hidden="true" />
@@ -67,7 +62,6 @@ export function Profile() {
 
       <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
         <h2 className="h2">Układ pulpitu</h2>
-        <p className="muted small">Wybór i kolejność widgetów na pulpicie.</p>
         <Link to="/uklad-pulpitu" className="link" style={{ marginTop: 12 }}>
           Otwórz układ pulpitu
           <ArrowRight size={16} aria-hidden="true" />

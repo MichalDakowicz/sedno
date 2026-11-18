@@ -66,7 +66,7 @@ export function DoMatury() {
               ))}
             </ul>
             <p className={`muted small ${s.przypis}`}>
-              Terminy pisemnych egzaminów, sesja majowa 2027, z komunikatu dyrektora CKE z 20 sierpnia 2026. Do weryfikacji w BIP CKE; godzin jeszcze nie znamy.
+              Terminy z komunikatu CKE z 20 sierpnia 2026, do weryfikacji w BIP CKE.
             </p>
           </>
         )}

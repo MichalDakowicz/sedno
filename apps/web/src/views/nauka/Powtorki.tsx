@@ -42,7 +42,7 @@ export function Powtorki() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <NaglowekStrony etykieta="Język angielski" tytul="Powtórki" lead="Wróć do zadań, które sprawiły trudność, i odśwież dawno ćwiczone umiejętności." />
+      <NaglowekStrony etykieta="Język angielski" tytul="Powtórki" lead="Trudne zadania i dawno ćwiczone umiejętności." />
 
       <div className={s.sekcja}>
         <div className={s.polePoziom}>

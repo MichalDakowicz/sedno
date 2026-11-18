@@ -12,7 +12,7 @@ import { NaglowekStrony } from "../components/NaglowekStrony";
 
 function Wybor({ pytanie, opcje, wybrana, onZmiana }: { pytanie: string; opcje: Opcja[]; wybrana?: string; onZmiana: (id: string) => void }) {
   return (
-    <div className={s.pytanie} role="group" aria-label={pytanie}>
+    <div className={s.pytanie} role="group" aria-label={pytanie} data-tutor-about="Wybraną odpowiedź wyczyścisz, klikając ją jeszcze raz.">
       <span>{pytanie}</span>
       <div className="pigulki">
         {opcje.map((o) => (
@@ -87,7 +87,7 @@ export function ProfilUcznia() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <NaglowekStrony etykieta="Profil" tytul="Profil ucznia" lead="Wszystkie odpowiedzi są dobrowolne. Możesz je zmienić albo usunąć, a wybraną odpowiedź wyczyścisz, klikając ją jeszcze raz." />
+      <NaglowekStrony etykieta="Profil" tytul="Profil ucznia" lead="Jak się uczysz i do czego dążysz. Każda odpowiedź jest dobrowolna." />
 
       <section className={s.sekcja} aria-labelledby="pu-jak">
         <h2 id="pu-jak" className="h2">
@@ -104,7 +104,7 @@ export function ProfilUcznia() {
       </section>
 
       <section className={s.sekcja} aria-labelledby="pu-priorytety">
-        <h2 id="pu-priorytety" className="h2">
+        <h2 id="pu-priorytety" className="h2" data-tutor-about="Mogę dopisać priorytet sama, gdy powiesz o nim w rozmowie. Zawsze dam ci o tym znać.">
           Priorytety
         </h2>
         {priorytety.length > 0 && (
@@ -143,7 +143,6 @@ export function ProfilUcznia() {
         <p className="muted small" aria-live="polite">
           {powtorka ? "Ten priorytet już jest na liście." : szkic.length >= LIMIT_LICZNIKA ? `${szkic.length}/${MAX_DLUGOSC} znaków` : ""}
         </p>
-        <p className="muted small">Pestka może dopisać priorytet sama, gdy powiesz o nim w rozmowie. Zawsze dostaniesz o tym informację.</p>
       </section>
 
       <section className={s.sekcja} aria-labelledby="pu-wnioski">

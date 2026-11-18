@@ -234,8 +234,9 @@ function CkeOdczyt({ prompt, pole, poOcenie, tylkoOpcje, onGotowe, ponow }: {
             {poOcenie && fragment
               ? <FragmentNagrania key="pytanie" src={nagranie} fragment={{ od: fragment.od, do: fragment.do, tekst: "" }} podpis="Fragment z odpowiedzią" />
               : fragmentZadania && <>
-                <FragmentNagrania key="zadanie" src={nagranie} fragment={fragmentZadania} podpis="Całe zadanie" />
-                <p className="small muted">Gra całe zadanie, żeby nie zdradzić, gdzie pada odpowiedź. Po sprawdzeniu usłyszysz sam fragment z odpowiedzią, jak w arkuszu.</p>
+                <span data-tutor-about="Gra całe zadanie, żeby nie zdradzić, gdzie pada odpowiedź. Po sprawdzeniu usłyszysz sam fragment z odpowiedzią.">
+                  <FragmentNagrania key="zadanie" src={nagranie} fragment={fragmentZadania} podpis="Całe zadanie" />
+                </span>
               </>}
             {fragment || fragmentZadania ? (
               <details className={s.rozwijane}>

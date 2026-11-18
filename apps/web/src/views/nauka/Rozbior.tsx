@@ -147,7 +147,7 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
             </dd>
           </div>
         </dl>
-        {inneNaMapie && <p className="small muted">Na mapie jest {opanowanie(naMapie)}, bo tam opanowanie maleje, gdy długo nie ćwiczysz.</p>}
+        {inneNaMapie && <p className="small muted" data-tutor-about="Na mapie opanowanie powoli maleje, gdy długo nie ćwiczysz, a rozbiór pokazuje stan zaraz po rundzie.">Na mapie jest {opanowanie(naMapie)}.</p>}
         <div><Link to={adresMapy(level, skill_id)} className="link">Zobacz umiejętność na mapie</Link></div>
       </section>
       {dalej && (

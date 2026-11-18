@@ -15,27 +15,27 @@ const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string; lead: string }[]
     id: "angielski",
     nazwa: "Angielski",
     opis: "Język angielski · matura od 2015",
-    lead: "Arkusze maturalne CKE do rozwiązania w przeglądarce. Zadania zamknięte sprawdzam od razu z kluczem, otwarte porównuję z zasadami oceniania.",
+    lead: "Arkusze maturalne CKE do rozwiązania w przeglądarce.",
   },
   {
     id: "matematyka",
     nazwa: "Matematyka",
     opis: "Matematyka · poziom podstawowy · matura od 2023",
-    lead: "Zadania wyglądają jak w arkuszu CKE. Przy każdym masz brudnopis do obliczeń i szkiców, a przy zadaniach z rysunkiem możesz rysować po figurze.",
+    lead: "Arkusze maturalne CKE z brudnopisem przy każdym zadaniu.",
   },
   {
     id: "informatyka",
     nazwa: "Informatyka",
     opis: "Informatyka · poziom rozszerzony · matura od 2023",
-    lead: "Zadania z arkusza CKE razem z plikami danych. Program napiszesz i uruchomisz w Pythonie, zapytania SQL sprawdzisz na tabelach z plików, a dane pobierzesz do Excela albo Accessa.",
+    lead: "Arkusze maturalne CKE z plikami danych, Pythonem i SQL.",
   },
 ];
 const POZIOMY: Poziom[] = ["podstawowy", "rozszerzony", "dwujezyczny"];
 const NAZWY: Record<Poziom, string> = { podstawowy: "Podstawowy", rozszerzony: "Rozszerzony", dwujezyczny: "Dwujęzyczny" };
 
 const FORMULY = [
-  { id: "2023", nazwa: "Formuła 2023", opis: "Obecna matura, od 2023 roku. Taki egzamin napiszesz." },
-  { id: "2015", nazwa: "Formuła 2015", opis: "Matura z lat 2015–2023. Inny układ zadań i mniej punktów, ale dobra do ćwiczeń." },
+  { id: "2023", nazwa: "Formuła 2023", opis: "Obecna matura." },
+  { id: "2015", nazwa: "Formuła 2015", opis: "Starsza matura, dobra do ćwiczeń." },
 ];
 
 export function Arkusze() {

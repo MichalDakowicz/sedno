@@ -18,10 +18,7 @@ export function PodlaczAI({ onGo }: { onGo?: () => void }) {
           <strong>lekkich</strong> (podpowiedzi). Może to być ten sam.
         </li>
       </ol>
-      <p className="small muted">
-        Klucz jest przypisany do twojego konta i zaszyfrowany na serwerze. Sedno nie ma wspólnego klucza i nie pokazuje twojego nikomu, także tobie.
-      </p>
-      <Link to="/profil#ai" className="btn btn-primary" onClick={onGo}>
+      <Link to="/profil#ai" className="btn btn-primary" onClick={onGo} data-tutor-about="Klucz jest przypisany do twojego konta i zaszyfrowany na serwerze. Sedno nie ma wspólnego klucza i nie pokazuje twojego nikomu, także tobie.">
         Podepnij AI
       </Link>
     </div>
