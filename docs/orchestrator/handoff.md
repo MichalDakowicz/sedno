@@ -1,6 +1,6 @@
 # Orchestration: handoff
 
-_Updated 2026-11-18_
+_Updated 2026-11-18 (evening)_
 
 **State.** Phase 2 (English learning loop) was built and merged by the teammate: backend PR #55, views PR #56 (Nauka, Mapa umiejętności, Szybka runda, Rozbiór, Powtórki, Uczeń uczy), migration 0015 (audit fixes for repeating wrong tasks and clearing the mistake flag), then PRs #57–#65 (scratchpad, generated variants and open-answer grading in 0016, Nauka loading). Production and staging (`dev`) run the same code as `main` (`904d468`). The orchestrator's own unit-3 branch `mapa-umiejetnosci` duplicates #56 and is dropped (kept, not merged). The orchestrator now verifies the merged work against `goal.md` and turns gaps into fix units.
 
@@ -8,22 +8,20 @@ _Updated 2026-11-18_
 
 **Verified 2026-11-18.** Typecheck and build on `904d468`. Opus audit of #56 + 0015 (0 blockers, 3 majors, 9 minors). Haiku tester run of the whole loop on staging (round, breakdown, map, Powtórki, reload, second tab, network failure, 375 px, dark, keyboard, console).
 
-**Open findings (proposed fix units, waiting for the user's decision on who builds them).**
-1. Major. Abandoned rounds pile up: every visit to `/nauka/runda` makes a new session (`SzybkaRunda.tsx:44`), nothing calls `nauka_usun`, „Ostatnio” only offers „Wznów”, and 10 open sessions block new rounds (`too_many_open_sessions`). Fix: reuse an open session with the same skill, format and level; add discard; list across levels.
-2. Major, needs a product decision. Mastery drifts back toward 50% as evidence ages (age shrinks every Elo update, `0015:113–127`), so an unpractised weak skill rises. Options: decay toward a low prior, or show score × retention on the map.
-3. Major. Listening tasks in a round give only the full ~20-minute recording before answering (`TrescRundy.tsx:92–113`). Fix: play the segment covering the whole task before answering.
-4. Goal gap. The breakdown has no „what went well / what didn't” summary (goal in-scope 5; tester found none).
-5. Powtórki readability: after one listening round it shows 16 near-identical rows („Uchwyć sens nagrania · Ćwiczone w ciągu ostatniej doby · Szacowana retencja 98%”), and fresh mistakes from another skill rank below them.
-6. Accessibility: round feedback is not in a live region; focus drops to `<body>` after „Ćwicz” and skill chips on /nauka; hints region appears with its first hint.
-7. Minors: reload on the feedback screen skips to the next task; invalid `?umiejetnosc=`/level loops on retry; „Dziś warto” swaps content after loading; `learning_map` runs 3× on the last answer; `nauka.md` difficulty values stale; raw area ids in the Nauka skill picker; CKE key readable from `sheets` (pre-existing, own data only).
+**Fix units (2026-11-18), built by the orchestrator, PRs open, not merged.**
+- PR #66 `porzucone-rundy`: reuse of open rounds (also repeat rounds of the same item), „Usuń” in „Ostatnio” for all levels and formats, specific messages for the 10-round cap and bad URL params, feedback survives reload, live region with the correct answer and explanation, focus after „Ćwicz”, area names in the picker.
+- PR #67 `sluchanie-i-rozbior`: whole-task listening segment before answering (only when every question has a fragment), breakdown summary „Co poszło dobrze, a co nie” with counts, note that the map shows decay.
+- PR #68 `zanikanie-i-powtorki`: migrations 0017 (displayed score = Elo estimate × retention, Elo at full weight, fewer map computations) and 0018 (breakdown before/after both the estimate; weekly plan ranking), Powtórki grouped by skill with dates and loading state, „Dziś warto” loading, `nauka.md` and `docs/mapa-dowody.html` updated.
+- All three: up to date with `main`, typecheck and build green together; 0017 and 0018 applied on staging; tester runs on staging; two audit rounds, the last with no blockers or majors. Repeat-round reuse checked by the orchestrator in the browser on staging.
+- Left on purpose: „Usuń” without confirm (as in the student profile); listening segment seek on iOS Safari untested; per-question fragment after answering stays inside „Treść zadania”; the round grows after a mistake by design; a „Failed to load resource: 400” on every page load (no learning RPC; source unknown, likely pre-existing).
 
 **Not verified.** Large text: the app sizes text in px, so the 200% root-font check proves nothing; retest with browser zoom. Hand calculation of mastery (bar 1 of Works). Matching every template/doc page.
 
 **Test data left on staging.** Unfinished rounds from the tester (18 Nov, Dobieraj 4/6; Powtórki 8.3 2/7; 17 Nov). They count toward the 10-session cap.
 
-**In flight.** Nothing.
+**In flight.** PRs #66–#68 wait for the user's merge decision. Merging #68 sends 0017 and 0018 to production.
 
-**Next.** User decides who builds the fix units (orchestrator on branches with PRs, or the teammate) and the mastery-decay option. Then build in order 1, 3, 4, 6, 5, 2, 7.
+**Next.** After merge: tick the bars that depend on it (live announcements, final audit), run the hand calculation of mastery for the test account, the full keyboard path and a browser-zoom large-text check, then the goal review.
 
 **Housekeeping.**
 - `npm run dev:staging` runs in the terminal tab „dev staging” from `C:\sedno` on `main`.
