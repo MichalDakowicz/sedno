@@ -1,41 +1,31 @@
 # Orchestration: handoff
 
-_Updated 2026-11-17_
+_Updated 2026-11-18_
 
-## Phase 2 release
+**State.** Phase 2 (English learning loop) was built and merged by the teammate: backend PR #55, views PR #56 (Nauka, Mapa umiejętności, Szybka runda, Rozbiór, Powtórki, Uczeń uczy), migration 0015 (audit fixes for repeating wrong tasks and clearing the mistake flag), then PRs #57–#65 (scratchpad, generated variants and open-answer grading in 0016, Nauka loading). Production and staging (`dev`) run the same code as `main` (`904d468`). The orchestrator's own unit-3 branch `mapa-umiejetnosci` duplicates #56 and is dropped (kept, not merged). The orchestrator now verifies the merged work against `goal.md` and turns gaps into fix units.
 
-[PR #56](https://github.com/MichalDakowicz/sedno/pull/56) merged into `main` at `423698d`. Production serves the connected Nauka, Mapa umiejętności, Szybka runda, Rozbiór, Powtórki and Uczeń uczy AI views. Pestka can inspect the mathematics scratchpad and offer figures for the student to insert. The staging branch received the same code at `386f911`. [Firebase Hosting](https://trafwsedno.web.app/)
+**Goal.** 7/17 bars, with evidence in `goal.md`.
 
-Migration 0015 addresses both audit findings below. The selected incorrect item comes first, a correct retry removes that item, and a subsequent strong score in a checked sheet clears older errors in the skill.
+**Verified 2026-11-18.** Typecheck and build on `904d468`. Opus audit of #56 + 0015 (0 blockers, 3 majors, 9 minors). Haiku tester run of the whole loop on staging (round, breakdown, map, Powtórki, reload, second tab, network failure, 375 px, dark, keyboard, console).
 
-Production checks confirmed the released Firebase assets, login redirect and availability of the updated `nauka_start` signature. A local Chromium test at 375 px exercised the full loop using PGlite and imported CKE sheets, including a failed save and reload. The scratchpad and Uczeń uczy AI tests used simulated model responses. Authenticated staging smoke and the quality of handwriting feedback with the account's Luna model remain open.
+**Open findings (proposed fix units, waiting for the user's decision on who builds them).**
+1. Major. Abandoned rounds pile up: every visit to `/nauka/runda` makes a new session (`SzybkaRunda.tsx:44`), nothing calls `nauka_usun`, „Ostatnio” only offers „Wznów”, and 10 open sessions block new rounds (`too_many_open_sessions`). Fix: reuse an open session with the same skill, format and level; add discard; list across levels.
+2. Major, needs a product decision. Mastery drifts back toward 50% as evidence ages (age shrinks every Elo update, `0015:113–127`), so an unpractised weak skill rises. Options: decay toward a low prior, or show score × retention on the map.
+3. Major. Listening tasks in a round give only the full ~20-minute recording before answering (`TrescRundy.tsx:92–113`). Fix: play the segment covering the whole task before answering.
+4. Goal gap. The breakdown has no „what went well / what didn't” summary (goal in-scope 5; tester found none).
+5. Powtórki readability: after one listening round it shows 16 near-identical rows („Uchwyć sens nagrania · Ćwiczone w ciągu ostatniej doby · Szacowana retencja 98%”), and fresh mistakes from another skill rank below them.
+6. Accessibility: round feedback is not in a live region; focus drops to `<body>` after „Ćwicz” and skill chips on /nauka; hints region appears with its first hint.
+7. Minors: reload on the feedback screen skips to the next task; invalid `?umiejetnosc=`/level loops on retry; „Dziś warto” swaps content after loading; `learning_map` runs 3× on the last answer; `nauka.md` difficulty values stale; raw area ids in the Nauka skill picker; CKE key readable from `sheets` (pre-existing, own data only).
 
-## Unit 1 handoff
+**Not verified.** Large text: the app sizes text in px, so the 200% root-font check proves nothing; retest with browser zoom. Hand calculation of mastery (bar 1 of Works). Matching every template/doc page.
 
-**State.** Goal 2 (English learning loop) started. The backend comes from a teammate's draft PR #55 (`backend-nauki`, services only, migrations 0009–0014, contract in `services/supabase/nauka.md`); decision recorded in `project.md` and `goal.md`. Student-facing skill names (nine skills in 0009) approved by the user. The teammate merged #55 into `main` as is (`eccbca7`, 2026-11-17 21:39), before the audit fixes, so migrations 0009–0014 go to production through the `main` autodeploy. `main` was then pushed to `dev` (staging, `a420413`).
+**Test data left on staging.** Unfinished rounds from the tester (18 Nov, Dobieraj 4/6; Powtórki 8.3 2/7; 17 Nov). They count toward the 10-session cap.
 
-**Goal.** 1/17 bars (mapping, with evidence in `goal.md`).
+**In flight.** Nothing.
 
-**Verified (unit 1, on PR #55 at `d207542`).**
-- Importer run on all 12 English formuła 2023 sheets: 572/572 questions with CKE codes, 0 missing; the catalogue has no other formuła 2023 English sheets.
-- Migration 0009 vs import: all 572 match (scratch script, not committed).
-- Hand check against marking-rules PDFs: 2025 R zad. 1 and 6, 2024 P zad. 2 and 5 (26 questions) match.
-- Typecheck and build green on the branch. Deno not installed locally, so edge functions were not run.
-- Opus gap audit of 0009–0014, functions and scripts: 0 blockers, 2 majors, 10 minors (below). Both majors confirmed in the SQL by the orchestrator.
-
-**Audit findings handed to the teammate (user's decision: the teammate fixes them, as a new migration 0015, not by editing 0011/0012).**
-- Major: wrong tasks never come back. `nauka_start` orders by `last_seen nulls first` and takes no item list, so a missed task goes to the back (0011 ~l.295–322, 0012 ~l.77–89).
-- Major: `last_mistake_at` comes from any sample (sheets too) but only a session with at least 75% clears it, so after one checked sheet every skill shows „Wróć do ostatniego błędu” (0011 ~l.127, 137–142, 193–197).
-- Minors: open-session answers do not feed mastery; 10 abandoned rounds block new ones; shown `score` does not decay; before/after null in „mało danych”; `learning_map` run 3× on the last answer under the lock; nauka.md difficulty values out of date; top-up applies when the whole CKE pool is under 5; new sheets need a new migration for codes; CKE key readable from `sheets` (pre-existing, own data only); `sheet_progress` is client-controlled (own data only).
-
-**In flight.** Unit 3 (Mapa umiejętności) on branch `mapa-umiejetnosci`. The teammate's audit fixes are expected as a new migration 0015 on a new branch; re-check them when they arrive.
-
-**Parked.** Nothing.
-
-**Claimed but unfinished.** None. Related Brief ideas left open: „sekcja co musze powtorzyc”, „Poziom opanowania wymagań”.
-
-**Next.** Finish unit 3 (test on staging, audit, PR), then unit 4 (Szybka runda).
+**Next.** User decides who builds the fix units (orchestrator on branches with PRs, or the teammate) and the mastery-decay option. Then build in order 1, 3, 4, 6, 5, 2, 7.
 
 **Housekeeping.**
-- Worktree `C:\sedno-pr55` (PR #55 checkout, junctions `node_modules` and `data/cke`, own `data/arkusze` from the import). Remove with `git worktree remove` when done; the junctions point into the main checkout, so delete them first.
-- Worktree `C:\sedno-dev` with local branch `dev-scal` (`origin/dev` + `main`, pushed to `dev`). Reuse it for staging merges.
+- `npm run dev:staging` runs in the terminal tab „dev staging” from `C:\sedno` on `main`.
+- Worktrees: `C:\sedno-pr55` (junctions `node_modules`, `data/cke`, `data/nagrania`; delete them before `git worktree remove`), `C:\sedno-dev` (branch `dev-scal`), `.claude/worktrees/agent-aa52a1d936546d89f` (branch `mapa-umiejetnosci`, dropped). Remove when no longer needed.
+- The built-in browser loses the staging session when the pane restarts; the user signs in again.
