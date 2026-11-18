@@ -63,7 +63,7 @@ export function Powtorki() {
         </div>
       </div>
 
-      {powtorki.stan === "ladowanie" && <Ladowanie ksztalt="pulpit" ile={2} etykieta="Wczytuję powtórki" />}
+      {(powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") && <Ladowanie ksztalt="pulpit" ile={2} etykieta="Wczytuję powtórki" />}
       {powtorki.stan === "blad" && <BladNauki komunikat="Nie udało się wczytać powtórek." ponow={powtorki.ponow} />}
       {powtorki.stan === "gotowe" && !dzis && !pozostale.length && (
         <section className={s.sekcja} aria-labelledby="powtorki-puste">
@@ -128,6 +128,7 @@ function GrupaBledow({ poziom, zadania }: { poziom: Poziom; zadania: Powtorka[] 
           <li key={kluczPowtorki(p)} className={s.zadanie}>
             <div className={`small ${s.zadanieOpis}`}>
               {p.mistake?.sheet_id || p.mistake?.session_id ? <ZrodloPowtorki powtorka={p} /> : "Zadanie do powtórzenia"}
+              {p.mistake?.session_id && dataNauki(p.mistake.happened_at) && <span className="muted"> · {dataNauki(p.mistake.happened_at)}</span>}
             </div>
             <Link to={adresCwiczenia(poziom, p)} className={`btn btn-ghost ${s.przycisk}`}>
               <RotateCcw size={16} aria-hidden="true" />
