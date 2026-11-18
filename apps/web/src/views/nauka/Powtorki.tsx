@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, RotateCcw, Timer } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
+import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
-import { Angielski, BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
+import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
 import { etykietaZrodla, kluczPowtorki, szacowanyCzas, unikalnePowtorki } from "../pulpit/czasPowtorek";
 import s from "./Powtorki.module.css";
 
@@ -41,11 +42,7 @@ export function Powtorki() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <header className={s.glowa}>
-        <Angielski />
-        <h1 className="display">Powtórki</h1>
-        <p className="lead">Wróć do zadań, które sprawiły trudność, i odśwież dawno ćwiczone umiejętności.</p>
-      </header>
+      <NaglowekStrony etykieta="Język angielski" tytul="Powtórki" lead="Wróć do zadań, które sprawiły trudność, i odśwież dawno ćwiczone umiejętności." />
 
       <div className={s.sekcja}>
         <div className={s.polePoziom}>

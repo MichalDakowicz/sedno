@@ -5,6 +5,7 @@ import { useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
 import { useProfil } from "../auth";
+import { NaglowekStrony } from "../components/NaglowekStrony";
 import { Ladowanie } from "../components/Ladowanie";
 import { Plywak } from "../components/Plywak";
 import styles from "./Arkusze.module.css";
@@ -52,11 +53,7 @@ export function Arkusze() {
 
   return (
     <main className={`container ${styles.page}`}>
-      <header className={styles.head}>
-        <span className="label">{opis.opis}</span>
-        <h1 className="display">Arkusze</h1>
-        <p className="lead">{opis.lead}</p>
-      </header>
+      <NaglowekStrony etykieta={opis.opis} tytul="Arkusze" lead={opis.lead} />
 
       <nav className={styles.levels} aria-label="Przedmiot">
         <Plywak zalezy={przedmiot} />

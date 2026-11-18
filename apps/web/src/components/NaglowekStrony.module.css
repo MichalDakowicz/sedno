@@ -1,0 +1,38 @@
+/* Wspólny nagłówek strony (NaglowekStrony.tsx): jeden odstęp, jeden krój etykiety i leadu, linia pod spodem. */
+.naglowek {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  min-width: 0;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Sekcja tuż pod nagłówkiem nie dokłada drugiej linii. */
+.naglowek + * {
+  border-top: 0;
+}
+
+.wstecz,
+.etykieta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+}
+
+.etykieta {
+  font-size: var(--t-xs);
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--subtle);
+}
+
+.lead {
+  max-width: 60ch;
+  font-size: var(--t-md);
+  line-height: 1.6;
+  color: var(--muted);
+}

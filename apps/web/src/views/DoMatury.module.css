@@ -5,12 +5,6 @@
   padding-bottom: 120px;
 }
 
-.glowa {
-  display: grid;
-  gap: 12px;
-  justify-items: start;
-}
-
 /* Sekcje rozdziela linia, nie karta. */
 .sekcja {
   display: grid;

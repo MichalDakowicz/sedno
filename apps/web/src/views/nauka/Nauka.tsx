@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "rea
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, ChevronRight, FileText, GraduationCap, MessagesSquare, Sparkles, Timer, Wrench } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
+import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { useTutor } from "../../components/TutorContext";
 import { nazwaPoziomu } from "../../konto/przedmioty";
@@ -9,7 +10,7 @@ import { adresMapy, adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki, type Umiejetnosc } from "../../nauka/api";
 import { useOtwarteRundy, usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { OPIS_OPANOWANIA } from "./Opanowanie";
-import { Angielski, BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
+import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
 import s from "./NaukaPowtorki.module.css";
 
 // Te same nazwy obszarów co na mapie umiejętności (Umiejetnosci.tsx).
@@ -86,11 +87,7 @@ export function Nauka() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <header className={s.glowa}>
-        <Angielski />
-        <h1 className="display" tabIndex={-1} ref={naglowek}>Nauka</h1>
-        <p className="lead">Wybierz umiejętność i zrób krótką rundę przed maturą.</p>
-      </header>
+      <NaglowekStrony etykieta="Język angielski" tytul="Nauka" tytulRef={naglowek} lead="Wybierz umiejętność i zrób krótką rundę przed maturą." />
 
       <section className={s.sekcja} aria-label="Wybór ćwiczenia">
         <div className={s.pola}>

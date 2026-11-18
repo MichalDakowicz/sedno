@@ -5,16 +5,10 @@
   padding-bottom: 120px;
 }
 
-.glowa,
 .sekcja {
   display: grid;
   gap: 16px;
   min-width: 0;
-}
-
-.glowa {
-  justify-items: start;
-  gap: 10px;
 }
 
 .sekcja {

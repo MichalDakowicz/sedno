@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, ChevronRight, CircleAlert, CircleMinus } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, CircleAlert, CircleMinus } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { nazwaPoziomu, nazwaZadaniaCke } from "../../arkusze/typy";
 import { useSession } from "../../auth";
+import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { adresMapy, adresNauki, adresPowtorek, adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type MapaNauki, type OdpowiedzNauki, type SesjaNauki } from "../../nauka/api";
@@ -125,11 +126,9 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
     : null;
   return (
     <main className={`container ${s.strona}`}>
-      <header className={s.glowa}>
-        <Link to={adresNauki(level, skill_id)} className={`link small ${s.wroc}`}><ArrowLeft size={15} aria-hidden="true" /> Nauka</Link>
-        <h1 className="display" tabIndex={-1} ref={naglowek}>Rozbiór rundy</h1>
+      <NaglowekStrony wstecz={{ do: adresNauki(level, skill_id), nazwa: "Nauka" }} tytul="Rozbiór rundy" tytulRef={naglowek}>
         <p className="small muted">{nazwaFormatuNauki[format]} · {nazwaPoziomu[level]}{nazwa && ` · ${nazwa}`}</p>
-      </header>
+      </NaglowekStrony>
       <section className={s.sekcja} aria-labelledby="wynik-rundy">
         <h2 id="wynik-rundy" className="h1">{result.wynik.poprawne} z {result.wynik.wszystkich} poprawnie</h2>
         <ul className={s.wierszeRozbioru}>{sesja.answers.map((a) => <ProbaRozbioru key={a.position} odpowiedz={a} />)}</ul>
@@ -172,10 +171,7 @@ function RozbiorSesji({ id }: { id: string }) {
   if (stan.status === "gotowa" && stan.sesja.result) return <RozbiorGotowy sesja={{ ...stan.sesja, result: stan.sesja.result }} />;
   return (
     <main className={`container ${s.strona}`}>
-      <header className={s.glowa}>
-        <Link to="/nauka" className={`link small ${s.wroc}`}><ArrowLeft size={15} aria-hidden="true" /> Nauka</Link>
-        <h1 className="display">Rozbiór rundy</h1>
-      </header>
+      <NaglowekStrony wstecz={{ do: "/nauka", nazwa: "Nauka" }} tytul="Rozbiór rundy" />
       {stan.status === "laduje" ? <Ladowanie etykieta="Wczytywanie rozbioru" /> : (
         <section className={s.sekcja}>
           {stan.status === "brak" && <p role="alert">Nie udało się znaleźć tej rundy na Twoim koncie.</p>}

@@ -4,6 +4,7 @@ import { CELE, useUczenie } from "../konto/profilUcznia";
 import { przedmiot, zgrupuj } from "../konto/przedmioty";
 import { dniDo, egzaminyUcznia, minal, najblizszy, nazwaEgzaminu, odmianaDni, opisDaty } from "../konto/terminy";
 import s from "./DoMatury.module.css";
+import { NaglowekStrony } from "../components/NaglowekStrony";
 
 export function DoMatury() {
   const profil = useProfil();
@@ -15,11 +16,7 @@ export function DoMatury() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <header className={s.glowa}>
-        <span className="label">Matura 2027</span>
-        <h1 className="display">Do matury</h1>
-        <p className="lead">Ile czasu zostało do twoich egzaminów i jaki masz cel.</p>
-      </header>
+      <NaglowekStrony etykieta="Matura 2027" tytul="Do matury" lead="Ile czasu zostało do twoich egzaminów i jaki masz cel." />
 
       <section className={s.sekcja} aria-labelledby="odliczanie">
         <h2 id="odliczanie" className="h2">

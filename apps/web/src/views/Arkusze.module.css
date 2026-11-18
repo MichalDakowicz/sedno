@@ -5,12 +5,6 @@
   padding-bottom: 120px;
 }
 
-.head {
-  display: grid;
-  gap: 16px;
-  max-width: 640px;
-}
-
 .levels {
   position: relative;
   display: flex;

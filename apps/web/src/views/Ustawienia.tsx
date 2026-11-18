@@ -9,6 +9,7 @@ import {
   type Tekst,
 } from "../konto/ustawienia";
 import s from "./Ustawienia.module.css";
+import { NaglowekStrony } from "../components/NaglowekStrony";
 
 const MOTYWY: { id: Motyw; nazwa: string }[] = [
   { id: "system", nazwa: "Jak system" },
@@ -56,10 +57,7 @@ export function Ustawienia() {
 
   return (
     <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
-      <div style={{ display: "grid", gap: 12 }}>
-        <span className="label">Profil</span>
-        <h1 className="display">Ustawienia</h1>
-      </div>
+      <NaglowekStrony etykieta="Profil" tytul="Ustawienia" lead="Wygląd, dostępność i to, jak odzywa się Pestka." />
 
       <section className={s.sekcja}>
         <h2 className="h2">Wygląd</h2>

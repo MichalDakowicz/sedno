@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { nazwaZadaniaCke, nazwaZadaniaRundy, type Poziom } from "../../arkusze/typy";
 import { useProfil } from "../../auth";
+import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { PRZEDMIOTY, przedmiot } from "../../konto/przedmioty";
 import { adresMapy, adresNauki, adresRozbioru } from "../../nauka/adresy";
@@ -120,10 +121,7 @@ export function Umiejetnosci() {
 
   return (
     <main className={`container ${s.strona}`} data-panel={!!wybrana}>
-      <header className={s.glowa}>
-        <h1 className="display">Mapa umiejętności</h1>
-        <p className="muted">Zobacz, jak radzisz sobie z poszczególnymi wymaganiami matury.</p>
-      </header>
+      <NaglowekStrony etykieta="Matura" tytul="Mapa umiejętności" lead="Zobacz, jak radzisz sobie z poszczególnymi wymaganiami matury." />
       <div className={s.filtry}>
         <nav className="pigulki" aria-label="Przedmioty">
           {przedmioty.map((p) => (

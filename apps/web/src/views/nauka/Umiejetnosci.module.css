@@ -6,7 +6,6 @@
   padding-bottom: 112px;
 }
 
-.glowa,
 .grupy,
 .panel,
 .blok {
@@ -14,15 +13,6 @@
   gap: 16px;
   min-width: 0;
   align-content: start;
-}
-
-.glowa {
-  gap: 12px;
-  justify-items: start;
-}
-
-.glowa p {
-  max-width: 56ch;
 }
 
 .filtry,

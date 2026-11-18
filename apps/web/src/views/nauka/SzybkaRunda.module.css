@@ -8,7 +8,6 @@
   overflow-wrap: anywhere;
 }
 
-.glowa,
 .sekcja,
 .postep,
 .material,
@@ -19,8 +18,6 @@
   gap: 16px;
 }
 
-.glowa { justify-items: start; }
-.wroc,
 .ocena {
   display: inline-flex;
   align-items: center;

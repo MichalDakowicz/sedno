@@ -8,6 +8,7 @@ import { PRZEDMIOTY, zgrupuj, type PrzedmiotId } from "../konto/przedmioty";
 import { useWynikiKonta } from "../konto/wyniki";
 import { useListaArkuszy } from "../arkusze/dane";
 import s from "./ProfilUcznia.module.css";
+import { NaglowekStrony } from "../components/NaglowekStrony";
 
 function Wybor({ pytanie, opcje, wybrana, onZmiana }: { pytanie: string; opcje: Opcja[]; wybrana?: string; onZmiana: (id: string) => void }) {
   return (
@@ -86,11 +87,7 @@ export function ProfilUcznia() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <header className={s.glowa}>
-        <span className="label">Profil</span>
-        <h1 className="display">Profil ucznia</h1>
-        <p className="muted">Wszystkie odpowiedzi są dobrowolne. Możesz je zmienić albo usunąć, a wybraną odpowiedź wyczyścisz, klikając ją jeszcze raz.</p>
-      </header>
+      <NaglowekStrony etykieta="Profil" tytul="Profil ucznia" lead="Wszystkie odpowiedzi są dobrowolne. Możesz je zmienić albo usunąć, a wybraną odpowiedź wyczyścisz, klikając ją jeszcze raz." />
 
       <section className={s.sekcja} aria-labelledby="pu-jak">
         <h2 id="pu-jak" className="h2">

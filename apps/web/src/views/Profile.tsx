@@ -6,6 +6,7 @@ import { KontoAI } from "../components/KontoAI";
 import { resetTour } from "../components/TutorContext";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import type { MojPrzedmiot } from "../konto/przedmioty";
+import { NaglowekStrony } from "../components/NaglowekStrony";
 
 export function Profile() {
   const navigate = useNavigate();
@@ -29,11 +30,7 @@ export function Profile() {
 
   return (
     <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
-      <div style={{ display: "grid", gap: 12 }}>
-        <span className="label">Profil</span>
-        <h1 className="display">{profil?.display_name ?? "Twoje konto"}</h1>
-        {session && <p className="muted">{session.user.email}</p>}
-      </div>
+      <NaglowekStrony etykieta="Profil" tytul={profil?.display_name ?? "Twoje konto"} lead={session ? session.user.email : undefined} />
 
       <section id="przedmioty" ref={przedmiotyRef} style={{ display: "grid", gap: 16, justifyItems: "start" }}>
         <div style={{ display: "grid", gap: 4 }}>

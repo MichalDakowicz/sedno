@@ -1,10 +1,11 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { FunctionsHttpError } from "@supabase/supabase-js";
-import { ArrowLeft, ChevronRight, Send } from "lucide-react";
+import { ChevronRight, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AiError, aiErrorText } from "../../ai";
 import { supabase } from "../../supabase";
 import styles from "./UczenUczy.module.css";
+import { NaglowekStrony } from "../../components/NaglowekStrony";
 
 type Scenariusz = { id: string; tytul: string; polecenie: string; przyklad: string; kryteria: string[] };
 type Status = "dobrze" | "do-poprawy" | "do-zrobienia" | "niepewne";
@@ -226,11 +227,7 @@ export function UczenUczy() {
 
   return (
     <main className={`container ${styles.strona}`}>
-      <header className={styles.naglowek}>
-        <Link to="/nauka" className={styles.powrot}><ArrowLeft size={17} aria-hidden="true" />Nauka</Link>
-        <h1 className="h1">Uczeń uczy AI</h1>
-        <p className="muted">Popraw przykład Kolegi i wyjaśnij mu, dlaczego zmiana działa.</p>
-      </header>
+      <NaglowekStrony wstecz={{ do: "/nauka", nazwa: "Nauka" }} tytul="Uczeń uczy AI" lead="Popraw przykład Kolegi i wyjaśnij mu, dlaczego zmiana działa." />
       {scenariusz ? (
         <Runda scenariusz={scenariusz} wroc={wroc} />
       ) : (

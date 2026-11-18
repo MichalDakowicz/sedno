@@ -1,8 +1,9 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, Check, ChevronRight, CircleAlert, Lightbulb, MessageCircle } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, CircleAlert, Lightbulb, MessageCircle } from "lucide-react";
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useSession } from "../../auth";
 import { nazwaPoziomu, nazwaZadaniaCke, type Poziom } from "../../arkusze/typy";
+import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { useTutor } from "../../components/TutorContext";
 import { adresNauki, adresPowtorek, adresRozbioru, adresRundy } from "../../nauka/adresy";
@@ -29,13 +30,7 @@ function zacznij(user: string, id: string, dane: Start): Promise<SesjaNauki> {
 }
 
 function NaglowekRundy({ tytul, adres = "/nauka", children }: { tytul: string; adres?: string; children?: ReactNode }) {
-  return (
-    <header className={s.glowa}>
-      <Link to={adres} className={`small link ${s.wroc}`}><ArrowLeft size={15} aria-hidden="true" /> Nauka</Link>
-      <h1 className="display">{tytul}</h1>
-      {children}
-    </header>
-  );
+  return <NaglowekStrony wstecz={{ do: adres, nazwa: "Nauka" }} tytul={tytul}>{children}</NaglowekStrony>;
 }
 
 function NowaRunda({ user, poziom, umiejetnosc, format, powtorz }: Start & { user: string }) {
