@@ -50,7 +50,7 @@
 .usage {
   width: 100%;
   border-collapse: collapse;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-variant-numeric: tabular-nums;
 }
 

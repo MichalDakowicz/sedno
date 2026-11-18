@@ -60,7 +60,7 @@
 }
 
 .dni {
-  font-size: calc(18px * var(--skala-tekstu, 1));
+  font-size: var(--t-md);
   font-weight: 500;
   white-space: nowrap;
 }

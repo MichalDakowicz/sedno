@@ -28,7 +28,7 @@
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   background: transparent;
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 500;
   color: var(--muted);
   cursor: pointer;
@@ -51,7 +51,7 @@
 
 .levelCount {
   margin-left: 8px;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   color: var(--subtle);
   font-variant-numeric: tabular-nums;
 }
@@ -104,7 +104,7 @@
 }
 
 .score {
-  font-size: calc(18px * var(--skala-tekstu, 1));
+  font-size: var(--t-md);
   font-weight: 500;
 }
 
@@ -129,6 +129,6 @@
   padding: 14px 18px;
   border-radius: var(--r-sm);
   background: var(--bg);
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
 }
 

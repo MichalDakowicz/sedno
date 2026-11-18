@@ -20,7 +20,7 @@
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   background: transparent;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 500;
   color: var(--muted);
   white-space: nowrap;

@@ -9,7 +9,7 @@
   --ok:#1f9d63;--ok-soft:#dcf3e7;--warn:#8a5a00;--warn-soft:#fdf0c4;--bad:#e40014;--bad-soft:#ffe1e3;
   --shadow:0 8px 32px rgba(15,21,29,.08);
   --gradient:linear-gradient(100deg,#ff5e3a 0%,#ff8a3d 26%,#ff6f52 50%,#ff8a3d 74%,#ff5e3a 100%);
-  --r-sm:12px;--r-md:20px;--r-lg:28px;--r-pill:999px;
+  --r-xs:6px;--r-sm:12px;--r-md:20px;--r-lg:28px;--r-pill:999px;
   --side:300px;
   --font:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;

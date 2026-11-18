@@ -35,7 +35,7 @@
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   background: transparent;
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 500;
   color: var(--muted);
   white-space: nowrap;
@@ -91,7 +91,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: calc(12px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -126,7 +126,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   color: var(--muted);
 }
 
@@ -164,13 +164,13 @@
   padding: 2px 12px 2px 2px;
   border-radius: var(--r-pill);
   background: var(--bg);
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 500;
 }
 
 .reason {
   max-width: 52ch;
-  font-size: calc(17px * var(--skala-tekstu, 1));
+  font-size: var(--t-md);
   line-height: 1.6;
   color: var(--muted);
 }
@@ -347,7 +347,7 @@
 }
 
 .note {
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   color: var(--muted);
 }
 
@@ -446,7 +446,7 @@
 
 .block .wynikiNaglowek :global(.link) {
   margin-top: 0;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-weight: 400;
   color: var(--subtle);
 }
@@ -466,7 +466,7 @@
 .stat > .statOpis {
   display: block;
   margin-top: 8px;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   letter-spacing: 0;
   color: var(--subtle);
 }
@@ -478,7 +478,7 @@
 }
 
 .trendPodpis {
-  font-size: calc(12px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   color: var(--subtle);
 }
 
@@ -543,7 +543,7 @@
   position: absolute;
   bottom: 0;
   transform: translateX(-50%);
-  font-size: calc(12px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   color: var(--subtle);
   white-space: nowrap;
 }
@@ -573,7 +573,7 @@
 
 .ostatnie a.omow {
   flex: none;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   color: var(--primary-text);
 }
 

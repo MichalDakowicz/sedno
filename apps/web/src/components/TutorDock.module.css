@@ -52,7 +52,7 @@
 }
 
 .context {
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;

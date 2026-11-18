@@ -170,7 +170,7 @@
   border: 0;
   background: none;
   font: inherit;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   cursor: pointer;
 }
 

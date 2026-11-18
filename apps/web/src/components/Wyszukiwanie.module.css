@@ -42,7 +42,7 @@
   background: transparent;
   color: var(--fg);
   font: inherit;
-  font-size: calc(17px * var(--skala-tekstu, 1));
+  font-size: var(--t-md);
 }
 
 .input:focus-visible {

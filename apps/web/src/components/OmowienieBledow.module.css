@@ -122,12 +122,12 @@
   height: 26px;
   border-radius: 50%;
   background: var(--bg);
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 600;
 }
 
 .wyjasnienie {
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
 }
 
 .form {

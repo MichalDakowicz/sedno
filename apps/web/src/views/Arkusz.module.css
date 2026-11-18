@@ -178,7 +178,7 @@
   background: none;
   color: var(--accent);
   font: inherit;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   cursor: pointer;
 }
 
@@ -201,7 +201,7 @@
 
 .textTitle {
   margin-top: 8px;
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 600;
   letter-spacing: 0.04em;
 }
@@ -211,7 +211,7 @@
 .source {
   max-width: 72ch;
   overflow: hidden;
-  font-size: calc(12px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   line-height: 1.5;
   color: var(--subtle);
   white-space: nowrap;
@@ -358,7 +358,7 @@
   height: 28px;
   border-radius: 50%;
   background: var(--bg);
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 600;
   transition:
     background-color 0.2s ease,
@@ -371,7 +371,7 @@
   background: var(--primary-strong);
   color: var(--primary-fg);
   /* Biały na pomarańczu: duży, pogrubiony tekst (WCAG AA dla dużego tekstu). */
-  font-size: calc(19px * var(--skala-tekstu, 1));
+  font-size: var(--t-lg);
   font-weight: 700;
 }
 
@@ -419,7 +419,7 @@
   border-radius: var(--r-sm);
   background: var(--surface);
   font: inherit;
-  font-size: calc(20px * var(--skala-tekstu, 1));
+  font-size: var(--t-lg);
   font-weight: 700;
   color: var(--fg);
   text-align: center;
@@ -541,7 +541,7 @@
   border: 0;
   border-radius: var(--r-pill);
   background: transparent;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
@@ -591,7 +591,7 @@
 
 .tfVerdict {
   min-width: 44px;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-weight: 600;
   color: var(--danger);
 }
@@ -673,7 +673,7 @@
 }
 
 .gapNr {
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-weight: 600;
   color: var(--subtle);
 }
@@ -685,7 +685,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   line-height: 1.6;
   transition: border-color 0.15s ease;
 }
@@ -729,7 +729,7 @@
   border: 1px dashed color-mix(in srgb, var(--primary) 60%, var(--line));
   border-radius: 10px;
   background: var(--primary-soft);
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   line-height: 1.85;
   text-align: left;
   cursor: pointer;
@@ -829,7 +829,7 @@
   border: 0;
   border-radius: var(--r-sm);
   background: transparent;
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   text-align: left;
   cursor: pointer;
 }
@@ -853,7 +853,7 @@
   padding: 2px 8px;
   border-radius: var(--r-pill);
   background: var(--bg);
-  font-size: calc(12px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   color: var(--subtle);
   white-space: nowrap;
 }
@@ -864,7 +864,7 @@
   border: 0;
   border-radius: var(--r-pill);
   background: transparent;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   color: var(--muted);
   cursor: pointer;
 }
@@ -890,7 +890,7 @@
 .feedback {
   display: grid;
   gap: 8px;
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
 }
 
 .feedbackHead {
@@ -1020,7 +1020,7 @@
 }
 
 .dataTable th {
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 500;
   color: var(--muted);
 }
@@ -1040,7 +1040,7 @@
 
 .dataTable td {
   min-width: 2.75em;
-  font-size: calc(17px * var(--skala-tekstu, 1));
+  font-size: var(--t-md);
 }
 
 .dataTable tr:first-child > td {
@@ -1117,7 +1117,7 @@
 .kompakt .segment {
   width: 60px;
   height: 52px;
-  font-size: calc(20px * var(--skala-tekstu, 1));
+  font-size: var(--t-lg);
 }
 
 .kompakt .segment[data-stan="wybrana"] {
@@ -1152,13 +1152,13 @@
   align-items: center;
   min-width: 96px;
   padding: 8px 20px 8px 8px;
-  font-size: calc(18px * var(--skala-tekstu, 1));
+  font-size: var(--t-md);
 }
 
 .kompakt .letter {
   width: 32px;
   height: 32px;
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
 }
 
 /* Kilka pytań: treść płynie w dwóch szpaltach, pytanie nie dzieli się między nie. */
@@ -1427,7 +1427,7 @@
   border-radius: var(--r-pill);
   background: transparent;
   font: inherit;
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 600;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -1673,7 +1673,7 @@
 
 .spisStan {
   flex-shrink: 0;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   color: var(--muted);
 }
 
@@ -1699,7 +1699,7 @@
   border-radius: var(--r-pill);
   background: transparent;
   font: inherit;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-variant-numeric: tabular-nums;
   color: var(--muted);
   cursor: pointer;
@@ -1836,7 +1836,7 @@
   border-radius: var(--r-pill);
   background: transparent;
   font: inherit;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-variant-numeric: tabular-nums;
   color: var(--fg);
   cursor: pointer;

@@ -44,10 +44,19 @@
 
   --gradient-accent: linear-gradient(100deg, #ff5e3a 0%, #ff8a3d 26%, #ff6f52 50%, #ff8a3d 74%, #ff5e3a 100%);
 
+  /* Promienie: tylko te. --r-xs dla znaczników, małych pól i ściętego rogu dymka rozmowy. */
+  --r-xs: 6px;
   --r-sm: 12px;
   --r-md: 20px;
   --r-lg: 28px;
   --r-pill: 999px;
+
+  /* Skala tekstu (rośnie z ustawieniem „Rozmiar tekstu”). Treść zadań, wyjaśnienia i opisy w wierszach co najmniej --t-sm;
+     --t-xs tylko dla etykiet wersalikami i metadanych. Tekst ciągły 16px (body), nagłówki w klasach .h1–.h3. */
+  --t-xs: calc(13px * var(--skala-tekstu, 1));
+  --t-sm: calc(15px * var(--skala-tekstu, 1));
+  --t-md: calc(17px * var(--skala-tekstu, 1));
+  --t-lg: calc(20px * var(--skala-tekstu, 1));
 
   --shadow-float: 0 8px 32px rgba(15, 21, 29, 0.08);
   --shadow-raised: 0 12px 40px rgba(15, 21, 29, 0.16);
