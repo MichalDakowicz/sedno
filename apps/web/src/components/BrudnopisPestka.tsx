@@ -71,7 +71,7 @@ export function BrudnopisPestka({ id, api, polecenie, onPokaz, onProwadz, onZamk
   useEffect(() => {
     setPytanie("");
     setStan({ typ: "pusty" });
-    polePytania.current?.focus();
+    polePytania.current?.focus({ preventScroll: true });
     return () => {
       zapytanie.current?.abort();
       zapytanie.current = null;

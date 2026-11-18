@@ -355,7 +355,8 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   const prowadzi = prowadzenie.stan === "czeka" || prowadzenie.stan === "czyta";
   const zamknijPestke = () => {
     setPestka(false);
-    przyciskPestki.current?.focus();
+    // Bez przewijania: fokus na przycisku nie może przesunąć strony po zamknięciu panelu.
+    przyciskPestki.current?.focus({ preventScroll: true });
   };
   useEffect(() => {
     if (!poleceniePestki) setPestka(false);
@@ -517,6 +518,35 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
       el.removeEventListener("wheel", ruszyl);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Kółko myszy nad płótnem przewija stronę, dopóki uczeń nie zacznie pracy na płótnie (dotknięcie, fokus w nim):
+  // przewijając arkusz, nie chce się przesunąć rysunku. Po kliknięciu poza płótnem kółko znów przewija stronę.
+  // Ctrl + kółko zostaje dla edytora (przybliżanie rysunku).
+  const pelnyTeraz = useRef(pelny);
+  pelnyTeraz.current = pelny;
+  useEffect(() => {
+    const el = kontener.current;
+    if (!el) return;
+    let wPracy = false;
+    const kolko = (e: WheelEvent) => {
+      // Na pełnym ekranie strony pod spodem nie widać, więc kółko zawsze przesuwa rysunek.
+      if (!wPracy && !e.ctrlKey && !pelnyTeraz.current) e.stopPropagation();
+    };
+    const dotyk = (e: PointerEvent) => {
+      wPracy = el.contains(e.target as Node);
+    };
+    const fokus = () => {
+      wPracy = el.contains(document.activeElement);
+    };
+    el.addEventListener("wheel", kolko, { capture: true, passive: true });
+    document.addEventListener("pointerdown", dotyk, true);
+    document.addEventListener("focusin", fokus);
+    return () => {
+      el.removeEventListener("wheel", kolko, { capture: true });
+      document.removeEventListener("pointerdown", dotyk, true);
+      document.removeEventListener("focusin", fokus);
+    };
   }, []);
 
   // Stan paska narzędzi odbija stan edytora (skróty klawiszowe też zmieniają narzędzie).
