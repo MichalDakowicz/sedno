@@ -60,6 +60,7 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
         <Opanowanie {...u} />
         <p className="muted small">Próby uwzględnione w ocenie: {u.evidence_count}</p>
       </div>
+      <Link to={adresNauki(poziom, u.skill_id)} className={`btn btn-primary ${s.przycisk}`}>Ćwicz <ArrowRight size={16} aria-hidden="true" /></Link>
       <section className={s.blok} aria-labelledby="umiejetnosc-proby">
         <h3 id="umiejetnosc-proby" className="h3">Ostatnie próby</h3>
         {proby.stan === "ladowanie" && <Ladowanie ile={3} etykieta="Wczytuję próby" />}
@@ -71,7 +72,6 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
         ) : <p className="muted">Sprawdź zadania w arkuszu albo ukończ rundę, żeby zobaczyć tu pierwsze próby.</p>)}
         {maBledyJezykowe && <p className="small muted">W ostatnich próbach pojawiły się błędy językowe i dotyczące formy.</p>}
       </section>
-      <Link to={adresNauki(poziom, u.skill_id)} className={`btn btn-primary ${s.przycisk}`}>Ćwicz <ArrowRight size={16} aria-hidden="true" /></Link>
     </aside>
   );
 }

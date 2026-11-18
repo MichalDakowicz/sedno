@@ -85,8 +85,8 @@ function NowaRunda({ user, poziom, umiejetnosc, format, powtorz }: Start & { use
           <div className={s.akcje}>
             {rodzajBledu === "ponowienie" && <button type="button" className="btn btn-primary" onClick={() => setLiczbaProb((n) => n + 1)}>Spróbuj ponownie</button>}
             {rodzajBledu === "za-duzo" && <Link to={`${adresNauki(poziom)}#ostatnio`} className="btn btn-primary">Przejdź do ostatnich ćwiczeń</Link>}
-            {rodzajBledu === "bez-ponowienia" && <Link to={adresNauki(poziom)} className="btn btn-primary">Wróć do Nauki</Link>}
-            {powtorz && <Link to={adresPowtorek(poziom)} className="btn btn-ghost">Wróć do powtórek</Link>}
+            {rodzajBledu === "bez-ponowienia" && !powtorz && <Link to={adresNauki(poziom)} className="btn btn-primary">Wróć do Nauki</Link>}
+            {powtorz && <Link to={adresPowtorek(poziom)} className={rodzajBledu === "bez-ponowienia" ? "btn btn-primary" : "btn btn-ghost"}>Wróć do powtórek</Link>}
           </div>
         </section>
       ) : <Ladowanie ksztalt="tekst" etykieta="Rozpoczynanie rundy" />}
@@ -236,7 +236,8 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
   });
   const [oczekuje, setOczekuje] = useState(false);
   const [blad, setBlad] = useState<string | null>(null);
-  const [ustalFokus, setUstalFokus] = useState(false);
+  // Pierwsze zadanie też dostaje fokus, bo do rundy wchodzi się nawigacją.
+  const [ustalFokus, setUstalFokus] = useState(true);
   const zapisuje = useRef(false);
   const aktualna = useRef(false);
   const pytanie = sesja.question;

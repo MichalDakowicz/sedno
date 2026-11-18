@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CircleAlert } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { nazwaPoziomu } from "../../arkusze/typy";
@@ -65,6 +65,8 @@ function Podsumowanie({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
 function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<SesjaNauki["result"]> } }) {
   const { level, result, skill_id, format } = sesja;
   const [mapa, setMapa] = useState<MapaNauki | null>(null);
+  const naglowek = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { naglowek.current?.focus(); }, []);
   useEffect(() => {
     const kontroler = new AbortController();
     void naukaApi.mapa(level, kontroler.signal).then(
@@ -80,7 +82,7 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
     <main className={`container ${s.strona}`}>
       <header className={s.glowa}>
         <Link to={adresNauki(level, skill_id)} className={`link small ${s.wroc}`}><ArrowLeft size={15} aria-hidden="true" /> Nauka</Link>
-        <h1 className="display">Rozbiór rundy</h1>
+        <h1 className="display" tabIndex={-1} ref={naglowek}>Rozbiór rundy</h1>
         <p className="small muted">{nazwaFormatuNauki[format]} · {nazwaPoziomu[level]}{nazwa && ` · ${nazwa}`}</p>
       </header>
       <section className={s.sekcja} aria-labelledby="wynik-rundy">

@@ -140,7 +140,7 @@ export class BladRpcNauki extends Error {
 }
 
 // Te błędy powodują parametry w adresie, więc ponowienie tego samego żądania nic nie zmieni.
-export const bledyBezPonowienia = ["invalid_session", "invalid_level", "skill_not_found"];
+export const bledyBezPonowienia = ["invalid_session", "invalid_level", "skill_not_found", "review_item_unavailable"];
 
 async function rpc<T>(name: string, args: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
   const query = supabase.rpc(name, args);
