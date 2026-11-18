@@ -115,8 +115,8 @@ function Karta({ arkusz: a }: { arkusz: ArkuszWpis }) {
   return (
     <li>
       <Link to={`/arkusze/${a.id}`} className={styles.card} title={a.symbol}>
+        <span className="kicker">{a.sesja}</span>
         <span className={styles.year}>{a.rok}</span>
-        <span className={`small muted ${styles.session}`}>{a.sesja}</span>
         <span className={styles.status}>
           {proc !== null ? <span className={styles.score}>{proc}%</span> : zaczety ? <span className="small muted">w trakcie</span> : <span className="small muted">nierozwiązany</span>}
         </span>

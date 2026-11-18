@@ -8,7 +8,6 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 48px;
-  max-width: 820px;
   padding-top: 24px;
   padding-bottom: 160px;
 }
@@ -58,13 +57,10 @@
 /* Podsumowanie po sprawdzeniu */
 
 .summary {
+  composes: karta from global;
   display: grid;
   gap: 12px;
   justify-items: start;
-  padding: 32px;
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-float);
 }
 
 .bigScore {

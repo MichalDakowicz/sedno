@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Check, ChevronRight, CircleAlert, CircleMinus } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, CircleAlert, CircleMinus, Sparkles } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { nazwaPoziomu, nazwaZadaniaCke } from "../../arkusze/typy";
 import { useSession } from "../../auth";
@@ -125,7 +125,7 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
     ? Math.round(result.opanowanie_po * 100) - Math.round(result.opanowanie_przed * 100)
     : null;
   return (
-    <main className={`container ${s.strona}`}>
+    <main className={`container czytanie ${s.strona}`}>
       <NaglowekStrony wstecz={{ do: adresNauki(level, skill_id), nazwa: "Nauka" }} tytul="Rozbiór rundy" tytulRef={naglowek}>
         <p className="small muted">{nazwaFormatuNauki[format]} · {nazwaPoziomu[level]}{nazwa && ` · ${nazwa}`}</p>
       </NaglowekStrony>
@@ -152,7 +152,8 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
       </section>
       {dalej && (
         <section className={s.nastepnyKrok} aria-labelledby="dalej-po-rundzie">
-          <h2 id="dalej-po-rundzie" className="h2">Dalej{nastepna && ` · ${nastepna}`}</h2>
+          <span className="kicker"><Sparkles size={14} strokeWidth={2.2} aria-hidden="true" /> Dalej</span>
+          <h2 id="dalej-po-rundzie" className="h2">{nastepna ?? "Następne ćwiczenie"}</h2>
           <p>{dalej.reason}</p>
           <div className={s.akcje}>
             <Link className="btn btn-primary" to={adresStartu(level, dalej.skill_id, dalej.format, dalej.repeat_id ?? undefined)}>
@@ -170,7 +171,7 @@ function RozbiorSesji({ id }: { id: string }) {
   const [stan, ponow] = useSesjaRundy(id);
   if (stan.status === "gotowa" && stan.sesja.result) return <RozbiorGotowy sesja={{ ...stan.sesja, result: stan.sesja.result }} />;
   return (
-    <main className={`container ${s.strona}`}>
+    <main className={`container czytanie ${s.strona}`}>
       <NaglowekStrony wstecz={{ do: "/nauka", nazwa: "Nauka" }} tytul="Rozbiór rundy" />
       {stan.status === "laduje" ? <Ladowanie etykieta="Wczytywanie rozbioru" /> : (
         <section className={s.sekcja}>

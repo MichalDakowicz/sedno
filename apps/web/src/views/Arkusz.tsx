@@ -1,6 +1,6 @@
 import { createContext, Fragment, useCallback, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardCheck, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
 import { czegoZadanie, OPIS_FORMY, opisOceny, opisWypelnienia, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
@@ -441,13 +441,13 @@ export function Arkusz() {
 
   if (laduje)
     return (
-      <main className={`container ${styles.page}`}>
+      <main className={`container czytanie ${styles.page}`}>
         <Ladowanie ksztalt="tekst" ile={7} etykieta="Wczytuję arkusz" />
       </main>
     );
   if (blad || !dane || !kontekst || !wynik) {
     return (
-      <main className={`container ${styles.page}`}>
+      <main className={`container czytanie ${styles.page}`}>
         <h1 className="h1">Nie ma takiego arkusza</h1>
         <Link to="/arkusze" className="link">
           Wróć do listy
@@ -501,7 +501,7 @@ export function Arkusz() {
     <Ctx.Provider value={kontekst}>
       <MaterialyCtx.Provider value={materialyCtx}>
       <div style={odsuniecie}>
-      <main className={`container ${styles.page}`}>
+      <main className={`container czytanie ${styles.page}`}>
         <Naglowek
           arkusz={dane}
           onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined}
@@ -810,7 +810,7 @@ function Podsumowanie({
   const procent = wynik.mozliwe ? Math.round((wynik.zdobyte / wynik.mozliwe) * 100) : 0;
   return (
     <section className={styles.summary} aria-live="polite" data-tutor="wynik">
-      <span className="label">{wynik.wypowiedzi ? "Wynik bez wypowiedzi pisemnej" : "Wynik"}</span>
+      <span className="kicker"><ClipboardCheck size={14} strokeWidth={2.2} aria-hidden="true" />{wynik.wypowiedzi ? "Wynik bez wypowiedzi pisemnej" : "Wynik"}</span>
       <p className={styles.bigScore}>
         {wynik.zdobyte} <span className="muted">/ {wynik.mozliwe} pkt</span> <span className={styles.percent}>{procent}%</span>
       </p>

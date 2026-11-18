@@ -16,19 +16,13 @@
   border-top: 1px solid var(--line);
 }
 
-.przedmiot,
-.nadtytul {
+.przedmiot {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.nadtytul {
-  color: var(--primary-text);
-}
-
 .przedmiot svg,
-.nadtytul svg,
 .ikona svg,
 .podpowiedz svg {
   flex: none;
