@@ -166,7 +166,7 @@ export function KontoAI() {
   return (
     <section className={styles.section} id="ai" ref={sectionRef}>
       <div className={styles.head}>
-        <h2 className="h3">AI na koncie</h2>
+        <h2 className="h2">AI na koncie</h2>
         <p className="muted small">Sedno nie ma wspólnego klucza. Pestka używa dostawców zapisanych na tym koncie.</p>
       </div>
 
