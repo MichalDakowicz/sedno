@@ -77,6 +77,7 @@ export function OmowienieBledow({
   onZapiszRozmowe,
   onZamknij,
   wejscie,
+  etykieta,
 }: {
   arkusz: Arkusz;
   postep: Postep;
@@ -88,6 +89,8 @@ export function OmowienieBledow({
   onZapiszRozmowe: (zadanie: number, rozmowa: Wiadomosc[]) => void;
   onZamknij: () => void;
   wejscie?: Wejscie | null;
+  /** Nagłówek karty zamiast „Błąd 1 z 3 · zadanie 4.” (np. w rundzie nauki, gdzie omawiane jest jedno pytanie). */
+  etykieta?: string;
 }) {
   // Wcześniejsza rozmowa o tym zadaniu wraca z postępu arkusza (synchronizowanego z kontem).
   const zapisana = postep.rozmowyOmowien?.[d.zadanie.nr];
@@ -272,7 +275,7 @@ export function OmowienieBledow({
           <TutorAvatar size={40} state={stanPestki} className={styles.avatar} />
         </span>
         <span className="label">
-          {d.wypracowanie ? "Wypracowanie" : "Błąd"} {numer} z {wszystkich} · zadanie {nr}.
+          {etykieta ?? `${d.wypracowanie ? "Wypracowanie" : "Błąd"} ${numer} z ${wszystkich} · zadanie ${nr}.`}
         </span>
         <button type="button" className={styles.zamknij} onClick={onZamknij} aria-label="Zakończ omawianie">
           <X size={18} />

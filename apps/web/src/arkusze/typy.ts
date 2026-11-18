@@ -123,3 +123,11 @@ export const nazwaPoziomu: Record<Poziom, string> = {
   rozszerzony: "Poziom rozszerzony",
   dwujezyczny: "Poziom dwujęzyczny",
 };
+
+const nazwySesji: Record<string, string> = { sierpien: "sierpień", wrzesien: "wrzesień" };
+
+/** „Matura maj 2026 · zadanie 1.1” z samego id arkusza (np. angielski-podstawowy-2026-maj), bez pobierania treści. */
+export function nazwaZadaniaCke(arkusz: string, nr: string): string {
+  const m = arkusz.match(/-(\d{4})-([a-z]+)/);
+  return m ? `Matura ${nazwySesji[m[2]] ?? m[2]} ${m[1]} · zadanie ${nr}` : `Zadanie ${nr}`;
+}

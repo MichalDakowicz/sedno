@@ -82,6 +82,12 @@ textarea {
   outline-offset: 3px;
 }
 
+/* Nagłówek z tabindex="-1" dostaje fokus programowo (werdykt, nowe pytanie), żeby czytnik ekranu go ogłosił.
+   Nie da się na niego przejść klawiszem Tab, więc ramka fokusu wyglądałaby tylko jak błąd. */
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
 /* Typografia */
 
 .display {

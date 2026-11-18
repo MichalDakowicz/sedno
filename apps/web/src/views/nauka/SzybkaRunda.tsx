@@ -1,13 +1,16 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, Check, CircleAlert, Lightbulb } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronRight, CircleAlert, Lightbulb, MessageCircle } from "lucide-react";
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useSession } from "../../auth";
-import { nazwaPoziomu, type Poziom } from "../../arkusze/typy";
+import { nazwaPoziomu, nazwaZadaniaCke, type Poziom } from "../../arkusze/typy";
 import { Ladowanie } from "../../components/Ladowanie";
+import { useTutor } from "../../components/TutorContext";
 import { adresNauki, adresPowtorek, adresRozbioru, adresRundy } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type FormatNauki, type OdpowiedzNauki, type PytanieNauki, type SesjaNauki } from "../../nauka/api";
 import { usePoziomNauki } from "../../nauka/stan";
-import { TrescRundy } from "./TrescRundy";
+import { KafleOdpowiedzi, TrescRundy } from "./TrescRundy";
+import { KontekstRundy, PestkaMowi, tekstyPestki, wybierz } from "./PestkaRundy";
+import { WyjasnienieRundy } from "./WyjasnienieRundy";
 import { czyBladBezPonowienia, czyZaDuzoSesji, komunikatRundy, nazwaOdpowiedzi, odczytajRunde, useSesjaRundy, UUID_SESJI, zapiszRunde } from "./sesjaRundy";
 import s from "./SzybkaRunda.module.css";
 
@@ -102,23 +105,30 @@ function odczytajSzkic(klucz: string): Szkic | null {
     && typeof zapis.wyslany === "boolean" && zapis.tekst.length <= 1000 ? zapis : null;
 }
 
-function ZegarRundy({ poczatek, koniec }: { poczatek: string; koniec: string | null }) {
+// Początek zegara rundy: liczy od chwili, gdy pierwsze zadanie jest na ekranie, a nie od założenia rundy,
+// bo wczytywanie pierwszego zadania trwało, zanim uczeń cokolwiek zobaczył. Runda wznowiona później liczy od założenia.
+const startyZegara = new Map<string, number>();
+
+function ZegarRundy({ poczatek, koniec }: { poczatek: number | null; koniec: string | null }) {
   const [teraz, setTeraz] = useState(Date.now);
   useEffect(() => {
-    if (koniec) return;
+    if (koniec || poczatek === null) return;
+    setTeraz(Date.now());
     const t = window.setInterval(() => setTeraz(Date.now()), 1000);
     return () => window.clearInterval(t);
-  }, [koniec]);
-  const od = Date.parse(poczatek);
+  }, [koniec, poczatek]);
+  if (poczatek === null) return null;
   const doo = koniec ? Date.parse(koniec) : teraz;
-  const s = Math.max(0, Math.floor((doo - od) / 1000));
+  const s = Math.max(0, Math.floor((doo - poczatek) / 1000));
   if (!Number.isFinite(s)) return null;
   const minuty = Math.floor(s / 60);
   return <span className="muted small" title="Czas orientacyjny" aria-label={`Czas rundy: ${minuty} min ${s % 60} s`}>{minuty}:{String(s % 60).padStart(2, "0")}</span>;
 }
 
+const tytulPytania = (prompt: PytanieNauki["prompt"]) => prompt.typ === "cke" ? nazwaZadaniaCke(prompt.sheet_id, prompt.question) : prompt.tresc;
+
 function PytanieRundy({
-  pytanie, tekst, zmien, odpowiedz, podpowiedz, oczekuje, zapisWTrakcie, ustalFokus,
+  pytanie, tekst, zmien, odpowiedz, podpowiedz, oczekuje, zapisWTrakcie, ustalFokus, onGotowe,
 }: {
   pytanie: PytanieNauki;
   tekst: string;
@@ -128,11 +138,11 @@ function PytanieRundy({
   oczekuje: boolean;
   zapisWTrakcie: boolean;
   ustalFokus: boolean;
+  onGotowe: () => void;
 }) {
   const naglowek = useRef<HTMLHeadingElement>(null);
   const id = useId();
   const prompt = pytanie.prompt;
-  const tytul = prompt.typ === "cke" ? `Zadanie CKE ${prompt.question}` : prompt.tresc;
   useEffect(() => {
     if (ustalFokus) naglowek.current?.focus();
   }, [ustalFokus]);
@@ -143,22 +153,14 @@ function PytanieRundy({
   };
 
   return (
-    <section className={s.sekcja} aria-labelledby={id}>
-      <h2 id={id} className="h2" tabIndex={-1} ref={naglowek}>{tytul}</h2>
+    <section className={s.sekcja} aria-labelledby={id} data-tutor="pytanie-rundy">
+      <h2 id={id} className="h2" tabIndex={-1} ref={naglowek}>{tytulPytania(prompt)}</h2>
       <form className={s.formularz} onSubmit={wyslij}>
-        <TrescRundy prompt={prompt} pole={(opcje) => (
+        <TrescRundy prompt={prompt} onGotowe={onGotowe} pole={(opcje) => (
           <>
             <fieldset className={s.pola} disabled={oczekuje || zapisWTrakcie}>
               <legend className={opcje ? "visually-hidden" : "small"}>{opcje ? "Wybierz jedną odpowiedź" : "Twoja odpowiedź"}</legend>
-              {opcje ? opcje.map((opcja) => (
-                <label key={opcja.id} className={s.opcja}>
-                  <input type="radio" name={id} value={opcja.id} checked={tekst === opcja.id} onChange={() => zmien(opcja.id)} />
-                  <span>
-                    <strong>{opcja.id}.</strong>
-                    {opcja.tekst && <span> {opcja.tekst}</span>}
-                  </span>
-                </label>
-              )) : (
+              {opcje ? <KafleOdpowiedzi opcje={opcje} nazwa={id} wybrana={tekst} zmien={zmien} /> : (
                 <input className="input" maxLength={1000} aria-label="Twoja odpowiedź" value={tekst}
                   onChange={(e) => zmien(e.currentTarget.value)} autoComplete="off" spellCheck={false} lang="en" />
               )}
@@ -190,32 +192,74 @@ function PytanieRundy({
   );
 }
 
-function OcenaRundy({ odpowiedz, id, skonczona, dalej }: {
-  odpowiedz: OdpowiedzNauki; id: string; skonczona: boolean; dalej: () => void;
+type Reakcja = { seria: number; zleZRzedu: number; dolozone: boolean };
+
+function tekstReakcji(o: OdpowiedzNauki, r: Reakcja, wyjasnienie: boolean): string {
+  const n = o.position;
+  const pominiete = !o.correct && !o.answer.trim();
+  const glowny = o.correct
+    ? r.seria >= 3 ? wybierz(tekstyPestki.seria, n).replace("{n}", String(r.seria)) : wybierz(tekstyPestki.dobrze, n)
+    : r.zleZRzedu >= 3 ? wybierz(tekstyPestki.zwolnij, n)
+      : pominiete ? wybierz(tekstyPestki.pominiete, n)
+        : wybierz(wyjasnienie ? tekstyPestki.zle : tekstyPestki.zleBezWyjasnienia, n);
+  return r.dolozone ? `${glowny} ${wybierz(tekstyPestki.dokladam, n)}` : glowny;
+}
+
+function OcenaRundy({ odpowiedz, sesja, skonczona, dalej, reakcja }: {
+  odpowiedz: OdpowiedzNauki; sesja: string; skonczona: boolean; dalej: () => void; reakcja: Reakcja;
 }) {
+  const { aiGotowe } = useTutor();
   const [szczegoly, setSzczegoly] = useState(false);
+  const [wyjasnij, setWyjasnij] = useState(false);
   const tytul = useRef<HTMLHeadingElement>(null);
+  const id = useId();
   useEffect(() => { tytul.current?.focus(); }, []);
   const prompt = odpowiedz.prompt;
+  const cke = prompt.typ === "cke" ? prompt : null;
+  const kafle = prompt.typ !== "luka";
+  const zle = !odpowiedz.correct;
+  const przyciskWyjasnienia = cke && !wyjasnij && aiGotowe !== false && (
+    <button type="button" className="btn btn-secondary btn-sm" disabled={!aiGotowe} onClick={() => setWyjasnij(true)}>
+      <MessageCircle size={16} aria-hidden="true" /> Wyjaśnij z Pestką
+    </button>
+  );
+  const bezAi = cke && aiGotowe === false && <Link to="/profil#ai" className="link small">Podepnij AI w profilu, a Pestka wyjaśni to zadanie</Link>;
   return (
-    <section className={s.sekcja}>
-      <h2 className={`h2 ${s.ocena}`} ref={tytul} tabIndex={-1} data-correct={odpowiedz.correct}>
-        {odpowiedz.correct ? <Check size={24} aria-hidden="true" /> : <CircleAlert size={24} aria-hidden="true" />}
-        {odpowiedz.correct ? "Dobra odpowiedź" : odpowiedz.answer.trim() ? "Tym razem nie" : "Pominięte zadanie"}
-      </h2>
+    <section className={s.sekcja} data-tutor="werdykt">
+      <div className={s.werdykt}>
+        <h2 className={`h2 ${s.ocena}`} ref={tytul} tabIndex={-1} data-correct={odpowiedz.correct}>
+          {odpowiedz.correct ? <Check size={24} aria-hidden="true" /> : <CircleAlert size={24} aria-hidden="true" />}
+          {odpowiedz.correct ? "Dobra odpowiedź" : odpowiedz.answer.trim() ? "Tym razem nie" : "Pominięte zadanie"}
+        </h2>
+        <PestkaMowi tekst={tekstReakcji(odpowiedz, reakcja, !!cke)}>
+          {zle && (przyciskWyjasnienia || bezAi)}
+        </PestkaMowi>
+      </div>
       {prompt.typ !== "cke" && <p className={s.pytanieCke}>{prompt.tresc}</p>}
-      <p><strong>Twoja odpowiedź</strong> · {nazwaOdpowiedzi(odpowiedz.answer, prompt)}</p>
-      {!odpowiedz.correct && <p><strong>Poprawna odpowiedź</strong> · {odpowiedz.solutions.map((a) => nazwaOdpowiedzi(a, prompt)).join(" / ")}</p>}
-      <p className="muted">{odpowiedz.explanation}</p>
-      <details className={s.pelneNagranie} onToggle={(e) => setSzczegoly(e.currentTarget.open)}>
-        <summary>Treść zadania</summary>
-        {szczegoly && <div className={s.probaTresc}><TrescRundy prompt={prompt} poOcenie /></div>}
-      </details>
+      {kafle ? (
+        <TrescRundy prompt={prompt} poOcenie tylkoOpcje pole={(opcje) => opcje && (
+          <KafleOdpowiedzi opcje={opcje} nazwa={id} wybrana={odpowiedz.answer} poprawne={odpowiedz.solutions} />
+        )} />
+      ) : (
+        <>
+          <p><strong>Twoja odpowiedź</strong> · {nazwaOdpowiedzi(odpowiedz.answer, prompt)}</p>
+          {zle && <p><strong>Poprawna odpowiedź</strong> · {odpowiedz.solutions.map((a) => nazwaOdpowiedzi(a, prompt)).join(" / ")}</p>}
+        </>
+      )}
+      {/* Przy CKE wyjaśnienie z bazy tylko powtarza klucz, który widać na kaflach; zamiast niego jest rozmowa z Pestką. */}
+      {!cke && <p className="muted">{odpowiedz.explanation}</p>}
+      {cke && wyjasnij && <WyjasnienieRundy odpowiedz={odpowiedz} prompt={cke} sesja={sesja} onZamknij={() => setWyjasnij(false)} />}
       <div className={s.akcje}>
         {skonczona ? (
-          <Link className="btn btn-primary" to={adresRozbioru(id)}>Zobacz rozbiór <ArrowRight size={17} aria-hidden="true" /></Link>
+          <Link className="btn btn-primary" to={adresRozbioru(sesja)}>Zobacz rozbiór <ArrowRight size={17} aria-hidden="true" /></Link>
         ) : <button type="button" className="btn btn-primary" onClick={dalej}>Następne zadanie <ArrowRight size={17} aria-hidden="true" /></button>}
+        {!zle && przyciskWyjasnienia}
       </div>
+      {!zle && bezAi}
+      <details className={s.rozwijane} onToggle={(e) => setSzczegoly(e.currentTarget.open)}>
+        <summary><ChevronRight size={16} aria-hidden="true" /> Treść zadania</summary>
+        {szczegoly && <div className={s.probaTresc}><TrescRundy prompt={prompt} poOcenie /></div>}
+      </details>
     </section>
   );
 }
@@ -223,7 +267,7 @@ function OcenaRundy({ odpowiedz, id, skonczona, dalej }: {
 // Werdykt ogłasza nagłówek z fokusem, więc tu zostaje reszta oceny.
 function opisOceny(o: OdpowiedzNauki): string {
   const poprawna = o.correct ? "" : `Poprawna odpowiedź: ${o.solutions.map((a) => nazwaOdpowiedzi(a, o.prompt)).join(" / ")}. `;
-  return `${poprawna}${o.explanation}`;
+  return `${poprawna}${o.prompt.typ === "cke" ? "" : o.explanation}`;
 }
 
 function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string; ponow: () => void }) {
@@ -238,6 +282,9 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
   const [blad, setBlad] = useState<string | null>(null);
   // Pierwsze zadanie też dostaje fokus, bo do rundy wchodzi się nawigacją.
   const [ustalFokus, setUstalFokus] = useState(true);
+  const [startZegara, setStartZegara] = useState(() => startyZegara.get(start.id) ?? null);
+  // Runda wydłuża się po błędzie: Pestka mówi o tym przy werdykcie, zamiast zmieniać licznik bez słowa.
+  const [dolozone, setDolozone] = useState<number | null>(null);
   const zapisuje = useRef(false);
   const aktualna = useRef(false);
   const pytanie = sesja.question;
@@ -249,6 +296,15 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
     return () => { aktualna.current = false; };
   }, []);
 
+  function naEkranie() {
+    if (startyZegara.has(sesja.id)) return;
+    const zalozona = Date.parse(sesja.created_at);
+    const swieza = sesja.answers.length === 0 && Date.now() - zalozona < 120_000;
+    const poczatek = swieza ? Date.now() : zalozona;
+    startyZegara.set(sesja.id, poczatek);
+    setStartZegara(poczatek);
+  }
+
   function zachowaj(nowy: Szkic | null) {
     setSzkic(nowy);
     zapiszRunde(klucz, nowy);
@@ -256,6 +312,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
 
   function pokazOcene(zapis: SesjaNauki, pozycja: number) {
     if (!aktualna.current) return;
+    setDolozone(zapis.limit > sesja.limit ? pozycja : null);
     setSesja(zapis);
     setOcenaPoz(pozycja);
   }
@@ -299,6 +356,11 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
 
   if (!ocena && !pytanie && sesja.result) return <Navigate replace to={adresRozbioru(sesja.id)} />;
 
+  const poprzednie = ocena ? sesja.answers.filter((a) => a.position <= ocena.position).sort((a, b) => a.position - b.position) : [];
+  const zleZRzedu = poprzednie.length - 1 - poprzednie.map((a) => a.correct).lastIndexOf(true);
+  const biezace = ocena?.prompt ?? pytanie?.prompt;
+  const pozycja = ocena?.position ?? pytanie?.position;
+
   return (
     <main className={`container ${s.strona}`}>
       <NaglowekRundy tytul={nazwaFormatuNauki[sesja.format]} adres={adresNauki(sesja.level, sesja.skill_id)}>
@@ -306,10 +368,10 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
       </NaglowekRundy>
       <section className={s.postep} aria-label="Postęp rundy">
         <div className={s.wierszPostepu}>
-          <span className="label">Zadanie {ocena?.position ?? pytanie?.position ?? sesja.limit} z {sesja.limit}</span>
+          <span className="label">Zadanie {pozycja ?? sesja.limit} z {sesja.limit}</span>
           <div className={s.czasy}>
             {sesja.streak >= 2 && <span className="small muted">Dobre z rzędu: {sesja.streak}</span>}
-            {sesja.format === "szybka-runda" && <ZegarRundy poczatek={sesja.created_at} koniec={sesja.completed_at} />}
+            {sesja.format === "szybka-runda" && <ZegarRundy poczatek={startZegara} koniec={sesja.completed_at} />}
           </div>
         </div>
         <progress aria-label="Sprawdzone zadania" value={sesja.answers.length} max={sesja.limit} />
@@ -319,14 +381,18 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
         <button type="button" className="btn btn-ghost btn-sm" onClick={ponow}>Wczytaj stan rundy</button>
       </div>}
       <div className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">{ocena ? opisOceny(ocena) : ""}</div>
+      {biezace && pozycja !== undefined && (
+        <KontekstRundy prompt={biezace} klucz={`runda:${sesja.id}:${pozycja}`} odpowiedz={ocena?.answer ?? wPytaniu?.tekst ?? ""} ocena={ocena} />
+      )}
       {ocena ? (
-        <OcenaRundy key={ocena.position} odpowiedz={ocena} id={sesja.id} skonczona={!!sesja.result}
+        <OcenaRundy key={ocena.position} odpowiedz={ocena} sesja={sesja.id} skonczona={!!sesja.result}
+          reakcja={{ seria: sesja.streak, zleZRzedu, dolozone: dolozone === ocena.position }}
           dalej={() => { zachowaj(null); setUstalFokus(true); setOcenaPoz(null); }} />
       ) : pytanie ? (
         <PytanieRundy key={pytanie.position} pytanie={pytanie} tekst={wPytaniu?.tekst ?? ""}
           zmien={(tekst) => zachowaj({ tekst, pozycja: pytanie.position, wyslany: false })}
           odpowiedz={(tekst) => void odpowiedz(tekst)} podpowiedz={() => void podpowiedz()}
-          oczekuje={oczekuje} zapisWTrakcie={!!wPytaniu?.wyslany} ustalFokus={ustalFokus} />
+          oczekuje={oczekuje} zapisWTrakcie={!!wPytaniu?.wyslany} ustalFokus={ustalFokus} onGotowe={naEkranie} />
       ) : <p role="alert">Brakuje zadania do rozwiązania.</p>}
     </main>
   );
