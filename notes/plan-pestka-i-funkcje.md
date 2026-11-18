@@ -43,3 +43,16 @@ Funkcja `nauka-ai` i baza obsługują więcej, niż aplikacja pokazuje. Kontrakt
 - Każdy nowy widok: jasny i ciemny motyw, 375 px, klawiatura, stany ładowania, błędu i pusty.
 - Zmiany w `services/` tylko w paczce 5, przez staging `sedno-dev`.
 - Opis kodu nowych widoków w `apps/web/README.md`; dokumenty w `docs/` aktualizować, gdy zmienia się zarys (menu, diagnoza, Pestka).
+
+## Paczka 11. Płynność i ruch
+
+Uwaga właściciela: interfejs ma być płynny i interaktywny, elementy mają się zachowywać jak rzeczy z fizyką, a nie przełączać się skokowo. Robić razem z paczką 10.
+
+1. **Jedna biblioteka ruchu w kodzie.** Wspólne krzywe i czasy jako tokeny (`--ruch-szybki`, `--ruch-zwykly`, krzywa sprężysta) i mały hook do animacji sprężynowych (bez nowych zależności, na `requestAnimationFrame` albo `linear()` w CSS). Wszystkie przejścia korzystają z nich, nie z własnych wartości.
+2. **Wskaźnik zaznaczenia przesuwa się, nie przeskakuje:** pigułki, zakładki, menu, przełączniki, pasek postępu rundy.
+3. **Przejścia między stronami i stanami:** treść wchodzi razem, bez migania i bez skoku układu; pytanie → werdykt → następne pytanie przechodzą płynnie (kafle zostają na miejscu, zmienia się stan); rozwijane sekcje animują wysokość.
+4. **Reakcja na dotyk:** przyciski i kafle uginają się przy wciśnięciu i wracają sprężyście; elementy przeciągane (widgety pulpitu, suwak liter) mają bezwładność i dociągają się do miejsca.
+5. **Liczby i paski rosną:** procent opanowania, wynik, licznik odpowiedzi dochodzą do wartości zamiast pojawiać się od razu.
+6. **Pestka jako miara jakości ruchu:** jej skok, lądowanie, ugięcie i podział kropli to wzorzec; reszta interfejsu ma ten sam charakter (krótko, sprężyście, bez przeciągania).
+7. **Granice:** nic nie trwa dłużej niż ok. 400 ms, ruch nie opóźnia działania (klik działa od razu), wszystko ma wersję bez ruchu („Mniej ruchu”, `prefers-reduced-motion`), 60 klatek na telefonie średniej klasy (animować tylko `transform` i `opacity`).
+8. Zasady dopisać do rozdziału „Ruch” w `DESIGN.md`.
