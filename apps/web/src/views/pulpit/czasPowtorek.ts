@@ -21,3 +21,13 @@ export function unikalnePowtorki(kolejka: Powtorka[]) {
 }
 
 export const szacowanyCzas = (rundy: number) => `ok. ${rundy * MINUTY_RUNDY} minut`;
+
+/** Podpis źródła błędu bez linku: arkusz z numerem zadania albo poprzednie ćwiczenie. */
+export function etykietaZrodla(blad: NonNullable<Powtorka["mistake"]>): string | null {
+  if (blad.sheet_id) {
+    const rok = blad.sheet_id.match(/-(20\d{2})-/)?.[1];
+    return [rok ? `Arkusz CKE ${rok}` : "Arkusz CKE", blad.question ? `zad. ${blad.question}` : null].filter(Boolean).join(" · ");
+  }
+  if (blad.session_id) return blad.question ? `Poprzednie ćwiczenie · zad. ${blad.question}` : "Wynik poprzedniego ćwiczenia";
+  return null;
+}

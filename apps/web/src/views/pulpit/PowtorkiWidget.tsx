@@ -4,8 +4,8 @@ import { Ladowanie } from "../../components/Ladowanie";
 import { adresNauki, adresPowtorek } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
-import { procentNauki } from "../nauka/NaukaPowtorki";
-import { kluczPowtorki, szacowanyCzas, unikalnePowtorki } from "./czasPowtorek";
+import { dataNauki, procentNauki } from "../nauka/NaukaPowtorki";
+import { etykietaZrodla, kluczPowtorki, szacowanyCzas, unikalnePowtorki } from "./czasPowtorek";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
 import w from "./Widgety.module.css";
@@ -39,6 +39,11 @@ export function PowtorkiWidget({ zakres, aktywny }: KontekstPulpitu) {
                 <Link to={adresPowtorek(poziom)} className={w.wiersz}>
                   <span className={w.glowny}>
                     <span className="h3">{p.name}</span>
+                    {p.mistake && (
+                      <span className="small">
+                        {[etykietaZrodla(p.mistake), p.mistake.session_id ? dataNauki(p.mistake.happened_at) : null].filter(Boolean).join(" · ")}
+                      </span>
+                    )}
                     <span className="small muted">
                       {p.mistake ? "Wróć do zadania, które sprawiło trudność." : "Czas przypomnieć sobie tę umiejętność."}
                       {p.retention !== null && ` Szacowana retencja · ${procentNauki.format(p.retention)}`}

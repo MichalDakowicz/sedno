@@ -6,7 +6,7 @@ import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/a
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { Angielski, BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
-import { kluczPowtorki, szacowanyCzas, unikalnePowtorki } from "../pulpit/czasPowtorek";
+import { etykietaZrodla, kluczPowtorki, szacowanyCzas, unikalnePowtorki } from "../pulpit/czasPowtorek";
 import s from "./Powtorki.module.css";
 
 type Powtorka = Awaited<ReturnType<typeof naukaApi.powtorki>>["queue"][number];
@@ -181,12 +181,11 @@ function ZrodloPowtorki({ powtorka }: { powtorka: Powtorka }) {
   if (!blad) return null;
   if (blad.sheet_id) {
     const numer = blad.question?.match(/^\d+/)?.[0];
-    const rok = blad.sheet_id.match(/-(20\d{2})-/)?.[1];
-    const etykieta = [rok ? `Arkusz CKE ${rok}` : "Arkusz CKE", blad.question ? `zad. ${blad.question}` : null].filter(Boolean).join(" · ");
+    const etykieta = etykietaZrodla(blad);
     return <Link className="link" to={`/arkusze/${encodeURIComponent(blad.sheet_id)}${numer ? `#zadanie-${numer}` : ""}`}>{etykieta}</Link>;
   }
   if (blad.session_id) {
-    const etykieta = blad.question ? `Poprzednie ćwiczenie · zad. ${blad.question}` : "Wynik poprzedniego ćwiczenia";
+    const etykieta = etykietaZrodla(blad);
     return <Link className="link" to={adresRozbioru(blad.session_id)}>{etykieta}</Link>;
   }
   return null;
