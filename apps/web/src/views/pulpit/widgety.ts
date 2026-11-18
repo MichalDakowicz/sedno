@@ -10,6 +10,7 @@ import { WynikiZArkuszy } from "./WynikiZArkuszy";
 import { PowtorkiWidget } from "./PowtorkiWidget";
 import { Kontynuuj } from "./Kontynuuj";
 import { WybierzTemat } from "./WybierzTemat";
+import { TwojTydzien } from "./TwojTydzien";
 
 /** Dane, które pulpit przekazuje widgetom. */
 export type KontekstPulpitu = {
@@ -30,6 +31,7 @@ export type Widget = WidgetDane & { Komponent: ComponentType<KontekstPulpitu> };
 const KOMPONENTY: Record<string, ComponentType<KontekstPulpitu>> = {
   dzis: Dzis,
   wyniki: WynikiZArkuszy,
+  tydzien: TwojTydzien,
   powtorki: PowtorkiWidget,
   kontynuuj: Kontynuuj,
   temat: WybierzTemat,

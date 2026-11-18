@@ -56,6 +56,18 @@ export type Powtorka = {
   };
 };
 export type PowtorkiNauki = { level: Poziom; today: Powtorka | null; queue: Powtorka[] };
+export type ZajecieWPlanie = { date: string; skill_id: string; name: string; minutes: number; format: FormatNauki };
+export type PlanNauki = {
+  level: Poziom;
+  from: string;
+  /** Dni nauki w tygodniu (ISO, 1 = poniedziałek). */
+  weekdays: number[];
+  available_minutes: number;
+  goal: string | null;
+  activities: ZajecieWPlanie[];
+  /** Prognoza obiektywnie ocenianej części arkusza: score 0–1 albo null przy za małym pokryciu. */
+  forecast: { score: number | null; coverage: number; sheet_count: number | null; scope: string };
+};
 
 export type PolecenieNauki =
   | {
@@ -132,6 +144,7 @@ const KOMUNIKATY: Record<string, string> = {
   no_exercises_for_format: "Brakuje zadań do tego ćwiczenia na wybranym poziomie.",
   review_item_unavailable: "To zadanie nie jest już w kolejce. Odśwież Powtórki lub zacznij zwykłą rundę.",
   session_id_in_use: "Ta sesja jest już przypisana do innego ćwiczenia. Wróć do Nauki i zacznij ponownie.",
+  invalid_weekdays: "Wybierz od jednego do siedmiu dni nauki.",
 };
 
 export class BladRpcNauki extends Error {
@@ -163,6 +176,8 @@ export const naukaApi = {
   polec: (poziom: Poziom, skill?: string, signal?: AbortSignal) =>
     rpc<PropozycjaNauki | null>("nauka_polec", { p_level: poziom, p_skill: skill ?? null }, signal),
   powtorki: (poziom: Poziom, signal?: AbortSignal) => rpc<PowtorkiNauki>("nauka_powtorki", { p_level: poziom }, signal),
+  plan: (poziom: Poziom, signal?: AbortSignal) => rpc<PlanNauki>("nauka_plan", { p_level: poziom }, signal),
+  dniPlanu: (poziom: Poziom, dni: number[] | null) => zmiana(rpc<PlanNauki>("nauka_plan_dni", { p_days: dni, p_level: poziom })),
   ostatnie: (poziom: Poziom, signal?: AbortSignal) => rpc<OtwartaSesjaNauki[]>("nauka_ostatnie", { p_level: poziom }, signal),
   sesja: (id: string, signal?: AbortSignal) => rpc<SesjaNauki | null>("nauka_sesja", { p_session: id }, signal),
   start: (id: string, skill: string, poziom: Poziom, format: FormatNauki = "szybka-runda", repeatId?: string) =>

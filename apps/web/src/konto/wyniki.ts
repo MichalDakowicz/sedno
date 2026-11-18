@@ -8,7 +8,7 @@ import { currentUserId } from "../auth";
 import { supabase } from "../supabase";
 import type { MojPrzedmiot } from "./przedmioty";
 
-type Wiersz = { sheet_id: string; data: Postep; updated_at: string };
+export type Wiersz = { sheet_id: string; data: Postep; updated_at: string };
 
 export type ZaczetyArkusz = { arkusz: ArkuszWpis; odpowiedzi: number; kiedy: string };
 export type Wynik = { arkusz: ArkuszWpis; zdobyte: number; mozliwe: number; kiedy: string };

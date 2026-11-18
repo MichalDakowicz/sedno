@@ -18,6 +18,7 @@ export type WidgetDane = {
 export const WIDGETY_DANE: WidgetDane[] = [
   { id: "dzis", nazwa: "Dziś warto", opis: "Rekomendacja na dziś", staly: true, nauka: true, egzamin: true },
   { id: "wyniki", nazwa: "Wyniki z arkuszy", opis: "Średnia i ostatnie arkusze", obok: true, nauka: true, egzamin: true },
+  { id: "tydzien", nazwa: "Twój tydzień", opis: "Plan, dni z nauką, seria i prognoza", nauka: true, egzamin: true },
   { id: "powtorki", nazwa: "Powtórki", opis: "Błędy i zanikające umiejętności", nauka: true, egzamin: false },
   { id: "kontynuuj", nazwa: "Kontynuuj", opis: "Niedokończone ćwiczenia", nauka: true, egzamin: false },
   { id: "temat", nazwa: "Wybierz temat", opis: "Wolny wybór umiejętności do nauki", nauka: false, egzamin: false },
