@@ -77,10 +77,13 @@ export function Powtorki() {
           <OstatnieCwiczenie powtorka={dzis} />
           <div className={s.akcje}>
             <Link to={adresCwiczenia(poziom, dzis)} className={`btn btn-primary ${s.przycisk}`}>
-              {etykietaCwiczenia(dzis)}<ArrowRight size={18} aria-hidden="true" />
+              {etykietaCwiczenia(dzis)} · 5 min<ArrowRight size={18} aria-hidden="true" />
             </Link>
+          </div>
+          {/* Akcje poboczne w osobnym rzędzie pod głównym przyciskiem, żeby nie wyglądały jak zabłąkany tekst obok niego. */}
+          <div className={`small ${s.poboczne}`}>
             <ZrodloPowtorki powtorka={dzis} />
-            <Link className="link" to={adresMapy(poziom, dzis.skill_id)}>Zobacz na mapie</Link>
+            <Link className="link" to={adresMapy(poziom, dzis.skill_id)}>Zobacz na mapie <ArrowRight size={14} aria-hidden="true" /></Link>
           </div>
         </article>
       )}
@@ -120,10 +123,9 @@ function GrupaBledow({ poziom, zadania }: { poziom: Poziom; zadania: Powtorka[] 
           <li key={kluczPowtorki(p)} className={s.zadanie}>
             <div className={`small ${s.zadanieOpis}`}>
               {p.mistake?.sheet_id || p.mistake?.session_id ? <ZrodloPowtorki powtorka={p} /> : "Zadanie do powtórzenia"}
-              {p.mistake?.session_id && dataNauki(p.mistake.happened_at) && <span className="muted"> · {dataNauki(p.mistake.happened_at)}</span>}
             </div>
-            <Link to={adresCwiczenia(poziom, p)} className={`btn btn-ghost ${s.przycisk}`}>
-              <RotateCcw size={16} aria-hidden="true" />
+            <Link to={adresCwiczenia(poziom, p)} className={`link small ${s.cwicz}`}>
+              <RotateCcw size={15} aria-hidden="true" />
               {etykietaCwiczenia(p)}
             </Link>
           </li>
@@ -145,8 +147,8 @@ function WierszPowtorki({ poziom, powtorka }: { poziom: Poziom; powtorka: Powtor
         </div>
       </div>
       <div className={s.wierszBoczny}>
-        <Link to={adresCwiczenia(poziom, powtorka)} className={`btn btn-ghost ${s.przycisk}`}>
-          <RotateCcw size={16} aria-hidden="true" />
+        <Link to={adresCwiczenia(poziom, powtorka)} className={`link small ${s.cwicz}`}>
+          <RotateCcw size={15} aria-hidden="true" />
           {etykietaCwiczenia(powtorka)}
         </Link>
       </div>
@@ -167,9 +169,9 @@ function OstatnieCwiczenie({ powtorka }: { powtorka: Powtorka }) {
         </time>
       )}
       {retencja !== null && (
-        <span className={s.retencja} data-tutor-about="Ten szacunek uwzględnia, ile czasu minęło od ostatniego ćwiczenia.">
-          <progress aria-label="Szacowana retencja" value={retencja} max={1} />
-          <span aria-hidden="true">Szacowana retencja · {procentNauki.format(retencja)}</span>
+        <span className={s.retencja} data-tutor-about="To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia, a powtórka go odświeża.">
+          <progress aria-label={`Pamiętasz ok. ${procentNauki.format(retencja)}`} value={retencja} max={1} />
+          <span aria-hidden="true">Pamiętasz ok. {procentNauki.format(retencja)}</span>
         </span>
       )}
     </div>

@@ -79,8 +79,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px 14px;
-  padding: 14px 0;
+  gap: 8px 16px;
+  padding: 16px 0;
   border-bottom: 1px solid var(--line);
   color: inherit;
 }
@@ -103,7 +103,7 @@
 .grupa {
   display: grid;
   gap: 4px;
-  padding: 14px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--line);
 }
 
@@ -138,10 +138,6 @@
 .zadanieOpis {
   min-width: 0;
   overflow-wrap: anywhere;
-}
-
-.polePoziom {
-  max-width: 320px;
 }
 
 .retencja {
@@ -186,4 +182,26 @@
     justify-items: start;
     text-align: left;
   }
+}
+
+/* Akcje poboczne pod głównym przyciskiem: osobny rząd, odstęp jak między wierszami. */
+.poboczne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+}
+
+.poboczne a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cwicz {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  white-space: nowrap;
 }

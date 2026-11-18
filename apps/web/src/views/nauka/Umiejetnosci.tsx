@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
-import type { Poziom } from "../../arkusze/typy";
+import { nazwaZadaniaCke, nazwaZadaniaRundy, type Poziom } from "../../arkusze/typy";
 import { useProfil } from "../../auth";
 import { Ladowanie } from "../../components/Ladowanie";
 import { PRZEDMIOTY, przedmiot } from "../../konto/przedmioty";
@@ -10,6 +10,8 @@ import { naukaApi, type DowodNauki, type Umiejetnosc } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie } from "./Opanowanie";
+
+const KLUCZ_KODOW = "sedno.mapa.kody";
 import s from "./Umiejetnosci.module.css";
 
 const OBSZARY = [
@@ -22,12 +24,11 @@ const OBSZARY = [
 const dataProby = new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeZone: "Europe/Warsaw" });
 
 function Dowod({ dowod: d }: { dowod: DowodNauki }) {
-  const rok = d.sheet_id?.match(/-(\d{4})-maj$/)?.[1];
   const numerZadania = d.question.split(".")[0];
   const adres = d.session_id
     ? adresRozbioru(d.session_id)
     : d.sheet_id && `/arkusze/${encodeURIComponent(d.sheet_id)}#zadanie-${numerZadania}`;
-  const nazwa = d.session_id ? `Sesja nauki · zadanie ${d.question}` : `Arkusz${rok ? ` maj ${rok}` : ""} · zadanie ${d.question}`;
+  const nazwa = d.session_id ? nazwaZadaniaRundy(d.happened_at, d.question) : nazwaZadaniaCke(d.sheet_id ?? "", d.question);
   const wynik = d.score >= 1 ? "Dobrze" : d.score <= 0 ? "Błąd" : `${Math.round(d.score * 100)}%`;
   return (
     <li className={s.dowod}>
@@ -98,6 +99,16 @@ export function Umiejetnosci() {
   const id = parametry.get("umiejetnosc");
   const wybrana = umiejetnosci?.find((u) => u.skill_id === id);
   const ostatniPanel = useRef<string | null>(null);
+  // Kody wymagań CKE (II.2, III.5) są dla nauczyciela, nie dla ucznia: widać je dopiero po włączeniu.
+  const [kody, ustawKody] = useState(() => {
+    try { return localStorage.getItem(KLUCZ_KODOW) === "1"; } catch { return false; }
+  });
+  const przelaczKody = () => {
+    ustawKody((k) => {
+      try { localStorage.setItem(KLUCZ_KODOW, k ? "0" : "1"); } catch { /* bez pamięci przełącznik działa do odświeżenia */ }
+      return !k;
+    });
+  };
 
   useEffect(() => {
     if (wybrana) ostatniPanel.current = wybrana.skill_id;
@@ -122,6 +133,12 @@ export function Umiejetnosci() {
           ))}
         </nav>
         {angielski && <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />}
+        {angielski && (
+          <label className={`small muted ${s.przelacznikKodow}`}>
+            <button type="button" role="switch" aria-checked={kody} className={`przelacznik ${kody ? "przelacznikWl" : ""}`} onClick={przelaczKody} />
+            Pokaż kody wymagań CKE
+          </label>
+        )}
       </div>
       {!angielski && (
         <div className={s.blok}>
@@ -144,7 +161,7 @@ export function Umiejetnosci() {
                     {wObszarze.map((u) => (
                       <li key={u.skill_id}>
                         <Link id={`umiejetnosc-${u.skill_id}`} to={adresMapy(poziom, u.skill_id)} className={s.wiersz} aria-current={u.skill_id === id ? "true" : undefined}>
-                          <span className={s.nazwa}>{u.name}<span className={`${s.kody} small`}>{u.codes.join(" · ")}</span></span>
+                          <span className={s.nazwa}>{u.name}{kody && <span className={`${s.kody} small`}>{u.codes.join(" · ")}</span>}</span>
                           <Opanowanie {...u} />
                           <ChevronRight className={s.wskaznik} size={18} aria-hidden="true" />
                         </Link>
