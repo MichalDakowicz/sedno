@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
 import { useProfil } from "../auth";
+import { brakArkuszy } from "../konto/przedmioty";
 import { NaglowekStrony } from "../components/NaglowekStrony";
 import { Ladowanie } from "../components/Ladowanie";
 import styles from "./Arkusze.module.css";
@@ -42,13 +43,20 @@ export function Arkusze() {
   const profil = useProfil();
   // Domyślnie przedmiot i poziom, które konto zdaje (pierwszy z listy, jeśli zdaje kilka).
   const poziomKonta = (p: Przedmiot) => profil?.subjects.find((s) => s.id === p)?.poziom as Poziom | undefined;
-  const [przedmiot, setPrzedmiot] = useState<Przedmiot>(() => PRZEDMIOTY.find((p) => poziomKonta(p.id))?.id ?? "angielski");
-  const [wybranyPoziom, setPoziom] = useState<Poziom>(() => poziomKonta(przedmiot) ?? "podstawowy");
+  // ?przedmiot=…&poziom=… (z pulpitu i Nauki) otwiera od razu właściwą zakładkę.
+  const [parametry] = useSearchParams();
+  const zAdresu = PRZEDMIOTY.find((p) => p.id === parametry.get("przedmiot"))?.id;
+  const poziomZAdresu = POZIOMY.find((p) => p === parametry.get("poziom"));
+  const [przedmiot, setPrzedmiot] = useState<Przedmiot>(() => zAdresu ?? PRZEDMIOTY.find((p) => poziomKonta(p.id))?.id ?? "angielski");
+  const [wybranyPoziom, setPoziom] = useState<Poziom>(() => poziomZAdresu ?? poziomKonta(przedmiot) ?? "podstawowy");
   const opis = PRZEDMIOTY.find((p) => p.id === przedmiot)!;
   const zPrzedmiotu = dane?.filter((a) => (a.przedmiot ?? "angielski") === przedmiot);
   // Poziomy, dla których są arkusze (matematyka na razie tylko podstawowa).
   const poziomy = POZIOMY.filter((p) => !zPrzedmiotu || zPrzedmiotu.some((a) => a.poziom === p));
   const poziom = poziomy.includes(wybranyPoziom) ? wybranyPoziom : (poziomy[0] ?? "podstawowy");
+  // Poziom z profilu, którego arkuszy jeszcze nie ma, i przedmioty z profilu bez żadnych arkuszy: mówimy to wprost.
+  const brakPoziomu = zPrzedmiotu && poziomKonta(przedmiot) && !poziomy.includes(poziomKonta(przedmiot)!) ? poziomKonta(przedmiot)! : null;
+  const bezArkuszy = (profil?.subjects ?? []).filter((s) => !PRZEDMIOTY.some((p) => p.id === s.id)).map((s) => s.id);
 
   return (
     <main className={`container ${styles.page}`}>
@@ -80,6 +88,15 @@ export function Arkusze() {
             </button>
           ))}
         </nav>
+      )}
+
+      {(brakPoziomu || bezArkuszy.length > 0) && (
+        <div className={styles.braki}>
+          {brakPoziomu && <p className="muted">{brakArkuszy(przedmiot, brakPoziomu, poziomy)}</p>}
+          {[...new Set(bezArkuszy)].map((id) => (
+            <p key={id} className="muted">{brakArkuszy(id, null, [])}</p>
+          ))}
+        </div>
       )}
 
       {laduje && <Ladowanie ksztalt="wiersze" ile={5} etykieta="Wczytuję listę arkuszy" />}

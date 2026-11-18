@@ -29,6 +29,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Poziomy i przedmioty z profilu, których arkuszy jeszcze nie ma: jedno miejsce pod zakładkami. */
+.braki {
+  display: grid;
+  gap: 4px;
+}
+
 .group {
   display: grid;
   gap: 12px;

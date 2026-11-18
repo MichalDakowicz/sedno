@@ -4,7 +4,7 @@ import { FileText, MessagesSquare, Sparkles, Timer } from "lucide-react";
 import { Ladowanie } from "../../components/Ladowanie";
 import { useTutor } from "../../components/TutorContext";
 import { SubjectIcon } from "../../components/icons";
-import { nazwaPoziomu, przedmiot } from "../../konto/przedmioty";
+import { brakArkuszy, naPoziomie, nazwaPoziomu, przedmiot } from "../../konto/przedmioty";
 import { adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
@@ -79,9 +79,14 @@ export function Dzis({ co, aktywny, ai }: KontekstPulpitu) {
       </Link>
     );
   } else {
-    naglowek = `${p.nazwa}: arkusze w drodze`;
-    powod = `W Sedno nie ma jeszcze arkuszy z tego przedmiotu na poziomie ${poziom}. Dodajemy je po kolei.`;
-    akcja = ai ? (
+    naglowek = `${p.nazwa}, poziom ${poziom}`;
+    powod = brakArkuszy(co.przedmiot.id, co.przedmiot.poziom, co.inne);
+    akcja = co.inne.length ? (
+      <Link to={`/arkusze?przedmiot=${co.przedmiot.id}&poziom=${co.inne[0]}`} className="btn btn-primary" data-tutor="today-cta">
+        <FileText size={18} aria-hidden="true" />
+        Arkusze {naPoziomie[co.inne[0]!]}
+      </Link>
+    ) : ai ? (
       <button type="button" className="btn btn-primary" data-tutor="today-cta" onClick={() => openTutor()}>
         <MessagesSquare size={18} aria-hidden="true" />
         Porozmawiaj z Pestką
