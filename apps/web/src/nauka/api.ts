@@ -1,6 +1,7 @@
 import { AiError, aiErrorText } from "../ai";
 import type { Poziom } from "../arkusze/typy";
 import { functionsUrl, supabase } from "../supabase";
+import { uniewaznijNauke } from "./pamiec";
 
 export type FormatNauki = "szybka-runda" | "napraw-blad" | "sokratejski";
 
@@ -151,6 +152,9 @@ async function rpc<T>(name: string, args: Record<string, unknown>, signal?: Abor
 
 type DopasowanieTematu = { umiejetnosc: string | null; format: "krok-po-kroku" | "sokratejski" | null };
 
+// Po zapisie w nauce zapamiętane widoki (mapa, powtórki, „Ostatnio”) są nieaktualne.
+const zmiana = <T,>(wynik: Promise<T>) => wynik.then((dane) => { uniewaznijNauke(); return dane; });
+
 export const naukaApi = {
   katalog: (poziom: Poziom, signal?: AbortSignal) => rpc<KatalogNauki>("nauka_katalog", { p_level: poziom }, signal),
   mapa: (poziom: Poziom, signal?: AbortSignal) => rpc<MapaNauki>("nauka_mapa", { p_level: poziom }, signal),
@@ -162,15 +166,15 @@ export const naukaApi = {
   ostatnie: (poziom: Poziom, signal?: AbortSignal) => rpc<OtwartaSesjaNauki[]>("nauka_ostatnie", { p_level: poziom }, signal),
   sesja: (id: string, signal?: AbortSignal) => rpc<SesjaNauki | null>("nauka_sesja", { p_session: id }, signal),
   start: (id: string, skill: string, poziom: Poziom, format: FormatNauki = "szybka-runda", repeatId?: string) =>
-    rpc<SesjaNauki>("nauka_start", {
+    zmiana(rpc<SesjaNauki>("nauka_start", {
       p_session: id, p_skill: skill, p_format: format, p_level: poziom,
       ...(repeatId ? { p_item: repeatId } : {}),
-    }),
+    })),
   odpowiedz: (id: string, pozycja: number, odpowiedz: string) =>
-    rpc<SesjaNauki>("nauka_odpowiedz", { p_session: id, p_position: pozycja, p_answer: odpowiedz }),
+    zmiana(rpc<SesjaNauki>("nauka_odpowiedz", { p_session: id, p_position: pozycja, p_answer: odpowiedz })),
   podpowiedz: (id: string, pozycja: number, krok: number) =>
     rpc<SesjaNauki>("nauka_podpowiedz", { p_session: id, p_position: pozycja, p_step: krok }),
-  usun: (id: string) => rpc<boolean>("nauka_usun", { p_session: id }),
+  usun: (id: string) => zmiana(rpc<boolean>("nauka_usun", { p_session: id })),
   async temat(temat: string, poziom: Poziom, signal?: AbortSignal): Promise<DopasowanieTematu> {
     const { data } = await supabase.auth.getSession();
     if (!data.session) throw new Error(aiErrorText("not_signed_in"));

@@ -26,8 +26,14 @@ export type Propozycja =
   | { rodzaj: "brak-arkuszy"; przedmiot: MojPrzedmiot }
   | { rodzaj: "wszystko"; przedmiot: MojPrzedmiot; ostatni: Wynik | null };
 
+// Ostatnio pobrane wiersze konta: powrót na pulpit pokazuje je od razu, a świeże dochodzą w tle.
+let zapamietane: { user: string; wiersze: Wiersz[] } | null = null;
+
 export function usePostepyKonta(): Wiersz[] | null {
-  const [wiersze, setWiersze] = useState<Wiersz[] | null>(null);
+  const [wiersze, setWiersze] = useState<Wiersz[] | null>(() => {
+    const user = currentUserId();
+    return user && zapamietane?.user === user ? zapamietane.wiersze : null;
+  });
   useEffect(() => {
     const user = currentUserId();
     if (!user) return;
@@ -36,7 +42,13 @@ export function usePostepyKonta(): Wiersz[] | null {
       .from("sheet_progress")
       .select("sheet_id, data, updated_at")
       .eq("user_id", user)
-      .then(({ data }) => live && setWiersze((data ?? []) as Wiersz[]));
+      .then(({ data, error }) => {
+        // Błąd odświeżenia nie zabiera danych z pamięci.
+        if (error && zapamietane?.user === user) return;
+        const nowe = (data ?? []) as Wiersz[];
+        zapamietane = { user, wiersze: nowe };
+        if (live) setWiersze(nowe);
+      });
     return () => {
       live = false;
     };

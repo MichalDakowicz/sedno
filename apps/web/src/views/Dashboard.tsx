@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Navigate, useParams } from "react-router-dom";
 import { ArrowRight, ChevronRight, LayoutGrid, LayoutList, Plus } from "lucide-react";
 import { isTourDone, useTutor, type Hint } from "../components/TutorContext";
@@ -89,6 +89,8 @@ export function Dashboard() {
   const nastepny = najblizszy(egzaminy);
   const dniHero = nastepny ? dniDo(nastepny.data) : egzaminy.length ? null : dniDoMatury();
   const dane = useWynikiKonta(moje);
+  // Dane z pamięci (powrót na pulpit) są od razu na miejscu: bez animacji wejścia, która udawałaby wczytywanie.
+  const wejscie = useRef(dane ? "" : "wejscie").current;
   const { showHints, startTour } = useTutor();
   const { pestkaSama } = useUstawienia();
   const klucz = aktywny?.id ?? WSZYSTKIE;
@@ -152,7 +154,7 @@ export function Dashboard() {
       {!dane && <Ladowanie ksztalt="pulpit" ile={3} etykieta="Wczytuję twoje arkusze i wyniki" />}
 
       {dane && co && (
-        <section className={`${styles.top} ${obok ? "" : styles.topSam} wejscie`}>
+        <section className={`${styles.top} ${obok ? "" : styles.topSam} ${wejscie}`}>
           <Dzis {...kontekst} />
           {obok && (
             <div className={styles.side}>
@@ -162,10 +164,10 @@ export function Dashboard() {
         </section>
       )}
 
-      {dane && aktywny && zakres.map((s) => <ArkuszePrzedmiotu key={s.przedmiot.poziom} podsumowanie={s} zPoziomem={zakres.length > 1} />)}
+      {dane && aktywny && zakres.map((s) => <ArkuszePrzedmiotu key={s.przedmiot.poziom} podsumowanie={s} zPoziomem={zakres.length > 1} wejscie={wejscie} />)}
 
       {dane && !aktywny && moje.length > 0 && (
-        <section className={`${styles.section} wejscie`} aria-labelledby="subjects-title">
+        <section className={`${styles.section} ${wejscie}`} aria-labelledby="subjects-title">
           <div className={styles.sectionHead}>
             <h2 id="subjects-title" className="h2">
               Twoje przedmioty
@@ -211,10 +213,10 @@ export function Dashboard() {
   );
 }
 
-function ArkuszePrzedmiotu({ podsumowanie: s, zPoziomem }: { podsumowanie: Podsumowanie; zPoziomem: boolean }) {
+function ArkuszePrzedmiotu({ podsumowanie: s, zPoziomem, wejscie }: { podsumowanie: Podsumowanie; zPoziomem: boolean; wejscie: string }) {
   const tytulId = `sheets-title-${s.przedmiot.poziom}`;
   return (
-    <section className={`${styles.section} wejscie`} aria-labelledby={tytulId}>
+    <section className={`${styles.section} ${wejscie}`} aria-labelledby={tytulId}>
       <div className={styles.sectionHead}>
         <h2 id={tytulId} className="h2">
           Twoje arkusze{zPoziomem ? `, poziom ${nazwaPoziomu[s.przedmiot.poziom]}` : ""}

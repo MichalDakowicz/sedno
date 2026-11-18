@@ -78,7 +78,9 @@ function pobierzListe() {
   return lista;
 }
 
-export const useListaArkuszy = () => useZapytanie<ArkuszWpis[]>("lista", pobierzListe);
+const listy = new Map<string, ArkuszWpis[]>();
+
+export const useListaArkuszy = () => useZapytanie<ArkuszWpis[]>("lista", pobierzListe, listy);
 
 // Treść arkusza się nie zmienia, więc w obrębie sesji pobieramy ją raz. Runda nauki otwiera ten sam arkusz
 // przy każdym pytaniu, a bez pamięci każde pytanie czekało na cały arkusz od nowa.
@@ -87,6 +89,7 @@ const arkusze = new Map<string, Arkusz>();
 /** Po wylogowaniu następne konto pobiera arkusze od nowa (dostęp sprawdza RLS). */
 export function wyczyscArkusze() {
   arkusze.clear();
+  listy.clear();
   lista = null;
 }
 
