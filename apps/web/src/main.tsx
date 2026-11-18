@@ -26,6 +26,7 @@ import { Powtorki } from "./views/nauka/Powtorki";
 import { Rozbior } from "./views/nauka/Rozbior";
 import { SzybkaRunda } from "./views/nauka/SzybkaRunda";
 import { UczenUczy } from "./views/nauka/UczenUczy";
+import { Zadania } from "./views/nauka/Zadania";
 import { Umiejetnosci } from "./views/nauka/Umiejetnosci";
 
 // Ustawienia stosują się od startu, nie dopiero na ich stronie.
@@ -48,6 +49,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="nauka/runda/:id" element={<SzybkaRunda />} />
           <Route path="nauka/rozbior/:id" element={<Rozbior />} />
           <Route path="nauka/uczen-uczy" element={<UczenUczy />} />
+          <Route path="nauka/zadania" element={<Zadania />} />
           <Route path="nauka/diagnoza" element={<Diagnoza />} />
           <Route path="arkusze" element={<Arkusze />} />
           <Route path="arkusze/:id" element={<Arkusz />} />

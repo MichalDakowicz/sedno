@@ -29,15 +29,15 @@ export type PropozycjaDnia = {
 const tytulArkusza = (a: ArkuszWpis) => `Matura ${a.sesja} ${a.rok}`;
 const procent = (w: { zdobyte: number; mozliwe: number }) => (w.mozliwe > 0 ? Math.round((w.zdobyte / w.mozliwe) * 100) : 0);
 
-/** Co jeszcze da się dziś zrobić w przedmiocie bez rund (Nauka, pulpit przedmiotu). */
+/** Co da się dziś zrobić w przedmiocie bez rund angielskiego (Nauka, pulpit przedmiotu). */
 export const coDzisBezRund: Partial<Record<PrzedmiotId, { tekst: string; akcja: { do: string; etykieta: string } }>> = {
   matematyka: {
-    tekst: "Rund z matematyki jeszcze nie ma. Rozwiąż arkusz: przy każdym zadaniu jest tablica, na której Pestka pomaga rozpisać obliczenia.",
-    akcja: { do: "/arkusze?przedmiot=matematyka", etykieta: "Arkusze z matematyki" },
+    tekst: "Zadania z nowymi danymi, sprawdzane od razu. Przy arkuszach jest tablica z Pestką.",
+    akcja: { do: "/nauka/zadania?przedmiot=matematyka", etykieta: "Zadania z matematyki" },
   },
   informatyka: {
-    tekst: "Rund z informatyki jeszcze nie ma. Arkusze mają warsztat: Python, SQL i arkusz kalkulacyjny na plikach z CKE.",
-    akcja: { do: "/arkusze?przedmiot=informatyka", etykieta: "Arkusze z informatyki" },
+    tekst: "Algorytmy i SQL z nowymi danymi, sprawdzane od razu. Arkusze mają warsztat z Pythonem i SQL.",
+    akcja: { do: "/nauka/zadania?przedmiot=informatyka", etykieta: "Zadania z informatyki" },
   },
   polski: {
     tekst: "Arkuszy i rund z polskiego jeszcze nie ma. Możesz z Pestką omówić lekturę albo plan wypracowania.",
@@ -73,13 +73,15 @@ export function zArkuszy(co: Propozycja): PropozycjaDnia {
       minuty: co.arkusz.czas ?? null,
       ikona: "arkusz",
     };
+  // Po wszystkich arkuszach matematyki i informatyki zostają zadania z nowymi danymi.
+  const zadania = id === "matematyka" || id === "informatyka" ? coDzisBezRund[id]!.akcja : null;
   if (co.rodzaj === "wszystko")
     return {
       rodzaj: "wszystko",
       przedmiot: id,
       tytul: "Wszystkie arkusze rozwiązane",
-      powod: `Masz wyniki ze wszystkich arkuszy na poziomie ${poziom}, które są w Sedno.${co.ostatni ? ` Ostatni: ${procent(co.ostatni)}%.` : ""}`,
-      akcja: { do: "/arkusze", etykieta: "Przejrzyj arkusze" },
+      powod: `Masz wyniki ze wszystkich arkuszy na poziomie ${poziom}, które są w Sedno.${co.ostatni ? ` Ostatni: ${procent(co.ostatni)}%.` : ""}${zadania ? " Ćwicz dalej na zadaniach z nowymi danymi." : ""}`,
+      akcja: zadania ?? { do: "/arkusze", etykieta: "Przejrzyj arkusze" },
       minuty: null,
       ikona: "arkusz",
     };
