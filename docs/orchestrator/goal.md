@@ -22,23 +22,23 @@ _Set 2026-11-17 · status: active_
 ### Works
 - [x] Every English task in formuła 2023 (all three levels) has at least one requirement code and a skill; unmapped tasks = 0 · proof: import report · _2026-11-17, PR #55 at `d207542`: import 572/572 with codes across 12 sheets (the whole catalogue); migration 0009 matches the import on all 572; 26 questions (2025 R zad. 1, 6; 2024 P zad. 2, 5) checked by hand against the CKE marking-rules PDFs. PR #55 merged into `main` by the teammate the same day (`eccbca7`)._
 - [ ] Mastery on the map matches a hand calculation for the test account · proof: tester + script
-- [ ] Quick round → breakdown → map change → Powtórki works end to end on staging after login · proof: tester run
-- [ ] Attempts survive reload and show on a second device/tab after reload · proof: tester run
-- [ ] Typecheck and build green; no console errors in touched views · proof: checks, tester console read
+- [x] Quick round → breakdown → map change → Powtórki works end to end on staging after login · proof: tester run · _2026-11-18, staging, main `904d468`: round on „Dobieraj słownictwo i gramatykę” 6→8 tasks with 2 wrong; breakdown „6 z 8 poprawnie”, before „Mało danych”, after 54%; map shows 54% and 8 attempts; Powtórki lists both wrong tasks and a round started from 9.3 opens with that task._
+- [x] Attempts survive reload and show on a second device/tab after reload · proof: tester run · _2026-11-18: reload mid-round kept „Zadanie 3 z 6” and the streak; a second tab on the same round URL showed the same state._
+- [x] Typecheck and build green; no console errors in touched views · proof: checks, tester console read · _2026-11-18, `904d468`: typecheck and build green; no console errors on /, /umiejetnosci, /nauka, round, breakdown, /powtorki._
 
 ### Looks
 - [ ] Matches the templates and docs (`docs/mapa-umiejetnosci.html`, `mapa-panel.html`, `nauka-rundy.html`, `ocena-feedback.html`, `dash-powtorki.html`, `dashboard-wejscia.html`) · proof: tester screenshots
 - [ ] Empty („mało danych”, no attempts), loading and error states · proof: tester screenshots
 - [ ] Light and dark, 375 px (also with large text) and desktop, no overflow · proof: tester measurements
-- [ ] Separators instead of cards (cards only for the recommendation, chat and dialogs) · proof: diff review
+- [x] Separators instead of cards (cards only for the recommendation, chat and dialogs) · proof: diff review · _2026-11-18 audit of PR #56: cards only for the Nauka recommendation, Powtórki „Na dziś”, Rozbiór „Dalej” and the Uczeń uczy chat; ghost buttons use the global inset outline, not cards._
 
 ### Feels
 - [ ] Full keyboard path through map, panel, round and breakdown · proof: tester run
 - [ ] Visible focus, labels, live announcements for round feedback · proof: tester run, audit
 
 ### Holds up
-- [ ] No network / failed save gives a message, a round in progress is not lost on reload · proof: simulated failure
-- [ ] New table has owner-only RLS · proof: migration review, audit
+- [x] No network / failed save gives a message, a round in progress is not lost on reload · proof: simulated failure · _2026-11-18: rejected fetch on answer gives „Nie udało się połączyć z Nauką” with „Ponów zapis odpowiedzi”; retry saved it. Map load failure gives a message and retry works._
+- [x] New table has owner-only RLS · proof: migration review, audit · _2026-11-18: attempts live in `private` tables with RLS on and no grants, reachable only through security-definer RPCs keyed on `auth.uid()` (audits of 0009–0015)._
 - [ ] Final gap audit has no blocker or major findings · proof: audit report
 
 ### Shipped
