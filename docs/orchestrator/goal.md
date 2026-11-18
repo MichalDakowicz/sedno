@@ -34,7 +34,7 @@ _Set 2026-11-17 · status: active_
 
 ### Feels
 - [ ] Full keyboard path through map, panel, round and breakdown · proof: tester run
-- [ ] Visible focus, labels, live announcements for round feedback · proof: tester run, audit
+- [x] Visible focus, labels, live announcements for round feedback · proof: tester run, audit · _2026-11-18, PR #66: one persistent `role=status` region carries the correct answer and explanation (tester read „Poprawna odpowiedź: B. W kluczu CKE…”), the verdict is the focused heading; focus outline 2px on rows and buttons; hints region always mounted._
 
 ### Holds up
 - [x] No network / failed save gives a message, a round in progress is not lost on reload · proof: simulated failure · _2026-11-18: rejected fetch on answer gives „Nie udało się połączyć z Nauką” with „Ponów zapis odpowiedzi”; retry saved it. Map load failure gives a message and retry works._
@@ -42,6 +42,6 @@ _Set 2026-11-17 · status: active_
 - [ ] Final gap audit has no blocker or major findings · proof: audit report
 
 ### Shipped
-- [ ] Branch per unit, PRs open, migrations on staging only until merge · proof: PR links
-- [ ] Template folders and registry entries removed for moved templates; docs updated for decisions · proof: diff
+- [x] Branch per unit, PRs open, migrations on staging only until merge · proof: PR links · _Backend and views from the teammate's PRs #55, #56; fixes in PRs #66, #67, #68 (merged 2026-11-18 at the user's yes); 0017 and 0018 ran on staging before merge, production got them from the `main` autodeploy at `5c5d329`._
+- [x] Template folders and registry entries removed for moved templates; docs updated for decisions · proof: diff · _Templates for Nauka, Mapa umiejętności, Szybka runda, Rozbiór, Powtórki and Uczeń uczy removed in #56 (audit found no dead links); `nauka.md` and `docs/mapa-dowody.html` updated for the decay decision in #68._
 - [ ] Handoff updated · proof: `docs/orchestrator/handoff.md`
