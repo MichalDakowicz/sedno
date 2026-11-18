@@ -8,19 +8,19 @@ _Updated 2026-11-18_
 
 **Decisions this run.** Backend and views from the teammate, orchestrator verifies and fixes. Student-facing skill names approved (migration 0009). Displayed mastery = Elo estimate × retention; breakdown before/after = estimate without decay. Skills without scored CKE evidence (pisanie) are left out of automatic recommendations and the weekly plan. „Usuń” for unfinished rounds without confirm (as in the student profile).
 
-**Not verified / left.** Listed in `NASTEPNE.md` section 0 („Pętla nauki angielskiego, faza 2”): micro-skills, weekly trend, low-confidence bar and names/codes toggle on the map; diagnosis prompt at „mało danych”; „Odłóż” in Powtórki; listening segment seek on iOS Safari; per-question fragment after answering inside „Treść zadania”; dashboard runs the map 3–4 times per load (not measured); an occasional „Failed to load resource: 400” on page load (not seen on the last clean load). The production frontend (Firebase Hosting) is deployed by hand and was not redeployed by the orchestrator: it still serves the views from before #66; it works with the new backend.
+**Not verified / left.** Listed in `NASTEPNE.md` section 0 („Pętla nauki angielskiego, faza 2”): micro-skills, weekly trend, low-confidence bar and names/codes toggle on the map; diagnosis prompt at „mało danych”; „Odłóż” in Powtórki; listening segment seek on iOS Safari; per-question fragment after answering inside „Treść zadania”; dashboard runs the map 3–4 times per load (not measured); an occasional „Failed to load resource: 400” on page load (not seen on the last clean load). The production frontend (Firebase Hosting `trafwsedno`) was redeployed by the orchestrator from `main` at the user's request on 2026-11-18 (`firebase deploy --only hosting`); production serves the new bundle (contains the #66–#71 views); signed-in views on production not yet smoke-tested.
 
 **In flight.** Nothing. Test data on the staging account: a few unfinished rounds and many listening mistakes in Powtórki.
 
 **Claimed but unfinished.** None.
 
 **Next.**
-- Teammate: redeploy the production frontend from `main` (user's decision 2026-11-18); then smoke-test /umiejetnosci, /nauka, a round, /powtorki and the dashboard on production.
+- Smoke-test signed-in views on production (/umiejetnosci, /nauka, a round, /powtorki, dashboard widgets).
 - User: agree with the teammate on the split of work for the next goal (two agent teams worked on the same goal twice this run).
 - Next orchestrator: draft goal 3 with the user (candidates in `NASTEPNE.md`: other subjects, „Do matury” forecast and weekly plan, other formats).
 
 **Housekeeping.**
 - `npm run dev:staging` runs in the terminal tab „dev staging” from `C:\sedno` on `main`.
-- Worktrees to remove when convenient: `C:\sedno-pr55` (delete its junctions `node_modules`, `data/cke`, `data/nagrania` first), `C:\sedno-dev` (junction `node_modules`; branch `dev-scal`), and `.claude/worktrees/agent-*` for `mapa-umiejetnosci` (dropped, unmerged), `porzucone-rundy`, `sluchanie-i-rozbior`, `zanikanie-i-powtorki`, `rekomendacje-bez-pisania`, `fokus-i-panel`, `widgety-nauki` (all merged).
+- Merged branches deleted on GitHub (only `main` and `dev` remain) and locally for this run. Left: `C:\sedno-dev` (junction `node_modules`; local branch `dev-scal` for staging merges) and the worktree with the dropped unmerged branch `mapa-umiejetnosci`; worktrees of other sessions untouched.
 - The built-in browser loses the staging session when the pane restarts; the user signs in again.
 - After switching branches under a running dev server, restart it: stale hot-reload modules cause false console errors (`useTutor poza TutorProvider`).
