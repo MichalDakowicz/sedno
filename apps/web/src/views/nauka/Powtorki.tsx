@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, RotateCcw, Timer } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
+import { KartaDnia } from "../../components/KartaDnia";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
+import { useDzisAngielski } from "../../nauka/dzis";
+import { ZakladkiNauki } from "./ZakladkiNauki";
 import { Ladowanie } from "../../components/Ladowanie";
 import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
@@ -34,15 +37,20 @@ function etykietaCwiczenia(p: Powtorka) {
 export function Powtorki() {
   const [poziom, ustawPoziom] = usePoziomNauki();
   const powtorki = useZapytanieNauki(`nauka:powtorki:${poziom}`, (signal) => naukaApi.powtorki(poziom, signal));
-  const dzis = powtorki.dane?.today;
-  const pozostale = unikalnePowtorki(powtorki.dane?.queue ?? []).filter((p) => !dzis || kluczPowtorki(p) !== kluczPowtorki(dzis));
-  const rundy = pozostale.length + (dzis ? 1 : 0);
+  // Karta na górze to propozycja dnia, ta sama co na pulpicie i w Nauce; powtórka z karty nie wraca na liście.
+  const dzien = useDzisAngielski(poziom);
+  const naKarcie = dzien.dzis?.powtorka;
+  const wszystkie = unikalnePowtorki([...(powtorki.dane?.today ? [powtorki.dane.today] : []), ...(powtorki.dane?.queue ?? [])]);
+  const pozostale = wszystkie.filter((p) => !naKarcie || kluczPowtorki(p) !== kluczPowtorki(naKarcie));
+  const rundy = wszystkie.length;
   const zanikajace = pozostale.filter((p) => !p.mistake);
   const bledy = grupujBledy(pozostale.filter((p) => p.mistake));
 
   return (
     <main className={`container ${s.strona}`}>
-      <NaglowekStrony etykieta="Język angielski" tytul="Powtórki" lead="Trudne zadania i dawno ćwiczone umiejętności." />
+      <NaglowekStrony etykieta="Język angielski" tytul="Nauka" lead="Trudne zadania i dawno ćwiczone umiejętności.">
+        <ZakladkiNauki />
+      </NaglowekStrony>
 
       <div className={s.sekcja}>
         <div className={s.polePoziom}>
@@ -52,7 +60,7 @@ export function Powtorki() {
 
       {(powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") && <Ladowanie ksztalt="pulpit" ile={2} etykieta="Wczytuję powtórki" />}
       {powtorki.stan === "blad" && <BladNauki komunikat="Nie udało się wczytać powtórek." ponow={powtorki.ponow} />}
-      {powtorki.stan === "gotowe" && !dzis && !pozostale.length && (
+      {powtorki.stan === "gotowe" && !wszystkie.length && (
         <section className={s.sekcja} aria-labelledby="powtorki-puste">
           <h2 className="h2" id="powtorki-puste">Nie ma teraz powtórek</h2>
           <p className="muted">Kolejne propozycje pojawią się po sprawdzeniu zadań maturalnych lub zakończeniu ćwiczeń.</p>
@@ -64,26 +72,7 @@ export function Powtorki() {
 
       {rundy > 0 && <p className="muted"><strong>Szacowany czas</strong> · {szacowanyCzas(rundy)}</p>}
 
-      {dzis && (
-        <article className={s.karta} aria-labelledby="powtorka-dzis">
-          <span className="kicker"><Timer size={14} strokeWidth={2.2} aria-hidden="true" /> Na dziś</span>
-          <h2 id="powtorka-dzis" className="h1">{dzis.name}</h2>
-          <p className="muted">
-            {dzis.mistake ? "Wróć do zadania, które sprawiło trudność." : "Czas przypomnieć sobie tę umiejętność."}
-          </p>
-          <OstatnieCwiczenie powtorka={dzis} />
-          <div className={s.akcje}>
-            <Link to={adresCwiczenia(poziom, dzis)} className={`btn btn-primary ${s.przycisk}`}>
-              {etykietaCwiczenia(dzis)} · 5 min<ArrowRight size={18} aria-hidden="true" />
-            </Link>
-          </div>
-          {/* Akcje poboczne w osobnym rzędzie pod głównym przyciskiem, żeby nie wyglądały jak zabłąkany tekst obok niego. */}
-          <div className={`small ${s.poboczne}`}>
-            <ZrodloPowtorki powtorka={dzis} />
-            <Link className="link" to={adresMapy(poziom, dzis.skill_id)}>Zobacz na mapie <ArrowRight size={14} aria-hidden="true" /></Link>
-          </div>
-        </article>
-      )}
+      {dzien.stan === "ladowanie" ? <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie na dziś" /> : dzien.dzis && <KartaDnia dzis={dzien.dzis} />}
 
       {bledy.length > 0 && (
         <section className={s.sekcja} aria-labelledby="bledy-powtorki">

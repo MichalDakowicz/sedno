@@ -1,9 +1,10 @@
 // Jedna propozycja dnia dla pulpitu, Nauki i Powtórek: wszystkie trzy miejsca pokazują to samo, z jednym czasem.
 // Kolejność: niedokończona runda albo arkusz (nowsze z nich) → powtórka na dziś → polecenie z nauka_polec → nowy arkusz.
 // Rundy są tylko z angielskiego; inne przedmioty dostają propozycję z arkuszy (konto/wyniki.ts).
-import type { ArkuszWpis } from "../arkusze/typy";
+import type { ArkuszWpis, Poziom } from "../arkusze/typy";
 import { brakArkuszy, naPoziomie, nazwaPoziomu, przedmiot, type PrzedmiotId } from "../konto/przedmioty";
-import type { Propozycja } from "../konto/wyniki";
+import { useProfil } from "../auth";
+import { propozycja, useWynikiKonta, type Podsumowanie, type Propozycja } from "../konto/wyniki";
 import { adresPowtorek, adresRundy, adresStartu } from "./adresy";
 import { naukaApi, nazwaFormatuNauki, type Powtorka } from "./api";
 import { useOtwarteRundy, usePoziomNauki, useZapytanieNauki } from "./stan";
@@ -96,6 +97,27 @@ export function zArkuszy(co: Propozycja): PropozycjaDnia {
   };
 }
 
+/** Polecenie z mapy umiejętności (nauka_polec) z nazwą umiejętności; wspólne dla karty dnia i sposobów nauki w Nauce. */
+export function usePolecenieDnia(poziom: Poziom, wlaczone = true) {
+  return useZapytanieNauki(wlaczone ? `dzis-${poziom}` : null, async (signal) => {
+    const [propozycja, katalog] = await Promise.all([naukaApi.polec(poziom, undefined, signal), naukaApi.katalog(poziom, signal)]);
+    const umiejetnosc = katalog.skills.find((u) => u.id === propozycja?.skill_id);
+    return propozycja && umiejetnosc ? { ...propozycja, nazwa: umiejetnosc.name } : null;
+  });
+}
+
+export type Sposob = "szybka-runda" | "napraw-blad" | "arkusze" | "uczen-uczy" | "rozmowa";
+
+/**
+ * Sposób nauki, który Pestka poleca temu uczniowi: arkusz, gdy nie ma jeszcze wyniku z angielskiego (pokaże poziom),
+ * napraw błąd, gdy tak wypada z mapy, inaczej szybka runda. powod idzie do Pestki (prawy przycisk).
+ */
+export function polecanySposob(maWynikArkusza: boolean, formatPolecenia: string | undefined): { sposob: Sposob; powod: string } {
+  if (!maWynikArkusza) return { sposob: "arkusze", powod: "Nie masz jeszcze wyniku z arkusza. Jeden arkusz pokaże mi, od czego zacząć." };
+  if (formatPolecenia === "napraw-blad") return { sposob: "napraw-blad", powod: "Na mapie widzę błędy w formach. Poprawianie zdań pomoże je zrozumieć." };
+  return { sposob: "szybka-runda", powod: "Krótkie rundy codziennie dają najwięcej na mapie umiejętności." };
+}
+
 /**
  * Propozycja dnia. co: propozycja z arkuszy (pulpit), angielski: czy pytać o rundy, powtórki i polecenie.
  * Bez odpowiedzi z Nauki (błąd sieci) zostaje propozycja z arkuszy.
@@ -104,11 +126,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
   const [poziom] = usePoziomNauki();
   const rundy = useOtwarteRundy(poziom, angielski);
   const powtorki = useZapytanieNauki(angielski ? `nauka:powtorki:${poziom}` : null, (signal) => naukaApi.powtorki(poziom, signal));
-  const polecenie = useZapytanieNauki(angielski ? `dzis-${poziom}` : null, async (signal) => {
-    const [propozycja, katalog] = await Promise.all([naukaApi.polec(poziom, undefined, signal), naukaApi.katalog(poziom, signal)]);
-    const umiejetnosc = katalog.skills.find((u) => u.id === propozycja?.skill_id);
-    return propozycja && umiejetnosc ? { ...propozycja, nazwa: umiejetnosc.name } : null;
-  });
+  const polecenie = usePolecenieDnia(poziom, angielski);
 
   const zArk = co ? zArkuszy(co) : null;
   if (!angielski) return { stan: "gotowe", dzis: zArk };
@@ -171,4 +189,14 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
 
   // 4. Nowy arkusz (albo to, co zostało z arkuszy).
   return { stan: "gotowe", dzis: zArk ?? (powtorki.dane?.queue.length ? { rodzaj: "powtorka", przedmiot: "angielski", tytul: "Powtórki", powod: "Na liście czekają powtórki z ostatnich ćwiczeń.", akcja: { do: adresPowtorek(poziom), etykieta: "Otwórz powtórki" }, minuty: MINUTY_RUNDY, ikona: "runda" } : null) };
+}
+
+/** Propozycja dnia w Nauce i w Powtórkach: rundy i arkusze angielskiego na wybranym poziomie, jak na pulpicie angielskiego. */
+export function useDzisAngielski(poziom: Poziom): { stan: "ladowanie" | "gotowe"; dzis: PropozycjaDnia | null; podsumowanie?: Podsumowanie } {
+  const profil = useProfil();
+  const wyniki = useWynikiKonta(profil?.subjects ?? []);
+  const angielskie = wyniki?.podsumowania.filter((p) => p.przedmiot.id === "angielski") ?? [];
+  const podsumowanie = angielskie.find((p) => p.przedmiot.poziom === poziom) ?? angielskie[0];
+  const co = podsumowanie && wyniki ? propozycja(podsumowanie, wyniki.wiersze) : undefined;
+  return { ...useDzis({ co, angielski: true }), podsumowanie };
 }

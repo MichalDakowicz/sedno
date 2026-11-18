@@ -272,3 +272,12 @@ a.wiersz:hover .wierszBoczny {
     grid-column: 1;
   }
 }
+
+/* Sposoby nauki: wspólny .wiersz, w kolumnie wartości tylko znacznik „Polecam”. */
+.sposoby {
+  --wiersz-wartosc: 7rem;
+}
+
+.sposoby :global(.wiersz-ikona) {
+  justify-self: start;
+}

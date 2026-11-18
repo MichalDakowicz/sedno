@@ -97,11 +97,11 @@ export function resetTour() {
 export const tourHints: Hint[] = [
   {
     target: "hero",
-    text: "Cześć, jestem Pestka, twój tutor. Nie mam stałego miejsca: pojawiam się tam, gdzie mam ci coś do powiedzenia. Pokażę ci, jak tu działam.",
+    text: "Cześć, jestem Pestka, twoja tutorka. Nie mam stałego miejsca: pojawiam się tam, gdzie mam ci coś do powiedzenia. Pokażę ci, jak tu działam.",
   },
   {
     target: ["nav-links", "nav-menu"],
-    text: "Tu przechodzisz między sekcjami: nauka, arkusze, mapa umiejętności i powtórki.",
+    text: "Tu przechodzisz między pulpitem, nauką i arkuszami. Mapa umiejętności i powtórki są w Nauce.",
   },
   {
     target: "subjects",

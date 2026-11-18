@@ -11,6 +11,7 @@ import { naukaApi, type DowodNauki, type Umiejetnosc } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie } from "./Opanowanie";
+import { ZakladkiNauki } from "./ZakladkiNauki";
 
 const KLUCZ_KODOW = "sedno.mapa.kody";
 import s from "./Umiejetnosci.module.css";
@@ -121,7 +122,9 @@ export function Umiejetnosci() {
 
   return (
     <main className={`container ${s.strona}`} data-panel={!!wybrana}>
-      <NaglowekStrony etykieta="Matura" tytul="Mapa umiejętności" lead="Zobacz, jak radzisz sobie z poszczególnymi wymaganiami matury." />
+      <NaglowekStrony etykieta="Język angielski" tytul="Nauka" lead="Jak radzisz sobie z wymaganiami matury.">
+        <ZakladkiNauki />
+      </NaglowekStrony>
       <div className={s.filtry}>
         <nav className="pigulki" aria-label="Przedmioty">
           {przedmioty.map((p) => (
@@ -150,6 +153,12 @@ export function Umiejetnosci() {
         <div className={s.uklad} data-panel={!!wybrana}>
           <div className={s.grupy}>
             {id && !wybrana && <p role="status">Tej umiejętności nie ma w mapie.</p>}
+            {umiejetnosci.every((u) => u.score === null) && (
+              <div className={s.blok}>
+                <p className="muted">Procenty pojawią się po pierwszej rundzie.</p>
+                <Link to={adresNauki(poziom)} className={`btn btn-secondary btn-sm ${s.przycisk}`}>Zacznij szybką rundę</Link>
+              </div>
+            )}
             {OBSZARY.map(({ id: obszar, nazwa }, i) => {
               const wObszarze = umiejetnosci.filter((u) => u.area === obszar);
               return wObszarze.length > 0 && (

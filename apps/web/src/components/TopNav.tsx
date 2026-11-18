@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Menu, MessageCircle, RotateCcw, Settings, Target, UserRound, X } from "lucide-react";
+import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Menu, MessageCircle, Settings, UserRound, X } from "lucide-react";
 import { logout } from "../auth";
 import { Plywak } from "./Plywak";
 import { resetTour, useTutor } from "./TutorContext";
@@ -12,9 +12,10 @@ const links = [
   { to: "/", label: "Pulpit", icon: LayoutGrid, end: true },
   { to: "/nauka", label: "Nauka", icon: GraduationCap },
   { to: "/arkusze", label: "Arkusze", icon: FileText },
-  { to: "/umiejetnosci", label: "Mapa umiejętności", icon: Target },
-  { to: "/powtorki", label: "Powtórki", icon: RotateCcw },
 ];
+
+// Mapa umiejętności i Powtórki to zakładki w Nauce: w menu podświetla się wtedy „Nauka”.
+const W_NAUCE = ["/nauka", "/umiejetnosci", "/powtorki"];
 
 const DODATKOWE = [
   { to: "/tutor", label: "Rozmowa z Pestką", icon: MessageCircle },
@@ -66,6 +67,8 @@ export function TopNav() {
 
   // Pulpit przedmiotu też należy do „Pulpitu”.
   const onDashboard = location.pathname === "/" || location.pathname.startsWith("/przedmiot/");
+  const aktywny = (to: string, end?: boolean) =>
+    end ? onDashboard : to === "/nauka" ? W_NAUCE.some((p) => location.pathname === p || location.pathname.startsWith(`${p}/`)) : location.pathname === to || location.pathname.startsWith(`${to}/`);
   const { startTour } = useTutor();
 
   // Przewodnik zaczyna się na pulpicie ogólnym, więc z innej strony najpierw tam przechodzimy.
@@ -92,8 +95,9 @@ export function TopNav() {
                 <NavLink
                   to={to}
                   end={end}
-                  data-aktywny={end ? onDashboard : location.pathname === to || location.pathname.startsWith(`${to}/`)}
-                  className={({ isActive }) => `${styles.link} ${isActive || (end && onDashboard) ? styles.active : ""}`}
+                  data-aktywny={aktywny(to, end)}
+                  className={`${styles.link} ${aktywny(to, end) ? styles.active : ""}`}
+                  aria-current={aktywny(to, end) ? "page" : undefined}
                 >
                   <Icon size={16} strokeWidth={2} aria-hidden="true" />
                   {label}
@@ -140,7 +144,7 @@ export function TopNav() {
           <ul>
             {links.map(({ to, label, icon: Icon, end }) => (
               <li key={to}>
-                <NavLink to={to} end={end} className={({ isActive }) => (isActive || (end && onDashboard) ? styles.mobileActive : "")}>
+                <NavLink to={to} end={end} className={aktywny(to, end) ? styles.mobileActive : ""} aria-current={aktywny(to, end) ? "page" : undefined}>
                   <Icon size={18} strokeWidth={2} aria-hidden="true" />
                   {label}
                 </NavLink>
