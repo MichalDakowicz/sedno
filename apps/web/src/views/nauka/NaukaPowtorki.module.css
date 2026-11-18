@@ -147,6 +147,33 @@
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+.wierszRundy {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.wierszRundy .wiersz {
+  flex: 1;
+  min-width: 0;
+  border-bottom: 0;
+}
+
+.usun {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: calc(14px * var(--skala-tekstu, 1));
+  cursor: pointer;
+}
+
+.usun:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
 a.wiersz:hover .wierszBoczny {
   color: var(--primary-text);
 }

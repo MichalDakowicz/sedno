@@ -1,4 +1,4 @@
-import { naukaApi, type SesjaNauki } from "../../nauka/api";
+import { BladRpcNauki, bledyBezPonowienia, naukaApi, type SesjaNauki } from "../../nauka/api";
 import { useZapytanieNauki } from "../../nauka/stan";
 
 export const UUID_SESJI = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -6,6 +6,9 @@ export const UUID_SESJI = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9
 export function komunikatRundy(blad: unknown, domyslny: string): string {
   return blad instanceof Error ? blad.message : domyslny;
 }
+
+export const czyBladBezPonowienia = (blad: unknown) => blad instanceof BladRpcNauki && !!blad.kod && bledyBezPonowienia.includes(blad.kod);
+export const czyZaDuzoSesji = (blad: unknown) => blad instanceof BladRpcNauki && blad.kod === "too_many_open_sessions";
 
 type Odczyt =
   | { status: "laduje" | "brak" | "blad" }
