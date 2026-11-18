@@ -52,14 +52,15 @@ export function AppLayout() {
   if (profil === undefined) return null;
   if (profil && !profil.onboarded_at) return <Navigate to="/witaj" replace />;
 
-  // Pestka pojawia się dopiero, gdy konto ma podpięte AI.
+  // Pestka jest na każdym koncie: przewodnik i dymki z gotowych tekstów działają bez AI, a to, co potrzebuje
+  // modelu, sprawdza aiGotowe (rozmowa bez AI odsyła do profilu).
   return (
     <TutorProvider ai={ai} przedmioty={opisPrzedmiotow(profil?.subjects ?? [])}>
       <TopNav />
       <ZegarWPasku />
       <Wyszukiwanie />
       <Outlet />
-      {ai === true && location.pathname !== "/tutor" && (
+      {location.pathname !== "/tutor" && (
         <>
           <TutorGuide />
           <TutorDock />

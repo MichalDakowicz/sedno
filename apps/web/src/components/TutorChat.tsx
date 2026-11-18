@@ -20,7 +20,7 @@ export function WsparcieNota() {
 }
 
 export function TutorChat() {
-  const { messages, state, send, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe } = useTutor();
+  const { messages, state, send, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, aiGotowe } = useTutor();
   const [draft, setDraft] = useState("");
   const [lista, setLista] = useState(false);
   const wczesniejsze = rozmowy.filter((r) => r.id !== biezacaRozmowa);
@@ -131,6 +131,12 @@ export function TutorChat() {
       )}
 
       <div className={styles.composer}>
+        {/* Bez AI Pestka jest obok (przewodnik, dymki), ale rozmawiać nie może: zamiast podpowiedzi pytań link do profilu. */}
+        {aiGotowe === false ? (
+          <p className="small muted">
+            Rozmowa z Pestką potrzebuje AI na koncie. <Link to="/profil#ai" className="link">Podepnij AI w profilu</Link>
+          </p>
+        ) : (
         <div className={styles.suggestions}>
           {suggestions.map((s) => (
             <button key={s} type="button" className={styles.chip} onClick={() => send(s)} disabled={state !== "idle"}>
@@ -138,6 +144,7 @@ export function TutorChat() {
             </button>
           ))}
         </div>
+        )}
         <form className={styles.form} onSubmit={submit}>
           <label htmlFor="tutor-input" className="visually-hidden">
             Wiadomość do Pestki
