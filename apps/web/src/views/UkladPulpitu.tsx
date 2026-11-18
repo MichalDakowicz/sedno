@@ -8,6 +8,7 @@ import { przedmiot, zgrupuj } from "../konto/przedmioty";
 import { WSZYSTKIE, nazwaUkladu, przelaczWidget, przesunWidgetO, przywrocUklad, ustawGotowy, ustawKolejnosc, useBladUkladu, useUklad, type Pozycja, type Uklad } from "../konto/ukladPulpitu";
 import { Ladowanie } from "../components/Ladowanie";
 import { WIDGETY, widget } from "./pulpit/widgety";
+import { NaglowekStrony } from "../components/NaglowekStrony";
 import s from "./UkladPulpitu.module.css";
 
 const UKLADY: { id: Uklad; nazwa: string }[] = [
@@ -144,31 +145,23 @@ export function UkladPulpitu() {
   if (czekaNaProfil)
     return (
       <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
-        <div style={{ display: "grid", gap: 12 }}>
-          <span className="label">Profil</span>
-          <h1 className="display">Układ pulpitu</h1>
-          <p className="lead">Wybór i kolejność widgetów na pulpicie.</p>
-        </div>
+        <NaglowekStrony etykieta="Profil" tytul="Układ pulpitu" lead="Wybór i kolejność widgetów na pulpicie." />
         <Ladowanie ksztalt="wiersze" ile={3} etykieta="Wczytuję twoje przedmioty" />
       </main>
     );
 
   return (
     <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
-      <div style={{ display: "grid", gap: 12 }}>
-        <span className="label">Profil</span>
-        <h1 className="display">Układ pulpitu</h1>
-        <p className="lead">Wybór i kolejność widgetów na pulpicie.</p>
-      </div>
+      <NaglowekStrony etykieta="Profil" tytul="Układ pulpitu" lead="Wybór i kolejność widgetów na pulpicie." />
 
       <section className={s.sekcja}>
         <span className="label">Pulpit</span>
-        <div className={s.chipy} role="group" aria-label="Przedmiot, którego pulpit układasz">
+        <div className="pigulki" role="group" aria-label="Przedmiot, którego pulpit układasz">
           {[{ id: WSZYSTKIE, nazwa: "Wszystkie" }, ...moje.map((m) => ({ id: m.id as string, nazwa: przedmiot(m.id)!.nazwa }))].map((o) => (
             <button
               key={o.id}
               type="button"
-              className={`${s.chip} ${o.id === klucz ? s.chipAktywny : ""}`}
+              className="pigulka"
               aria-pressed={o.id === klucz}
               onClick={() => setParams(o.id === WSZYSTKIE ? {} : { przedmiot: o.id }, { replace: true })}
             >
@@ -181,12 +174,12 @@ export function UkladPulpitu() {
 
       <section className={s.sekcja}>
         <span className="label">Układ</span>
-        <div className={s.chipy} role="group" aria-label="Gotowe układy">
+        <div className="pigulki" role="group" aria-label="Gotowe układy">
           {UKLADY.map((u) => (
             <button
               key={u.id}
               type="button"
-              className={`${s.chip} ${u.id === aktywnyUklad ? s.chipAktywny : ""}`}
+              className="pigulka"
               aria-pressed={u.id === aktywnyUklad}
               // „Własny” włącza się sam, gdy uczeń zmieni listę; nie ma do czego go wybierać.
               disabled={u.id === "wlasny" && aktywnyUklad !== "wlasny"}
