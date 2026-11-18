@@ -44,20 +44,17 @@ function ProbaRozbioru({ odpowiedz }: { odpowiedz: OdpowiedzNauki }) {
 const nazwyBledow: Record<string, string> = { "jezyk-i-forma": "Błędy językowe i dotyczące formy" };
 
 function Podsumowanie({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
-  const dobre = odpowiedzi.filter((a) => a.correct);
-  const slabe = odpowiedzi.filter((a) => !a.correct);
+  const dobre = odpowiedzi.filter((a) => a.correct).length;
+  const pominiete = odpowiedzi.filter((a) => !a.correct && !a.answer.trim()).length;
+  const bledne = odpowiedzi.length - dobre - pominiete;
   const bledy = new Map<string, number>();
-  for (const a of slabe) {
-    if (a.error_type && nazwyBledow[a.error_type]) bledy.set(a.error_type, (bledy.get(a.error_type) ?? 0) + 1);
+  for (const a of odpowiedzi) {
+    if (!a.correct && a.answer.trim() && a.error_type && nazwyBledow[a.error_type]) bledy.set(a.error_type, (bledy.get(a.error_type) ?? 0) + 1);
   }
-  const numery = (lista: OdpowiedzNauki[]) => lista.map((a) => a.position).join(", ");
   return (
     <section className={s.sekcja} aria-labelledby="podsumowanie-rundy">
       <h2 id="podsumowanie-rundy" className="h2">Co poszło dobrze, a co nie</h2>
-      <dl className={s.mapaRozbioru}>
-        <div><dt className="small muted">Poprawne</dt><dd>{dobre.length ? `Zadania ${numery(dobre)}` : "Brak"}</dd></div>
-        <div><dt className="small muted">Do poprawy</dt><dd>{slabe.length ? `Zadania ${numery(slabe)}` : "Brak"}</dd></div>
-      </dl>
+      <p>Poprawne: {dobre} · Do poprawy: {bledne} · Pominięte: {pominiete}</p>
       {bledy.size > 0 && <ul className="small muted">
         {[...bledy].map(([typ, ile]) => <li key={typ}>{nazwyBledow[typ]}: {ile}</li>)}
       </ul>}
