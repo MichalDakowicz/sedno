@@ -185,11 +185,9 @@ function PytanieRundy({
           </>
         )} />
       </form>
-      {!!pytanie.hints?.length && (
-        <div className={s.podpowiedzi} role="status">
-          {pytanie.hints.map((tekst, i) => <p key={i} className="small"><strong>Podpowiedź {i + 1}.</strong> {tekst}</p>)}
-        </div>
-      )}
+      <div className={pytanie.hints?.length ? s.podpowiedzi : undefined} role="status">
+        {pytanie.hints?.map((tekst, i) => <p key={i} className="small"><strong>Podpowiedź {i + 1}.</strong> {tekst}</p>)}
+      </div>
     </section>
   );
 }
@@ -224,6 +222,12 @@ function OcenaRundy({ odpowiedz, id, skonczona, dalej }: {
   );
 }
 
+function opisOceny(o: OdpowiedzNauki): string {
+  const wynik = o.correct ? "Dobra odpowiedź." : o.answer.trim() ? "Tym razem nie." : "Pominięte zadanie.";
+  const poprawna = o.correct ? "" : ` Poprawna odpowiedź: ${o.solutions.map((a) => nazwaOdpowiedzi(a, o.prompt)).join(" / ")}.`;
+  return `${wynik}${poprawna} ${o.explanation}`;
+}
+
 function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string; ponow: () => void }) {
   const klucz = `sedno.nauka.odpowiedz:${user}:${start.id}`;
   const [sesja, setSesja] = useState(start);
@@ -246,10 +250,6 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
     return () => { aktualna.current = false; };
   }, []);
 
-  useEffect(() => {
-    if (ocena && szkic?.pozycja === ocena.position) zapiszRunde(klucz, null);
-  }, [klucz, ocena, szkic]);
-
   function zachowaj(nowy: Szkic | null) {
     setSzkic(nowy);
     zapiszRunde(klucz, nowy);
@@ -259,7 +259,6 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
     if (!aktualna.current) return;
     setSesja(zapis);
     setOcenaPoz(pozycja);
-    zachowaj(null);
   }
 
   async function odpowiedz(tekst: string) {
@@ -320,6 +319,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
         <p className={s.blad} role="alert">{blad}</p>
         <button type="button" className="btn btn-ghost btn-sm" onClick={ponow}>Wczytaj stan rundy</button>
       </div>}
+      <div className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">{ocena ? opisOceny(ocena) : ""}</div>
       {ocena ? (
         <OcenaRundy key={ocena.position} odpowiedz={ocena} id={sesja.id} skonczona={!!sesja.result}
           dalej={() => { zachowaj(null); setUstalFokus(true); setOcenaPoz(null); }} />
