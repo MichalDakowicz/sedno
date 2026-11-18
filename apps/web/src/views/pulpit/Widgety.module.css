@@ -4,18 +4,20 @@
 }
 
 .akcja {
-  color: var(--primary-text);
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .stopka {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px 20px;
+  gap: var(--s-2) var(--s-5);
 }
 
 .blad {
   display: grid;
   justify-items: start;
-  gap: 12px;
+  gap: var(--s-3);
 }

@@ -1,11 +1,11 @@
 .section {
   display: grid;
-  gap: 20px;
+  gap: var(--s-5);
 }
 
 .head {
   display: grid;
-  gap: 4px;
+  gap: var(--s-1);
 }
 
 /* Dostawcy: wspólny .wiersz, akcje (Sprawdź, Usuń) w kolumnie na szerokość przycisków. */
@@ -15,19 +15,19 @@
 
 .tiers {
   display: grid;
-  gap: 12px;
+  gap: var(--s-3);
 }
 
 .tier {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: var(--s-3);
   align-items: center;
 }
 
 .form {
   display: grid;
-  gap: 14px;
+  gap: var(--s-4);
   max-width: 420px;
 }
 
@@ -40,13 +40,13 @@
 
 .usage caption {
   text-align: left;
-  padding-bottom: 8px;
+  padding-bottom: var(--s-2);
 }
 
 .usage th,
 .usage td {
   text-align: left;
-  padding: 8px 8px 8px 0;
+  padding: var(--s-2) var(--s-2) var(--s-2) 0;
   border-bottom: 1px solid var(--line);
 }
 

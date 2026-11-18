@@ -1,18 +1,18 @@
 .strona {
   display: grid;
-  gap: 32px;
-  padding-top: 32px;
+  gap: var(--s-6);
+  padding-top: var(--s-6);
   padding-bottom: 120px;
 }
 
 .sekcja {
   display: grid;
-  gap: 16px;
+  gap: var(--s-4);
   min-width: 0;
 }
 
 .sekcja {
-  padding-top: 24px;
+  padding-top: var(--s-4);
   border-top: 1px solid var(--line);
 }
 
@@ -20,7 +20,7 @@
   composes: karta from global;
   display: grid;
   justify-items: start;
-  gap: 12px;
+  gap: var(--s-3);
   min-width: 0;
 }
 
@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px 16px;
+  gap: var(--s-3) var(--s-4);
 }
 
 .przycisk {
@@ -65,8 +65,8 @@
 /* Grupa błędów jednej umiejętności: nagłówek raz, zadania jako wiersze rozdzielone cienką linią. */
 .grupa {
   display: grid;
-  gap: 4px;
-  padding: 16px 0;
+  gap: var(--s-1);
+  padding: var(--s-4) 0;
 }
 
 .grupaGlowa {
@@ -82,7 +82,7 @@
 }
 
 .zadania {
-  margin: 8px 0 0;
+  margin: var(--s-2) 0 0;
   padding: 0;
   list-style: none;
 }
@@ -92,8 +92,8 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 6px 14px;
-  padding: 8px 0 8px 14px;
+  gap: var(--s-2) var(--s-4);
+  padding: var(--s-2) 0 var(--s-2) var(--s-3);
   border-left: 2px solid var(--line);
 }
 
@@ -130,8 +130,8 @@
 
 @media (max-width: 480px) {
   .strona {
-    gap: 24px;
-    padding-top: 24px;
+    gap: var(--s-5);
+    padding-top: var(--s-5);
   }
 }
 
@@ -153,19 +153,19 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 24px;
+  gap: var(--s-2) var(--s-5);
 }
 
 .poboczne a {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--s-1);
 }
 
 .cwicz {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--s-2);
   min-height: 44px;
   white-space: nowrap;
 }

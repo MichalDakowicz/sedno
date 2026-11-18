@@ -1,10 +1,10 @@
 .page {
   display: grid;
   grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
-  gap: 64px;
+  gap: var(--s-8);
   align-items: start;
-  padding-top: 32px;
-  padding-bottom: 32px;
+  padding-top: var(--s-6);
+  padding-bottom: var(--s-6);
   /* Wstęp (.obok-karty) zaczyna się na wysokości pierwszej wiadomości w karcie rozmowy. */
   --wnetrze-karty: 24px;
 }
@@ -13,25 +13,25 @@
   position: sticky;
   top: 120px;
   display: grid;
-  gap: 16px;
+  gap: var(--s-4);
   justify-items: start;
 }
 
 .avatar {
-  margin-bottom: 8px;
+  margin-bottom: var(--s-2);
 }
 
 .context {
   width: 100%;
-  margin: 16px 0 0;
+  margin: var(--s-4) 0 0;
   border-top: 1px solid var(--line);
 }
 
 .context div {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  padding: 12px 0;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
   border-bottom: 1px solid var(--line);
   font-size: var(--t-sm);
 }
@@ -49,7 +49,7 @@
 .context .subject {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .context div:has(.subject) {
@@ -69,8 +69,8 @@
 @media (max-width: 900px) {
   .page {
     grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-    padding-top: 40px;
+    gap: var(--s-6);
+    padding-top: var(--s-6);
   }
 
   .intro {

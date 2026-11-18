@@ -166,7 +166,7 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--s-2);
   min-height: 48px;
   padding: 12px 22px;
   border: 0;
@@ -232,7 +232,7 @@ textarea {
 .link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--s-2);
   font-weight: 500;
   color: var(--fg);
   border-bottom: 1px solid var(--line);
@@ -277,7 +277,7 @@ textarea {
 
 .field {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .field label {
@@ -343,13 +343,13 @@ textarea {
 .pigulki {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .pigulka {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
   min-height: 40px;
   padding: 0 16px;
   border: 1px solid var(--line);
@@ -382,7 +382,7 @@ textarea {
 
 /* Karta: tylko tam, gdzie treść musi wyskoczyć ponad resztę (rekomendacja „Dziś warto”, „Polecam”, „Na dziś”, „Dalej”). */
 .karta {
-  padding: clamp(20px, 4vw, 32px);
+  padding: clamp(var(--s-5), 4vw, var(--s-6));
   border-radius: var(--r-lg);
   background: var(--surface);
   box-shadow: var(--shadow-float);
@@ -404,7 +404,7 @@ textarea {
    kolumny idą jedna pod drugą i odstęp znika. */
 .obok-karty {
   align-self: start;
-  padding-top: var(--wnetrze-karty, clamp(20px, 4vw, 32px));
+  padding-top: var(--wnetrze-karty, clamp(var(--s-5), 4vw, var(--s-6)));
   border-top: 0;
 }
 
@@ -418,7 +418,7 @@ textarea {
 .kicker {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
   font-size: var(--t-xs);
   line-height: 1.3;
   font-weight: 600;
@@ -449,9 +449,9 @@ textarea {
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--wiersz-wartosc, 12rem) var(--wiersz-akcja, 20px);
   align-items: center;
-  gap: 6px 24px;
+  gap: var(--s-2) var(--s-5);
   min-height: 64px;
-  padding: 16px 0;
+  padding: var(--s-4) 0;
   color: inherit;
 }
 
@@ -475,7 +475,7 @@ a.wiersz:hover .wiersz-akcja {
 
 .wiersz-tresc {
   display: grid;
-  gap: 4px;
+  gap: var(--s-1);
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -502,7 +502,7 @@ a.wiersz:hover .wiersz-akcja {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--s-2);
   color: var(--subtle);
   transition: color 0.15s ease;
 }
@@ -511,7 +511,7 @@ a.wiersz:hover .wiersz-akcja {
 .wiersz-pasek {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 4.5ch;
-  gap: 12px;
+  gap: var(--s-3);
   align-items: center;
 }
 
@@ -551,7 +551,7 @@ a.wiersz:hover .wiersz-akcja {
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--s-5);
 }
 
 /* Druga, jedyna inna szerokość treści: wąska kolumna do czytania (runda, rozbiór, arkusz). Reszta stron to szeroki .container. */
@@ -561,7 +561,7 @@ a.wiersz:hover .wiersz-akcja {
 
 @media (max-width: 640px) {
   .container {
-    padding: 0 16px;
+    padding: 0 var(--s-4);
   }
 }
 

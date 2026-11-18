@@ -1,9 +1,9 @@
 /* Fragment nagrania pod sprawdzonym pytaniem: przycisk i tekst z linią z lewej, bez karty. */
 .fragment {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
   justify-items: start;
-  padding-top: 4px;
+  padding-top: var(--s-1);
 }
 
 .czas {
@@ -16,7 +16,7 @@
 .tekst {
   max-width: 68ch;
   margin: 0;
-  padding-left: 14px;
+  padding-left: var(--s-3);
   border-left: 2px solid var(--line);
   font-size: var(--t-sm);
   line-height: 1.6;

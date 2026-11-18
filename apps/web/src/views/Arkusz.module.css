@@ -7,8 +7,8 @@
 .page {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 48px;
-  padding-top: 24px;
+  gap: var(--s-7);
+  padding-top: var(--s-5);
   padding-bottom: 160px;
 }
 
@@ -17,7 +17,7 @@
 .head {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
+  gap: var(--s-3);
   justify-items: start;
 }
 
@@ -31,8 +31,8 @@
 .back {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: var(--s-2);
+  margin-bottom: var(--s-2);
 }
 
 .back:hover {
@@ -42,8 +42,8 @@
 .pdfs {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding-top: 4px;
+  gap: var(--s-2);
+  padding-top: var(--s-1);
 }
 
 /* Długi podpis przycisku zawija się zamiast wypychać stronę poza ekran. */
@@ -59,7 +59,7 @@
 .summary {
   composes: karta from global;
   display: grid;
-  gap: 12px;
+  gap: var(--s-3);
   justify-items: start;
 }
 
@@ -75,7 +75,7 @@
 }
 
 .percent {
-  margin-left: 8px;
+  margin-left: var(--s-2);
   font-size: 0.5em;
   color: var(--primary-text);
 }
@@ -85,8 +85,8 @@
 /* Granica między zadaniami jest mocniejsza niż linie w środku zadania. */
 .task {
   display: grid;
-  gap: 16px;
-  padding-top: 40px;
+  gap: var(--s-4);
+  padding-top: var(--s-6);
   border-top: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
   scroll-margin-top: 96px;
 }
@@ -95,13 +95,13 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 8px 16px;
+  gap: var(--s-2) var(--s-4);
 }
 
 .listen {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--s-2);
   color: var(--primary-text);
 }
 
@@ -114,39 +114,39 @@
 
 .content {
   display: grid;
-  gap: 28px;
-  padding-top: 8px;
+  gap: var(--s-6);
+  padding-top: var(--s-2);
 }
 
 /* Część zadania: ciąg treści albo ciąg pytań. */
 .part {
   display: grid;
-  gap: 14px;
+  gap: var(--s-4);
 }
 
 /* Tekst do czytania: linia z lewej zamiast karty. */
 .part[data-rodzaj="czytanie"] {
-  padding-left: 20px;
+  padding-left: var(--s-4);
   border-left: 2px solid var(--line);
 }
 
 /* Przejście między tekstem a pytaniami (w obie strony) oddziela linia.
    Linię dostaje część bez lewej krawędzi, żeby linie nie tworzyły narożnika. */
 .part[data-rodzaj="czytanie"] + .part:not([data-rodzaj="czytanie"]) {
-  padding-top: 28px;
+  padding-top: var(--s-5);
   border-top: 1px solid var(--line);
 }
 
 .part:not([data-rodzaj="czytanie"]):has(+ .part[data-rodzaj="czytanie"]) {
-  padding-bottom: 28px;
+  padding-bottom: var(--s-5);
   border-bottom: 1px solid var(--line);
 }
 
 /* Informacja wspólna dla kilku podpunktów: linia z lewej w kolorze akcentu i podpis z zakresem. */
 .grupa {
   display: grid;
-  gap: 14px;
-  padding-left: 20px;
+  gap: var(--s-4);
+  padding-left: var(--s-4);
   border-left: 2px solid var(--accent);
 }
 
@@ -156,19 +156,19 @@
 
 .podpunkt {
   display: grid;
-  gap: 6px;
+  gap: var(--s-2);
 }
 
 .podglad {
   display: grid;
-  gap: 12px;
+  gap: var(--s-3);
   justify-items: start;
 }
 
 .podgladPrzycisk {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--s-2);
   padding: 2px 0;
   border: 0;
   background: none;
@@ -196,7 +196,7 @@
 }
 
 .textTitle {
-  margin-top: 8px;
+  margin-top: var(--s-2);
   font-size: var(--t-sm);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -224,8 +224,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  padding-top: 8px;
+  gap: var(--s-3);
+  padding-top: var(--s-2);
 }
 
 .taskActions button:disabled {
@@ -241,14 +241,14 @@
 
 .options {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
   margin: 0;
 }
 
 .options div {
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr);
-  gap: 8px;
+  gap: var(--s-2);
   transition: opacity 0.2s ease;
 }
 
@@ -272,12 +272,12 @@
 
 .question {
   display: grid;
-  gap: 12px;
-  padding: 10px 0;
+  gap: var(--s-3);
+  padding: var(--s-2) 0;
 }
 
 .qnr {
-  margin-right: 10px;
+  margin-right: var(--s-3);
   font-weight: 600;
   color: var(--subtle);
   font-variant-numeric: tabular-nums;
@@ -293,8 +293,8 @@
 .choices {
   position: relative;
   display: grid;
-  gap: 4px;
-  padding: 4px;
+  gap: var(--s-1);
+  padding: var(--s-1);
   border-radius: calc(var(--r-md) + 4px);
   background: color-mix(in srgb, var(--surface) 55%, transparent);
   box-shadow: inset 0 0 0 1px var(--line);
@@ -319,9 +319,9 @@
   z-index: 1;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--s-3);
   width: 100%;
-  padding: 10px 16px 10px 10px;
+  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-2);
   border: 1px solid transparent;
   border-radius: var(--r-md);
   background: transparent;
@@ -404,7 +404,7 @@
 .letterField {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
 }
 
 .letterInput {
@@ -457,7 +457,7 @@
 
 .table {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 /* Prawda / fałsz: karta z wierszami, przełącznik z przesuwanym wskaźnikiem */
@@ -475,8 +475,8 @@
 .tfRow {
   display: flex;
   align-items: center;
-  gap: 16px 24px;
-  padding: 14px 16px 14px 20px;
+  gap: var(--s-4) var(--s-5);
+  padding: var(--s-3) var(--s-4) var(--s-3) var(--s-4);
   transition: background-color 0.2s ease;
 }
 
@@ -503,13 +503,13 @@
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
 }
 
 .tfToggle {
   position: relative;
   display: inline-flex;
-  padding: 4px;
+  padding: var(--s-1);
   border-radius: var(--r-pill);
   background: var(--bg);
   box-shadow: inset 0 0 0 1px var(--line);
@@ -531,7 +531,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--s-2);
   width: 92px;
   height: 38px;
   border: 0;
@@ -600,7 +600,7 @@
   .tfRow {
     flex-direction: column;
     align-items: stretch;
-    padding: 14px 16px;
+    padding: var(--s-3) var(--s-4);
   }
 
   .tfSide {
@@ -622,7 +622,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 4px;
+  gap: var(--s-2) var(--s-1);
 }
 
 .row .qnr {
@@ -631,14 +631,14 @@
 
 /* Fragment nagrania w wierszu tabeli odpowiedzi (zadania ze słuchania). */
 .rowFragment {
-  margin-left: 12px;
+  margin-left: var(--s-3);
 }
 
 .rowVerdict {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-left: 8px;
+  gap: var(--s-1);
+  margin-left: var(--s-2);
   color: var(--danger);
 }
 
@@ -649,7 +649,7 @@
 .columns {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0 24px;
+  gap: 0 var(--s-5);
 }
 
 /* Luki */
@@ -663,7 +663,7 @@
 .inlineGap {
   display: inline-flex;
   align-items: baseline;
-  gap: 4px;
+  gap: var(--s-1);
   margin: 0 2px;
   white-space: nowrap;
 }
@@ -721,7 +721,7 @@
 .gapChip {
   display: inline;
   margin: 0 2px;
-  padding: 3px 10px;
+  padding: 3px var(--s-2);
   border: 1px dashed color-mix(in srgb, var(--primary) 60%, var(--line));
   border-radius: var(--r-sm);
   background: var(--primary-soft);
@@ -753,11 +753,11 @@
 }
 
 .gapChip .gapNr {
-  margin-right: 6px;
+  margin-right: var(--s-2);
 }
 
 .gapChip strong {
-  margin-right: 6px;
+  margin-right: var(--s-2);
   color: var(--primary-text);
 }
 
@@ -771,7 +771,7 @@
 }
 
 .gapChevron {
-  margin-left: 4px;
+  margin-left: var(--s-1);
   vertical-align: -2px;
   color: var(--primary-text);
 }
@@ -797,9 +797,9 @@
 
 .picker {
   display: grid;
-  gap: 4px;
-  margin: 10px 0 12px;
-  padding: 8px;
+  gap: var(--s-1);
+  margin: var(--s-3) 0 var(--s-3);
+  padding: var(--s-2);
   border-radius: var(--r-md);
   background: var(--surface);
   box-shadow:
@@ -819,9 +819,9 @@
 .pickerOption {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--s-3);
   width: 100%;
-  padding: 10px 12px 10px 8px;
+  padding: var(--s-2) var(--s-3) var(--s-2) var(--s-2);
   border: 0;
   border-radius: var(--r-sm);
   background: transparent;
@@ -846,7 +846,7 @@
 .badge {
   flex-shrink: 0;
   margin-left: auto;
-  padding: 2px 8px;
+  padding: 2px var(--s-2);
   border-radius: var(--r-pill);
   background: var(--bg);
   font-size: var(--t-xs);
@@ -856,7 +856,7 @@
 
 .pickerClear {
   justify-self: start;
-  padding: 6px 12px;
+  padding: var(--s-1) var(--s-3);
   border: 0;
   border-radius: var(--r-pill);
   background: transparent;
@@ -874,7 +874,7 @@
 
 .essay {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .note {
@@ -885,7 +885,7 @@
 
 .feedback {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
   font-size: var(--t-sm);
 }
 
@@ -893,7 +893,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: var(--s-2);
   font-weight: 500;
 }
 
@@ -916,14 +916,14 @@
 
 .key {
   display: grid;
-  gap: 6px;
-  padding: 12px 16px;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
   border-radius: var(--r-sm);
   background: var(--surface);
 }
 
 .key .label {
-  margin-right: 6px;
+  margin-right: var(--s-2);
 }
 
 .key summary {
@@ -934,7 +934,7 @@
 .selfCheck {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .selfCheck button[aria-pressed="true"] {
@@ -943,8 +943,8 @@
 
 .keyList {
   display: grid;
-  gap: 14px;
-  padding: 20px;
+  gap: var(--s-4);
+  padding: var(--s-4);
   border-radius: var(--r-md);
   background: color-mix(in srgb, var(--surface) 60%, transparent);
 }
@@ -956,18 +956,18 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding-top: 32px;
+  gap: var(--s-4);
+  padding-top: var(--s-6);
   border-top: 1px solid var(--line);
 }
 
 @media (max-width: 640px) {
   .page {
-    gap: 40px;
+    gap: var(--s-7);
   }
 
   .summary {
-    padding: 24px;
+    padding: var(--s-5);
   }
 }
 
@@ -975,7 +975,7 @@
 
 .kadr {
   margin: 0;
-  padding: 12px;
+  padding: var(--s-3);
   border-radius: var(--r-sm);
   background: var(--surface);
 }
@@ -1005,7 +1005,7 @@
 
 .dataTable th,
 .dataTable td {
-  padding: 8px 16px;
+  padding: var(--s-2) var(--s-4);
   border-bottom: 1px solid var(--line);
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -1046,7 +1046,7 @@
 /* Treść zadania nad brudnopisem na pełnym ekranie (TrescKompakt): cała szerokość, mniej powietrza. */
 .kompakt {
   display: grid;
-  gap: 10px;
+  gap: var(--s-3);
 }
 
 /* Numer zadania ze strzałkami do sąsiednich zadań, z linią pod spodem;
@@ -1054,9 +1054,9 @@
 .glowa {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 4px;
-  padding-bottom: 10px;
+  gap: var(--s-1);
+  margin-bottom: var(--s-1);
+  padding-bottom: var(--s-2);
   border-bottom: 1px solid var(--line);
 }
 
@@ -1064,7 +1064,7 @@
 .obok {
   display: grid;
   grid-template-columns: minmax(0, 1fr) fit-content(50%);
-  column-gap: 32px;
+  column-gap: var(--s-6);
   align-items: start;
 }
 
@@ -1084,18 +1084,18 @@
 }
 
 .kompakt .content {
-  gap: 10px;
+  gap: var(--s-3);
   padding-top: 0;
   align-content: start;
 }
 
 .kompakt .question {
-  gap: 8px;
+  gap: var(--s-2);
   padding: 0;
 }
 
 .kompakt .kadr {
-  padding: 8px;
+  padding: var(--s-2);
 }
 
 /* Wycinek arkusza: karta tak szeroka jak obrazek, nie na całą kolumnę. */
@@ -1147,7 +1147,7 @@
 .kompakt .choice {
   align-items: center;
   min-width: 96px;
-  padding: 8px 20px 8px 8px;
+  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-2);
   font-size: var(--t-md);
 }
 
@@ -1161,11 +1161,11 @@
 .szpalty {
   display: block;
   columns: 2;
-  column-gap: 32px;
+  column-gap: var(--s-6);
 }
 
 .szpalty > * {
-  margin-bottom: 10px;
+  margin-bottom: var(--s-3);
   break-inside: avoid;
 }
 
@@ -1176,7 +1176,7 @@
 
   .obok {
     grid-template-columns: minmax(0, 1fr);
-    row-gap: 10px;
+    row-gap: var(--s-3);
   }
 }
 
@@ -1189,9 +1189,9 @@
 /* Czas przy zadaniach w podsumowaniu: wiersze oddzielone liniami. */
 .tempo {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
   width: 100%;
-  margin-top: 16px;
+  margin-top: var(--s-4);
 }
 
 .tempo ul {
@@ -1205,8 +1205,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 16px;
-  padding: 10px 0;
+  gap: var(--s-1) var(--s-4);
+  padding: var(--s-2) 0;
   border-top: 1px solid var(--line);
 }
 
@@ -1229,14 +1229,14 @@
 
 
 .przejscie {
-  padding-inline: 6px;
+  padding-inline: var(--s-1);
 }
 
 /* Zdania do uzupełnienia w dwóch kolumnach. */
 .zdania {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px 32px;
+  gap: var(--s-2) var(--s-6);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1246,12 +1246,12 @@
 .page :global(.katex-display) {
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 4px 0;
+  padding: var(--s-1) 0;
 }
 
 /* Wzór wystawiony przy lewej krawędzi, jak tekst obok, zamiast na środku szerokiego ekranu. */
 .kompakt :global(.katex-display) {
-  margin: 4px 0;
+  margin: var(--s-1) 0;
   text-align: left;
 }
 
@@ -1280,7 +1280,7 @@
 .kodWybor > * {
   display: flex;
   align-items: center;
-  padding: 8px 14px;
+  padding: var(--s-2) var(--s-3);
 }
 
 .kodTekst {
@@ -1306,8 +1306,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 24px;
-  padding: 8px 0;
+  gap: var(--s-5);
+  padding: var(--s-2) 0;
 }
 
 .pfWiersz + .pfWiersz {
@@ -1317,7 +1317,7 @@
 /* Wybór kilku opcji (A–F): zdanie z lukami wypełnia się literami, wybrane opcje mają obwódkę. */
 .wieleWybor {
   display: grid;
-  gap: 10px;
+  gap: var(--s-3);
 }
 
 .wieleWybor .choices {
@@ -1333,7 +1333,7 @@
   display: inline-block;
   min-width: 2.2em;
   margin: 0 2px;
-  padding: 0 6px;
+  padding: 0 var(--s-1);
   border-bottom: 1.5px solid var(--primary);
   font-weight: 600;
   text-align: center;
@@ -1343,21 +1343,21 @@
 .przewijana {
   max-height: 26vh;
   overflow-y: auto;
-  padding-right: 8px;
+  padding-right: var(--s-2);
 }
 
 /* Opcje do wyboru literą w lukach zdań: w jednym rzędzie pod ostatnim zdaniem. */
 .opcjeLiter {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 24px;
-  margin-top: 10px;
+  gap: var(--s-2) var(--s-5);
+  margin-top: var(--s-3);
 }
 
 .opcjeLiter > span {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 /* Opcje liter w prawej kolumnie pełnego ekranu: jedna pod drugą. */
@@ -1370,11 +1370,11 @@
 .wyborLuki {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--s-1);
   max-width: 100%;
-  margin: 4px 4px 4px 0;
+  margin: var(--s-1) var(--s-1) var(--s-1) 0;
   vertical-align: middle;
-  padding: 4px;
+  padding: var(--s-1);
   border-radius: calc(var(--r-md) + 4px);
   background: color-mix(in srgb, var(--surface) 55%, transparent);
   box-shadow: inset 0 0 0 1px var(--line);
@@ -1404,8 +1404,8 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding-top: 24px;
+  gap: var(--s-3);
+  padding-top: var(--s-5);
   border-top: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
 }
 
@@ -1415,7 +1415,7 @@
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
-  gap: 4px;
+  gap: var(--s-1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1424,7 +1424,7 @@
 .numery button {
   min-width: 36px;
   height: 36px;
-  padding: 0 8px;
+  padding: 0 var(--s-2);
   border: 0;
   border-radius: var(--r-pill);
   background: transparent;
@@ -1478,7 +1478,7 @@
 .codeAnswer {
   display: block;
   width: 100%;
-  padding: 10px 14px;
+  padding: var(--s-2) var(--s-3);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   background: var(--surface);
@@ -1493,7 +1493,7 @@
   tab-size: 4;
   white-space: pre-wrap;
   min-height: 11em;
-  padding: 12px 14px;
+  padding: var(--s-3) var(--s-3);
   background: var(--bg-soft, var(--surface));
 }
 
@@ -1525,7 +1525,7 @@
 /* Informatyka: pseudokod i przykłady danych z arkusza, z wcięciami jak w oryginale. */
 .codeBlock {
   margin: 0;
-  padding: 12px 16px;
+  padding: var(--s-3) var(--s-4);
   overflow-x: auto;
   border-left: 3px solid var(--line);
   font: 14px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
@@ -1606,8 +1606,8 @@
 .spisPrzycisk {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 0;
+  gap: var(--s-3);
+  padding: var(--s-3) 0;
   border: 0;
   background: transparent;
   font: inherit;
@@ -1639,17 +1639,17 @@
 
 .spisWiersz {
   display: grid;
-  gap: 6px;
-  padding: 8px 0;
+  gap: var(--s-2);
+  padding: var(--s-2) 0;
   border-top: 1px solid var(--line);
 }
 
 .spisZadanie {
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  padding: 4px 8px;
-  margin: 0 -8px;
+  gap: var(--s-3);
+  padding: var(--s-1) var(--s-2);
+  margin: 0 calc(-1 * var(--s-2));
   border: 0;
   border-radius: var(--r-xs);
   background: transparent;
@@ -1693,7 +1693,7 @@
 .spisPodzadania {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--s-1);
   margin: 0;
   padding: 0 0 0 calc(2.2ch + 10px);
   list-style: none;
@@ -1702,7 +1702,7 @@
 .spisPodzadania button {
   min-width: 44px;
   height: 32px;
-  padding: 0 10px;
+  padding: 0 var(--s-2);
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   background: transparent;
@@ -1732,9 +1732,9 @@
 /* Wyjaśnienie trybu na czas przed startem zegara. */
 .naCzas {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
   max-width: 68ch;
-  padding: 12px 0;
+  padding: var(--s-3) 0;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
 }
@@ -1746,8 +1746,8 @@
 
 /* Informatyka: zgodność z egzaminem. Linie zamiast kart. */
 .wskazowka {
-  margin: 4px 0 8px;
-  padding-left: 12px;
+  margin: var(--s-1) 0 var(--s-2);
+  padding-left: var(--s-3);
   border-left: 2px solid var(--primary);
   color: var(--muted);
   max-width: 68ch;
@@ -1760,8 +1760,8 @@
 .znacznik {
   display: grid;
   gap: 2px;
-  margin-top: 6px;
-  padding-top: 6px;
+  margin-top: var(--s-2);
+  padding-top: var(--s-1);
   border-top: 1px solid var(--line);
   max-width: 68ch;
 }
@@ -1772,8 +1772,8 @@
 
 .znacznikStan {
   display: inline-block;
-  margin-right: 8px;
-  padding: 0 8px;
+  margin-right: var(--s-2);
+  padding: 0 var(--s-2);
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   font-variant-numeric: tabular-nums;
@@ -1793,7 +1793,7 @@
 .braki {
   flex: 1 0 100%;
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .braki p {
@@ -1803,7 +1803,7 @@
 .brakiLista {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--s-1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1812,7 +1812,7 @@
 .brakiLista button {
   min-width: 44px;
   height: 32px;
-  padding: 0 10px;
+  padding: 0 var(--s-2);
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   background: transparent;

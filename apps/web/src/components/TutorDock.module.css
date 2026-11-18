@@ -37,8 +37,8 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 16px 16px 20px;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-4) var(--s-4) var(--s-4);
   border-bottom: 1px solid var(--line);
 }
 

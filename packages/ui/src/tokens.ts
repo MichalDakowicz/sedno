@@ -89,6 +89,7 @@ export const radius = {
   pill: 999,
 } as const;
 
+// Ta sama drabinka co --s-1…--s-8 w tokens.css (9 tylko dla mobile).
 export const space = {
   1: 4,
   2: 8,

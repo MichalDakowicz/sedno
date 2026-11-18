@@ -58,6 +58,17 @@
   --t-md: calc(17px * var(--skala-tekstu, 1));
   --t-lg: calc(20px * var(--skala-tekstu, 1));
 
+  /* Odstępy: tylko te (gap, margin, padding). Wewnątrz jednej kontrolki mniejszy stopień, między elementami większy.
+     Wyjątki: 1–3 px na obwódki i korekty optyczne, paddingi ustalające wysokość przycisków, pól i pigułek. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+
   --shadow-float: 0 8px 32px rgba(15, 21, 29, 0.08);
   --shadow-raised: 0 12px 40px rgba(15, 21, 29, 0.16);
   /* Zasłona pod panelem bocznym i ciemna nakładka przewodnika (reflektor). */

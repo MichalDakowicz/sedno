@@ -1,25 +1,25 @@
 .strona {
   display: grid;
-  gap: 32px;
-  padding-top: 32px;
+  gap: var(--s-6);
+  padding-top: var(--s-6);
   padding-bottom: 120px;
 }
 
 .sekcja {
   display: grid;
-  gap: 16px;
+  gap: var(--s-4);
   min-width: 0;
 }
 
 .sekcja {
-  padding-top: 24px;
+  padding-top: var(--s-4);
   border-top: 1px solid var(--line);
 }
 
 .przedmiot {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .przedmiot svg,
@@ -32,13 +32,13 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: end;
-  gap: 16px 24px;
+  gap: var(--s-4) var(--s-5);
 }
 
 .pole {
   display: grid;
   justify-items: stretch;
-  gap: 6px;
+  gap: var(--s-2);
   min-width: 0;
 }
 
@@ -50,7 +50,7 @@
 .para {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  gap: 24px;
+  gap: var(--s-5);
   /* Blok obok karty jest krótszy od niej: stoi na jej środku, a nie przy górnej krawędzi. */
   align-items: center;
 }
@@ -59,7 +59,7 @@
   composes: karta from global;
   display: grid;
   justify-items: start;
-  gap: 12px;
+  gap: var(--s-3);
   min-width: 0;
 }
 
@@ -70,11 +70,11 @@
 
 .formularz {
   display: grid;
-  gap: 12px;
+  gap: var(--s-3);
   align-items: start;
   justify-items: start;
   min-width: 0;
-  padding: 5px 0;
+  padding: var(--s-1) 0;
 }
 
 .formularz label,
@@ -85,14 +85,14 @@
 .opanowanieWybranej {
   display: grid;
   justify-items: start;
-  gap: 4px;
+  gap: var(--s-1);
 }
 
 .akcje {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px 16px;
+  gap: var(--s-3) var(--s-4);
 }
 
 .przycisk {
@@ -118,8 +118,8 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px 14px;
-  padding: 14px 0;
+  gap: var(--s-2) var(--s-4);
+  padding: var(--s-3) 0;
   border-bottom: 1px solid var(--line);
   color: inherit;
 }
@@ -131,7 +131,7 @@
 .wierszRundy {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--s-4);
   border-bottom: 1px solid var(--line);
 }
 
@@ -144,8 +144,8 @@
 .usun {
   min-width: 44px;
   min-height: 44px;
-  margin-inline-start: 8px;
-  padding: 0 8px;
+  margin-inline-start: var(--s-2);
+  padding: 0 var(--s-2);
   text-decoration: underline;
   border: 0;
   background: none;
@@ -190,7 +190,7 @@ a.wiersz:hover .wierszBoczny {
 .stan {
   display: grid;
   justify-items: start;
-  gap: 10px;
+  gap: var(--s-3);
 }
 
 .blad {
@@ -205,7 +205,7 @@ a.wiersz:hover .wierszBoczny {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 2px 8px;
+  gap: 2px var(--s-2);
   max-width: 100%;
 }
 
@@ -234,20 +234,20 @@ a.wiersz:hover .wierszBoczny {
   }
 
   .formularz {
-    padding-top: 20px;
+    padding-top: var(--s-4);
     border-top: 1px solid var(--line);
   }
 }
 
 @media (max-width: 480px) {
   .strona {
-    gap: 24px;
-    padding-top: 24px;
+    gap: var(--s-5);
+    padding-top: var(--s-5);
   }
 
   .pola {
     grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
+    gap: var(--s-4);
   }
 
   .wierszWznow {
@@ -290,4 +290,12 @@ a.wiersz:hover .wierszBoczny {
 .kroki .ikona[data-zrobiony] {
   background: color-mix(in srgb, var(--success) 16%, transparent);
   color: var(--success-strong);
+}
+
+/* Polecenie dla wybranej umiejętności: pod kartą dnia, więc bez karty (jedna karta na ekran). */
+.polecenieBlok {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-3);
+  min-width: 0;
 }

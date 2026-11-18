@@ -1,14 +1,14 @@
 .box {
   display: grid;
-  gap: 16px;
+  gap: var(--s-4);
   justify-items: start;
 }
 
 .steps {
   margin: 0;
-  padding-left: 22px;
+  padding-left: var(--s-5);
   display: grid;
-  gap: 10px;
+  gap: var(--s-3);
   line-height: 1.5;
 }
 

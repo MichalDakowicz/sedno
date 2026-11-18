@@ -2,9 +2,9 @@
 .naglowek {
   display: grid;
   justify-items: start;
-  gap: 12px;
+  gap: var(--s-3);
   min-width: 0;
-  padding-bottom: 24px;
+  padding-bottom: var(--s-5);
   border-bottom: 1px solid var(--line);
 }
 
@@ -17,7 +17,7 @@
 .etykieta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--s-2);
   min-height: 24px;
 }
 

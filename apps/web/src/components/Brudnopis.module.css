@@ -2,7 +2,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
 }
 
 /* Bez karty: płótno ma własną ramkę, a paski narzędzi stoją po jego bokach.
@@ -25,15 +25,15 @@
   z-index: 70;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  gap: 12px;
-  padding: 16px;
+  gap: var(--s-3);
+  padding: var(--s-4);
   background: var(--bg);
 }
 
 .task {
   max-height: 45vh;
   overflow-y: auto;
-  padding: 4px 8px 12px;
+  padding: var(--s-1) var(--s-2) var(--s-3);
   border-bottom: 1px solid var(--line);
 }
 
@@ -64,7 +64,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 6px;
+  padding: var(--s-1);
   overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
@@ -122,7 +122,7 @@
 .sep {
   flex-shrink: 0;
   height: 1px;
-  margin: 4px 4px;
+  margin: var(--s-1) var(--s-1);
   background: var(--line);
 }
 
@@ -155,9 +155,9 @@
   right: 10px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--s-2);
   max-width: calc(100% - 20px);
-  padding: 6px 12px;
+  padding: var(--s-1) var(--s-3);
   border-radius: var(--r-sm);
   background: var(--surface);
   color: var(--text);
@@ -178,7 +178,7 @@
   width: min(360px, calc(100% - 2 * (var(--pasek) + var(--odstep) + 8px)));
   max-height: calc(100% - 16px);
   overflow: auto;
-  padding: 14px;
+  padding: var(--s-3);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   background: var(--surface);
@@ -189,15 +189,15 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .pestkaForm,
 .pestkaWynik {
   display: grid;
   justify-items: start;
-  gap: 8px;
-  padding-block: 12px;
+  gap: var(--s-2);
+  padding-block: var(--s-3);
 }
 
 .pestkaForm label {
@@ -206,7 +206,7 @@
 
 .pestkaForm input {
   width: 100%;
-  margin-top: 4px;
+  margin-top: var(--s-1);
 }
 
 .pestkaForm p,
@@ -218,8 +218,8 @@
 .pestkaTryb {
   display: grid;
   justify-items: start;
-  gap: 6px;
-  padding-block: 10px;
+  gap: var(--s-2);
+  padding-block: var(--s-2);
   border-top: 1px solid var(--line);
 }
 
@@ -230,7 +230,7 @@
 
 .pestkaBryla {
   width: 100%;
-  padding: 6px 12px 10px;
+  padding: var(--s-1) var(--s-3) var(--s-2);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
 }
@@ -246,7 +246,7 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .pestkaBryla input {
@@ -322,7 +322,7 @@
   }
 
   .workspace {
-    gap: 10px;
+    gap: var(--s-3);
     margin-inline: 0;
   }
 }
@@ -330,7 +330,7 @@
 /* Telefon: narzędzia nad płótnem, styl i widok pod nim, zawijane w kilka rzędów. */
 @media (max-width: 640px) {
   .fullscreen {
-    padding: 12px;
+    padding: var(--s-3);
   }
 
   .task {
@@ -372,7 +372,7 @@
 .workspace.wPanelu {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 8px;
+  gap: var(--s-2);
   height: 100%;
   min-height: 320px;
   margin-inline: 0;

@@ -1,21 +1,21 @@
 .strona {
   display: grid;
-  gap: 40px;
-  padding-top: 32px;
+  gap: var(--s-7);
+  padding-top: var(--s-6);
   padding-bottom: 120px;
 }
 
 /* Sekcje rozdziela linia, nie karta. */
 .sekcja {
   display: grid;
-  gap: 20px;
-  padding-top: 28px;
+  gap: var(--s-4);
+  padding-top: var(--s-4);
   border-top: 1px solid var(--line);
 }
 
 .pierwszy {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
   justify-items: start;
 }
 
