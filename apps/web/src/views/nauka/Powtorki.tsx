@@ -6,7 +6,7 @@ import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/a
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { Angielski, BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
-import s from "./NaukaPowtorki.module.css";
+import s from "./Powtorki.module.css";
 
 type Powtorka = Awaited<ReturnType<typeof naukaApi.powtorki>>["queue"][number];
 const odOstatniego = new Intl.RelativeTimeFormat("pl-PL");
@@ -15,6 +15,13 @@ function kluczPowtorki(p: Powtorka) {
   const m = p.mistake;
   if (!m) return p.skill_id;
   return `${p.skill_id}:${m.source_id ?? m.sheet_id ?? m.session_id ?? ""}:${m.question ?? ""}`;
+}
+
+// Kolejka z serwera ma błędy jednej umiejętności obok siebie, od najnowszego. Grupa zachowuje tę kolejność.
+function grupujBledy(kolejka: Powtorka[]) {
+  const grupy = new Map<string, Powtorka[]>();
+  for (const p of kolejka) grupy.set(p.skill_id, [...(grupy.get(p.skill_id) ?? []), p]);
+  return [...grupy.values()];
 }
 
 function adresCwiczenia(poziom: Poziom, p: Powtorka) {
@@ -40,7 +47,7 @@ export function Powtorki() {
     return true;
   });
   const zanikajace = pozostale.filter((p) => !p.mistake);
-  const bledy = pozostale.filter((p) => p.mistake);
+  const bledy = grupujBledy(pozostale.filter((p) => p.mistake));
 
   return (
     <main className={`container ${s.strona}`}>
@@ -90,7 +97,7 @@ export function Powtorki() {
         <section className={s.sekcja} aria-labelledby="bledy-powtorki">
           <h2 className="h2" id="bledy-powtorki">Błędy do przećwiczenia</h2>
           <ul className={s.wiersze}>
-            {bledy.map((p) => <WierszPowtorki key={kluczPowtorki(p)} poziom={poziom} powtorka={p} />)}
+            {bledy.map((grupa) => <GrupaBledow key={grupa[0].skill_id} poziom={poziom} zadania={grupa} />)}
           </ul>
         </section>
       )}
@@ -107,9 +114,35 @@ export function Powtorki() {
   );
 }
 
+function GrupaBledow({ poziom, zadania }: { poziom: Poziom; zadania: Powtorka[] }) {
+  const [pierwsze] = zadania;
+  return (
+    <li className={s.grupa}>
+      <div className={s.grupaGlowa}>
+        <h3 className="h3">{pierwsze.name}</h3>
+        <OstatnieCwiczenie powtorka={pierwsze} />
+        <Link className={`link small ${s.mapa}`} to={adresMapy(poziom, pierwsze.skill_id)}>Zobacz na mapie</Link>
+      </div>
+      <ul className={s.zadania}>
+        {zadania.map((p) => (
+          <li key={kluczPowtorki(p)} className={s.zadanie}>
+            <div className={`small ${s.zadanieOpis}`}>
+              {p.mistake?.sheet_id || p.mistake?.session_id ? <ZrodloPowtorki powtorka={p} /> : "Zadanie do powtórzenia"}
+            </div>
+            <Link to={adresCwiczenia(poziom, p)} className={`btn btn-ghost ${s.przycisk}`}>
+              <RotateCcw size={16} aria-hidden="true" />
+              {etykietaCwiczenia(p)}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </li>
+  );
+}
+
 function WierszPowtorki({ poziom, powtorka }: { poziom: Poziom; powtorka: Powtorka }) {
   return (
-    <li className={`${s.wiersz} ${s.wierszBezIkony}`}>
+    <li className={`${s.wiersz}`}>
       <div className={s.wierszGlowny}>
         <h3 className="h3">{powtorka.name}</h3>
         <OstatnieCwiczenie powtorka={powtorka} />
