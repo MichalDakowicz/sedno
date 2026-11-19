@@ -1,4 +1,4 @@
-import { lazy, StrictMode, Suspense } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "@fontsource-variable/inter";
@@ -32,9 +32,6 @@ import { Sokratejski } from "./views/nauka/Sokratejski";
 import { KrokPoKroku } from "./views/nauka/KrokPoKroku";
 import { Umiejetnosci } from "./views/nauka/Umiejetnosci";
 import { NieMaStrony } from "./views/NieMaStrony";
-
-// Galeria wykresów, emocji i stadiów tylko w trybie deweloperskim; build jej nie zawiera.
-const Galeria = import.meta.env.DEV ? lazy(() => import("./views/Galeria").then((m) => ({ default: m.Galeria }))) : null;
 
 // Ustawienia stosują się od startu, nie dopiero na ich stronie.
 uruchomUstawienia();
@@ -73,7 +70,6 @@ createRoot(document.getElementById("root")!).render(
           <Route path="do-matury" element={<DoMatury />} />
           <Route path="uklad-pulpitu" element={<UkladPulpitu />} />
           <Route path="*" element={<NieMaStrony />} />
-          {Galeria && <Route path="dev/galeria" element={<Suspense fallback={null}><Galeria /></Suspense>} />}
         </Route>
       </Routes>
       <ScrollBar />
