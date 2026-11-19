@@ -127,6 +127,7 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 | Odpowiedzi A–F | kafle (`views/nauka/TrescRundy.tsx`, arkusz) | litera i tekst w jednym kaflu; po sprawdzeniu zielony i czerwony |
 | Rozwijana sekcja | ikona `ChevronRight` z obrotem | bez systemowych trójkątów |
 | Ładowanie | `components/Ladowanie` | szkielet w kształcie treści, bez skoku układu. Dane już raz pobrane pokazujemy od razu (pamięć w `nauka/pamiec.ts`). |
+| Błąd Pestki | `components/BladPestki.tsx` | komunikat z `nauka/ai.ts`, „Spróbuj ponownie”, gdy ma sens, link do profilu przy braku modelu; `BrakPestki` dla konta bez AI zamiast pustej strony |
 | Ikony | `lucide-react` | 16–18 px w tekście, jedna grubość kreski |
 
 ## Tekst w interfejsie
