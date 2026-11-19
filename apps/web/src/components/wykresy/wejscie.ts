@@ -1,11 +1,12 @@
 // Wykres dochodzi do wartości, gdy pierwszy raz wjedzie w ekran (a nie przy montowaniu poza ekranem).
-// Jeden IntersectionObserver na wykres, odpinany po pierwszym wejściu; bez ruchu wartość stoi od razu.
+// Jeden IntersectionObserver na wykres, odpinany po pierwszym wejściu; bez ruchu i na stronie już obejrzanej
+// wartość stoi od razu.
 import { useEffect, useRef, useState } from "react";
-import { mniejRuchu } from "../../ruch";
+import { bezWejscia } from "../../ruch";
 
 export function useWejscie<T extends Element>() {
   const ref = useRef<T>(null);
-  const [weszlo, ustaw] = useState(() => typeof window !== "undefined" && mniejRuchu());
+  const [weszlo, ustaw] = useState(() => typeof window !== "undefined" && bezWejscia());
   useEffect(() => {
     const el = ref.current;
     if (weszlo || !el) return;

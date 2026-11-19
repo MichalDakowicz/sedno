@@ -644,15 +644,19 @@ a.wiersz:hover .wiersz-akcja {
   scroll-behavior: auto !important;
 }
 
-/* Treść, która dochodzi po wczytaniu danych, wchodzi łagodnie zamiast wskakiwać. */
+/* Treść, która dochodzi po wczytaniu danych, pojawia się samym kryciem (bez przesunięcia), tylko przy pierwszym
+   wejściu na stronę w sesji (ruch.tsx: data-strona-znana). */
 .wejscie {
   animation: wejscie var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+:root[data-strona-znana] .wejscie {
+  animation: none;
 }
 
 @keyframes wejscie {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
 }
 

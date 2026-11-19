@@ -12,6 +12,7 @@ import { pobierzPostepy } from "../arkusze/postep";
 import { pobierzRozmowy } from "../konto/rozmowy";
 import { opisPrzedmiotow } from "../konto/przedmioty";
 import { useRozgrzewanie } from "../nauka/rozgrzewanie";
+import { oznaczStrone, zapamietajStrone } from "../ruch";
 
 export function AppLayout() {
   const location = useLocation();
@@ -20,6 +21,9 @@ export function AppLayout() {
   const profil = useProfil();
   const ai = useAiReady(userId);
   useRozgrzewanie();
+  // Przed renderem treści: na stronie już obejrzanej wykresy i sekcje nie wjeżdżają drugi raz.
+  oznaczStrone(location.pathname);
+  useEffect(() => () => zapamietajStrone(location.pathname), [location.pathname]);
 
   useEffect(() => {
     if (!location.hash) window.scrollTo(0, 0);
