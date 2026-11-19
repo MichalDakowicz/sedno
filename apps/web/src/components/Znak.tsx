@@ -18,7 +18,7 @@ export function Znak() {
     <span className={s.znak}>
       <span className="visually-hidden">Sedno</span>
       <span aria-hidden="true">Sedn</span>
-      <svg className={s.literaO} viewBox="0 0 64 64" aria-hidden="true">
+      <svg className={s.literaO} viewBox="0 0 64 64" aria-hidden="true" data-pestka-dom>
         {/* Większa niż dziurka w „o”: wypełnia ją całą i wystaje bokami na zewnątrz, a pierścień na wierzchu ją ściska. */}
         <g className={s.wnetrze} transform="translate(32 33) scale(1.3 0.9) translate(-32 -32)">
           <path d="M32 4c13.5 0 24 8.6 26.6 21.4 2.4 11.9-2 24-12.6 30.2C38.8 59.8 25.2 59.8 18 55.6 7.4 49.4 3 37.3 5.4 25.4 8 12.6 18.5 4 32 4Z" />

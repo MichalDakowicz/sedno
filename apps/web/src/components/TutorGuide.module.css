@@ -289,3 +289,25 @@
   color: var(--primary-text);
   font-weight: 500;
 }
+
+/* W domu, czyli w „o” logo: twarz przewodnika znika w literze (widać Pestkę z logo), zostaje małe klikalne miejsce
+   i kropka czekającej wskazówki. Wylot i powrót idą płynnie razem z lotem. */
+.avatar > :first-child {
+  transition: opacity var(--ruch-szybki) var(--ruch-krzywa), transform var(--ruch-wolny) var(--ruch-sprezyna);
+}
+
+.wDomu .avatar {
+  filter: none;
+  animation: none;
+}
+
+.wDomu .avatar > :first-child {
+  /* !important: animacje oddychania i mrugania awatara nadpisałyby zwykłą deklarację. */
+  opacity: 0 !important;
+  transform: scale(0.3) !important;
+}
+
+.wDomu .avatar {
+  transform: scale(0.55);
+  transform-origin: 50% 50%;
+}

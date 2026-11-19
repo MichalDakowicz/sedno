@@ -79,7 +79,16 @@ function zajete(x: number, y: number): boolean {
 
 const rogY = () => window.innerHeight - AV - edge();
 
+// Dom Pestki: litera „o” w logu na pasku. Stamtąd wylatuje do wskazówek i tam wraca; na spoczynku chowa się w niej.
+function dom(): DOMRect | null {
+  const el = document.querySelector<SVGElement>("[data-pestka-dom]");
+  const r = el?.getBoundingClientRect();
+  return r && r.width > 0 && r.bottom > 0 ? r : null;
+}
+
 function restPoint(): Point {
+  const o = dom();
+  if (o) return { x: o.left + o.width / 2 - AV / 2, y: o.top + o.height / 2 - AV / 2 };
   const x = spoczynekLewy ? edge() : viewW() - AV - edge();
   let y = rogY();
   for (let i = 0; i < 4 && zajete(x, y); i++) y -= AV + 8;
@@ -350,7 +359,15 @@ export function TutorGuide() {
     };
     window.addEventListener("scroll", onChange, { passive: true });
     window.addEventListener("resize", onChange);
+    // Dom w „o” logo pojawia się i przesuwa z układem paska (pierwsze wczytanie, skala tekstu): wtedy też przeliczamy.
+    const start = window.setTimeout(onChange, 60);
+    const uklad = new ResizeObserver(onChange);
+    uklad.observe(document.body);
+    const logo = document.querySelector("[data-pestka-dom]");
+    if (logo) uklad.observe(logo);
     return () => {
+      window.clearTimeout(start);
+      uklad.disconnect();
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onChange);
       window.removeEventListener("resize", onChange);
@@ -521,6 +538,8 @@ export function TutorGuide() {
   // Pas pod Pestką na spoczynku w rogu telefonu: treść pod nią przygasa jak pod paskiem nawigacji, więc Pestka
   // nie siedzi na wierszu ani przycisku (strona ma pod spodem zapas, żeby koniec dało się wyprzewijać nad pas).
   const pasDoku = resting && waski() && Math.abs(pos.y - rogY()) < 1;
+  // Na spoczynku w „o” widać Pestkę z logo, a przewodnik jest schowany (zostaje tylko klikalne miejsce i kropka wskazówki).
+  const wDomu = resting && !moving && !!dom();
   const bubbleStyle: CSSProperties =
     layout.placement === "below" || layout.placement === "above" ? { left: layout.shift, width: layout.w } : { width: layout.w };
 
@@ -547,7 +566,7 @@ export function TutorGuide() {
       )}
       <div
         ref={guideRef}
-        className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""}`}
+        className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""} ${wDomu ? styles.wDomu : ""}`}
         style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
       >
         <button

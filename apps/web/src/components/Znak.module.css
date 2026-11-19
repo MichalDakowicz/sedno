@@ -2,7 +2,7 @@
   display: inline-flex;
   align-items: baseline;
   gap: 0;
-  font-size: var(--t-lg);
+  font-size: calc(26px * var(--skala-tekstu, 1));
   font-weight: 700;
   letter-spacing: -0.04em;
   white-space: nowrap;
