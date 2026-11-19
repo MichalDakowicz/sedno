@@ -36,7 +36,7 @@ const DEFINICJE_AKCJI = [
   { id: "akcja:uklad-pulpitu", tytul: "Układ pulpitu", opis: "Widgety na pulpicie", klucze: "uklad pulpit widgety kolejnosc egzamin", sciezka: "/uklad-pulpitu" },
   { id: "akcja:do-matury", tytul: "Do matury", opis: "Odliczanie do egzaminów", klucze: "matura odliczanie dni egzamin termin", sciezka: "/do-matury" },
   { id: "akcja:mapa", tytul: "Mapa umiejętności", opis: "Opanowanie umiejętności", klucze: "mapa umiejetnosci opanowanie postep", sciezka: "/umiejetnosci" },
-  { id: "akcja:powtorki", tytul: "Powtórki", opis: "Błędy i zanikające umiejętności", klucze: "powtorki bledy powtorka", sciezka: "/powtorki" },
+  { id: "akcja:powtorki", tytul: "Powtórki", opis: "Błędy i zanikające umiejętności", klucze: "powtorki bledy powtorka", sciezka: "/nauka#powtorki" },
 ];
 // Sposoby nauki z Nauki: te same nazwy co na liście „Sposoby nauki”.
 const SPOSOBY: Wynik[] = [

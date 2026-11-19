@@ -1,21 +1,17 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { RotateCcw } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
-import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
-import { adresNauki, adresStartu } from "../../nauka/adresy";
+import { adresStartu } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
-import { BladNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
+import { BladNauki, formatRundy, procentNauki } from "./NaukaPowtorki";
 import { powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
 import { zacznijKolejke } from "../../nauka/kolejka";
 import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
-import { useProfil } from "../../auth";
-import { klasaPrzedmiotu, PasekPrzedmiotow } from "../../components/PasekPrzedmiotow";
-import { SubjectIcon } from "../../components/icons";
-import { przedmiot, type PrzedmiotId } from "../../konto/przedmioty";
+import { type PrzedmiotId } from "../../konto/przedmioty";
 import { maMapeZArkuszy, szablonMapy, useMapaZArkuszy } from "../../nauka/mapaPrzedmiotow";
 import { adresBledu, nazwaBledu } from "./MapaPrzedmiotu";
 import s from "./Powtorki.module.css";
@@ -35,7 +31,7 @@ function adresCwiczenia(poziom: Poziom, p: Powtorka) {
 }
 
 function PowtorkiAngielski() {
-  const [poziom, ustawPoziom] = usePoziomNauki();
+  const [poziom] = usePoziomNauki();
   const navigate = useNavigate();
   const powtorki = useZapytanie(zapytania.powtorki(poziom));
   const wszystkie = unikalnePowtorki([...(powtorki.dane?.today ? [powtorki.dane.today] : []), ...(powtorki.dane?.queue ?? [])]);
@@ -52,41 +48,25 @@ function PowtorkiAngielski() {
     if (pierwszy) navigate(pierwszy);
   }
 
+  if (powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") return <Ladowanie ile={3} etykieta="Wczytuję powtórki" />;
+  if (powtorki.stan === "blad") return <BladNauki komunikat="Nie udało się wczytać powtórek." ponow={powtorki.ponow} />;
+  if (!wszystkie.length) return <StanPestki rozmiar="maly" emocja="radosc" tekst={wybierz(glos.puste.powtorki, 0)} />;
   return (
     <>
-      <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />
-
-      {(powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") && <Ladowanie ile={8} wysokosc={[900, 880]} etykieta="Wczytuję powtórki" />}
-      {powtorki.stan === "blad" && <BladNauki komunikat="Nie udało się wczytać powtórek." ponow={powtorki.ponow} />}
-      {powtorki.stan === "gotowe" && !wszystkie.length && (
-        <section className={s.glowa} aria-labelledby="powtorki-puste">
-          <h2 className="h1" id="powtorki-puste">Nic nie ucieka</h2>
-          <StanPestki emocja="radosc" tekst={wybierz(glos.puste.powtorki, 0)} akcja={{ etykieta: "Zacznij nową rundę", do: adresNauki(poziom) }} />
-        </section>
-      )}
-
-      {powtorki.stan === "gotowe" && wszystkie.length > 0 && (
-        <section className={s.glowa} aria-labelledby="powtorki-dzis">
-          <h2 className="h1" id="powtorki-dzis">
-            {naDzis ? `${naDzis} do powtórki dziś` : "Dziś nic nie ucieka"}
-          </h2>
-          {(jutro > 0 || wTygodniu > 0) && (
-            <p className="muted">{[jutro > 0 && `Jutro: ${jutro}`, wTygodniu > 0 && `w tym tygodniu: ${wTygodniu}`].filter(Boolean).join(", ")}.</p>
-          )}
-          <button type="button" className={`btn btn-primary ${s.przycisk}`} onClick={powtorzWszystkie}>
-            <RotateCcw size={18} aria-hidden="true" />
-            {doZrobienia.length > 1 ? `Powtórz wszystkie · ${doZrobienia.length}` : "Powtórz"}
-          </button>
-        </section>
-      )}
-
-      {grupy.length > 0 && (
-        <section aria-label="Powtórki według umiejętności">
-          <ul className={`wiersze ${s.wiersze}`}>
-            {grupy.map((grupa) => <GrupaPowtorek key={grupa[0]!.skill_id} poziom={poziom} zadania={grupa} />)}
-          </ul>
-        </section>
-      )}
+      <div className={s.glowa}>
+        <p className={s.liczba}>
+          {naDzis ? <><strong>{naDzis}</strong> na dziś</> : "Dziś nic nie ucieka"}
+          {(jutro > 0 || wTygodniu > 0) && <span className="muted"> · {[jutro > 0 && `jutro ${jutro}`, wTygodniu > 0 && `w tym tygodniu ${wTygodniu}`].filter(Boolean).join(", ")}</span>}
+        </p>
+        {/* Przycisk poboczny: główny w Nauce to karta dnia nad tą sekcją. */}
+        <button type="button" className={`btn btn-secondary ${s.przycisk}`} onClick={powtorzWszystkie}>
+          <RotateCcw size={18} aria-hidden="true" />
+          {doZrobienia.length > 1 ? `Powtórz wszystkie · ${doZrobienia.length}` : "Powtórz"}
+        </button>
+      </div>
+      <ul className={`wiersze ${s.wiersze}`}>
+        {grupy.map((grupa) => <GrupaPowtorek key={grupa[0]!.skill_id} poziom={poziom} zadania={grupa} />)}
+      </ul>
     </>
   );
 }
@@ -137,55 +117,35 @@ function Pamiec({ retencja }: { retencja: number }) {
   );
 }
 
-/** Powtórki każdego przedmiotu: angielski z rund, pozostałe z zadań z błędem w sprawdzonych arkuszach. */
-export function Powtorki() {
-  const [params] = useSearchParams();
-  const profil = useProfil();
-  const moje = [...new Set((profil?.subjects ?? []).map((p) => p.id))] as PrzedmiotId[];
-  const zAdresu = przedmiot(params.get("przedmiot") ?? "")?.id;
-  const wybrany: PrzedmiotId = zAdresu ?? (moje.includes("angielski") || !moje.length ? "angielski" : moje[0]!);
-  const poziom = (profil?.subjects.find((p) => p.id === wybrany)?.poziom ?? null) as Poziom | null;
+/** Sekcja „Do powtórki” w Nauce: angielski z rund (błędy i zanikające umiejętności), pozostałe przedmioty
+ *  z zadań z błędem w sprawdzonych arkuszach. Kiedyś osobna zakładka; adres /powtorki prowadzi tutaj. */
+export function SekcjaPowtorek({ przedmiot: p, poziom }: { przedmiot: PrzedmiotId; poziom: Poziom | null }) {
+  if (p !== "angielski" && !maMapeZArkuszy(p)) return null;
   return (
-    <main className={`container ${s.strona}`}>
-      <NaglowekStrony etykieta={przedmiot(wybrany)?.nazwa ?? "Język angielski"} tytul="Powtórki" />
-      {moje.length > 1 && (
-        <PasekPrzedmiotow etykieta="Przedmiot" zalezy={wybrany}>
-          {moje.map((p) => (
-            <Link key={p} to={`/powtorki?przedmiot=${p}`} className={klasaPrzedmiotu(p === wybrany)} data-aktywny={p === wybrany} aria-current={p === wybrany ? "page" : undefined}>
-              <SubjectIcon subject={przedmiot(p)!} size="sm" /> {przedmiot(p)!.nazwa}
-            </Link>
-          ))}
-        </PasekPrzedmiotow>
-      )}
-      {wybrany === "angielski" ? <PowtorkiAngielski /> : maMapeZArkuszy(wybrany) && <PowtorkiZArkuszy przedmiot={wybrany} poziom={poziom} />}
-    </main>
+    <section className={s.sekcja} aria-labelledby="powtorki">
+      <h2 className="h2" id="powtorki" tabIndex={-1}>Do powtórki</h2>
+      {p === "angielski" ? <PowtorkiAngielski /> : <PowtorkiZArkuszy przedmiot={p} poziom={poziom} />}
+    </section>
   );
 }
 
+/** Stary adres zakładki: Nauka z wybranym przedmiotem, przewinięta do sekcji „Do powtórki”. */
+export function Powtorki() {
+  const [params] = useSearchParams();
+  return <Navigate replace to={`/nauka?${params.toString()}#powtorki`} />;
+}
 
 function PowtorkiZArkuszy({ przedmiot: p, poziom }: { przedmiot: PrzedmiotId; poziom: Poziom | null }) {
   const mapa = useMapaZArkuszy(p, poziom);
   const bledy = mapa.dane?.bledy ?? [];
   const dzialy = new Map(szablonMapy(p).map((u) => [u.skill_id, u.name]));
   const maArkusze = p !== "polski";
-  if (mapa.stan === "ladowanie" || mapa.stan === "pominiete") return <Ladowanie ile={5} etykieta="Wczytuję powtórki" />;
+  if (mapa.stan === "ladowanie" || mapa.stan === "pominiete") return <Ladowanie ile={3} etykieta="Wczytuję powtórki" />;
   if (!bledy.length)
-    return (
-      <section className={s.glowa} aria-labelledby="powtorki-puste">
-        <h2 className="h1" id="powtorki-puste">Nic do poprawy</h2>
-        <StanPestki emocja="radosc"
-          tekst={maArkusze ? "Zadania z błędem ze sprawdzonych arkuszy trafią tutaj." : "Arkuszy z polskiego jeszcze nie ma, więc nie ma czego powtarzać."}
-          akcja={maArkusze ? { etykieta: "Rozwiąż arkusz", do: `/arkusze?przedmiot=${p}` } : { etykieta: "Poćwicz z Pestką", do: "/tutor" }} />
-      </section>
-    );
+    return <StanPestki rozmiar="maly" emocja="radosc" tekst={maArkusze ? "Zadania z błędem ze sprawdzonych arkuszy trafią tutaj." : "Arkuszy z polskiego jeszcze nie ma, więc nie ma czego powtarzać."} />;
   return (
     <>
-      <section className={s.glowa} aria-labelledby="powtorki-dzis">
-        <h2 className="h1" id="powtorki-dzis">{bledy.length} {zadan(bledy.length)} do poprawy</h2>
-        <Link to={adresBledu(bledy[0]!)} className={`btn btn-primary ${s.przycisk}`}>
-          <RotateCcw size={18} aria-hidden="true" /> Popraw pierwsze
-        </Link>
-      </section>
+      <p className={s.liczba}><strong>{bledy.length}</strong> {zadan(bledy.length)} do poprawy</p>
       <section aria-label="Zadania do poprawy">
         <ul className={`wiersze ${s.wiersze}`}>
           {bledy.map((b) => (

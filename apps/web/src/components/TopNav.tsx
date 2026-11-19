@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Map as MapaIkona, Menu, MessageCircle, RotateCcw, Settings, UserRound, X } from "lucide-react";
+import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Map as MapaIkona, Menu, MessageCircle, Settings, UserRound, X } from "lucide-react";
 import { logout } from "../auth";
 import { Znak } from "./Znak";
 import { Plywak } from "./Plywak";
@@ -15,7 +15,6 @@ const links = [
   { to: "/nauka", label: "Nauka", icon: GraduationCap },
   { to: "/arkusze", label: "Arkusze", icon: FileText },
   { to: "/umiejetnosci", label: "Mapa umiejętności", icon: MapaIkona },
-  { to: "/powtorki", label: "Powtórki", icon: RotateCcw },
 ];
 
 const DODATKOWE = [

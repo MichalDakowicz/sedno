@@ -1,4 +1,4 @@
-// Wspólny pasek przedmiotów (pulpit, Nauka, mapa umiejętności, Powtórki): te same pigułki i ta sama animacja
+// Wspólny pasek przedmiotów (pulpit, Nauka, mapa umiejętności): te same pigułki i ta sama animacja
 // zaznaczenia, żeby przełączanie przedmiotu wyglądało wszędzie tak samo.
 import type { ReactNode } from "react";
 import { Plywak } from "./Plywak";
