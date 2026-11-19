@@ -1649,15 +1649,18 @@
   vertical-align: middle;
 }
 
+/* Komórka do wpisania odróżnia się od komórek z treścią: tło akcentu i wyraźna obwódka pola. */
 .fillCell {
-  padding: 2px !important;
+  padding: var(--s-1) !important;
+  background: color-mix(in srgb, var(--primary-soft) 45%, transparent);
 }
 
 .fillCell input {
   width: 100%;
   min-width: 70px;
+  min-height: 40px;
   padding: 6px 8px;
-  border: 1px solid var(--line);
+  border: 1px solid color-mix(in srgb, var(--muted) 45%, var(--line));
   border-radius: var(--r-xs);
   background: var(--surface);
   font: inherit;

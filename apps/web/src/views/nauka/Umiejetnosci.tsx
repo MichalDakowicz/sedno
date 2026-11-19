@@ -24,6 +24,7 @@ import { adresWizualizacji, modelDlaUmiejetnosci } from "../../nauka/wizualizacj
 import { Gotowosc } from "../../components/Gotowosc";
 import { OBSZARY_NAUKI } from "../../nauka/gotowosc";
 import { Ogrod } from "../../components/Ogrod";
+import { rozgrzej } from "../../nauka/rozgrzewanie";
 import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
 import { MINUTY_RUNDY, usePolecenieDnia } from "../../nauka/dzis";
 import s from "./Umiejetnosci.module.css";
@@ -192,15 +193,14 @@ export function Umiejetnosci() {
         <div className={s.uklad} data-panel={!!wybrana}>
           <div className={s.grupy}>
             {id && !wybrana && <p role="status">Tej umiejętności nie ma w mapie.</p>}
-            {!wybrana && (
-              <Gotowosc umiejetnosci={umiejetnosci} cel={celPrzedmiotu(uczenie, "angielski")} prognoza={plan.dane?.forecast.score}>
-                {umiejetnosci.every((u) => u.score === null) && (
-                  <Link to={adresNauki(poziom)} className={`btn btn-primary ${s.przycisk}`}>Zacznij pierwszą rundę</Link>
-                )}
-              </Gotowosc>
-            )}
+            <Gotowosc umiejetnosci={umiejetnosci} cel={celPrzedmiotu(uczenie, "angielski")} prognoza={plan.dane?.forecast.score}>
+              {umiejetnosci.every((u) => u.score === null) && (
+                <Link to={adresNauki(poziom)} className={`btn btn-primary ${s.przycisk}`}>Zacznij pierwszą rundę</Link>
+              )}
+            </Gotowosc>
             <div className={s.ogrod}>
               <Ogrod umiejetnosci={umiejetnosci} poziom={poziom} adres={(u) => adresMapy(poziom, u.skill_id)} wybrana={id}
+                onZapowiedz={(u) => rozgrzej(zapytania.dowody(poziom, u.skill_id))}
                 tuDzis={polecenie.dane?.skill_id ?? null} etykieta={`Ogród umiejętności, poziom ${poziom}`} />
             </div>
             <div className={s.lista}>

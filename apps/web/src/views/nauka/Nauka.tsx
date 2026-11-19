@@ -155,7 +155,7 @@ export function Nauka() {
             <>
               <h2 id="nauka-polecenie" className="h1" tabIndex={-1} ref={naglowekPolecenia}>{umiejetnosc.name}</h2>
               <p className="muted">
-                {powtorz ? "Powtórka zadania" : nazwaFormatuNauki[format]} · 5 zadań · ok. {minuty} min
+                {powtorz ? "Powtórka zadania" : `${nazwaFormatuNauki[format]} · 5 zadań`} · ok. {minuty} min
                 {dane?.reason && !wybrana ? <span className="visually-hidden">. {dane.reason}</span> : null}
               </p>
               <div className={s.akcje}>

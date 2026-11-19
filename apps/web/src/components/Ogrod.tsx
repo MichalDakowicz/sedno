@@ -32,12 +32,14 @@ export function opisRosliny(u: Umiejetnosc, tuDzis: boolean) {
   return `${u.name}: ${ocena}, ${NAZWA_STADIUM[stadium(u.score)]}${doPowtorki(u) ? ", do powtórki" : ""}${tuDzis ? ", polecam dziś" : ""}`;
 }
 
-export function Ogrod({ umiejetnosci, poziom, adres, onWybierz, wybrana, tuDzis, maly = false, etykieta }: {
+export function Ogrod({ umiejetnosci, poziom, adres, onWybierz, onZapowiedz, wybrana, tuDzis, maly = false, etykieta }: {
   umiejetnosci: Umiejetnosc[];
   poziom: Poziom;
   /** Link rośliny (np. panel na mapie); albo onWybierz, gdy roślina ma coś wybrać na miejscu. */
   adres?: (u: Umiejetnosc) => string;
   onWybierz?: (u: Umiejetnosc) => void;
+  /** Najechanie, fokus albo dotknięcie rośliny: np. rozgrzanie danych panelu, zanim uczeń kliknie. */
+  onZapowiedz?: (u: Umiejetnosc) => void;
   wybrana?: string | null;
   tuDzis?: string | null;
   maly?: boolean;
@@ -87,6 +89,9 @@ export function Ogrod({ umiejetnosci, poziom, adres, onWybierz, wybrana, tuDzis,
                 "aria-label": opisRosliny(u, dzis),
                 title: maly ? opisRosliny(u, dzis) : undefined,
                 "data-dzis": dzis || undefined,
+                onPointerEnter: onZapowiedz && (() => onZapowiedz(u)),
+                onFocus: onZapowiedz && (() => onZapowiedz(u)),
+                onTouchStart: onZapowiedz && (() => onZapowiedz(u)),
               };
               return (
                 <li key={u.skill_id}>
