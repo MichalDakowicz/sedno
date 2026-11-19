@@ -37,6 +37,7 @@ export const glos = {
   },
   /** Jedno zdanie po rundzie, w rozbiorze. */
   rozbior: {
+    koniecPowtorek: ["To, co uciekało, wróciło na miejsce. Zobacz, jak wygląda ogród.", "Powtórki za tobą. Rośliny w ogrodzie to pokażą."],
     bezbledna: ["Bezbłędna runda. Tak się buduje pewność.", "Wszystko dobrze. Ta umiejętność idzie w górę."],
     dobra: ["Dobra runda. Zostało kilka rzeczy do dopracowania.", "Większość dobrze. Zerknij na to, co nie wyszło."],
     slaba: ["Ta umiejętność potrzebuje jeszcze kilku rund. Zacznij od zadań z błędem.", "Trudna runda. Przejrzyj błędy, a następna pójdzie lepiej."],

@@ -846,6 +846,12 @@ function Podsumowanie({
             Pestka omówi z tobą błędy, gdy podłączysz AI w <Link to="/profil">profilu</Link>.
           </p>
         ))}
+      {/* Bez błędów do omówienia następny krok prowadzi dalej w pętli: angielski do ogrodu, reszta do pulpitu. */}
+      {(omow.ile === 0 || !omow.ai) && (
+        arkusz.przedmiot === "angielski" || !arkusz.przedmiot
+          ? <Link className="btn btn-primary" to={`/umiejetnosci?poziom=${arkusz.poziom}`}>Zobacz ogród umiejętności</Link>
+          : <Link className="btn btn-primary" to={`/przedmiot/${arkusz.przedmiot}`}>Co dalej na pulpicie</Link>
+      )}
       <button type="button" className="btn btn-ghost btn-sm" onClick={odNowa}>
         <RotateCcw size={16} aria-hidden="true" /> Rozwiąż od nowa
       </button>

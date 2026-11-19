@@ -116,7 +116,7 @@ export function DoMatury() {
                   ) : (
                     <span className="wiersz-wartosc">
                       <Link to="/cele" className="link" style={{ justifySelf: "start" }}>
-                        Ustaw cel w profilu
+                        Ustaw cel z Pestką
                       </Link>
                     </span>
                   )}

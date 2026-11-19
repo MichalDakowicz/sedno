@@ -19,7 +19,7 @@ import { Kielek } from "../../components/Kielek";
 import { NAZWA_STADIUM, stadium, wyzszeStadium } from "../../nauka/stadia";
 import { useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
-import { nastepnaWKolejce, zdejmijZKolejki } from "../../nauka/kolejka";
+import { koniecKolejki, nastepnaWKolejce, porzucKolejke, zdejmijZKolejki } from "../../nauka/kolejka";
 import { policzGotowosc } from "../../nauka/gotowosc";
 import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
 import s from "./SzybkaRunda.module.css";
@@ -176,6 +176,8 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaZWynikiem }) {
   const uczenie = useUczenie();
   // Kolejka „Powtórz wszystkie”: następna powtórka jest jedyną główną akcją, dopóki kolejka się nie skończy.
   const [kolejka] = useState(nastepnaWKolejce);
+  const [koniecPowtorek] = useState(koniecKolejki);
+  useEffect(() => { if (koniecPowtorek) porzucKolejke(); }, [koniecPowtorek]);
   useEffect(() => { naglowek.current?.focus(); }, []);
   const gotowosc = mapa ? policzGotowosc(mapa.skills) : null;
   const cel = celPrzedmiotu(uczenie, "angielski");
@@ -231,7 +233,16 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaZWynikiem }) {
         <div><Link to={adresMapy(level, skill)} className="link">Zobacz roślinę w ogrodzie</Link></div>
       </section>
       {/* W trakcie diagnozy następnym krokiem jest kolejny obszar, nie polecenie z mapy. */}
-      {kolejka ? (
+      {koniecPowtorek ? (
+        <section className={s.nastepnyKrok} aria-labelledby="dalej-po-rundzie">
+          <span className="kicker"><TutorAvatar size={22} state="duma" /> Dalej</span>
+          <h2 id="dalej-po-rundzie" className="h2">{koniecPowtorek > 1 ? `Powtórki zrobione: ${koniecPowtorek} z ${koniecPowtorek}` : "Powtórka zrobiona"}</h2>
+          <p>{wybierz(glos.rozbior.koniecPowtorek, koniecPowtorek)}</p>
+          <div className={s.akcje}>
+            <Link className="btn btn-primary" to={adresMapy(level)}>Zobacz ogród <ArrowRight size={17} aria-hidden="true" /></Link>
+          </div>
+        </section>
+      ) : kolejka ? (
         <section className={s.nastepnyKrok} aria-labelledby="dalej-po-rundzie">
           <span className="kicker"><TutorAvatar size={22} /> Dalej</span>
           <h2 id="dalej-po-rundzie" className="h2">Następna powtórka · {kolejka.numer} z {kolejka.razem}</h2>

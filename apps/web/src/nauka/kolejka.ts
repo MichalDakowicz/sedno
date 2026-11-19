@@ -2,7 +2,8 @@
 // a rozbiór każdej rundy proponuje następną jako jedyną główną akcję, dopóki kolejka się nie skończy.
 const KLUCZ = "sedno.kolejkaPowtorek";
 
-type Kolejka = { adresy: string[]; razem: number };
+/** koniec: ostatnia powtórka z kolejki już ruszyła; jej rozbiór zamyka kolejkę zamiast proponować coś nowego. */
+type Kolejka = { adresy: string[]; razem: number; koniec?: boolean };
 
 function czytaj(): Kolejka | null {
   try {
@@ -15,7 +16,7 @@ function czytaj(): Kolejka | null {
 
 function zapisz(k: Kolejka | null) {
   try {
-    if (k && k.adresy.length) sessionStorage.setItem(KLUCZ, JSON.stringify(k));
+    if (k) sessionStorage.setItem(KLUCZ, JSON.stringify(k.adresy.length ? k : { ...k, koniec: true }));
     else sessionStorage.removeItem(KLUCZ);
   } catch {
     // bez sessionStorage kolejka kończy się na pierwszej powtórce
@@ -44,3 +45,9 @@ export function zdejmijZKolejki() {
 }
 
 export const porzucKolejke = () => zapisz(null);
+
+/** W rozbiorze ostatniej powtórki: ile było w kolejce; null, gdy kolejka trwa albo jej nie było. Bez sprzątania (porzucKolejke). */
+export function koniecKolejki(): number | null {
+  const k = czytaj();
+  return k?.koniec ? k.razem : null;
+}
