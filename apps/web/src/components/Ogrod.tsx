@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { currentUserId } from "../auth";
 import type { Poziom } from "../arkusze/typy";
 import type { Umiejetnosc } from "../nauka/api";
-import { OBSZARY_NAUKI } from "../nauka/gotowosc";
+import { WSZYSTKIE_OBSZARY } from "../nauka/gotowosc";
 import { KOLEJNOSC_STADIOW, NAZWA_STADIUM, stadium, type Stadium } from "../nauka/stadia";
 import { Kielek } from "./Kielek";
 import { PasekProgu } from "./wykresy";
@@ -67,7 +67,7 @@ export function Ogrod({ umiejetnosci, poziom, adres, onWybierz, onZapowiedz, wyb
     }
   }, [umiejetnosci, poziom, maly]);
 
-  const grzadki = OBSZARY_NAUKI.map((o) => ({ ...o, lista: umiejetnosci.filter((u) => u.area === o.id) })).filter((g) => g.lista.length);
+  const grzadki = WSZYSTKIE_OBSZARY.map((o) => ({ ...o, lista: umiejetnosci.filter((u) => u.area === o.id) })).filter((g) => g.lista.length);
 
   return (
     <div className={s.ogrod} data-maly={maly || undefined} role="group" aria-label={etykieta}>

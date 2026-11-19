@@ -4,6 +4,7 @@
 // umiejętności nie może dać wysokiego wyniku, póki reszta jest niesprawdzona. Wynik jest wstępny, dopóki oceniona
 // jest mniej niż połowa wagi albo prób jest mniej niż 20.
 import type { Umiejetnosc } from "./api";
+import { OBSZARY_PRZEDMIOTOW } from "./mapaPrzedmiotow";
 
 export const OBSZARY_NAUKI = [
   { id: "słuchanie", nazwa: "Słuchanie" },
@@ -12,7 +13,10 @@ export const OBSZARY_NAUKI = [
   { id: "pisanie", nazwa: "Pisanie" },
 ] as const;
 
-export const nazwaObszaru = (id: string) => OBSZARY_NAUKI.find((o) => o.id === id)?.nazwa ?? id;
+/** Obszary angielskiego i działy pozostałych przedmiotów (szablony map z arkuszy), w kolejności wyświetlania. */
+export const WSZYSTKIE_OBSZARY: readonly { id: string; nazwa: string }[] = [...OBSZARY_NAUKI, ...Object.values(OBSZARY_PRZEDMIOTOW).flat()];
+
+export const nazwaObszaru = (id: string) => WSZYSTKIE_OBSZARY.find((o) => o.id === id)?.nazwa ?? id;
 
 export type Gotowosc = {
   /** 0–1 */
@@ -34,7 +38,7 @@ export function policzGotowosc(umiejetnosci: Umiejetnosc[]): Gotowosc | null {
   const wagaOcenionych = ocenione.reduce((s, u) => s + waga(u), 0);
   const wartosc = suma ? ocenione.reduce((s, u) => s + waga(u) * u.score!, 0) / suma : 0;
   const prob = umiejetnosci.reduce((s, u) => s + u.evidence_count, 0);
-  const obszary = OBSZARY_NAUKI.map((o) => {
+  const obszary = WSZYSTKIE_OBSZARY.map((o) => {
     const lista = umiejetnosci.filter((u) => u.area === o.id);
     const oc = lista.filter((u) => u.score !== null);
     const w = lista.reduce((s, u) => s + waga(u), 0);

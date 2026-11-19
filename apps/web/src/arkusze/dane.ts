@@ -119,6 +119,12 @@ function pobierzArkusz(id: string) {
   return obietnica;
 }
 
+/** Treść arkusza jako obietnica (mapa i powtórki z arkuszy liczą z kilku naraz); z pamięci, gdy już była. */
+export function trescArkusza(id: string): Promise<Arkusz | null> {
+  const z = arkusze.get(`arkusz:${id}`);
+  return z ? Promise.resolve(z) : Promise.resolve(pobierzArkusz(id)).then((r) => r.data);
+}
+
 /** Rozgrzewanie: treść arkusza w tle, gdy uczeń najeżdża na jego kartę. */
 export function rozgrzejArkusz(id: string) {
   if (!arkusze.has(`arkusz:${id}`)) void pobierzArkusz(id);
