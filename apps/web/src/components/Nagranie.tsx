@@ -52,6 +52,10 @@ export function Nagranie({ src }: { src: string }) {
     if (a.paused) void a.play().catch(() => setBlad(true));
     else a.pause();
   };
+  const ponow = () => {
+    setBlad(false);
+    audio.current?.load();
+  };
   const cofnij = () => {
     if (audio.current) audio.current.currentTime = Math.max(0, audio.current.currentTime - 10);
   };
@@ -96,7 +100,12 @@ export function Nagranie({ src }: { src: string }) {
         )}
         <audio ref={audio} src={src} preload="metadata" />
       </div>
-      {blad && <p className="small muted">Nie udało się wczytać nagrania ze strony CKE.</p>}
+      {blad && (
+        <p className="small muted">
+          Strona CKE nie oddała nagrania. Spróbuj za chwilę.{" "}
+          <button type="button" className="link small" onClick={ponow}>Wczytaj jeszcze raz</button>
+        </p>
+      )}
     </div>
   );
 }
