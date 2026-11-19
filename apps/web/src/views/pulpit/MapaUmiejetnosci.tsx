@@ -3,19 +3,18 @@
 // Szczegóły i procenty są na pełnej mapie.
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { Kielek } from "../../components/Kielek";
 import { Ladowanie } from "../../components/Ladowanie";
 import { nazwaPoziomu } from "../../konto/przedmioty";
 import { adresMapy, adresNauki } from "../../nauka/adresy";
 import { type Umiejetnosc } from "../../nauka/api";
 import { zmianaWTygodniu } from "../../nauka/historia";
-import { KOLEJNOSC_STADIOW, NAZWA_STADIUM, stadium } from "../../nauka/stadia";
+import { KOLEJNOSC_STADIOW, PROGI_STADIOW, stadium } from "../../nauka/stadia";
+import { Ogrod } from "../../components/Ogrod";
 import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
 import mapaStyl from "../nauka/Umiejetnosci.module.css";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
-import w from "./Widgety.module.css";
 
 const OBSZARY = [
   { id: "słuchanie", nazwa: "Słuchanie" },
@@ -32,7 +31,13 @@ function wniosek(umiejetnosci: Umiejetnosc[]) {
   const srednia = (g: (typeof grupy)[number]) => g.lista.reduce((s, u) => s + poziomStadium(u), 0) / g.lista.length;
   const najlepszy = [...grupy].sort((a, b) => srednia(b) - srednia(a))[0];
   const pestki = grupy.filter((g) => g.lista.every((u) => poziomStadium(u) === 0));
-  if (!najlepszy || srednia(najlepszy) === 0) return "Na razie same pestki. Pierwsza runda zasadzi pierwszy kiełek.";
+  if (!najlepszy || srednia(najlepszy) === 0) {
+    // Same pestki: zdanie o najbliższej kiełka umiejętności, jeśli już ma ocenę; bez ocen zaproszenie do rundy.
+    const najblizsza = umiejetnosci.filter((u) => u.score !== null).sort((a, b) => b.score! - a.score!)[0];
+    if (!najblizsza) return "Na razie same pestki. Pierwsza runda zasadzi pierwszy kiełek.";
+    const brakuje = Math.max(1, Math.ceil((PROGI_STADIOW.kielek - najblizsza.score!) * 100));
+    return `Najbliżej kiełka: ${najblizsza.name.toLowerCase()} (${Math.round(najblizsza.score! * 100)}%). Brakuje ${brakuje} pkt proc., to jedna, dwie dobre rundy.`;
+  }
   const reszta = pestki.length ? ` ${pestki.map((g) => g.nazwa).join(", ")}: jeszcze same pestki.` : "";
   return `Najlepiej rośnie ${najlepszy.nazwa.toLowerCase()}.${reszta}`;
 }
@@ -72,23 +77,7 @@ export function MapaUmiejetnosci({ zakres, aktywny }: KontekstPulpitu) {
       {umiejetnosci && (
         <>
           <p>{wniosek(umiejetnosci)}{tydzien(zmiana)}</p>
-          <ul className={w.ogrod} aria-label={`Angielski, poziom ${nazwaPoziomu[poziom]}`}>
-            {OBSZARY.map((o) => {
-              const lista = umiejetnosci.filter((u) => u.area === o.id);
-              if (!lista.length) return null;
-              const opis = lista.map((u) => `${u.name}: ${NAZWA_STADIUM[stadium(u.score)]}`).join("; ");
-              return (
-                <li key={o.id}>
-                  <Link to={adresMapy(poziom, [...lista].sort((a, b) => poziomStadium(a) - poziomStadium(b))[0]!.skill_id)} className={w.grzadka}>
-                    <span className={w.rosliny} role="img" aria-label={`${o.nazwa}. ${opis}.`}>
-                      {lista.map((u) => <Kielek key={u.skill_id} stadium={stadium(u.score)} rozmiar={40} />)}
-                    </span>
-                    <span className="small">{o.nazwa}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          <Ogrod maly umiejetnosci={umiejetnosci} poziom={poziom} adres={(u) => adresMapy(poziom, u.skill_id)} etykieta={`Ogród umiejętności z angielskiego, poziom ${nazwaPoziomu[poziom]}`} />
           {umiejetnosci.every((u) => u.score === null) && (
             <Link to={adresNauki(poziom)} className={`btn btn-secondary btn-sm ${mapaStyl.przycisk}`}>Zacznij szybką rundę</Link>
           )}
