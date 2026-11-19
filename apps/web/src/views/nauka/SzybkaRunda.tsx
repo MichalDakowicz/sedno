@@ -219,7 +219,7 @@ function OcenaRundy({ odpowiedz, sesja, skonczona, koniec, dalej, reakcja }: {
       <MessageCircle size={16} aria-hidden="true" /> Wyjaśnij z Pestką
     </button>
   );
-  const bezAi = cke && aiGotowe === false && <Link to="/profil#ai" className="link small">Połącz Pestkę w profilu, a wyjaśni to zadanie</Link>;
+  const bezAi = null;
   return (
     // Ten sam układ co pytanie (tytuł, treść, kafle w tym samym miejscu), więc kafle nie skaczą, tylko zmieniają stan;
     // werdykt z Pestką dochodzi pod nimi.

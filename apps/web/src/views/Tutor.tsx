@@ -19,8 +19,7 @@ export function Tutor() {
       <main className={`container ${styles.page}`}>
         <section className={styles.intro}>
           <TutorAvatar size={96} className={styles.avatar} />
-          <h1 className="h1">Pestka czeka na połączenie</h1>
-          <p className="muted">Odpowiem, gdy połączysz mnie z kontem w profilu.</p>
+          <h1 className="h1">Pestka</h1>
           <PodlaczAI />
         </section>
       </main>

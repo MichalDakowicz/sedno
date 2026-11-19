@@ -194,7 +194,7 @@ function Okno({ zamknij }: { zamknij: () => void }) {
 
   // Pestka: gotowa, zajęta (odpowiada), bez AI (odsyłamy do profilu) albo jeszcze sprawdzamy (ukryta).
   const pestka: "gotowa" | "zajeta" | "brak-ai" | null = !szukane || aiGotowe === undefined ? null : aiGotowe === false ? "brak-ai" : state !== "idle" ? "zajeta" : "gotowa";
-  const pozycjaPestki: Pozycja | null = pestka === "gotowa" ? "pestka" : pestka === "brak-ai" ? "ai" : null;
+  const pozycjaPestki: Pozycja | null = pestka === "gotowa" ? "pestka" : null;
 
   // Odpowiedź Pestki wpada do rozmowy, w której padło pytanie, więc w trakcie niej nie przełączamy rozmów.
   const zajetaPestka = state !== "idle";
@@ -227,7 +227,7 @@ function Okno({ zamknij }: { zamknij: () => void }) {
       setZapytano(pytanie);
       return;
     } else if (p === "ai") {
-      navigate("/profil#ai");
+      return;
     } else {
       zapamietajOstatnie(wlasciciel, p.id);
       if (p.rozmowaId) otworzRozmowe(p.rozmowaId);

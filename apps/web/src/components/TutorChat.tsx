@@ -158,7 +158,7 @@ export function TutorChat() {
         {/* Bez AI Pestka jest obok (przewodnik, dymki), ale rozmawiać nie może: zamiast podpowiedzi pytań link do profilu. */}
         {aiGotowe === false ? (
           <p className="small muted">
-            Rozmowa z Pestką potrzebuje AI na koncie. <Link to="/profil#ai" className="link">Połącz Pestkę w profilu</Link>
+            Pestka jest chwilowo niedostępna. Spróbuj za chwilę.
           </p>
         ) : (
         <div className={styles.suggestions}>
