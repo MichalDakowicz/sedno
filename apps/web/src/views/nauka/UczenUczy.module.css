@@ -2,7 +2,7 @@
   display: grid;
   gap: var(--s-6);
   padding-top: var(--s-6);
-  padding-bottom: 110px;
+  padding-bottom: var(--zapas-pestki);
 }
 
 .sekcja,

@@ -29,7 +29,7 @@ export function Profile() {
   }
 
   return (
-    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: 120, display: "grid", gap: "var(--s-6)" }}>
+    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: "var(--zapas-pestki)", display: "grid", gap: "var(--s-6)" }}>
       <NaglowekStrony etykieta="Profil" tytul={profil?.display_name ?? "Twoje konto"} lead={session ? session.user.email : undefined} />
 
       <section id="przedmioty" ref={przedmiotyRef} style={{ display: "grid", gap: 16, justifyItems: "start" }}>

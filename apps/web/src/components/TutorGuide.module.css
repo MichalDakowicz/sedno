@@ -44,6 +44,36 @@
   }
 }
 
+/* Pas doku na telefonie: Pestka na spoczynku w rogu ma pod sobą zanikające tło (jak pasek nawigacji u góry), więc
+   nie siedzi na wierszu ani przycisku. Klikanie przechodzi przez pas; strona ma pod spodem zapas (--zapas-pestki). */
+.dok {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 29;
+  height: calc(48px + 2 * var(--s-4));
+  pointer-events: none;
+  background: linear-gradient(to top, var(--bg) 55%, color-mix(in srgb, var(--bg) 0%, transparent));
+}
+
+/* Dymek w doku (telefon): na resztę szerokości obok Pestki, z limitem wysokości i przewijaniem w środku. Strzałka
+   zwija go do Pestki z kropką czekającej wskazówki. */
+.wDoku {
+  max-height: min(42vh, 320px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.wDoku .step,
+.wDoku .text {
+  padding-right: calc(var(--s-5) + 36px);
+}
+
+.zwin {
+  right: 44px;
+}
+
 .moving {
   transition: transform 0.7s cubic-bezier(0.45, 0, 0.25, 1);
 }

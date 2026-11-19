@@ -17,6 +17,18 @@
   box-sizing: border-box;
 }
 
+/* Zapas na końcu każdej strony pod Pestkę na spoczynku: ostatni przycisk da się wyprzewijać nad nią (i nad pasem
+   doku na telefonie, components/TutorGuide.module.css). Strony biorą go stąd zamiast wpisywać własne wartości. */
+:root {
+  --zapas-pestki: 120px;
+}
+
+@media (max-width: 639px) {
+  :root {
+    --zapas-pestki: 104px;
+  }
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   /* Natywny pasek strony ukryty: rysuje go ScrollBar jako nakładkę, więc nie zabiera szerokości. */

@@ -4,7 +4,7 @@
   display: grid;
   gap: 48px;
   padding-top: 32px;
-  padding-bottom: 120px;
+  padding-bottom: var(--zapas-pestki);
 }
 
 .glowa {
