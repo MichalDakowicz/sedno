@@ -10,7 +10,7 @@ import { glos } from "../pestka/glos";
 /** Priorytet, który Pestka zapisała w profilu ucznia z danej wypowiedzi (tylko na ekranie); cofniete: uczeń go cofnął. */
 export type ZapisPriorytetu = { id: string; tekst: string; cofniete?: boolean };
 /** zapisane i pelna: informacja pod wypowiedzią Pestki o zapisie w profilu albo o pełnej liście (tylko na ekranie). */
-export type Message = { id: number; from: "tutor" | "student"; text: string; zapisane?: ZapisPriorytetu[]; pelna?: boolean; wsparcie?: boolean };
+export type Message = { id: number; from: "tutor" | "student"; text: string; zapisane?: ZapisPriorytetu[]; pelna?: boolean; wsparcie?: boolean; blad?: boolean };
 
 // Wskazówka tutora przypięta do elementu z atrybutem data-tutor. Lista celów: pierwszy widoczny wygrywa,
 // np. linki w pasku na desktopie, a przycisk menu na telefonie.
@@ -50,6 +50,8 @@ type TutorValue = {
   tematRozmowy: string | null;
   close: () => void;
   send: (text: string) => void;
+  /** Po błędzie modelu wysyła jeszcze raz ostatnie pytanie ucznia, bez dopisywania nowej wiadomości. */
+  ponow: () => void;
   /** Pytanie z wyszukiwania: zaczyna nową rozmowę i od razu w niej pyta. Nic nie robi, gdy AI nie jest gotowe albo Pestka odpowiada. */
   zapytajWNowej: (text: string) => void;
   /** true: AI podpięte, false: brak, undefined: jeszcze sprawdzamy. */
@@ -190,7 +192,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       if (stanRef.current !== "idle") return;
       const zapis = lista.find((r) => r.id === biezacaRef.current);
       if (!zapis) return;
-      const naEkranie = JSON.stringify(history.current.map((m) => ({ from: m.from, text: m.text })));
+      const naEkranie = JSON.stringify(history.current.filter((m) => !m.blad).map((m) => ({ from: m.from, text: m.text })));
       if (naEkranie === JSON.stringify(zapis.wiadomosci)) return;
       setMessages(zapis.wiadomosci.map((m) => ({ id: nextId.current++, from: m.from, text: m.text })));
     };
@@ -221,11 +223,11 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     const id = nextId.current++;
     let started = false;
     // Flagę czytamy przed setMessages: updater wykonuje się dopiero przy renderze.
-    const historia = all.map((m) => ({ od: m.from === "tutor" ? ("tutor" as const) : ("uczen" as const), tekst: m.text }));
+    const historia = all.filter((m) => !m.blad).map((m) => ({ od: m.from === "tutor" ? ("tutor" as const) : ("uczen" as const), tekst: m.text }));
     const ostatniaUcznia = [...historia].reverse().find((m) => m.od === "uczen")?.tekst ?? "";
     // Stała informacja o wsparciu pod odpowiedzią na taką wiadomość, niezależnie od tego, co napisze model.
     const wsparcie = trudnaSprawa(ostatniaUcznia);
-    const write = (text: string, dodatek?: Pick<Message, "zapisane" | "pelna">) => {
+    const write = (text: string, dodatek?: Pick<Message, "zapisane" | "pelna" | "blad">) => {
       const first = !started;
       started = true;
       const pola = { ...dodatek, ...(wsparcie ? { wsparcie: true } : {}) };
@@ -262,7 +264,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
         }
       }
     } catch (e) {
-      write(aiErrorText(e instanceof AiError ? e.code : "server_error"));
+      write(aiErrorText(e instanceof AiError ? e.code : "server_error"), { blad: true });
     }
     setState("idle");
   }, [przedmioty, krotko]);
@@ -290,6 +292,16 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       setMessages((m) => [...m, { id: nextId.current++, from: "tutor", text: noAi }]);
       setState("idle");
     }, 500);
+  }, [ai, askModel]);
+
+  const ponow = useCallback(() => {
+    if (!ai || stanRef.current !== "idle") return;
+    const bez = history.current.filter((m) => !m.blad);
+    if (bez[bez.length - 1]?.from !== "student") return;
+    stanRef.current = "thinking";
+    setMessages(bez);
+    setState("thinking");
+    void askModel(bez);
   }, [ai, askModel]);
 
   // Historię dla modelu budujemy tu wprost (powitanie + pytanie), bez odwoływania się do poprzedniej rozmowy.
@@ -358,7 +370,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   useEffect(() => {
     if (state === "talking" || state === "thinking") return;
     ustawBiezaca(biezacaRozmowa);
-    setRozmowy(zapiszRozmowe(biezacaRozmowa, messages.map((m) => ({ from: m.from, text: m.text }))));
+    setRozmowy(zapiszRozmowe(biezacaRozmowa, messages.filter((m) => !m.blad).map((m) => ({ from: m.from, text: m.text }))));
   }, [messages, state, biezacaRozmowa]);
 
   const nowaRozmowa = useCallback(() => {
@@ -404,11 +416,14 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       tematRozmowy,
       close: () => setOpen(false),
       send,
+      ponow,
       zapytajWNowej,
       aiGotowe: aiStan,
       cofnijPriorytet,
       suggestions:
-        messages.length <= 1
+        messages[messages.length - 1]?.blad
+          ? []
+          : messages.length <= 1
           ? ["Co powtórzyć przed maturą?", "Wyjaśnij mi zadanie", "Sprawdź, czy rozumiem temat"]
           : ["Daj wskazówkę", "Pokaż przykład", "Spróbuję jeszcze raz"],
       guide,
@@ -420,7 +435,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       summonAt,
       spi,
     }),
-    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, send, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
+    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, send, ponow, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
   );
 
   return <TutorContext.Provider value={value}>{children}</TutorContext.Provider>;

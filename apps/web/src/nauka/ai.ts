@@ -11,7 +11,22 @@ export class BladPestki extends Error {
   }
 }
 
+// Chwilowy błąd modelu ponawiamy raz sami, zanim uczeń zobaczy komunikat. Akcje z zapisem (ocena) mają id próby,
+// więc drugie wywołanie nie tworzy duplikatu.
+const CHWILOWE = new Set(["provider_failed", "bad_model_response"]);
+
 async function wywolaj<T>(body: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
+  try {
+    return await wywolajRaz<T>(body, signal);
+  } catch (e) {
+    if (!(e instanceof BladPestki) || !CHWILOWE.has(e.kod) || signal?.aborted) throw e;
+    await new Promise((r) => setTimeout(r, 1500));
+    if (signal?.aborted) throw new DOMException("Przerwane", "AbortError");
+    return wywolajRaz<T>(body, signal);
+  }
+}
+
+async function wywolajRaz<T>(body: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
   const { data, error } = await supabase.functions.invoke<T>("nauka-ai", { body, signal, timeout: 65_000 });
   if (error instanceof FunctionsHttpError) {
     const odpowiedz = error.context as Response;

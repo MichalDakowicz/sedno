@@ -101,7 +101,10 @@ function Rozmowa({ user, umiejetnosc, poziom }: { user: string; umiejetnosc: Umi
       if (ctrl.signal.aborted) return;
       zachowaj(w.zakoncz || !w.pytanie ? { historia: dotad, koniec: true } : { historia: [...dotad, { od: "pestka", tekst: w.pytanie }], koniec: false });
     } catch (e) {
-      if (!ctrl.signal.aborted && !czyPrzerwane(e)) ustawBlad(e);
+      if (ctrl.signal.aborted || czyPrzerwane(e)) return;
+      // Pierwsze pytanie da się zadać bez modelu, więc chwilowa awaria nie zatrzymuje rozmowy na starcie.
+      if (dotad.length === 0) zachowaj({ historia: [{ od: "pestka", tekst: `Jak wyjaśnisz własnymi słowami, na czym polega „${umiejetnosc.name}”? Podaj jeden przykład.` }], koniec: false });
+      else ustawBlad(e);
     } finally {
       if (trwa.current === ctrl) trwa.current = null;
       if (!ctrl.signal.aborted) ustawCzeka(false);
@@ -194,7 +197,7 @@ function Rozmowa({ user, umiejetnosc, poziom }: { user: string; umiejetnosc: Umi
           <form className={z.kompozytor} onSubmit={wyslij}>
             <label htmlFor="sokratejski-odpowiedz" className="visually-hidden">Twoja odpowiedź</label>
             <textarea id="sokratejski-odpowiedz" ref={pole} value={tekst} rows={2} maxLength={1000} readOnly={czeka}
-              placeholder={czekaNaPytanie ? "Pestka układa pytanie…" : "Twoja odpowiedź"} onKeyDown={skrot}
+              placeholder={czekaNaPytanie ? (blad !== null ? "Pestka nie przysłała pytania" : "Pestka układa pytanie…") : "Twoja odpowiedź"} onKeyDown={skrot}
               onChange={(e) => ustawTekst(e.currentTarget.value)} />
             <button type="submit" className="btn btn-primary" disabled={czeka || czekaNaPytanie || !tekst.trim()} aria-label="Wyślij" aria-keyshortcuts="Enter">
               <Send size={18} aria-hidden="true" />

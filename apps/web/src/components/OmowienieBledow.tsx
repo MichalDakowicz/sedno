@@ -99,6 +99,8 @@ export function OmowienieBledow({
   const [rozmowa, setRozmowa] = useState<Wiadomosc[]>(zapisana ?? []);
   const { pestkaKrotko: krotko } = useUstawienia();
   const [mysli, setMysli] = useState(false);
+  // Błąd modelu stoi obok rozmowy, nie w niej: nie trafia do zapisu ani do kolejnego zapytania.
+  const [blad, setBlad] = useState<{ tekst: string; historia: Wiadomosc[] } | null>(null);
   const [przyklad, setPrzyklad] = useState<StanPrzykladu | null>(null);
   const [szkic, setSzkic] = useState("");
   const listaRef = useRef<HTMLDivElement>(null);
@@ -203,6 +205,7 @@ export function OmowienieBledow({
   async function zapytaj(historia: Wiadomosc[]) {
     // Wiadomość ucznia widać od razu, a nie dopiero z pierwszym kawałkiem odpowiedzi Pestki.
     setRozmowa(historia);
+    setBlad(null);
     setMysli(true);
     const wiadomosci: AiMessage[] = [
       { role: "system", content: promptOmowienia(arkusz, d, postep, krotko) },
@@ -218,7 +221,8 @@ export function OmowienieBledow({
       });
       if (!tekst.trim()) pisz("Zamyśliłam się i nic nie napisałam. Napisz coś, a spróbuję jeszcze raz.");
     } catch (e) {
-      pisz(aiErrorText(e instanceof AiError ? e.code : "server_error"));
+      setRozmowa(historia);
+      setBlad({ tekst: aiErrorText(e instanceof AiError ? e.code : "server_error"), historia });
     }
     setMysli(false);
     // Karta urosła o odpowiedź: dociągnij widok, żeby pole odpowiedzi nie uciekło pod ekran.
@@ -333,6 +337,12 @@ export function OmowienieBledow({
           </div>
         )}
         {przyklad && rozmowa.slice(przyklad.po).map((m, i) => wiadomosc(m, przyklad.po + i))}
+        {blad && !mysli && (
+          <p className={styles.blad} role="alert">
+            {blad.tekst}{" "}
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => void zapytaj(blad.historia)}>Spróbuj ponownie</button>
+          </p>
+        )}
         {mysli && (rozmowa.at(-1)?.od !== "tutor" || !rozmowa.at(-1)?.tekst) && (
           <span className={chat.typing} aria-label="Pestka pisze">
             <i />
