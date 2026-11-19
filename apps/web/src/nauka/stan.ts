@@ -80,7 +80,8 @@ export function useZapytanieNauki<T>(klucz: string | null, pobierz: (signal: Abo
 export function useOtwarteRundy(poziom: Poziom, wlaczone = true) {
   return useZapytanieNauki(wlaczone ? `nauka:ostatnie:wszystkie:${poziom}` : null, async (signal) => {
     const listy = await Promise.all(poziomyNauki.map((p) => naukaApi.ostatnie(p, signal)));
-    const sesje = listy.flat().sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+    // Nowa baza nie zwraca diagnozy w nauka_ostatnie; filtr chroni listę, gdyby kiedyś się w niej znalazła.
+    const sesje = listy.flat().filter((s) => s.format !== "diagnoza").sort((a, b) => b.updated_at.localeCompare(a.updated_at));
     const poziomy = [...new Set(sesje.map((s) => s.level))];
     const katalogi = await Promise.all(poziomy.map((p) => naukaApi.katalog(p, signal).catch(() => null)));
     const nazwy = new Map(katalogi.flatMap((k) => (k?.skills ?? []).map((u) => [u.id, u.name] as const)));

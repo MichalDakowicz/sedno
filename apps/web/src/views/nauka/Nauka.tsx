@@ -239,7 +239,7 @@ export function Nauka() {
           sesje.length ? (
             <ul className={s.wiersze}>
               {sesje.map((sesja) => {
-                const nazwa = ostatnie.dane?.nazwy.get(sesja.skill_id);
+                const nazwa = sesja.skill_id ? ostatnie.dane?.nazwy.get(sesja.skill_id) : undefined;
                 const format = nazwaFormatuNauki[sesja.format];
                 return (
                   <li key={sesja.id} className={s.wierszRundy}>

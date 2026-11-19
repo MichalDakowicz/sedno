@@ -138,7 +138,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
   const runda = rundy.dane?.sesje[0];
   const arkuszZaczety = co?.rodzaj === "dokoncz" ? co.zaczety : null;
   if (runda && (!arkuszZaczety || runda.updated_at >= arkuszZaczety.kiedy)) {
-    const nazwa = rundy.dane?.nazwy.get(runda.skill_id) ?? nazwaFormatuNauki[runda.format];
+    const nazwa = (runda.skill_id && rundy.dane?.nazwy.get(runda.skill_id)) || nazwaFormatuNauki[runda.format];
     return {
       stan: "gotowe",
       dzis: {
