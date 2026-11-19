@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useProfil } from "../auth";
+import { PRZEDMIOTY, type PrzedmiotId } from "../konto/przedmioty";
+import { ZapiszWMapie } from "./ZapiszWMapie";
 import { TutorAvatar } from "./TutorAvatar";
 import { Markdown } from "./Markdown";
 import { useTutor } from "./TutorContext";
@@ -19,8 +22,17 @@ export function WsparcieNota() {
   );
 }
 
+// Przedmiot notatki z rozmowy: ten, przy którym uczeń jest (adres strony), inaczej pierwszy z profilu.
+function usePrzedmiotRozmowy(): PrzedmiotId | null {
+  const { pathname, search } = useLocation();
+  const profil = useProfil();
+  const zAdresu = PRZEDMIOTY.find((p) => `${pathname}${search}`.includes(p.id))?.id;
+  return zAdresu ?? profil?.subjects?.[0]?.id ?? null;
+}
+
 export function TutorChat() {
   const { messages, state, send, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, aiGotowe } = useTutor();
+  const przedmiotNotatki = usePrzedmiotRozmowy();
   const [draft, setDraft] = useState("");
   const [lista, setLista] = useState(false);
   const wczesniejsze = rozmowy.filter((r) => r.id !== biezacaRozmowa);
@@ -82,7 +94,7 @@ export function TutorChat() {
         </ul>
       ) : (
       <div className={styles.list} ref={listRef} aria-live="polite">
-        {messages.map((m) =>
+        {messages.map((m, i) =>
           m.from === "tutor" ? (
             <div key={m.id} className={styles.tutorRow}>
               <TutorAvatar size={28} />
@@ -104,6 +116,10 @@ export function TutorChat() {
                   </p>
                 ))}
                 {m.wsparcie && <WsparcieNota />}
+                {/* Notatka tylko z odpowiedzi na pytanie ucznia, skończonej (nie z powitania ani w trakcie pisania). */}
+                {przedmiotNotatki && aiGotowe !== false && i > 0 && m.text.length > 60 && !(i === messages.length - 1 && state !== "idle") && (
+                  <ZapiszWMapie przedmiot={przedmiotNotatki} tekst={m.text} zrodlo={{ source: "chat", source_ref: biezacaRozmowa }} />
+                )}
                 {m.pelna && (
                   <p className={styles.zapisano}>
                     Lista priorytetów jest pełna. <Link to="/profil-ucznia">Usuń któryś w profilu</Link>
