@@ -63,6 +63,12 @@ export const glos = {
     ogolny: ["Coś poszło nie tak po mojej stronie. Spróbujmy jeszcze raz."],
     nieZnaleziono: ["Nie ma takiej strony. Może zgubił się adres?", "Tu nic nie ma. Wróćmy tam, gdzie coś na ciebie czeka."],
   },
+  /** Przewodnik przy pierwszym wejściu na pulpit: trzy dymki. */
+  przewodnik: {
+    powitanie: "Cześć, jestem Pestka. Będę obok przez całą naukę do matury.",
+    dzis: "To wybrałam na dziś. Krótko i tam, gdzie najwięcej zyskasz.",
+    wolanie: "Gdy coś będzie niejasne, kliknij mnie. Siedzę w rogu ekranu.",
+  },
   rozmowa: {
     powitanie: "Cześć, jestem Pestka. Wklej zadanie albo napisz, z czym masz kłopot, a przejdziemy przez to razem.",
     bezPolaczenia: "Żeby odpowiadać, muszę być połączona z twoim kontem. Zrobisz to w profilu.",
