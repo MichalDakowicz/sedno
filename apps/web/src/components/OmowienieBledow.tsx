@@ -18,6 +18,7 @@ import { WsparcieNota } from "./TutorChat";
 import { ZapiszWMapie } from "./ZapiszWMapie";
 import styles from "./OmowienieBledow.module.css";
 import { mniejRuchu } from "../ruch";
+import { MAPA_WIEDZY_WLACZONA } from "../nauka/wiedza";
 
 export type Wiadomosc = { od: "tutor" | "uczen"; tekst: string };
 
@@ -261,7 +262,7 @@ export function OmowienieBledow({
       <div key={i}>
         <Markdown className={chat.tutorText}>{m.tekst}</Markdown>
         {poprzednia?.od === "uczen" && trudnaSprawa(poprzednia.tekst) && <WsparcieNota />}
-        {!(mysli && i === rozmowa.length - 1) && (
+        {MAPA_WIEDZY_WLACZONA && !(mysli && i === rozmowa.length - 1) && (
           <ZapiszWMapie przedmiot={arkusz.przedmiot ?? "angielski"} tekst={m.tekst} tytul={`${nazwaZadaniaCke(arkusz.id, String(nr))}: wyjaśnienie`}
             zrodlo={{ source: "sheet", source_ref: `${arkusz.id}#${nr}` }} />
         )}

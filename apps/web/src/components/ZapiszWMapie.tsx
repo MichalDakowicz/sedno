@@ -16,7 +16,11 @@ function tytulZ(tekst: string, podpowiedz?: string) {
   return zdanie.length > 80 ? `${zdanie.slice(0, 79).trimEnd()}…` : zdanie;
 }
 
-export function ZapiszWMapie({ przedmiot, tekst, zrodlo, tytul }: { przedmiot: PrzedmiotId; tekst: string; zrodlo: ZrodloNotatki; tytul?: string }) {
+export function ZapiszWMapie({ przedmiot, tekst, zrodlo, tytul, kompakt = false }: {
+  przedmiot: PrzedmiotId; tekst: string; zrodlo: ZrodloNotatki; tytul?: string;
+  /** W rozmowie: sama ikona z podpowiedzią, żeby pod każdą odpowiedzią nie stał kolejny wiersz tekstu. */
+  kompakt?: boolean;
+}) {
   const [stan, ustawStan] = useState<{ faza: "gotowe" | "zapisuje" } | { faza: "zapisane"; id: string } | { faza: "blad"; tekst: string }>({ faza: "gotowe" });
   const tresc = bezZnacznikow(tekst);
   if (!tresc) return null;
@@ -34,14 +38,15 @@ export function ZapiszWMapie({ przedmiot, tekst, zrodlo, tytul }: { przedmiot: P
   if (stan.faza === "zapisane")
     return (
       <p className={styles.wiersz} role="status">
-        <Check size={14} aria-hidden="true" /> W mapie wiedzy.{" "}
-        <Link to={`/nauka/mapa-wiedzy?przedmiot=${przedmiot}&notatka=${stan.id}`}>Zobacz</Link>
+        <Check size={14} aria-hidden="true" /> Zapisane w{" "}
+        <Link to={`/nauka/mapa-wiedzy?przedmiot=${przedmiot}&notatka=${stan.id}`}>notatkach</Link>
       </p>
     );
   return (
     <p className={styles.wiersz}>
-      <button type="button" className={styles.przycisk} disabled={stan.faza === "zapisuje"} onClick={() => void zapisz()}>
-        <BookmarkPlus size={14} aria-hidden="true" /> {stan.faza === "zapisuje" ? "Zapisuję…" : "Zapisz w mapie wiedzy"}
+      <button type="button" className={styles.przycisk} data-kompakt={kompakt || undefined} disabled={stan.faza === "zapisuje"} onClick={() => void zapisz()}
+        title={kompakt ? "Zapisz jako notatkę" : undefined} aria-label={kompakt ? "Zapisz jako notatkę" : undefined}>
+        <BookmarkPlus size={kompakt ? 16 : 14} aria-hidden="true" /> {!kompakt && (stan.faza === "zapisuje" ? "Zapisuję…" : "Zapisz jako notatkę")}
       </button>
       {stan.faza === "blad" && <span className={styles.blad} role="alert">{stan.tekst}</span>}
     </p>

@@ -160,6 +160,10 @@ export function Dashboard() {
           <Link to="/cele" className="link">
             Ustaw swój cel na maturę <ArrowRight size={14} aria-hidden="true" />
           </Link>
+        ) : !zaproszenie && profilOdczytany && moje.length > 0 ? (
+          <Link to="/profil-ucznia" className="link">
+            Twoje cele i plan <ArrowRight size={14} aria-hidden="true" />
+          </Link>
         ) : zaproszenie && (
           <Link to={adresDiagnozy(poziomNauki)} className="link">
             {zaproszenie === "dokoncz" ? "Dokończ diagnozę" : zaproszenie === "wyniki" ? "Zobacz pierwsze wyniki" : "Sprawdźmy, od czego zacząć"} <ArrowRight size={14} aria-hidden="true" />

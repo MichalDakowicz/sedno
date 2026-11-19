@@ -23,6 +23,9 @@ export function Gotowosc({ umiejetnosci, cel, prognoza, maly = false, naglowek, 
   const procent = Math.round(g.wartosc * 100);
   const zCelem = cel !== null ? ` · cel ${Math.round(cel * 100)}%` : "";
   const wniosek = wniosekGotowosci(g, cel);
+  // W wierszu na pulpicie jedna krótka linia zamiast tytułu z dopiskami i pełnego zdania.
+  const brakuje = cel !== null ? Math.round((cel - g.wartosc) * 100) : null;
+  const krotko = [g.wstepna && "wstępnie", brakuje !== null && (brakuje > 0 ? `do celu ${brakuje} pkt proc.` : "cel osiągnięty")].filter(Boolean).join(" · ");
   const meta = [g.wstepna && "wstępnie", cel !== null && `cel ${Math.round(cel * 100)}%`].filter(Boolean).join(" · ");
   return (
     <div className={s.gotowosc} data-maly={maly || undefined} data-tutor-about={OPIS}>
@@ -31,9 +34,9 @@ export function Gotowosc({ umiejetnosci, cel, prognoza, maly = false, naglowek, 
       <div className={s.tresc}>
         <p className={s.tytul}>
           {naglowek ?? "Gotowość"}
-          {meta && <span className={s.meta}>{meta}</span>}
+          {!maly && meta && <span className={s.meta}>{meta}</span>}
         </p>
-        <p className={s.wniosek}>{wniosek}</p>
+        <p className={s.wniosek}>{maly ? krotko || wniosek : wniosek}</p>
         {!maly && (
           <div className={s.droga}>
             <PasekProgu gruby wartosc={g.wartosc} prog={{ wartosc: 0.3, etykieta: "próg 30%" }}
@@ -41,7 +44,7 @@ export function Gotowosc({ umiejetnosci, cel, prognoza, maly = false, naglowek, 
               opis={`Gotowość ${procent}%, próg zdania 30%${zCelem}.`} />
           </div>
         )}
-        {prognoza != null && <p className={s.meta}>Prognoza z arkuszy: {Math.round(prognoza * 100)}%</p>}
+        {!maly && prognoza != null && <p className={s.meta}>Prognoza z arkuszy: {Math.round(prognoza * 100)}%</p>}
         {children}
       </div>
     </div>

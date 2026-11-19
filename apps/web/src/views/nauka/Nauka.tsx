@@ -20,6 +20,7 @@ import { zapytania } from "../../nauka/zapytania";
 import { adresWizualizacji } from "../../nauka/wizualizacje";
 import { BladNauki, dataNauki, formatRundy, WyborPoziomuNauki } from "./NaukaPowtorki";
 import s from "./NaukaPowtorki.module.css";
+import { MAPA_WIEDZY_WLACZONA } from "../../nauka/wiedza";
 
 /** Wybrany przedmiot Nauki: z adresu (?przedmiot), inaczej ostatni wybrany (pamięć przeglądarki), inaczej angielski. */
 const KLUCZ_PRZEDMIOTU = "sedno.nauka.przedmiot";
@@ -127,7 +128,7 @@ export function Nauka() {
     ...(wybranyPrzedmiot === "matematyka" || wybranyPrzedmiot === "informatyka" ? [{ id: "zdjecie" as const, to: "/nauka/zdjecie", nazwa: "Zdjęcie z kartki", kiedy: "Rozwiązujesz na papierze i chcesz omówienia.", ikona: <Camera size={18} aria-hidden="true" /> }] : []),
     { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Naucz Kolegę", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
     ...(wybranyPrzedmiot !== "polski" ? [{ id: "wizualizacje" as const, to: adresWizualizacji(wybranyPrzedmiot === "matematyka" ? "parabola" : wybranyPrzedmiot === "informatyka" ? "wyszukiwanie-binarne" : "tekst-parafraza"), nazwa: "Zobacz na modelu", kiedy: "Chcesz zobaczyć, jak to działa, zanim zaczniesz ćwiczyć.", ikona: <Eye size={18} aria-hidden="true" /> }] : []),
-    { id: "mapa-wiedzy", to: `/nauka/mapa-wiedzy?przedmiot=${wybranyPrzedmiot}`, nazwa: "Mapa wiedzy", kiedy: "Zbierasz pojęcia i chcesz zobaczyć, co je łączy.", ikona: <Network size={18} aria-hidden="true" /> },
+    ...(MAPA_WIEDZY_WLACZONA ? [{ id: "mapa-wiedzy" as const, to: `/nauka/mapa-wiedzy?przedmiot=${wybranyPrzedmiot}`, nazwa: "Mapa wiedzy", kiedy: "Zbierasz pojęcia i chcesz zobaczyć, co je łączy.", ikona: <Network size={18} aria-hidden="true" /> }] : []),
   ];
 
   return (
@@ -188,14 +189,10 @@ export function Nauka() {
           )}
         </article>
       ) : bezRund && akcjaBezRund ? (
-        <article className={s.karta} aria-labelledby="nauka-polecenie">
-          <span className="kicker"><TutorAvatar size={22} /> Polecam</span>
-          <h2 id="nauka-polecenie" className="h1">{przedmiot(wybranyPrzedmiot)!.nazwa}</h2>
-          <p className="muted">{bezRund.tekst}</p>
-          <div className={s.akcje}>
-            <Link to={akcjaBezRund.do} className={`btn btn-primary ${s.przycisk}`}>{akcjaBezRund.etykieta}</Link>
-          </div>
-        </article>
+        // Przedmioty bez rund dostają tę samą kartę co angielski i pulpit, żeby zakładki nie różniły się wyglądem.
+        <div className={s.dzis}>
+          <KartaDnia dzis={{ rodzaj: "polecenie", przedmiot: wybranyPrzedmiot, tytul: akcjaBezRund.etykieta, powod: bezRund.tekst, akcja: { do: akcjaBezRund.do, etykieta: "Zacznij" }, minuty: null, ikona: akcjaBezRund.do === "/tutor" ? "rozmowa" : "runda" }} />
+        </div>
       ) : null}
 
       <ul className={s.drogi} aria-label="Inne drogi">

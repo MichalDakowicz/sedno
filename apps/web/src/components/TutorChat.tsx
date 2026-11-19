@@ -7,6 +7,7 @@ import { TutorAvatar } from "./TutorAvatar";
 import { Markdown } from "./Markdown";
 import { useTutor } from "./TutorContext";
 import styles from "./TutorChat.module.css";
+import { MAPA_WIEDZY_WLACZONA } from "../nauka/wiedza";
 
 const kiedy = (iso: string) => {
   const dni = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
@@ -114,8 +115,7 @@ export function TutorChat() {
                       <>Cofnięto zapis: {p.tekst}.</>
                     ) : (
                       <>
-                        Zapisałam w profilu: {p.tekst}. <Link to="/profil-ucznia">Zobacz profil</Link>
-                        {" · "}
+                        Dodałam do <Link to="/profil-ucznia">twoich priorytetów</Link>: {p.tekst}.{" "}
                         <button type="button" className={styles.cofnij} onClick={() => cofnijPriorytet(m.id, p.id)}>
                           Cofnij
                         </button>
@@ -125,8 +125,8 @@ export function TutorChat() {
                 ))}
                 {m.wsparcie && <WsparcieNota />}
                 {/* Notatka tylko z odpowiedzi na pytanie ucznia, skończonej (nie z powitania ani w trakcie pisania). */}
-                {przedmiotNotatki && aiGotowe !== false && i > 0 && m.text.length > 60 && !(i === messages.length - 1 && state !== "idle") && (
-                  <ZapiszWMapie przedmiot={przedmiotNotatki} tekst={m.text} zrodlo={{ source: "chat", source_ref: biezacaRozmowa }} />
+                {MAPA_WIEDZY_WLACZONA && przedmiotNotatki && aiGotowe !== false && i > 0 && m.text.length > 60 && !(i === messages.length - 1 && state !== "idle") && (
+                  <ZapiszWMapie kompakt przedmiot={przedmiotNotatki} tekst={m.text} zrodlo={{ source: "chat", source_ref: biezacaRozmowa }} />
                 )}
                 {m.pelna && (
                   <p className={styles.zapisano}>

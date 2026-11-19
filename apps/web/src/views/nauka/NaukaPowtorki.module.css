@@ -59,7 +59,9 @@
   composes: karta from global;
   display: grid;
   justify-items: start;
-  gap: var(--s-3);
+  gap: var(--s-4);
+  width: 100%;
+  max-width: 48rem;
   min-width: 0;
 }
 
@@ -381,4 +383,5 @@ a.wiersz:hover .wierszBoczny {
 
 .dzis > article {
   justify-self: stretch;
+  max-width: 48rem;
 }
