@@ -24,7 +24,7 @@ import {
   type Zadanie,
 } from "../arkusze/typy";
 import { Brudnopis, otworzNaPelnymEkranie, PokazDodatkoweRysunki, ZDARZENIE_PELNY } from "../components/Brudnopis";
-import { TekstMat, WzorMat } from "../components/TekstMat";
+import { rozgrzejWzory, TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
 import { Wypracowanie, type Temat } from "../components/Wypracowanie";
 import { Ladowanie } from "../components/Ladowanie";
@@ -90,6 +90,10 @@ export function Arkusz() {
   const { id = "" } = useParams();
   const { dane, blad, laduje } = useArkusz(id);
   const [postep, zmien] = usePostep(id);
+  // KaTeX ładuje się leniwie: przy arkuszu ze wzorami zaczynamy od razu, nie przy pierwszym wzorze na ekranie.
+  useEffect(() => {
+    if (dane?.zadania.some((z) => z.bloki.some((b) => b.typ === "wzor" || (b.typ === "akapit" && b.tekst.includes("\\("))))) rozgrzejWzory();
+  }, [dane]);
   const [otwartaLuka, setOtwartaLuka] = useState<string | null>(null);
   const [materialy, setMaterialy] = useState<{ nr: number; otwarty: boolean } | null>(null);
   const przyciskMaterialow = useRef<HTMLElement | null>(null);
@@ -812,15 +816,14 @@ function Podsumowanie({
       {cel !== null && (
         <p>{procent >= cel * 100 ? "Cel osiągnięty w tym arkuszu." : `Do celu ${Math.round(cel * 100)}% zabrakło ${Math.round(cel * 100) - procent} pkt proc.`}</p>
       )}
-      <p className="muted">
-        {wynik.doOceny > 0
-          ? `${wynik.doOceny} ${wynik.doOceny === 1 ? "odpowiedź otwarta czeka" : "odpowiedzi otwarte czekają"} na twoją ocenę przy pytaniu.`
-          : omow.bezOdpowiedzi
-          ? "Wpisane odpowiedzi są ocenione."
-          : "Wszystkie odpowiedzi ocenione."}
-        {omow.bezOdpowiedzi > 0 && ` Bez odpowiedzi: ${omow.bezOdpowiedzi} z ${omow.pytan} ${odmiana(omow.pytan, ["pytania", "pytań", "pytań"])}.`}
-        {wynik.wypowiedzi > 0 && ` Wypowiedź pisemna (${wynik.wypowiedzi} pkt) wymaga oceny według kryteriów, na razie bez punktów.`}
-      </p>
+      {(wynik.doOceny > 0 || omow.bezOdpowiedzi > 0) && (
+        <p className="muted">
+          {[
+            wynik.doOceny > 0 && `Do oceny przy pytaniu: ${wynik.doOceny}.`,
+            omow.bezOdpowiedzi > 0 && `Bez odpowiedzi: ${omow.bezOdpowiedzi} z ${omow.pytan} ${odmiana(omow.pytan, ["pytania", "pytań", "pytań"])}.`,
+          ].filter(Boolean).join(" ")}
+        </p>
+      )}
       {czas && (
         <p className="muted">
           Czas: {zapisCzasu(uplynelo(czas))}
@@ -919,7 +922,7 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
           })}
         </ul>
       ) : (
-        <p className="muted">Tempo w normie przy wszystkich zadaniach, przy których był mierzony czas.</p>
+        <p className="muted">Tempo w normie.</p>
       )}
     </div>
   );
@@ -1923,14 +1926,26 @@ function NaglowekZGrupa({ blok, zadanie }: { blok: Blok & { tekst: string }; zad
           return !(z.bloki[i - 1] === ostatni && (ostatni.strona ?? z.strona) === (blok.strona ?? z.strona));
         })
       : [];
-  if (!grupy.length) return <h3 className={styles.textTitle}>{blok.tekst}</h3>;
+  const tytul = m ? <TytulPodpunktu tekst={blok.tekst} /> : <h3 className={styles.textTitle}>{blok.tekst}</h3>;
+  if (!grupy.length) return tytul;
   return (
     <div className={styles.podpunkt}>
-      <h3 className={styles.textTitle}>{blok.tekst}</h3>
+      {tytul}
       {grupy.map((g) => (
         <PodgladGrupy key={g.id} grupa={g} zadanie={zadanie} />
       ))}
     </div>
+  );
+}
+
+// Podpunkt zadania z informatyki („Zadanie 1.2 (0–1 pkt)”): numer jako nagłówek, punkty przygaszone obok.
+function TytulPodpunktu({ tekst }: { tekst: string }) {
+  const m = tekst.match(/^(.*?)\s*\(([^()]*pkt)\)\s*$/);
+  return (
+    <h3 className={styles.podpunktTytul}>
+      {m ? m[1] : tekst}
+      {m && <span className={styles.podpunktPunkty}>{m[2]}</span>}
+    </h3>
   );
 }
 
@@ -2221,7 +2236,7 @@ function TabelaInformatyki({ blok }: { blok: Extract<Blok, { typ: "tabelaTresci"
                       </td>
                     );
                   return (
-                    <td key={c} colSpan={zakres}>
+                    <td key={c} colSpan={zakres} className={!obraz && k.length <= 14 ? styles.krotka : undefined}>
                       {tresc}
                     </td>
                   );
@@ -3330,11 +3345,6 @@ function WypowiedzWidok({ pytanie: p, pisanie }: { pytanie: Wypowiedz; pisanie: 
         onTemat={(n) => ustaw(klucz("temat"), String(n))}
         onOdhacz={(i) => ustaw(klucz("lista"), (odhaczone.includes(i) ? odhaczone.filter((x) => x !== i) : [...odhaczone, i]).join(","))}
       />
-      {sprawdzone(p.nr) && (
-        <p className={`small ${styles.note}`}>
-          Wypowiedź oceniasz według kryteriów z polecenia.
-        </p>
-      )}
     </div>
   );
 }
