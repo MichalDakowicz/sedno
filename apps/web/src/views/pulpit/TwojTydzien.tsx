@@ -1,15 +1,16 @@
-// „Twój tydzień”: plan z nauka_plan, dni z nauką i seria, prognoza z arkuszy. Dni z nauką liczymy z danych, które
+// „Twój tydzień”: dni z nauką jako kropki, seria i najbliższe dni z planu (nauka_plan). Prognoza jest w widgecie „Do matury”. Dni z nauką liczymy z danych, które
 // już są: próby z nauka_dowody (rundy i zadania CKE angielskiego, do 100 ostatnich na umiejętność) i daty zapisu
 // postępu arkuszy (sheet_progress.updated_at, każdy przedmiot). Baza nie ma osobnego dziennika aktywności.
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { Ladowanie } from "../../components/Ladowanie";
+import { Kropki } from "../../components/wykresy";
+import { Liczba } from "../../ruch";
 import { usePostepyKonta } from "../../konto/wyniki";
 import { adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type PlanNauki } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
-import { procentNauki } from "../nauka/NaukaPowtorki";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
 import w from "./Widgety.module.css";
@@ -60,7 +61,6 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
   const { tydzien, zNauka, seria } = tydzienNauki(dni, dzis);
   const p = plan.dane;
   const nastepne = (p?.activities ?? []).filter((a) => a.date >= dzis).slice(0, 3);
-  const prognoza = p?.forecast.score ?? null;
 
   return (
     <section className={`${styles.section} wejscie`} aria-labelledby="tydzien-widget">
@@ -84,34 +84,22 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
       {p && proby.stan !== "ladowanie" && (
         <>
           {edycja && <DniNauki plan={p} poziom={poziom} zapisano={plan.ponow} />}
-          <ol className={w.tydzien} aria-label="Ten tydzień">
-            {tydzien.map((d, i) => {
+          <p className={styles.stat}>
+            <Liczba wartosc={zNauka} />
+            <span> / 7</span>
+            <span className={styles.statOpis}>{zNauka === 1 ? "dzień" : "dni"} z nauką w tym tygodniu{seria >= 2 ? ` · seria ${seria} ${odmianaDni(seria)} z rzędu` : ""}</span>
+          </p>
+          <Kropki rowno opis={`W tym tygodniu ${zNauka} z 7 dni z nauką, seria ${seria} ${odmianaDni(seria)}.`}
+            kropki={tydzien.map((d, i) => {
               const nauka = dni.has(d);
               const zaplanowany = p.weekdays.includes(i + 1);
-              const stan = nauka ? "nauka" : d < dzis ? "minal" : zaplanowany ? "plan" : "wolne";
-              return (
-                <li key={d} data-stan={stan} aria-current={d === dzis ? "date" : undefined}
-                  aria-label={`${DNI_PELNE[i]}${d === dzis ? ", dziś" : ""}: ${nauka ? "nauka" : zaplanowany ? "dzień nauki w planie" : "bez planu"}`}>
-                  <span className="small" aria-hidden="true">{DNI[i]}</span>
-                  <span className={w.kropka} aria-hidden="true" />
-                </li>
-              );
-            })}
-          </ol>
-          <dl className={w.liczby}>
-            <div>
-              <dt className="small muted">W tym tygodniu</dt>
-              <dd><span className="h2">{zNauka}</span> {odmianaDni(zNauka)} z nauką</dd>
-            </div>
-            <div>
-              <dt className="small muted">Seria</dt>
-              <dd><span className="h2">{seria}</span> {odmianaDni(seria)} z rzędu</dd>
-            </div>
-            <div data-tutor-about={`Liczę to z arkuszy z angielskiego z ostatnich 180 dni: średnia z zadań sprawdzanych kluczem, ważona tym, ile punktów ma każda umiejętność na maturze. Krótkie rundy i wypracowania jej nie zmieniają.${prognoza === null ? " Potrzebuję co najmniej dwóch sprawdzonych arkuszy." : ""}`}>
-              <dt className="small muted">Prognoza z arkuszy</dt>
-              <dd>{prognoza === null ? <span className="small muted">po dwóch sprawdzonych arkuszach</span> : <span className="h2">{procentNauki.format(prognoza)}</span>}</dd>
-            </div>
-          </dl>
+              return {
+                podpis: DNI[i],
+                biezaca: d === dzis,
+                stan: nauka ? "pelna" : d >= dzis && zaplanowany ? "plan" : "pusta",
+                tytul: `${DNI_PELNE[i]}: ${nauka ? "nauka" : zaplanowany ? "dzień nauki w planie" : "bez nauki"}`,
+              };
+            })} />
           {proby.stan === "blad" && (
             <div className={w.blad}>
               <p role="alert" className="small">Nie udało się policzyć dni z rund.</p>

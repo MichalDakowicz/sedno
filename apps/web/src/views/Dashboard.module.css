@@ -400,3 +400,9 @@
   justify-items: start;
   gap: var(--s-3);
 }
+
+/* Prognoza w widgecie „Do matury”: zdanie z liczbą nad paskiem z progiem i celem. */
+.prognoza {
+  display: grid;
+  gap: var(--s-3);
+}

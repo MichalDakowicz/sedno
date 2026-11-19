@@ -58,6 +58,10 @@ export const CELE: Opcja[] = [
   { id: "90", nazwa: "90%+" },
 ];
 
+/** Cel jako ułamek wyniku, do kreski celu na pasku prognozy; „Zdać” to próg 30%. */
+export const celJakoUlamek = (id: string | undefined): number | null =>
+  id === "zdac" ? 0.3 : id === "60" ? 0.6 : id === "75" ? 0.75 : id === "90" ? 0.9 : null;
+
 export type Priorytet = { id: string; tekst: string; zrodlo: "uczen" | "pestka"; kiedy: string };
 
 export type Uczenie = {

@@ -5,7 +5,8 @@ import { adresNauki, adresPowtorek } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { procentNauki } from "../nauka/NaukaPowtorki";
-import { etykietaZrodla, kluczPowtorki, unikalnePowtorki } from "./czasPowtorek";
+import { etykietaZrodla, kluczPowtorki, odmianaPowtorek, powtorkiNaDni, unikalnePowtorki } from "./czasPowtorek";
+import { Liczba } from "../../ruch";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
 import w from "./Widgety.module.css";
@@ -33,6 +34,7 @@ export function PowtorkiWidget({ zakres, aktywny }: KontekstPulpitu) {
       )}
       {powtorki.stan === "gotowe" && (kolejka.length ? (
         <>
+          <NaDzis kolejka={kolejka} />
           <ul className="wiersze">
             {kolejka.slice(0, POKAZANE).map((p) => (
               <li key={kluczPowtorki(p)}>
@@ -65,5 +67,20 @@ export function PowtorkiWidget({ zakres, aktywny }: KontekstPulpitu) {
         </>
       ))}
     </section>
+  );
+}
+
+/** Liczba na dziś jako wniosek sekcji; siedem dni jest na stronie Powtórek. */
+function NaDzis({ kolejka }: { kolejka: Parameters<typeof powtorkiNaDni>[0] }) {
+  const [dzis, ...dalej] = powtorkiNaDni(kolejka);
+  const wTygodniu = dalej.reduce((s, d) => s + d.liczba, 0);
+  return (
+    <p className={styles.stat}>
+      <Liczba wartosc={dzis!.liczba} />
+      <span className={styles.statOpis}>
+        {odmianaPowtorek(dzis!.liczba)} na dziś
+        {wTygodniu > 0 && ` · w kolejnych dniach ${wTygodniu}`}
+      </span>
+    </p>
   );
 }
