@@ -7,7 +7,7 @@ import { policzGotowosc, wniosekGotowosci } from "../nauka/gotowosc";
 import type { Umiejetnosc } from "../nauka/api";
 import s from "./Gotowosc.module.css";
 
-const OPIS = "Gotowość to średnie opanowanie umiejętności z mapy, ważone punktami, które dają na maturze. Umiejętności bez oceny nie wchodzą do średniej. Przy niewielu próbach pokazuję ją w kreskę, bo to wstępna ocena.";
+const OPIS = "Gotowość to średnie opanowanie umiejętności z mapy, ważone punktami, które dają na maturze. Umiejętności bez oceny liczą się jako zero, więc wynik rośnie dopiero, gdy sprawdzisz całą maturę. Przy niewielu próbach pokazuję ją w kreskę, bo to wstępna ocena.";
 
 export function Gotowosc({ umiejetnosci, cel, prognoza, maly = false, naglowek, children }: {
   umiejetnosci: Umiejetnosc[];

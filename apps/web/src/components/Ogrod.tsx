@@ -33,10 +33,11 @@ export function opisRosliny(u: Umiejetnosc, tuDzis: boolean) {
   return `${u.name}: ${ocena}, ${NAZWA_STADIUM[stadium(u.score)]}${doPowtorki(u) ? ", do powtórki" : ""}${tuDzis ? ", polecam dziś" : ""}`;
 }
 
-/** Średnie opanowanie obszaru z ocenionych umiejętności (waga: punkty na maturze); null, gdy żadna nie ma oceny. */
+/** Opanowanie obszaru (waga: punkty na maturze), nieocenione umiejętności jako zero, jak w gotowości; null, gdy żadna nie ma oceny. */
 function opanowanieObszaru(lista: Umiejetnosc[]) {
   const oc = lista.filter((u) => u.score !== null);
-  const w = oc.reduce((s2, u) => s2 + (u.exam_points > 0 ? u.exam_points : 1), 0);
+  if (!oc.length) return null;
+  const w = lista.reduce((s2, u) => s2 + (u.exam_points > 0 ? u.exam_points : 1), 0);
   return w ? oc.reduce((s2, u) => s2 + (u.exam_points > 0 ? u.exam_points : 1) * u.score!, 0) / w : null;
 }
 
