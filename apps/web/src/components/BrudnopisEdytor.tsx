@@ -418,7 +418,10 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     if (document.activeElement?.closest("." + styles.pestkaNaTablicy)) przyciskPestki.current?.focus({ preventScroll: true });
     setPestka({ faza: "mysli", punkt, skok: 0 });
     try {
-      const dane = await omowTablice(a, konto, poleceniePestki, pytanie, c.signal);
+      // Wskazówka pisze się w dymku od pierwszych słów modelu; dopiski i figury dochodzą po całej odpowiedzi.
+      const dane = await omowTablice(a, konto, poleceniePestki, pytanie, c.signal, undefined, (tekst) => {
+        if (!c.signal.aborted) setPestka((p) => (p?.faza === "mysli" ? { ...p, dymek: { tekst } } : p));
+      });
       if (c.signal.aborted) return;
       zapytanie.current = null;
       dopiszDoHistorii({ pytanie, dane });

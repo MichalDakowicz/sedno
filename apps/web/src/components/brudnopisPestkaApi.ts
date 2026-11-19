@@ -1,10 +1,10 @@
 import { exportToBlob, getCommonBounds } from "@excalidraw/excalidraw";
 import type { ExcalidrawElement, NonDeleted } from "@excalidraw/excalidraw/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
-import { FunctionsHttpError } from "@supabase/supabase-js";
 import { AiError } from "../ai";
 import { currentUserId } from "../auth";
-import { supabase } from "../supabase";
+import { functionsUrl, supabase } from "../supabase";
+import { czytajOdpowiedzTablicy } from "./strumienTablicy";
 
 export type Punkt = [number, number];
 type Ramka = [Punkt, Punkt];
@@ -111,8 +111,46 @@ function wspolrzedneObrazu(elementy: readonly ZywyElement[], zmienione: readonly
   return { zmiana, obszarBledu };
 }
 
+const CZAS_ODPOWIEDZI = 65_000;
+
+/** Wywołanie nauka-ai zwykłym fetch w trybie strumienia (functions.invoke czeka na całą odpowiedź). */
+async function zapytajFunkcje(body: Record<string, unknown>, signal: AbortSignal, onWskazowka?: (tekst: string) => void) {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new AiError("not_signed_in", 401);
+  const kontroler = new AbortController();
+  const przerwij = () => kontroler.abort();
+  signal.addEventListener("abort", przerwij, { once: true });
+  const czas = window.setTimeout(przerwij, CZAS_ODPOWIEDZI);
+  try {
+    const res = await fetch(`${functionsUrl}/nauka-ai`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY as string,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...body, stream: true }),
+      signal: kontroler.signal,
+    });
+    return await czytajOdpowiedzTablicy(res, onWskazowka);
+  } catch (e) {
+    signal.throwIfAborted();
+    // Brak sieci, przekroczony czas albo urwane połączenie: jak dawniej przy functions.invoke.
+    throw e instanceof AiError ? e : new AiError("server_error", 500);
+  } finally {
+    window.clearTimeout(czas);
+    signal.removeEventListener("abort", przerwij);
+  }
+}
+
+/**
+ * Pyta Pestkę o tablicę. onWskazowka dostaje wskazówkę pisaną na bieżąco (sklejone fragmenty strumienia), zanim
+ * dojdzie cała odpowiedź; przy funkcji sprzed strumienia nie jest wołane.
+ */
 export async function omowTablice(
   api: ExcalidrawImperativeAPI, user: string, polecenie: string, pytanie: string, signal: AbortSignal, prowadzenie?: Prowadzenie,
+  onWskazowka?: (tekst: string) => void,
 ) {
   const scena = api.getSceneElements();
   const elementy = prowadzenie ? bezZapisowPestki(scena) : scena;
@@ -122,21 +160,13 @@ export async function omowTablice(
   if (!obraz && !pytanie) throw new AiError("empty_board", 400);
   signal.throwIfAborted();
   if (currentUserId() !== user) throw new AiError("not_signed_in", 401);
-  const { data, error } = await supabase.functions.invoke<OdpowiedzPestki>("nauka-ai", {
-    body: {
-      action: "omow-brudnopis", polecenie, pytanie: pytanie || undefined, obraz,
-      prowadzenie: wspolrzedne && {
-        zmiana: wspolrzedne.zmiana, poprzedniaWskazowka: prowadzenie?.poprzedniaWskazowka, zapisUcznia: zapisUcznia || undefined,
-      },
+  const data = await zapytajFunkcje({
+    action: "omow-brudnopis", polecenie, pytanie: pytanie || undefined, obraz,
+    prowadzenie: wspolrzedne && {
+      zmiana: wspolrzedne.zmiana, poprzedniaWskazowka: prowadzenie?.poprzedniaWskazowka, zapisUcznia: zapisUcznia || undefined,
     },
-    signal,
-    timeout: 65_000,
-  });
-  if (error instanceof FunctionsHttpError) {
-    const body = await error.context.json().catch(() => null);
-    throw new AiError(typeof body?.error === "string" ? body.error : "server_error", error.context.status);
-  }
-  if (error || !data || typeof data.wskazowka !== "string" || !Array.isArray(data.ksztalty)) {
+  }, signal, onWskazowka) as OdpowiedzPestki | null;
+  if (!data || typeof data.wskazowka !== "string" || !Array.isArray(data.ksztalty)) {
     throw new AiError("server_error", 500);
   }
   if (prowadzenie && !["czekam", "krok", "blad"].includes(data.stanProwadzenia ?? "")) {

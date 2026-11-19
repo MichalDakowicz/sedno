@@ -137,7 +137,9 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
     setPytanie("");
   }
 
-  const stanAwatara = faza === "mysli" ? "thinking" : faza === "pisze" ? "talking" : "idle";
+  // W trakcie myślenia dymek może już mieć początek wskazówki ze strumienia: wtedy Pestka mówi.
+  const pisanaWskazowka = faza === "mysli" && !!dymek?.tekst;
+  const stanAwatara = pisanaWskazowka || faza === "pisze" ? "talking" : faza === "mysli" ? "thinking" : "idle";
   return (
     <div
       ref={korzen}
@@ -173,11 +175,13 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
           />
         </form>
       )}
-      {faza === "dymek" && dymek && (
+      {(faza === "dymek" || pisanaWskazowka) && dymek && (
         <div
           className={[styles.pestkaDymek, strona, odDolu].join(" ")}
           style={{ ["--miejsce" as string]: miejsce + "px", left: strona === styles.dymekPod ? ODSTEP_DYMKA - x : undefined }}
-          role={dymek.blad ? "alert" : "status"}
+          // Tekst w trakcie pisania nie trafia do czytnika po każdym słowie: ogłasza go dopiero gotowy dymek.
+          role={pisanaWskazowka ? undefined : dymek.blad ? "alert" : "status"}
+          aria-busy={pisanaWskazowka || undefined}
         >
           <button type="button" className={styles.dymekZamknij} aria-label="Zamknij dymek Pestki" onClick={onZamknij}>
             <X size={16} aria-hidden="true" />
