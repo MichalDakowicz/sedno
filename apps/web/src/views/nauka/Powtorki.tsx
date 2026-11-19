@@ -145,13 +145,14 @@ function WierszPowtorki({ poziom, powtorka }: { poziom: Poziom; powtorka: Powtor
 const OPIS_PAMIECI = "To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia, a powtórka go odświeża.";
 
 function Pamiec({ retencja }: { retencja: number }) {
+  // Ten sam pasek co opanowanie na mapie (tor 6 px, procent w stałej kolumnie), podpis nad nim od tej samej krawędzi.
   return (
-    <span className={s.retencja} data-tutor-about={OPIS_PAMIECI}>
-      <span className="muted" aria-hidden="true">Pamiętasz ok.</span>
-      <span className="wiersz-pasek">
-        <progress aria-label={`Pamiętasz ok. ${procentNauki.format(retencja)}`} value={retencja} max={1} />
-        <span aria-hidden="true">{procentNauki.format(retencja)}</span>
+    <span className={`wiersz-pasek ${s.retencja}`} data-tutor-about={OPIS_PAMIECI}>
+      <span className={s.retencjaPodpis} aria-hidden="true">Pamiętasz ok.</span>
+      <span className={s.retencjaTor} aria-hidden="true">
+        <span style={{ width: `${Math.round(Math.min(1, Math.max(0, retencja)) * 100)}%` }} />
       </span>
+      <span><span className="visually-hidden">Pamiętasz ok. </span>{procentNauki.format(retencja)}</span>
     </span>
   );
 }
