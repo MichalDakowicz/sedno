@@ -110,6 +110,7 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
       {modelDlaUmiejetnosci(u.skill_id) && (
         <Link to={adresWizualizacji(modelDlaUmiejetnosci(u.skill_id)!)} className="link small">Zobacz na modelu <ArrowRight size={15} aria-hidden="true" /></Link>
       )}
+      <Link to={`/nauka/mapa-wiedzy?przedmiot=angielski&umiejetnosc=${u.skill_id}`} className="link small">Notatki o tej umiejętności <ArrowRight size={15} aria-hidden="true" /></Link>
       <section className={s.blok} aria-labelledby="umiejetnosc-proby">
         {proby.stan === "ladowanie" && <Ladowanie ile={3} etykieta="Wczytuję próby" />}
         {proby.stan === "blad" && <Blad tekst="Nie udało się wczytać prób." ponow={proby.ponow} />}

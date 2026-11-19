@@ -1,9 +1,15 @@
 // Mapa wiedzy (paczka 9 pkt 6): notatki ucznia jako węzły, połączenia między nimi. Pestka proponuje połączenia
 // (nauka-ai, mapa-wiedzy-polaczenia, najświeższe notatki przedmiotu), uczeń je przyjmuje albo odrzuca. Graf na
 // szerokim ekranie, a lista notatek wszędzie (na telefonie zamiast grafu). Dane: nauka/wiedza.ts.
+// Notatka pamięta źródło (rozmowa, arkusz, runda) i może być przypięta do umiejętności z ogrodu (angielski);
+// ?umiejetnosc= zawęża listę do notatek tej umiejętności (link z panelu w ogrodzie), ?notatka= otwiera jedną.
 import { useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type Ref } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Check, ChevronRight, MessageCircle, Pencil, Sparkles, Trash2, X } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Check, ChevronRight, Link2, MessageCircle, Pencil, Sparkles, Sprout, Trash2, X } from "lucide-react";
+import { nazwaZadaniaCke } from "../../arkusze/typy";
+import { Ogrod } from "../../components/Ogrod";
+import type { Umiejetnosc } from "../../nauka/api";
+import { zapytania } from "../../nauka/zapytania";
 import { useProfil } from "../../auth";
 import { BladPestki } from "../../components/BladPestki";
 import { Ladowanie } from "../../components/Ladowanie";
@@ -14,9 +20,10 @@ import { useTutor } from "../../components/TutorContext";
 import { SubjectIcon } from "../../components/icons";
 import { przedmiot as daneP, PRZEDMIOTY, type PrzedmiotId } from "../../konto/przedmioty";
 import { naukaAi } from "../../nauka/ai";
-import { useZapytanieNauki } from "../../nauka/stan";
+import { usePoziomNauki, useZapytanie, useZapytanieNauki } from "../../nauka/stan";
 import {
-  BladWiedzy, doPolaczen, dodajNotatke, LIMIT_TRESCI, LIMIT_TYTULU, pobierzMape, przyjmijPolaczenie, usunNotatke, usunPolaczenie, zmienNotatke,
+  BladWiedzy, doPolaczen, dodajNotatke, LIMIT_ETYKIETY, LIMIT_TRESCI, LIMIT_TYTULU, pobierzMape, polaczNotatki, przyjmijPolaczenie, przypnijDoUmiejetnosci,
+  usunNotatke, usunPolaczenie, zmienNotatke,
   type MapaWiedzy as Mapa, type Notatka, type Polaczenie,
 } from "../../nauka/wiedza";
 import s from "./SzybkaRunda.module.css";
@@ -57,15 +64,23 @@ export function MapaWiedzy() {
         <StanPestki emocja="zmartwienie" rozmiar="maly" rola="alert" tekst={mapa.blad ?? "Nie udało się wczytać notatek."}
           akcja={{ etykieta: "Spróbuj ponownie", onClick: mapa.ponow }} />
       ) : (
-        <Widok key={przedmiot} przedmiot={przedmiot} mapa={mapa.dane!} odswiez={mapa.ponow} />
+        <Widok key={przedmiot} przedmiot={przedmiot} mapa={mapa.dane!} odswiez={mapa.ponow}
+          poczatkowa={params.get("notatka")} umiejetnosc={przedmiot === "angielski" ? params.get("umiejetnosc") : null}
+          bezUmiejetnosci={() => ustawParams({ przedmiot }, { replace: true })} />
       )}
     </main>
   );
 }
 
-function Widok({ przedmiot, mapa, odswiez }: { przedmiot: PrzedmiotId; mapa: Mapa; odswiez: () => void }) {
-  const { aiGotowe, open } = useTutor();
-  const [wybrana, ustawWybrana] = useState<string | null>(null);
+function Widok({ przedmiot, mapa, odswiez, poczatkowa, umiejetnosc, bezUmiejetnosci }: {
+  przedmiot: PrzedmiotId; mapa: Mapa; odswiez: () => void; poczatkowa: string | null; umiejetnosc: string | null; bezUmiejetnosci: () => void;
+}) {
+  const { aiGotowe, open, otworzRozmowe } = useTutor();
+  const [poziom] = usePoziomNauki();
+  const ogrod = useZapytanie(przedmiot === "angielski" ? zapytania.mapa(poziom) : null);
+  const umiejetnosci = ogrod.dane?.skills ?? [];
+  const nazwaUmiejetnosci = (sid: string) => umiejetnosci.find((u) => u.skill_id === sid)?.name ?? "umiejętność";
+  const [wybrana, ustawWybrana] = useState<string | null>(poczatkowa);
   const [edycja, ustawEdycje] = useState(false);
   const [blad, ustawBlad] = useState<string | null>(null);
   const [czeka, ustawCzeka] = useState(false);
@@ -108,6 +123,7 @@ function Widok({ przedmiot, mapa, odswiez }: { przedmiot: PrzedmiotId; mapa: Map
   }
 
   const nazwa = (nid: string) => poId.get(nid)?.title ?? "notatka";
+  const widoczne = umiejetnosc ? mapa.notatki.filter((n) => n.skill_id === umiejetnosc) : mapa.notatki;
   const wniosek = !mapa.notatki.length ? "Jeszcze nie ma notatek"
     : `${mapa.notatki.length} ${notatki(mapa.notatki.length)}, ${przyjete.length} ${polaczen(przyjete.length)}`;
 
@@ -125,8 +141,14 @@ function Widok({ przedmiot, mapa, odswiez }: { przedmiot: PrzedmiotId; mapa: Map
           {mapa.notatki.length >= 2 && (
             <Graf notatki={mapa.notatki} przyjete={przyjete} propozycje={propozycje} wybrana={wybrana} wybierz={(n) => { ustawWybrana(n); ustawEdycje(false); }} />
           )}
+          {umiejetnosc && (
+            <p className={m.filtr}>
+              <span>Przy umiejętności „{nazwaUmiejetnosci(umiejetnosc)}”: {widoczne.length} {notatki(widoczne.length)}.</span>
+              <button type="button" className="link small" onClick={bezUmiejetnosci}>Pokaż wszystkie</button>
+            </p>
+          )}
           <ul className={`wiersze ${m.lista}`}>
-            {mapa.notatki.map((n) => {
+            {widoczne.map((n) => {
               const ile = przyjete.filter((p) => p.first_id === n.id || p.second_id === n.id).length;
               return (
                 <li key={n.id}>
@@ -143,7 +165,12 @@ function Widok({ przedmiot, mapa, odswiez }: { przedmiot: PrzedmiotId; mapa: Map
                       anuluj={() => ustawEdycje(false)} />
                   ) : (
                     <SzczegolyNotatki notatka={notatka} polaczenia={przyjete.filter((p) => p.first_id === notatka.id || p.second_id === notatka.id)}
-                      nazwa={nazwa} ai={aiGotowe !== false}
+                      nazwa={nazwa} ai={aiGotowe !== false} przedmiot={przedmiot}
+                      inne={mapa.notatki.filter((x) => x.id !== notatka.id && !przyjete.some((p) => (p.first_id === x.id || p.second_id === x.id) && (p.first_id === notatka.id || p.second_id === notatka.id)))}
+                      umiejetnosci={umiejetnosci} poziom={poziom} nazwaUmiejetnosci={nazwaUmiejetnosci}
+                      otworzRozmowe={(rid) => { otworzRozmowe(rid); open(); }}
+                      polacz={(inna, etykieta) => wykonaj(() => polaczNotatki(przedmiot, notatka.id, inna, etykieta))}
+                      przypnij={(sid) => wykonaj(() => przypnijDoUmiejetnosci(notatka.id, sid))}
                       zapytaj={() => open({ klucz: `notatka:${notatka.id}`, tytul: notatka.title, opis: `Notatka ucznia z mapy wiedzy (${daneP(przedmiot)?.nazwa}): „${notatka.title}”. ${notatka.body}`.slice(0, 1200) })}
                       edytuj={() => ustawEdycje(true)}
                       usun={() => { if (window.confirm(`Usunąć notatkę „${notatka.title}” razem z jej połączeniami?`)) void wykonaj(() => usunNotatke(notatka.id)).then(() => ustawWybrana(null)); }}
@@ -194,19 +221,50 @@ function Widok({ przedmiot, mapa, odswiez }: { przedmiot: PrzedmiotId; mapa: Map
       <section className={s.sekcja} aria-labelledby={`${id}-nowa`}>
         <h2 className="h2" id={`${id}-nowa`}>Nowa notatka</h2>
         <FormularzNotatki key={mapa.notatki.length} poleRef={formularz} etykieta="Zapisz notatkę" glowny={mapa.notatki.length < 2}
-          zapisz={(t, b) => wykonaj(() => dodajNotatke(przedmiot, t, b))} />
+          zapisz={(t, b) => wykonaj(() => dodajNotatke(przedmiot, t, b, { skill_id: umiejetnosc }))} />
       </section>
     </>
   );
 }
 
-function SzczegolyNotatki({ notatka, polaczenia, nazwa, ai, zapytaj, edytuj, usun, rozlacz }: {
-  notatka: Notatka; polaczenia: Polaczenie[]; nazwa: (id: string) => string; ai: boolean;
+// Skąd notatka: link z powrotem do źródła (rozmowa otwiera się w panelu Pestki).
+function Zrodlo({ notatka, otworzRozmowe }: { notatka: Notatka; otworzRozmowe: (id: string) => void }) {
+  if (notatka.source === "manual") return null;
+  const [arkusz, zadanie] = notatka.source === "sheet" ? notatka.source_ref.split("#") : [];
+  return (
+    <p className="small muted">
+      {notatka.source === "chat" ? (
+        <>Z rozmowy z Pestką · <button type="button" className="link small" onClick={() => otworzRozmowe(notatka.source_ref)}>otwórz rozmowę</button></>
+      ) : notatka.source === "sheet" ? (
+        <>Z omówienia: <Link to={`/arkusze/${arkusz}${zadanie ? `#zadanie-${zadanie.split(".")[0]}` : ""}`}>{zadanie ? nazwaZadaniaCke(arkusz!, zadanie) : "arkusz"}</Link></>
+      ) : (
+        <>Z rundy · <Link to={`/nauka/rozbior/${notatka.source_ref}`}>zobacz rozbiór</Link></>
+      )}
+    </p>
+  );
+}
+
+function SzczegolyNotatki({ notatka, polaczenia, nazwa, ai, przedmiot, inne, umiejetnosci, poziom, nazwaUmiejetnosci, otworzRozmowe, polacz, przypnij, zapytaj, edytuj, usun, rozlacz }: {
+  notatka: Notatka; polaczenia: Polaczenie[]; nazwa: (id: string) => string; ai: boolean; przedmiot: PrzedmiotId;
+  inne: Notatka[]; umiejetnosci: Umiejetnosc[]; poziom: ReturnType<typeof usePoziomNauki>[0]; nazwaUmiejetnosci: (id: string) => string;
+  otworzRozmowe: (id: string) => void; polacz: (inna: string, etykieta: string) => Promise<boolean>; przypnij: (skill: string | null) => Promise<boolean>;
   zapytaj: () => void; edytuj: () => void; usun: () => void; rozlacz: (p: Polaczenie) => void;
 }) {
+  const [panel, ustawPanel] = useState<"polacz" | "przypnij" | null>(null);
+  const [cel, ustawCel] = useState("");
+  const [etykieta, ustawEtykiete] = useState("");
+  const id = useId();
+  const przelacz = (p: "polacz" | "przypnij") => ustawPanel((o) => (o === p ? null : p));
   return (
     <div className={m.szczegoly}>
       {notatka.body ? <p className={m.tresc}>{notatka.body}</p> : <p className="small muted">Bez treści.</p>}
+      <Zrodlo notatka={notatka} otworzRozmowe={otworzRozmowe} />
+      {notatka.skill_id && (
+        <p className={`small ${m.przypieta}`}>
+          <Sprout size={16} aria-hidden="true" /> {nazwaUmiejetnosci(notatka.skill_id)}
+          <button type="button" className="link small" onClick={() => void przypnij(null)}>Odepnij</button>
+        </p>
+      )}
       {polaczenia.length > 0 && (
         <ul className={m.polaczenia} aria-label="Połączenia">
           {polaczenia.map((p) => {
@@ -224,9 +282,45 @@ function SzczegolyNotatki({ notatka, polaczenia, nazwa, ai, zapytaj, edytuj, usu
       )}
       <div className={m.akcje}>
         {ai && <button type="button" className="btn btn-secondary btn-sm" onClick={zapytaj}><MessageCircle size={16} aria-hidden="true" /> Zapytaj Pestkę o to</button>}
+        {inne.length > 0 && (
+          <button type="button" className="btn btn-ghost btn-sm" aria-expanded={panel === "polacz"} aria-controls={`${id}-polacz`} onClick={() => przelacz("polacz")}>
+            <Link2 size={16} aria-hidden="true" /> Połącz
+          </button>
+        )}
+        {przedmiot === "angielski" && umiejetnosci.length > 0 && (
+          <button type="button" className="btn btn-ghost btn-sm" aria-expanded={panel === "przypnij"} aria-controls={`${id}-przypnij`} onClick={() => przelacz("przypnij")}>
+            <Sprout size={16} aria-hidden="true" /> {notatka.skill_id ? "Zmień umiejętność" : "Przypnij do umiejętności"}
+          </button>
+        )}
         <button type="button" className="btn btn-ghost btn-sm" onClick={edytuj}><Pencil size={16} aria-hidden="true" /> Zmień</button>
         <button type="button" className="btn btn-ghost btn-sm" onClick={usun}><Trash2 size={16} aria-hidden="true" /> Usuń</button>
       </div>
+      {panel === "polacz" && (
+        <form id={`${id}-polacz`} className={m.formularz}
+          onSubmit={(e) => { e.preventDefault(); if (cel) void polacz(cel, etykieta).then((ok) => { if (ok) { ustawPanel(null); ustawCel(""); ustawEtykiete(""); } }); }}>
+          <label className={m.pole} htmlFor={`${id}-cel`}>
+            <span className="label">Z notatką</span>
+            <select id={`${id}-cel`} className="select" value={cel} required onChange={(e) => ustawCel(e.currentTarget.value)}>
+              <option value="" disabled>Wybierz notatkę</option>
+              {inne.map((n) => <option key={n.id} value={n.id}>{n.title}</option>)}
+            </select>
+          </label>
+          <label className={m.pole} htmlFor={`${id}-etykieta`}>
+            <span className="label">Co je łączy</span>
+            <input id={`${id}-etykieta`} className="input" value={etykieta} maxLength={LIMIT_ETYKIETY} placeholder="np. przeciwieństwo"
+              onChange={(e) => ustawEtykiete(e.currentTarget.value)} />
+          </label>
+          <div className={m.akcje}>
+            <button type="submit" className="btn btn-secondary btn-sm" disabled={!cel}><Link2 size={16} aria-hidden="true" /> Połącz</button>
+          </div>
+        </form>
+      )}
+      {panel === "przypnij" && (
+        <div id={`${id}-przypnij`} className={m.ogrod}>
+          <Ogrod maly umiejetnosci={umiejetnosci} poziom={poziom} wybrana={notatka.skill_id} etykieta="Przypnij notatkę do umiejętności z ogrodu"
+            onWybierz={(u) => void przypnij(u.skill_id).then((ok) => { if (ok) ustawPanel(null); })} />
+        </div>
+      )}
     </div>
   );
 }
