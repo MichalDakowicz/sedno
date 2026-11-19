@@ -272,7 +272,7 @@ textarea {
 }
 
 /* Przycisk w stylu linku: bez tła i ramek przeglądarki, z tą samą kreską pod spodem. */
-button.link {
+:where(button).link {
   padding: 0 0 2px;
   border-width: 0 0 1px;
   border-style: solid;

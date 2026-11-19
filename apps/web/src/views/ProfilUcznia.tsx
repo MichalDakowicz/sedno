@@ -114,7 +114,7 @@ export function ProfilUcznia() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <NaglowekStrony etykieta="Profil" tytul="Profil ucznia"  />
+      <NaglowekStrony wstecz={{ do: "/profil", nazwa: "Profil" }} tytul="Profil ucznia" />
 
       <section className={s.sekcja} aria-labelledby="pu-jak">
         <h2 id="pu-jak" className="h2">
@@ -127,7 +127,7 @@ export function ProfilUcznia() {
         <h2 id="pu-czas" className="h2">
           Czas i cel
         </h2>
-        <p className="h3">{podsumowanieCelow(u, zgrupuj(moje).map((m) => m.id))}</p>
+        <p className="muted">{podsumowanieCelow(u, zgrupuj(moje).map((m) => m.id))}</p>
         <Link to="/cele" className="btn btn-secondary" style={{ justifySelf: "start" }}>Quiz celów z Pestką</Link>
       </section>
 

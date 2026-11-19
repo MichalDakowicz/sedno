@@ -156,9 +156,22 @@
 
 /* Liczba na dziś, jedno zdanie o kolejnych dniach i jeden przycisk. */
 .glowa {
-  display: grid;
-  justify-items: start;
-  gap: var(--s-4);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3) var(--s-5);
+}
+
+/* Liczba ważniejsza od podpisu: ile na dziś dużym stopniem, reszta tekstem. */
+.liczba {
+  font-size: var(--t-lg);
+}
+
+.liczba strong {
+  font-size: calc(32px * var(--skala-tekstu, 1));
+  font-weight: 400;
+  letter-spacing: -0.03em;
 }
 
 .grupy {

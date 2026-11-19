@@ -31,7 +31,7 @@ export function Profile() {
   }
 
   return (
-    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: "var(--zapas-pestki)", display: "grid", gap: "var(--s-6)" }}>
+    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: "var(--zapas-pestki)", display: "grid", gap: "var(--s-7)" }}>
       <NaglowekStrony etykieta="Profil" tytul={profil?.display_name ?? "Twoje konto"} lead={session ? session.user.email : undefined} />
 
       {/* Cele i sposób nauki na samej górze: to z nich korzysta Pestka, pulpit i „Dziś warto”. */}
@@ -44,7 +44,7 @@ export function Profile() {
         </Link>
       </section>
 
-      <section id="przedmioty" ref={przedmiotyRef} style={{ display: "grid", gap: 16, justifyItems: "start" }}>
+      <section id="przedmioty" ref={przedmiotyRef} style={{ display: "grid", gap: "var(--s-4)", justifyItems: "start", paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)" }}>
         <h2 className="h2" data-tutor-about="Pulpit, propozycje i ja dopasowujemy się do tych przedmiotów.">Przedmioty maturalne</h2>
         {profil && <WyborPrzedmiotow value={profil.subjects} onChange={(v) => void zmien(v)} />}
         {blad && (
@@ -70,7 +70,7 @@ export function Profile() {
         </li>
       </ul>
 
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "var(--s-3)", flexWrap: "wrap" }}>
         <button
           type="button"
           className="btn btn-secondary"

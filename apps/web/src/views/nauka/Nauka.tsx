@@ -15,6 +15,7 @@ import { adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki, type Umiejetnosc } from "../../nauka/api";
 import { coDzisBezRund, MINUTY_RUNDY, useDzisAngielski, usePolecenieDnia, type Sposob } from "../../nauka/dzis";
 import { KartaDnia } from "../../components/KartaDnia";
+import { SekcjaPowtorek } from "./Powtorki";
 import { useOtwarteRundy, usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
 import { BladNauki, dataNauki, formatRundy, WyborPoziomuNauki } from "./NaukaPowtorki";
@@ -28,6 +29,13 @@ function zapamietanyPrzedmiot(): string | null {
 }
 
 export function Nauka() {
+  // Adres #powtorki (pulpit, dawna zakładka Powtórki): przewiń do sekcji, gdy już stoi na stronie.
+  const { hash: kotwica } = useLocation();
+  useEffect(() => {
+    if (kotwica !== "#powtorki") return;
+    const t = window.setTimeout(() => document.getElementById("powtorki")?.scrollIntoView({ block: "start", behavior: "smooth" }), 300);
+    return () => window.clearTimeout(t);
+  }, [kotwica]);
   const [poziom, ustawPoziom] = usePoziomNauki();
   const [params, ustawParams] = useSearchParams();
   const profil = useProfil();
@@ -192,6 +200,9 @@ export function Nauka() {
           <KartaDnia dzis={{ rodzaj: "polecenie", przedmiot: wybranyPrzedmiot, tytul: akcjaBezRund.etykieta, powod: bezRund.tekst, akcja: { do: akcjaBezRund.do, etykieta: "Zacznij" }, minuty: null, ikona: akcjaBezRund.do === "/tutor" ? "rozmowa" : "runda" }} />
         </div>
       ) : null}
+
+      {/* Powtórki zaraz pod kartą dnia: to też odpowiedź na „co teraz ćwiczyć” (dawniej osobna zakładka). */}
+      <SekcjaPowtorek przedmiot={wybranyPrzedmiot} poziom={(profil?.subjects.find((p) => p.id === wybranyPrzedmiot)?.poziom ?? null) as Poziom | null} />
 
       <ul className={s.drogi} aria-label="Inne drogi">
         {drogi.map((d) => (

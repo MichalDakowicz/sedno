@@ -138,12 +138,17 @@
   min-height: 44px;
   margin-inline-start: var(--s-2);
   padding: 0 var(--s-2);
-  text-decoration: underline;
   border: 0;
   background: none;
   font: inherit;
   font-size: var(--t-sm);
+  /* Poboczna akcja przy „Wznów”: cichszy tekst bez kreski, cel dotyku 44 px. */
+  color: var(--muted);
   cursor: pointer;
+}
+
+.usun:hover {
+  color: var(--fg);
 }
 
 .usun:disabled {
