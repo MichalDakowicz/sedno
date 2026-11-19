@@ -455,7 +455,7 @@ export function Arkusz() {
   if (laduje)
     return (
       <main className={`container czytanie ${styles.page}`}>
-        <Ladowanie ksztalt="tekst" ile={7} etykieta="Wczytuję arkusz" />
+        <Ladowanie ksztalt="tekst" ile={7} wysokosc={[900, 800]} etykieta="Wczytuję arkusz" />
       </main>
     );
   if (blad || !dane || !kontekst || !wynik) {

@@ -188,7 +188,7 @@ export function Umiejetnosci() {
           <Link to={innyPrzedmiot.akcja.do} className={`btn btn-secondary ${s.przycisk}`}>{innyPrzedmiot.akcja.etykieta}</Link>
         </div>
       )}
-      {mapa.stan === "ladowanie" && <Ladowanie etykieta="Wczytuję mapę umiejętności" />}
+      {mapa.stan === "ladowanie" && <Ladowanie wysokosc={[514, 1440]} etykieta="Wczytuję mapę umiejętności" />}
       {mapa.stan === "blad" && <Blad tekst="Nie udało się wczytać mapy umiejętności." ponow={mapa.ponow} />}
       {angielski && umiejetnosci && (
         <div className={s.uklad} data-panel={!!wybrana}>

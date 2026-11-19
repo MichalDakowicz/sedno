@@ -59,7 +59,7 @@ export function Powtorki() {
       <NaglowekStrony etykieta="Język angielski" tytul="Powtórki" />
       <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />
 
-      {(powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") && <Ladowanie ksztalt="pulpit" ile={2} etykieta="Wczytuję powtórki" />}
+      {(powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") && <Ladowanie ile={8} wysokosc={[900, 880]} etykieta="Wczytuję powtórki" />}
       {powtorki.stan === "blad" && <BladNauki komunikat="Nie udało się wczytać powtórek." ponow={powtorki.ponow} />}
       {powtorki.stan === "gotowe" && !wszystkie.length && (
         <section className={s.glowa} aria-labelledby="powtorki-puste">

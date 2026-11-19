@@ -100,7 +100,7 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
         )}
       </div>
 
-      {czeka && <Ladowanie ile={2} etykieta="Wczytuję tydzień" />}
+      {czeka && <Ladowanie ile={4} wysokosc={[420, 470]} etykieta="Wczytuję tydzień" />}
       {plan.stan === "blad" && (
         <div className={w.blad}>
           <p role="alert">Nie udało się wczytać planu tygodnia.</p>

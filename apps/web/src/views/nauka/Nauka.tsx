@@ -150,7 +150,7 @@ export function Nauka() {
           {mapa.stan === "blad" ? (
             <BladNauki komunikat="Nie udało się wczytać umiejętności." ponow={mapa.ponow} />
           ) : czekaNaPolecenie || !umiejetnosc ? (
-            <Ladowanie ksztalt="tekst" ile={2} etykieta="Dobieram rundę" />
+            <Ladowanie ksztalt="tekst" ile={2} wysokosc={[150, 216]} etykieta="Dobieram rundę" />
           ) : (
             <>
               <h2 id="nauka-polecenie" className="h1" tabIndex={-1} ref={naglowekPolecenia}>{umiejetnosc.name}</h2>

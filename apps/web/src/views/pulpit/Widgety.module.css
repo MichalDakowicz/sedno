@@ -143,6 +143,32 @@
   min-height: 56px;
 }
 
+/* Zanim dojdzie mapa angielskiego: wiersz ma już wysokość małej gotowości, a pod nim miejsce na ogród w miniaturze
+   (wysokości zmierzone na gotowej treści), więc lista nie skacze. */
+.gotowoscZastepczyAng {
+  min-height: 61px;
+}
+
+.ogrodZastepczy {
+  display: block;
+  height: 78px;
+}
+
+.linkPowtorekZastepczy {
+  display: block;
+  height: 27px;
+}
+
+@media (max-width: 639px) {
+  .gotowoscZastepczyAng {
+    min-height: 110px;
+  }
+
+  .ogrodZastepczy {
+    height: 215px;
+  }
+}
+
 .gotowoscTekst {
   display: grid;
   gap: var(--s-1);

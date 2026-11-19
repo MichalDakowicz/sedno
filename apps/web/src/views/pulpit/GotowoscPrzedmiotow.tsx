@@ -35,10 +35,11 @@ function WierszAngielskiego({ s }: { s: Podsumowanie }) {
           <Gotowosc maly umiejetnosci={umiejetnosci} cel={celPrzedmiotu(u, "angielski")} prognoza={plan.dane?.forecast.score} naglowek={naglowek} />
         ) : (
           // Miejsce pierścienia zajęte od razu, więc wiersz nie skacze, gdy dojdzie mapa.
-          <span className={w.gotowoscZastepczy}><SubjectIcon subject={pr} size="lg" /><span className="h3">{naglowek}</span></span>
+          <span className={`${w.gotowoscZastepczy} ${w.gotowoscZastepczyAng}`}><SubjectIcon subject={pr} size="lg" /><span className="h3">{naglowek}</span></span>
         )}
         <ChevronRight size={20} aria-hidden="true" className={w.gotowoscStrzalka} />
       </Link>
+      {mapa.stan === "ladowanie" && <span className={w.ogrodZastepczy} aria-hidden="true" />}
       {umiejetnosci.length > 0 && (
         <Ogrod maly umiejetnosci={umiejetnosci} poziom={poziom} adres={(x) => adresMapy(poziom, x.skill_id)}
           tuDzis={polecenie.dane?.skill_id ?? null} etykieta={`Ogród umiejętności z angielskiego, poziom ${nazwaPoziomu[poziom]}`} />
@@ -74,6 +75,8 @@ function WierszPrzedmiotu({ s }: { s: Podsumowanie }) {
 
 function PowtorkiNaDzis({ poziom }: { poziom: Podsumowanie["przedmiot"]["poziom"] }) {
   const powtorki = useZapytanie(zapytania.powtorki(poziom));
+  // Miejsce na link, zanim dojdą powtórki: znika tylko, gdy żadnych nie ma.
+  if (powtorki.stan === "ladowanie") return <span className={w.linkPowtorekZastepczy} aria-hidden="true" />;
   const ile = powtorki.dane ? unikalnePowtorki([...(powtorki.dane.today ? [powtorki.dane.today] : []), ...powtorki.dane.queue]).length : 0;
   if (!ile) return null;
   return (
