@@ -8,6 +8,7 @@ import { Ladowanie } from "../../components/Ladowanie";
 import { Kropki, type Kropka } from "../../components/wykresy";
 import { useTutor } from "../../components/TutorContext";
 import { adresDiagnozy, adresNauki, adresPowtorek, adresRozbioru, adresRundy } from "../../nauka/adresy";
+import { biezacaWKolejce } from "../../nauka/kolejka";
 import { naukaApi, nazwaFormatuNauki, type FormatNauki, type OdpowiedzNauki, type PytanieNauki, type SesjaNauki } from "../../nauka/api";
 import { usePoziomNauki } from "../../nauka/stan";
 import { KafleOdpowiedzi, TrescRundy } from "./TrescRundy";
@@ -363,11 +364,13 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
   const zleZRzedu = poprzednie.length - 1 - poprzednie.map((a) => a.correct).lastIndexOf(true);
   const biezace = ocena?.prompt ?? pytanie?.prompt;
   const pozycja = ocena?.position ?? pytanie?.position;
+  // W kolejce „Powtórz wszystkie” nagłówek mówi, która to powtórka, a licznik niżej: które zadanie w niej.
+  const wKolejce = diagnoza ? null : biezacaWKolejce();
 
   return (
     <main className={`container czytanie ${s.strona}`}>
-      <NaglowekRundy tytul={nazwaFormatuNauki[sesja.format]} adres={diagnoza ? adresDiagnozy(sesja.level) : adresNauki(sesja.level, sesja.skill_id ?? undefined)} nazwa={diagnoza ? "Diagnoza" : undefined}>
-        <p className="small muted">Język angielski · {nazwaPoziomu[sesja.level]}</p>
+      <NaglowekRundy tytul={wKolejce ? `Powtórka ${wKolejce.numer} z ${wKolejce.razem}` : nazwaFormatuNauki[sesja.format]} adres={diagnoza ? adresDiagnozy(sesja.level) : adresNauki(sesja.level, sesja.skill_id ?? undefined)} nazwa={diagnoza ? "Diagnoza" : undefined}>
+        <p className="small muted">Język angielski · {nazwaPoziomu[sesja.level]}{wKolejce && ` · ${nazwaFormatuNauki[sesja.format]}`}</p>
       </NaglowekRundy>
       <section className={s.postep} aria-label="Postęp rundy">
         <div className={s.wierszPostepu}>
