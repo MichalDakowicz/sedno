@@ -11,7 +11,8 @@ import { naukaApi, type DowodNauki, type Umiejetnosc } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie, OPIS_OPANOWANIA } from "./Opanowanie";
-import { Kropki } from "../../components/wykresy";
+import { Kropki, Linia } from "../../components/wykresy";
+import { liniaOpanowania, wniosekLinii } from "../../nauka/historia";
 import { Liczba } from "../../ruch";
 import { Kielek } from "../../components/Kielek";
 import { StanPestki } from "../../components/StanPestki";
@@ -61,6 +62,10 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
   const proby = useZapytanieNauki(`dowody:${poziom}:${u.skill_id}`, (signal) => naukaApi.dowody(u.skill_id, poziom, signal));
   const maBledyJezykowe = proby.dane?.some((d) => d.score < 1 && d.error_type === "jezyk-i-forma");
   const diagnoza = useSesjaDiagnozy(poziom);
+  // Historia opanowania (nauka_historia): bez funkcji w bazie albo przy ocenie z jednego dnia linii nie ma.
+  const historia = useZapytanieNauki(`nauka:historia:${poziom}`, (signal) => naukaApi.historia(poziom, 90, signal));
+  const punkty = historia.dane?.skills.find((h) => h.skill_id === u.skill_id)?.points;
+  const linia = u.score !== null && punkty && historia.dane ? liniaOpanowania(punkty, historia.dane.to) : null;
 
   useEffect(() => {
     naglowek.current?.focus();
@@ -86,6 +91,13 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
               {u.retention !== null && <> · <span data-tutor-about="To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia.">pamiętasz ok. {Math.round(u.retention * 100)}%</span></>}
             </span>
           </p>
+          </div>
+        )}
+        {linia && (
+          <div className={s.ostatnie}>
+            <span className="label">{wniosekLinii(linia)}</span>
+            <Linia punkty={linia.wartosci} podpisOstatniego={`${Math.round(linia.wartosci.at(-1)! * 100)}%`}
+              opis={`${wniosekLinii(linia)}. Opanowanie teraz ${Math.round(linia.wartosci.at(-1)! * 100)}%.`} />
           </div>
         )}
         {proby.stan === "gotowe" && !!proby.dane?.length && <OstatnieProby proby={proby.dane} />}

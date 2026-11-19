@@ -136,3 +136,9 @@
   align-items: flex-end;
   gap: var(--s-1);
 }
+
+/* Minuty nauki w ostatnich tygodniach („Twój tydzień”): wniosek nad linią. */
+.minuty {
+  display: grid;
+  gap: var(--s-2);
+}

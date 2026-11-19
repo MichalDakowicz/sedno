@@ -1,5 +1,6 @@
 // Mapa w skrócie jako „ogród” Pestki: cztery obszary matury, w każdym rośliny jego umiejętności w stadiach
-// z opanowania (nauka/stadia.ts), i jedno zdanie wniosku. Szczegóły i procenty są na pełnej mapie.
+// z opanowania (nauka/stadia.ts), i jedno zdanie wniosku, z historią (nauka_historia) także o zmianie w tygodniu.
+// Szczegóły i procenty są na pełnej mapie.
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Kielek } from "../../components/Kielek";
@@ -7,6 +8,7 @@ import { Ladowanie } from "../../components/Ladowanie";
 import { nazwaPoziomu } from "../../konto/przedmioty";
 import { adresMapy, adresNauki } from "../../nauka/adresy";
 import { naukaApi, type Umiejetnosc } from "../../nauka/api";
+import { zmianaWTygodniu } from "../../nauka/historia";
 import { KOLEJNOSC_STADIOW, NAZWA_STADIUM, stadium } from "../../nauka/stadia";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import mapaStyl from "../nauka/Umiejetnosci.module.css";
@@ -34,11 +36,21 @@ function wniosek(umiejetnosci: Umiejetnosc[]) {
   return `Najlepiej rośnie ${najlepszy.nazwa.toLowerCase()}.${reszta}`;
 }
 
+const dzienWarszawa = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Warsaw" });
+
+/** Dopowiedzenie z historii: średnia zmiana opanowania w tygodniu; bez historii w bazie nic. */
+function tydzien(zmiana: number | null) {
+  if (zmiana === null) return "";
+  return ` W tym tygodniu opanowanie ${zmiana > 0 ? "wzrosło" : "spadło"} średnio o ${Math.abs(zmiana)} pkt proc.`;
+}
+
 export function MapaUmiejetnosci({ zakres, aktywny }: KontekstPulpitu) {
   const [poziom] = usePoziomNauki();
   const angielski = (!aktywny || aktywny === "angielski") && zakres.some((s) => s.przedmiot.id === "angielski");
   const mapa = useZapytanieNauki(angielski ? `mapa:${poziom}` : null, (signal) => naukaApi.mapa(poziom, signal));
+  const historia = useZapytanieNauki(angielski ? `nauka:historia:${poziom}` : null, (signal) => naukaApi.historia(poziom, 90, signal));
   if (!angielski) return null;
+  const zmiana = historia.dane ? zmianaWTygodniu(historia.dane, historia.dane.to ?? dzienWarszawa.format(new Date())) : null;
 
   const umiejetnosci = mapa.dane?.skills;
   return (
@@ -58,7 +70,7 @@ export function MapaUmiejetnosci({ zakres, aktywny }: KontekstPulpitu) {
       )}
       {umiejetnosci && (
         <>
-          <p>{wniosek(umiejetnosci)}</p>
+          <p>{wniosek(umiejetnosci)}{tydzien(zmiana)}</p>
           <ul className={w.ogrod} aria-label={`Angielski, poziom ${nazwaPoziomu[poziom]}`}>
             {OBSZARY.map((o) => {
               const lista = umiejetnosci.filter((u) => u.area === o.id);
