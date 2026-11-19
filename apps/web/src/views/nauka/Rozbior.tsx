@@ -11,6 +11,7 @@ import { naukaApi, nazwaFormatuNauki, type MapaNauki, type OdpowiedzNauki, type 
 import { nazwaOdpowiedzi, useSesjaRundy } from "./sesjaRundy";
 import { PestkaMowi, wybierz } from "./PestkaRundy";
 import { TrescRundy } from "./TrescRundy";
+import { Kropki, PasekProgu } from "../../components/wykresy";
 import s from "./SzybkaRunda.module.css";
 
 const procent = new Intl.NumberFormat("pl-PL", { style: "percent", maximumFractionDigits: 0 });
@@ -50,9 +51,15 @@ function ProbaRozbioru({ odpowiedz }: { odpowiedz: OdpowiedzNauki }) {
   );
 }
 
-const nazwyBledow: Record<string, string> = { "jezyk-i-forma": "Błędy językowe i dotyczące formy" };
+/** Tytuł sekcji to wniosek: o ile zmieniło się opanowanie, a nie nazwa wykresu. */
+function tytulZmiany(przed: number | null, po: number | null, zmiana: number | null) {
+  if (po == null) return "Za mało odpowiedzi, żeby ocenić opanowanie";
+  if (przed == null) return `Pierwsza ocena: ${procent.format(po)}`;
+  if (!zmiana) return "Opanowanie bez zmian";
+  return zmiana > 0 ? `Opanowanie w górę o ${zmiana} pkt proc.` : `Opanowanie w dół o ${-zmiana} pkt proc.`;
+}
 
-const odmianaZadan = (n: number) => n === 1 ? "zadanie" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "zadania" : "zadań";
+const nazwyBledow: Record<string, string> = { "jezyk-i-forma": "Błędy językowe i dotyczące formy" };
 
 const podsumowaniaPestki = {
   bezbledna: ["Bezbłędna runda. Tak się buduje pewność.", "Wszystko dobrze. Ta umiejętność idzie w górę."],
@@ -60,52 +67,39 @@ const podsumowaniaPestki = {
   slaba: ["Ta umiejętność potrzebuje jeszcze kilku rund. Zacznij od zadań z błędem.", "Trudna runda. Przejrzyj błędy, a następna pójdzie lepiej."],
 };
 
-function Podsumowanie({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
+/** Jedno zdanie Pestki o rundzie: na tej samej zasadzie co reakcje przy werdykcie (gotowe teksty, bez AI). */
+function zdaniePestki(odpowiedzi: OdpowiedzNauki[]) {
+  const dobre = odpowiedzi.filter((a) => a.correct).length;
+  const udzial = odpowiedzi.length ? dobre / odpowiedzi.length : 0;
+  const lista = udzial === 1 ? podsumowaniaPestki.bezbledna : udzial >= 0.6 ? podsumowaniaPestki.dobra : podsumowaniaPestki.slaba;
+  return wybierz(lista, odpowiedzi.length);
+}
+
+function KropkiOdpowiedzi({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
   const dobre = odpowiedzi.filter((a) => a.correct).length;
   const pominiete = odpowiedzi.filter((a) => !a.correct && !a.answer.trim()).length;
-  const bledne = odpowiedzi.length - dobre - pominiete;
+  return (
+    <Kropki
+      opis={`Dobrze ${dobre}, źle ${odpowiedzi.length - dobre - pominiete}${pominiete ? `, pominięte ${pominiete}` : ""}.`}
+      kropki={odpowiedzi.map((a) => ({ stan: a.correct ? "dobrze" : a.answer.trim() ? "zle" : "pominiete", tytul: opisZadania(a) }))}
+    />
+  );
+}
+
+function BledyRundy({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
   const bledy = new Map<string, number>();
   for (const a of odpowiedzi) {
     if (!a.correct && a.answer.trim() && a.error_type && nazwyBledow[a.error_type]) bledy.set(a.error_type, (bledy.get(a.error_type) ?? 0) + 1);
   }
-  const udzial = odpowiedzi.length ? dobre / odpowiedzi.length : 0;
-  const lista = udzial === 1 ? podsumowaniaPestki.bezbledna : udzial >= 0.6 ? podsumowaniaPestki.dobra : podsumowaniaPestki.slaba;
-  const zdania = [
-    dobre ? `Dobrze poszło: ${dobre} ${odmianaZadan(dobre)}.` : "Tym razem żadne zadanie nie wyszło.",
-    bledne ? `Do poprawy: ${bledne} ${odmianaZadan(bledne)}.` : "",
-    pominiete ? `Pominięte: ${pominiete}.` : "",
-  ].filter(Boolean);
-  return (
-    <section className={s.sekcja} aria-labelledby="podsumowanie-rundy">
-      <h2 id="podsumowanie-rundy" className="h2">Co poszło dobrze, a co nie</h2>
-      <p>{zdania.join(" ")}</p>
-      {bledy.size > 0 && <ul className="small muted">
-        {[...bledy].map(([typ, ile]) => <li key={typ}>{nazwyBledow[typ]}: {ile}</li>)}
-      </ul>}
-      <PestkaMowi tekst={wybierz(lista, odpowiedzi.length)} />
-    </section>
-  );
-}
-
-// Pasek rośnie (albo maleje) od wartości sprzed rundy do wartości po niej, żeby zmiana była widoczna.
-function PasekOpanowania({ przed, po }: { przed: number | null; po: number | null }) {
-  const [szerokosc, setSzerokosc] = useState(przed ?? 0);
-  useEffect(() => {
-    const t = window.setTimeout(() => setSzerokosc(po ?? 0), 150);
-    return () => window.clearTimeout(t);
-  }, [po]);
-  return (
-    <span className={s.pasekOpanowania} aria-hidden="true">
-      {przed != null && <span className={s.pasekPrzed} style={{ width: `${przed * 100}%` }} />}
-      <span className={s.pasekPo} style={{ width: `${szerokosc * 100}%` }} />
-    </span>
-  );
+  if (!bledy.size) return null;
+  return <ul className="small muted">{[...bledy].map(([typ, ile]) => <li key={typ}>{nazwyBledow[typ]}: {ile}</li>)}</ul>;
 }
 
 function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<SesjaNauki["result"]> } }) {
   const { level, result, skill_id, format } = sesja;
   const [mapa, setMapa] = useState<MapaNauki | null>(null);
   const naglowek = useRef<HTMLHeadingElement>(null);
+  const [zadania, setZadania] = useState(false);
   useEffect(() => { naglowek.current?.focus(); }, []);
   useEffect(() => {
     const kontroler = new AbortController();
@@ -133,23 +127,28 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
       </NaglowekStrony>
       <section className={s.sekcja} aria-labelledby="wynik-rundy">
         <h2 id="wynik-rundy" className="h1">{result.wynik.poprawne} z {result.wynik.wszystkich} poprawnie</h2>
-        <ul className={s.wierszeRozbioru}>{sesja.answers.map((a) => <ProbaRozbioru key={a.position} odpowiedz={a} />)}</ul>
+        <KropkiOdpowiedzi odpowiedzi={sesja.answers} />
+        <PestkaMowi tekst={zdaniePestki(sesja.answers)} />
+        <details className={s.rozwijane} onToggle={(e) => setZadania(e.currentTarget.open)}>
+          <summary><ChevronRight size={16} aria-hidden="true" /> Zadania tej rundy</summary>
+          {zadania && (
+            <>
+              <ul className={s.wierszeRozbioru}>{sesja.answers.map((a) => <ProbaRozbioru key={a.position} odpowiedz={a} />)}</ul>
+              <BledyRundy odpowiedzi={sesja.answers} />
+            </>
+          )}
+        </details>
       </section>
-      <Podsumowanie odpowiedzi={sesja.answers} />
       <section className={s.sekcja} aria-labelledby="mapa-po-rundzie">
-        <h2 className="h2" id="mapa-po-rundzie">Zmiana opanowania{nazwa && ` · ${nazwa}`}</h2>
-        <PasekOpanowania przed={result.opanowanie_przed} po={result.opanowanie_po} />
-        <dl className={s.mapaRozbioru}>
-          <div><dt className="small muted">Przed rundą</dt><dd>{opanowanie(result.opanowanie_przed)}</dd></div>
-          <div>
-            <dt className="small muted">Po rundzie</dt>
-            <dd>
-              {opanowanie(result.opanowanie_po)}
-              {zmiana ? <span className={s.zmiana} data-plus={zmiana > 0}> {zmiana > 0 ? "+" : "−"}{Math.abs(zmiana)} pkt</span> : null}
-            </dd>
-          </div>
-        </dl>
-        {inneNaMapie && <p className="small muted" data-tutor-about="Na mapie opanowanie powoli maleje, gdy długo nie ćwiczysz, a rozbiór pokazuje stan zaraz po rundzie.">Na mapie jest {opanowanie(naMapie)}.</p>}
+        <h2 className="h2" id="mapa-po-rundzie">{tytulZmiany(result.opanowanie_przed, result.opanowanie_po, zmiana)}</h2>
+        {result.opanowanie_po != null && (
+          <PasekProgu gruby wartosc={result.opanowanie_po} przed={result.opanowanie_przed}
+            opis={`Opanowanie${nazwa ? ` umiejętności ${nazwa}` : ""}: przed rundą ${opanowanie(result.opanowanie_przed)}, po rundzie ${opanowanie(result.opanowanie_po)}.`} />
+        )}
+        <p className="small muted">
+          {nazwa ? `${nazwa} · ` : ""}przed rundą {opanowanie(result.opanowanie_przed)}, po rundzie {opanowanie(result.opanowanie_po)}
+          {inneNaMapie && <span data-tutor-about="Na mapie opanowanie powoli maleje, gdy długo nie ćwiczysz, a rozbiór pokazuje stan zaraz po rundzie."> · na mapie {opanowanie(naMapie)}</span>}
+        </p>
         <div><Link to={adresMapy(level, skill_id)} className="link">Zobacz umiejętność na mapie</Link></div>
       </section>
       {/* W trakcie diagnozy następnym krokiem jest kolejny obszar, nie polecenie z mapy. */}

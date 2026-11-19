@@ -5,6 +5,7 @@ import { useSession } from "../../auth";
 import { nazwaPoziomu, nazwaZadaniaCke, type Poziom } from "../../arkusze/typy";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
+import { Kropki, type Kropka } from "../../components/wykresy";
 import { useTutor } from "../../components/TutorContext";
 import { adresNauki, adresPowtorek, adresRozbioru, adresRundy } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type FormatNauki, type OdpowiedzNauki, type PytanieNauki, type SesjaNauki } from "../../nauka/api";
@@ -369,7 +370,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
             {sesja.format === "szybka-runda" && <ZegarRundy poczatek={startZegara} koniec={sesja.completed_at} />}
           </div>
         </div>
-        <progress aria-label="Sprawdzone zadania" value={sesja.answers.length} max={sesja.limit} />
+        <PostepRundy odpowiedzi={sesja.answers} limit={sesja.limit} biezaca={pozycja} />
       </section>
       {blad && <div className={s.komunikat}>
         <p className={s.blad} role="alert">{blad}</p>
@@ -391,6 +392,18 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
       ) : <p role="alert">Brakuje zadania do rozwiązania.</p>}
     </main>
   );
+}
+
+/** Kropki zadań rundy: zielona dobrze, czerwona źle, z kreską pominięte, pusta jeszcze przed tobą. */
+function PostepRundy({ odpowiedzi, limit, biezaca }: { odpowiedzi: OdpowiedzNauki[]; limit: number; biezaca?: number }) {
+  const poPozycji = new Map(odpowiedzi.map((a) => [a.position, a]));
+  const kropki: Kropka[] = Array.from({ length: limit }, (_, i) => {
+    const a = poPozycji.get(i + 1);
+    const stan = !a ? "pusta" : a.correct ? "dobrze" : a.answer.trim() ? "zle" : "pominiete";
+    return { stan, biezaca: i + 1 === biezaca && !a };
+  });
+  const dobre = odpowiedzi.filter((a) => a.correct).length;
+  return <Kropki kropki={kropki} opis={`Sprawdzone ${odpowiedzi.length} z ${limit} zadań, dobrze ${dobre}.`} />;
 }
 
 function OdczytanaRunda({ id, user }: { id: string; user: string }) {
