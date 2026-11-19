@@ -10,7 +10,7 @@ import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/a
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
-import { etykietaZrodla, kluczPowtorki, szacowanyCzas, unikalnePowtorki } from "../pulpit/czasPowtorek";
+import { etykietaZrodla, kluczPowtorki, unikalnePowtorki } from "../pulpit/czasPowtorek";
 import s from "./Powtorki.module.css";
 
 type Powtorka = Awaited<ReturnType<typeof naukaApi.powtorki>>["queue"][number];
@@ -42,7 +42,6 @@ export function Powtorki() {
   const naKarcie = dzien.dzis?.powtorka;
   const wszystkie = unikalnePowtorki([...(powtorki.dane?.today ? [powtorki.dane.today] : []), ...(powtorki.dane?.queue ?? [])]);
   const pozostale = wszystkie.filter((p) => !naKarcie || kluczPowtorki(p) !== kluczPowtorki(naKarcie));
-  const rundy = wszystkie.length;
   const zanikajace = pozostale.filter((p) => !p.mistake);
   const bledy = grupujBledy(pozostale.filter((p) => p.mistake));
 
@@ -72,7 +71,6 @@ export function Powtorki() {
         </section>
       )}
 
-      {rundy > 0 && <p className="muted">Szacowany czas: {szacowanyCzas(rundy)}</p>}
 
 
       {bledy.length > 0 && (

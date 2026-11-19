@@ -1,6 +1,5 @@
 import { nazwaZadaniaCke, nazwaZadaniaRundy } from "../../arkusze/typy";
 import type { Powtorka } from "../../nauka/api";
-import { MINUTY_RUNDY } from "../../nauka/dzis";
 
 export function kluczPowtorki(p: Powtorka) {
   const m = p.mistake;
@@ -18,8 +17,6 @@ export function unikalnePowtorki(kolejka: Powtorka[]) {
     return true;
   });
 }
-
-export const szacowanyCzas = (rundy: number) => `ok. ${rundy * MINUTY_RUNDY} minut`;
 
 /** Podpis źródła błędu bez linku: „Matura maj 2026 · zadanie 1.3” albo „Szybka runda z 18 listopada · zadanie 5”. */
 export function etykietaZrodla(blad: NonNullable<Powtorka["mistake"]>): string | null {

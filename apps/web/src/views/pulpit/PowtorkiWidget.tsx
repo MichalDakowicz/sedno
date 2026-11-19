@@ -5,7 +5,7 @@ import { adresNauki, adresPowtorek } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { procentNauki } from "../nauka/NaukaPowtorki";
-import { etykietaZrodla, kluczPowtorki, szacowanyCzas, unikalnePowtorki } from "./czasPowtorek";
+import { etykietaZrodla, kluczPowtorki, unikalnePowtorki } from "./czasPowtorek";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
 import w from "./Widgety.module.css";
@@ -53,7 +53,6 @@ export function PowtorkiWidget({ zakres, aktywny }: KontekstPulpitu) {
             ))}
           </ul>
           <div className={w.stopka}>
-            <span className="muted small">Szacowany czas · {szacowanyCzas(kolejka.length)}</span>
             <Link to={adresPowtorek(poziom)} className="link">
               Wszystkie powtórki <ArrowRight size={14} aria-hidden="true" />
             </Link>
