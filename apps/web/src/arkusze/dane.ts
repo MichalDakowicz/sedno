@@ -61,6 +61,8 @@ function useZapytanie<T>(klucz: string, pobierz: () => PromiseLike<{ data: T | n
   return stan;
 }
 
+const listy = new Map<string, ArkuszWpis[]>();
+
 // Lista arkuszy rzadko się zmienia, więc w obrębie sesji pobieramy ją raz.
 let lista: Promise<{ data: ArkuszWpis[] | null; error: { message: string } | null }> | null = null;
 
@@ -72,13 +74,15 @@ function pobierzListe() {
       .order("position")
       .then(({ data, error }) => {
         if (error) lista = null;
+        else if (data?.length) listy.set("lista", data.map((r) => r.entry as ArkuszWpis));
         return { data: data ? data.map((r) => r.entry as ArkuszWpis) : null, error };
       }),
   );
   return lista;
 }
 
-const listy = new Map<string, ArkuszWpis[]>();
+/** Rozgrzewanie: lista arkuszy w tle, zanim uczeń wejdzie na Arkusze albo pulpit. */
+export const rozgrzejListeArkuszy = () => void pobierzListe();
 
 export const useListaArkuszy = () => useZapytanie<ArkuszWpis[]>("lista", pobierzListe, listy);
 

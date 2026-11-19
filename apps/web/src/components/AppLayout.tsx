@@ -11,6 +11,7 @@ import { useAiReady } from "../ai";
 import { pobierzPostepy } from "../arkusze/postep";
 import { pobierzRozmowy } from "../konto/rozmowy";
 import { opisPrzedmiotow } from "../konto/przedmioty";
+import { useRozgrzewanie } from "../nauka/rozgrzewanie";
 
 export function AppLayout() {
   const location = useLocation();
@@ -18,6 +19,7 @@ export function AppLayout() {
   const userId = session ? session.user.id : null;
   const profil = useProfil();
   const ai = useAiReady(userId);
+  useRozgrzewanie();
 
   useEffect(() => {
     if (!location.hash) window.scrollTo(0, 0);
