@@ -29,6 +29,7 @@ import { UczenUczy } from "./views/nauka/UczenUczy";
 import { Zadania } from "./views/nauka/Zadania";
 import { Zdjecie } from "./views/nauka/Zdjecie";
 import { Sokratejski } from "./views/nauka/Sokratejski";
+import { KrokPoKroku } from "./views/nauka/KrokPoKroku";
 import { Umiejetnosci } from "./views/nauka/Umiejetnosci";
 
 // Ustawienia stosują się od startu, nie dopiero na ich stronie.
@@ -54,6 +55,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="nauka/zadania" element={<Zadania />} />
           <Route path="nauka/zdjecie" element={<Zdjecie />} />
           <Route path="nauka/sokratejski" element={<Sokratejski />} />
+          <Route path="nauka/pisanie" element={<KrokPoKroku />} />
           <Route path="nauka/diagnoza" element={<Diagnoza />} />
           <Route path="arkusze" element={<Arkusze />} />
           <Route path="arkusze/:id" element={<Arkusz />} />

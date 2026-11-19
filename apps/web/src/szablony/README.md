@@ -28,7 +28,7 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 ### Nauka
 
 - [ ] [Napraw błąd](napraw-blad/README.md): praca z wstrzykniętymi błędami
-- [ ] [Krok po kroku](krok-po-kroku/README.md): dłuższa odpowiedź etapami z listą kontrolną
+- [x] Krok po kroku: działa jako `/nauka/pisanie` (`views/nauka/KrokPoKroku.tsx`)
 - [x] Tutor sokratejski: działa jako `/nauka/sokratejski` (`views/nauka/Sokratejski.tsx`)
 - [ ] [Wizualizacje](wizualizacje/README.md): interaktywne modele pojęć
 

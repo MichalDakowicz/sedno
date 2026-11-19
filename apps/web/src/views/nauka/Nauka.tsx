@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowRight, Camera, ChevronRight, CircleHelp, FileText, GraduationCap, MessagesSquare, Sparkles, Timer, Wrench } from "lucide-react";
+import { ArrowRight, Camera, ChevronRight, CircleHelp, FileText, PenLine, GraduationCap, MessagesSquare, Sparkles, Timer, Wrench } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
 import { useProfil } from "../../auth";
 import { KartaDnia } from "../../components/KartaDnia";
@@ -105,6 +105,7 @@ export function Nauka() {
     ...(doNaprawy || mapa.stan === "ladowanie" ? [{ id: "napraw-blad" as const, to: doNaprawy ? adresStartu(poziom, doNaprawy.skill_id, "napraw-blad") : "#cos-innego", nazwa: "Napraw błąd", kiedy: "Mylisz formy i chcesz wiedzieć dlaczego.", ikona: <Wrench size={18} aria-hidden="true" /> }] : []),
     { id: "arkusze", to: "/arkusze?przedmiot=angielski", nazwa: "Arkusze CKE", kiedy: "Przed maturą próbną albo gdy masz dwie godziny.", ikona: <FileText size={18} aria-hidden="true" /> },
     ...(aiGotowe !== false ? [{ id: "sokratejski" as const, to: `/nauka/sokratejski?poziom=${poziom}${doSposobow ? `&umiejetnosc=${doSposobow.skill_id}` : ""}`, nazwa: "Rozmowa z pytaniami", kiedy: "Chcesz zrozumieć, nie tylko trafić.", ikona: <CircleHelp size={18} aria-hidden="true" /> }] : []),
+    { id: "pisanie", to: `/nauka/pisanie?poziom=${poziom}`, nazwa: "Pisanie krok po kroku", kiedy: "Ćwiczysz wypowiedź pisemną.", ikona: <PenLine size={18} aria-hidden="true" /> },
     { id: "zdjecie", to: "/nauka/zdjecie", nazwa: "Zdjęcie z kartki", kiedy: "Rozwiązujesz na papierze i chcesz omówienia.", ikona: <Camera size={18} aria-hidden="true" /> },
     { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Uczeń uczy AI", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
     // Wiersz stoi też w trakcie sprawdzania AI (undefined), żeby lista nie urosła o wiersz po chwili.

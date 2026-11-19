@@ -23,14 +23,6 @@ export const SZABLONY: Szablon[] = [
     wejscie: "Nauka",
   },
   {
-    slug: "krok-po-kroku",
-    tytul: "Krok po kroku",
-    opis: "Budowanie dłuższej odpowiedzi z listą kontrolną i wygaszaną pomocą.",
-    grupa: "Nauka",
-    dalej: ["rozbior"],
-    wejscie: "Nauka",
-  },
-  {
     slug: "wizualizacje",
     tytul: "Wizualizacje",
     opis: "Interaktywny model do pojęcia: wykres z suwakiem, algorytm krok po kroku.",
@@ -62,6 +54,7 @@ export const WDROZONE: Record<string, { to: string; tytul: string; opis: string 
   umiejetnosci: { to: "/umiejetnosci", tytul: "Mapa umiejętności", opis: "Sprawdź opanowanie i przejrzyj dowody." },
   "zdjecie": { to: "/nauka/zdjecie", tytul: "Zdjęcie z kartki", opis: "Pestka czyta rozwiązanie z kartki i wskazuje krok do sprawdzenia." },
   "sokratejski": { to: "/nauka/sokratejski", tytul: "Rozmowa z pytaniami", opis: "Pestka pyta o jedną umiejętność, na końcu mini-test." },
+  "krok-po-kroku": { to: "/nauka/pisanie", tytul: "Pisanie krok po kroku", opis: "Wypowiedź pisemna etapami z listą kontrolną i pytaniem Pestki." },
   powtorki: { to: "/powtorki", tytul: "Powtórki", opis: "Wróć do błędu albo umiejętności, która zanika." },
 };
 
