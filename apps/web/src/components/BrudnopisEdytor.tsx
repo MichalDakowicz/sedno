@@ -2,18 +2,20 @@
 // Ładowany leniwie (Brudnopis.tsx), bo Excalidraw waży kilkaset kB.
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { CaptureUpdateAction, convertToExcalidrawElements, Excalidraw, getCommonBounds, hashElementsVersion, newElementWith, sceneCoordsToViewportCoords } from "@excalidraw/excalidraw";
+import { CaptureUpdateAction, convertToExcalidrawElements, Excalidraw, getCommonBounds, hashElementsVersion, newElementWith } from "@excalidraw/excalidraw";
 import type { AppState, BinaryFileData, DataURL, ExcalidrawImperativeAPI, ExcalidrawInitialDataState, NormalizedZoomValue } from "@excalidraw/excalidraw/types";
 import type { ExcalidrawElement, FileId } from "@excalidraw/excalidraw/element/types";
 import "@excalidraw/excalidraw/index.css";
-import { Circle, Eraser, Hand, Maximize2, Minimize2, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Sparkles, Square, Trash2, Type, Undo2, X, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
+import { Circle, Eraser, Footprints, Hand, Maximize2, MessagesSquare, Minimize2, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Square, Trash2, Type, Undo2, X, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
 import { useCiemny } from "../motyw";
-import { mniejRuchu } from "../ruch";
+import { CZAS, mniejRuchu } from "../ruch";
+import { AiError } from "../ai";
 import { currentUserId, useSession } from "../auth";
 import { adresObrazu, type Obraz } from "../arkusze/typy";
-import { BrudnopisPestka, komunikatPestki } from "./BrudnopisPestka";
-import type { OdpowiedzPestki } from "./brudnopisPestkaApi";
-import { pokazZapisPestki, przygotujZapisPestki, zapiszDopiskiPestki } from "./brudnopisPestkaRysunek";
+import { HistoriaPestki, PestkaNaTablicy, type DymekPestki, type FazaPestki, type WpisHistorii } from "./BrudnopisPestka";
+import { omowTablice, type OdpowiedzPestki, type Punkt } from "./brudnopisPestkaApi";
+import { BLAD, ostatniaKreska, pokazZapisPestki, przygotujZapisPestki, zapiszDopiskiPestki, zetrzyjDopiskiPestki } from "./brudnopisPestkaRysunek";
+import { wczytajCzcionkiWzorow } from "./brudnopisPestkaWzory";
 import { TutorAvatar } from "./TutorAvatar";
 import { useProwadzeniePestki, type ZapisProwadzenia } from "./useProwadzeniePestki";
 import styles from "./Brudnopis.module.css";
@@ -21,6 +23,8 @@ import styles from "./Brudnopis.module.css";
 export const ID_RYSUNKU = "rysunek-bazowy";
 // Dodatkowe rysunki (np. wykresy opcji A–F) mają id „rysunek-bazowy-1”, „-2”…
 const czyBazowy = (id: string) => id === ID_RYSUNKU || id.startsWith(`${ID_RYSUNKU}-`);
+
+type StanPestki = { faza: FazaPestki; punkt: Punkt; skok: number; dymek?: DymekPestki; prowadzenie?: boolean };
 
 // Excalidraw na zdarzenie focus okna kończy gest, któremu „zginął” pointerup
 // (maybeCleanupAfterMissingPointerUp). Gdy strona nie ma fokusu (aktywne inne okno),
@@ -344,70 +348,182 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   const pokaz = useRef(pokazDodatkowe);
   pokaz.current = pokazDodatkowe;
   const api = useRef<ExcalidrawImperativeAPI | null>(null);
-  const [pestka, setPestka] = useState(false);
-  const [piszePestka, setPiszePestka] = useState(false);
+  const [pestka, setPestka] = useState<StanPestki | null>(null);
+  const [historia, setHistoria] = useState<WpisHistorii[]>([]);
+  const [historiaOtwarta, setHistoriaOtwarta] = useState(false);
   const pisaniePestki = useRef<AbortController | null>(null);
+  const zapytanie = useRef<AbortController | null>(null);
   const nakladkaPestki = useRef<HTMLCanvasElement>(null);
-  const idPestki = useId();
+  const idHistorii = useId();
   const przyciskPestki = useRef<HTMLButtonElement>(null);
   const sesja = useSession();
   const konto = sesja ? sesja.user.id : null;
-  const prowadzenie = useProwadzeniePestki({ api, konto, plik, polecenie: poleceniePestki, czyBazowy, pokaz: pokazNaTablicy });
+  const prowadzenie = useProwadzeniePestki({ api, konto, plik, polecenie: poleceniePestki, czyBazowy, pokaz: pokazProwadzenie });
   const prowadzi = prowadzenie.stan === "czeka" || prowadzenie.stan === "czyta";
-  const zamknijPestke = () => {
-    setPestka(false);
-    // Bez przewijania: fokus na przycisku nie może przesunąć strony po zamknięciu panelu.
-    przyciskPestki.current?.focus({ preventScroll: true });
-  };
-  useEffect(() => {
-    if (!poleceniePestki) setPestka(false);
-  }, [poleceniePestki]);
-  useEffect(() => () => pisaniePestki.current?.abort(), [plik, pelny, poleceniePestki]);
+  const dopiszDoHistorii = (wpis: Omit<WpisHistorii, "id">) => setHistoria((h) => [...h, { ...wpis, id: (h.at(-1)?.id ?? 0) + 1 }]);
 
-  async function pokazNaTablicy(dane: OdpowiedzPestki, zapis?: ZapisProwadzenia) {
+  useEffect(() => {
+    if (!poleceniePestki) setPestka(null);
+  }, [poleceniePestki]);
+  useEffect(() => () => {
+    pisaniePestki.current?.abort();
+    zapytanie.current?.abort();
+    zapytanie.current = null;
+  }, [plik, pelny, poleceniePestki, konto]);
+
+  // Miejsce na Pestkę przy ostatniej kresce ucznia (po prawej, nad jej górną krawędzią), a bez pracy w rogu widoku.
+  function punktPrzyKresce(): Punkt {
+    const a = api.current;
+    if (!a) return [0, 0];
+    const stan = a.getAppState();
+    const z = stan.zoom.value;
+    const kreska = ostatniaKreska(a.getSceneElements(), czyBazowy);
+    if (!kreska) return [-stan.scrollX + 16 / z, -stan.scrollY + 16 / z];
+    const [, y1, x2] = getCommonBounds([kreska]);
+    return [x2 + 12 / z, y1 - 8 / z];
+  }
+
+  const zamknijPestke = () => {
+    const wPestce = Boolean(document.activeElement?.closest(`.${styles.pestkaNaTablicy}`));
+    setPestka(null);
+    if (typeof prowadzenie.stan === "object") prowadzenie.zatrzymaj();
+    // Fokus wraca do przycisku tylko, gdy był w polu Pestki; bez przewijania strony.
+    if (wPestce) przyciskPestki.current?.focus({ preventScroll: true });
+  };
+
+  function otworzPole() {
+    if (zapytanie.current || pisaniePestki.current) return;
+    if (!konto) return bladPestki("not_signed_in");
+    setPestka({ faza: "pole", punkt: punktPrzyKresce(), skok: 0 });
+  }
+
+  function zetrzyjDopiski() {
+    if (api.current) zetrzyjDopiskiPestki(api.current);
+    setPestka((p) => (p?.faza === "dymek" && p.dymek ? { ...p, dymek: { ...p.dymek, zetrzyj: undefined, pokaz: undefined } } : p));
+  }
+
+  function bladPestki(kod: string, ponow?: () => void, punkt = punktPrzyKresce()) {
+    setPestka({ faza: "dymek", punkt, skok: 0, dymek: { blad: kod, ponow } });
+  }
+
+  async function zapytaj(pytanie: string) {
+    const a = api.current;
+    if (zapytanie.current || pisaniePestki.current) return;
+    if (!konto || currentUserId() !== konto) return bladPestki("not_signed_in");
+    if (!a || a.getAppState().isLoading || !poleceniePestki) return bladPestki("board_loading", () => void zapytaj(pytanie));
+    const c = new AbortController();
+    zapytanie.current = c;
+    const punkt = punktPrzyKresce();
+    // Pole pytania znika, więc fokus wraca do twarzy Pestki w pasku, a nie na początek strony.
+    if (document.activeElement?.closest("." + styles.pestkaNaTablicy)) przyciskPestki.current?.focus({ preventScroll: true });
+    setPestka({ faza: "mysli", punkt, skok: 0 });
+    try {
+      const dane = await omowTablice(a, konto, poleceniePestki, pytanie, c.signal);
+      if (c.signal.aborted) return;
+      zapytanie.current = null;
+      dopiszDoHistorii({ pytanie, dane });
+      await pokazNaTablicy(dane);
+    } catch (e) {
+      if (c.signal.aborted) return;
+      const kod = e instanceof AiError ? e.code : "server_error";
+      dopiszDoHistorii({ pytanie, blad: kod });
+      bladPestki(kod, () => void zapytaj(pytanie), punkt);
+    } finally {
+      if (zapytanie.current === c) zapytanie.current = null;
+    }
+  }
+
+  function pokazProwadzenie(dane: OdpowiedzPestki, zapis: ZapisProwadzenia) {
+    dopiszDoHistorii({ pytanie: "", prowadzenie: true, dane });
+    return pokazNaTablicy(dane, zapis);
+  }
+
+  // Pestka pisze w wolnym miejscu przy pracy ucznia, nigdy nie przesuwając jego widoku. Najpierw przechodzi
+  // tam, gdzie zacznie pisać, potem idzie za pismem i na końcu odsuwa się na bok z dymkiem.
+  async function pokazNaTablicy(dane: OdpowiedzPestki, zapis?: ZapisProwadzenia, bezDymka = false) {
     const tablica = api.current;
     const nakladka = nakladkaPestki.current;
-    const uzytkownik = currentUserId();
-    if (!tablica || !konto || uzytkownik !== konto || pisaniePestki.current || zapis?.signal.aborted) return false;
+    if (!tablica || !konto || currentUserId() !== konto || pisaniePestki.current || zapis?.signal.aborted) return false;
     const kontroler = new AbortController();
     const przerwij = () => kontroler.abort();
     zapis?.signal.addEventListener("abort", przerwij, { once: true });
     pisaniePestki.current = kontroler;
-    if (!zapis) zamknijPestke();
-    const animuj = Boolean(nakladka && !mniejRuchu());
-    if (animuj) setPiszePestka(true);
     const aktywna = () => !kontroler.signal.aborted && api.current === tablica && currentUserId() === konto && (!zapis || zapis.aktualny());
+    const krok = dane.stanProwadzenia;
     try {
-      const kod = dane.dopiski.filter((d) => d.typ === "kod").map((d) => d.tekst).join("\n");
-      const pismo = ["Pestka", dane.wskazowka, ...dane.dopiski.filter((d) => d.typ !== "kod").map((d) => d.tekst), ...Object.values(dane.bryla?.oznaczenia ?? {})].join("\n");
+      const pismo = ["Pestka", ...dane.dopiski.map((d) => d.tekst), ...Object.values(dane.bryla?.oznaczenia ?? {})].join("\n");
       await Promise.all([
-        document.fonts.load("20px Excalifont", pismo).catch(() => []),
-        kod ? document.fonts.load("17px Cascadia", kod).catch(() => []) : [],
+        wczytajCzcionkiWzorow(pismo),
+        dane.dopiski.some((d) => d.typ === "kod") ? document.fonts.load("17px Cascadia", pismo).catch(() => []) : [],
       ]);
       if (!aktywna()) return false;
-      const nowe = przygotujZapisPestki(tablica, dane);
-      if (zapis) {
-        const stan = tablica.getAppState();
-        const [x1, y1, x2, y2] = getCommonBounds(nowe);
-        const a = sceneCoordsToViewportCoords({ sceneX: x1, sceneY: y1 }, stan);
-        const b = sceneCoordsToViewportCoords({ sceneX: x2, sceneY: y2 }, stan);
-        if (a.x < stan.offsetLeft || a.y < stan.offsetTop || b.x > stan.offsetLeft + stan.width || b.y > stan.offsetTop + stan.height) {
-          tablica.scrollToContent([...zapis.zmienione, ...nowe], { fitToViewport: true, viewportZoomFactor: 0.86, maxZoom: stan.zoom.value });
-        }
-      } else {
-        tablica.setActiveTool({ type: "selection" });
-        tablica.scrollToContent(nowe, { fitToViewport: true, viewportZoomFactor: 0.8, maxZoom: 1 });
+      const { elementy: nowe, pozaWidokiem } = przygotujZapisPestki(tablica, dane, czyBazowy);
+      const z = tablica.getAppState().zoom.value;
+      const przed = (e: ExcalidrawElement): Punkt => [e.x - 48 / z, e.y - 6 / z];
+      const pierwszy = nowe.find((e) => e.customData?.pestka && e.strokeColor !== BLAD) ?? nowe[0];
+      if (nowe.length && !mniejRuchu() && nakladka && !pozaWidokiem) {
+        setPestka((p) => ({ faza: "pisze", punkt: pierwszy ? przed(pierwszy) : punktPrzyKresce(), skok: (p?.skok ?? 0) + 1 }));
+        // Chwila na przejście na miejsce zapisu, zanim pojawi się pierwsza kreska.
+        await new Promise((r) => window.setTimeout(r, CZAS.zwykly));
+        if (!aktywna()) return false;
+        await pokazZapisPestki(nakladka, tablica, nowe, kontroler.signal, (e) => {
+          if (e.type === "text" && e.text === "Pestka") return;
+          setPestka((p) => (p ? { ...p, faza: "pisze", punkt: przed(e), skok: p.skok + 1 } : p));
+        });
       }
-      if (animuj && nakladka) await pokazZapisPestki(nakladka, tablica, nowe, kontroler.signal);
       if (!aktywna()) return false;
-      zapiszDopiskiPestki(tablica, nowe);
+      if (nowe.length) zapiszDopiskiPestki(tablica, nowe);
+      const dopisane = nowe.filter((e) => e.strokeColor !== BLAD);
+      const [, y1, x2] = dopisane.length ? getCommonBounds(dopisane) : [0, 0, 0, 0];
+      const obok: Punkt = dopisane.length && !pozaWidokiem ? [x2 + 10 / z, y1] : punktPrzyKresce();
+      const pokaz = pozaWidokiem && dopisane.length
+        ? () => tablica.scrollToContent(dopisane, { fitToViewport: true, viewportZoomFactor: 0.8, maxZoom: tablica.getAppState().zoom.value, animate: !mniejRuchu() })
+        : undefined;
+      const uwaga = pozaWidokiem && dopisane.length ? "Zapisałam obok, poza widokiem." : dane.pominietoElementy ? "Część zapisu ma błędny format. Poproś mnie o osobny rysunek lub dopisek." : undefined;
+      if (bezDymka) setPestka(null);
+      else if (krok === "krok" && !pokaz) {
+        setPestka((p) => ({ faza: "kiwa", punkt: dopisane.length ? obok : punktPrzyKresce(), skok: (p?.skok ?? 0) + 1 }));
+        window.setTimeout(() => setPestka((p) => (p?.faza === "kiwa" ? null : p)), 1600);
+      } else {
+        setPestka((p) => ({
+          faza: "dymek", punkt: obok, skok: (p?.skok ?? 0) + 1,
+          dymek: {
+            tekst: krok === "krok" ? undefined : dane.wskazowka,
+            odczyt: krok ? null : dane.odczyt,
+            uwaga, pokaz,
+            zetrzyj: dopisane.length && !krok ? zetrzyjDopiski : undefined,
+          },
+        }));
+      }
       return true;
     } finally {
       zapis?.signal.removeEventListener("abort", przerwij);
       pisaniePestki.current = null;
-      setPiszePestka(false);
     }
   }
+
+  // Prowadzenie: Pestka myśli przy ostatniej kresce, a gdy nie ma nic do powiedzenia („czekam”), znika bez słowa.
+  useEffect(() => {
+    if (prowadzenie.stan === "czyta") {
+      setPestka((p) => (!p || p.faza === "kiwa" || (p.faza === "dymek" && !p.dymek?.blad) ? { faza: "mysli", punkt: punktPrzyKresce(), skok: 0, prowadzenie: true } : p));
+    } else if (prowadzenie.stan === "czeka") {
+      setPestka((p) => (p?.faza === "mysli" && p.prowadzenie ? null : p));
+    } else if (typeof prowadzenie.stan === "object") {
+      bladPestki(prowadzenie.stan.blad, () => prowadzenie.wlacz());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prowadzenie.stan]);
+
+  function przelaczProwadzenie() {
+    if (prowadzi) {
+      prowadzenie.zatrzymaj();
+      setPestka((p) => (p?.prowadzenie ? null : p));
+      return;
+    }
+    if (!konto) return bladPestki("not_signed_in");
+    if (!prowadzenie.wlacz()) bladPestki("board_loading");
+  }
+
   const wersja = useRef<number | null>(null);
   const wczytana = useRef(false);
   const czeka = useRef<{ timer: number; elementy: readonly ExcalidrawElement[] } | null>(null);
@@ -652,6 +768,46 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
           <button type="button" className={styles.tool} title="Ponów" aria-label="Ponów" onClick={() => skrot("z", true)}>
             <Redo2 size={18} aria-hidden="true" />
           </button>
+          {poleceniePestki && (
+            <>
+              <span className={styles.sep} aria-hidden="true" />
+              <button
+                ref={przyciskPestki}
+                type="button"
+                className={styles.tool + " " + styles.pestkaTool}
+                title="Zapytaj Pestkę"
+                aria-label="Zapytaj Pestkę"
+                aria-expanded={pestka?.faza === "pole"}
+                onClick={() => (pestka?.faza === "pole" ? zamknijPestke() : otworzPole())}
+              >
+                <TutorAvatar size={26} state={pestka?.faza === "mysli" ? "thinking" : "idle"} />
+              </button>
+              <button
+                type="button"
+                className={styles.tool}
+                title="Prowadź mnie krok po kroku"
+                aria-label="Prowadź mnie krok po kroku"
+                aria-pressed={prowadzi}
+                onClick={przelaczProwadzenie}
+                data-tutor-about="Gdy przerwiesz pisanie, sama przejrzę krok: kiwnę głową, gdy jest dobrze, a przy błędzie powiem, gdzie spojrzeć."
+              >
+                <Footprints size={18} aria-hidden="true" />
+              </button>
+              {historia.length > 0 && (
+                <button
+                  type="button"
+                  className={styles.tool}
+                  title="Rozmowa z Pestką"
+                  aria-label="Rozmowa z Pestką"
+                  aria-expanded={historiaOtwarta}
+                  aria-controls={historiaOtwarta ? idHistorii : undefined}
+                  onClick={() => setHistoriaOtwarta((o) => !o)}
+                >
+                  <MessagesSquare size={18} aria-hidden="true" />
+                </button>
+              )}
+            </>
+          )}
           <span className={styles.grow} aria-hidden="true" />
           {onPelny && (
             <button type="button" className={styles.tool} title={pelny ? "Wyjdź z pełnego ekranu" : "Pełny ekran"} aria-label={pelny ? "Wyjdź z pełnego ekranu" : "Pełny ekran"} onClick={onPelny}>
@@ -670,7 +826,12 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
           ref={kontener}
           className={styles.canvas}
           onPointerEnter={() => api.current?.refresh()}
-          onPointerDownCapture={() => flushSync(() => api.current?.refresh())}
+          onPointerDownCapture={(e) => {
+            flushSync(() => api.current?.refresh());
+            // Uczeń wraca do pisania: dymek Pestki znika, żeby niczego nie zasłaniać.
+            const wPestce = (e.target as Element).closest("." + styles.pestkaNaTablicy);
+            if (!wPestce && pestka && pestka.faza !== "mysli" && pestka.faza !== "pisze") zamknijPestke();
+          }}
         >
         <Excalidraw
           excalidrawAPI={(a) => (api.current = a)}
@@ -713,19 +874,10 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             };
           }}
         />
-        <canvas ref={nakladkaPestki} className={styles.pestkaAnimacja} hidden={!piszePestka} aria-hidden="true" />
-        {!prowadzi && piszePestka && <div className={styles.pestkaPisze} role="status"><TutorAvatar size={26} state="thinking" /> Pestka zapisuje na tablicy…</div>}
-        {prowadzi && (
-          <div className={styles.pestkaPisze}>
-            <TutorAvatar size={26} state={prowadzenie.stan === "czyta" ? "thinking" : "idle"} />
-            <span role="status">{piszePestka ? "Pestka zapisuje na tablicy…" : prowadzenie.stan === "czyta" ? "Pestka sprawdza krok…" : "Pestka czeka na Twój krok"}</span>
-          </div>
-        )}
-        {typeof prowadzenie.stan === "object" && (
-          <div className={styles.pestkaPisze}>
-            <span role="alert">{komunikatPestki(prowadzenie.stan.blad)}</span>
-            <button className={styles.tool} type="button" aria-label="Zamknij komunikat Pestki" onClick={prowadzenie.zatrzymaj}><X size={16} /></button>
-          </div>
+        <canvas ref={nakladkaPestki} className={styles.pestkaAnimacja} hidden={pestka?.faza !== "pisze"} aria-hidden="true" />
+        {pestka && poleceniePestki && (
+          <PestkaNaTablicy api={api} faza={pestka.faza} punkt={pestka.punkt} skok={pestka.skok} dymek={pestka.dymek}
+            onPytanie={(pytanie) => void zapytaj(pytanie)} onZamknij={zamknijPestke} />
         )}
         </div>
         <div className={styles.toolbar} role="toolbar" aria-label="Styl i widok brudnopisu" aria-orientation="vertical">
@@ -751,29 +903,13 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             <Scan size={18} aria-hidden="true" />
           </button>
           <span className={styles.grow} aria-hidden="true" />
-          {poleceniePestki && (
-            <button
-              ref={przyciskPestki}
-              type="button"
-              className={styles.tool}
-              title={prowadzi ? "Zatrzymaj prowadzenie Pestki" : "Pestka w brudnopisie"}
-              aria-label={prowadzi ? "Zatrzymaj prowadzenie Pestki" : "Pestka w brudnopisie"}
-              aria-pressed={prowadzi || undefined}
-              aria-expanded={pestka}
-              aria-controls={pestka ? idPestki : undefined}
-              disabled={piszePestka && !prowadzi}
-              onClick={prowadzi ? prowadzenie.zatrzymaj : () => setPestka((otwarta) => !otwarta)}
-            >
-              <Sparkles size={18} aria-hidden="true" />
-            </button>
-          )}
           <button type="button" className={styles.tool} title="Wyczyść szkic" aria-label="Wyczyść szkic" onClick={wyczysc}>
             <Trash2 size={18} aria-hidden="true" />
           </button>
         </div>
-        {pestka && poleceniePestki && (
-          <BrudnopisPestka id={idPestki} api={api} polecenie={poleceniePestki} onPokaz={pokazNaTablicy}
-            onProwadz={() => { if (prowadzenie.wlacz()) zamknijPestke(); }} onZamknij={zamknijPestke} />
+        {historiaOtwarta && historia.length > 0 && (
+          <HistoriaPestki id={idHistorii} wpisy={historia} onZetrzyj={zetrzyjDopiski} onZamknij={() => setHistoriaOtwarta(false)}
+            onBryla={(dane, obrot) => void pokazNaTablicy({ ...dane, obrotBryly: obrot, dopiski: [], ksztalty: [], obszarBledu: undefined }, undefined, true)} />
         )}
       </div>
     </>
