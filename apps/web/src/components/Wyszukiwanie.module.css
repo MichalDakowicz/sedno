@@ -155,3 +155,43 @@
     display: none;
   }
 }
+
+/* Odpowiedź Pestki w oknie wyszukiwania: dymki jak w rozmowie, bez wychodzenia ze strony. */
+.odpowiedz {
+  display: grid;
+  gap: var(--s-4);
+  max-height: min(60vh, 520px);
+  overflow-y: auto;
+  padding: var(--s-4) var(--s-5);
+}
+
+.pytanie {
+  justify-self: end;
+  max-width: 85%;
+  margin: 0;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md) var(--r-md) var(--r-xs) var(--r-md);
+  background: var(--secondary);
+  color: var(--secondary-fg);
+}
+
+.odpowiedzPestki {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+}
+
+.odpowiedzPestki > svg {
+  flex-shrink: 0;
+}
+
+.tekstOdpowiedzi {
+  min-width: 0;
+  line-height: 1.55;
+}
+
+.akcjeOdpowiedzi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}

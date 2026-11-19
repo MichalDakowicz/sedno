@@ -1,6 +1,6 @@
 // Dopasowanie dla wyszukiwania: bez wielkości liter i polskich znaków, z tolerancją jednej literówki w słowie.
 
-export type RodzajWyniku = "akcja" | "arkusz" | "rozmowa";
+export type RodzajWyniku = "akcja" | "sposob" | "umiejetnosc" | "arkusz" | "rozmowa";
 
 export type Wynik = {
   id: string;

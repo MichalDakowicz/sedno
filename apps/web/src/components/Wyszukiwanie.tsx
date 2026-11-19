@@ -1,10 +1,15 @@
 import { useDeferredValue, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CornerDownLeft, FileText, LayoutGrid, MessageCircle, Search, Sparkles, X } from "lucide-react";
+import { ArrowRight, CornerDownLeft, FileText, GraduationCap, LayoutGrid, Map as MapaIkona, MessageCircle, Search, Sparkles, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useListaArkuszy } from "../arkusze/dane";
 import { currentUserId, useProfil } from "../auth";
 import { nazwaPoziomu, przedmiot } from "../konto/przedmioty";
+import { adresMapy } from "../nauka/adresy";
+import { naukaApi } from "../nauka/api";
+import { usePoziomNauki, useZapytanieNauki } from "../nauka/stan";
+import { Markdown } from "./Markdown";
+import { TutorAvatar } from "./TutorAvatar";
 import { useTutor } from "./TutorContext";
 import { slowaTekstu, szukaj, wczytajOstatnie, zapamietajOstatnie, type RodzajWyniku, type Wynik } from "./szukaj";
 import styles from "./Wyszukiwanie.module.css";
@@ -12,9 +17,11 @@ import styles from "./Wyszukiwanie.module.css";
 /** Zdarzenie, którym lupa w pasku otwiera okno. */
 export const OTWORZ_SZUKAJ = "sedno-szukaj";
 
-const IKONY: Record<RodzajWyniku, LucideIcon> = { akcja: LayoutGrid, arkusz: FileText, rozmowa: MessageCircle };
+const IKONY: Record<RodzajWyniku, LucideIcon> = { akcja: LayoutGrid, sposob: GraduationCap, umiejetnosc: MapaIkona, arkusz: FileText, rozmowa: MessageCircle };
 const GRUPY: { rodzaj: RodzajWyniku; nazwa: string; limit: number }[] = [
   { rodzaj: "akcja", nazwa: "Akcje", limit: 5 },
+  { rodzaj: "sposob", nazwa: "Sposoby nauki", limit: 4 },
+  { rodzaj: "umiejetnosc", nazwa: "Umiejętności", limit: 4 },
   { rodzaj: "arkusz", nazwa: "Arkusze", limit: 6 },
   { rodzaj: "rozmowa", nazwa: "Rozmowy z Pestką", limit: 4 },
 ];
@@ -28,7 +35,19 @@ const DEFINICJE_AKCJI = [
   { id: "akcja:profil-ucznia", tytul: "Profil ucznia", opis: "Sposób nauki, cele i priorytety", klucze: "profil uczen cel cele priorytety czas nauka", sciezka: "/profil-ucznia" },
   { id: "akcja:uklad-pulpitu", tytul: "Układ pulpitu", opis: "Widgety na pulpicie", klucze: "uklad pulpit widgety kolejnosc egzamin", sciezka: "/uklad-pulpitu" },
   { id: "akcja:do-matury", tytul: "Do matury", opis: "Odliczanie do egzaminów", klucze: "matura odliczanie dni egzamin termin", sciezka: "/do-matury" },
+  { id: "akcja:mapa", tytul: "Mapa umiejętności", opis: "Opanowanie umiejętności", klucze: "mapa umiejetnosci opanowanie postep", sciezka: "/umiejetnosci" },
+  { id: "akcja:powtorki", tytul: "Powtórki", opis: "Błędy i zanikające umiejętności", klucze: "powtorki bledy powtorka", sciezka: "/powtorki" },
 ];
+// Sposoby nauki z Nauki: te same nazwy co na liście „Sposoby nauki”.
+const SPOSOBY: Wynik[] = [
+  { id: "sposob:runda", tytul: "Szybka runda", opis: "Angielski, 5 minut", klucze: "runda cwiczenie angielski szybka", sciezka: "/nauka" },
+  { id: "sposob:zadania", tytul: "Zadania", opis: "Matematyka i informatyka z nowymi danymi", klucze: "zadania matematyka informatyka sql rownanie ciag", sciezka: "/nauka/zadania" },
+  { id: "sposob:sokratejski", tytul: "Rozmowa z pytaniami", opis: "Pestka pyta, potem mini-test", klucze: "sokratejski pytania rozmowa mini test", sciezka: "/nauka/sokratejski" },
+  { id: "sposob:pisanie", tytul: "Pisanie krok po kroku", opis: "Wypowiedź pisemna etapami", klucze: "pisanie wypowiedz email wypracowanie list", sciezka: "/nauka/pisanie" },
+  { id: "sposob:zdjecie", tytul: "Zdjęcie z kartki", opis: "Pestka omawia rozwiązanie z papieru", klucze: "zdjecie kartka aparat foto rozwiazanie", sciezka: "/nauka/zdjecie" },
+  { id: "sposob:uczen-uczy", tytul: "Uczeń uczy AI", opis: "Wyjaśnij zasadę Koledze", klucze: "uczen uczy kolega wyjasnij", sciezka: "/nauka/uczen-uczy" },
+  { id: "sposob:diagnoza", tytul: "Diagnoza", opis: "Sprawdźmy, od czego zacząć", klucze: "diagnoza poziom start test", sciezka: "/nauka/diagnoza" },
+].map((s) => ({ id: s.id, rodzaj: "sposob" as const, tytul: s.tytul, opis: s.opis, slowa: slowaTekstu(`${s.tytul} ${s.opis} ${s.klucze}`), sciezka: s.sciezka }));
 const AKCJE: Wynik[] = DEFINICJE_AKCJI.map((a) => ({
   id: a.id,
   rodzaj: "akcja",
@@ -91,7 +110,11 @@ export function Wyszukiwanie() {
 
 function Okno({ zamknij }: { zamknij: () => void }) {
   const navigate = useNavigate();
-  const { rozmowy, otworzRozmowe, zapytajWNowej, aiGotowe, state } = useTutor();
+  const { rozmowy, otworzRozmowe, zapytajWNowej, aiGotowe, state, messages } = useTutor();
+  const [poziom] = usePoziomNauki();
+  const mapa = useZapytanieNauki(`nauka:mapa:${poziom}`, (signal) => naukaApi.mapa(poziom, signal));
+  // Pytanie zadane z okna: odpowiedź Pestki pokazujemy tu, a rozmowa zostaje w historii.
+  const [zapytano, setZapytano] = useState<string | null>(null);
   const { dane: arkusze, laduje, blad } = useListaArkuszy();
   const profil = useProfil();
   const wlasciciel = currentUserId();
@@ -137,8 +160,16 @@ function Okno({ zamknij }: { zamknij: () => void }) {
       sciezka: "/tutor",
       rozmowaId: r.id,
     }));
-    return [...AKCJE, ...sheety, ...chaty];
-  }, [arkusze, profil, rozmowy]);
+    const umiejetnosci = (mapa.dane?.skills ?? []).map<Wynik>((u) => ({
+      id: `umiejetnosc:${u.skill_id}`,
+      rodzaj: "umiejetnosc",
+      tytul: u.name,
+      opis: "Angielski · mapa umiejętności",
+      slowa: slowaTekstu(`${u.name} ${u.description} angielski umiejetnosc`),
+      sciezka: adresMapy(poziom, u.skill_id),
+    }));
+    return [...AKCJE, ...SPOSOBY, ...umiejetnosci, ...sheety, ...chaty];
+  }, [arkusze, profil, rozmowy, mapa.dane, poziom]);
 
   const pytanie = tekst.trim();
   const szukane = useDeferredValue(pytanie);
@@ -191,9 +222,10 @@ function Okno({ zamknij }: { zamknij: () => void }) {
 
   function otworz(p: Pozycja) {
     if (p === "pestka") {
-      // Pytanie z wyszukiwania zaczyna nową rozmowę.
+      // Pytanie z wyszukiwania zaczyna nową rozmowę, a odpowiedź pojawia się w tym oknie.
       zapytajWNowej(pytanie);
-      navigate("/tutor");
+      setZapytano(pytanie);
+      return;
     } else if (p === "ai") {
       navigate("/profil#ai");
     } else {
@@ -318,21 +350,26 @@ function Okno({ zamknij }: { zamknij: () => void }) {
           aria-controls={`${id}-lista`}
           aria-activedescendant={plaska.length ? idPozycji(wybrany) : undefined}
           aria-autocomplete="list"
-          aria-label="Szukaj arkuszy, akcji i rozmów albo zadaj pytanie Pestce"
+          aria-label="Szukaj arkuszy, umiejętności, sposobów nauki i rozmów albo zadaj pytanie Pestce"
           placeholder="Szukaj albo zadaj pytanie Pestce"
           autoComplete="off"
           spellCheck={false}
           value={tekst}
-          onChange={(e) => setTekst(e.target.value)}
+          onChange={(e) => { setTekst(e.target.value); setZapytano(null); }}
           onKeyDown={klawisz}
         />
         <button type="button" className={styles.zamknij} onClick={zamknij} aria-label="Zamknij">
           <X size={18} aria-hidden="true" />
         </button>
       </div>
-      <div ref={listaRef} className={styles.lista} id={`${id}-lista`} role="listbox" aria-label="Wyniki">
-        {pestkaPierwsza ? [blokPestki, ...bloki] : [...bloki, blokPestki]}
-      </div>
+      {zapytano ? (
+        <OdpowiedzPestki pytanie={zapytano} messages={messages} mysli={state !== "idle"}
+          otworz={() => { navigate("/tutor"); zamknij(); }} wroc={() => setZapytano(null)} />
+      ) : (
+        <div ref={listaRef} className={styles.lista} id={`${id}-lista`} role="listbox" aria-label="Wyniki">
+          {pestkaPierwsza ? [blokPestki, ...bloki] : [...bloki, blokPestki]}
+        </div>
+      )}
       <div role="status" aria-live="polite">
         {komunikat ? (
           <p className={`muted small ${styles.pusto}`}>{komunikat}</p>
@@ -342,5 +379,31 @@ function Okno({ zamknij }: { zamknij: () => void }) {
       </div>
       <p className={`muted small ${styles.stopka}`}>↑↓ wybierz · Enter otwórz · Esc zamknij</p>
     </dialog>
+  );
+}
+
+/** Odpowiedź Pestki na pytanie z okna wyszukiwania: ta sama wiadomość, która trafia do rozmowy. */
+function OdpowiedzPestki({ pytanie, messages, mysli, otworz, wroc }: {
+  pytanie: string;
+  messages: ReturnType<typeof useTutor>["messages"];
+  mysli: boolean;
+  otworz: () => void;
+  wroc: () => void;
+}) {
+  const pozycja = messages.map((m) => m.from === "student" && m.text === pytanie).lastIndexOf(true);
+  const odpowiedz = pozycja >= 0 ? messages.slice(pozycja + 1).find((m) => m.from === "tutor") : undefined;
+  return (
+    <div className={styles.odpowiedz}>
+      <p className={styles.pytanie}>{pytanie}</p>
+      <div className={styles.odpowiedzPestki} aria-live="polite" aria-busy={mysli}>
+        <TutorAvatar size={28} state={mysli ? "thinking" : "idle"} />
+        {odpowiedz?.text ? <Markdown className={styles.tekstOdpowiedzi}>{odpowiedz.text}</Markdown>
+          : <span className="muted small">{mysli ? "Pestka pisze…" : "Pestka nie odpowiedziała. Otwórz rozmowę i spróbuj ponownie."}</span>}
+      </div>
+      <div className={styles.akcjeOdpowiedzi}>
+        <button type="button" className="btn btn-secondary btn-sm" onClick={otworz}>Otwórz rozmowę <ArrowRight size={15} aria-hidden="true" /></button>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={wroc}>Wróć do wyników</button>
+      </div>
+    </div>
   );
 }
