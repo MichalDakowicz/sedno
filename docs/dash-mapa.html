@@ -3,43 +3,72 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sedno – Widget mapy umiejętności</title>
+<title>Sedno – Gotowość i ogród</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
-<h1>Widget mapy umiejętności</h1>
-<p class="sub">Jak mapa wygląda na pulpicie i co robi po kliknięciu.</p>
-<p class="lead">Widget pokazuje kilka najważniejszych umiejętności ze zrozumiałymi nazwami. Kody CKE są drugim planem, widoczne po najechaniu lub w pełnej mapie.</p>
+<h1>Gotowość i ogród</h1>
+<p class="sub">Jak przedmiot i jego umiejętności wyglądają na pulpicie i na mapie.</p>
+<p class="lead">Jedna liczba mówi, na ile uczeń jest gotowy z przedmiotu. Ogród pokazuje, które umiejętności ją ciągną w górę, a które w dół.</p>
 
-<h2>Widok skrócony</h2>
+<h2>Pierścień gotowości</h2>
 <figure>
-<div class="bars">
-  <div class="bar-row"><div class="lbl">Spójność i logika<small>V.8 · wypowiedź pisemna</small></div><div class="bar"><i class="lo" style="width:41%"></i></div><div class="pct">41%</div></div>
-  <div class="bar-row"><div class="lbl">Szukanie informacji<small>II.5 · rozumienie ze słuchu</small></div><div class="bar"><i class="lo" style="width:33%"></i></div><div class="pct">33%</div></div>
-  <div class="bar-row"><div class="lbl">Opinie i uzasadnianie<small>V.6 · wypowiedź pisemna</small></div><div class="bar"><i style="width:58%"></i></div><div class="pct">58%</div></div>
-  <div class="bar-row"><div class="lbl">Budowa tekstu<small>V.12 · wypowiedź pisemna</small></div><div class="bar"><i class="hi" style="width:82%"></i></div><div class="pct">82%</div></div>
-</div>
-<figcaption>Dane wymyślone. Nazwy zrozumiałe dla ucznia, kod CKE pod spodem.</figcaption>
+<svg viewBox="0 0 640 200" role="img" aria-label="Pierścień gotowości 58 procent z kreską progu 30 procent i kreską celu 70 procent, obok zdanie: do celu brakuje 12 punktów procentowych">
+  <circle cx="100" cy="100" r="70" fill="none" stroke="var(--line)" stroke-width="14"/>
+  <circle cx="100" cy="100" r="70" fill="none" stroke="var(--accent)" stroke-width="14" stroke-linecap="round"
+    stroke-dasharray="255 440" transform="rotate(-90 100 100)"/>
+  <line x1="100" y1="22" x2="100" y2="42" stroke="var(--muted)" stroke-width="2" transform="rotate(108 100 100)"/>
+  <line x1="100" y1="22" x2="100" y2="42" stroke="var(--text)" stroke-width="3" transform="rotate(252 100 100)"/>
+  <text x="100" y="108" text-anchor="middle" class="svg-t" style="font-size:30px;font-weight:400">58%</text>
+  <text x="210" y="80" class="svg-t">Angielski, poziom rozszerzony</text>
+  <text x="210" y="104" class="svg-s">Do celu 70% brakuje 12 pkt proc.</text>
+  <text x="210" y="134" class="svg-s">cienka kreska: próg 30% · gruba kreska: cel z quizu celów</text>
+  <text x="210" y="154" class="svg-s">przy małej liczbie prób łuk w kreskę i „wstępnie”</text>
+</svg>
+<figcaption>Dane wymyślone. Na mapie pierścień jest duży, na pulpicie mały, w wierszu przedmiotu.</figcaption>
 </figure>
+<p>Gotowość to średnie opanowanie umiejętności ważone punktami, jakie dają na maturze. Umiejętności bez oceny nie wchodzą do średniej. Prognoza z arkuszy stoi obok jako druga liczba, nie osobna sekcja.</p>
 
-<h2>Zachowanie</h2>
+<h2>Ogród umiejętności</h2>
+<figure>
+<svg viewBox="0 0 640 170" role="img" aria-label="Ogród: cztery grządki obszarów na jednej linii ziemi, w każdej rośliny w różnych stadiach, przy jednej znacznik tu dziś">
+  <line x1="20" y1="118" x2="620" y2="118" stroke="var(--line2)" stroke-width="2"/>
+  <g class="svg-s" text-anchor="middle">
+    <text x="95" y="150">słuchanie</text><text x="250" y="150">czytanie</text><text x="405" y="150">środki językowe</text><text x="560" y="150">pisanie</text>
+  </g>
+  <g fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round">
+    <path d="M70 118v-30"/><path d="M70 98q-14-6-18-18"/>
+    <path d="M120 118v-58"/><path d="M120 86q-18-6-22-22M120 76q18-6 22-22"/>
+    <path d="M230 118v-14"/>
+    <path d="M275 118v-40"/><path d="M275 92q-16-4-20-18"/>
+    <path d="M385 118v-70"/><path d="M385 80q-20-6-24-24M385 70q20-6 24-24"/>
+    <path d="M430 118v-24"/>
+    <path d="M560 118v-12"/>
+  </g>
+  <circle cx="385" cy="44" r="7" fill="var(--accent)"/>
+  <ellipse cx="230" cy="102" rx="7" ry="5" fill="var(--accent-soft)" stroke="var(--accent)"/>
+  <ellipse cx="560" cy="102" rx="7" ry="5" fill="var(--accent-soft)" stroke="var(--accent)" stroke-dasharray="3 2"/>
+  <rect x="520" y="62" width="80" height="22" rx="11" fill="var(--accent-soft)"/>
+  <text x="560" y="78" text-anchor="middle" class="svg-s" style="fill:var(--accent-fg);font-weight:600">tu dziś</text>
+</svg>
+<figcaption>Roślina rośnie w czterech stadiach: pestka, kiełek, roślina z liśćmi, drzewko z owocem. Ta sama roślina w ogrodzie, w panelu umiejętności i w rozbiorze rundy.</figcaption>
+</figure>
 <div class="tablewrap"><table>
-<thead><tr><th>Akcja</th><th>Efekt</th></tr></thead>
+<thead><tr><th>Stan rośliny</th><th>Znaczy</th></tr></thead>
 <tbody>
-<tr><td>Najechanie na pasek</td><td>Opis umiejętności, z czego wynika wynik (np. „85% punktów, 2 podpowiedzi, 3 tygodnie temu”)</td></tr>
-<tr><td>Kliknięcie na umiejętność</td><td>Rozwija mikroumiejętności i wejścia do nauki dla tej umiejętności</td></tr>
-<tr><td>„Pełna mapa”</td><td>Przejście do sekcji Mapa umiejętności z kodami CKE i historią</td></tr>
-<tr><td>Przełącznik widoku</td><td>Zrozumiałe nazwy lub kody CKE (dla uczniów, którzy chcą widzieć oficjalny podział)</td></tr>
+<tr><td>Bledsza pestka i „mało danych”</td><td>umiejętność bez oceny: jedna runda wystarczy</td></tr>
+<tr><td>Przywiędła z kropką</td><td>do powtórki: od ostatniego ćwiczenia minęło dość czasu</td></tr>
+<tr><td>„tu dziś”</td><td>tę umiejętność poleca dziś Pestka</td></tr>
 </tbody></table></div>
 
-<h2>Stany</h2>
-<div class="card"><ul>
-  <li><b>Za mało danych:</b> zamiast paska „za mało danych” i zachęta do krótkiej diagnozy.</li>
-  <li><b>Pewność:</b> przy niskiej pewności szacunku pasek jest kreskowany, nie pełny.</li>
-  <li><b>Trend:</b> strzałka w górę lub w dół względem ostatniego tygodnia, bez dramatyzowania.</li>
-  <li><b>Wybór widoku:</b> radar, paski, albo tabela, zależnie od preferencji i rozmiaru widgetu.</li>
-</ul></div>
+<h2>Gdzie co stoi</h2>
+<ul>
+  <li><b>Pulpit:</b> wiersz na przedmiot z małym pierścieniem i zdaniem; pod angielskim ogród w miniaturze. Jeden link „N powtórek na dziś”.</li>
+  <li><b>Mapa:</b> duży pierścień, ogród w grządkach obszarów, panel umiejętności po kliknięciu rośliny (opanowanie, linia w czasie, ostatnie próby, „Zacznij rundę”, notatki z mapy wiedzy). Poniżej 640 px wiersze z paskiem zamiast ogrodu.</li>
+  <li><b>Nauka:</b> miniatura ogrodu pod „Zmień umiejętność” służy do wyboru umiejętności rundy.</li>
+</ul>
+<p class="note">Ogród i gotowość z mapy umiejętności są dziś tylko dla angielskiego. Pozostałe przedmioty pokazują średnią z arkuszy.</p>
 </main>
 <script src="nav.js" defer></script>
 </body>

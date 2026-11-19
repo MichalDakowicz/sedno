@@ -9,37 +9,35 @@
 <body>
 <main>
 <h1>Pierwsze uruchomienie</h1>
-<p class="sub">Od rejestracji do pierwszej rekomendacji. Propozycja.</p>
-<p class="lead">Nowy uczeń nie ma historii, więc pulpit jest pusty. Pierwsze uruchomienie ma jak najszybciej dać mu mapę i pierwszą rekomendację.</p>
+<p class="sub">Od logowania do pierwszej propozycji Pestki w czterech krokach.</p>
+<p class="lead">Nowy uczeń nie ma historii. Onboarding ma jak najszybciej dać Pestce cel i pierwsze odpowiedzi, a uczniowi ogród i jedną propozycję na dziś.</p>
 
 <h2>Kroki</h2>
 <div class="flow">
-  <div class="step"><b>1 · Konto</b><span>e-mail lub Google</span></div>
-  <div class="step"><b>2 · Przedmiot</b><span>przedmiot i poziom</span></div>
-  <div class="step"><b>3 · Matura</b><span>data egzaminu</span></div>
-  <div class="step"><b>4 · Diagnoza</b><span>krótka, opcjonalna</span></div>
-  <div class="step"><b>5 · Układ</b><span>gotowy preset</span></div>
+  <div class="step"><b>1 · Powitanie</b><span>Pestka mówi jednym zdaniem, jak uczy</span></div>
+  <div class="step"><b>2 · Przedmioty</b><span>przedmioty i poziomy matury</span></div>
+  <div class="step"><b>3 · Quiz celów</b><span>cel w procentach, czas, mocne i słabe obszary</span></div>
+  <div class="step"><b>4 · Diagnoza</b><span>kilka krótkich zadań (angielski)</span></div>
 </div>
 
 <h2>Szczegóły</h2>
 <div class="tablewrap"><table>
 <thead><tr><th>Krok</th><th>Co robi uczeń</th><th>Po co</th></tr></thead>
 <tbody>
-<tr><td>Konto</td><td>Rejestracja e-mailem lub przez Google. Dla osób niepełnoletnich zgoda opiekuna (do ustalenia)</td><td>Dane osobiste i historia</td></tr>
-<tr><td>Przedmiot</td><td>Wybór przedmiotu i poziomu</td><td>Dobór treści i bazy zadań</td></tr>
-<tr><td>Matura</td><td>Data egzaminu lub „jeszcze nie wiem”</td><td>Odliczanie i priorytety rekomendacji</td></tr>
-<tr><td>Diagnoza</td><td>10–15 minut zadań z różnych umiejętności. Można pominąć</td><td>Wstępna mapa, żeby pierwsza rekomendacja miała sens</td></tr>
-<tr><td>Układ</td><td>Wybór gotowego układu: nauka, przed maturą, minimalny</td><td>Pulpit nie jest pusty od razu</td></tr>
+<tr><td>Powitanie</td><td>„Cześć, jestem Pestka”, jedno zdanie i „Zaczynamy”</td><td>Pestka mówi od pierwszego ekranu, bez instrukcji obsługi</td></tr>
+<tr><td>Przedmioty</td><td>Pigułki przedmiotów i poziomów (można zdawać przedmiot na dwóch)</td><td>Pulpit, Nauka i Arkusze pokazują tylko to, co uczeń zdaje</td></tr>
+<tr><td>Quiz celów</td><td>Jedno pytanie Pestki na ekran, duże kafle, „Pomiń quiz”</td><td>Cel to kreska na pierścieniu gotowości i powód karty dnia; obszary zaczynają diagnozę od słabszych</td></tr>
+<tr><td>Start</td><td>Z angielskim: „Zacznij diagnozę”; bez angielskiego: pulpit. Konto bez AI widzi, jak podpiąć dostawcę</td><td>Pierwsza propozycja dnia ma oparcie w odpowiedziach</td></tr>
 </tbody></table></div>
 
-<h2>Gdy uczeń pomija diagnozę</h2>
-<div class="card"><ul>
-  <li>Mapa pokazuje „za mało danych” zamiast pewnych liczb.</li>
-  <li>Pierwsza rekomendacja to krótka sesja diagnostyczna, ale z możliwością wyboru własnego tematu.</li>
-  <li>Z każdą rozwiązaną sesją mapa się wypełnia i rekomendacje robią się trafniejsze.</li>
-</ul></div>
+<h2>Gdy uczeń coś pominie</h2>
+<ul>
+  <li>„Pomiń” w nagłówku kończy onboarding od razu; quiz celów czeka na pulpicie jako zaproszenie i pod adresem <code>/cele</code>.</li>
+  <li>Bez diagnozy rośliny w ogrodzie są bledsze z „mało danych”, a gotowość jest wstępna.</li>
+  <li>Przedmioty i cele zmienia się później w profilu i w profilu ucznia.</li>
+</ul>
+
 <h2>Profil ucznia</h2>
-<p>Pytania o sposób uczenia się są w onboardingu, ale można je pominąć i wrócić do nich w profilu.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Co</th><th>Zasada</th></tr></thead>
 <tbody>
@@ -49,7 +47,7 @@
 <tr><td>Trudna wiadomość</td><td>Gdy uczeń pisze o czymś ciężkim, Pestka zachęca do rozmowy z zaufaną dorosłą osobą i podaje telefon zaufania dla dzieci i młodzieży 116 111</td></tr>
 </tbody></table></div>
 
-<p class="note">Konto demo dla jury pomija ten ekran: ma od razu wypełnioną mapę i historię.</p>
+<p class="note">Konto demo dla jury ma od razu wypełnioną mapę i historię (do zrobienia).</p>
 </main>
 <script src="nav.js" defer></script>
 </body>

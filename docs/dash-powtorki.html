@@ -9,35 +9,40 @@
 <body>
 <main>
 <h1>Powtórki i „Kontynuuj”</h1>
-<p class="sub">Dwa widgety, które utrzymują ciągłość nauki.</p>
-<p class="lead">Powtórki przypominają o umiejętnościach, które zaczynają zanikać. „Kontynuuj” pozwala wrócić do przerwanej pracy jednym kliknięciem.</p>
+<p class="sub">Co uczniowi ucieka i do czego wrócić.</p>
+<p class="lead">Powtórki zbierają błędne zadania i umiejętności, które wylatują z pamięci. „Kontynuuj” prowadzi z powrotem do przerwanej pracy.</p>
 
-<h2>Powtórki</h2>
+<h2>Zakładka Powtórki</h2>
+<figure>
+<svg viewBox="0 0 640 230" role="img" aria-label="Szkic zakładki Powtórki: liczba do powtórki dziś, zdanie o jutrze, przycisk Powtórz wszystkie, pod spodem zwinięte grupy według umiejętności z liczbą">
+  <text x="20" y="44" class="svg-t" style="font-size:28px;font-weight:400">12 do powtórki dziś</text>
+  <text x="20" y="70" class="svg-s">Jutro 3 kolejne, w tym tygodniu 9.</text>
+  <rect x="20" y="86" width="210" height="40" rx="20" fill="var(--accent)"/>
+  <text x="125" y="111" text-anchor="middle" class="svg-t" style="fill:var(--bg);font-weight:700">Powtórz wszystkie</text>
+  <g class="svg-line"><path d="M20 146h600M20 186h600M20 226h600"/></g>
+  <text x="34" y="171" class="svg-t">› Dobieraj słownictwo i gramatykę</text>
+  <text x="34" y="211" class="svg-t">› Wnioskuj z nagrania</text>
+  <rect x="580" y="156" width="30" height="22" rx="11" fill="var(--accent-soft)"/><text x="595" y="172" text-anchor="middle" class="svg-s" style="fill:var(--accent-fg);font-weight:600">7</text>
+  <rect x="580" y="196" width="30" height="22" rx="11" fill="var(--accent-soft)"/><text x="595" y="212" text-anchor="middle" class="svg-s" style="fill:var(--accent-fg);font-weight:600">5</text>
+</svg>
+<figcaption>Bez karty: najpierw liczba, potem jedno zdanie i jeden przycisk, szczegóły w zwiniętych grupach.</figcaption>
+</figure>
 <div class="tablewrap"><table>
-<thead><tr><th>Element</th><th>Zawartość</th></tr></thead>
+<thead><tr><th>Element</th><th>Zachowanie</th></tr></thead>
 <tbody>
-<tr><td>Kolejka</td><td>Umiejętności, których opanowanie zaczyna zanikać w estymatorze, uporządkowane według pilności</td></tr>
-<tr><td>Szacowany czas</td><td>Suma czasu krótkich rund, np. „ok. 10 minut”</td></tr>
-<tr><td>Format</td><td>Szybkie rundy z wariantami zadań, nie te same zadania</td></tr>
-<tr><td>Przesunięcie</td><td>Uczeń może odłożyć powtórkę. Pilność rośnie, ale nic nie jest blokowane</td></tr>
+<tr><td>„Powtórz wszystkie”</td><td>kolejka: rozbiór każdej rundy proponuje następną powtórkę, po ostatniej „Zobacz ogród”</td></tr>
+<tr><td>Grupa umiejętności</td><td>zwinięta, z liczbą; w środku zadania z przyciskiem „Powtórz zadanie” (to samo błędne zadanie) albo „Powtórz podobne”</td></tr>
+<tr><td>Poziom matury</td><td>z profilu jednym zdaniem, „inny poziom” rozwija pigułki</td></tr>
+<tr><td>Pusty stan</td><td>Pestka: „Nic nie ucieka”</td></tr>
 </tbody></table></div>
 
 <h2>Kontynuuj</h2>
-<div class="tablewrap"><table>
-<thead><tr><th>Przerwana praca</th><th>Co widzi uczeń</th></tr></thead>
-<tbody>
-<tr><td>Krok po kroku</td><td>Temat, etap, stopień pomocy, ostatni zapis</td></tr>
-<tr><td>Napraw błąd</td><td>Praca, liczba zaznaczeń, poprawki w toku</td></tr>
-<tr><td>Uczeń uczy AI</td><td>Pojęcie i numer tury (rozmowa wznawia się od podsumowania, nie od zapisu)</td></tr>
-<tr><td>Arkusz</td><td>Który arkusz, czas, jak dużo zrobione</td></tr>
-</tbody></table></div>
-
-<h2>Zasady</h2>
-<div class="card"><ul>
-  <li>Praca nie wygasa z powodu czasu.</li>
-  <li>Można mieć kilka przerwanych prac, widget pokazuje najnowszą i listę pozostałych.</li>
-  <li>Stare, nieukończone prace uczeń może usunąć.</li>
-</ul></div>
+<ul>
+  <li><b>Arkusze:</b> „Kontynuuj” nad listą dla arkusza w trakcie.</li>
+  <li><b>Nauka:</b> „Dokończ” na końcu strony, do trzech niedokończonych rund; starą rundę można usunąć.</li>
+  <li><b>Pulpit:</b> widget „Kontynuuj” do włączenia w układzie pulpitu; karta „Dziś warto” sama poleca dokończenie rundy, gdy jest nowsza niż zaczęty arkusz.</li>
+</ul>
+<p class="note">Do zrobienia: „Odłóż” przy powtórce (pilność rośnie, nic nie jest blokowane).</p>
 </main>
 <script src="nav.js" defer></script>
 </body>
