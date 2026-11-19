@@ -6,7 +6,7 @@ import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { przedmiot } from "../../konto/przedmioty";
 import { coDzisBezRund } from "../../nauka/dzis";
-import { adresMapy, adresNauki, adresRozbioru } from "../../nauka/adresy";
+import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/adresy";
 import { type DowodNauki, type Umiejetnosc } from "../../nauka/api";
 import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
@@ -21,17 +21,17 @@ import { glos, wybierz } from "../../pestka/glos";
 import { NAZWA_STADIUM, stadium } from "../../nauka/stadia";
 import { useSesjaDiagnozy } from "../../nauka/diagnoza";
 import { adresWizualizacji, modelDlaUmiejetnosci } from "../../nauka/wizualizacje";
+import { Gotowosc } from "../../components/Gotowosc";
+import { OBSZARY_NAUKI } from "../../nauka/gotowosc";
+import { Ogrod } from "../../components/Ogrod";
+import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
+import { MINUTY_RUNDY, usePolecenieDnia } from "../../nauka/dzis";
 import s from "./Umiejetnosci.module.css";
 
 // Dawny przełącznik kodów wymagań CKE zapisywał się w przeglądarce; sprzątamy po nim.
 try { localStorage.removeItem("sedno.mapa.kody"); } catch { /* bez dostępu do pamięci nie ma czego sprzątać */ }
 
-const OBSZARY = [
-  { id: "słuchanie", nazwa: "Rozumienie ze słuchu" },
-  { id: "czytanie", nazwa: "Rozumienie tekstów pisanych" },
-  { id: "środki językowe", nazwa: "Środki językowe" },
-  { id: "pisanie", nazwa: "Wypowiedź pisemna" },
-];
+const OBSZARY = OBSZARY_NAUKI;
 
 const dataProby = new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeZone: "Europe/Warsaw" });
 
@@ -103,7 +103,9 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
         )}
         {proby.stan === "gotowe" && !!proby.dane?.length && <OstatnieProby proby={proby.dane} />}
       </div>
-      <Link to={adresNauki(poziom, u.skill_id)} className={`btn btn-primary ${s.przycisk}`}>Ćwicz <ArrowRight size={16} aria-hidden="true" /></Link>
+      <Link to={adresStartu(poziom, u.skill_id, u.formats.includes("szybka-runda") || !u.formats.length ? "szybka-runda" : u.formats[0])} className={`btn btn-primary ${s.przycisk}`}>
+        Zacznij rundę · {MINUTY_RUNDY} min <ArrowRight size={16} aria-hidden="true" />
+      </Link>
       {modelDlaUmiejetnosci(u.skill_id) && (
         <Link to={adresWizualizacji(modelDlaUmiejetnosci(u.skill_id)!)} className="link small">Zobacz na modelu <ArrowRight size={15} aria-hidden="true" /></Link>
       )}
@@ -155,6 +157,9 @@ export function Umiejetnosci() {
   const angielski = wybranyPrzedmiot === "angielski";
   const innyPrzedmiot = angielski ? null : coDzisBezRund[wybranyPrzedmiot] ?? { akcja: { do: adresMapy(poziom), etykieta: "Mapa angielskiego" } };
   const mapa = useZapytanie(angielski ? zapytania.mapa(poziom) : null);
+  const plan = useZapytanie(angielski ? zapytania.plan(poziom) : null);
+  const polecenie = usePolecenieDnia(poziom, angielski);
+  const uczenie = useUczenie();
   const umiejetnosci = mapa.dane?.skills;
   const id = parametry.get("umiejetnosc");
   const wybrana = umiejetnosci?.find((u) => u.skill_id === id);
@@ -162,14 +167,16 @@ export function Umiejetnosci() {
   useEffect(() => {
     if (wybrana) ostatniPanel.current = wybrana.skill_id;
     else if (ostatniPanel.current && !id && mapa.stan === "gotowe") {
-      document.getElementById(`umiejetnosc-${ostatniPanel.current}`)?.focus();
+      // Fokus wraca na roślinę w ogrodzie albo na wiersz listy (telefon), zależnie od tego, co widać.
+      const roslina = document.getElementById(`roslina-${ostatniPanel.current}`);
+      (roslina?.offsetParent ? roslina : document.getElementById(`umiejetnosc-${ostatniPanel.current}`))?.focus();
       ostatniPanel.current = null;
     }
   }, [wybrana, id, mapa.stan]);
 
   return (
     <main className={`container ${s.strona}`} data-panel={!!wybrana}>
-      <NaglowekStrony etykieta="Język angielski" tytul="Mapa umiejętności" lead="Jak radzisz sobie z wymaganiami matury." />
+      <NaglowekStrony etykieta="Język angielski" tytul="Mapa umiejętności" />
       {/* Mapę ma tylko angielski, więc nie ma pigułek przedmiotów prowadzących do pustej strony. Stary link
           z ?przedmiot= dostaje jedno zdanie i to, co w tym przedmiocie da się zrobić zamiast mapy. */}
       {angielski && <div className={s.filtry}><WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} /></div>}
@@ -185,12 +192,18 @@ export function Umiejetnosci() {
         <div className={s.uklad} data-panel={!!wybrana}>
           <div className={s.grupy}>
             {id && !wybrana && <p role="status">Tej umiejętności nie ma w mapie.</p>}
-            {umiejetnosci.every((u) => u.score === null) && (
-              <div className={s.blok}>
-                <p className="muted">Procenty pojawią się po pierwszej rundzie.</p>
-                <Link to={adresNauki(poziom)} className={`btn btn-secondary btn-sm ${s.przycisk}`}>Zacznij szybką rundę</Link>
-              </div>
+            {!wybrana && (
+              <Gotowosc umiejetnosci={umiejetnosci} cel={celPrzedmiotu(uczenie, "angielski")} prognoza={plan.dane?.forecast.score}>
+                {umiejetnosci.every((u) => u.score === null) && (
+                  <Link to={adresNauki(poziom)} className={`btn btn-primary ${s.przycisk}`}>Zacznij pierwszą rundę</Link>
+                )}
+              </Gotowosc>
             )}
+            <div className={s.ogrod}>
+              <Ogrod umiejetnosci={umiejetnosci} poziom={poziom} adres={(u) => adresMapy(poziom, u.skill_id)} wybrana={id}
+                tuDzis={polecenie.dane?.skill_id ?? null} etykieta={`Ogród umiejętności, poziom ${poziom}`} />
+            </div>
+            <div className={s.lista}>
             {OBSZARY.map(({ id: obszar, nazwa }, i) => {
               const wObszarze = umiejetnosci.filter((u) => u.area === obszar);
               return wObszarze.length > 0 && (
@@ -211,6 +224,7 @@ export function Umiejetnosci() {
                 </section>
               );
             })}
+            </div>
           </div>
           {wybrana && <PanelUmiejetnosci poziom={poziom} umiejetnosc={wybrana} />}
         </div>

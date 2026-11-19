@@ -61,7 +61,7 @@ export function WynikiZArkuszy({ zakres: podsumowania, co, obok }: KontekstPulpi
         <>
           <p className={styles.stat}>
             <Liczba wartosc={srednia} />
-            <span>%</span>
+            <span className={styles.statJednostka}>%</span>
             <span className={styles.statOpis}>średnio z {wszystkie.length} {wszystkie.length === 1 ? "arkusza" : "arkuszy"}</span>
           </p>
           <p className={styles.wniosek}>{wniosek(tegoSamego(wszystkie))}</p>

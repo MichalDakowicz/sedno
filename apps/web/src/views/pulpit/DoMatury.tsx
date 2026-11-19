@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useProfil } from "../../auth";
 import { PasekProgu } from "../../components/wykresy";
-import { CELE, celJakoUlamek, useUczenie } from "../../konto/profilUcznia";
+import { CELE, celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
 import { przedmiot } from "../../konto/przedmioty";
 import { dniDo, egzaminyUcznia, najblizszy, nazwaEgzaminu, odmianaDni, opisDaty } from "../../konto/terminy";
 import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
@@ -40,7 +40,7 @@ export function DoMatury({ zakres, aktywny, maPrzedmioty }: KontekstPulpitu) {
       ) : (
         <p className={styles.stat}>
           <Liczba wartosc={dni} />
-          <span> {odmianaDni(dni)}</span>
+          <span className={styles.statJednostka}> {odmianaDni(dni)}</span>
           <span className={styles.statOpis}>
             {e.znana ? `${nazwaEgzaminu(e)}, ${opisDaty(e.data)}` : `${nazwaEgzaminu(e)}, termin poda CKE`}
           </span>
@@ -64,7 +64,7 @@ export function PrognozaAngielskiego() {
   const [poziom] = usePoziomNauki();
   const plan = useZapytanie(zapytania.plan(poziom));
   const prognoza = plan.dane?.forecast.score ?? null;
-  const celAng = celJakoUlamek(u.cele?.angielski);
+  const celAng = celPrzedmiotu(u, "angielski");
   if (plan.stan !== "gotowe") return null;
   return (
     prognoza === null ? (

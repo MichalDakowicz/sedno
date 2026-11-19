@@ -299,3 +299,23 @@ a.wiersz:hover .wierszBoczny {
   gap: var(--s-3);
   min-width: 0;
 }
+
+/* Poziom z profilu jednym zdaniem; pigułki dopiero po „inny poziom”. */
+.poziomKrotko {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.innyPoziom {
+  min-height: 44px;
+  padding: 0 var(--s-2);
+  border: 0;
+  background: none;
+  color: var(--primary-text);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}

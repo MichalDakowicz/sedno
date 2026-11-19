@@ -222,3 +222,19 @@
   align-items: flex-end;
   gap: var(--s-4);
 }
+
+/* Ogród na szerokim ekranie, lista wierszy na telefonie (ta sama treść, jedno naraz). */
+.lista {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .ogrod {
+    display: none;
+  }
+
+  .lista {
+    display: grid;
+    gap: var(--s-6);
+  }
+}

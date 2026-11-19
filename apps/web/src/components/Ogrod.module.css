@@ -1,0 +1,159 @@
+/* Grządki obok siebie na jednej linii ziemi (obwódka dolna bez przerw między kolumnami). */
+.ogrod {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  align-items: end;
+  row-gap: var(--s-6);
+}
+
+.ogrod[data-maly] {
+  grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr));
+  row-gap: var(--s-4);
+}
+
+.grzadka {
+  display: grid;
+  align-content: end;
+  gap: var(--s-3);
+  min-width: 0;
+  height: 100%;
+  border-bottom: 2px solid var(--line);
+}
+
+.nazwaGrzadki {
+  padding-inline: var(--s-2);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--subtle);
+}
+
+.rosliny {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0 var(--s-2);
+  list-style: none;
+}
+
+.ogrod[data-maly] .rosliny {
+  gap: 0;
+}
+
+.cel {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: end;
+  gap: var(--s-1);
+  width: 96px;
+  min-height: 44px;
+  padding: var(--s-2) var(--s-1);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--ruch-szybki) var(--ruch-krzywa), transform var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.ogrod[data-maly] .cel {
+  width: auto;
+  min-width: 44px;
+  padding: var(--s-1);
+}
+
+.cel:hover,
+.cel[aria-current],
+.cel[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+
+.cel:active {
+  transform: scale(0.96);
+}
+
+.cel[aria-current] .nazwa,
+.cel[aria-pressed="true"] .nazwa {
+  color: var(--primary-text);
+}
+
+.cel[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+.roslina {
+  position: relative;
+  display: block;
+}
+
+/* Bez oceny: bledsza pestka. */
+.roslina[data-brak] {
+  opacity: 0.45;
+}
+
+/* Do powtórki: lekko przywiędła i z kropką. */
+.roslina[data-powtorka] svg {
+  transform: rotate(-8deg);
+  transform-origin: 50% 90%;
+  filter: saturate(0.55);
+}
+
+.kropka {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: var(--primary-text);
+}
+
+.tuDzis {
+  padding: 0 var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.ogrod[data-maly] .tuDzis {
+  position: absolute;
+  top: calc(var(--s-3) * -1);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.podpis {
+  display: grid;
+  gap: 2px;
+}
+
+.nazwa {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: var(--t-sm);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.procent {
+  font-size: var(--t-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--subtle);
+}
+
+.roslina[data-brak] + .podpis .procent {
+  font-size: var(--t-xs);
+}

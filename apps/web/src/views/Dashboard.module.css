@@ -205,12 +205,15 @@
 }
 
 .stat {
+  color: var(--fg);
   font-size: calc(48px * var(--skala-tekstu, 1));
   line-height: 1;
   letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
 }
 
-.stat > span {
+/* Tylko jednostka jest mniejsza i szara; liczba (także z <Liczba>, która renderuje własne spany) ma pełny stopień. */
+.stat > .statJednostka {
   color: var(--subtle);
   font-size: calc(28px * var(--skala-tekstu, 1));
 }
