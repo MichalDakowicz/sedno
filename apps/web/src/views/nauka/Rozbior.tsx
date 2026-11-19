@@ -13,6 +13,8 @@ import { PestkaMowi, wybierz } from "./PestkaRundy";
 import type { AvatarState } from "../../components/TutorAvatar";
 import { TrescRundy } from "./TrescRundy";
 import { Kropki, PasekProgu } from "../../components/wykresy";
+import { Kielek } from "../../components/Kielek";
+import { NAZWA_STADIUM, stadium, wyzszeStadium } from "../../nauka/stadia";
 import s from "./SzybkaRunda.module.css";
 
 const procent = new Intl.NumberFormat("pl-PL", { style: "percent", maximumFractionDigits: 0 });
@@ -94,6 +96,28 @@ function emocjaRozbioru(sesja: string, odpowiedzi: OdpowiedzNauki[], zmiana: num
   return zmiana && zmiana > 0 ? "duma" : undefined;
 }
 
+/** Pestka na mapie: gdy runda przesunęła stadium, widać starą roślinę i nową, która rośnie. */
+function StadiumRundy({ przed, po }: { przed: number | null; po: number | null }) {
+  if (po == null) return null;
+  const a = stadium(przed);
+  const b = stadium(po);
+  const urosla = przed != null && wyzszeStadium(a, b);
+  return (
+    <div className={s.stadium}>
+      {urosla && (
+        <>
+          <Kielek stadium={a} rozmiar={48} />
+          <span className="muted" aria-hidden="true">→</span>
+        </>
+      )}
+      <Kielek stadium={b} rozmiar={64} animuj={urosla} />
+      <p className="small muted">
+        {urosla ? `Urosła na mapie: ${NAZWA_STADIUM[a]} → ${NAZWA_STADIUM[b]}.` : `Na mapie: ${NAZWA_STADIUM[b]}.`}
+      </p>
+    </div>
+  );
+}
+
 function KropkiOdpowiedzi({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
   const dobre = odpowiedzi.filter((a) => a.correct).length;
   const pominiete = odpowiedzi.filter((a) => !a.correct && !a.answer.trim()).length;
@@ -160,6 +184,7 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
       </section>
       <section className={s.sekcja} aria-labelledby="mapa-po-rundzie">
         <h2 className="h2" id="mapa-po-rundzie">{tytulZmiany(result.opanowanie_przed, result.opanowanie_po, zmiana)}</h2>
+        <StadiumRundy przed={result.opanowanie_przed} po={result.opanowanie_po} />
         {result.opanowanie_po != null && (
           <PasekProgu gruby wartosc={result.opanowanie_po} przed={result.opanowanie_przed}
             opis={`Opanowanie${nazwa ? ` umiejętności ${nazwa}` : ""}: przed rundą ${opanowanie(result.opanowanie_przed)}, po rundzie ${opanowanie(result.opanowanie_po)}.`} />

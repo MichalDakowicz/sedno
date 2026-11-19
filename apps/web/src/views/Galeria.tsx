@@ -1,6 +1,7 @@
 // Tylko w trybie deweloperskim (main.tsx): wspólne wykresy, emocje Pestki i stadia pestki obok siebie do sprawdzenia.
 import { NaglowekStrony } from "../components/NaglowekStrony";
 import { TutorAvatar, type AvatarState } from "../components/TutorAvatar";
+import { Kielek } from "../components/Kielek";
 import { Kropki, Linia, OsCzasu, PasDni, PasekProgu, Pierscien } from "../components/wykresy";
 
 export function Galeria() {
@@ -11,6 +12,16 @@ export function Galeria() {
         {(["idle", "thinking", "talking", "radosc", "duma", "zmartwienie", "sen", "swieto"] as AvatarState[]).map((st) => (
           <figure key={st} style={{ display: "grid", justifyItems: "center", gap: "var(--s-2)", margin: 0 }}>
             <TutorAvatar size={88} state={st} />
+            <figcaption className="small muted">{st}</figcaption>
+          </figure>
+        ))}
+      </section>
+      <section id="stadia" style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", gap: "var(--s-5)" }}>
+        {(["pestka", "kielek", "roslina", "drzewko"] as const).map((st) => (
+          <figure key={st} style={{ display: "flex", alignItems: "flex-end", gap: "var(--s-3)", margin: 0 }}>
+            <Kielek stadium={st} rozmiar={20} />
+            <Kielek stadium={st} rozmiar={32} />
+            <Kielek stadium={st} rozmiar={96} animuj />
             <figcaption className="small muted">{st}</figcaption>
           </figure>
         ))}

@@ -13,6 +13,8 @@ import { WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie, OPIS_OPANOWANIA } from "./Opanowanie";
 import { Kropki } from "../../components/wykresy";
 import { Liczba } from "../../ruch";
+import { Kielek } from "../../components/Kielek";
+import { NAZWA_STADIUM, stadium } from "../../nauka/stadia";
 
 import s from "./Umiejetnosci.module.css";
 
@@ -69,6 +71,8 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
         {u.score === null ? (
           <p className="muted">Za mało odpowiedzi, żebym oceniła tę umiejętność. Jedna runda wystarczy.</p>
         ) : (
+          <div className={s.zKielkiem}>
+          <Kielek stadium={stadium(u.score)} rozmiar={88} animuj opis={`Stadium: ${NAZWA_STADIUM[stadium(u.score)]}`} />
           <p className={s.duza} data-tutor-about={OPIS_OPANOWANIA}>
             <Liczba wartosc={Math.round(u.score * 100)} /><span className={s.jednostka}>%</span>
             <span className={s.podpisLiczby}>
@@ -76,6 +80,7 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
               {u.retention !== null && <> · <span data-tutor-about="To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia.">pamiętasz ok. {Math.round(u.retention * 100)}%</span></>}
             </span>
           </p>
+          </div>
         )}
         {proby.stan === "gotowe" && !!proby.dane?.length && <OstatnieProby proby={proby.dane} />}
       </div>
@@ -173,7 +178,8 @@ export function Umiejetnosci() {
                     {wObszarze.map((u) => (
                       <li key={u.skill_id}>
                         <Link id={`umiejetnosc-${u.skill_id}`} to={adresMapy(poziom, u.skill_id)} className={`wiersz ${s.wiersz}`} aria-current={u.skill_id === id ? "true" : undefined}>
-                          <span className={`wiersz-tresc ${s.nazwa}`}>{u.name}</span>
+                          <span className={`wiersz-ikona ${s.ikona}`}><Kielek stadium={stadium(u.score)} rozmiar={32} /></span>
+                          <span className={`wiersz-tresc ${s.nazwa}`}>{u.name}<span className="visually-hidden">, {NAZWA_STADIUM[stadium(u.score)]}</span></span>
                           <span className="wiersz-wartosc"><Opanowanie {...u} /></span>
                           <span className="wiersz-akcja"><ChevronRight size={18} aria-hidden="true" /></span>
                         </Link>

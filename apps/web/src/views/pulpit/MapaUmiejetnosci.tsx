@@ -1,14 +1,38 @@
+// Mapa w skrócie jako „ogród” Pestki: cztery obszary matury, w każdym rośliny jego umiejętności w stadiach
+// z opanowania (nauka/stadia.ts), i jedno zdanie wniosku. Szczegóły i procenty są na pełnej mapie.
 import { Link } from "react-router-dom";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Kielek } from "../../components/Kielek";
 import { Ladowanie } from "../../components/Ladowanie";
 import { nazwaPoziomu } from "../../konto/przedmioty";
 import { adresMapy, adresNauki } from "../../nauka/adresy";
-import { naukaApi } from "../../nauka/api";
+import { naukaApi, type Umiejetnosc } from "../../nauka/api";
+import { KOLEJNOSC_STADIOW, NAZWA_STADIUM, stadium } from "../../nauka/stadia";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
-import { Opanowanie } from "../nauka/Opanowanie";
 import mapaStyl from "../nauka/Umiejetnosci.module.css";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
+import w from "./Widgety.module.css";
+
+const OBSZARY = [
+  { id: "słuchanie", nazwa: "Słuchanie" },
+  { id: "czytanie", nazwa: "Czytanie" },
+  { id: "środki językowe", nazwa: "Środki językowe" },
+  { id: "pisanie", nazwa: "Pisanie" },
+];
+
+const poziomStadium = (u: Umiejetnosc) => KOLEJNOSC_STADIOW.indexOf(stadium(u.score));
+
+/** Jedno zdanie: gdzie rośnie najlepiej i gdzie czekają same pestki. */
+function wniosek(umiejetnosci: Umiejetnosc[]) {
+  const grupy = OBSZARY.map((o) => ({ ...o, lista: umiejetnosci.filter((u) => u.area === o.id) })).filter((g) => g.lista.length);
+  const srednia = (g: (typeof grupy)[number]) => g.lista.reduce((s, u) => s + poziomStadium(u), 0) / g.lista.length;
+  const najlepszy = [...grupy].sort((a, b) => srednia(b) - srednia(a))[0];
+  const pestki = grupy.filter((g) => g.lista.every((u) => poziomStadium(u) === 0));
+  if (!najlepszy || srednia(najlepszy) === 0) return "Na razie same pestki. Pierwsza runda zasadzi pierwszy kiełek.";
+  const reszta = pestki.length ? ` ${pestki.map((g) => g.nazwa).join(", ")}: jeszcze same pestki.` : "";
+  return `Najlepiej rośnie ${najlepszy.nazwa.toLowerCase()}.${reszta}`;
+}
 
 export function MapaUmiejetnosci({ zakres, aktywny }: KontekstPulpitu) {
   const [poziom] = usePoziomNauki();
@@ -16,14 +40,16 @@ export function MapaUmiejetnosci({ zakres, aktywny }: KontekstPulpitu) {
   const mapa = useZapytanieNauki(angielski ? `mapa:${poziom}` : null, (signal) => naukaApi.mapa(poziom, signal));
   if (!angielski) return null;
 
-  const umiejetnosci = mapa.dane?.skills.slice().sort((a, b) => (a.score ?? 2) - (b.score ?? 2) || b.exam_points - a.exam_points).slice(0, 4);
+  const umiejetnosci = mapa.dane?.skills;
   return (
     <section className={`${styles.section} wejscie`} aria-labelledby="map-title">
       <div className={styles.sectionHead}>
         <h2 id="map-title" className="h2">Mapa umiejętności</h2>
+        <Link to={adresMapy(poziom)} className="link">
+          Pełna mapa <ArrowRight size={14} aria-hidden="true" />
+        </Link>
       </div>
-      <p className="muted small">Angielski · poziom {nazwaPoziomu[poziom]}</p>
-      {mapa.stan === "ladowanie" && <Ladowanie ile={3} etykieta="Wczytuję umiejętności" />}
+      {mapa.stan === "ladowanie" && <Ladowanie ile={2} etykieta="Wczytuję umiejętności" />}
       {mapa.stan === "blad" && (
         <div className={mapaStyl.blok}>
           <p role="alert">Nie udało się wczytać umiejętności.</p>
@@ -32,28 +58,29 @@ export function MapaUmiejetnosci({ zakres, aktywny }: KontekstPulpitu) {
       )}
       {umiejetnosci && (
         <>
-          <ul className="wiersze">
-            {umiejetnosci.map((u) => (
-              <li key={u.skill_id}>
-                <Link to={adresMapy(poziom, u.skill_id)} className={`wiersz ${mapaStyl.wiersz}`}>
-                  <span className={`wiersz-tresc ${mapaStyl.nazwa}`}>{u.name}</span>
-                  <span className="wiersz-wartosc"><Opanowanie {...u} /></span>
-                  <span className="wiersz-akcja"><ChevronRight size={18} aria-hidden="true" /></span>
-                </Link>
-              </li>
-            ))}
+          <p>{wniosek(umiejetnosci)}</p>
+          <ul className={w.ogrod} aria-label={`Angielski, poziom ${nazwaPoziomu[poziom]}`}>
+            {OBSZARY.map((o) => {
+              const lista = umiejetnosci.filter((u) => u.area === o.id);
+              if (!lista.length) return null;
+              const opis = lista.map((u) => `${u.name}: ${NAZWA_STADIUM[stadium(u.score)]}`).join("; ");
+              return (
+                <li key={o.id}>
+                  <Link to={adresMapy(poziom, [...lista].sort((a, b) => poziomStadium(a) - poziomStadium(b))[0]!.skill_id)} className={w.grzadka}>
+                    <span className={w.rosliny} role="img" aria-label={`${o.nazwa}. ${opis}.`}>
+                      {lista.map((u) => <Kielek key={u.skill_id} stadium={stadium(u.score)} rozmiar={40} />)}
+                    </span>
+                    <span className="small">{o.nazwa}</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
           {umiejetnosci.every((u) => u.score === null) && (
-            <div className={mapaStyl.blok}>
-              <p className="muted">Wyniki pojawią się po pierwszej rundzie.</p>
-              <Link to={adresNauki(poziom)} className={`btn btn-secondary btn-sm ${mapaStyl.przycisk}`}>Zacznij szybką rundę</Link>
-            </div>
+            <Link to={adresNauki(poziom)} className={`btn btn-secondary btn-sm ${mapaStyl.przycisk}`}>Zacznij szybką rundę</Link>
           )}
         </>
       )}
-      <Link to={adresMapy(poziom)} className={`link ${mapaStyl.przycisk}`}>
-        Pełna mapa <ArrowRight size={14} aria-hidden="true" />
-      </Link>
     </section>
   );
 }

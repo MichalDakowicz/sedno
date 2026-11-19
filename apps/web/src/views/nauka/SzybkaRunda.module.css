@@ -396,3 +396,10 @@
     transform: translateX(-2px);
   }
 }
+
+/* Rozbiór: stadium pestki przed i po rundzie. */
+.stadium {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-3);
+}

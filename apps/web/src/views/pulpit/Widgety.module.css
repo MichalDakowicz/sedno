@@ -106,3 +106,33 @@
 .pestkaSerii {
   margin-bottom: var(--s-1);
 }
+
+/* Ogród Pestki: cztery grządki (obszary matury) na jednej linii ziemi, w każdej rośliny jej umiejętności. */
+.ogrod {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: var(--s-4) var(--s-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grzadka {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-2);
+  padding-bottom: var(--s-2);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.grzadka:hover {
+  color: var(--primary-text);
+}
+
+.rosliny {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--s-1);
+}

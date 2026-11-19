@@ -210,3 +210,15 @@
 .rozwijane[open] > summary svg {
   transform: rotate(90deg);
 }
+
+.ikona {
+  display: grid;
+  place-items: center;
+}
+
+/* Panel: rosnąca pestka obok dużej liczby opanowania. */
+.zKielkiem {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-4);
+}

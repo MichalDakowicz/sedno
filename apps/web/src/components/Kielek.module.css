@@ -1,0 +1,75 @@
+/* Kolory z tokenów: ziemia --line, pestka i owoc --primary, liście w dwóch odcieniach akcentu, korona --primary-soft. */
+.kielek {
+  display: block;
+  flex: none;
+  overflow: visible;
+}
+
+.ziemia {
+  fill: var(--line);
+}
+
+.nasiono {
+  fill: var(--primary);
+}
+
+.blask {
+  fill: var(--surface);
+  opacity: 0.45;
+}
+
+.lodyga {
+  fill: none;
+  stroke: var(--primary-text);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.lisc {
+  fill: var(--primary);
+}
+
+.liscJasny {
+  fill: var(--primary-text);
+}
+
+.korona {
+  fill: var(--primary);
+}
+
+.koronaBlask {
+  fill: var(--surface);
+  opacity: 0.3;
+}
+
+[data-stadium="drzewko"] .lodyga {
+  stroke-width: 3.4;
+}
+
+/* Rośnie od ziemi: łodyga wydłuża się, liście i korona wyskakują sprężyście, owoc na końcu. */
+.kielek[data-animuj] .czesc {
+  transform-box: view-box;
+  transform-origin: 24px 42px;
+  animation: wzrost var(--ruch-wolny) var(--ruch-sprezyna) both;
+}
+
+.kielek[data-animuj] .pozniej {
+  animation-delay: var(--ruch-szybki);
+}
+
+.kielek[data-animuj] .owoc {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wzrost var(--ruch-zwykly) var(--ruch-sprezyna) var(--ruch-wolny) both;
+}
+
+@keyframes wzrost {
+  from {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+}
+
+.owocKolor {
+  fill: var(--primary-text);
+}
