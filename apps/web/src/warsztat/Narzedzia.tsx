@@ -174,7 +174,7 @@ export function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz, przebi
             <Square size={14} aria-hidden="true" /> Zatrzymaj
           </button>
         ) : (
-          <button type="button" className="btn btn-primary btn-sm" onClick={start}>
+          <button type="button" className="btn btn-primary btn-sm" onClick={start} title="Uruchom (Ctrl+Enter)">
             <Play size={15} aria-hidden="true" /> Uruchom
           </button>
         )}
@@ -182,13 +182,15 @@ export function Python({ pliki, kod, onKod, doWstawienia, onWstaw, klucz, przebi
           {przebieg?.stan === "ladowanie" && `Ładuję Pythona, za pierwszym razem trwa to kilka sekund… ${sekundy} s`}
           {przebieg?.stan === "dziala" && `Działa… ${sekundy} s`}
           {przebieg?.stan === "koniec" && przebieg.ms !== undefined && `Gotowe w ${(przebieg.ms / 1000).toLocaleString("pl-PL", { maximumFractionDigits: 1 })} s`}
-          {!przebieg && "Ctrl+Enter uruchamia program"}
         </span>
       </div>
       {przebieg && (przebieg.wyjscie.length > 0 || przebieg.stan === "koniec") && (
-        <pre className={styles.wyjscie} aria-label="Wynik programu">
-          {przebieg.wyjscie.length ? przebieg.wyjscie.map((w, i) => (w.blad ? <span key={i} className={styles.blad}>{w.tekst}</span> : w.tekst)) : <span className="muted">(program nic nie wypisał)</span>}
-        </pre>
+        <div className={styles.wynikProgramu}>
+          <span className="label">Wynik</span>
+          <pre className={styles.wyjscie} aria-label="Wynik programu">
+            {przebieg.wyjscie.length ? przebieg.wyjscie.map((w, i) => (w.blad ? <span key={i} className={styles.blad}>{w.tekst}</span> : w.tekst)) : <span className="muted">(program nic nie wypisał)</span>}
+          </pre>
+        </div>
       )}
       {Object.entries(przebieg?.utworzone ?? {}).map(([nazwa, tresc]) => (
         <details key={nazwa} className={styles.utworzony} open>
@@ -256,11 +258,12 @@ export function Sql({ pliki, kod, onKod, doWstawienia, onWstaw, klucz, wyniki, s
       </Suspense>
       </Widoczny>
       <div className={styles.akcje}>
-        <button type="button" className="btn btn-primary btn-sm" onClick={start} disabled={!baza}>
+        <button type="button" className="btn btn-primary btn-sm" onClick={start} disabled={!baza} title="Wykonaj (Ctrl+Enter)" data-tutor-about="Zapytania wykonuje SQLite; działają też YEAR(), MONTH() i DAY() jak w Accessie i MySQL.">
           <Play size={15} aria-hidden="true" /> Wykonaj
         </button>
-        <span className="small muted">{blad ? `Nie udało się przygotować bazy: ${blad}` : !baza ? "Przygotowuję tabele z plików…" : "SQLite; działają też YEAR(), MONTH(), DAY() jak w Accessie i MySQL"}</span>
+        {(blad || !baza) && <span className="small muted" aria-live="polite">{blad ? `Nie udało się przygotować bazy: ${blad}` : "Przygotowuję tabele z plików…"}</span>}
       </div>
+      {wyniki && wyniki.length > 0 && <span className="label">Wynik</span>}
       {wyniki?.map((w, i) =>
         "blad" in w ? (
           <pre key={i} className={`${styles.wyjscie} ${styles.blad}`}>
@@ -366,7 +369,10 @@ export function Dane({ pliki }: { pliki: Record<string, string> }) {
           ))}
         </div>
       )}
-      <div className={styles.tabelaWrap}>
+      <div
+        className={styles.tabelaWrap}
+        data-tutor-about={czyTabelaryczny(pliki[wybrany] ?? "") ? `Nagłówek kolumny sortuje tabelę. W Excelu: Dane → Z pliku tekstowego/CSV, separator tabulator. W Accessie: Dane zewnętrzne → Plik tekstowy, z rozdzielaczami (tabulator)${t.naglowek !== t.kolumny ? ", pierwszy wiersz zawiera nazwy pól" : ""}.` : "Nagłówek kolumny sortuje tabelę."}
+      >
         <table className={styles.tabela}>
           <thead>
             <tr>
@@ -392,13 +398,8 @@ export function Dane({ pliki }: { pliki: Record<string, string> }) {
             ))}
           </tbody>
         </table>
-        <p className="small muted">{wiersze.length > POKAZ ? `Pierwsze ${POKAZ} z ${wiersze.length} wierszy. Kliknij nagłówek, żeby posortować.` : `Wierszy: ${wiersze.length}. Kliknij nagłówek, żeby posortować.`}</p>
+        <p className="small muted">{wiersze.length > POKAZ ? `Pierwsze ${POKAZ} z ${wiersze.length} wierszy` : `Wierszy: ${wiersze.length}`}</p>
       </div>
-      {czyTabelaryczny(pliki[wybrany] ?? "") && (
-        <p className="small muted">
-          W Excelu: Dane → Z pliku tekstowego/CSV, separator tabulator. W Accessie: Dane zewnętrzne → Plik tekstowy, z rozdzielaczami (tabulator){t.naglowek !== t.kolumny ? ", pierwszy wiersz zawiera nazwy pól" : ""}.
-        </p>
-      )}
     </div>
   );
 }
