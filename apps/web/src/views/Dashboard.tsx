@@ -20,6 +20,7 @@ import { usePoziomNauki } from "../nauka/stan";
 import { widget, type KontekstPulpitu } from "./pulpit/widgety";
 import { Wynikowy, procent, tytul } from "./pulpit/wspolne";
 import { GotowoscPrzedmiotow } from "./pulpit/GotowoscPrzedmiotow";
+import { useProfilOdczytany, useUczenie } from "../konto/profilUcznia";
 import styles from "./Dashboard.module.css";
 
 function SubjectBar({ moje: wpisy, active }: { moje: MojPrzedmiot[]; active?: string }) {
@@ -98,6 +99,8 @@ export function Dashboard() {
   const klucz = aktywny?.id ?? WSZYSTKIE;
   const uklad = useUklad(klucz);
   const diagnozaLokalna = useDiagnoza();
+  const uczenie = useUczenie();
+  const profilOdczytany = useProfilOdczytany();
   const [poziomNauki] = usePoziomNauki();
   const angielski = moje.some((m) => m.id === "angielski") && (!aktywny || aktywny.id === "angielski");
   const diagnoza = useTrybDiagnozy(poziomNauki, angielski);
@@ -152,7 +155,12 @@ export function Dashboard() {
           )}
         </h1>
         {/* Diagnoza na start (nauka/diagnoza.ts): zaproszenie, póki nie skończona ani pominięta; po przerwie „Dokończ”. */}
-        {zaproszenie && (
+        {/* Quiz celów, dopóki nie zrobiony ani pominięty; potem zaproszenie do diagnozy. */}
+        {!uczenie.quiz && profilOdczytany && moje.length > 0 ? (
+          <Link to="/cele" className="link">
+            Powiedz Pestce, ile chcesz mieć na maturze <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        ) : zaproszenie && (
           <Link to={adresDiagnozy(poziomNauki)} className="link">
             {zaproszenie === "dokoncz" ? "Dokończ diagnozę" : zaproszenie === "wyniki" ? "Zobacz pierwsze wyniki" : "Sprawdźmy, od czego zacząć"} <ArrowRight size={14} aria-hidden="true" />
           </Link>

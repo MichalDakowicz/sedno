@@ -69,6 +69,17 @@ export const glos = {
     dzis: "To wybrałam na dziś. Krótko i tam, gdzie najwięcej zyskasz.",
     wolanie: "Gdy coś będzie niejasne, kliknij mnie. Siedzę w rogu ekranu.",
   },
+  /** Quiz celów (views/QuizCelow.tsx): jedno pytanie Pestki na ekran. */
+  quiz: {
+    wstep: "Kilka szybkich pytań, a dobiorę naukę pod ciebie. Każde możesz pominąć.",
+    przedmioty: "Które przedmioty zdajesz na maturze?",
+    cel: "Ile chcesz mieć z tego przedmiotu?",
+    mocne: "W czym z angielskiego czujesz się mocno?",
+    slabe: "A co sprawia najwięcej kłopotu?",
+    czas: "Ile czasu dziennie dasz radę na naukę?",
+    dni: "Ile dni w tygodniu?",
+    koniec: "Mam to. Tak to widzę:",
+  },
   rozmowa: {
     powitanie: "Cześć, jestem Pestka. Wklej zadanie albo napisz, z czym masz kłopot, a przejdziemy przez to razem.",
     bezPolaczenia: "Żeby odpowiadać, muszę być połączona z twoim kontem. Zrobisz to w profilu.",

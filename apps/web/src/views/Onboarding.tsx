@@ -14,7 +14,7 @@ import { SubjectIcon } from "../components/icons";
 import { markOnboarded, saveSubjects, useProfil, useSession, imieZNazwy } from "../auth";
 import { streamAi, useAiReady } from "../ai";
 import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
-import { CzasICel, PytaniaOSposobie } from "./ProfilUcznia";
+import { QuizCelow } from "./QuizCelow";
 import { przedmiot, zgrupuj, type MojPrzedmiot, type PrzedmiotId } from "../konto/przedmioty";
 import styles from "./Onboarding.module.css";
 
@@ -97,7 +97,7 @@ const ZADANIA: Record<PrzedmiotId, Pokazowe> = {
   },
 };
 
-const KROKI = ["Cześć", "Przedmioty", "Pokaz", "Jak się uczysz", "Gdzie mnie spotkasz", "Start"];
+const KROKI = ["Cześć", "Przedmioty", "Pokaz", "Cele", "Gdzie mnie spotkasz", "Start"];
 
 export function Onboarding() {
   const session = useSession();
@@ -171,23 +171,7 @@ export function Onboarding() {
 
         {krok === 2 && przedmioty[0] && <Pokaz ai={ai} przedmioty={przedmioty} onDalej={() => setKrok(3)} />}
 
-        {krok === 3 && (
-          <section className={styles.step}>
-            <TutorAvatar size={64} />
-            <h1 className="h1">Jak się uczysz?</h1>
-            <p className="lead">Kilka krótkich pytań, żebym lepiej dopasowała propozycje. Każde możesz pominąć, a odpowiedzi zmienisz później w profilu.</p>
-            <div className={styles.profil}>
-              <PytaniaOSposobie />
-              <CzasICel przedmioty={zgrupuj(przedmioty).map((m) => m.id)} />
-            </div>
-            <button type="button" className="btn btn-primary" onClick={() => setKrok(4)}>
-              Dalej
-            </button>
-            <button type="button" className={styles.later} onClick={() => setKrok(4)}>
-              Pomiń
-            </button>
-          </section>
-        )}
+        {krok === 3 && <QuizCelow wOnboardingu onKoniec={() => setKrok(4)} />}
 
         {krok === 4 && (
           <section className={styles.step}>

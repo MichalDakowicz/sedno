@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useProfil } from "../../auth";
 import { PasekProgu } from "../../components/wykresy";
-import { CELE, celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
+import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
 import { przedmiot } from "../../konto/przedmioty";
 import { dniDo, egzaminyUcznia, najblizszy, nazwaEgzaminu, odmianaDni, opisDaty } from "../../konto/terminy";
 import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
@@ -24,7 +24,8 @@ export function DoMatury({ zakres, aktywny, maPrzedmioty }: KontekstPulpitu) {
   if (!wszystkie.length) return null;
   const e = najblizszy(wszystkie);
   const dni = e ? dniDo(e.data) : 0;
-  const cel = e && CELE.find((c) => c.id === u.cele?.[e.przedmiotId]);
+  const ulamek = e ? celPrzedmiotu(u, e.przedmiotId) : null;
+  const cel = ulamek !== null ? { nazwa: `${Math.round(ulamek * 100)}%` } : null;
   return (
     <section className={`${styles.section} wejscie`} aria-labelledby="matura-title">
       <div className={styles.sectionHead}>
@@ -50,8 +51,8 @@ export function DoMatury({ zakres, aktywny, maPrzedmioty }: KontekstPulpitu) {
       {!e ? null : cel ? (
         !angielski && <p className="muted small">Cel z przedmiotu {przedmiot(e.przedmiotId)?.nazwa.toLowerCase()}: {cel.nazwa}</p>
       ) : (
-        <Link to="/profil-ucznia" className="link" style={{ justifySelf: "start" }}>
-          Ustaw cel w profilu
+        <Link to="/cele" className="link" style={{ justifySelf: "start" }}>
+          Ustaw cel z Pestką
         </Link>
       )}
     </section>
