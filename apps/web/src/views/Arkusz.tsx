@@ -510,6 +510,7 @@ export function Arkusz() {
         <Naglowek
           arkusz={dane}
           onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined}
+          onCofnijNaCzas={postep.czas && !postep.sprawdzony ? () => ustawCzas(undefined) : undefined}
           zwiniety={!!strony && strona !== strony[0]}
           wStronach={
             mozliweStrony && (!strony || strona === strony[0])
@@ -725,10 +726,17 @@ function zapiszWStronach(w: boolean) {
   }
 }
 
-function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDane; onNaCzas?: () => void; zwiniety?: boolean; wStronach?: { wlaczone: boolean; onZmien: () => void } }) {
+function Naglowek({ arkusz, onNaCzas, onCofnijNaCzas, zwiniety, wStronach }: {
+  arkusz: ArkuszDane; onNaCzas?: () => void; onCofnijNaCzas?: () => void; zwiniety?: boolean; wStronach?: { wlaczone: boolean; onZmien: () => void };
+}) {
   const maSluchanie = arkusz.zadania.some((z) => z.sluchanie);
-  // Tryb na czas startuje dopiero po przeczytaniu, co obejmuje i jak działa zegar.
-  const [pytaONaCzas, setPytaONaCzas] = useState(false);
+  // „Na czas” startuje od razu; przez kilka sekund przycisk zostaje jako „Cofnij”, potem zegar ma własną pauzę i wyłączenie w pasku.
+  const [cofnij, setCofnij] = useState(false);
+  useEffect(() => {
+    if (!cofnij) return;
+    const t = window.setTimeout(() => setCofnij(false), 6000);
+    return () => window.clearTimeout(t);
+  }, [cofnij]);
   return (
     <header className={styles.head}>
       <Link to="/arkusze" className={`small muted ${styles.back}`}>
@@ -745,7 +753,7 @@ function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDan
       </h1>
       )}
       {!zwiniety && <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>}
-      {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas || wStronach) && (
+      {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas || (cofnij && onCofnijNaCzas) || wStronach) && (
         <div className={styles.pdfs}>
           {arkusz.pdf?.arkusz && (
             <a className="btn btn-ghost btn-sm" href={arkusz.pdf?.arkusz} target="_blank" rel="noreferrer" aria-label="Arkusz PDF na stronie CKE">
@@ -753,8 +761,19 @@ function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDan
             </a>
           )}
           {onNaCzas && (
-            <button type="button" className="btn btn-ghost btn-sm" aria-expanded={pytaONaCzas} aria-controls="na-czas" onClick={() => setPytaONaCzas(!pytaONaCzas)}>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              aria-pressed={false}
+              onClick={() => { onNaCzas(); setCofnij(true); }}
+              data-tutor-about={`${arkusz.czas} minut, tyle co na maturze. Zegar nie blokuje odpowiedzi: po czasie możesz pisać dalej. Odezwę się w połowie czasu, 15 minut przed końcem i po czasie. „Sprawdź cały arkusz” zatrzymuje zegar.`}
+            >
               <Timer size={16} aria-hidden="true" /> Na czas
+            </button>
+          )}
+          {!onNaCzas && cofnij && onCofnijNaCzas && (
+            <button type="button" className="btn btn-ghost btn-sm" aria-pressed={true} onClick={() => { onCofnijNaCzas(); setCofnij(false); }}>
+              <Timer size={16} aria-hidden="true" /> Zegar ruszył · Cofnij
             </button>
           )}
           {wStronach && (
@@ -762,24 +781,6 @@ function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDan
               <BookOpen size={16} aria-hidden="true" /> Strony
             </button>
           )}
-        </div>
-      )}
-      {!zwiniety && onNaCzas && pytaONaCzas && (
-        <div id="na-czas" className={styles.naCzas}>
-          <p>{arkusz.czas} minut na cały arkusz, tyle co na maturze. Zegar możesz wstrzymać.</p>
-          <div className={styles.pdfs}>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={onNaCzas}
-              data-tutor-about="Zegar nie blokuje odpowiedzi: po czasie możesz pisać dalej. Odezwę się w połowie czasu, 15 minut przed końcem i po czasie. „Sprawdź cały arkusz” zatrzymuje zegar, a wynik pokaże twój czas i tempo przy zadaniach."
-            >
-              <Timer size={16} aria-hidden="true" /> Start, {arkusz.czas} minut
-            </button>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPytaONaCzas(false)}>
-              Nie teraz
-            </button>
-          </div>
         </div>
       )}
       {maSluchanie && arkusz.nagranie && <Nagranie src={arkusz.nagranie} />}

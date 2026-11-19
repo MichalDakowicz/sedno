@@ -1810,21 +1810,6 @@
   scroll-margin-top: 96px;
 }
 
-/* Wyjaśnienie trybu na czas przed startem zegara. */
-.naCzas {
-  display: grid;
-  gap: var(--s-2);
-  max-width: 68ch;
-  padding: var(--s-3) 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-
-.naCzas ul {
-  margin: 0;
-  padding-left: 1.2em;
-}
-
 /* Informatyka: zgodność z egzaminem. Linie zamiast kart. */
 .wskazowka {
   margin: var(--s-1) 0 var(--s-2);
