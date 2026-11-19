@@ -43,6 +43,8 @@ import { useAiReady } from "../ai";
 import { uplynelo, zapisCzasu, zatrzymaj } from "../components/Zegar";
 import { ustawAktywnyZegar, useAktywnyZegar } from "../arkusze/zegarAktywny";
 import { dodajCzas, minuty, norma, odmierz, opisTempa, tempo, zacznijOdmierzac } from "../arkusze/czasZadan";
+import { PasekProgu } from "../components/wykresy";
+import { Liczba } from "../ruch";
 import styles from "./Arkusz.module.css";
 
 type Kontekst = {
@@ -812,8 +814,11 @@ function Podsumowanie({
     <section className={styles.summary} aria-live="polite" data-tutor="wynik">
       <span className="kicker"><ClipboardCheck size={14} strokeWidth={2.2} aria-hidden="true" />{wynik.wypowiedzi ? "Wynik bez wypowiedzi pisemnej" : "Wynik"}</span>
       <p className={styles.bigScore}>
-        {wynik.zdobyte} <span className="muted">/ {wynik.mozliwe} pkt</span> <span className={styles.percent}>{procent}%</span>
+        <Liczba wartosc={wynik.zdobyte} /> <span className="muted">/ {wynik.mozliwe} pkt</span> <span className={styles.percent}>{procent}%</span>
       </p>
+      <PasekProgu gruby wartosc={wynik.mozliwe ? wynik.zdobyte / wynik.mozliwe : 0}
+        prog={arkusz.poziom === "podstawowy" ? { wartosc: 0.3, etykieta: "próg 30%" } : undefined}
+        opis={`Wynik ${procent}%${arkusz.poziom === "podstawowy" ? `, próg zdania 30%, ${procent >= 30 ? "powyżej" : "poniżej"} progu` : ""}.`} />
       <p className="muted">
         {wynik.doOceny > 0
           ? `${wynik.doOceny} ${wynik.doOceny === 1 ? "odpowiedź otwarta czeka" : "odpowiedzi otwarte czekają"} na twoją ocenę. Porównaj z kluczem albo schematem oceniania przy pytaniu.`
@@ -829,6 +834,7 @@ function Podsumowanie({
           {limitMin ? ` z ${limitMin} minut${uplynelo(czas) > limitMin * 60_000 ? ", po czasie" : ""}.` : "."}
         </p>
       )}
+      <StraconePunkty arkusz={arkusz} postep={postep} />
       <TempoZadan arkusz={arkusz} postep={postep} />
       {/* Klucz dopiero po sprawdzeniu: przed rozwiązaniem kusiłby podejrzeniem. */}
       {arkusz.pdf?.zasady && (
@@ -854,6 +860,32 @@ function Podsumowanie({
   );
 }
 
+/** Gdzie uciekły punkty: zadania z największą stratą jako paski zdobytych punktów (części arkusza to jego zadania). */
+function StraconePunkty({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) {
+  const straty = arkusz.zadania
+    .map((z) => ({ z, w: policzPytania(z.pytania.filter((p) => p.typ !== "wypowiedz"), postep.odpowiedzi, postep.samoocena) }))
+    .filter(({ w }) => w.mozliwe > 0 && w.zdobyte < w.mozliwe && w.doOceny === 0)
+    .sort((a, b) => (b.w.mozliwe - b.w.zdobyte) - (a.w.mozliwe - a.w.zdobyte) || a.z.nr - b.z.nr)
+    .slice(0, 4);
+  if (!straty.length) return null;
+  return (
+    <div className={styles.straty}>
+      <span className="label">Najwięcej punktów uciekło</span>
+      <ul>
+        {straty.map(({ z, w }) => (
+          <li key={z.nr}>
+            <a href={`#zadanie-${z.nr}`}>Zadanie {z.nr}.</a>
+            <span className="muted">{w.zdobyte} z {w.mozliwe} pkt</span>
+            <span className={styles.tempoPasek}>
+              <PasekProgu wartosc={w.zdobyte / w.mozliwe} opis={`Zadanie ${z.nr}: ${w.zdobyte} z ${w.mozliwe} pkt.`} />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /** Zadania, przy których czas razem z wynikiem coś mówi: długo i źle, długo i dobrze, szybko i źle. */
 function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) {
   const czasy = postep.czasZadan ?? {};
@@ -870,15 +902,22 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
       <span className="label">Czas przy zadaniach</span>
       {wiersze.length ? (
         <ul>
-          {wiersze.slice(0, 5).map(({ z, ms, t, n }) => (
-            <li key={z.nr}>
-              <a href={`#zadanie-${z.nr}`}>Zadanie {z.nr}.</a>
-              <span>
-                {minuty(ms)} <span className="muted">(norma ok. {minuty(n)})</span>
-              </span>
-              <span className="muted">{opisTempa[t]}</span>
-            </li>
-          ))}
+          {wiersze.slice(0, 5).map(({ z, ms, t, n }) => {
+            const skala = Math.max(ms, n) * 1.15;
+            return (
+              <li key={z.nr}>
+                <a href={`#zadanie-${z.nr}`}>Zadanie {z.nr}.</a>
+                <span>
+                  {minuty(ms)} <span className="muted">(norma ok. {minuty(n)})</span>
+                </span>
+                <span className="muted">{opisTempa[t]}</span>
+                <span className={styles.tempoPasek}>
+                  <PasekProgu wartosc={ms / skala} cel={{ wartosc: n / skala, etykieta: "norma" }} ton={ms > n ? "ponad" : "akcent"}
+                    opis={`Zadanie ${z.nr}: ${minuty(ms)}, norma ok. ${minuty(n)}.`} />
+                </span>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <p className="muted">Tempo w normie przy wszystkich zadaniach, przy których był mierzony czas.</p>

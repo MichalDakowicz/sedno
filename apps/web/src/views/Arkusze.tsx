@@ -8,6 +8,7 @@ import { useProfil } from "../auth";
 import { brakArkuszy } from "../konto/przedmioty";
 import { NaglowekStrony } from "../components/NaglowekStrony";
 import { Ladowanie } from "../components/Ladowanie";
+import { Pierscien } from "../components/wykresy";
 import styles from "./Arkusze.module.css";
 
 const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string; lead: string }[] = [
@@ -135,7 +136,7 @@ function Karta({ arkusz: a }: { arkusz: ArkuszWpis }) {
         <span className="kicker">{a.sesja}</span>
         <span className={styles.year}>{a.rok}</span>
         <span className={styles.status}>
-          {proc !== null ? <span className={styles.score}>{proc}%</span> : zaczety ? <span className="small muted">w trakcie</span> : <span className="small muted">nierozwiązany</span>}
+          {proc !== null ? <Pierscien wartosc={proc / 100} prog={a.poziom === "podstawowy" ? 0.3 : undefined} rozmiar={48} opis={`Wynik ${proc}%`} /> : zaczety ? <span className="small muted">w trakcie</span> : <span className="small muted">nierozwiązany</span>}
         </span>
         <span className={`btn btn-ghost ${styles.action}`}>
           {proc !== null ? "Zobacz wynik" : zaczety ? "Kontynuuj" : "Rozwiąż"}

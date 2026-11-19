@@ -1268,21 +1268,24 @@
 }
 
 /* Czas przy zadaniach w podsumowaniu: wiersze oddzielone liniami. */
-.tempo {
+.tempo,
+.straty {
   display: grid;
   gap: var(--s-2);
   width: 100%;
   margin-top: var(--s-4);
 }
 
-.tempo ul {
+.tempo ul,
+.straty ul {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 /* Numer, czas z normą (bez łamania w środku) i komentarz; gdy brakuje miejsca, komentarz schodzi do osobnej linii. */
-.tempo li {
+.tempo li,
+.straty li {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -1291,7 +1294,8 @@
   border-top: 1px solid var(--line);
 }
 
-.tempo li > :first-child {
+.tempo li > :first-child,
+.straty li > :first-child {
   flex: 0 0 7em;
 }
 
@@ -1299,11 +1303,18 @@
   white-space: nowrap;
 }
 
-.tempo li > :last-child {
+.tempo li > :nth-child(3) {
   flex: 1 1 14em;
 }
 
-.tempo li a {
+/* Pasek czasu względem normy albo zdobytych punktów: pełna szerokość pod opisem. */
+.tempoPasek {
+  flex: 1 0 100%;
+  padding-top: var(--s-1);
+}
+
+.tempo li a,
+.straty li a {
   color: var(--fg);
   font-weight: 500;
 }
