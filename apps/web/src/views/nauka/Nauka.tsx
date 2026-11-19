@@ -123,12 +123,21 @@ export function Nauka() {
         </PasekPrzedmiotow>
       )}
 
-      {angielski && !wybrana && !zmiana && dzien.stan === "ladowanie" ? (
+      {angielski && !wybrana && dzien.stan === "ladowanie" ? (
         <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie na dziś" />
-      ) : angielski && !wybrana && !zmiana && dzien.dzis ? (
+      ) : angielski && !wybrana && dzien.dzis ? (
         <div className={s.dzis}>
-          <KartaDnia dzis={dzien.dzis} />
-          <button type="button" className="btn btn-ghost" onClick={() => ustawZmiane(true)}>Wybierz inną umiejętność</button>
+          {/* Wybór innej umiejętności w tej samej karcie: ogród rozwija się pod przyciskami, karta się nie podmienia. */}
+          <KartaDnia dzis={dzien.dzis}
+            poboczna={<button type="button" className="btn btn-ghost" aria-expanded={zmiana} aria-controls="wybor-dnia" onClick={() => ustawZmiane((z) => !z)}>{zmiana ? "Gotowe" : "Wybierz inną umiejętność"}</button>}>
+            {zmiana && umiejetnosci.length > 0 && (
+              <div id="wybor-dnia" className={s.wyborOgrod}>
+                <Ogrod maly umiejetnosci={umiejetnosci} poziom={poziom} tuDzis={dzien.dzis.skill_id ?? null} etykieta="Wybierz umiejętność z ogrodu"
+                  onWybierz={(u) => { ustawUmiejetnosc(u.skill_id); ustawZmiane(false); }} />
+                <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />
+              </div>
+            )}
+          </KartaDnia>
         </div>
       ) : angielski ? (
         <article className={s.karta} aria-labelledby="nauka-polecenie">

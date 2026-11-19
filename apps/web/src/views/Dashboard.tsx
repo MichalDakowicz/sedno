@@ -177,11 +177,7 @@ export function Dashboard() {
 
       {dane && co && (
         <section className={`${styles.top} ${obok || moje.length > 0 ? "" : styles.topSam} ${wejscie}`}>
-          {/* Pod kartą dnia „Potem”: kolejne kroki z tego samego planu co w Nauce (runda, powtórki, polecenie). */}
-          <div className={styles.kolumnaDnia}>
-            <Dzis {...kontekst} />
-            {zakres.some((z) => z.przedmiot.id === "angielski") && <PlanDnia maly poziom={zakres.find((z) => z.przedmiot.id === "angielski")!.przedmiot.poziom} />}
-          </div>
+          <Dzis {...kontekst} />
           {obok ? (
             <div className={styles.side}>
               <obok.Komponent {...kontekst} obok />
@@ -189,6 +185,9 @@ export function Dashboard() {
           ) : moje.length > 0 && <GotowoscPrzedmiotow zakres={zakres} />}
         </section>
       )}
+
+      {/* „Potem” pod kartą i gotowością, na całą szerokość: w lewej kolumnie wydłużał ją i rozbijał równowagę z prawą. */}
+      {dane && zakres.some((z) => z.przedmiot.id === "angielski") && <PlanDnia poziom={zakres.find((z) => z.przedmiot.id === "angielski")!.przedmiot.poziom} />}
 
       {dane && moje.length > 0 && (obok || !co) && <GotowoscPrzedmiotow zakres={zakres} />}
 
