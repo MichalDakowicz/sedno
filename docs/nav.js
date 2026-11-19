@@ -428,6 +428,10 @@
     "title": "Ekran główny"
    },
    {
+    "id": "dash-zakladki",
+    "title": "Pięć zakładek, pięć pytań"
+   },
+   {
     "id": "dashboard-nawigacja",
     "title": "Nawigacja i sekcje"
    },
