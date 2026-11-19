@@ -4,7 +4,8 @@ import { ArrowLeft, ArrowRight, BookOpen, Camera, Check, ChevronDown, ChevronLef
 import { adresZdjecia } from "./nauka/Zdjecie";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
-import { OPIS_FORMY, opisOceny, opisWypelnienia, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
+import { celPrzedmiotu, useUczenie } from "../konto/profilUcznia";
+import { opisOceny, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
 import { liczOdpowiedzi, policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
@@ -552,7 +553,6 @@ export function Arkusz() {
         )}
 
         <SpisZadan />
-        {dane.przedmiot === "informatyka" && <CoOddajesz />}
 
         {dane.zadania
           .filter((z) => strona === undefined || stronyZadania(z).includes(strona))
@@ -592,22 +592,10 @@ export function Arkusz() {
               <RotateCcw size={16} aria-hidden="true" /> Rozwiąż od nowa
             </button>
           ) : (
-            <>
-              {dane.przedmiot === "informatyka" && <BrakujaceOdpowiedzi />}
-              <p className="muted small">
-                Odpowiedzi: {odpowiedziane} z {kontekst.pytania.size}
-              </p>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={sprawdzCaly}
-                data-tutor-about="Po sprawdzeniu zobaczysz klucz przy każdym pytaniu. Odpowiedzi otwarte spoza listy CKE ocenisz samodzielnie, z kluczem przed oczami."
-              >
-                <Check size={18} aria-hidden="true" /> Sprawdź cały arkusz
-              </button>
-            </>
+            <PasekSprawdzania odpowiedziane={odpowiedziane} wszystkich={kontekst.pytania.size} onSprawdz={sprawdzCaly} />
           )}
         </footer>
+        <p className={`small muted ${styles.zrodlo}`}>Źródło: Centralna Komisja Egzaminacyjna, cke.gov.pl.</p>
       </main>
       </div>
       {materialy && zadanieMaterialow && (
@@ -787,7 +775,6 @@ function Naglowek({ arkusz, onNaCzas, onCofnijNaCzas, zwiniety, wStronach }: {
         </div>
       )}
       {maSluchanie && arkusz.nagranie && <Nagranie src={arkusz.nagranie} />}
-      {!zwiniety && <p className="small muted">Źródło: Centralna Komisja Egzaminacyjna, cke.gov.pl.</p>}
     </header>
   );
 }
@@ -810,6 +797,8 @@ function Podsumowanie({
   omow: { ile: number; wypracowanie: boolean; bledne: number; bezOdpowiedzi: number; pytan: number; ai: boolean; start: () => void };
 }) {
   const procent = wynik.mozliwe ? Math.round((wynik.zdobyte / wynik.mozliwe) * 100) : 0;
+  const uczenie = useUczenie();
+  const cel = celPrzedmiotu(uczenie, arkusz.przedmiot ?? "angielski");
   return (
     <section className={styles.summary} aria-live="polite" data-tutor="wynik">
       <span className="kicker"><ClipboardCheck size={14} strokeWidth={2.2} aria-hidden="true" />{wynik.wypowiedzi ? "Wynik bez wypowiedzi pisemnej" : "Wynik"}</span>
@@ -818,10 +807,14 @@ function Podsumowanie({
       </p>
       <PasekProgu gruby wartosc={wynik.mozliwe ? wynik.zdobyte / wynik.mozliwe : 0}
         prog={arkusz.poziom === "podstawowy" ? { wartosc: 0.3, etykieta: "próg 30%" } : undefined}
-        opis={`Wynik ${procent}%${arkusz.poziom === "podstawowy" ? `, próg zdania 30%, ${procent >= 30 ? "powyżej" : "poniżej"} progu` : ""}.`} />
+        cel={cel !== null && cel !== 0.3 ? { wartosc: cel, etykieta: `cel ${Math.round(cel * 100)}%` } : undefined}
+        opis={`Wynik ${procent}%${cel !== null ? `, cel ${Math.round(cel * 100)}%` : ""}${arkusz.poziom === "podstawowy" ? `, próg zdania 30%, ${procent >= 30 ? "powyżej" : "poniżej"} progu` : ""}.`} />
+      {cel !== null && (
+        <p>{procent >= cel * 100 ? "Cel osiągnięty w tym arkuszu." : `Do celu ${Math.round(cel * 100)}% zabrakło ${Math.round(cel * 100) - procent} pkt proc.`}</p>
+      )}
       <p className="muted">
         {wynik.doOceny > 0
-          ? `${wynik.doOceny} ${wynik.doOceny === 1 ? "odpowiedź otwarta czeka" : "odpowiedzi otwarte czekają"} na twoją ocenę. Porównaj z kluczem albo schematem oceniania przy pytaniu.`
+          ? `${wynik.doOceny} ${wynik.doOceny === 1 ? "odpowiedź otwarta czeka" : "odpowiedzi otwarte czekają"} na twoją ocenę przy pytaniu.`
           : omow.bezOdpowiedzi
           ? "Wpisane odpowiedzi są ocenione."
           : "Wszystkie odpowiedzi ocenione."}
@@ -2407,9 +2400,7 @@ function WskazowkaAplikacji({ rodzaj }: { rodzaj: RodzajWskazowki | null }) {
   if (!rodzaj) return null;
   const w = WSKAZOWKI[rodzaj];
   return (
-    <p className={`small ${styles.wskazowka}`} data-tutor-about={w.pestka}>
-      <strong>{w.tytul}:</strong> {w.tekst}
-    </p>
+    <p className={`small ${styles.wskazowka}`} data-tutor-about={`${w.tekst} ${w.pestka}`}>{w.tytul}</p>
   );
 }
 
@@ -2420,63 +2411,43 @@ function ZnacznikOdpowiedzi({ p }: { p: Pytanie }) {
   const z = arkusz.zadania.find((x) => x.nr === nrZadania(p.nr));
   if (!z) return null;
   const s = stanOdpowiedzi(z, p, postep.odpowiedzi, ileLuk(luki, p.nr));
-  const o = OPIS_FORMY[s.forma];
+  // Sam licznik części (komórki, luki, wiersze P / F); przy jednym polu nic, bo widać je od razu.
+  if (s.z <= 1) return null;
   return (
-    <div className={styles.znacznik} data-stan={s.pusta ? "brak" : s.pelna ? "jest" : "czesc"}>
-      <p className="small">
-        <span className={styles.znacznikStan}>{s.pusta ? "Puste" : s.z > 1 ? `${s.ile} z ${s.z}` : "Zapisane"}</span>
-        <strong>{o.miejsce}</strong>: {o.format}.
-      </p>
-      <p className="small muted">
-        {s.z > 1 ? `${opisWypelnienia(s)} ` : ""}
-        {opisOceny(s)}
-      </p>
-    </div>
+    <p className={`small ${styles.znacznik}`} data-stan={s.pusta ? "brak" : s.pelna ? "jest" : "czesc"} data-tutor-about={opisOceny(s)}>
+      <span className={styles.znacznikStan}>{s.ile} z {s.z}</span>
+    </p>
   );
 }
 
-// Pliki, wykresy i realizacje z poleceń CKE oddaje się tylko na egzaminie: bez tej linii uczeń szukałby, gdzie je wysłać.
-function CoOddajesz() {
-  return <p className="small muted">Pliki i wykresy z poleceń CKE oddajesz tylko na egzaminie. Tu liczą się pola odpowiedzi.</p>;
-}
-
-// Przed sprawdzeniem: podpunkty bez pełnej odpowiedzi, każdy ze skokiem do pola.
-function BrakujaceOdpowiedzi() {
-  const { arkusz, postep, luki, idzDoPytania } = useCtx();
-  const braki = arkusz.zadania.flatMap((z) =>
-    z.pytania.flatMap((p) => {
-      if (p.typ === "wypowiedz") return [];
-      const s = stanOdpowiedzi(z, p, postep.odpowiedzi, ileLuk(luki, p.nr));
-      return s.pelna ? [] : [{ nr: p.nr, s }];
-    }),
-  );
+// Na dole arkusza jeden pasek: postęp i „Sprawdź cały arkusz”. O brakach mówi dopiero potwierdzenie po kliknięciu.
+function PasekSprawdzania({ odpowiedziane, wszystkich, onSprawdz }: { odpowiedziane: number; wszystkich: number; onSprawdz: () => void }) {
+  const [potwierdz, setPotwierdz] = useState(false);
+  const braki = wszystkich - odpowiedziane;
+  if (potwierdz)
+    return (
+      <div className={styles.potwierdz} role="alertdialog" aria-labelledby="braki-tytul">
+        <p id="braki-tytul">Bez odpowiedzi: {braki} z {wszystkich}. Sprawdzić mimo to?</p>
+        <div className={styles.potwierdzAkcje}>
+          <button type="button" className="btn btn-primary" onClick={() => { setPotwierdz(false); onSprawdz(); }} autoFocus>
+            <Check size={18} aria-hidden="true" /> Sprawdź
+          </button>
+          <button type="button" className="btn btn-ghost" onClick={() => setPotwierdz(false)}>Wróć do arkusza</button>
+        </div>
+      </div>
+    );
   return (
-    <div className={styles.braki} role="group" aria-label="Brakujące odpowiedzi">
-      {braki.length === 0 ? (
-        <p className="small">Każdy podpunkt ma odpowiedź.</p>
-      ) : (
-        <>
-          <p className="small">
-            <strong>Bez pełnej odpowiedzi: {braki.length}.</strong> Możesz wrócić do pola albo sprawdzić arkusz mimo braków.
-          </p>
-          <ul className={styles.brakiLista}>
-            {braki.map(({ nr, s }) => (
-              <li key={nr}>
-                <button type="button" data-stan={s.pusta ? "brak" : "czesc"} onClick={() => idzDoPytania(nr)} aria-label={`Zadanie ${nr}, ${s.pusta ? "bez odpowiedzi" : `${s.ile} z ${s.z}`}: przejdź do pola`}>
-                  {nr}
-                  {!s.pusta && (
-                    <span>
-                      {" "}
-                      {s.ile}/{s.z}
-                    </span>
-                  )}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-    </div>
+    <>
+      <p className={styles.postepArkusza}><strong>{odpowiedziane}</strong> z {wszystkich}<span className="visually-hidden"> odpowiedzi</span></p>
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={() => (braki > 0 ? setPotwierdz(true) : onSprawdz())}
+        data-tutor-about="Po sprawdzeniu zobaczysz klucz przy każdym pytaniu. Odpowiedzi otwarte spoza listy CKE ocenisz samodzielnie, z kluczem przed oczami."
+      >
+        <Check size={18} aria-hidden="true" /> Sprawdź cały arkusz
+      </button>
+    </>
   );
 }
 
@@ -3314,7 +3285,7 @@ function PoleKodu({ p, rodzaj, wartosc, tylkoOdczyt }: { p: PytanieOtwarte; rodz
         aria-label={`Odpowiedź ${p.nr}`}
         aria-describedby={`pomoc-${p.nr}`}
       />
-      <span id={`pomoc-${p.nr}`} className="small muted">
+      <span id={`pomoc-${p.nr}`} className="visually-hidden">
         Tab wstawia wcięcie; Esc, a potem Tab przechodzi dalej.
       </span>
       {!tylkoOdczyt && warianty.length > 0 && (
