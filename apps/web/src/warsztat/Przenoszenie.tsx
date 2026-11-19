@@ -13,7 +13,7 @@ const WYJASNIENIE: Record<RodzajOdpowiedzi, string> = {
   wynik: "Tu oceniany jest wynik. Wstaw tylko to, o co pyta podpunkt, np. jedną wartość albo kilka wierszy.",
   kod: "Tu oceniany jest algorytm (może być pseudokod). Wstawiony kod możesz potem poprawić w polu odpowiedzi.",
   sql: "Tu odpowiedzią jest zapytanie SQL, a nie jego wynik.",
-  wykres: "Wykresu nie sprawdzamy automatycznie: po sprawdzeniu arkusza oceniasz go sam. Wstaw tu tylko zestawienie liczb, a wykres zrób w arkuszu.",
+  wykres: "Wykresu nie sprawdzamy automatycznie: po sprawdzeniu arkusza oceniasz go samodzielnie. Wstaw tu tylko zestawienie liczb, a wykres zrób w arkuszu.",
   inne: "Wstaw tylko to, o co pyta podpunkt.",
 };
 

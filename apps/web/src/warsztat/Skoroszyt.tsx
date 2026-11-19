@@ -30,7 +30,7 @@ type Props = {
 const STAN: Record<StanZapisu, { tekst: string; opis: string }> = {
   zapisywanie: { tekst: "Zapisuję…", opis: "Zmiany są już w tej przeglądarce, trwa zapis w postępie konta." },
   zapisano: { tekst: "Zapisano", opis: "Zmiany są zapisane w tej przeglądarce i w postępie konta." },
-  lokalnie: { tekst: "Zapisano w tej przeglądarce", opis: "Nie jesteś zalogowany: zmiany są tylko w tej przeglądarce." },
+  lokalnie: { tekst: "Zapisano w tej przeglądarce", opis: "Bez logowania zmiany są tylko w tej przeglądarce." },
   blad: { tekst: "Nie udało się zapisać", opis: "Zapis się nie udał (brak sieci albo miejsca w przeglądarce). Zmiany są tylko w otwartej karcie, nie zamykaj jej." },
 };
 

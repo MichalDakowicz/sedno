@@ -601,7 +601,7 @@ export function Arkusz() {
                 type="button"
                 className="btn btn-primary"
                 onClick={sprawdzCaly}
-                data-tutor-about="Po sprawdzeniu zobaczysz klucz przy każdym pytaniu. Odpowiedzi otwarte spoza listy CKE ocenisz sam, z kluczem przed oczami."
+                data-tutor-about="Po sprawdzeniu zobaczysz klucz przy każdym pytaniu. Odpowiedzi otwarte spoza listy CKE ocenisz samodzielnie, z kluczem przed oczami."
               >
                 <Check size={18} aria-hidden="true" /> Sprawdź cały arkusz
               </button>
@@ -3363,7 +3363,7 @@ function WypowiedzWidok({ pytanie: p, pisanie }: { pytanie: Wypowiedz; pisanie: 
 }
 
 function opisSamooceny(p: Pytanie, ocena: boolean | number | undefined, zLista: boolean) {
-  if (ocena === undefined) return zLista ? "Spoza listy CKE: oceń sam" : "Oceń sam według schematu CKE";
+  if (ocena === undefined) return zLista ? "Spoza listy CKE: oceń samodzielnie" : "Oceń samodzielnie według schematu CKE";
   if (p.punkty > 1) return `Przyznane przez ciebie: ${punktyZSamooceny(p, ocena)} z ${p.punkty} pkt`;
   return ocena ? "Zaliczona przez ciebie" : "Niezaliczona przez ciebie";
 }
