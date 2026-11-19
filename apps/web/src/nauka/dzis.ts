@@ -218,7 +218,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
         przedmiot: "angielski",
         tytul: p.nazwa,
         powod: [`Na dziś wybrałam to ćwiczenie. ${p.reason}`, zCelem(p.minutes > 0 ? p.minutes : MINUTY_RUNDY)].filter(Boolean).join(" "),
-        akcja: { do: adresStartu(poziom, p.skill_id, p.format, p.repeat_id ?? undefined), etykieta: nazwaFormatuNauki[p.format] },
+        akcja: { do: adresStartu(poziom, p.skill_id, p.format, p.repeat_id ?? undefined), etykieta: p.repeat_id ? "Powtórz zadanie" : nazwaFormatuNauki[p.format] },
         minuty: p.minutes > 0 ? p.minutes : MINUTY_RUNDY,
         ikona: "runda",
       },

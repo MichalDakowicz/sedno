@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Camera, ChevronRight, CircleHelp, Eye, FileText, PenLine, GraduationCap, MessagesSquare, Network, Timer } from "lucide-react";
+import { Camera, ChevronRight, CircleHelp, Eye, FileText, PenLine, GraduationCap, MessagesSquare, Network, RotateCcw, Timer } from "lucide-react";
 import { TutorAvatar } from "../../components/TutorAvatar";
 import type { Poziom } from "../../arkusze/typy";
 import { useProfil } from "../../auth";
@@ -155,12 +155,12 @@ export function Nauka() {
             <>
               <h2 id="nauka-polecenie" className="h1" tabIndex={-1} ref={naglowekPolecenia}>{umiejetnosc.name}</h2>
               <p className="muted">
-                {powtorz ? "Powtórka zadania" : `${nazwaFormatuNauki[format]} · 5 zadań`} · ok. {minuty} min
-                {dane?.reason && !wybrana ? <span className="visually-hidden">. {dane.reason}</span> : null}
+                {powtorz ? "Powtórka błędnego zadania" : `${nazwaFormatuNauki[format]} · 5 zadań · ok. ${minuty} min`}
               </p>
+              {dane?.reason && !wybrana && !powtorz && <p>{dane.reason}</p>}
               <div className={s.akcje}>
                 <Link to={adresStartu(poziom, umiejetnosc.skill_id, format, powtorz)} className={`btn btn-primary ${s.przycisk}`} data-tutor-about={dane?.reason}>
-                  <Timer size={18} aria-hidden="true" /> Zacznij rundę · {minuty} min
+                  {powtorz ? <><RotateCcw size={18} aria-hidden="true" /> Powtórz zadanie</> : <><Timer size={18} aria-hidden="true" /> Zacznij rundę · {minuty} min</>}
                 </Link>
                 <button type="button" className="link" aria-expanded={zmiana} aria-controls="wybor-umiejetnosci" onClick={() => ustawZmiane((z) => !z)}>
                   {zmiana ? "Gotowe" : "Zmień umiejętność"}

@@ -1959,7 +1959,7 @@ function PodgladGrupy({ grupa, zadanie }: { grupa: GrupaInfo; zadanie: number })
         <ChevronDown size={14} aria-hidden="true" data-otwarta={otwarta} />
         {grupa.rodzaj === "info" ? "Informacja wspólna" : "Opis zadania"}
         <span className="muted"> · {zakresGrupy(grupa)}</span>
-        <span className="sr-only">{otwarta ? ", ukryj" : ", pokaż"}: {nazwa}</span>
+        <span className="visually-hidden">{otwarta ? ", ukryj" : ", pokaż"}: {nazwa}</span>
       </button>
       {otwarta && (
         <div id={idPanelu} className={styles.grupa} role="region" aria-label={nazwa}>
