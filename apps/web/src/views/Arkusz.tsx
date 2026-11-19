@@ -2615,11 +2615,63 @@ function tabeleDopasowania(z: Zadanie): Map<string, TabelaDopasowania> {
   return wynik;
 }
 
+// Litery jak suwak: klik wybiera, a podkładkę można też chwycić i przeciągnąć; po puszczeniu dociąga się sprężyście
+// do najbliższej litery. Podkładka jedzie transformem, a w trakcie ciągnięcia React nie przerysowuje niczego.
 function PrzelacznikLiter({ litery, wybrana, poprawna, gotowe, onWybor, etykieta }: { litery: string[]; wybrana?: string; poprawna?: string; gotowe: boolean; onWybor: (w: string) => void; etykieta: string }) {
   const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  const podkladka = useRef<HTMLSpanElement>(null);
+  const ciag = useRef<{ id: number; x0: number; x: number; ruszony: boolean } | null>(null);
+  const [ciagnie, setCiagnie] = useState(false);
+  const blokujKlik = useRef(false);
+  const segmenty = () => [...(kontener.current?.querySelectorAll<HTMLElement>("[data-litera]") ?? [])];
+  const najblizsza = (x: number) => {
+    let naj: HTMLElement | undefined;
+    for (const el of segmenty()) if (!naj || Math.abs(el.offsetLeft + el.offsetWidth / 2 - x) < Math.abs(naj.offsetLeft + naj.offsetWidth / 2 - x)) naj = el;
+    return naj;
+  };
+  const pierwszy = segmenty()[0];
+  const rozmiar = ramka ?? (pierwszy ? { top: pierwszy.offsetTop, left: pierwszy.offsetLeft, width: pierwszy.offsetWidth, height: pierwszy.offsetHeight } : null);
+
+  function wcisniety(e: React.PointerEvent<HTMLDivElement>) {
+    const k = kontener.current;
+    if (gotowe || e.button !== 0 || !k || getComputedStyle(k).flexDirection === "column") return;
+    ciag.current = { id: e.pointerId, x0: e.clientX, x: e.clientX - k.getBoundingClientRect().left, ruszony: false };
+  }
+  function ruch(e: React.PointerEvent<HTMLDivElement>) {
+    const c = ciag.current;
+    const k = kontener.current;
+    if (!c || !k || e.pointerId !== c.id) return;
+    if (!c.ruszony) {
+      if (Math.abs(e.clientX - c.x0) < 6) return;
+      c.ruszony = true;
+      k.setPointerCapture(e.pointerId);
+      setCiagnie(true);
+    }
+    const r = k.getBoundingClientRect();
+    c.x = e.clientX - r.left;
+    const w = podkladka.current?.offsetWidth ?? 48;
+    const x = Math.min(Math.max(c.x - w / 2, 4), r.width - w - 4);
+    if (podkladka.current) podkladka.current.style.transform = `translateX(${x}px)`;
+  }
+  function puszczony(e: React.PointerEvent<HTMLDivElement>) {
+    const c = ciag.current;
+    ciag.current = null;
+    if (!c?.ruszony || e.pointerId !== c.id) return;
+    const cel = najblizsza(c.x);
+    blokujKlik.current = true;
+    setCiagnie(false);
+    if (!cel) return;
+    if (podkladka.current) podkladka.current.style.transform = `translateX(${cel.offsetLeft}px)`;
+    if (cel.dataset.litera && cel.dataset.litera !== wybrana) onWybor(cel.dataset.litera);
+  }
   return (
-    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={etykieta}>
-      {ramka && <span className={styles.thumb} style={ramka} aria-hidden="true" />}
+    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={etykieta} data-ciagnie={ciagnie || undefined}
+      onPointerDown={wcisniety} onPointerMove={ruch} onPointerUp={puszczony} onPointerCancel={() => { ciag.current = null; setCiagnie(false); }}
+      onClickCapture={(e) => { if (blokujKlik.current) { blokujKlik.current = false; e.preventDefault(); e.stopPropagation(); } }}>
+      {(ramka || ciagnie) && rozmiar && (
+        <span ref={podkladka} className={styles.thumb} aria-hidden="true"
+          style={{ top: rozmiar.top, width: rozmiar.width, height: rozmiar.height, transform: ciagnie ? undefined : `translateX(${rozmiar.left}px)` }} />
+      )}
       {litery.map((l) => (
         <button
           key={l}

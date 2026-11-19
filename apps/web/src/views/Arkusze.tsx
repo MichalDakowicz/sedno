@@ -9,6 +9,7 @@ import { brakArkuszy } from "../konto/przedmioty";
 import { NaglowekStrony } from "../components/NaglowekStrony";
 import { Ladowanie } from "../components/Ladowanie";
 import { Pierscien } from "../components/wykresy";
+import { Plywak } from "../components/Plywak";
 import styles from "./Arkusze.module.css";
 
 const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string; lead: string }[] = [
@@ -64,6 +65,7 @@ export function Arkusze() {
       <NaglowekStrony etykieta={opis.opis} tytul="Arkusze" lead={opis.lead} />
 
       <nav className={styles.levels} aria-label="Przedmiot">
+        <Plywak wyglad="pigulka" />
         {PRZEDMIOTY.map((p) => (
           <button
             key={p.id}
@@ -82,6 +84,7 @@ export function Arkusze() {
 
       {poziomy.length > 1 && (
         <nav className={styles.levels} aria-label="Poziom">
+          <Plywak wyglad="pigulka" />
           {poziomy.map((p) => (
             <button key={p} type="button" className={styles.level} onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
               {NAZWY[p]}

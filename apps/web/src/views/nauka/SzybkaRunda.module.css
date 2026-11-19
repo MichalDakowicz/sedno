@@ -102,7 +102,14 @@
   border-radius: var(--r-md);
   line-height: 1.5;
   cursor: pointer;
-  transition: background-color var(--ruch-szybki) var(--ruch-krzywa), box-shadow var(--ruch-szybki) var(--ruch-krzywa);
+  transition: background-color var(--ruch-szybki) var(--ruch-krzywa), box-shadow var(--ruch-szybki) var(--ruch-krzywa), transform var(--ruch-wolny) var(--ruch-sprezyna);
+}
+
+/* Kafel ugina się pod palcem i wraca sprężyście. */
+.kafel:active:not(:has(:disabled)) {
+  transform: scale(0.98);
+  transition-duration: var(--ruch-szybki);
+  transition-timing-function: var(--ruch-krzywa);
 }
 
 .kafel:hover:not(:has(:disabled)):not([data-stan]) {
@@ -338,3 +345,54 @@
 }
 .zmiana { font-size: var(--t-sm); color: var(--muted); }
 .zmiana[data-plus="true"] { color: var(--success); }
+
+/* Przejście pytanie → werdykt → pytanie: nowe pytanie wjeżdża, kafle werdyktu stoją w miejscu i tylko zmieniają stan,
+   a werdykt z Pestką dochodzi pod nimi. Same transform i opacity. */
+.pytanieWejscie {
+  animation: wjazd-tresci var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+.werdyktWejscie {
+  animation: wjazd-tresci var(--ruch-zwykly) var(--ruch-krzywa) both;
+}
+
+.werdyktWejscie + .werdyktWejscie {
+  animation-delay: 60ms;
+}
+
+@keyframes wjazd-tresci {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.kafel[data-stan="trafiona"] {
+  animation: kafel-dobrze var(--ruch-wolny) var(--ruch-sprezyna);
+}
+
+.kafel[data-stan="bledna"] {
+  animation: kafel-zle var(--ruch-wolny) var(--ruch-krzywa);
+}
+
+.kafel[data-stan="poprawna"] {
+  animation: wjazd-tresci var(--ruch-zwykly) var(--ruch-krzywa) 120ms both;
+}
+
+@keyframes kafel-dobrze {
+  40% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes kafel-zle {
+  20% {
+    transform: translateX(-4px);
+  }
+  45% {
+    transform: translateX(3px);
+  }
+  70% {
+    transform: translateX(-2px);
+  }
+}

@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { ArrowRight, Check, ChevronRight, CircleAlert, Lightbulb, MessageCircle } from "lucide-react";
+import { ArrowRight, Check, CircleAlert, Lightbulb, MessageCircle } from "lucide-react";
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useSession } from "../../auth";
 import { nazwaPoziomu, nazwaZadaniaCke, type Poziom } from "../../arkusze/typy";
@@ -149,7 +149,7 @@ function PytanieRundy({
   };
 
   return (
-    <section className={s.sekcja} aria-labelledby={id} data-tutor="pytanie-rundy">
+    <section className={`${s.sekcja} ${s.pytanieWejscie}`} aria-labelledby={id} data-tutor="pytanie-rundy">
       <h2 id={id} className="h2" tabIndex={-1} ref={naglowek}>{tytulPytania(prompt)}</h2>
       <form className={s.formularz} onSubmit={wyslij}>
         <TrescRundy prompt={prompt} onGotowe={onGotowe} pole={(opcje) => (
@@ -205,7 +205,6 @@ function OcenaRundy({ odpowiedz, sesja, skonczona, dalej, reakcja }: {
   odpowiedz: OdpowiedzNauki; sesja: string; skonczona: boolean; dalej: () => void; reakcja: Reakcja;
 }) {
   const { aiGotowe } = useTutor();
-  const [szczegoly, setSzczegoly] = useState(false);
   const [wyjasnij, setWyjasnij] = useState(false);
   const tytul = useRef<HTMLHeadingElement>(null);
   const id = useId();
@@ -221,41 +220,43 @@ function OcenaRundy({ odpowiedz, sesja, skonczona, dalej, reakcja }: {
   );
   const bezAi = cke && aiGotowe === false && <Link to="/profil#ai" className="link small">Podepnij AI w profilu, a Pestka wyjaśni to zadanie</Link>;
   return (
+    // Ten sam układ co pytanie (tytuł, treść, kafle w tym samym miejscu), więc kafle nie skaczą, tylko zmieniają stan;
+    // werdykt z Pestką dochodzi pod nimi.
     <section className={s.sekcja} data-tutor="werdykt">
-      <div className={s.werdykt}>
-        <h2 className={`h2 ${s.ocena}`} ref={tytul} tabIndex={-1} data-correct={odpowiedz.correct}>
+      <h2 className="h2">{tytulPytania(prompt)}</h2>
+      <div className={s.formularz}>
+        <TrescRundy prompt={prompt} poOcenie pole={(opcje) => (
+          <div className={s.pola}>
+            {kafle && opcje ? (
+              <KafleOdpowiedzi opcje={opcje} nazwa={id} wybrana={odpowiedz.answer} poprawne={odpowiedz.solutions} />
+            ) : (
+              <>
+                <p><strong>Twoja odpowiedź</strong> · {nazwaOdpowiedzi(odpowiedz.answer, prompt)}</p>
+                {zle && <p><strong>Poprawna odpowiedź</strong> · {odpowiedz.solutions.map((a) => nazwaOdpowiedzi(a, prompt)).join(" / ")}</p>}
+              </>
+            )}
+          </div>
+        )} />
+      </div>
+      <div className={`${s.werdykt} ${s.werdyktWejscie}`}>
+        <h3 className={`h2 ${s.ocena}`} ref={tytul} tabIndex={-1} data-correct={odpowiedz.correct}>
           {odpowiedz.correct ? <Check size={24} aria-hidden="true" /> : <CircleAlert size={24} aria-hidden="true" />}
           {odpowiedz.correct ? "Dobra odpowiedź" : odpowiedz.answer.trim() ? "Tym razem nie" : "Pominięte zadanie"}
-        </h2>
+        </h3>
         <PestkaMowi tekst={tekstReakcji(odpowiedz, reakcja, !!cke)}>
           {zle && (przyciskWyjasnienia || bezAi)}
         </PestkaMowi>
       </div>
-      {prompt.typ !== "cke" && <p className={s.pytanieCke}>{prompt.tresc}</p>}
-      {kafle ? (
-        <TrescRundy prompt={prompt} poOcenie tylkoOpcje pole={(opcje) => opcje && (
-          <KafleOdpowiedzi opcje={opcje} nazwa={id} wybrana={odpowiedz.answer} poprawne={odpowiedz.solutions} />
-        )} />
-      ) : (
-        <>
-          <p><strong>Twoja odpowiedź</strong> · {nazwaOdpowiedzi(odpowiedz.answer, prompt)}</p>
-          {zle && <p><strong>Poprawna odpowiedź</strong> · {odpowiedz.solutions.map((a) => nazwaOdpowiedzi(a, prompt)).join(" / ")}</p>}
-        </>
-      )}
       {/* Przy CKE wyjaśnienie z bazy tylko powtarza klucz, który widać na kaflach; zamiast niego jest rozmowa z Pestką. */}
-      {!cke && <p className="muted">{odpowiedz.explanation}</p>}
+      {!cke && <p className={`muted ${s.werdyktWejscie}`}>{odpowiedz.explanation}</p>}
       {cke && wyjasnij && <WyjasnienieRundy odpowiedz={odpowiedz} prompt={cke} sesja={sesja} onZamknij={() => setWyjasnij(false)} />}
-      <div className={s.akcje}>
+      <div className={`${s.akcje} ${s.werdyktWejscie}`}>
         {skonczona ? (
           <Link className="btn btn-primary" to={adresRozbioru(sesja)}>Zobacz rozbiór <ArrowRight size={17} aria-hidden="true" /></Link>
         ) : <button type="button" className="btn btn-primary" onClick={dalej}>Następne zadanie <ArrowRight size={17} aria-hidden="true" /></button>}
         {!zle && przyciskWyjasnienia}
       </div>
       {!zle && bezAi}
-      <details className={s.rozwijane} onToggle={(e) => setSzczegoly(e.currentTarget.open)}>
-        <summary><ChevronRight size={16} aria-hidden="true" /> Treść zadania</summary>
-        {szczegoly && <div className={s.probaTresc}><TrescRundy prompt={prompt} poOcenie /></div>}
-      </details>
     </section>
   );
 }

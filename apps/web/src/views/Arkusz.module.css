@@ -316,12 +316,28 @@
 
 .thumb {
   position: absolute;
+  left: 0;
   z-index: 0;
   border-radius: var(--r-md);
   background: var(--primary-strong);
   transition:
-    left var(--ruch-zwykly) var(--ruch-krzywa),
+    transform var(--ruch-zwykly) var(--ruch-sprezyna),
+    left var(--ruch-zwykly) var(--ruch-sprezyna),
     width var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+/* Podkładkę da się chwycić i przeciągnąć; w poziomie strona się wtedy nie przewija. */
+.slider:not(:has(:disabled)) {
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.slider[data-ciagnie] {
+  cursor: grabbing;
+}
+
+.slider[data-ciagnie] .thumb {
+  transition: none;
 }
 
 .segment {

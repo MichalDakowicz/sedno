@@ -1,6 +1,6 @@
 // Układ pulpitu: gotowe układy i lista widgetów (włącz, wyłącz, przeciągnij albo przesuń strzałkami).
 // Edytuje układ przedmiotu wybranego na pulpicie (?przedmiot=), a zmiany widać od razu. Dane: konto/ukladPulpitu.ts.
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { GripVertical } from "lucide-react";
 import { useProfil } from "../auth";
@@ -11,6 +11,7 @@ import { WIDGETY, widget } from "./pulpit/widgety";
 import { NaglowekStrony } from "../components/NaglowekStrony";
 import s from "./UkladPulpitu.module.css";
 import { Pigulki } from "../components/Pigulki";
+import { CZAS, mniejRuchu, sprezyna } from "../ruch";
 
 const UKLADY: { id: Uklad; nazwa: string }[] = [
   { id: "nauka", nazwa: "Nauka" },
@@ -40,6 +41,11 @@ export function UkladPulpitu() {
   const wiersze = useRef(new Map<string, HTMLLIElement>());
   const uchwyty = useRef(new Map<string, HTMLButtonElement>());
   const zFokusem = useRef<string | null>(null);
+  // Ruch przy przeciąganiu: trzymany wiersz jedzie za palcem (transform, bez Reacta co klatkę), sąsiedzi rozjeżdżają się
+  // sprężyście, a po puszczeniu wiersz dociąga się do miejsca z prędkością, z jaką go rzucono.
+  const palec = useRef<{ startY: number; startTop: number; y: number; v: number; t: number; klatka: number } | null>(null);
+  const pozycje = useRef(new Map<string, number>());
+  const zatrzymajPowrot = useRef<() => void>(() => {});
   const widoczna = szkic ?? lista;
   // Najświeższa lista dla nasłuchu na window, który nie odświeża się razem z renderem.
   const biezaca = useRef(widoczna);
@@ -53,6 +59,28 @@ export function UkladPulpitu() {
     if (!zFokusem.current) return;
     uchwyty.current.get(zFokusem.current)?.focus();
     zFokusem.current = null;
+  });
+
+  // Wiersz trzymany stoi pod palcem: przesunięcie = ruch palca minus to, o ile wiersz przeskoczył w liście.
+  const ustawTrzymany = () => {
+    const p = palec.current;
+    const el = przeciagany.current && wiersze.current.get(przeciagany.current.id);
+    if (!p || !el || mniejRuchu()) return;
+    el.style.transform = `translateY(${p.y - p.startY - (el.offsetTop - p.startTop)}px)`;
+  };
+
+  // FLIP: wiersze, które zmieniły miejsce w liście, ruszają z poprzedniej pozycji do nowej sprężyną z tokenów.
+  useLayoutEffect(() => {
+    const bezRuchu = mniejRuchu();
+    const sprezysta = getComputedStyle(document.documentElement).getPropertyValue("--ruch-sprezyna").trim() || "ease-out";
+    for (const [id, el] of wiersze.current) {
+      const teraz = el.offsetTop;
+      const wczesniej = pozycje.current.get(id);
+      pozycje.current.set(id, teraz);
+      if (bezRuchu || wczesniej === undefined || wczesniej === teraz || id === przeciagany.current?.id) continue;
+      el.animate([{ transform: `translateY(${wczesniej - teraz}px)` }, { transform: "none" }], { duration: CZAS.zwykly, easing: sprezysta });
+    }
+    ustawTrzymany();
   });
 
   function klawisz(e: KeyboardEvent, id: string, i: number) {
@@ -75,6 +103,10 @@ export function UkladPulpitu() {
     // preventDefault wstrzymuje domyślne ustawienie fokusu, a strzałki mają działać zaraz po kliknięciu.
     (e.currentTarget as HTMLElement).focus({ preventScroll: true });
     przeciagany.current = { id, pointerId: e.pointerId, start: lista };
+    zatrzymajPowrot.current();
+    const wiersz = wiersze.current.get(id);
+    if (wiersz) wiersz.style.transform = "";
+    palec.current = { startY: e.pageY, startTop: wiersz?.offsetTop ?? 0, y: e.pageY, v: 0, t: performance.now(), klatka: 0 };
     setSzkic(lista);
     setTrzymany(id);
   }
@@ -90,6 +122,15 @@ export function UkladPulpitu() {
     const ruch = (e: globalThis.PointerEvent) => {
       const p = przeciagany.current;
       if (!p || e.pointerId !== p.pointerId) return;
+      const pa = palec.current;
+      if (pa) {
+        const t = performance.now();
+        // Prędkość wygładzona, żeby jedno szarpnięcie przy puszczeniu nie rzucało wierszem.
+        pa.v = 0.7 * ((e.pageY - pa.y) / Math.max(1, t - pa.t)) * 1000 + 0.3 * pa.v;
+        pa.y = e.pageY;
+        pa.t = t;
+        if (!pa.klatka) pa.klatka = requestAnimationFrame(() => { pa.klatka = 0; ustawTrzymany(); });
+      }
       const lista = biezaca.current;
       const i = lista.findIndex((x) => x.id === p.id);
       // Wiersz zamienia się z sąsiadem dopiero po przekroczeniu jego środka (z zapasem), tylko w kierunku ruchu.
@@ -109,6 +150,15 @@ export function UkladPulpitu() {
       const p = przeciagany.current;
       if (!p) return;
       przeciagany.current = null;
+      const pa = palec.current;
+      palec.current = null;
+      const el = wiersze.current.get(p.id);
+      if (pa) cancelAnimationFrame(pa.klatka);
+      // Dociągnięcie do miejsca: od bieżącego przesunięcia do zera, z prędkością rzutu.
+      if (el && pa) {
+        const od = pa.y - pa.startY - (el.offsetTop - pa.startTop);
+        zatrzymajPowrot.current = sprezyna({ od, do: 0, predkosc: pa.v, naKlatke: (x) => { el.style.transform = x ? `translateY(${x}px)` : ""; } });
+      }
       const ids = biezaca.current.map((x) => x.id);
       const zmiana = ids.some((id, i) => id !== p.start[i]?.id);
       setTrzymany(null);

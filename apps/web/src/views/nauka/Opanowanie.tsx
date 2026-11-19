@@ -1,4 +1,5 @@
 import type { Umiejetnosc } from "../../nauka/api";
+import { Liczba } from "../../ruch";
 import s from "./Umiejetnosci.module.css";
 
 // Wyjaśnienia Pestki po prawym przycisku (data-tutor-about): słowa z mapy, które bez nich są żargonem.
@@ -16,7 +17,7 @@ export function Opanowanie({ score, confidence }: Pick<Umiejetnosc, "score" | "c
         <span style={{ width: `${procent}%` }} />
       </span>
       <span>
-        <span className="visually-hidden">Opanowanie </span>{procent}%
+        <span className="visually-hidden">Opanowanie </span><Liczba wartosc={procent} />%
         {malaPewnosc && <span className="visually-hidden">. Niska pewność oszacowania</span>}
       </span>
     </span>
