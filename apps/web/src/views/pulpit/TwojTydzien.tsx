@@ -84,7 +84,7 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
   // Porównanie z deklaracją z quizu celów: dni w tygodniu i minuty dziennie.
   const minutyPlan = minutyDziennie(uczenie);
   const deklaracja = [
-    uczenie.dni ? `Plan: ${uczenie.dni} ${uczenie.dni === 1 ? "dzień" : "dni"} w tygodniu${zNauka >= uczenie.dni ? ", zrobione." : `, zostało ${uczenie.dni - zNauka}.`}` : "",
+    uczenie.dni ? `Twój cel: ${uczenie.dni} ${uczenie.dni === 1 ? "dzień" : "dni"} nauki w tygodniu${zNauka >= uczenie.dni ? ", zrobione." : `, zostało ${uczenie.dni - zNauka} ${uczenie.dni - zNauka === 1 ? "dzień" : "dni"}.`}` : "",
     minuty && minutyPlan && uczenie.dni ? `${minuty.teraz} z ${minutyPlan * uczenie.dni} zaplanowanych minut.` : "",
   ].filter(Boolean).join(" ");
   const nastepne = (p?.activities ?? []).filter((a) => a.date >= dzis).slice(0, 3);
@@ -95,7 +95,7 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
         <h2 id="tydzien-widget" className="h2">Twój tydzień</h2>
         {p && (
           <button type="button" className={`link ${w.przyciskLink}`} aria-expanded={edycja} onClick={() => ustawEdycje((e) => !e)}>
-            {edycja ? "Gotowe" : "Dni nauki"}
+            {edycja ? "Gotowe" : "Kiedy możesz się uczyć"}
           </button>
         )}
       </div>

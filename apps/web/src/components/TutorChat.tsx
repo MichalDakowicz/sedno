@@ -32,7 +32,7 @@ function usePrzedmiotRozmowy(): PrzedmiotId | null {
 }
 
 export function TutorChat() {
-  const { messages, state, send, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, aiGotowe } = useTutor();
+  const { messages, state, send, ponow, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, aiGotowe } = useTutor();
   const przedmiotNotatki = usePrzedmiotRozmowy();
   const [draft, setDraft] = useState("");
   const [lista, setLista] = useState(false);
@@ -123,6 +123,11 @@ export function TutorChat() {
                     )}
                   </p>
                 ))}
+                {m.blad && i === messages.length - 1 && state === "idle" && (
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={ponow}>
+                    Spróbuj ponownie
+                  </button>
+                )}
                 {m.wsparcie && <WsparcieNota />}
                 {/* Notatka tylko z odpowiedzi na pytanie ucznia, skończonej (nie z powitania ani w trakcie pisania). */}
                 {MAPA_WIEDZY_WLACZONA && przedmiotNotatki && aiGotowe !== false && i > 0 && m.text.length > 60 && !(i === messages.length - 1 && state !== "idle") && (

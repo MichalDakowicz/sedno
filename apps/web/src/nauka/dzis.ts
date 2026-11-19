@@ -28,6 +28,8 @@ export type PropozycjaDnia = {
   /** Szacowany czas w minutach (null: nie wiadomo, np. rozmowa z Pestką). */
   minuty: number | null;
   ikona: "runda" | "arkusz" | "rozmowa";
+  /** Umiejętność z mapy, której dotyczy propozycja (znacznik „tu dziś” w ogrodzie). */
+  skill_id?: string;
   /** Powtórka, którą pokazuje karta: Powtórki nie powtarzają jej na liście. */
   powtorka?: Powtorka;
 };
@@ -137,13 +139,14 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
     tytul,
     powod: [powod, zCelem(MINUTY_RUNDY)].filter(Boolean).join(" "),
     akcja: { do: adresStartu(poziom, skill, format, repeat), etykieta: "Zacznij rundę" },
+    skill_id: skill,
     minuty: MINUTY_RUNDY,
     ikona: "runda",
   });
 
   const zArk = co ? zArkuszy(co) : null;
   if (!angielski) return { stan: "gotowe", dzis: zArk };
-  if ([rundy.stan, powtorki.stan, polecenie.stan, diagnoza.stan].includes("ladowanie")) return { stan: "ladowanie", dzis: null };
+  if ([rundy.stan, powtorki.stan, polecenie.stan, diagnoza.stan, mapa.stan].includes("ladowanie")) return { stan: "ladowanie", dzis: null };
 
   // 1. Niedokończone: runda albo arkusz, nowsze z nich.
   const otwarta = rundy.dane?.sesje[0];
@@ -167,7 +170,12 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
   // 1a. Diagnoza skończona dziś: najsłabsza umiejętność z jej wyniku, zanim wróci arkusz.
   const sesjaDiagnozy = diagnoza.dane?.status === "gotowa" ? diagnoza.dane.session : null;
   if (sesjaDiagnozy && dzienWarszawa.format(new Date(sesjaDiagnozy.updated_at)) === dzienWarszawa.format(new Date())) {
-    const najslabsza = [...(sesjaDiagnozy.result?.umiejetnosci ?? [])].filter((u) => u.opanowanie != null).sort((a, b) => a.opanowanie! - b.opanowanie!)[0];
+    // Umiejętność ćwiczona już po diagnozie ma świeższy wynik niż diagnoza: nie wracamy do niej z tego powodu.
+    const cwiczonaPo = (id: string) => {
+      const kiedy = mapa.dane?.skills.find((m) => m.skill_id === id)?.last_practiced_at;
+      return !!kiedy && kiedy > sesjaDiagnozy.updated_at;
+    };
+    const najslabsza = [...(sesjaDiagnozy.result?.umiejetnosci ?? [])].filter((u) => u.opanowanie != null && !cwiczonaPo(u.skill_id)).sort((a, b) => a.opanowanie! - b.opanowanie!)[0];
     if (najslabsza) return { stan: "gotowe", dzis: runda(najslabsza.name, `Na dziś wybrałam tę umiejętność, bo w diagnozie poszła najsłabiej (${najslabsza.poprawne} z ${najslabsza.wszystkich}).`, najslabsza.skill_id) };
   }
 
@@ -187,6 +195,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
         akcja: { do: adresStartu(poziom, dzis.skill_id, powtorz ? "szybka-runda" : dzis.format === "napraw-blad" ? "napraw-blad" : "szybka-runda", powtorz), etykieta: powtorz ? "Powtórz zadanie" : "Zacznij powtórkę" },
         minuty: MINUTY_RUNDY,
         ikona: "runda",
+        skill_id: dzis.skill_id,
         powtorka: dzis,
       },
     };
@@ -211,6 +220,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
         akcja: { do: adresStartu(poziom, p.skill_id, p.format, p.repeat_id ?? undefined), etykieta: p.repeat_id ? "Powtórz zadanie" : nazwaFormatuNauki[p.format] },
         minuty: p.minutes > 0 ? p.minutes : MINUTY_RUNDY,
         ikona: "runda",
+        skill_id: p.skill_id,
       },
     };
 

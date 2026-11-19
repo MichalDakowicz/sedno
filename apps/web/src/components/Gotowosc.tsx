@@ -26,6 +26,19 @@ export function Gotowosc({ umiejetnosci, cel, prognoza, maly = false, naglowek, 
   // W wierszu na pulpicie jedna krótka linia zamiast tytułu z dopiskami i pełnego zdania.
   const brakuje = cel !== null ? Math.round((cel - g.wartosc) * 100) : null;
   const krotko = [g.wstepna && "wstępnie", brakuje !== null && (brakuje > 0 ? `do celu ${brakuje} pkt proc.` : "cel osiągnięty")].filter(Boolean).join(" · ");
+  // Bez żadnej ocenionej umiejętności 0% wyglądałoby jak zmierzony wynik: mówimy wprost, że jeszcze nie wiemy.
+  if (umiejetnosci.every((u) => u.score === null)) {
+    return (
+      <div className={s.gotowosc} data-maly={maly || undefined} data-tutor-about={OPIS}>
+        <Pierscien wartosc={0} wstepna srodek="?" rozmiar={maly ? 56 : 132} opis="Gotowość: za mało danych." />
+        <div className={s.tresc}>
+          <p className={s.tytul}>{naglowek ?? "Gotowość"}</p>
+          <p className={s.wniosek}>{maly ? "jeszcze bez wyniku" : "Za mało odpowiedzi, żeby ją policzyć. Pierwsza runda da pierwszy wynik."}</p>
+          {children}
+        </div>
+      </div>
+    );
+  }
   const meta = [g.wstepna && "wstępnie", cel !== null && `cel ${Math.round(cel * 100)}%`].filter(Boolean).join(" · ");
   return (
     <div className={s.gotowosc} data-maly={maly || undefined} data-tutor-about={OPIS}>

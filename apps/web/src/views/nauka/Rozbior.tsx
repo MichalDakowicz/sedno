@@ -21,6 +21,7 @@ import { useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
 import { koniecKolejki, nastepnaWKolejce, porzucKolejke, zdejmijZKolejki } from "../../nauka/kolejka";
 import { policzGotowosc } from "../../nauka/gotowosc";
+import { useDzisAngielski } from "../../nauka/dzis";
 import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
 import s from "./SzybkaRunda.module.css";
 
@@ -186,6 +187,15 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaZWynikiem }) {
   const nazwa = umiejetnosc?.name;
   const dalej = result.nastepny_krok;
   const nastepna = mapa?.skills.find((m) => m.skill_id === dalej?.skill_id)?.name;
+  // „Dalej” to ta sama propozycja co na pulpicie i w ogrodzie (po rundzie już przeliczona), żeby uczeń nie dostał
+  // dwóch odpowiedzi na „co teraz”. Polecenie serwera z wyniku rundy zostaje na wypadek, gdyby propozycji nie było.
+  const dzisA = useDzisAngielski(level);
+  const polecenie = dzisA.stan !== "gotowe" ? null : dzisA.dzis ?? (dalej ? {
+    tytul: nastepna ?? "Następne ćwiczenie",
+    powod: `Dalej wybrałam to ćwiczenie. ${dalej.reason}`,
+    akcja: { do: adresStartu(level, dalej.skill_id, dalej.format, dalej.repeat_id ?? undefined), etykieta: nazwaFormatuNauki[dalej.format] },
+    minuty: dalej.minutes as number | null,
+  } : null);
   // Dawna diagnoza (rundy po kolei, stan w przeglądarce) prowadzi do kolejnego obszaru; przy nowej bazie jej nie ma.
   const lokalna = useDiagnoza();
   const trybDiagnozy = useTrybDiagnozy(level);
@@ -255,14 +265,14 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaZWynikiem }) {
         <div className={s.akcje}>
           <Link className="btn btn-primary" to="/nauka/diagnoza">Dalej w diagnozie <ArrowRight size={17} aria-hidden="true" /></Link>
         </div>
-      ) : dalej && (
+      ) : polecenie && (
         <section className={s.nastepnyKrok} aria-labelledby="dalej-po-rundzie">
           <span className="kicker"><TutorAvatar size={22} /> Dalej</span>
-          <h2 id="dalej-po-rundzie" className="h2">{nastepna ?? "Następne ćwiczenie"}</h2>
-          <p>Dalej wybrałam to ćwiczenie. {dalej.reason}</p>
+          <h2 id="dalej-po-rundzie" className="h2">{polecenie.tytul}</h2>
+          <p>{polecenie.powod}</p>
           <div className={s.akcje}>
-            <Link className="btn btn-primary" to={adresStartu(level, dalej.skill_id, dalej.format, dalej.repeat_id ?? undefined)}>
-              {nazwaFormatuNauki[dalej.format]} · {dalej.minutes} min <ArrowRight size={17} aria-hidden="true" />
+            <Link className="btn btn-primary" to={polecenie.akcja.do}>
+              {polecenie.akcja.etykieta}{polecenie.minuty ? ` · ${polecenie.minuty} min` : ""} <ArrowRight size={17} aria-hidden="true" />
             </Link>
           </div>
         </section>

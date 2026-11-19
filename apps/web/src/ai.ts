@@ -28,15 +28,40 @@ async function headers(): Promise<Record<string, string>> {
 const body = (r: AiRequest, stream: boolean) =>
   JSON.stringify({ tier: r.tier, messages: r.messages, task: r.task, provider: r.provider, max_tokens: r.maxTokens, temperature: r.temperature, stream });
 
+// Chwilowa awaria jednego modelu (np. błąd 500 u dostawcy) nie zatrzymuje Pestki: drugi poziom ma zwykle inny model.
+// Gdy zapasowy też zawiedzie, uczeń widzi pierwotny błąd.
+const drugiPoziom = (t: Tier): Tier => (t === "wazne" ? "lekkie" : "wazne");
+const warto = (r: AiRequest, e: unknown) => !r.provider && e instanceof AiError && e.code === "provider_failed";
+
 export async function askAi(r: AiRequest): Promise<AiAnswer> {
+  try {
+    return await askAiRaz(r);
+  } catch (e) {
+    if (!warto(r, e)) throw e;
+    return askAiRaz({ ...r, tier: drugiPoziom(r.tier) }).catch(() => Promise.reject(e));
+  }
+}
+
+/** Odpowiedź kawałkami; onText dostaje kolejne fragmenty tekstu. */
+export async function streamAi(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal): Promise<AiAnswer> {
+  let cos = false;
+  try {
+    return await streamAiRaz(r, (d) => ((cos = true), onText(d)), signal);
+  } catch (e) {
+    // Po pierwszym fragmencie nie zaczynamy od nowa: uczeń widziałby sklejone dwie odpowiedzi.
+    if (cos || signal?.aborted || !warto(r, e)) throw e;
+    return streamAiRaz({ ...r, tier: drugiPoziom(r.tier) }, onText, signal).catch(() => Promise.reject(e));
+  }
+}
+
+async function askAiRaz(r: AiRequest): Promise<AiAnswer> {
   const res = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: body(r, false) });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new AiError(data.error ?? "server_error", res.status);
   return data as AiAnswer;
 }
 
-/** Odpowiedź kawałkami; onText dostaje kolejne fragmenty tekstu. */
-export async function streamAi(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal): Promise<AiAnswer> {
+async function streamAiRaz(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal): Promise<AiAnswer> {
   const res = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: body(r, true), signal });
   if (!res.ok || !res.body) {
     const data = await res.json().catch(() => ({}));
@@ -111,7 +136,7 @@ export function aiErrorText(code: string): string {
       no_provider: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
       not_signed_in: "Zaloguj się, żeby rozmawiać z Pestką.",
       rate_limited: "Za dużo zapytań naraz. Spróbuj za chwilę.",
-      provider_failed: "Dostawca modelu nie odpowiedział poprawnie.",
+      provider_failed: "Pestka nie odpowiedziała. Spróbuj ponownie za chwilę.",
       bad_credential: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
       bad_base_url: "Ten adres dostawcy jest niedozwolony.",
     }[code] ?? "Coś poszło nie tak."

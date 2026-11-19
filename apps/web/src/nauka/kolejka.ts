@@ -51,3 +51,10 @@ export function koniecKolejki(): number | null {
   const k = czytaj();
   return k?.koniec ? k.razem : null;
 }
+
+/** Która powtórka z kolejki trwa teraz (do nagłówka rundy); null poza kolejką. */
+export function biezacaWKolejce(): { numer: number; razem: number } | null {
+  const k = czytaj();
+  if (!k || k.razem < 2) return null;
+  return { numer: k.koniec ? k.razem : k.razem - k.adresy.length, razem: k.razem };
+}

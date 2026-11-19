@@ -517,6 +517,13 @@
     display: none;
   }
 
+  /* Pod kciuk: 44 px to najmniejszy wygodny cel dotyku. */
+  .tool,
+  .swatch {
+    width: 44px;
+    height: 44px;
+  }
+
   .pestkaPanel {
     inset: auto 6px 92px;
     width: auto;

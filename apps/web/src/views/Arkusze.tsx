@@ -63,8 +63,6 @@ export function Arkusze() {
     <main className={`container ${styles.page}`}>
       <NaglowekStrony etykieta={opis.opis} tytul="Arkusze" />
 
-      {dane && <KontynuujArkusz lista={dane} />}
-
       <nav className={styles.levels} aria-label="Przedmiot">
         <Plywak wyglad="pigulka" />
         {PRZEDMIOTY.map((p) => (
@@ -95,14 +93,14 @@ export function Arkusze() {
         </nav>
       )}
 
-      {(brakPoziomu || bezArkuszy.length > 0) && (
+      {brakPoziomu && (
         <div className={styles.braki}>
-          {brakPoziomu && <p className="muted">{brakArkuszy(przedmiot, brakPoziomu, poziomy)}</p>}
-          {[...new Set(bezArkuszy)].map((id) => (
-            <p key={id} className="muted">{brakArkuszy(id, null, [])}</p>
-          ))}
+          <p className="muted">{brakArkuszy(przedmiot, brakPoziomu, poziomy)}</p>
         </div>
       )}
+
+      {/* Wznowienie dotyczy wybranego przedmiotu, żeby nad arkuszami informatyki nie stał arkusz z angielskiego. */}
+      {zPrzedmiotu && <KontynuujArkusz lista={zPrzedmiotu} />}
 
       {laduje && <Ladowanie ksztalt="wiersze" ile={5} etykieta="Wczytuję listę arkuszy" />}
       {blad && <BrakDanych blad={blad} />}
@@ -125,6 +123,15 @@ export function Arkusze() {
             </section>
           );
         })}
+
+      {/* Przedmioty z profilu bez arkuszy nie mają zakładki: informacja o nich stoi pod listą, a nie nad arkuszami innego przedmiotu. */}
+      {bezArkuszy.length > 0 && (
+        <div className={styles.braki}>
+          {[...new Set(bezArkuszy)].map((id) => (
+            <p key={id} className="muted">{brakArkuszy(id, null, [])}</p>
+          ))}
+        </div>
+      )}
     </main>
   );
 }
