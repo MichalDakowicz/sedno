@@ -93,17 +93,7 @@
   display: grid;
   grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   gap: var(--s-7);
-  align-items: stretch;
-}
-
-/* Karta „Dziś warto” ma wysokość kolumny obok, a przycisk stoi przy jej dolnej krawędzi. */
-.top > article {
-  height: 100%;
-  grid-template-rows: auto auto 1fr auto;
-}
-
-.top > article > :last-child {
-  align-self: end;
+  align-items: start;
 }
 
 /* Bez widgetu obok karta „Dziś warto” zajmuje cały wiersz. */
