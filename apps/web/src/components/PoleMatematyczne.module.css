@@ -18,8 +18,8 @@
   --placeholder-color: var(--subtle);
   --smart-fence-color: var(--subtle);
   transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+    border-color var(--ruch-szybki) var(--ruch-krzywa),
+    box-shadow var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .pole:focus-within {
@@ -38,8 +38,8 @@
   color: var(--muted);
   border-radius: var(--r-sm);
   transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
+    color var(--ruch-szybki) var(--ruch-krzywa),
+    background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .pole::part(virtual-keyboard-toggle):hover {

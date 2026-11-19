@@ -188,8 +188,8 @@ textarea {
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background-color 0.15s ease,
-    transform 0.15s ease;
+    background-color var(--ruch-szybki) var(--ruch-krzywa),
+    transform var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .btn:active {
@@ -248,7 +248,7 @@ textarea {
   color: var(--fg);
   border-bottom: 1px solid var(--line);
   padding-bottom: 2px;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .link:hover {
@@ -304,7 +304,7 @@ textarea {
   border-radius: var(--r-pill);
   background: var(--surface);
   font-size: calc(16px * var(--skala-tekstu, 1));
-  transition: border-color 0.15s ease;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .input::placeholder {
@@ -337,7 +337,7 @@ textarea {
   background-repeat: no-repeat;
   appearance: none;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .select:focus-visible {
@@ -371,7 +371,7 @@ textarea {
   font-size: var(--t-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa), background-color var(--ruch-szybki) var(--ruch-krzywa), color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .pigulka:hover {
@@ -534,7 +534,7 @@ a.wiersz:hover .wiersz-akcja {
   justify-content: flex-end;
   gap: var(--s-2);
   color: var(--subtle);
-  transition: color 0.15s ease;
+  transition: color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 /* Pasek z procentem w kolumnie wartości (wynik, opanowanie, pamięć). */
@@ -630,7 +630,7 @@ a.wiersz:hover .wiersz-akcja {
 
 /* Treść, która dochodzi po wczytaniu danych, wchodzi łagodnie zamiast wskakiwać. */
 .wejscie {
-  animation: wejscie 0.25s ease-out;
+  animation: wejscie var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 @keyframes wejscie {
@@ -640,11 +640,6 @@ a.wiersz:hover .wiersz-akcja {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .wejscie {
-    animation: none;
-  }
-}
 
 /* Przełącznik (role="switch"): wyłączony to lekki tor --line z białą gałką, włączony pomarańczowy jak reszta akcentów;
    wspólny dla ustawień, układu pulpitu i mapy. */
@@ -660,7 +655,7 @@ a.wiersz:hover .wiersz-akcja {
   /* Obwódka --subtle trzyma kontrast 3:1 granicy kontrolki (WCAG 1.4.11), choć tor i gałka są jasne. */
   box-shadow: inset 0 0 0 1.5px var(--subtle);
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .przelacznik::after {
@@ -673,7 +668,7 @@ a.wiersz:hover .wiersz-akcja {
   border-radius: 50%;
   background: var(--surface);
   box-shadow: 0 1px 3px rgba(15, 21, 29, 0.2);
-  transition: left 0.15s ease;
+  transition: left var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .przelacznikWl {
@@ -719,7 +714,7 @@ summary:not(:has(svg))::before {
   border-right: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
   transform: rotate(-45deg);
-  transition: transform 0.2s ease;
+  transition: transform var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 details[open] > summary:not(:has(svg))::before {

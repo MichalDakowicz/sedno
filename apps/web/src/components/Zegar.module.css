@@ -2,7 +2,7 @@
    zegar z pauzą i wyłączeniem. Gdy paska nie ma, pełny zegar wisi pod nim na środku ekranu. */
 .wyspa {
   position: relative;
-  animation: wynurz 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
+  animation: wynurz var(--ruch-wolny) var(--ruch-sprezyna);
 }
 
 @keyframes wynurz {

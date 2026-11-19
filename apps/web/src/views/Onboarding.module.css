@@ -32,7 +32,7 @@
   height: 4px;
   border-radius: var(--r-pill);
   background: var(--line);
-  transition: background 0.3s;
+  transition: background var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .progress li.done {
@@ -73,7 +73,7 @@
   gap: var(--s-5);
   justify-items: start;
   max-width: 640px;
-  animation: wejscie 0.35s ease-out;
+  animation: wejscie var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 @keyframes wejscie {
@@ -117,7 +117,7 @@
   font-size: var(--t-md);
   color: var(--fg);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa), background var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .option:hover:not(:disabled) {

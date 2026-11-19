@@ -20,8 +20,8 @@
   transform: translateX(calc(100% + 32px));
   visibility: hidden;
   transition:
-    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    visibility 0s linear 0.5s;
+    transform var(--ruch-wolny) var(--ruch-krzywa),
+    visibility 0s linear var(--ruch-wolny);
 }
 
 .panel[data-strona="lewa"] {
@@ -32,7 +32,7 @@
   transform: none;
   visibility: visible;
   transition:
-    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform var(--ruch-wolny) var(--ruch-krzywa),
     visibility 0s;
 }
 

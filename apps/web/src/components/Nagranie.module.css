@@ -29,7 +29,7 @@
   box-shadow:
     var(--shadow-raised),
     0 0 0 1px var(--line);
-  animation: wjazd 0.25s ease-out;
+  animation: wjazd var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 @keyframes wjazd {
@@ -61,7 +61,7 @@
   background: var(--primary-strong);
   color: var(--primary-fg);
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .play:hover {

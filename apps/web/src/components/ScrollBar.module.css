@@ -6,7 +6,7 @@
   z-index: 60;
   width: 16px;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 /* Widoczny przy przewijaniu, przeciąganiu i po najechaniu na prawą krawędź. */
@@ -25,8 +25,8 @@
   cursor: grab;
   touch-action: none;
   transition:
-    width 0.15s ease,
-    background-color 0.15s ease;
+    width var(--ruch-szybki) var(--ruch-krzywa),
+    background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .track:hover .thumb,

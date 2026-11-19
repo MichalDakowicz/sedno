@@ -86,8 +86,8 @@
   color: var(--muted);
   cursor: pointer;
   transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
+    color var(--ruch-szybki) var(--ruch-krzywa),
+    background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .tool:hover,

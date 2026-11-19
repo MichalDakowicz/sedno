@@ -63,8 +63,8 @@
   color: var(--muted);
   white-space: nowrap;
   transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
+    color var(--ruch-szybki) var(--ruch-krzywa),
+    background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .link:hover {

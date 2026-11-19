@@ -154,7 +154,7 @@
   background: var(--surface);
   font-size: var(--t-sm);
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .chip:hover:not(:disabled) {

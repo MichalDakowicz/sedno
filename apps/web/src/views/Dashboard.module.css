@@ -41,9 +41,9 @@
   white-space: nowrap;
   cursor: pointer;
   transition:
-    color 0.15s ease,
-    background-color 0.15s ease,
-    border-color 0.15s ease;
+    color var(--ruch-szybki) var(--ruch-krzywa),
+    background-color var(--ruch-szybki) var(--ruch-krzywa),
+    border-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .chip:hover {

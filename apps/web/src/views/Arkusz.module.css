@@ -183,7 +183,7 @@
 }
 
 .podgladPrzycisk svg {
-  transition: transform 0.15s;
+  transition: transform var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .podgladPrzycisk svg[data-otwarta="true"] {
@@ -249,7 +249,7 @@
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr);
   gap: var(--s-2);
-  transition: opacity 0.2s ease;
+  transition: opacity var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .options div[data-uzyta] {
@@ -320,8 +320,8 @@
   border-radius: var(--r-md);
   background: var(--primary-strong);
   transition:
-    left 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
-    width 0.25s ease;
+    left var(--ruch-zwykly) var(--ruch-krzywa),
+    width var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .segment {
@@ -340,7 +340,7 @@
   font-size: var(--t-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: color 0.2s ease, background-color 0.15s ease;
+  transition: color var(--ruch-zwykly) var(--ruch-krzywa), background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .segment:hover:not(:disabled):not([data-stan="wybrana"]) {
@@ -389,10 +389,10 @@
   background: var(--primary-soft);
   box-shadow: 0 0 0 1.5px var(--primary);
   transition:
-    top 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
-    left 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
-    width 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
-    height 0.25s cubic-bezier(0.3, 0.7, 0.2, 1);
+    top var(--ruch-zwykly) var(--ruch-krzywa),
+    left var(--ruch-zwykly) var(--ruch-krzywa),
+    width var(--ruch-zwykly) var(--ruch-krzywa),
+    height var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .choice {
@@ -409,7 +409,7 @@
   text-align: left;
   line-height: 1.5;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 /* Długi wzór w odpowiedzi przewija się w przycisku zamiast rozpychać stronę. */
@@ -438,9 +438,9 @@
   font-size: var(--t-sm);
   font-weight: 600;
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    font-size 0.15s ease;
+    background-color var(--ruch-zwykly) var(--ruch-krzywa),
+    color var(--ruch-zwykly) var(--ruch-krzywa),
+    font-size var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .choice[data-stan="wybrana"] .letter,
@@ -503,9 +503,9 @@
   text-transform: uppercase;
   caret-color: var(--primary);
   transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    background-color 0.15s ease;
+    border-color var(--ruch-szybki) var(--ruch-krzywa),
+    box-shadow var(--ruch-szybki) var(--ruch-krzywa),
+    background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .letterInput:focus {
@@ -558,7 +558,7 @@
   align-items: center;
   gap: var(--s-4) var(--s-5);
   padding: var(--s-3) var(--s-4) var(--s-3) var(--s-4);
-  transition: background-color 0.2s ease;
+  transition: background-color var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .tfRow + .tfRow {
@@ -603,7 +603,7 @@
   /* Jak przy wyborze A–D: pomarańczowe tło, czarny tekst (15:1). */
   background: var(--primary-soft);
   box-shadow: 0 0 0 1.5px var(--primary);
-  transition: left 0.25s cubic-bezier(0.3, 0.7, 0.2, 1);
+  transition: left var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .tfOption {
@@ -622,12 +622,12 @@
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .tfOption svg {
   opacity: 0.75;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .tfOption:hover:not(:disabled) {
@@ -764,7 +764,7 @@
   background: var(--surface);
   font-size: var(--t-sm);
   line-height: 1.6;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .blockGap input {
@@ -813,8 +813,8 @@
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
   transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease;
+    background-color var(--ruch-szybki) var(--ruch-krzywa),
+    border-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .gapChip:hover:not(:disabled),
@@ -887,7 +887,7 @@
     var(--shadow-float),
     0 0 0 1px var(--line);
   line-height: 1.5;
-  animation: rozwin 0.18s ease-out;
+  animation: rozwin var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 @keyframes rozwin {
@@ -1208,8 +1208,8 @@
 
 .pionowo .thumb {
   transition:
-    top 0.25s cubic-bezier(0.3, 0.7, 0.2, 1),
-    height 0.25s ease;
+    top var(--ruch-zwykly) var(--ruch-krzywa),
+    height var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 /* Opcje tak szerokie jak ich treść: krótkie po dwie (A B, pod nimi C D), długie jedna pod drugą. */
@@ -1476,7 +1476,7 @@
   outline: 2px solid var(--primary);
   outline-offset: 12px;
   border-radius: var(--r-md);
-  transition: outline-color 0.3s ease;
+  transition: outline-color var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 /* Arkusz w stronach: przewracanie pod treścią strony, jak stopka wydruku. */
@@ -1566,7 +1566,7 @@
   color: var(--fg);
   font: 14px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
   resize: vertical;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 /* Pole na kod: jak edytor, wcięcia zostają, długie linie zawijamy. */
@@ -1704,7 +1704,7 @@
 }
 
 .spisPrzycisk svg:last-child {
-  transition: transform 0.15s ease;
+  transition: transform var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .spisStrzalkaOtwarta {

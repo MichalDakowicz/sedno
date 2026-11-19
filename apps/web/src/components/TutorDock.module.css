@@ -3,7 +3,7 @@
   inset: 0;
   z-index: 49;
   background: var(--scrim);
-  animation: fade 0.2s ease;
+  animation: fade var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .panel {
@@ -19,7 +19,7 @@
   background: var(--bg);
   box-shadow: var(--shadow-float);
   overflow: hidden;
-  animation: slide-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: slide-in var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 @keyframes slide-in {

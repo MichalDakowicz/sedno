@@ -102,7 +102,7 @@
   border-radius: var(--r-md);
   line-height: 1.5;
   cursor: pointer;
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  transition: background-color var(--ruch-szybki) var(--ruch-krzywa), box-shadow var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .kafel:hover:not(:has(:disabled)):not([data-stan]) {
@@ -127,7 +127,7 @@
   background: var(--bg);
   font-size: var(--t-sm);
   font-weight: 600;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color var(--ruch-zwykly) var(--ruch-krzywa), color var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .tekstKafla {
@@ -234,7 +234,7 @@
   cursor: pointer;
 }
 .rozwijane > summary::-webkit-details-marker { display: none; }
-.rozwijane > summary:not(.wierszProby) svg { flex-shrink: 0; transition: transform 0.2s ease; }
+.rozwijane > summary:not(.wierszProby) svg { flex-shrink: 0; transition: transform var(--ruch-zwykly) var(--ruch-krzywa); }
 .rozwijane[open] > summary:not(.wierszProby) svg { transform: rotate(90deg); }
 .rozwijane[open] > summary + * { margin-top: 12px; }
 
@@ -312,7 +312,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.wierszProby > svg:last-child { transition: transform 0.2s ease; }
+.wierszProby > svg:last-child { transition: transform var(--ruch-zwykly) var(--ruch-krzywa); }
 .rozwijane[open] > .wierszProby > svg:last-child { transform: rotate(90deg); }
 .ocena[data-pominiete] svg { color: var(--subtle); }
 
@@ -334,7 +334,7 @@
 .pasekPrzed { background: var(--primary-mid); opacity: 0.5; }
 .pasekPo {
   background: var(--primary-strong);
-  transition: width 0.9s cubic-bezier(0.3, 0.7, 0.2, 1);
+  transition: width var(--ruch-wolny) var(--ruch-krzywa);
 }
 .zmiana { font-size: var(--t-sm); color: var(--muted); }
 .zmiana[data-plus="true"] { color: var(--success); }

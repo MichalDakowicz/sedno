@@ -5,7 +5,7 @@
 .szkielet {
   display: grid;
   gap: var(--s-3);
-  animation: pojaw 0.25s ease-out;
+  animation: pojaw var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .szkielet > span {

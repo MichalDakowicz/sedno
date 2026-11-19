@@ -29,18 +29,18 @@
 /* Krawędź po stronie celu rusza od razu, druga z opóźnieniem: pigułka się rozciąga i dociąga. */
 .prawo {
   transition:
-    right 0.24s cubic-bezier(0.3, 1.2, 0.5, 1),
-    left 0.28s cubic-bezier(0.3, 1.2, 0.5, 1) 0.03s,
-    top 0.3s ease,
-    height 0.3s ease;
+    right var(--ruch-zwykly) var(--ruch-sprezyna),
+    left var(--ruch-zwykly) var(--ruch-sprezyna) 0.03s,
+    top var(--ruch-zwykly) var(--ruch-krzywa),
+    height var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .lewo {
   transition:
-    left 0.24s cubic-bezier(0.3, 1.2, 0.5, 1),
-    right 0.28s cubic-bezier(0.3, 1.2, 0.5, 1) 0.03s,
-    top 0.3s ease,
-    height 0.3s ease;
+    left var(--ruch-zwykly) var(--ruch-sprezyna),
+    right var(--ruch-zwykly) var(--ruch-sprezyna) 0.03s,
+    top var(--ruch-zwykly) var(--ruch-krzywa),
+    height var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .plywak ~ * {
