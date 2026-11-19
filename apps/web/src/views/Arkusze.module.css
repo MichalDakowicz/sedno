@@ -2,7 +2,7 @@
   display: grid;
   gap: var(--s-6);
   padding-top: var(--s-6);
-  padding-bottom: 120px;
+  padding-bottom: var(--zapas-pestki);
 }
 
 .levels {

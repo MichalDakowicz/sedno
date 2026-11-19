@@ -2,7 +2,7 @@
   display: grid;
   gap: var(--s-6);
   padding-top: var(--s-6);
-  padding-bottom: 120px;
+  padding-bottom: var(--zapas-pestki);
 }
 
 .sekcja {
@@ -102,30 +102,35 @@
   overflow-wrap: anywhere;
 }
 
+/* Pamięć w siatce .wiersz-pasek (tor | procent): podpis w pierwszym rzędzie przez obie kolumny,
+   więc zaczyna się na krawędzi toru, a procent stoi w tej samej kolumnie co na mapie. */
 .retencja {
-  display: grid;
-  gap: 2px;
-  width: 100%;
-  max-width: 12rem;
+  row-gap: 2px;
+  width: min(100%, 12rem);
+  font-size: var(--t-sm);
+  font-variant-numeric: tabular-nums;
 }
 
-.retencja progress {
-  inline-size: 100%;
-  block-size: 6px;
-  max-width: 100%;
-  border: 0;
-  border-radius: var(--r-pill);
+.retencjaPodpis {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.retencjaTor {
+  display: block;
+  min-width: 0;
+  height: 6px;
   overflow: hidden;
-  accent-color: var(--primary);
-}
-
-.retencja progress::-webkit-progress-bar {
   border-radius: var(--r-pill);
   background: var(--line);
 }
 
-.retencja progress::-webkit-progress-value {
-  background: var(--primary-mid);
+.retencjaTor > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
 }
 
 @media (max-width: 480px) {

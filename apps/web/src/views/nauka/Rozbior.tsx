@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, ChevronRight, CircleAlert, CircleMinus } from "lucide-react";
-import { trwa, useDiagnoza } from "../../nauka/diagnoza";
+import { trwa, useDiagnoza, useTrybDiagnozy } from "../../nauka/diagnoza";
 import { Link, useParams } from "react-router-dom";
 import { nazwaPoziomu, nazwaZadaniaCke } from "../../arkusze/typy";
 import { useSession } from "../../auth";
@@ -13,6 +13,7 @@ import { PestkaMowi } from "./PestkaRundy";
 import { glos, wybierz } from "../../pestka/glos";
 import { TutorAvatar, type AvatarState } from "../../components/TutorAvatar";
 import { TrescRundy } from "./TrescRundy";
+import { WynikDiagnozy } from "./WynikDiagnozy";
 import { Kropki, PasekProgu } from "../../components/wykresy";
 import { Kielek } from "../../components/Kielek";
 import { NAZWA_STADIUM, stadium, wyzszeStadium } from "../../nauka/stadia";
@@ -134,8 +135,36 @@ function BledyRundy({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
   return <ul className="small muted">{[...bledy].map(([typ, ile]) => <li key={typ}>{nazwyBledow[typ]}: {ile}</li>)}</ul>;
 }
 
-function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<SesjaNauki["result"]> } }) {
-  const { level, result, skill_id, format } = sesja;
+type SesjaZWynikiem = SesjaNauki & { result: NonNullable<SesjaNauki["result"]> };
+
+/** Rozbiór sesji diagnozy (wejście z Powtórek albo z prób na mapie): wynik na każdą umiejętność zamiast przed → po. */
+function RozbiorDiagnozy({ sesja }: { sesja: SesjaZWynikiem }) {
+  const { level, result } = sesja;
+  const naglowek = useRef<HTMLHeadingElement>(null);
+  const [zadania, setZadania] = useState(false);
+  useEffect(() => { naglowek.current?.focus(); }, []);
+  return (
+    <main className={`container czytanie ${s.strona}`}>
+      <NaglowekStrony wstecz={{ do: adresNauki(level), nazwa: "Nauka" }} tytul="Wyniki diagnozy" tytulRef={naglowek}>
+        <p className="small muted">{nazwaFormatuNauki.diagnoza} · {nazwaPoziomu[level]}</p>
+      </NaglowekStrony>
+      <WynikDiagnozy poziom={level} wynik={result} odpowiedzi={sesja.answers} sesja={sesja.id} />
+      <details className={s.rozwijane} onToggle={(e) => setZadania(e.currentTarget.open)}>
+        <summary><ChevronRight size={16} aria-hidden="true" /> Zadania diagnozy</summary>
+        {zadania && <ul className={s.wierszeRozbioru}>{sesja.answers.map((a) => <ProbaRozbioru key={a.position} odpowiedz={a} />)}</ul>}
+      </details>
+      <div className={s.akcje}>
+        <Link className="btn btn-primary" to={adresMapy(level)}>Mapa umiejętności <ArrowRight size={17} aria-hidden="true" /></Link>
+        <Link className="btn btn-ghost" to={adresPowtorek(level)}>Zobacz powtórki</Link>
+      </div>
+    </main>
+  );
+}
+
+function RozbiorGotowy({ sesja }: { sesja: SesjaZWynikiem }) {
+  const { level, skill_id, format } = sesja;
+  const result = { ...sesja.result, opanowanie_przed: sesja.result.opanowanie_przed ?? null, opanowanie_po: sesja.result.opanowanie_po ?? null };
+  const skill = skill_id ?? undefined;
   const [mapa, setMapa] = useState<MapaNauki | null>(null);
   const naglowek = useRef<HTMLHeadingElement>(null);
   const [zadania, setZadania] = useState(false);
@@ -152,7 +181,10 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
   const nazwa = umiejetnosc?.name;
   const dalej = result.nastepny_krok;
   const nastepna = mapa?.skills.find((m) => m.skill_id === dalej?.skill_id)?.name;
-  const diagnoza = useDiagnoza();
+  // Dawna diagnoza (rundy po kolei, stan w przeglądarce) prowadzi do kolejnego obszaru; przy nowej bazie jej nie ma.
+  const lokalna = useDiagnoza();
+  const trybDiagnozy = useTrybDiagnozy(level);
+  const dalejWDiagnozie = trwa(lokalna) && trybDiagnozy.tryb === "przegladarka";
   // Rozbiór liczy opanowanie bez zaniku, a mapa z zanikiem: wyjaśnienie tylko wtedy, gdy liczby się różnią.
   const naMapie = umiejetnosc?.score ?? null;
   const inneNaMapie = naMapie != null && result.opanowanie_po != null && Math.round(naMapie * 100) !== Math.round(result.opanowanie_po * 100);
@@ -161,7 +193,7 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
     : null;
   return (
     <main className={`container czytanie ${s.strona}`}>
-      <NaglowekStrony wstecz={{ do: adresNauki(level, skill_id), nazwa: "Nauka" }} tytul="Rozbiór rundy" tytulRef={naglowek}>
+      <NaglowekStrony wstecz={{ do: adresNauki(level, skill), nazwa: "Nauka" }} tytul="Rozbiór rundy" tytulRef={naglowek}>
         <p className="small muted">{nazwaFormatuNauki[format]} · {nazwaPoziomu[level]}{nazwa && ` · ${nazwa}`}</p>
       </NaglowekStrony>
       <section className={s.sekcja} aria-labelledby="wynik-rundy">
@@ -189,10 +221,10 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
           {nazwa ? `${nazwa} · ` : ""}przed rundą {opanowanie(result.opanowanie_przed)}, po rundzie {opanowanie(result.opanowanie_po)}
           {inneNaMapie && <span data-tutor-about="Na mapie opanowanie powoli maleje, gdy długo nie ćwiczysz, a rozbiór pokazuje stan zaraz po rundzie."> · na mapie {opanowanie(naMapie)}</span>}
         </p>
-        <div><Link to={adresMapy(level, skill_id)} className="link">Zobacz umiejętność na mapie</Link></div>
+        <div><Link to={adresMapy(level, skill)} className="link">Zobacz umiejętność na mapie</Link></div>
       </section>
       {/* W trakcie diagnozy następnym krokiem jest kolejny obszar, nie polecenie z mapy. */}
-      {trwa(diagnoza) ? (
+      {dalejWDiagnozie ? (
         <div className={s.akcje}>
           <Link className="btn btn-primary" to="/nauka/diagnoza">Dalej w diagnozie <ArrowRight size={17} aria-hidden="true" /></Link>
         </div>
@@ -215,7 +247,10 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
 
 function RozbiorSesji({ id }: { id: string }) {
   const [stan, ponow] = useSesjaRundy(id);
-  if (stan.status === "gotowa" && stan.sesja.result) return <RozbiorGotowy sesja={{ ...stan.sesja, result: stan.sesja.result }} />;
+  if (stan.status === "gotowa" && stan.sesja.result) {
+    const sesja = { ...stan.sesja, result: stan.sesja.result };
+    return sesja.format === "diagnoza" ? <RozbiorDiagnozy sesja={sesja} /> : <RozbiorGotowy sesja={sesja} />;
+  }
   return (
     <main className={`container czytanie ${s.strona}`}>
       <NaglowekStrony wstecz={{ do: "/nauka", nazwa: "Nauka" }} tytul="Rozbiór rundy" />

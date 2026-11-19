@@ -16,6 +16,7 @@ import {
   czyPrzerwane, naukaAi, type OcenaRozwiazania, type OdpowiedzWariantu, type Wariant, type ZadanieWariantu,
 } from "../../nauka/ai";
 import { useZapytanieNauki } from "../../nauka/stan";
+import { adresWizualizacji, modelDlaPrzedmiotu, modelDlaSzablonu } from "../../nauka/wizualizacje";
 import { PestkaMowi } from "./PestkaRundy";
 import { glos, wybierz } from "../../pestka/glos";
 import { odczytajRunde, UUID_SESJI, zapiszRunde } from "./sesjaRundy";
@@ -73,6 +74,7 @@ export function Zadania() {
 
   const wybierzPrzedmiot = (p: PrzedmiotZadan) => ustawParams({ przedmiot: p }, { replace: true });
   const lista = (katalog.dane ?? []).filter((t) => !poziomy.length || t.poziomy.some((p) => poziomy.includes(p)));
+  const modelPrzedmiotu = modelDlaPrzedmiotu(przedmiot);
 
   return (
     <main className={`container ${s.strona}`}>
@@ -91,6 +93,9 @@ export function Zadania() {
         {poziomy.length > 0 && <p className="small muted">{poziomy.map((p) => nazwaPoziomu[p]).join(", ")}</p>}
         {katalog.stan === "ladowanie" && <Ladowanie ile={4} etykieta="Wczytuję typy zadań" />}
         {katalog.stan === "blad" && <BladPestki blad={null} ponow={katalog.ponow} />}
+        {modelPrzedmiotu && (
+          <p className="small"><Link to={adresWizualizacji(modelPrzedmiotu)} className="link">Zobacz najpierw na modelu <ArrowRight size={15} aria-hidden="true" /></Link></p>
+        )}
         {katalog.stan === "gotowe" && (lista.length ? (
           <ul className="wiersze">
             {lista.map((t) => (
@@ -212,6 +217,9 @@ function ZadanieZSzablonu({ user, szablon, przedmiot, nazwa, bladKatalogu }: {
     <main className={`container czytanie ${s.strona}`}>
       <NaglowekStrony wstecz={{ do: adresZadan(przedmiot), nazwa: "Zadania" }} tytul={tytul}>
         <p className="small muted">{daneP(przedmiot)!.nazwa}</p>
+        {modelDlaSzablonu(szablon) && (
+          <p className="small"><Link to={adresWizualizacji(modelDlaSzablonu(szablon)!)} className="link">Zobacz na wykresie <ArrowRight size={15} aria-hidden="true" /></Link></p>
+        )}
       </NaglowekStrony>
       {bladKatalogu && !nazwa && <BladPestki blad={null} ponow={bladKatalogu} etykieta="Wczytaj nazwę" />}
       <div className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">{ocena ? opisWerdyktu(ocena) : ""}</div>

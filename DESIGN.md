@@ -72,6 +72,7 @@ Innych wartości nie używamy. Cienie: `--shadow-float` (karta, panel pływając
 - **Blok obok karty** (`.obok-karty`): pierwsza linia tekstu na wysokości wnętrza karty (`--wnetrze-karty` ustawia strona: padding karty obok) albo cały blok wyśrodkowany w pionie, gdy jest dużo niższy. Nigdy przyklejony do górnej krawędzi wyższego sąsiada. Poniżej 900 px kolumny idą jedna pod drugą.
 - **Wiersz listy** (`.wiersze` / `.wiersz`): nazwa z opisem | wartość | akcja. Kolumny wartości i akcji mają stałą szerokość, więc wartości w kolejnych wierszach stoją na jednej osi. Części: `.wiersz-ikona` (opcjonalna, 48 px), `.wiersz-tresc` z `.wiersz-nazwa` i `.wiersz-opis` (15 px), `.wiersz-wartosc` (tu `.wiersz-pasek`: pasek i procent), `.wiersz-akcja` (strzałka, link, przyciski). Szerokości ustawia lista: `--wiersz-wartosc` (domyślnie 12rem) i `--wiersz-akcja` (20 px; `auto`, gdy akcja to słowo jednakowe we wszystkich wierszach). Wiersz bez wartości albo bez akcji ma o kolumnę mniej. Na telefonie wartość schodzi pod nazwę.
 - Telefon 375 px: bez przewijania w poziomie, cele dotyku min. 44 px, elementy pływające niczego nie zasłaniają.
+- **Zapas na końcu strony** pod Pestkę na spoczynku: `padding-bottom: var(--zapas-pestki)` (120 px, na telefonie 104 px, `global.css`). Strony nie wpisują własnych wartości.
 
 ## Odstępy
 
@@ -91,7 +92,7 @@ Jedna drabinka, tokeny w `tokens.css`. Innych wartości w `gap`, `margin` i `pad
 - **Bliskość znaczy powiązanie.** Odstęp wewnątrz grupy jest zawsze mniejszy niż między grupami: tytuł bliżej swojej treści niż poprzedniej sekcji, opis bliżej nazwy niż następnego wiersza.
 - Ten sam rodzaj przerwy ma tę samą wartość na każdym ekranie (np. tytuł sekcji → treść zawsze `--s-4`, sekcja → sekcja zawsze `--s-7`).
 - Na telefonie drabinka schodzi o jeden stopień dla odstępów od `--s-6` w górę.
-- Wyjątki: 1–3 px (obwódki, korekty optyczne), paddingi ustalające wysokość przycisków, pól i pigułek, zapas na końcu strony (ok. 100–160 px) pod Pestkę na spoczynku.
+- Wyjątki: 1–3 px (obwódki, korekty optyczne), paddingi ustalające wysokość przycisków, pól i pigułek, zapas na końcu strony pod Pestkę na spoczynku (`--zapas-pestki`).
 
 ## Hierarchia
 
@@ -128,7 +129,8 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 | Rozwijana sekcja | ikona `ChevronRight` z obrotem | bez systemowych trójkątów |
 | Ładowanie | `components/Ladowanie` | szkielet w kształcie treści, bez skoku układu. Dane już raz pobrane pokazujemy od razu (pamięć w `nauka/pamiec.ts`). |
 | Błąd Pestki | `components/BladPestki.tsx` | komunikat z `nauka/ai.ts`, „Spróbuj ponownie”, gdy ma sens, link do profilu przy braku modelu; `BrakPestki` dla konta bez AI zamiast pustej strony |
-| Wykresy | `components/wykresy/` | `PasekProgu`: wartość względem progu i celu, opcjonalnie przed → po. `Linia`: zmiana w czasie, podpisany ostatni punkt, próg. `Kropki`: dni tygodnia, zadania rundy, ostatnie próby (pełna akcent, zielona ✓ dobrze, czerwona ✕ źle, kreska pominięte, pusta, przerywana zaplanowane). `OsCzasu`: dziś → przerywana przerwa z liczbą dni → egzaminy z datami. `PasDni`: 7 kratek dni z liczbą. `Pierscien`: wynik z kreską progu. Wszystkie: inline SVG w tokenach, `role="img"` i `aria-label` z wnioskiem, wartość dochodzi sprężyną, bez ruchu przy „Mniej ruchu”. |
+| Wykresy | `components/wykresy/` | `PasekProgu`: wartość względem progu i celu, opcjonalnie przed → po. `Linia`: zmiana w czasie, podpisany ostatni punkt, próg. `Kropki`: dni tygodnia, zadania rundy, ostatnie próby (pełna akcent, zielona ✓ dobrze, czerwona ✕ źle, kreska pominięte, pusta, przerywana zaplanowane). `OsCzasu`: dziś → przerywana przerwa z liczbą dni → egzaminy z datami. `PasDni`: 7 kratek dni z liczbą. `Pierscien`: wynik z kreską progu. `Funkcja`: model na osiach (Wizualizacje), krzywa akcentem, podpisany punkt, idzie za suwakiem bez animacji. Wszystkie: inline SVG w tokenach, `role="img"` i `aria-label` z wnioskiem, wartość dochodzi sprężyną, bez ruchu przy „Mniej ruchu”. |
+| Model do zobaczenia | `views/nauka/Wizualizacje.tsx`, wykres `components/wykresy/Funkcja` | najpierw wniosek (wierzchołek, krok algorytmu), pod nim model i kontrolki, na końcu pytanie Pestki i jeden przycisk do ćwiczenia. Stan liczy serwer; model niczego nie ocenia. |
 | Stan z Pestką | `components/StanPestki.tsx` | twarz w emocji, jedno zdanie z `pestka/glos.ts`, najwyżej jedno działanie. Puste stany, `BladPestki` / `BladNauki`, strona 404 (`views/NieMaStrony.tsx`); `Ladowanie` po 1 s pokazuje myślącą Pestkę ze zdaniem. Strony nie składają własnych pustych stanów. |
 | Stadium umiejętności | `components/Kielek.tsx` + `nauka/stadia.ts` | pestka, kiełek, roślina z liśćmi, drzewko z owocem; 20–96 px; odcienie akcentu, nie zieleń. `animuj` tylko tam, gdzie stadium się zmienia (rozbiór, panel). |
 | Znak | `components/Znak.tsx` | Pestka i napis „Sedno” w pasku i na logowaniu. Favicon `public/pestka.svg`, ikony PNG z `scripts/ikony.mjs`. Bez własnych wersji rysunku. |
@@ -146,12 +148,13 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 ## Pestka
 
 - Jest na każdym ekranie i na każdym koncie. Nie zasłania treści, przycisków ani tego, o czym mówi; nie zabiera fokusu.
+- **Telefon (poniżej 640 px): dok zamiast siadania na treści.** Na spoczynku Pestka stoi w prawym dolnym rogu na pasie z zanikaniem (jak pasek nawigacji u góry), więc nie siedzi na wierszu ani przycisku; omija tylko elementy przypięte (pasek tablicy, odtwarzacz). Ze wskazówką albo przywołana dokuje się z dymkiem przy dolnej albo górnej krawędzi, po tej stronie, gdzie dymek nie zasłania celu i jego karty czy wiersza; cel dostaje pierścień. Dymek w doku ma limit wysokości (42% ekranu, przewija się w środku) i strzałkę, która zwija go do Pestki z kropką czekającej wskazówki.
 - Polecenia i komentarze aplikacji idą jej głosem, w pierwszej osobie, z powodem („Na dziś wybrałam…, bo…”).
 - Reaguje na to, co robi uczeń (dobra i zła odpowiedź, seria, koniec rundy), gotowymi kwestiami, które działają bez modelu. Przywołana wie, na co uczeń patrzy.
 - Kolory i kształt z tokenów; animacje szanują „Mniej ruchu”.
 - W interfejsie „Pestka”, nigdy „tutor” ani „AI”. Podpis w panelu rozmowy mówi, na co patrzy: „przy mapie umiejętności”, „przy: <zadanie>”.
 - **Karty z twarzą.** Propozycja dnia (`KartaDnia`: „Dziś warto”, „Polecam” w Nauce, „Dalej” w rozbiorze) pokazuje twarz Pestki i mówi w pierwszej osobie z powodem.
-- **Na tablicy** (brudnopis matematyki): twarz Pestki to przycisk w pasku narzędzi, pole pytania obok niej. Myśli na tablicy, pisze dopiski znak po znaku (pierwiastki i ułamki odręcznie), podpowiedź w dymku przy sobie. Prowadzenie na żywo: kiwnięcie przy dobrym kroku, dymek i czerwony obrys przy błędzie, nic w trakcie czekania. Nie przesuwa widoku ucznia; jedna odpowiedź = jeden krok cofania; „Zetrzyj dopiski Pestki”.
+- **Na tablicy** (brudnopis matematyki): twarz Pestki to przycisk w pasku narzędzi, pole pytania obok niej. Myśli na tablicy, pisze dopiski znak po znaku (pierwiastki i ułamki odręcznie), podpowiedź w dymku przy sobie. Figury i dopiski rysuje na bieżąco, gdy przychodzą ze strumienia, wskazówka pisze się w dymku od pierwszych słów. Gdy obok niej nie ma miejsca (telefon), dymek i pole dokują się przy górnej albo dolnej krawędzi płótna (mniej zasłoniętej pracy), z limitem 40% wysokości płótna i zwijaniem do dwóch linii. Prowadzenie na żywo: kiwnięcie przy dobrym kroku, dymek i czerwony obrys przy błędzie, nic w trakcie czekania. Nie przesuwa widoku ucznia; jedna odpowiedź = jeden krok cofania; „Zetrzyj dopiski Pestki”.
 
 ### Emocje
 
@@ -174,7 +177,7 @@ Zasady: pierwsza osoba w rodzaju żeńskim, krótkie zdania, do ucznia bez form 
 
 ### Kiełkująca pestka
 
-Umiejętność rośnie w czterech stadiach (`nauka/stadia.ts`, rysunek `components/Kielek.tsx`): pestka (poniżej 25% albo brak danych), kiełek, roślina z liśćmi, drzewko z owocem. Progi w jednym miejscu: `PROGI_STADIOW = { kielek: 0.25, roslina: 0.45, drzewko: 0.6 }`. Celowo nisko, bo opanowanie z samych rund zatrzymuje się dziś ok. 67%; po poprawce wzoru w bazie do przestrojenia. Gdzie: wiersze mapy, panel umiejętności (duża liczba opanowania, kropki ostatnich prób, „pamiętasz ok. X%”), rozbiór (stare stadium → nowe rośnie), widget mapy na pulpicie jako „ogród” czterech obszarów z jednym zdaniem.
+Umiejętność rośnie w czterech stadiach (`nauka/stadia.ts`, rysunek `components/Kielek.tsx`): pestka (poniżej 55% albo brak danych), kiełek, roślina z liśćmi, drzewko z owocem. Progi w jednym miejscu: `PROGI_STADIOW = { kielek: 0.55, roslina: 0.75, drzewko: 0.85 }`, strojone pod model bez sufitu (migracja 0020: start od 50%, bezbłędne rundy dają ok. 68 → 79 → 86 → 90%): kiełek po pierwszej dobrej rundzie, roślina po dwóch bezbłędnych, drzewko po trzech, czterech albo przy stałych ok. 90% dobrych odpowiedzi. Po kilku dniach bez ćwiczeń zanik zabiera drzewko. Gdzie: wiersze mapy, panel umiejętności (duża liczba opanowania, kropki ostatnich prób, „pamiętasz ok. X%”), rozbiór (stare stadium → nowe rośnie), widget mapy na pulpicie jako „ogród” czterech obszarów z jednym zdaniem.
 
 ### Znak
 
@@ -196,22 +199,25 @@ Co która strona pokazuje (pytanie → forma):
 | Strona | Sekcja | Pytanie ucznia | Forma |
 | --- | --- | --- | --- |
 | Pulpit | Karta dnia | Co mam zrobić teraz? | karta Pestki z powodem i jednym przyciskiem |
-| Pulpit | Twój tydzień | Czy uczę się regularnie? | 7 kropek dni i seria |
+| Pulpit | Twój tydzień | Czy uczę się regularnie? | 7 kropek dni i seria (dziennik aktywności w bazie), minuty nauki w ostatnich tygodniach jako linia z wnioskiem; bez dziennika w bazie dni z dat prób i bez minut |
 | Pulpit | Do matury | Ile mam czasu, czy zdam i ile brakuje do celu? | dni do egzaminu i prognoza: pasek z kreską progu 30% i celem z profilu ucznia |
-| Pulpit | Mapa w skrócie | Co umiem, a co nie? | „ogród”: cztery obszary w stadiach i jedno zdanie |
+| Pulpit | Mapa w skrócie | Co umiem, a co nie? | „ogród”: cztery obszary w stadiach i jedno zdanie (z historią opanowania także o zmianie w tygodniu) |
 | Pulpit | Powtórki | Ile mam do powtórzenia? | liczba na dziś |
 | Pulpit | Wyniki z arkuszy | Czy idzie mi coraz lepiej? | średnia i linia wyników z progiem |
 | Nauka | Propozycja i sposoby | Jak chcę się dziś uczyć? | karta dnia, lista sposobów z jednym polecanym |
 | Runda | Postęp | Ile jeszcze i jak mi idzie? | kropki zadań (zielona, czerwona, pusta) zamiast gołego paska |
 | Rozbiór | Wynik rundy | Co się zmieniło po tej rundzie? | kropki odpowiedzi, jedno zdanie Pestki, pasek opanowania przed → po, stadium |
 | Mapa | Lista umiejętności | W czym jestem mocny, a w czym słaby? | wiersze z paskiem i stadium Pestki, pogrupowane obszarami |
-| Mapa | Panel umiejętności | Skąd ta ocena i co dalej? | duża liczba opanowania ze stadium, kropki ostatnich prób, „Pamiętasz ok. X%”, jeden przycisk „Ćwicz”. Bez linii w czasie: baza nie trzyma historii opanowania, a z listy prób nie da się jej uczciwie odtworzyć |
+| Mapa | Panel umiejętności | Skąd ta ocena i co dalej? | duża liczba opanowania ze stadium, „Pamiętasz ok. X%”, linia opanowania w czasie z tytułem-wnioskiem (historia z bazy, oceny z co najmniej dwóch dni; inaczej linii nie ma), kropki ostatnich prób, jeden przycisk „Ćwicz” |
+| Diagnoza | Pierwsze wyniki | Od czego zacząć? | wynik i kropki odpowiedzi, zdanie Pestki, wiersze umiejętności ze stadium i paskiem (w kreskę, bo ocena z jednej, dwóch prób jest wstępna), karta dnia |
 | Powtórki | Na dziś i kolejka | Co i kiedy powtórzyć? | karta na dziś, 7 kratek dni z liczbą powtórek (błędy są gotowe od dziś), lista według umiejętności |
 | Arkusze | Lista | Które arkusze mam za sobą? | wynik jako pierścień z progiem |
 | Arkusz po sprawdzeniu | Wynik | Gdzie straciłem punkty i czas? | wynik i pasek z progiem 30% (poziom podstawowy), paski zadań z największą stratą punktów, czas względem normy |
 | Do matury | Odliczanie | Ile mam czasu i na co? | oś czasu egzaminów (dziś → dni przerwy → egzaminy z datami), prognoza z celem |
 | Profil ucznia | Wnioski | Co Sedno o mnie wie? | duże liczby z podpisem (sprawdzone arkusze, średnia, pora dnia), bez tabel |
 | Profil | AI na koncie | Czy Pestka działa i ile używam? | stan i dwie liczby; tabela zużycia pod rozwinięciem |
+| Mapa wiedzy | Notatki | Co już wiem i co się z czym łączy? | liczba notatek i połączeń jako tytuł, graf na okręgu (komputer), lista z rozwijaną notatką (wszędzie), propozycje Pestki z „Przyjmij” i „Odrzuć” |
+| Wizualizacje | Model | Jak to działa, zanim zacznę ćwiczyć? | wniosek, model z kontrolkami, pytanie Pestki, przycisk do zadań |
 
 ## Ruch
 

@@ -1,0 +1,198 @@
+/* Mapa wiedzy: graf i lista na liniach, bez kart. Graf tylko na szerokim ekranie; na telefonie zostaje lista. */
+.bezLinii {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.blad {
+  color: var(--danger);
+}
+
+.graf {
+  display: block;
+  width: 100%;
+  max-width: 760px;
+  height: auto;
+  overflow: visible;
+}
+
+@media (max-width: 639px) {
+  .graf {
+    display: none;
+  }
+}
+
+.krawedz {
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  transition: stroke var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.krawedz[data-aktywna] {
+  stroke: var(--primary);
+  stroke-width: 2.5;
+}
+
+.krawedzPropozycja {
+  stroke: var(--primary);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 5;
+  opacity: 0.7;
+}
+
+.wezel {
+  cursor: pointer;
+  outline: none;
+}
+
+.wezelCel {
+  fill: transparent;
+}
+
+.wezelKropka {
+  fill: var(--surface);
+  stroke: var(--primary);
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform var(--ruch-zwykly) var(--ruch-sprezyna), fill var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.wezel:hover .wezelKropka,
+.wezel:focus-visible .wezelKropka {
+  transform: scale(1.25);
+}
+
+.wezel:focus-visible .wezelCel {
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+
+.wezel[data-wybrany] .wezelKropka {
+  fill: var(--primary);
+}
+
+.wezelNazwa {
+  fill: var(--fg);
+  font-size: var(--t-xs);
+}
+
+.wezel[data-wybrany] .wezelNazwa {
+  font-weight: 600;
+}
+
+.lista {
+  --wiersz-akcja: 20px;
+}
+
+/* Wiersz-przycisk: ten sam układ co wiersz-link, bez wyglądu przycisku. */
+.wiersz {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.strzalka {
+  transition: transform var(--ruch-zwykly) var(--ruch-sprezyna);
+}
+
+.wiersz[aria-pressed="true"] .strzalka {
+  transform: rotate(90deg);
+}
+
+.wiersz[aria-pressed="true"] :global(.h3) {
+  color: var(--primary-text);
+}
+
+.szczegoly {
+  display: grid;
+  gap: var(--s-3);
+  padding: 0 0 var(--s-4) var(--s-4);
+  border-left: 2px solid var(--primary-soft);
+}
+
+.tresc {
+  max-width: 65ch;
+  white-space: pre-line;
+}
+
+.polaczenia {
+  display: grid;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-sm);
+}
+
+.polaczenia li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.ikona {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--subtle);
+  cursor: pointer;
+}
+
+.ikona:hover {
+  color: var(--fg);
+  background: var(--bg);
+}
+
+.akcje {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.propozycja {
+  --wiersz-akcja: auto;
+}
+
+.decyzja {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .propozycja {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .decyzja {
+    justify-content: flex-start;
+  }
+}
+
+.formularz {
+  display: grid;
+  gap: var(--s-3);
+  max-width: 60ch;
+}
+
+.pole {
+  display: grid;
+  gap: var(--s-1);
+}
+
+.obszar {
+  min-height: 96px;
+  resize: vertical;
+  border-radius: var(--r-sm);
+}

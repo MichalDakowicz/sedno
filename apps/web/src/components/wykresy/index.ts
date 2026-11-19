@@ -4,3 +4,4 @@ export { Linia } from "./Linia";
 export { Kropki, type Kropka, type StanKropki } from "./Kropki";
 export { Pierscien } from "./Pierscien";
 export { OsCzasu, PasDni, type Zdarzenie, type Dzien } from "./OsCzasu";
+export { Funkcja } from "./Funkcja";

@@ -1,6 +1,6 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type RefObject } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type RefObject } from "react";
 import { Link } from "react-router-dom";
-import { X } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { getCommonBounds, sceneCoordsToViewportCoords } from "@excalidraw/excalidraw";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import type { AppState, ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
@@ -52,9 +52,14 @@ function polozenie(stan: StanWidoku, [sceneX, sceneY]: Punkt) {
 const dlugoscDymka = (d: DymekPestki) =>
   (d.tekst?.length ?? 0) + (d.odczyt?.length ?? 0) + (d.uwaga?.length ?? 0) + (d.blad ? 90 : 0) + (d.ponow || d.pokaz || d.zetrzyj ? 60 : 0);
 
-// Dymek staje po tej stronie Pestki, gdzie nie zasłoni pracy ucznia ani rysunku zadania: z prawej, z lewej,
-// a gdy obok brak miejsca (telefon), pod nią albo nad nią na całą szerokość. Wysokość szacujemy z długości tekstu.
-function miejsceDymka(stan: StanWidoku, x: number, y: number, elementy: readonly ExcalidrawElement[], znaki: number) {
+type DokDymka = "gora" | "dol";
+
+// Dymek staje po tej stronie Pestki, gdzie nie zasłoni pracy ucznia ani rysunku zadania: z prawej albo z lewej.
+// Gdy obok brak miejsca (telefon), dokuje się przy górnej albo dolnej krawędzi płótna na całą szerokość, z limitem
+// wysokości, zamiast wisieć na środku rysunku. Wysokość szacujemy z długości tekstu.
+function miejsceDymka(stan: StanWidoku, x: number, y: number, elementy: readonly ExcalidrawElement[], znaki: number): {
+  strona: string; odDolu: string; miejsce: number; dok?: DokDymka;
+} {
   const z = stan.zoom.value;
   const przeszkody = elementy.map((e) => {
     const [x1, y1, x2, y2] = getCommonBounds([e]);
@@ -67,14 +72,23 @@ function miejsceDymka(stan: StanWidoku, x: number, y: number, elementy: readonly
     { strona: "", miejsce: zPrawej, lewo: () => x + AWATAR + ODSTEP_DYMKA },
     { strona: styles.dymekZLewej, miejsce: zLewej, lewo: (w: number) => x - ODSTEP_DYMKA - w },
   ].filter((o) => o.miejsce >= 200);
-  const opcje = boki.length ? boki : [{ strona: styles.dymekPod, miejsce: szeroko, lewo: () => ODSTEP_DYMKA }];
+  if (!boki.length) {
+    const h = Math.min(stan.height * 0.4, 40 + Math.ceil((znaki * 8) / Math.max(120, szeroko - 40)) * 22);
+    const pestka = { x, y, w: AWATAR, h: AWATAR };
+    const kolizja = (gora: number) => [...przeszkody, pestka].reduce((suma, p) => suma +
+      Math.max(0, Math.min(ODSTEP_DYMKA + szeroko, p.x + p.w) - Math.max(ODSTEP_DYMKA, p.x)) * Math.max(0, Math.min(gora + h, p.y + p.h) - Math.max(gora, p.y)), 0);
+    const dol = kolizja(stan.height - ODSTEP_DYMKA - h);
+    const gora = kolizja(ODSTEP_DYMKA);
+    // Przy remisie dalej od Pestki: ona zostaje przy pracy ucznia, dymek po drugiej stronie płótna.
+    const naDole = dol < gora || (dol === gora && y < stan.height / 2);
+    return { strona: "", odDolu: "", miejsce: szeroko, dok: naDole ? "dol" : "gora" };
+  }
   let najlepsza = { strona: "", odDolu: "", miejsce: zPrawej, kolizja: Infinity };
-  for (const o of opcje) {
-    const w = o.strona === styles.dymekPod ? o.miejsce : Math.min(300, o.miejsce);
+  for (const o of boki) {
+    const w = Math.min(300, o.miejsce);
     const h = 40 + Math.ceil((znaki * 8) / Math.max(120, w - 40)) * 22;
     for (const odDolu of y > stan.height / 2 ? [true, false] : [false, true]) {
-      const pod = o.strona === styles.dymekPod;
-      const gora = pod ? (odDolu ? y - ODSTEP_DYMKA - h : y + AWATAR + ODSTEP_DYMKA) : odDolu ? y + AWATAR + 4 - h : y - 4;
+      const gora = odDolu ? y + AWATAR + 4 - h : y - 4;
       const dymek = { x: o.lewo(w), y: gora, w, h };
       const kolizja = przeszkody.reduce((suma, p) => suma +
         Math.max(0, Math.min(dymek.x + w, p.x + p.w) - Math.max(dymek.x, p.x)) * Math.max(0, Math.min(dymek.y + h, p.y + p.h) - Math.max(dymek.y, p.y)), 0)
@@ -105,9 +119,22 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
   }, [faza]);
   const stan = api.current?.getAppState();
   const { x, y } = stan ? polozenie(stan, punkt) : { x: MARGINES, y: MARGINES };
-  const { strona, odDolu, miejsce } = stan
+  const { strona, odDolu, miejsce, dok } = stan
     ? miejsceDymka(stan, x, y, api.current?.getSceneElements() ?? [], dymek ? dlugoscDymka(dymek) : 40)
-    : { strona: "", odDolu: "", miejsce: 300 };
+    : { strona: "", odDolu: "", miejsce: 300, dok: undefined };
+  // Zwinięty dymek w doku pokazuje dwie pierwsze linie; nowa odpowiedź rozwija go z powrotem.
+  const [zwiniety, setZwiniety] = useState(false);
+  useEffect(() => setZwiniety(false), [dymek?.blad, dymek?.odczyt, dymek?.pokaz]);
+  const klasaDymka = dok
+    ? [styles.pestkaDymek, styles.dymekDok, dok === "dol" && styles.dymekDokDol, zwiniety && styles.dymekZwiniety].filter(Boolean).join(" ")
+    : [styles.pestkaDymek, strona, odDolu].join(" ");
+  const stylDymka = dok ? undefined : { ["--miejsce" as string]: miejsce + "px" };
+  const naEscape = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      onZamknij();
+    }
+  };
 
   // Przeskok do nowego miejsca idzie płynnie; przesuwanie widoku przez ucznia przesuwa Pestkę bez opóźnienia.
   useLayoutEffect(() => {
@@ -137,68 +164,72 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
     setPytanie("");
   }
 
-  const stanAwatara = faza === "mysli" ? "thinking" : faza === "pisze" ? "talking" : "idle";
-  return (
+  // W trakcie myślenia (i pisania figur ze strumienia) dymek może już mieć początek wskazówki: wtedy Pestka mówi.
+  const pisanaWskazowka = (faza === "mysli" || faza === "pisze") && !!dymek?.tekst;
+  const stanAwatara = pisanaWskazowka || faza === "pisze" ? "talking" : faza === "mysli" ? "thinking" : "idle";
+  const pole_ = faza === "pole" && (
+    <form className={klasaDymka} style={stylDymka} onSubmit={wyslij}>
+      <label htmlFor={idPola} className="visually-hidden">Pytanie do Pestki</label>
+      <input
+        id={idPola}
+        className={`input ${styles.pestkaPole}`}
+        value={pytanie}
+        maxLength={500}
+        ref={pole}
+        autoComplete="off"
+        enterKeyHint="send"
+        placeholder="Zapytaj albo Enter: spójrz na szkic"
+        onChange={(e) => setPytanie(e.currentTarget.value)}
+      />
+    </form>
+  );
+  const dymek_ = (faza === "dymek" || pisanaWskazowka) && dymek && (
     <div
-      ref={korzen}
-      className={styles.pestkaNaTablicy}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") {
-          e.stopPropagation();
-          onZamknij();
-        }
-      }}
+      className={klasaDymka}
+      style={stylDymka}
+      // Tekst w trakcie pisania nie trafia do czytnika po każdym słowie: ogłasza go dopiero gotowy dymek.
+      role={pisanaWskazowka ? undefined : dymek.blad ? "alert" : "status"}
+      aria-busy={pisanaWskazowka || undefined}
     >
+      {dok && (
+        <button type="button" className={`${styles.dymekZamknij} ${styles.dymekZwin}`} aria-expanded={!zwiniety}
+          aria-label={zwiniety ? "Rozwiń dymek Pestki" : "Zwiń dymek Pestki"} onClick={() => setZwiniety((z) => !z)}>
+          {zwiniety ? <ChevronDown size={16} aria-hidden="true" /> : <ChevronUp size={16} aria-hidden="true" />}
+        </button>
+      )}
+      <button type="button" className={styles.dymekZamknij} aria-label="Zamknij dymek Pestki" onClick={onZamknij}>
+        <X size={16} aria-hidden="true" />
+      </button>
+      {dymek.odczyt && <p className="small muted">Widzę: <TekstMat tekst={wzoryDoWyswietlenia(dymek.odczyt)} /></p>}
+      {dymek.tekst && <p><TekstMat tekst={wzoryDoWyswietlenia(dymek.tekst)} /></p>}
+      {dymek.blad && <p>{komunikatPestki(dymek.blad)}</p>}
+      {dymek.uwaga && <p className="small muted">{dymek.uwaga}</p>}
+      {(dymek.ponow || dymek.pokaz || dymek.zetrzyj || (dymek.blad && DO_PROFILU.has(dymek.blad))) && (
+        <div className={styles.dymekAkcje}>
+          {dymek.pokaz && <button type="button" className="btn btn-secondary btn-sm" onClick={dymek.pokaz}>Pokaż</button>}
+          {dymek.ponow && dymek.blad && !BEZ_PONOWIENIA.has(dymek.blad) && (
+            <button type="button" className="btn btn-secondary btn-sm" onClick={dymek.ponow}>Spróbuj ponownie</button>
+          )}
+          {dymek.blad && DO_PROFILU.has(dymek.blad) && <Link className="link small" to="/profil">Sprawdź połączenie Pestki w profilu</Link>}
+          {dymek.zetrzyj && <button type="button" className="btn btn-ghost btn-sm" onClick={dymek.zetrzyj}>Zetrzyj</button>}
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+    <div ref={korzen} className={styles.pestkaNaTablicy} onKeyDown={naEscape}>
       <span key={skok} className={[styles.pestkaPostac, skok > 0 && styles.pestkaSkok, faza === "kiwa" && styles.pestkaKiwa].filter(Boolean).join(" ")}>
         <TutorAvatar size={AWATAR} state={stanAwatara} />
       </span>
       {faza === "mysli" && <span className="visually-hidden" role="status">Pestka patrzy na szkic</span>}
-      {faza === "pole" && (
-        <form
-          className={[styles.pestkaDymek, strona, odDolu].join(" ")}
-          style={{ ["--miejsce" as string]: miejsce + "px", left: strona === styles.dymekPod ? ODSTEP_DYMKA - x : undefined }}
-          onSubmit={wyslij}
-        >
-          <label htmlFor={idPola} className="visually-hidden">Pytanie do Pestki</label>
-          <input
-            id={idPola}
-            className={`input ${styles.pestkaPole}`}
-            value={pytanie}
-            maxLength={500}
-            ref={pole}
-            autoComplete="off"
-            enterKeyHint="send"
-            placeholder="Zapytaj albo Enter: spójrz na szkic"
-            onChange={(e) => setPytanie(e.currentTarget.value)}
-          />
-        </form>
-      )}
-      {faza === "dymek" && dymek && (
-        <div
-          className={[styles.pestkaDymek, strona, odDolu].join(" ")}
-          style={{ ["--miejsce" as string]: miejsce + "px", left: strona === styles.dymekPod ? ODSTEP_DYMKA - x : undefined }}
-          role={dymek.blad ? "alert" : "status"}
-        >
-          <button type="button" className={styles.dymekZamknij} aria-label="Zamknij dymek Pestki" onClick={onZamknij}>
-            <X size={16} aria-hidden="true" />
-          </button>
-          {dymek.odczyt && <p className="small muted">Widzę: <TekstMat tekst={wzoryDoWyswietlenia(dymek.odczyt)} /></p>}
-          {dymek.tekst && <p><TekstMat tekst={wzoryDoWyswietlenia(dymek.tekst)} /></p>}
-          {dymek.blad && <p>{komunikatPestki(dymek.blad)}</p>}
-          {dymek.uwaga && <p className="small muted">{dymek.uwaga}</p>}
-          {(dymek.ponow || dymek.pokaz || dymek.zetrzyj || (dymek.blad && DO_PROFILU.has(dymek.blad))) && (
-            <div className={styles.dymekAkcje}>
-              {dymek.pokaz && <button type="button" className="btn btn-secondary btn-sm" onClick={dymek.pokaz}>Pokaż</button>}
-              {dymek.ponow && dymek.blad && !BEZ_PONOWIENIA.has(dymek.blad) && (
-                <button type="button" className="btn btn-secondary btn-sm" onClick={dymek.ponow}>Spróbuj ponownie</button>
-              )}
-              {dymek.blad && DO_PROFILU.has(dymek.blad) && <Link className="link small" to="/profil">Sprawdź połączenie Pestki w profilu</Link>}
-              {dymek.zetrzyj && <button type="button" className="btn btn-ghost btn-sm" onClick={dymek.zetrzyj}>Zetrzyj</button>}
-            </div>
-          )}
-        </div>
-      )}
+      {!dok && pole_}
+      {!dok && dymek_}
     </div>
+    {/* W doku dymek nie idzie za Pestką (stoi przy krawędzi płótna), więc leży obok, a nie w przesuwanym korzeniu. */}
+    {dok && (pole_ || dymek_) && <div className={styles.dokTablicy} onKeyDown={naEscape}>{pole_}{dymek_}</div>}
+    </>
   );
 }
 

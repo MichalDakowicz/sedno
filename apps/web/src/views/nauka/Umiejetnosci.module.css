@@ -3,7 +3,7 @@
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s-6);
   padding-top: var(--s-6);
-  padding-bottom: 112px;
+  padding-bottom: var(--zapas-pestki);
 }
 
 .grupy,

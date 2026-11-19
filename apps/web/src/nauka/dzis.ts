@@ -108,7 +108,7 @@ export function usePolecenieDnia(poziom: Poziom, wlaczone = true) {
   });
 }
 
-export type Sposob = "szybka-runda" | "napraw-blad" | "arkusze" | "uczen-uczy" | "rozmowa" | "zdjecie" | "sokratejski" | "pisanie";
+export type Sposob = "szybka-runda" | "napraw-blad" | "arkusze" | "uczen-uczy" | "rozmowa" | "zdjecie" | "sokratejski" | "pisanie" | "wizualizacje" | "mapa-wiedzy";
 
 /**
  * Sposób nauki, który Pestka poleca temu uczniowi: arkusz, gdy nie ma jeszcze wyniku z angielskiego (pokaże poziom),
@@ -138,7 +138,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
   const runda = rundy.dane?.sesje[0];
   const arkuszZaczety = co?.rodzaj === "dokoncz" ? co.zaczety : null;
   if (runda && (!arkuszZaczety || runda.updated_at >= arkuszZaczety.kiedy)) {
-    const nazwa = rundy.dane?.nazwy.get(runda.skill_id) ?? nazwaFormatuNauki[runda.format];
+    const nazwa = (runda.skill_id && rundy.dane?.nazwy.get(runda.skill_id)) || nazwaFormatuNauki[runda.format];
     return {
       stan: "gotowe",
       dzis: {

@@ -8,6 +8,7 @@ import { Ladowanie } from "../../components/Ladowanie";
 import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { useSesjaDiagnozy } from "../../nauka/diagnoza";
 import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
 import { etykietaZrodla, kluczPowtorki, odmianaPowtorek, powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
 import { PasDni } from "../../components/wykresy";
@@ -144,13 +145,14 @@ function WierszPowtorki({ poziom, powtorka }: { poziom: Poziom; powtorka: Powtor
 const OPIS_PAMIECI = "To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia, a powtórka go odświeża.";
 
 function Pamiec({ retencja }: { retencja: number }) {
+  // Ten sam pasek co opanowanie na mapie (tor 6 px, procent w stałej kolumnie), podpis nad nim od tej samej krawędzi.
   return (
-    <span className={s.retencja} data-tutor-about={OPIS_PAMIECI}>
-      <span className="muted" aria-hidden="true">Pamiętasz ok.</span>
-      <span className="wiersz-pasek">
-        <progress aria-label={`Pamiętasz ok. ${procentNauki.format(retencja)}`} value={retencja} max={1} />
-        <span aria-hidden="true">{procentNauki.format(retencja)}</span>
+    <span className={`wiersz-pasek ${s.retencja}`} data-tutor-about={OPIS_PAMIECI}>
+      <span className={s.retencjaPodpis} aria-hidden="true">Pamiętasz ok.</span>
+      <span className={s.retencjaTor} aria-hidden="true">
+        <span style={{ width: `${Math.round(Math.min(1, Math.max(0, retencja)) * 100)}%` }} />
       </span>
+      <span><span className="visually-hidden">Pamiętasz ok. </span>{procentNauki.format(retencja)}</span>
     </span>
   );
 }
@@ -173,6 +175,8 @@ function OstatnieCwiczenie({ powtorka, bezPamieci }: { powtorka: Powtorka; bezPa
 }
 
 function ZrodloPowtorki({ powtorka }: { powtorka: Powtorka }) {
+  const [poziom] = usePoziomNauki();
+  const diagnoza = useSesjaDiagnozy(poziom);
   const blad = powtorka.mistake;
   if (!blad) return null;
   if (blad.sheet_id) {
@@ -181,7 +185,7 @@ function ZrodloPowtorki({ powtorka }: { powtorka: Powtorka }) {
     return <Link className="link" to={`/arkusze/${encodeURIComponent(blad.sheet_id)}${numer ? `#zadanie-${numer}` : ""}`}>{etykieta}</Link>;
   }
   if (blad.session_id) {
-    const etykieta = etykietaZrodla(blad);
+    const etykieta = etykietaZrodla(blad, diagnoza);
     return <Link className="link" to={adresRozbioru(blad.session_id)}>{etykieta}</Link>;
   }
   return null;

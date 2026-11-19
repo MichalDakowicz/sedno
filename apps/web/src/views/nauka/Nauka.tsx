@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowRight, Camera, ChevronRight, CircleHelp, FileText, PenLine, GraduationCap, MessagesSquare, Timer, Wrench } from "lucide-react";
+import { ArrowRight, Camera, ChevronRight, CircleHelp, Eye, FileText, PenLine, GraduationCap, MessagesSquare, Network, Timer, Wrench } from "lucide-react";
 import { TutorAvatar } from "../../components/TutorAvatar";
 import type { Poziom } from "../../arkusze/typy";
 import { useProfil } from "../../auth";
@@ -14,6 +14,7 @@ import { adresMapy, adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki, type Umiejetnosc } from "../../nauka/api";
 import { coDzisBezRund, polecanySposob, useDzisAngielski, usePolecenieDnia, type Sposob } from "../../nauka/dzis";
 import { useOtwarteRundy, usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { adresWizualizacji } from "../../nauka/wizualizacje";
 import { OPIS_OPANOWANIA } from "./Opanowanie";
 import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
 import s from "./NaukaPowtorki.module.css";
@@ -109,6 +110,8 @@ export function Nauka() {
     { id: "pisanie", to: `/nauka/pisanie?poziom=${poziom}`, nazwa: "Pisanie krok po kroku", kiedy: "Ćwiczysz wypowiedź pisemną.", ikona: <PenLine size={18} aria-hidden="true" /> },
     { id: "zdjecie", to: "/nauka/zdjecie", nazwa: "Zdjęcie z kartki", kiedy: "Rozwiązujesz na papierze i chcesz omówienia.", ikona: <Camera size={18} aria-hidden="true" /> },
     { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Naucz Kolegę", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
+    { id: "wizualizacje", to: adresWizualizacji("tekst-parafraza"), nazwa: "Zobacz na modelu", kiedy: "Chcesz zobaczyć, jak działa parafraza, zanim zaczniesz ćwiczyć.", ikona: <Eye size={18} aria-hidden="true" /> },
+    { id: "mapa-wiedzy", to: "/nauka/mapa-wiedzy?przedmiot=angielski", nazwa: "Mapa wiedzy", kiedy: "Zbierasz pojęcia i chcesz zobaczyć, co je łączy.", ikona: <Network size={18} aria-hidden="true" /> },
     // Wiersz stoi też w trakcie sprawdzania AI (undefined), żeby lista nie urosła o wiersz po chwili.
     ...(aiGotowe !== false ? [{ id: "rozmowa" as const, to: "/tutor", nazwa: "Rozmowa z Pestką", kiedy: "Coś jest niejasne i potrzebne jest wyjaśnienie.", ikona: <MessagesSquare size={18} aria-hidden="true" /> }] : []),
   ];
@@ -239,7 +242,7 @@ export function Nauka() {
           sesje.length ? (
             <ul className={s.wiersze}>
               {sesje.map((sesja) => {
-                const nazwa = ostatnie.dane?.nazwy.get(sesja.skill_id);
+                const nazwa = sesja.skill_id ? ostatnie.dane?.nazwy.get(sesja.skill_id) : undefined;
                 const format = nazwaFormatuNauki[sesja.format];
                 return (
                   <li key={sesja.id} className={s.wierszRundy}>

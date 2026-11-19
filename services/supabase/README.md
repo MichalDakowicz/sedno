@@ -15,6 +15,17 @@ Backend Sedno: samodzielnie hostowany Supabase na serwerze domowym, publicznie p
 
 Kontrakt integracji z aplikacją opisuje [Backend nauki](nauka.md).
 
+Migracje nauki od 0020:
+
+| Migracja | Co robi |
+| --- | --- |
+| `0020_opanowanie_bez_sufitu` | Opanowanie jako średnia krocząca poprawności zamiast Elo (sufit ok. 67% przy samych rundach znika, powtórki wariantu liczą się z malejącą wagą). |
+| `0021_rotacja_rund` | Rotacja zadań w szybkiej rundzie (niewidziane, błędne, najdawniej widziane, losowo wśród równych), ćwiczenia autorskie dopełniają pulę CKE poniżej 16, limit 10 otwartych rund na poziom. |
+| `0022_historia_nauki` | Dzienne migawki opanowania, dziennik dni z arkuszem (trigger na `sheet_progress`), RPC `nauka_historia` i `nauka_aktywnosc`. |
+| `0023_krotka_diagnoza` | Sesja `diagnoza` (1–3 zadania z kilku umiejętności, umiejętność na zadaniu), stan diagnozy w bazie, RPC `nauka_diagnoza`, `nauka_diagnoza_start`, `nauka_diagnoza_oznacz`; koniec sesji zapisuje migawkę opanowania. |
+
+Testy funkcji (`tests/*_test.ts`): `deno test services/supabase/tests`.
+
 ## Schemat
 
 | Tabela | Do czego | Dostęp z aplikacji |

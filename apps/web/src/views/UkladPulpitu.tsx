@@ -195,14 +195,14 @@ export function UkladPulpitu() {
   // Odświeżenie strony z ?przedmiot=: bez profilu nie wiadomo jeszcze, czyj układ edytujemy.
   if (czekaNaProfil)
     return (
-      <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: 120, display: "grid", gap: "var(--s-6)" }}>
+      <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: "var(--zapas-pestki)", display: "grid", gap: "var(--s-6)" }}>
         <NaglowekStrony etykieta="Profil" tytul="Układ pulpitu" lead="Wybór i kolejność widgetów na pulpicie." />
         <Ladowanie ksztalt="wiersze" ile={3} etykieta="Wczytuję twoje przedmioty" />
       </main>
     );
 
   return (
-    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: 120, display: "grid", gap: "var(--s-6)" }}>
+    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: "var(--zapas-pestki)", display: "grid", gap: "var(--s-6)" }}>
       <NaglowekStrony etykieta="Profil" tytul="Układ pulpitu" lead="Wybór i kolejność widgetów na pulpicie." />
 
       <section className={s.sekcja}>

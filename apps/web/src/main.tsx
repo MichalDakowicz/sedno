@@ -31,6 +31,8 @@ import { Zdjecie } from "./views/nauka/Zdjecie";
 import { Sokratejski } from "./views/nauka/Sokratejski";
 import { KrokPoKroku } from "./views/nauka/KrokPoKroku";
 import { Umiejetnosci } from "./views/nauka/Umiejetnosci";
+import { MapaWiedzy } from "./views/nauka/MapaWiedzy";
+import { Wizualizacje } from "./views/nauka/Wizualizacje";
 import { NieMaStrony } from "./views/NieMaStrony";
 
 // Ustawienia stosują się od startu, nie dopiero na ich stronie.
@@ -58,6 +60,8 @@ createRoot(document.getElementById("root")!).render(
           <Route path="nauka/sokratejski" element={<Sokratejski />} />
           <Route path="nauka/pisanie" element={<KrokPoKroku />} />
           <Route path="nauka/diagnoza" element={<Diagnoza />} />
+          <Route path="nauka/mapa-wiedzy" element={<MapaWiedzy />} />
+          <Route path="nauka/wizualizacje" element={<Wizualizacje />} />
           <Route path="arkusze" element={<Arkusze />} />
           <Route path="arkusze/:id" element={<Arkusz />} />
           <Route path="umiejetnosci" element={<Umiejetnosci />} />

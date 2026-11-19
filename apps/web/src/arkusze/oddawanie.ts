@@ -133,9 +133,9 @@ export function opisWypelnienia(s: StanOdpowiedzi): string {
 /** Kto ocenia po sprawdzeniu arkusza. */
 export function opisOceny(s: StanOdpowiedzi): string {
   if (s.sprawdza) return "Sedno porówna z kluczem CKE.";
-  if (s.forma === "kod" || s.forma === "sql") return "Kodu Sedno nie sprawdza: po sprawdzeniu porównasz go z rozwiązaniem CKE i ocenisz sam.";
-  if (s.forma === "wykres") return "Wykresu Sedno nie ocenia: po sprawdzeniu porównasz zestawienie z kluczem CKE i ocenisz sam.";
-  return "Brak klucza do porównania: po sprawdzeniu ocenisz sam według rozwiązania CKE.";
+  if (s.forma === "kod" || s.forma === "sql") return "Kodu Sedno nie sprawdza: po sprawdzeniu porównasz go z rozwiązaniem CKE i ocenisz samodzielnie.";
+  if (s.forma === "wykres") return "Wykresu Sedno nie ocenia: po sprawdzeniu porównasz zestawienie z kluczem CKE i ocenisz samodzielnie.";
+  return "Brak klucza do porównania: po sprawdzeniu ocenisz samodzielnie według rozwiązania CKE.";
 }
 
 // tekst: jedna linia, bez której uczeń nie wie, gdzie wpisać odpowiedź; pestka: reszta, którą Pestka mówi na żądanie.

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { useLocation } from "react-router-dom";
-import { X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { TutorAvatar } from "./TutorAvatar";
 import { useTutor, type Hint } from "./TutorContext";
 import { CZAS, mniejRuchu } from "../ruch";
@@ -17,12 +17,16 @@ const SPOT_PAD = 8;
 
 type Point = { x: number; y: number };
 type Placement = "right" | "left" | "below" | "above";
+/** Na telefonie Pestka z dymkiem dokuje się przy krawędzi ekranu (dolnej albo górnej), zamiast siadać na treści. */
+type Dok = "gora" | "dol";
 type Mode = "rest" | "perch";
 type Spot = { x: number; y: number; w: number; h: number };
 
 // Liczymy od samych krawędzi okna: natywny pasek przewijania jest ukryty, a własny (ScrollBar) to nakładka.
 const viewW = () => window.innerWidth;
-const edge = () => (viewW() < 640 ? 16 : 24);
+const WASKI = 640;
+const waski = () => viewW() < WASKI;
+const edge = () => (waski() ? 16 : 24);
 
 function findTarget(target: Hint["target"]): HTMLElement | null {
   const ids = Array.isArray(target) ? target : [target];
@@ -50,20 +54,66 @@ function clampX(x: number) {
 let spoczynekLewy = false;
 
 // Pestka na spoczynku nie siada na przyciskach i polach (pasek tablicy, „Poprzednia”, przypięty odtwarzacz):
-// gdy coś takiego jest pod nią, podnosi się o swoją wysokość, najwyżej kilka razy.
+// gdy coś takiego jest pod nią, podnosi się o swoją wysokość, najwyżej kilka razy. Na telefonie dół ekranu jest
+// zarezerwowany (pas z zanikaniem, a strona ma pod spodem zapas), więc omija tylko to, czego nie da się spod niej
+// wyprzewijać: elementy przypięte (fixed, sticky). Inaczej na liście linków wspinała się na wartości wierszy.
 const UNIKAJ = "button, a[href], input, select, textarea, [role='toolbar'], [data-pestka-unikaj]";
+function przypiety(el: Element): boolean {
+  for (let e: Element | null = el; e && e !== document.body; e = e.parentElement) {
+    const p = getComputedStyle(e).position;
+    if (p === "fixed" || p === "sticky") return true;
+  }
+  return false;
+}
 function zajete(x: number, y: number): boolean {
   const punkty = [[x + AV / 2, y + AV / 2], [x + 6, y + 6], [x + AV - 6, y + 6], [x + 6, y + AV - 6], [x + AV - 6, y + AV - 6]];
+  const tylkoPrzypiete = waski();
   return punkty.some(([px, py]) =>
-    document.elementsFromPoint(px!, py!).some((el) => !el.closest(`.${styles.guide}`) && !!el.closest(UNIKAJ)),
+    document.elementsFromPoint(px!, py!).some((el) => {
+      if (el.closest(`.${styles.guide}`) || el.closest(`.${styles.dok}`)) return false;
+      const cel = el.closest(UNIKAJ);
+      return !!cel && (!tylkoPrzypiete || przypiety(cel));
+    }),
   );
 }
 
+const rogY = () => window.innerHeight - AV - edge();
+
 function restPoint(): Point {
   const x = spoczynekLewy ? edge() : viewW() - AV - edge();
-  let y = window.innerHeight - AV - edge();
+  let y = rogY();
   for (let i = 0; i < 4 && zajete(x, y); i++) y -= AV + 8;
   return { x, y };
+}
+
+// Dok na telefonie: Pestka w rogu (dolnym albo górnym, pod paskiem), dymek obok niej na resztę szerokości.
+function dokPoint(d: Dok): Point {
+  const x = spoczynekLewy ? edge() : viewW() - AV - edge();
+  return d === "dol" ? restPoint() : { x, y: band().top + 14 };
+}
+
+// Czy element widać w pasie pod nawigacją: wskazówka na telefonie czeka na spoczynku, aż element wjedzie.
+function widac(el: HTMLElement) {
+  const r = el.getBoundingClientRect();
+  const b = band();
+  const w = Math.min(r.bottom, b.bottom) - Math.max(r.top, b.top);
+  return w >= Math.min(r.height / 2, AV);
+}
+
+// Krawędź doku po tej stronie, gdzie dymek nie zasłoni elementu ani jego najbliższego otoczenia (karta, wiersz,
+// sekcja, o ile mieszczą się w ekranie). Poprzednia strona zostaje, dopóki nie zasłania: bez skakania przy przewijaniu.
+function wybierzDok(el: HTMLElement, h: number, poprzedni: Dok | null): Dok {
+  let r = el.getBoundingClientRect();
+  const otoczenie = el.closest<HTMLElement>(".karta, li, section")?.getBoundingClientRect();
+  if (otoczenie && otoczenie.height < window.innerHeight * 0.6) r = otoczenie;
+  const wys = Math.max(h, AV) + 16;
+  const pasy: Record<Dok, { top: number; bottom: number }> = {
+    dol: { top: window.innerHeight - edge() - wys, bottom: window.innerHeight },
+    gora: { top: 0, bottom: band().top + wys },
+  };
+  const zakryte = (d: Dok) => Math.max(0, Math.min(r.bottom, pasy[d].bottom) - Math.max(r.top, pasy[d].top));
+  if (poprzedni && zakryte(poprzedni) === 0) return poprzedni;
+  return zakryte("dol") <= zakryte("gora") ? "dol" : "gora";
 }
 
 // Siada na prawym górnym rogu elementu. Gdy nad elementem nie ma miejsca (np. pasek nawigacji),
@@ -92,6 +142,12 @@ function summonPoint(page: Point): Point | null {
 
 function bubbleWidth() {
   return Math.min(340, viewW() - 32);
+}
+
+// Dymek w doku: obok Pestki, od krawędzi ekranu; w dolnym doku rośnie w górę, w górnym w dół.
+function dokLayout(d: Dok) {
+  const w = viewW() - 2 * edge() - AV - GAP;
+  return { placement: (spoczynekLewy ? "right" : "left") as Placement, shift: 0, up: d === "dol", w };
 }
 
 type Prost = { x: number; y: number; w: number; h: number };
@@ -146,10 +202,22 @@ export function TutorGuide() {
   // Wysokość dymka z poprzedniego renderu: potrzebna, żeby wybrać stronę, po której się zmieści.
   const bubbleRef = useRef<HTMLDivElement>(null);
   const [bubbleH, setBubbleH] = useState(150);
+  const bubbleHRef = useRef(150);
   useLayoutEffect(() => {
     const h = bubbleRef.current?.offsetHeight;
-    if (h && Math.abs(h - bubbleH) > 4) setBubbleH(h);
+    if (h && Math.abs(h - bubbleH) > 4) {
+      bubbleHRef.current = h;
+      setBubbleH(h);
+    }
   });
+  const [dok, setDok] = useState<Dok | null>(null);
+  const dokRef = useRef<Dok | null>(null);
+  const ustawDok = (d: Dok | null) => {
+    dokRef.current = d;
+    setDok(d);
+  };
+  // Zwinięty dymek: Pestka wraca na spoczynek z kropką czekającej wskazówki, kliknięcie ją rozwija.
+  const [zwiniety, setZwiniety] = useState(false);
 
   const modeRef = useRef<Mode>("rest");
   const posRef = useRef<Point>(pos);
@@ -194,12 +262,36 @@ export function TutorGuide() {
         const p = summonPoint(summon);
         setFocus(null);
         showSpot(null);
-        if (p) place(p, "perch", jump || modeRef.current !== "perch");
-        else dismiss(); // przewinięte poza ekran: przywołanie wygasa
+        if (!p) {
+          dismiss(); // przewinięte poza ekran: przywołanie wygasa
+          return;
+        }
+        if (waski()) {
+          // Na telefonie dymek dokuje po przeciwnej stronie niż palec, żeby nie zasłonić tego, o co pytamy.
+          const d: Dok = p.y > window.innerHeight / 2 ? "gora" : "dol";
+          const zmiana = d !== dokRef.current;
+          ustawDok(d);
+          place(dokPoint(d), "perch", jump || zmiana || modeRef.current !== "perch");
+        } else {
+          ustawDok(null);
+          place(p, "perch", jump || modeRef.current !== "perch");
+        }
         return;
       }
-      const el = hint ? findTarget(hint.target) : null;
-      const p = el ? perchPoint(el) : null;
+      const el = hint && !zwiniety ? findTarget(hint.target) : null;
+      if (el && waski() && widac(el)) {
+        setFocus(isTourGuide ? null : el);
+        showSpot(isTourGuide ? el : null);
+        const nowyCel = el !== ostatniCel.current;
+        ostatniCel.current = el;
+        const d = wybierzDok(el, bubbleHRef.current, nowyCel ? null : dokRef.current);
+        const zmiana = d !== dokRef.current;
+        ustawDok(d);
+        place(dokPoint(d), "perch", jump || nowyCel || zmiana || modeRef.current !== "perch");
+        return;
+      }
+      if (dokRef.current) ustawDok(null);
+      const p = el && !waski() ? perchPoint(el) : null;
       if (el && p) {
         // Przewodnik przyciemnia resztę ekranu; zwykła wskazówka tylko obwodzi element pulsującym pierścieniem.
         setFocus(isTourGuide ? null : el);
@@ -219,12 +311,13 @@ export function TutorGuide() {
         place(restPoint(), "rest", modeRef.current !== "rest" || jump);
       }
     },
-    [summon, hint, place, dismiss, isTourGuide, showSpot],
+    [summon, hint, place, dismiss, isTourGuide, showSpot, zwiniety],
   );
 
   // Nowa wskazówka albo przywołanie.
   useLayoutEffect(() => {
     setClosing(false);
+    setZwiniety(false);
     if (hint && !findTarget(hint.target)) {
       next();
       return;
@@ -233,9 +326,20 @@ export function TutorGuide() {
     // Przewija tylko wtedy, gdy uczeń o to poprosił (przewodnik, „Dalej”, „Co dziś robić?”).
     const passive = guide?.kind === "hint" && guide.index === 0 && !guide.key.startsWith("ask-");
     const el = hint ? findTarget(hint.target) : null;
-    if (el && !passive && !perchPoint(el)) el.scrollIntoView({ block: "center", behavior: "smooth" });
+    if (el && !passive && !(waski() ? widac(el) : perchPoint(el))) el.scrollIntoView({ block: "center", behavior: "smooth" });
     sync(true);
   }, [hint, summon]);
+
+  // Zwinięcie i rozwinięcie dymka: skok na spoczynek albo z powrotem do doku (pierwszy render ustawia efekt wyżej).
+  const pierwszeZwiniecie = useRef(true);
+  useEffect(() => {
+    if (pierwszeZwiniecie.current) {
+      pierwszeZwiniecie.current = false;
+      return;
+    }
+    sync(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zwiniety]);
 
   // Przewijanie i zmiana rozmiaru: Pestka podąża za elementem albo wraca na spoczynek, gdy element zniknie.
   useEffect(() => {
@@ -413,12 +517,19 @@ export function TutorGuide() {
   const last = guide ? guide.index === guide.hints.length - 1 : false;
   const hasToday = !!document.querySelector('[data-tutor="today-cta"]');
   const cel = !summon && hint && mode === "perch" ? findTarget(hint.target)?.getBoundingClientRect() ?? null : null;
-  const layout = bubbleLayout(pos, bubbleH, cel);
+  const layout = dok && !resting ? dokLayout(dok) : bubbleLayout(pos, bubbleH, cel);
+  // Pas pod Pestką na spoczynku w rogu telefonu: treść pod nią przygasa jak pod paskiem nawigacji, więc Pestka
+  // nie siedzi na wierszu ani przycisku (strona ma pod spodem zapas, żeby koniec dało się wyprzewijać nad pas).
+  const pasDoku = resting && waski() && Math.abs(pos.y - rogY()) < 1;
   const bubbleStyle: CSSProperties =
     layout.placement === "below" || layout.placement === "above" ? { left: layout.shift, width: layout.w } : { width: layout.w };
 
   function onAvatar() {
     // Na spoczynku z czekającą wskazówką kliknięcie prowadzi do niej, w innym razie otwiera rozmowę.
+    if (zwiniety) {
+      setZwiniety(false);
+      return;
+    }
     const el = pending && hint ? findTarget(hint.target) : null;
     if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
     else open();
@@ -426,6 +537,7 @@ export function TutorGuide() {
 
   return (
     <>
+      {pasDoku && <div className={styles.dok} aria-hidden="true" />}
       {spot && !resting && (
         <div
           className={`${styles.spot} ${closing ? styles.spotClosing : ""}`}
@@ -455,10 +567,15 @@ export function TutorGuide() {
           <div
             key={`b${hop}`}
             ref={bubbleRef}
-            className={`${styles.bubble} ${styles[layout.placement]} ${layout.up ? styles.up : ""} ${closing ? styles.closing : ""}`}
+            className={`${styles.bubble} ${styles[layout.placement]} ${layout.up ? styles.up : ""} ${dok ? styles.wDoku : ""} ${closing ? styles.closing : ""}`}
             style={bubbleStyle}
             role="status"
           >
+            {dok && hint && !summon && !isTour && (
+              <button type="button" className={`${styles.close} ${styles.zwin}`} onClick={() => setZwiniety(true)} aria-label="Zwiń dymek Pestki" title="Zwiń">
+                <ChevronDown size={18} />
+              </button>
+            )}
             <button type="button" className={styles.close} onClick={close} aria-label="Odpraw Pestkę">
               <X size={16} />
             </button>

@@ -11,12 +11,15 @@ import { naukaApi, type DowodNauki, type Umiejetnosc } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie, OPIS_OPANOWANIA } from "./Opanowanie";
-import { Kropki } from "../../components/wykresy";
+import { Kropki, Linia } from "../../components/wykresy";
+import { liniaOpanowania, wniosekLinii } from "../../nauka/historia";
 import { Liczba } from "../../ruch";
 import { Kielek } from "../../components/Kielek";
 import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
 import { NAZWA_STADIUM, stadium } from "../../nauka/stadia";
+import { useSesjaDiagnozy } from "../../nauka/diagnoza";
+import { adresWizualizacji, modelDlaUmiejetnosci } from "../../nauka/wizualizacje";
 
 import s from "./Umiejetnosci.module.css";
 
@@ -32,12 +35,14 @@ const OBSZARY = [
 
 const dataProby = new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeZone: "Europe/Warsaw" });
 
-function Dowod({ dowod: d }: { dowod: DowodNauki }) {
+function Dowod({ dowod: d, diagnoza }: { dowod: DowodNauki; diagnoza: string | null }) {
   const numerZadania = d.question.split(".")[0];
   const adres = d.session_id
     ? adresRozbioru(d.session_id)
     : d.sheet_id && `/arkusze/${encodeURIComponent(d.sheet_id)}#zadanie-${numerZadania}`;
-  const nazwa = d.session_id ? nazwaZadaniaRundy(d.happened_at, d.question) : nazwaZadaniaCke(d.sheet_id ?? "", d.question);
+  const nazwa = d.session_id
+    ? nazwaZadaniaRundy(d.happened_at, d.question, d.session_id === diagnoza ? "Diagnoza" : undefined)
+    : nazwaZadaniaCke(d.sheet_id ?? "", d.question);
   const wynik = d.score >= 1 ? "Dobrze" : d.score <= 0 ? "Błąd" : `${Math.round(d.score * 100)}%`;
   return (
     <li className={s.dowod}>
@@ -57,6 +62,11 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
   const naglowek = useRef<HTMLHeadingElement>(null);
   const proby = useZapytanieNauki(`dowody:${poziom}:${u.skill_id}`, (signal) => naukaApi.dowody(u.skill_id, poziom, signal));
   const maBledyJezykowe = proby.dane?.some((d) => d.score < 1 && d.error_type === "jezyk-i-forma");
+  const diagnoza = useSesjaDiagnozy(poziom);
+  // Historia opanowania (nauka_historia): bez funkcji w bazie albo przy ocenie z jednego dnia linii nie ma.
+  const historia = useZapytanieNauki(`nauka:historia:${poziom}`, (signal) => naukaApi.historia(poziom, 90, signal));
+  const punkty = historia.dane?.skills.find((h) => h.skill_id === u.skill_id)?.points;
+  const linia = u.score !== null && punkty && historia.dane ? liniaOpanowania(punkty, historia.dane.to) : null;
 
   useEffect(() => {
     naglowek.current?.focus();
@@ -84,9 +94,19 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
           </p>
           </div>
         )}
+        {linia && (
+          <div className={s.ostatnie}>
+            <span className="label">{wniosekLinii(linia)}</span>
+            <Linia punkty={linia.wartosci} podpisOstatniego={`${Math.round(linia.wartosci.at(-1)! * 100)}%`}
+              opis={`${wniosekLinii(linia)}. Opanowanie teraz ${Math.round(linia.wartosci.at(-1)! * 100)}%.`} />
+          </div>
+        )}
         {proby.stan === "gotowe" && !!proby.dane?.length && <OstatnieProby proby={proby.dane} />}
       </div>
       <Link to={adresNauki(poziom, u.skill_id)} className={`btn btn-primary ${s.przycisk}`}>Ćwicz <ArrowRight size={16} aria-hidden="true" /></Link>
+      {modelDlaUmiejetnosci(u.skill_id) && (
+        <Link to={adresWizualizacji(modelDlaUmiejetnosci(u.skill_id)!)} className="link small">Zobacz na modelu <ArrowRight size={15} aria-hidden="true" /></Link>
+      )}
       <section className={s.blok} aria-labelledby="umiejetnosc-proby">
         {proby.stan === "ladowanie" && <Ladowanie ile={3} etykieta="Wczytuję próby" />}
         {proby.stan === "blad" && <Blad tekst="Nie udało się wczytać prób." ponow={proby.ponow} />}
@@ -94,7 +114,7 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
           <details className={s.rozwijane}>
             <summary id="umiejetnosc-proby"><ChevronRight size={16} aria-hidden="true" /> Wszystkie próby ({proby.dane.length})</summary>
             <ul className="wiersze">
-              {proby.dane.map((d) => <Dowod key={`${d.source_id}:${d.session_id ?? d.sheet_id}:${d.question}`} dowod={d} />)}
+              {proby.dane.map((d) => <Dowod key={`${d.source_id}:${d.session_id ?? d.sheet_id}:${d.question}`} dowod={d} diagnoza={diagnoza} />)}
             </ul>
           </details>
         ) : <div id="umiejetnosc-proby"><StanPestki rozmiar="maly" tekst={wybierz(glos.puste.proby, 0)} /></div>)}

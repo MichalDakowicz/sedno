@@ -136,36 +136,12 @@ export function resetTour() {
   markTourDone(false);
 }
 
+// Trzy dymki po diagnozie (albo przy pierwszym wejściu na pulpit): kim jestem, co wybrałam na dziś, jak mnie wołać.
+// Bez oprowadzania po interfejsie: menu i widgety mówią same za siebie.
 export const tourHints: Hint[] = [
-  {
-    target: "hero",
-    text: "Cześć, jestem Pestka. Nie mam stałego miejsca: pojawiam się tam, gdzie mam ci coś do powiedzenia. Pokażę ci, jak tu działam.",
-  },
-  {
-    target: ["nav-links", "nav-menu"],
-    text: "Tu przechodzisz między pulpitem, nauką, arkuszami, mapą umiejętności i powtórkami.",
-  },
-  {
-    target: "subjects",
-    text: "To twoje przedmioty. Pulpit pokazuje wszystko naraz, a kliknięcie przedmiotu zawęża go tylko do niego.",
-  },
-  {
-    target: "today-cta",
-    text: "Tak wyglądają moje sugestie: przychodzę do przycisku, który polecam, i mówię dlaczego. Ty decydujesz, czy w niego klikasz.",
-  },
-  {
-    target: "results",
-    text: "Tu widzisz wyniki z arkuszy. Z nich wybieram, co polecić na dziś.",
-  },
-  {
-    target: "hero",
-    text: "Każdy dymek zamkniesz krzyżykiem. A gdy będę potrzebna, kliknij prawym przyciskiem w dowolnym miejscu (na telefonie przytrzymaj palec). Spróbuj teraz.",
-    waitFor: "summon",
-  },
-  {
-    target: "today-cta",
-    text: "Właśnie tak. To tyle. Zacznij od tego przycisku.",
-  },
+  { target: "hero", text: glos.przewodnik.powitanie },
+  { target: "today-cta", text: glos.przewodnik.dzis },
+  { target: "hero", text: glos.przewodnik.wolanie },
 ];
 
 const shownHints = new Set<string>();
