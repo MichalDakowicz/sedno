@@ -12,7 +12,7 @@
 
 .grzadka {
   display: grid;
-  grid-template-columns: 10rem minmax(0, 1fr);
+  grid-template-columns: 14rem minmax(0, 1fr);
   align-items: end;
   gap: var(--s-4);
   min-width: 0;
@@ -30,6 +30,27 @@
   gap: var(--s-3);
   height: 100%;
   padding-bottom: 0;
+}
+
+.obszar {
+  display: grid;
+  gap: var(--s-2);
+  padding: 0 var(--s-4) var(--s-3) var(--s-2);
+}
+
+.obszar .nazwaGrzadki {
+  padding: 0;
+}
+
+.stanObszaru {
+  font-size: var(--t-sm);
+  color: var(--muted);
+}
+
+.stanObszaru strong {
+  font-size: var(--t-lg);
+  font-weight: 500;
+  color: var(--fg);
 }
 
 .nazwaGrzadki {

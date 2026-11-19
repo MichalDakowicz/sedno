@@ -200,7 +200,7 @@ export function Umiejetnosci() {
               )}
             </Gotowosc>
             <div className={s.ogrod}>
-              <Ogrod umiejetnosci={umiejetnosci} poziom={poziom} adres={(u) => adresMapy(poziom, u.skill_id)} wybrana={id}
+              <Ogrod cel={celPrzedmiotu(uczenie, "angielski")} umiejetnosci={umiejetnosci} poziom={poziom} adres={(u) => adresMapy(poziom, u.skill_id)} wybrana={id}
                 onZapowiedz={(u) => rozgrzej(zapytania.dowody(poziom, u.skill_id))}
                 tuDzis={polecenie.dane?.skill_id ?? null} etykieta={`Ogród umiejętności, poziom ${poziom}`} />
             </div>

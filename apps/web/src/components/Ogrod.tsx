@@ -11,6 +11,7 @@ import type { Umiejetnosc } from "../nauka/api";
 import { OBSZARY_NAUKI } from "../nauka/gotowosc";
 import { KOLEJNOSC_STADIOW, NAZWA_STADIUM, stadium, type Stadium } from "../nauka/stadia";
 import { Kielek } from "./Kielek";
+import { PasekProgu } from "./wykresy";
 import s from "./Ogrod.module.css";
 
 const kluczPamieci = (poziom: Poziom) => `sedno.ogrod.${currentUserId() ?? "anonim"}.${poziom}`;
@@ -32,7 +33,16 @@ export function opisRosliny(u: Umiejetnosc, tuDzis: boolean) {
   return `${u.name}: ${ocena}, ${NAZWA_STADIUM[stadium(u.score)]}${doPowtorki(u) ? ", do powtórki" : ""}${tuDzis ? ", polecam dziś" : ""}`;
 }
 
-export function Ogrod({ umiejetnosci, poziom, adres, onWybierz, onZapowiedz, wybrana, tuDzis, maly = false, etykieta }: {
+/** Średnie opanowanie obszaru z ocenionych umiejętności (waga: punkty na maturze); null, gdy żadna nie ma oceny. */
+function opanowanieObszaru(lista: Umiejetnosc[]) {
+  const oc = lista.filter((u) => u.score !== null);
+  const w = oc.reduce((s2, u) => s2 + (u.exam_points > 0 ? u.exam_points : 1), 0);
+  return w ? oc.reduce((s2, u) => s2 + (u.exam_points > 0 ? u.exam_points : 1) * u.score!, 0) / w : null;
+}
+
+export function Ogrod({ umiejetnosci, poziom, adres, onWybierz, onZapowiedz, wybrana, tuDzis, maly = false, etykieta, cel = null }: {
+  /** Cel ucznia (0–1): przy każdej grządce widać, ile do niego zostało. */
+  cel?: number | null;
   umiejetnosci: Umiejetnosc[];
   poziom: Poziom;
   /** Link rośliny (np. panel na mapie); albo onWybierz, gdy roślina ma coś wybrać na miejscu. */
@@ -62,7 +72,20 @@ export function Ogrod({ umiejetnosci, poziom, adres, onWybierz, onZapowiedz, wyb
     <div className={s.ogrod} data-maly={maly || undefined} role="group" aria-label={etykieta}>
       {grzadki.map((g) => (
         <section key={g.id} className={s.grzadka} aria-label={g.nazwa}>
-          <h3 className={s.nazwaGrzadki}>{g.nazwa}</h3>
+          {maly ? <h3 className={s.nazwaGrzadki}>{g.nazwa}</h3> : (() => {
+            const o = opanowanieObszaru(g.lista);
+            const zostalo = o !== null && cel !== null ? Math.round((cel - o) * 100) : null;
+            return (
+              <div className={s.obszar}>
+                <h3 className={s.nazwaGrzadki}>{g.nazwa}</h3>
+                <p className={s.stanObszaru}>
+                  {o === null ? "mało danych" : <><strong>{Math.round(o * 100)}%</strong>{zostalo !== null && (zostalo > 0 ? ` · zostało ${zostalo} pkt proc.` : " · cel osiągnięty")}</>}
+                </p>
+                <PasekProgu wartosc={o ?? 0} cel={cel !== null ? { wartosc: cel, etykieta: "cel" } : undefined}
+                  opis={`${g.nazwa}: ${o === null ? "mało danych" : `${Math.round(o * 100)}%`}`} />
+              </div>
+            );
+          })()}
           <ul className={s.rosliny}>
             {g.lista.map((u) => {
               const st = stadium(u.score);

@@ -11,6 +11,7 @@
 
 .tresc {
   display: grid;
+  flex: 1;
   gap: var(--s-2);
   min-width: 0;
 }
@@ -51,4 +52,10 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+/* Droga do celu pod zdaniem: pasek z podpisanym progiem i celem. */
+.droga {
+  width: min(100%, 32rem);
+  margin-top: var(--s-2);
 }
