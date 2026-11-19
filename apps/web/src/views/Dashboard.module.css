@@ -238,14 +238,6 @@
   color: var(--fg);
 }
 
-.wynikiGlowa {
-  width: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--s-4);
-}
-
 .stat > .statOpis {
   display: block;
   margin-top: var(--s-2);
@@ -254,81 +246,11 @@
   color: var(--subtle);
 }
 
-.trendWrap {
-  display: grid;
-  justify-items: end;
-  gap: var(--s-1);
-}
-
-.trendPodpis {
-  font-size: var(--t-xs);
-  color: var(--subtle);
-}
-
-.trend {
-  width: 120px;
-  height: 40px;
-  flex: none;
-  overflow: visible;
-}
-
-.trendLinia {
-  fill: none;
-  stroke: var(--primary-text);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.trendKropka {
-  fill: var(--primary-text);
-}
-
-.trendProg {
-  stroke: var(--line);
-  stroke-width: 1;
-  stroke-dasharray: 3 3;
-}
-
 .skala {
   position: relative;
   width: 100%;
   padding-bottom: var(--s-5);
   margin-top: var(--s-2);
-}
-
-.skalaPasek {
-  position: relative;
-  display: block;
-  height: 8px;
-  border-radius: var(--r-pill);
-  background: var(--line);
-}
-
-.skalaPasek > span:first-child {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--primary);
-}
-
-.skalaProg {
-  position: absolute;
-  top: -4px;
-  width: 2px;
-  height: 16px;
-  margin-left: -1px;
-  border-radius: 1px;
-  background: var(--fg);
-}
-
-.skalaOpis {
-  position: absolute;
-  bottom: 0;
-  transform: translateX(-50%);
-  font-size: var(--t-xs);
-  color: var(--subtle);
-  white-space: nowrap;
 }
 
 .wniosek {
@@ -395,7 +317,6 @@
     padding: var(--s-2) 0 0;
   }
 }
-
 
 /* Pusty stan sekcji: jedno zdanie i jeden przycisk, który to zmienia. */
 .pusty {

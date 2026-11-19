@@ -2,7 +2,7 @@
 // (profiles.dashboard). Synchronizacja z kontem (kopia lokalna, konto po zalogowaniu, zapisy) jest we wspólnym konto/kontoSync.ts.
 import { useMemo } from "react";
 import { WIDGETY_DANE } from "../views/pulpit/widgetyDane";
-import { gotowy as gotowyCzysty, nazwaUkladu as nazwaCzysta, kolejnosc, normalizuj, przelacz, przesun, przesunDo, type GotowyUklad, type Pozycja } from "../views/pulpit/ukladCzysty";
+import { gotowy as gotowyCzysty, nazwaUkladu as nazwaCzysta, kolejnosc, normalizuj, przelacz, przesun, type GotowyUklad, type Pozycja } from "../views/pulpit/ukladCzysty";
 import { utworzMagazyn } from "./kontoSync";
 import { PRZEDMIOTY } from "./przedmioty";
 
@@ -90,9 +90,6 @@ export const przelaczWidget = (klucz: string, id: string) => ustaw(klucz, przela
 
 /** Przesuwa widget o `delta` miejsc (−1 w górę, +1 w dół). */
 export const przesunWidgetO = (klucz: string, id: string, delta: number) => ustaw(klucz, przesun(biezacy(klucz), id, delta));
-
-/** Przesuwa widget na miejsce o danym indeksie na liście ruchomych widgetów (bez stałych). */
-export const przesunWidget = (klucz: string, id: string, doIndeksu: number) => ustaw(klucz, przesunDo(biezacy(klucz), id, doIndeksu));
 
 /** Zapisuje kolejność widgetów po przeciągnięciu (jeden zapis na upuszczenie). */
 export const ustawKolejnosc = (klucz: string, ids: string[]) => ustaw(klucz, kolejnosc(biezacy(klucz), ids));

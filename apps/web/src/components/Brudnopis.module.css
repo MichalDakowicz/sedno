@@ -37,12 +37,6 @@
   border-bottom: 1px solid var(--line);
 }
 
-.loading {
-  display: grid;
-  place-items: center;
-  height: clamp(420px, 75vh, 760px);
-}
-
 /* Pasek podzielony na dwie strony płótna; ujemny margines wystawia paski poza szerokość płótna. */
 .workspace {
   position: relative;

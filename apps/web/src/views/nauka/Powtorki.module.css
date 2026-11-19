@@ -97,11 +97,6 @@
   border-left: 2px solid var(--line);
 }
 
-.zadanieOpis {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
 /* Pamięć w siatce .wiersz-pasek (tor | procent): podpis w pierwszym rzędzie przez obie kolumny,
    więc zaczyna się na krawędzi toru, a procent stoi w tej samej kolumnie co na mapie. */
 .retencja {
@@ -151,20 +146,6 @@
     grid-column: 1;
     justify-content: flex-start;
   }
-}
-
-/* Akcje poboczne pod głównym przyciskiem: osobny rząd, odstęp jak między wierszami. */
-.poboczne {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s-2) var(--s-5);
-}
-
-.poboczne a {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-1);
 }
 
 .cwicz {

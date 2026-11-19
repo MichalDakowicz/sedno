@@ -113,16 +113,6 @@ export function usePolecenieDnia(poziom: Poziom, wlaczone = true) {
 export type Sposob = "szybka-runda" | "napraw-blad" | "arkusze" | "uczen-uczy" | "rozmowa" | "zdjecie" | "sokratejski" | "pisanie" | "wizualizacje" | "mapa-wiedzy";
 
 /**
- * Sposób nauki, który Pestka poleca temu uczniowi: arkusz, gdy nie ma jeszcze wyniku z angielskiego (pokaże poziom),
- * napraw błąd, gdy tak wypada z mapy, inaczej szybka runda. powod idzie do Pestki (prawy przycisk).
- */
-export function polecanySposob(maWynikArkusza: boolean, formatPolecenia: string | undefined): { sposob: Sposob; powod: string } {
-  if (!maWynikArkusza) return { sposob: "arkusze", powod: "Nie masz jeszcze wyniku z arkusza. Jeden arkusz pokaże mi, od czego zacząć." };
-  if (formatPolecenia === "napraw-blad") return { sposob: "napraw-blad", powod: "Na mapie widzę błędy w formach. Poprawianie zdań pomoże je zrozumieć." };
-  return { sposob: "szybka-runda", powod: "Krótkie rundy codziennie dają najwięcej na mapie umiejętności." };
-}
-
-/**
  * Propozycja dnia. co: propozycja z arkuszy (pulpit), angielski: czy pytać o rundy, powtórki i polecenie.
  * Bez odpowiedzi z Nauki (błąd sieci) zostaje propozycja z arkuszy.
  */

@@ -22,7 +22,6 @@ const tekstBloku = (b: Blok) => ("tekst" in b ? b.tekst : "");
 export const ZAPIS_W_PLIKU = /(?:zapisz|zapisać)[^.]{0,80}\bw pliku\b|\bpliku\s+(?:tekstowym\s+)?wyniki\d*(?:_\d+)?\.txt/i;
 const WYKRES = /\b(?:utwórz|sporządź|narysuj)\b[^.]{0,60}\bwykres/i;
 const PROGRAM = /\bnapisz program|\bprogram(?:u|y|ów)?\b[^.]{0,40}\b(?:znajdzie|da|wyznaczy|wypisze)|\bprogram\(-y\)/i;
-const NARZEDZIA = /dostępnych narzędzi informatycznych/i;
 
 export function nazwaPlikuWynikow(tekst: string): string | undefined {
   return tekst.match(/\b(wyniki\d*(?:_\d+)?\.txt)/i)?.[1];
@@ -38,17 +37,6 @@ export function wskazowkaPodAkapitem(b: Blok): RodzajWskazowki | null {
   if (ZAPIS_W_PLIKU.test(t)) return PROGRAM.test(t) ? "plikProgram" : "plik";
   if (PROGRAM.test(t) && !/zapisz w pseudokodzie/i.test(t)) return "program";
   return null;
-}
-
-/** Co zadanie każe oddać na egzaminie. */
-export function czegoZadanie(z: Zadanie) {
-  const teksty = z.bloki.map(tekstBloku).join(" ");
-  return {
-    plikWynikow: ZAPIS_W_PLIKU.test(teksty) ? (nazwaPlikuWynikow(teksty) ?? true) : false,
-    wykres: WYKRES.test(teksty),
-    program: !!z.program || PROGRAM.test(teksty),
-    realizacja: NARZEDZIA.test(teksty),
-  };
 }
 
 // Tekst polecenia podpunktu: akapity między poprzednim pytaniem (albo nagłówkiem) a jego znacznikiem.

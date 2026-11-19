@@ -32,7 +32,7 @@ function adresCwiczenia(poziom: Poziom, p: Powtorka) {
 
 function etykietaCwiczenia(p: Powtorka) {
   if (p.mistake?.repeat_id) return "Powtórz zadanie";
-  if (p.mistake) return "Ćwicz podobne";
+  if (p.mistake) return "Powtórz podobne";
   return "Zacznij rundę";
 }
 
