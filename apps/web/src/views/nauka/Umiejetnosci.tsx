@@ -28,6 +28,7 @@ import { rozgrzej } from "../../nauka/rozgrzewanie";
 import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
 import { MINUTY_RUNDY, usePolecenieDnia } from "../../nauka/dzis";
 import s from "./Umiejetnosci.module.css";
+import { MAPA_WIEDZY_WLACZONA } from "../../nauka/wiedza";
 
 // Dawny przełącznik kodów wymagań CKE zapisywał się w przeglądarce; sprzątamy po nim.
 try { localStorage.removeItem("sedno.mapa.kody"); } catch { /* bez dostępu do pamięci nie ma czego sprzątać */ }
@@ -110,7 +111,7 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
       {modelDlaUmiejetnosci(u.skill_id) && (
         <Link to={adresWizualizacji(modelDlaUmiejetnosci(u.skill_id)!)} className="link small">Zobacz na modelu <ArrowRight size={15} aria-hidden="true" /></Link>
       )}
-      <Link to={`/nauka/mapa-wiedzy?przedmiot=angielski&umiejetnosc=${u.skill_id}`} className="link small">Notatki o tej umiejętności <ArrowRight size={15} aria-hidden="true" /></Link>
+      {MAPA_WIEDZY_WLACZONA && <Link to={`/nauka/mapa-wiedzy?przedmiot=angielski&umiejetnosc=${u.skill_id}`} className="link small">Notatki o tej umiejętności <ArrowRight size={15} aria-hidden="true" /></Link>}
       <section className={s.blok} aria-labelledby="umiejetnosc-proby">
         {proby.stan === "ladowanie" && <Ladowanie ile={3} etykieta="Wczytuję próby" />}
         {proby.stan === "blad" && <Blad tekst="Nie udało się wczytać prób." ponow={proby.ponow} />}

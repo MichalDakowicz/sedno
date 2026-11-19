@@ -4,6 +4,10 @@
 import type { PrzedmiotId } from "../konto/przedmioty";
 import { supabase } from "../supabase";
 
+// Mapa wiedzy jest schowana na czas konkursu (decyzja właściciela z 19 listopada): wejścia w Nauce, w rozmowie z Pestką,
+// w omawianiu błędów i w panelu umiejętności są wyłączone tą flagą. Trasa /nauka/mapa-wiedzy i dane zostają.
+export const MAPA_WIEDZY_WLACZONA = false;
+
 /**
  * Skąd notatka (sprawdza baza): ręczna, z arkusza (`<id arkusza>#<zadanie>`), z rundy nauki (id sesji)
  * albo z rozmowy z Pestką (id rozmowy). Odwołanie służy do powrotu do źródła; dostęp sprawdza jego API.
