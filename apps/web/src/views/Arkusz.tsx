@@ -734,8 +734,10 @@ function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDan
       <Link to="/arkusze" className={`small muted ${styles.back}`}>
         <ArrowLeft size={16} aria-hidden="true" /> Arkusze
       </Link>
-      <span className="label">
-        {nazwaPrzedmiotu[arkusz.przedmiot] ?? arkusz.przedmiot} · {nazwaPoziomu[arkusz.poziom]} · formuła {arkusz.formula ?? "2023"} · {arkusz.symbol}
+      {/* Symbol CKE tylko w podpowiedzi; formuła tylko przy starszej maturze, gdzie zmienia sens wyniku. */}
+      <span className="label" title={arkusz.symbol}>
+        {nazwaPrzedmiotu[arkusz.przedmiot] ?? arkusz.przedmiot} · {nazwaPoziomu[arkusz.poziom]}
+        {arkusz.formula === "2015" && " · formuła 2015"}
       </span>
       {!zwiniety && (
       <h1 className="h1">
