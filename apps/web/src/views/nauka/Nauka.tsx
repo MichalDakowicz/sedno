@@ -13,7 +13,8 @@ import { Pigulki } from "../../components/Pigulki";
 import { Ogrod } from "../../components/Ogrod";
 import { adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki, type Umiejetnosc } from "../../nauka/api";
-import { coDzisBezRund, MINUTY_RUNDY, usePolecenieDnia, type Sposob } from "../../nauka/dzis";
+import { coDzisBezRund, MINUTY_RUNDY, useDzisAngielski, usePolecenieDnia, type Sposob } from "../../nauka/dzis";
+import { KartaDnia } from "../../components/KartaDnia";
 import { useOtwarteRundy, usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
 import { adresWizualizacji } from "../../nauka/wizualizacje";
@@ -41,6 +42,8 @@ export function Nauka() {
   // Polecenie dla umiejętności wybranej z ogrodu; bez wyboru polecenie dnia z mapy (nauka_polec).
   const polecenie = useZapytanie(angielski && mapa.stan === "gotowe" && wybrana ? zapytania.polecenieUmiejetnosci(poziom, wybrana.skill_id) : null);
   const polecenieDnia = usePolecenieDnia(poziom, angielski);
+  // Bez własnego wyboru Nauka pokazuje tę samą propozycję co pulpit, żeby dwie karty nie mówiły czegoś innego.
+  const dzien = useDzisAngielski(poziom);
   const ostatnie = useOtwarteRundy(angielski);
   const { hash } = useLocation();
   const naglowek = useRef<HTMLHeadingElement>(null);
@@ -144,9 +147,16 @@ export function Nauka() {
         </Pigulki>
       )}
 
-      {angielski ? (
+      {angielski && !wybrana && !zmiana && dzien.stan === "ladowanie" ? (
+        <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie na dziś" />
+      ) : angielski && !wybrana && !zmiana && dzien.dzis ? (
+        <div className={s.dzis}>
+          <KartaDnia dzis={dzien.dzis} />
+          <button type="button" className="btn btn-ghost" onClick={() => ustawZmiane(true)}>Wybierz inną umiejętność</button>
+        </div>
+      ) : angielski ? (
         <article className={s.karta} aria-labelledby="nauka-polecenie">
-          <span className="kicker"><TutorAvatar size={22} /> {wybrana ? "Twój wybór" : "Polecam"}</span>
+          <span className="kicker"><TutorAvatar size={22} /> {wybrana ? "Twój wybór" : "Wybierz umiejętność"}</span>
           {mapa.stan === "blad" ? (
             <BladNauki komunikat="Nie udało się wczytać umiejętności." ponow={mapa.ponow} />
           ) : czekaNaPolecenie || !umiejetnosc ? (

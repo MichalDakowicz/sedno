@@ -370,3 +370,15 @@ a.wiersz:hover .wierszBoczny {
     border-top: 1px solid var(--line);
   }
 }
+
+/* Propozycja dnia w Nauce: ta sama karta co na pulpicie, pod nią przejście do własnego wyboru. */
+.dzis {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+.dzis > article {
+  justify-self: stretch;
+}
