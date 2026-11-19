@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
-import { useListaArkuszy } from "../arkusze/dane";
+import { rozgrzejArkusz, useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
 import { useProfil } from "../auth";
@@ -166,7 +166,7 @@ function Karta({ arkusz: a }: { arkusz: ArkuszWpis }) {
   const proc = postep.wynik && postep.wynik.mozliwe > 0 ? Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100) : null;
   return (
     <li>
-      <Link to={`/arkusze/${a.id}`} className={styles.card} title={a.symbol}>
+      <Link to={`/arkusze/${a.id}`} className={styles.card} title={a.symbol} onPointerEnter={() => rozgrzejArkusz(a.id)} onFocus={() => rozgrzejArkusz(a.id)} onTouchStart={() => rozgrzejArkusz(a.id)}>
         <span className="kicker">{a.sesja}</span>
         <span className={styles.year}>{a.rok}</span>
         <span className={styles.status}>
