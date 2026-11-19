@@ -64,9 +64,50 @@ type TutorValue = {
   next: () => void;
   dismiss: () => void;
   summonAt: (s: Summon) => void;
+  /** Uczeń od kilku minut nic nie robi: Pestka na spoczynku zasypia, budzi ją ruch myszy, dotyk albo klawisz. */
+  spi: boolean;
 };
 
 const TutorContext = createContext<TutorValue | null>(null);
+
+const SEN_PO = 3 * 60_000;
+const ZDARZENIA_AKTYWNOSCI = ["pointermove", "pointerdown", "keydown", "wheel", "touchstart", "scroll"] as const;
+
+/**
+ * Sen po kilku minutach bez ruchu. Jeden timeout: zdarzenia tylko zapisują chwilę ostatniego ruchu, a timeout po
+ * upływie sprawdza, czy naprawdę minęło SEN_PO, i w razie potrzeby nastawia się na resztę czasu.
+ */
+function useBezczynnosc() {
+  const [spi, setSpi] = useState(false);
+  const spiRef = useRef(false);
+  useEffect(() => {
+    let ostatnio = Date.now();
+    let timer = 0;
+    const sprawdz = () => {
+      const minelo = Date.now() - ostatnio;
+      if (minelo >= SEN_PO && !document.hidden) {
+        spiRef.current = true;
+        setSpi(true);
+        timer = 0;
+      } else timer = window.setTimeout(sprawdz, Math.max(1000, SEN_PO - minelo));
+    };
+    const ruch = () => {
+      ostatnio = Date.now();
+      if (spiRef.current) {
+        spiRef.current = false;
+        setSpi(false);
+      }
+      if (!timer) timer = window.setTimeout(sprawdz, SEN_PO);
+    };
+    timer = window.setTimeout(sprawdz, SEN_PO);
+    for (const z of ZDARZENIA_AKTYWNOSCI) window.addEventListener(z, ruch, { passive: true, capture: true });
+    return () => {
+      window.clearTimeout(timer);
+      for (const z of ZDARZENIA_AKTYWNOSCI) window.removeEventListener(z, ruch, { capture: true });
+    };
+  }, []);
+  return spi;
+}
 
 const TOUR_KEY = "sedno.tour-done";
 
@@ -370,6 +411,8 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     setOpen(true);
   }, [zacznijRozmowe]);
 
+  const spi = useBezczynnosc();
+
   const value = useMemo<TutorValue>(
     () => ({
       messages,
@@ -398,8 +441,9 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       next,
       dismiss,
       summonAt,
+      spi,
     }),
-    [messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, send, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
+    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, send, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
   );
 
   return <TutorContext.Provider value={value}>{children}</TutorContext.Provider>;

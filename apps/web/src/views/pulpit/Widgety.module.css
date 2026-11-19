@@ -94,3 +94,15 @@
   background: none;
   cursor: pointer;
 }
+
+/* Liczba dni obok Pestki, która cieszy się serią (albo świętuje kamień milowy). */
+.tydzienGlowa {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+
+.pestkaSerii {
+  margin-bottom: var(--s-1);
+}

@@ -446,7 +446,7 @@ export function TutorGuide() {
           aria-label={pending ? "Pestka ma dla ciebie wskazówkę" : "Porozmawiaj z Pestką"}
           title={pending ? "Pokaż wskazówkę" : "Porozmawiaj z Pestką"}
         >
-          <TutorAvatar size={AV} state={talking ? "talking" : tutor.state} />
+          <TutorAvatar size={AV} state={talking ? "talking" : tutor.spi && resting && tutor.state === "idle" ? "sen" : tutor.state} />
           {pending && <span className={styles.badge} aria-hidden="true" />}
         </button>
 

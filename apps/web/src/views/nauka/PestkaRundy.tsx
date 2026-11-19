@@ -5,7 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useArkusz } from "../../arkusze/dane";
 import { kontekstZadania } from "../../arkusze/omowienie";
 import { nazwaZadaniaCke } from "../../arkusze/typy";
-import { TutorAvatar } from "../../components/TutorAvatar";
+import { TutorAvatar, type AvatarState } from "../../components/TutorAvatar";
 import { useKontekstPestki } from "../../components/TutorContext";
 import type { OdpowiedzNauki, PolecenieNauki } from "../../nauka/api";
 import { nazwaOdpowiedzi } from "./sesjaRundy";
@@ -28,8 +28,8 @@ export const tekstyPestki = {
   niepewne: ["Tego nie ocenię pewnie. Sprawdź zapis odpowiedzi.", "Nie umiem tego jednoznacznie sprawdzić. Zerknij na format."],
 } as const;
 
-/** Pestka z dymkiem w treści strony. Przy pojawieniu się podskakuje i chwilę mówi. */
-export function PestkaMowi({ tekst, children }: { tekst: string; children?: ReactNode }) {
+/** Pestka z dymkiem w treści strony. Przy pojawieniu się podskakuje i chwilę mówi; z emocją pokazuje ją od razu i zostaje przy niej. */
+export function PestkaMowi({ tekst, emocja, children }: { tekst: string; emocja?: AvatarState; children?: ReactNode }) {
   const [mowi, setMowi] = useState(true);
   useEffect(() => {
     setMowi(true);
@@ -38,7 +38,7 @@ export function PestkaMowi({ tekst, children }: { tekst: string; children?: Reac
   }, [tekst]);
   return (
     <div className={s.pestka}>
-      <span key={tekst} className={s.pestkaAvatar}><TutorAvatar size={40} state={mowi ? "talking" : "idle"} /></span>
+      <span key={tekst} className={s.pestkaAvatar}><TutorAvatar size={40} state={emocja ?? (mowi ? "talking" : "idle")} /></span>
       <div className={s.pestkaDymek}>
         <p><span className="visually-hidden">Pestka: </span>{tekst}</p>
         {children}

@@ -243,7 +243,7 @@ function OcenaRundy({ odpowiedz, sesja, skonczona, dalej, reakcja }: {
           {odpowiedz.correct ? <Check size={24} aria-hidden="true" /> : <CircleAlert size={24} aria-hidden="true" />}
           {odpowiedz.correct ? "Dobra odpowiedź" : odpowiedz.answer.trim() ? "Tym razem nie" : "Pominięte zadanie"}
         </h3>
-        <PestkaMowi tekst={tekstReakcji(odpowiedz, reakcja, !!cke)}>
+        <PestkaMowi tekst={tekstReakcji(odpowiedz, reakcja, !!cke)} emocja={odpowiedz.correct ? "radosc" : reakcja.zleZRzedu >= 2 ? "zmartwienie" : undefined}>
           {zle && (przyciskWyjasnienia || bezAi)}
         </PestkaMowi>
       </div>

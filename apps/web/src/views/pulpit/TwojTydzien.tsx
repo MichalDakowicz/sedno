@@ -7,6 +7,7 @@ import { ChevronRight } from "lucide-react";
 import { Ladowanie } from "../../components/Ladowanie";
 import { Kropki } from "../../components/wykresy";
 import { Liczba } from "../../ruch";
+import { TutorAvatar } from "../../components/TutorAvatar";
 import { usePostepyKonta } from "../../konto/wyniki";
 import { adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type PlanNauki } from "../../nauka/api";
@@ -40,6 +41,9 @@ export function tydzienNauki(dni: Set<string>, dzis: string) {
 }
 
 const odmianaDni = (n: number) => (n === 1 ? "dzień" : "dni");
+
+/** Serie, przy których Pestka świętuje; między nimi tylko się cieszy. */
+const KAMIENIE_SERII = [3, 7, 14, 30, 50, 100];
 
 export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
   const [poziom] = usePoziomNauki();
@@ -84,11 +88,14 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
       {p && proby.stan !== "ladowanie" && (
         <>
           {edycja && <DniNauki plan={p} poziom={poziom} zapisano={plan.ponow} />}
+          <div className={w.tydzienGlowa}>
           <p className={styles.stat}>
             <Liczba wartosc={zNauka} />
             <span> / 7</span>
             <span className={styles.statOpis}>{zNauka === 1 ? "dzień" : "dni"} z nauką w tym tygodniu{seria >= 2 ? ` · seria ${seria} ${odmianaDni(seria)} z rzędu` : ""}</span>
           </p>
+          {seria >= 2 && <TutorAvatar size={48} state={KAMIENIE_SERII.includes(seria) ? "swieto" : "radosc"} className={w.pestkaSerii} />}
+          </div>
           <Kropki rowno opis={`W tym tygodniu ${zNauka} z 7 dni z nauką, seria ${seria} ${odmianaDni(seria)}.`}
             kropki={tydzien.map((d, i) => {
               const nauka = dni.has(d);

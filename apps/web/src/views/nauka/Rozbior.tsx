@@ -10,6 +10,7 @@ import { adresMapy, adresNauki, adresPowtorek, adresRundy, adresStartu } from ".
 import { naukaApi, nazwaFormatuNauki, type MapaNauki, type OdpowiedzNauki, type SesjaNauki } from "../../nauka/api";
 import { nazwaOdpowiedzi, useSesjaRundy } from "./sesjaRundy";
 import { PestkaMowi, wybierz } from "./PestkaRundy";
+import type { AvatarState } from "../../components/TutorAvatar";
 import { TrescRundy } from "./TrescRundy";
 import { Kropki, PasekProgu } from "../../components/wykresy";
 import s from "./SzybkaRunda.module.css";
@@ -75,6 +76,24 @@ function zdaniePestki(odpowiedzi: OdpowiedzNauki[]) {
   return wybierz(lista, odpowiedzi.length);
 }
 
+const KLUCZ_PIERWSZEJ = "sedno.pestka.pierwszaBezbledna";
+
+/** Pierwsza bezbłędna runda to święto (raz na przeglądarkę), kolejna albo runda z postępem to duma. */
+function emocjaRozbioru(sesja: string, odpowiedzi: OdpowiedzNauki[], zmiana: number | null): AvatarState | undefined {
+  const bezbledna = odpowiedzi.length > 0 && odpowiedzi.every((a) => a.correct);
+  if (bezbledna) {
+    try {
+      const pierwsza = localStorage.getItem(KLUCZ_PIERWSZEJ);
+      if (!pierwsza) localStorage.setItem(KLUCZ_PIERWSZEJ, sesja);
+      if (!pierwsza || pierwsza === sesja) return "swieto";
+    } catch {
+      // bez pamięci przeglądarki zostaje duma
+    }
+    return "duma";
+  }
+  return zmiana && zmiana > 0 ? "duma" : undefined;
+}
+
 function KropkiOdpowiedzi({ odpowiedzi }: { odpowiedzi: OdpowiedzNauki[] }) {
   const dobre = odpowiedzi.filter((a) => a.correct).length;
   const pominiete = odpowiedzi.filter((a) => !a.correct && !a.answer.trim()).length;
@@ -128,7 +147,7 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
       <section className={s.sekcja} aria-labelledby="wynik-rundy">
         <h2 id="wynik-rundy" className="h1">{result.wynik.poprawne} z {result.wynik.wszystkich} poprawnie</h2>
         <KropkiOdpowiedzi odpowiedzi={sesja.answers} />
-        <PestkaMowi tekst={zdaniePestki(sesja.answers)} />
+        <PestkaMowi tekst={zdaniePestki(sesja.answers)} emocja={emocjaRozbioru(sesja.id, sesja.answers, zmiana)} />
         <details className={s.rozwijane} onToggle={(e) => setZadania(e.currentTarget.open)}>
           <summary><ChevronRight size={16} aria-hidden="true" /> Zadania tej rundy</summary>
           {zadania && (

@@ -1,11 +1,20 @@
 // Tylko w trybie deweloperskim (main.tsx): wspólne wykresy, emocje Pestki i stadia pestki obok siebie do sprawdzenia.
 import { NaglowekStrony } from "../components/NaglowekStrony";
+import { TutorAvatar, type AvatarState } from "../components/TutorAvatar";
 import { Kropki, Linia, OsCzasu, PasDni, PasekProgu, Pierscien } from "../components/wykresy";
 
 export function Galeria() {
   return (
     <main className="container" style={{ display: "grid", gap: "var(--s-7)", paddingBottom: 160 }}>
       <NaglowekStrony etykieta="Tryb deweloperski" tytul="Galeria" lead="Wykresy, emocje i stadia." />
+      <section id="emocje" style={{ display: "flex", flexWrap: "wrap", gap: "var(--s-5)" }}>
+        {(["idle", "thinking", "talking", "radosc", "duma", "zmartwienie", "sen", "swieto"] as AvatarState[]).map((st) => (
+          <figure key={st} style={{ display: "grid", justifyItems: "center", gap: "var(--s-2)", margin: 0 }}>
+            <TutorAvatar size={88} state={st} />
+            <figcaption className="small muted">{st}</figcaption>
+          </figure>
+        ))}
+      </section>
       <section style={{ display: "grid", gap: "var(--s-5)", maxWidth: 520 }}>
         <PasekProgu wartosc={0.42} prog={{ wartosc: 0.3, etykieta: "próg 30%" }} cel={{ wartosc: 0.6, etykieta: "cel 60%" }} opis="Prognoza 42%" />
         <PasekProgu wartosc={0.58} przed={0.41} gruby opis="Opanowanie z 41% do 58%" />
