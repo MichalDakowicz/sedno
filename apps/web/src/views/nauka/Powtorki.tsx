@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { RotateCcw } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
@@ -12,6 +12,12 @@ import { powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
 import { zacznijKolejke } from "../../nauka/kolejka";
 import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
+import { useProfil } from "../../auth";
+import { Pigulki } from "../../components/Pigulki";
+import { SubjectIcon } from "../../components/icons";
+import { przedmiot, type PrzedmiotId } from "../../konto/przedmioty";
+import { maMapeZArkuszy, szablonMapy, useMapaZArkuszy } from "../../nauka/mapaPrzedmiotow";
+import { adresBledu, nazwaBledu } from "./MapaPrzedmiotu";
 import s from "./Powtorki.module.css";
 
 type Powtorka = Awaited<ReturnType<typeof naukaApi.powtorki>>["queue"][number];
@@ -28,7 +34,7 @@ function adresCwiczenia(poziom: Poziom, p: Powtorka) {
   return adresStartu(poziom, p.skill_id, powtorz ? "szybka-runda" : formatRundy(p.format), powtorz ?? undefined);
 }
 
-export function Powtorki() {
+function PowtorkiAngielski() {
   const [poziom, ustawPoziom] = usePoziomNauki();
   const navigate = useNavigate();
   const powtorki = useZapytanie(zapytania.powtorki(poziom));
@@ -47,8 +53,7 @@ export function Powtorki() {
   }
 
   return (
-    <main className={`container ${s.strona}`}>
-      <NaglowekStrony etykieta="Język angielski" tytul="Powtórki" />
+    <>
       <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />
 
       {(powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") && <Ladowanie ile={8} wysokosc={[900, 880]} etykieta="Wczytuję powtórki" />}
@@ -82,7 +87,7 @@ export function Powtorki() {
           </ul>
         </section>
       )}
-    </main>
+    </>
   );
 }
 
@@ -129,5 +134,74 @@ function Pamiec({ retencja }: { retencja: number }) {
       </span>
       <span><span className="visually-hidden">Pamiętasz ok. </span>{procentNauki.format(retencja)}</span>
     </span>
+  );
+}
+
+/** Powtórki każdego przedmiotu: angielski z rund, pozostałe z zadań z błędem w sprawdzonych arkuszach. */
+export function Powtorki() {
+  const [params] = useSearchParams();
+  const profil = useProfil();
+  const moje = [...new Set((profil?.subjects ?? []).map((p) => p.id))] as PrzedmiotId[];
+  const zAdresu = przedmiot(params.get("przedmiot") ?? "")?.id;
+  const wybrany: PrzedmiotId = zAdresu ?? (moje.includes("angielski") || !moje.length ? "angielski" : moje[0]!);
+  const poziom = (profil?.subjects.find((p) => p.id === wybrany)?.poziom ?? null) as Poziom | null;
+  return (
+    <main className={`container ${s.strona}`}>
+      <NaglowekStrony etykieta={przedmiot(wybrany)?.nazwa ?? "Język angielski"} tytul="Powtórki" />
+      {moje.length > 1 && (
+        <Pigulki aria-label="Przedmiot">
+          {moje.map((p) => (
+            <Link key={p} to={`/powtorki?przedmiot=${p}`} className="pigulka" aria-pressed={p === wybrany}>
+              <SubjectIcon subject={przedmiot(p)!} size="sm" /> {przedmiot(p)!.nazwa}
+            </Link>
+          ))}
+        </Pigulki>
+      )}
+      {wybrany === "angielski" ? <PowtorkiAngielski /> : maMapeZArkuszy(wybrany) && <PowtorkiZArkuszy przedmiot={wybrany} poziom={poziom} />}
+    </main>
+  );
+}
+
+
+function PowtorkiZArkuszy({ przedmiot: p, poziom }: { przedmiot: PrzedmiotId; poziom: Poziom | null }) {
+  const mapa = useMapaZArkuszy(p, poziom);
+  const bledy = mapa.dane?.bledy ?? [];
+  const dzialy = new Map(szablonMapy(p).map((u) => [u.skill_id, u.name]));
+  const maArkusze = p !== "polski";
+  if (mapa.stan === "ladowanie" || mapa.stan === "pominiete") return <Ladowanie ile={5} etykieta="Wczytuję powtórki" />;
+  if (!bledy.length)
+    return (
+      <section className={s.glowa} aria-labelledby="powtorki-puste">
+        <h2 className="h1" id="powtorki-puste">Nic do poprawy</h2>
+        <StanPestki emocja="radosc"
+          tekst={maArkusze ? "Zadania z błędem ze sprawdzonych arkuszy trafią tutaj." : "Arkuszy z polskiego jeszcze nie ma, więc nie ma czego powtarzać."}
+          akcja={maArkusze ? { etykieta: "Rozwiąż arkusz", do: `/arkusze?przedmiot=${p}` } : { etykieta: "Poćwicz z Pestką", do: "/tutor" }} />
+      </section>
+    );
+  return (
+    <>
+      <section className={s.glowa} aria-labelledby="powtorki-dzis">
+        <h2 className="h1" id="powtorki-dzis">{bledy.length} {zadan(bledy.length)} do poprawy</h2>
+        <Link to={adresBledu(bledy[0]!)} className={`btn btn-primary ${s.przycisk}`}>
+          <RotateCcw size={18} aria-hidden="true" /> Popraw pierwsze
+        </Link>
+      </section>
+      <section aria-label="Zadania do poprawy">
+        <ul className={`wiersze ${s.wiersze}`}>
+          {bledy.map((b) => (
+            <li key={`${b.arkusz.id}:${b.zadanie}`} className={`wiersz ${s.grupa}`}>
+              <div className="wiersz-tresc">
+                <h3 className="h3">{nazwaBledu(b)}</h3>
+                <p className="wiersz-opis">{[b.dzial && dzialy.get(b.dzial), `${b.zdobyte} z ${b.mozliwe} pkt`].filter(Boolean).join(" · ")}</p>
+              </div>
+              <div className="wiersz-wartosc" />
+              <div className="wiersz-akcja">
+                <Link to={adresBledu(b)} className="btn btn-ghost btn-sm"><RotateCcw size={15} aria-hidden="true" /> Popraw</Link>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
   );
 }
