@@ -2,10 +2,10 @@ import { useEffect, useRef } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { nazwaZadaniaCke, nazwaZadaniaRundy, type Poziom } from "../../arkusze/typy";
-import { useProfil } from "../../auth";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
-import { PRZEDMIOTY, przedmiot } from "../../konto/przedmioty";
+import { przedmiot } from "../../konto/przedmioty";
+import { coDzisBezRund } from "../../nauka/dzis";
 import { adresMapy, adresNauki, adresRozbioru } from "../../nauka/adresy";
 import { naukaApi, type DowodNauki, type Umiejetnosc } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
@@ -92,11 +92,10 @@ function Blad({ tekst, ponow }: { tekst: string; ponow: () => void }) {
 
 export function Umiejetnosci() {
   const [parametry] = useSearchParams();
-  const profil = useProfil();
   const [poziom, ustawPoziom] = usePoziomNauki();
   const wybranyPrzedmiot = przedmiot(parametry.get("przedmiot") ?? "angielski")?.id ?? "angielski";
   const angielski = wybranyPrzedmiot === "angielski";
-  const przedmioty = PRZEDMIOTY.filter((p) => p.id === "angielski" || p.id === wybranyPrzedmiot || profil?.subjects.some((w) => w.id === p.id));
+  const innyPrzedmiot = angielski ? null : coDzisBezRund[wybranyPrzedmiot] ?? { akcja: { do: adresMapy(poziom), etykieta: "Mapa angielskiego" } };
   const mapa = useZapytanieNauki(angielski ? `mapa:${poziom}` : null, (signal) => naukaApi.mapa(poziom, signal));
   const umiejetnosci = mapa.dane?.skills;
   const id = parametry.get("umiejetnosc");
@@ -113,20 +112,13 @@ export function Umiejetnosci() {
   return (
     <main className={`container ${s.strona}`} data-panel={!!wybrana}>
       <NaglowekStrony etykieta="Język angielski" tytul="Mapa umiejętności" lead="Jak radzisz sobie z wymaganiami matury." />
-      <div className={s.filtry}>
-        <nav className="pigulki" aria-label="Przedmioty">
-          {przedmioty.map((p) => (
-            <Link key={p.id} to={p.id === "angielski" ? adresMapy(poziom) : `${adresMapy(poziom)}&przedmiot=${p.id}`} className="pigulka" aria-current={p.id === wybranyPrzedmiot ? "page" : undefined}>
-              {p.nazwa}
-            </Link>
-          ))}
-        </nav>
-        {angielski && <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />}
-      </div>
-      {!angielski && (
+      {/* Mapę ma tylko angielski, więc nie ma pigułek przedmiotów prowadzących do pustej strony. Stary link
+          z ?przedmiot= dostaje jedno zdanie i to, co w tym przedmiocie da się zrobić zamiast mapy. */}
+      {angielski && <div className={s.filtry}><WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} /></div>}
+      {!angielski && innyPrzedmiot && (
         <div className={s.blok}>
-          <p className="muted">Mapa jest dostępna dla języka angielskiego.</p>
-          <Link to={adresMapy(poziom)} className={`link ${s.przycisk}`}>Przejdź do mapy angielskiego <ArrowRight size={14} aria-hidden="true" /></Link>
+          <p className="muted">Mapa umiejętności jest na razie tylko dla angielskiego.</p>
+          <Link to={innyPrzedmiot.akcja.do} className={`btn btn-secondary ${s.przycisk}`}>{innyPrzedmiot.akcja.etykieta}</Link>
         </div>
       )}
       {mapa.stan === "ladowanie" && <Ladowanie etykieta="Wczytuję mapę umiejętności" />}
