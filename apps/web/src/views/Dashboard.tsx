@@ -15,7 +15,9 @@ import { Plywak } from "../components/Plywak";
 import { Ladowanie } from "../components/Ladowanie";
 import { Wejscia } from "../szablony/Wejscia";
 import { Dzis } from "./pulpit/Dzis";
-import { trwa, useDiagnoza } from "../nauka/diagnoza";
+import { useDiagnoza, useTrybDiagnozy, zaproszenieDoDiagnozy } from "../nauka/diagnoza";
+import { adresDiagnozy } from "../nauka/adresy";
+import { usePoziomNauki } from "../nauka/stan";
 import { widget, type KontekstPulpitu } from "./pulpit/widgety";
 import { Wynikowy, procent, tytul } from "./pulpit/wspolne";
 import styles from "./Dashboard.module.css";
@@ -95,7 +97,13 @@ export function Dashboard() {
   const { pestkaSama } = useUstawienia();
   const klucz = aktywny?.id ?? WSZYSTKIE;
   const uklad = useUklad(klucz);
-  const diagnoza = useDiagnoza();
+  const diagnozaLokalna = useDiagnoza();
+  const [poziomNauki] = usePoziomNauki();
+  const angielski = moje.some((m) => m.id === "angielski") && (!aktywny || aktywny.id === "angielski");
+  const diagnoza = useTrybDiagnozy(poziomNauki, angielski);
+  const zaproszenie = angielski
+    ? zaproszenieDoDiagnozy(diagnoza.tryb === "baza" ? diagnoza.stan : diagnoza.tryb === "przegladarka" ? null : undefined, diagnozaLokalna)
+    : null;
 
   const zakres = dane ? (aktywny ? dane.podsumowania.filter((p) => p.przedmiot.id === aktywny.id) : dane.podsumowania) : [];
   const propozycje = dane ? zakres.map((p) => propozycja(p, dane.wiersze)) : [];
@@ -144,9 +152,9 @@ export function Dashboard() {
           )}
         </h1>
         {/* Diagnoza na start (nauka/diagnoza.ts): zaproszenie, póki nie skończona ani pominięta; po przerwie „Dokończ”. */}
-        {moje.some((m) => m.id === "angielski") && (!aktywny || aktywny.id === "angielski") && !diagnoza.koniec && !diagnoza.pominieta && (
-          <Link to="/nauka/diagnoza" className="link">
-            {trwa(diagnoza) ? "Dokończ diagnozę" : "Sprawdźmy, od czego zacząć"} <ArrowRight size={14} aria-hidden="true" />
+        {zaproszenie && (
+          <Link to={adresDiagnozy(poziomNauki)} className="link">
+            {zaproszenie === "dokoncz" ? "Dokończ diagnozę" : zaproszenie === "wyniki" ? "Zobacz pierwsze wyniki" : "Sprawdźmy, od czego zacząć"} <ArrowRight size={14} aria-hidden="true" />
           </Link>
         )}
       </section>

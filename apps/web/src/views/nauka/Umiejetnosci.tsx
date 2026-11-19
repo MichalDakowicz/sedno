@@ -17,6 +17,7 @@ import { Kielek } from "../../components/Kielek";
 import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
 import { NAZWA_STADIUM, stadium } from "../../nauka/stadia";
+import { useSesjaDiagnozy } from "../../nauka/diagnoza";
 
 import s from "./Umiejetnosci.module.css";
 
@@ -32,12 +33,14 @@ const OBSZARY = [
 
 const dataProby = new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeZone: "Europe/Warsaw" });
 
-function Dowod({ dowod: d }: { dowod: DowodNauki }) {
+function Dowod({ dowod: d, diagnoza }: { dowod: DowodNauki; diagnoza: string | null }) {
   const numerZadania = d.question.split(".")[0];
   const adres = d.session_id
     ? adresRozbioru(d.session_id)
     : d.sheet_id && `/arkusze/${encodeURIComponent(d.sheet_id)}#zadanie-${numerZadania}`;
-  const nazwa = d.session_id ? nazwaZadaniaRundy(d.happened_at, d.question) : nazwaZadaniaCke(d.sheet_id ?? "", d.question);
+  const nazwa = d.session_id
+    ? nazwaZadaniaRundy(d.happened_at, d.question, d.session_id === diagnoza ? "Diagnoza" : undefined)
+    : nazwaZadaniaCke(d.sheet_id ?? "", d.question);
   const wynik = d.score >= 1 ? "Dobrze" : d.score <= 0 ? "Błąd" : `${Math.round(d.score * 100)}%`;
   return (
     <li className={s.dowod}>
@@ -57,6 +60,7 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
   const naglowek = useRef<HTMLHeadingElement>(null);
   const proby = useZapytanieNauki(`dowody:${poziom}:${u.skill_id}`, (signal) => naukaApi.dowody(u.skill_id, poziom, signal));
   const maBledyJezykowe = proby.dane?.some((d) => d.score < 1 && d.error_type === "jezyk-i-forma");
+  const diagnoza = useSesjaDiagnozy(poziom);
 
   useEffect(() => {
     naglowek.current?.focus();
@@ -94,7 +98,7 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
           <details className={s.rozwijane}>
             <summary id="umiejetnosc-proby"><ChevronRight size={16} aria-hidden="true" /> Wszystkie próby ({proby.dane.length})</summary>
             <ul className="wiersze">
-              {proby.dane.map((d) => <Dowod key={`${d.source_id}:${d.session_id ?? d.sheet_id}:${d.question}`} dowod={d} />)}
+              {proby.dane.map((d) => <Dowod key={`${d.source_id}:${d.session_id ?? d.sheet_id}:${d.question}`} dowod={d} diagnoza={diagnoza} />)}
             </ul>
           </details>
         ) : <div id="umiejetnosc-proby"><StanPestki rozmiar="maly" tekst={wybierz(glos.puste.proby, 0)} /></div>)}

@@ -1,10 +1,12 @@
-// Diagnoza na start: po jednej rundzie z każdego obszaru angielskiego na wybranym poziomie, na istniejących rundach
-// (nauka_start dla kolejnych umiejętności). Stan trzyma przeglądarka, osobno dla każdego konta: baza nie ma pojęcia
-// diagnozy, a krok uznajemy za zrobiony, gdy umiejętność dostała ćwiczenie po starcie diagnozy (nauka_mapa).
+// Diagnoza na start. Nowa baza (migracja 0023) ma jedną krótką sesję diagnozy ze stanem na koncie, osobno dla poziomu:
+// nauka_diagnoza, nauka_diagnoza_start, nauka_diagnoza_oznacz. Gdy tych funkcji nie ma (produkcja przed migracją),
+// zostaje dawna diagnoza: po jednej szybkiej rundzie z każdego obszaru, ze stanem w przeglądarce (niżej, „przeglądarka”).
+// Zakończona albo pominięta diagnoza z przeglądarki liczy się też przy nowej bazie, żeby nie proponować jej drugi raz.
 import { useSyncExternalStore } from "react";
 import type { Poziom } from "../arkusze/typy";
 import { currentUserId } from "../auth";
-import type { Umiejetnosc } from "./api";
+import { naukaApi, type StanDiagnozyBazy, type Umiejetnosc } from "./api";
+import { useZapytanieNauki } from "./stan";
 
 export const OBSZARY = [
   { id: "słuchanie", nazwa: "Rozumienie ze słuchu" },
@@ -12,6 +14,51 @@ export const OBSZARY = [
   { id: "środki językowe", nazwa: "Środki językowe" },
   { id: "pisanie", nazwa: "Wypowiedź pisemna" },
 ];
+
+// --- Stan w bazie ---
+
+export type TrybDiagnozy =
+  | { tryb: "ladowanie" | "pominiete" }
+  | { tryb: "blad"; blad: string; ponow: () => void }
+  /** Baza bez funkcji diagnozy: dawne rundy i stan w przeglądarce. */
+  | { tryb: "przegladarka" }
+  | { tryb: "baza"; stan: StanDiagnozyBazy; ponow: () => void };
+
+export const kluczDiagnozy = (poziom: Poziom) => `nauka:diagnoza:${poziom}`;
+
+export function useTrybDiagnozy(poziom: Poziom, wlaczone = true): TrybDiagnozy {
+  const z = useZapytanieNauki(wlaczone ? kluczDiagnozy(poziom) : null, (signal) => naukaApi.diagnoza(poziom, signal));
+  if (z.stan === "pominiete") return { tryb: "pominiete" };
+  if (z.stan === "ladowanie") return { tryb: "ladowanie" };
+  if (z.stan === "blad") return { tryb: "blad", blad: z.blad ?? "", ponow: z.ponow };
+  return z.dane ? { tryb: "baza", stan: z.dane, ponow: z.ponow } : { tryb: "przegladarka" };
+}
+
+/** Id sesji diagnozy na poziomie (do nazw zadań w Powtórkach i na mapie); null bez diagnozy albo bez funkcji w bazie. */
+export function useSesjaDiagnozy(poziom: Poziom, wlaczone = true): string | null {
+  const t = useTrybDiagnozy(poziom, wlaczone);
+  return t.tryb === "baza" ? t.stan.session?.id ?? null : null;
+}
+
+export type Zaproszenie = "zacznij" | "dokoncz" | "wyniki" | null;
+
+/**
+ * Co pulpit proponuje: „Sprawdźmy, od czego zacząć”, „Dokończ diagnozę”, „Pierwsze wyniki” (gotowa, a podsumowania
+ * jeszcze nie widać) albo nic. baza: undefined, gdy stan jeszcze nie doszedł (wtedy nic), null przy bazie bez funkcji.
+ */
+export function zaproszenieDoDiagnozy(baza: StanDiagnozyBazy | null | undefined, lokalny: StanDiagnozy): Zaproszenie {
+  if (baza === undefined) return null;
+  const lokalnieZrobiona = lokalny.koniec || lokalny.pominieta;
+  if (baza === null) return lokalnieZrobiona ? null : trwa(lokalny) ? "dokoncz" : "zacznij";
+  if (baza.status === "trwa") return "dokoncz";
+  if (baza.status === "gotowa") return baza.seen_at ? null : "wyniki";
+  if (baza.status === "pominieta") return null;
+  return lokalnieZrobiona ? null : "zacznij";
+}
+
+// --- Dawna diagnoza w przeglądarce ---
+// Po jednej rundzie z każdego obszaru na istniejących rundach (nauka_start dla kolejnych umiejętności). Krok uznajemy
+// za zrobiony, gdy umiejętność dostała ćwiczenie po starcie diagnozy (nauka_mapa).
 
 /**
  * od: chwila startu (ms, null przed startem); kroki: umiejętności wybrane na starcie (później ich liczba prób rośnie,

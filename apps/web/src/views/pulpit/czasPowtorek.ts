@@ -18,10 +18,14 @@ export function unikalnePowtorki(kolejka: Powtorka[]) {
   });
 }
 
-/** Podpis źródła błędu bez linku: „Matura maj 2026 · zadanie 1.3” albo „Szybka runda z 18 listopada · zadanie 5”. */
-export function etykietaZrodla(blad: NonNullable<Powtorka["mistake"]>): string | null {
+/**
+ * Podpis źródła błędu bez linku: „Matura maj 2026 · zadanie 1.3” albo „Szybka runda z 18 listopada · zadanie 5”.
+ * sesjaDiagnozy: id sesji diagnozy na tym poziomie (useSesjaDiagnozy), bo błąd z niej to „Diagnoza z …”, nie runda.
+ */
+export function etykietaZrodla(blad: NonNullable<Powtorka["mistake"]>, sesjaDiagnozy?: string | null): string | null {
   if (blad.sheet_id) return blad.question ? nazwaZadaniaCke(blad.sheet_id, blad.question) : nazwaZadaniaCke(blad.sheet_id, "").replace(/ · zadanie $/, "");
-  if (blad.session_id) return blad.question ? nazwaZadaniaRundy(blad.happened_at, blad.question) : "Wynik poprzedniej rundy";
+  const diagnoza = !!sesjaDiagnozy && blad.session_id === sesjaDiagnozy;
+  if (blad.session_id) return blad.question ? nazwaZadaniaRundy(blad.happened_at, blad.question, diagnoza ? "Diagnoza" : undefined) : diagnoza ? "Wynik diagnozy" : "Wynik poprzedniej rundy";
   return null;
 }
 

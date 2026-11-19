@@ -7,7 +7,7 @@ import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { Kropki, type Kropka } from "../../components/wykresy";
 import { useTutor } from "../../components/TutorContext";
-import { adresNauki, adresPowtorek, adresRozbioru, adresRundy } from "../../nauka/adresy";
+import { adresDiagnozy, adresNauki, adresPowtorek, adresRozbioru, adresRundy } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type FormatNauki, type OdpowiedzNauki, type PytanieNauki, type SesjaNauki } from "../../nauka/api";
 import { usePoziomNauki } from "../../nauka/stan";
 import { KafleOdpowiedzi, TrescRundy } from "./TrescRundy";
@@ -31,8 +31,8 @@ function zacznij(user: string, id: string, dane: Start): Promise<SesjaNauki> {
   return wynik;
 }
 
-function NaglowekRundy({ tytul, adres = "/nauka", children }: { tytul: string; adres?: string; children?: ReactNode }) {
-  return <NaglowekStrony wstecz={{ do: adres, nazwa: "Nauka" }} tytul={tytul}>{children}</NaglowekStrony>;
+function NaglowekRundy({ tytul, adres = "/nauka", nazwa = "Nauka", children }: { tytul: string; adres?: string; nazwa?: string; children?: ReactNode }) {
+  return <NaglowekStrony wstecz={{ do: adres, nazwa }} tytul={tytul}>{children}</NaglowekStrony>;
 }
 
 function NowaRunda({ user, poziom, umiejetnosc, format, powtorz }: Start & { user: string }) {
@@ -202,8 +202,8 @@ function tekstReakcji(o: OdpowiedzNauki, r: Reakcja, wyjasnienie: boolean): stri
   return r.dolozone ? `${glowny} ${wybierz(glos.blad.dokladam, n)}` : glowny;
 }
 
-function OcenaRundy({ odpowiedz, sesja, skonczona, dalej, reakcja }: {
-  odpowiedz: OdpowiedzNauki; sesja: string; skonczona: boolean; dalej: () => void; reakcja: Reakcja;
+function OcenaRundy({ odpowiedz, sesja, skonczona, koniec, dalej, reakcja }: {
+  odpowiedz: OdpowiedzNauki; sesja: string; skonczona: boolean; koniec: { do: string; etykieta: string }; dalej: () => void; reakcja: Reakcja;
 }) {
   const { aiGotowe } = useTutor();
   const [wyjasnij, setWyjasnij] = useState(false);
@@ -253,7 +253,7 @@ function OcenaRundy({ odpowiedz, sesja, skonczona, dalej, reakcja }: {
       {cke && wyjasnij && <WyjasnienieRundy odpowiedz={odpowiedz} prompt={cke} sesja={sesja} onZamknij={() => setWyjasnij(false)} />}
       <div className={`${s.akcje} ${s.werdyktWejscie}`}>
         {skonczona ? (
-          <Link className="btn btn-primary" to={adresRozbioru(sesja)}>Zobacz rozbiór <ArrowRight size={17} aria-hidden="true" /></Link>
+          <Link className="btn btn-primary" to={koniec.do}>{koniec.etykieta} <ArrowRight size={17} aria-hidden="true" /></Link>
         ) : <button type="button" className="btn btn-primary" onClick={dalej}>Następne zadanie <ArrowRight size={17} aria-hidden="true" /></button>}
         {!zle && przyciskWyjasnienia}
       </div>
@@ -352,7 +352,12 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
     }
   }
 
-  if (!ocena && !pytanie && sesja.result) return <Navigate replace to={adresRozbioru(sesja.id)} />;
+  // Diagnoza kończy się wynikiem na umiejętność na swojej stronie, a nie rozbiorem jednej umiejętności.
+  const diagnoza = sesja.format === "diagnoza";
+  const koniec = diagnoza
+    ? { do: adresDiagnozy(sesja.level), etykieta: "Zobacz wyniki" }
+    : { do: adresRozbioru(sesja.id), etykieta: "Zobacz rozbiór" };
+  if (!ocena && !pytanie && sesja.result) return <Navigate replace to={koniec.do} />;
 
   const poprzednie = ocena ? sesja.answers.filter((a) => a.position <= ocena.position).sort((a, b) => a.position - b.position) : [];
   const zleZRzedu = poprzednie.length - 1 - poprzednie.map((a) => a.correct).lastIndexOf(true);
@@ -361,7 +366,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
 
   return (
     <main className={`container czytanie ${s.strona}`}>
-      <NaglowekRundy tytul={nazwaFormatuNauki[sesja.format]} adres={adresNauki(sesja.level, sesja.skill_id)}>
+      <NaglowekRundy tytul={nazwaFormatuNauki[sesja.format]} adres={diagnoza ? adresDiagnozy(sesja.level) : adresNauki(sesja.level, sesja.skill_id ?? undefined)} nazwa={diagnoza ? "Diagnoza" : undefined}>
         <p className="small muted">Język angielski · {nazwaPoziomu[sesja.level]}</p>
       </NaglowekRundy>
       <section className={s.postep} aria-label="Postęp rundy">
@@ -369,7 +374,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
           <span className="label">Zadanie {pozycja ?? sesja.limit} z {sesja.limit}</span>
           <div className={s.czasy}>
             {sesja.streak >= 2 && <span className="small muted">Dobre z rzędu: {sesja.streak}</span>}
-            {sesja.format === "szybka-runda" && <ZegarRundy poczatek={startZegara} koniec={sesja.completed_at} />}
+            {(sesja.format === "szybka-runda" || diagnoza) && <ZegarRundy poczatek={startZegara} koniec={sesja.completed_at} />}
           </div>
         </div>
         <PostepRundy odpowiedzi={sesja.answers} limit={sesja.limit} biezaca={pozycja} />
@@ -383,7 +388,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
         <KontekstRundy prompt={biezace} klucz={`runda:${sesja.id}:${pozycja}`} odpowiedz={ocena?.answer ?? wPytaniu?.tekst ?? ""} ocena={ocena} />
       )}
       {ocena ? (
-        <OcenaRundy key={ocena.position} odpowiedz={ocena} sesja={sesja.id} skonczona={!!sesja.result}
+        <OcenaRundy key={ocena.position} odpowiedz={ocena} sesja={sesja.id} skonczona={!!sesja.result} koniec={koniec}
           reakcja={{ seria: sesja.streak, zleZRzedu, dolozone: dolozone === ocena.position }}
           dalej={() => { zachowaj(null); setUstalFokus(true); setOcenaPoz(null); }} />
       ) : pytanie ? (

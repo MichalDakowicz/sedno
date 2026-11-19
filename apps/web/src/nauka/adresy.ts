@@ -18,3 +18,4 @@ export const adresStartu = (poziom: Poziom, skill: string, format?: FormatNauki,
   adres("/nauka/runda", poziom, skill, format, repeatId);
 export const adresRundy = (id: string) => `/nauka/runda/${encodeURIComponent(id)}`;
 export const adresRozbioru = (id: string) => `/nauka/rozbior/${encodeURIComponent(id)}`;
+export const adresDiagnozy = (poziom?: Poziom) => adres("/nauka/diagnoza", poziom);

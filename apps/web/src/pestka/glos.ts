@@ -39,6 +39,8 @@ export const glos = {
     dobra: ["Dobra runda. Zostało kilka rzeczy do dopracowania.", "Większość dobrze. Zerknij na to, co nie wyszło."],
     slaba: ["Ta umiejętność potrzebuje jeszcze kilku rund. Zacznij od zadań z błędem.", "Trudna runda. Przejrzyj błędy, a następna pójdzie lepiej."],
   },
+  /** Jedno zdanie pod wynikiem diagnozy na start. */
+  diagnoza: ["Mam pierwszy obraz. Od najsłabszych umiejętności zaczniemy plan.", "Już wiem, od czego zacząć. Najpierw to, co poszło najsłabiej."],
   /** Seria dni z nauką na pulpicie. */
   seriaDni: {
     kamien: ["{n} dni z rzędu. Świętuję razem z tobą.", "Seria {n} dni. To już nawyk."],
