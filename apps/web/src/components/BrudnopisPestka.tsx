@@ -113,7 +113,11 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
   const pole = useRef<HTMLInputElement>(null);
   // Pole otwiera uczeń, więc dostaje fokus, ale bez przewijania strony (autoFocus przewijał ją do płótna).
   useEffect(() => {
-    if (faza === "pole") pole.current?.focus({ preventScroll: true });
+    if (faza === "pole") {
+      pole.current?.focus({ preventScroll: true });
+      // Na telefonie pole bywa pod dolną krawędzią ekranu: bez przewinięcia kliknięcie wyglądało jak brak reakcji.
+      pole.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
   }, [faza]);
   const stan = api.current?.getAppState();
   const { x, y } = stan ? polozenie(stan, punkt) : { x: MARGINES, y: MARGINES };
