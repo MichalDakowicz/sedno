@@ -1,7 +1,7 @@
 // Gotowość do matury na pulpicie: jeden wiersz na przedmiot z małym pierścieniem gotowości i jednym zdaniem.
 // Angielski liczy gotowość z mapy umiejętności (nauka/gotowosc.ts) (ogród jest na mapie); inne
-// przedmioty pokazują średnią z arkuszy (bez arkuszy: jedno zdanie). Wiersz prowadzi do mapy przedmiotu, a przedmiot
-// bez mapy do jego arkuszy. Pod wierszami jeden link do powtórek na dziś, gdy jakieś czekają.
+// przedmioty pokazują średnią z arkuszy (bez arkuszy: jedno zdanie). Każdy wiersz prowadzi do mapy przedmiotu: inne
+// przedmioty mają tam działy matury, więc nawet bez arkuszy jest dokąd pójść.
 import { Link } from "react-router-dom";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { Gotowosc } from "../../components/Gotowosc";
@@ -45,11 +45,11 @@ function WierszPrzedmiotu({ s }: { s: Podsumowanie }) {
   const pr = przedmiot(s.przedmiot.id)!;
   const cel = celPrzedmiotu(u, pr.id);
   const zdanie = s.srednia !== null
-    ? `Średnia z ${s.wyniki.length} ${s.wyniki.length === 1 ? "arkusza" : "arkuszy"}${cel !== null ? (s.srednia / 100 >= cel ? ", cel osiągnięty." : `, do celu ${Math.round(cel * 100 - s.srednia)} pkt proc.`) : "."}`
-    : s.arkusze.length ? "Pierwszy arkusz pokaże, ile już masz." : "Arkuszy z tego poziomu jeszcze nie ma.";
+    ? `Średnia z ${s.wyniki.length} ${s.wyniki.length === 1 ? "arkusza" : "arkuszy"}${cel !== null ? (s.srednia / 100 >= cel ? ", cel osiągnięty." : `, do celu brakuje ${Math.round(cel * 100 - s.srednia)}%`) : "."}`
+    : s.arkusze.length ? "Pierwszy arkusz pokaże, ile już masz." : "Działy do przerobienia na mapie.";
   return (
     <li className={w.gotowoscWiersz}>
-      <Link to={`/arkusze?przedmiot=${pr.id}&poziom=${s.przedmiot.poziom}`} className={w.gotowoscLink}>
+      <Link to={`/umiejetnosci?przedmiot=${pr.id}`} className={w.gotowoscLink}>
         <span className={w.gotowoscZastepczy}>
           {s.srednia !== null
             ? <Pierscien wartosc={s.srednia / 100} prog={0.3} cel={cel} rozmiar={56} opis={`${pr.nazwa}: średnia z arkuszy ${s.srednia}%.`} />
@@ -65,7 +65,8 @@ function WierszPrzedmiotu({ s }: { s: Podsumowanie }) {
   );
 }
 
-function PowtorkiNaDzis({ poziom }: { poziom: Podsumowanie["przedmiot"]["poziom"] }) {
+/** Link „N powtórek na dziś” pod kartą dnia na pulpicie (to pytanie „co robić”, nie „jak mi idzie”). */
+export function PowtorkiNaDzis({ poziom }: { poziom: Podsumowanie["przedmiot"]["poziom"] }) {
   const powtorki = useZapytanie(zapytania.powtorki(poziom));
   // Miejsce na link, zanim dojdą powtórki: znika tylko, gdy żadnych nie ma.
   if (powtorki.stan === "ladowanie") return <span className={w.linkPowtorekZastepczy} aria-hidden="true" />;
@@ -80,7 +81,6 @@ function PowtorkiNaDzis({ poziom }: { poziom: Podsumowanie["przedmiot"]["poziom"
 
 export function GotowoscPrzedmiotow({ zakres }: { zakres: Podsumowanie[] }) {
   if (!zakres.length) return null;
-  const angielski = zakres.find((s) => s.przedmiot.id === "angielski");
   return (
     <section className={styles.section} aria-labelledby="gotowosc-title">
       <h2 id="gotowosc-title" className="h2">Gotowość do matury</h2>
@@ -89,7 +89,6 @@ export function GotowoscPrzedmiotow({ zakres }: { zakres: Podsumowanie[] }) {
           ? <WierszAngielskiego key={`angielski-${s.przedmiot.poziom}`} s={s} />
           : <WierszPrzedmiotu key={`${s.przedmiot.id}-${s.przedmiot.poziom}`} s={s} />)}
       </ul>
-      {angielski && <PowtorkiNaDzis poziom={angielski.przedmiot.poziom} />}
     </section>
   );
 }

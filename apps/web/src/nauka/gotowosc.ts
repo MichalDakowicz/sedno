@@ -63,7 +63,7 @@ export function policzGotowosc(umiejetnosci: Umiejetnosc[]): Gotowosc | null {
 export function wniosekGotowosci(g: Gotowosc, cel: number | null): string {
   const zyskac = g.doZyskania ? nazwaObszaru(g.doZyskania).toLowerCase() : null;
   if (cel !== null && g.wartosc >= cel) return `Cel osiągnięty.${g.najmocniej ? ` Najmocniej: ${nazwaObszaru(g.najmocniej).toLowerCase()}.` : ""}`;
-  if (cel !== null) return `Do celu brakuje ${Math.round((cel - g.wartosc) * 100)} pkt proc.${zyskac ? ` Najwięcej da ${zyskac}.` : ""}`;
+  if (cel !== null) return `Do celu brakuje ${Math.round((cel - g.wartosc) * 100)}%${zyskac ? ` Najwięcej da ${zyskac}.` : ""}`;
   if (!g.najmocniej) return zyskac ? `Zacznę od pierwszej rundy. Najwięcej do zyskania: ${zyskac}.` : "Zacznę od pierwszej rundy.";
   const mocno = nazwaObszaru(g.najmocniej).toLowerCase();
   return zyskac && zyskac !== mocno ? `Najmocniej: ${mocno}. Najwięcej do zyskania: ${zyskac}.` : `Najmocniej: ${mocno}.`;

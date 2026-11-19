@@ -80,7 +80,7 @@ export function Ogrod({ umiejetnosci, poziom, adres, onWybierz, onZapowiedz, wyb
               <div className={s.obszar}>
                 <h3 className={s.nazwaGrzadki}>{g.nazwa}</h3>
                 <p className={s.stanObszaru}>
-                  {o === null ? "mało danych" : <><strong>{Math.round(o * 100)}%</strong>{zostalo !== null && (zostalo > 0 ? ` · zostało ${zostalo} pkt proc.` : " · cel osiągnięty")}</>}
+                  {o === null ? "mało danych" : <><strong>{Math.round(o * 100)}%</strong>{zostalo !== null && (zostalo > 0 ? ` · zostało ${zostalo}%` : " · cel osiągnięty")}</>}
                 </p>
                 <PasekProgu wartosc={o ?? 0} cel={cel !== null ? { wartosc: cel, etykieta: "cel" } : undefined}
                   opis={`${g.nazwa}: ${o === null ? "mało danych" : `${Math.round(o * 100)}%`}`} />

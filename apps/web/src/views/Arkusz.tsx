@@ -814,7 +814,7 @@ function Podsumowanie({
         cel={cel !== null && cel !== 0.3 ? { wartosc: cel, etykieta: `cel ${Math.round(cel * 100)}%` } : undefined}
         opis={`Wynik ${procent}%${cel !== null ? `, cel ${Math.round(cel * 100)}%` : ""}${arkusz.poziom === "podstawowy" ? `, próg zdania 30%, ${procent >= 30 ? "powyżej" : "poniżej"} progu` : ""}.`} />
       {cel !== null && (
-        <p>{procent >= cel * 100 ? "Cel osiągnięty w tym arkuszu." : `Do celu ${Math.round(cel * 100)}% zabrakło ${Math.round(cel * 100) - procent} pkt proc.`}</p>
+        <p>{procent >= cel * 100 ? "Cel osiągnięty w tym arkuszu." : `Do celu ${Math.round(cel * 100)}% zabrakło ${Math.round(cel * 100) - procent}%`}</p>
       )}
       {(wynik.doOceny > 0 || omow.bezOdpowiedzi > 0) && (
         <p className="muted">

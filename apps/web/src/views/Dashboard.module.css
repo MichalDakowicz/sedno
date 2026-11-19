@@ -263,3 +263,16 @@
   display: grid;
   gap: var(--s-3);
 }
+
+/* Karta dnia i pod nią link do powtórek: jedna kolumna „co robić teraz”. */
+.kolumnaDnia {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+.kolumnaDnia > :first-child {
+  justify-self: stretch;
+}

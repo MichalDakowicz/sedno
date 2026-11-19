@@ -9,6 +9,8 @@ import { Kropki, type Kropka } from "../../components/wykresy";
 import { useTutor } from "../../components/TutorContext";
 import { adresDiagnozy, adresNauki, adresPowtorek, adresRozbioru, adresRundy } from "../../nauka/adresy";
 import { biezacaWKolejce } from "../../nauka/kolejka";
+import { zapytania } from "../../nauka/zapytania";
+import { useZapytanie } from "../../nauka/stan";
 import { naukaApi, nazwaFormatuNauki, type FormatNauki, type OdpowiedzNauki, type PytanieNauki, type SesjaNauki } from "../../nauka/api";
 import { usePoziomNauki } from "../../nauka/stan";
 import { KafleOdpowiedzi, TrescRundy } from "./TrescRundy";
@@ -281,7 +283,10 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
   const [blad, setBlad] = useState<string | null>(null);
   // Pierwsze zadanie też dostaje fokus, bo do rundy wchodzi się nawigacją.
   const [ustalFokus, setUstalFokus] = useState(true);
-  const [startZegara, setStartZegara] = useState(() => startyZegara.get(start.id) ?? (start.answers.length ? Date.parse(start.created_at) : null));
+  const [startZegara, setStartZegara] = useState(() => startyZegara.get(start.id)
+    // Wznowiona po dłuższej przerwie runda liczy czas od nowa: zegar od wczoraj (np. 75:33) tylko mylił.
+    ?? (start.answers.length && Date.now() - Date.parse(start.created_at) < 2 * 3600_000 ? Date.parse(start.created_at) : null));
+  const mapaRundy = useZapytanie(zapytania.mapa(start.level));
   // Runda wydłuża się po błędzie: Pestka mówi o tym przy werdykcie, zamiast zmieniać licznik bez słowa.
   const [dolozone, setDolozone] = useState<number | null>(null);
   const zapisuje = useRef(false);
@@ -298,8 +303,10 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
   function naEkranie() {
     if (startyZegara.has(sesja.id)) return;
     const zalozona = Date.parse(sesja.created_at);
-    const swieza = sesja.answers.length === 0 && Date.now() - zalozona < 120_000;
-    const poczatek = swieza ? Date.now() : zalozona;
+    // Zegar od założenia rundy tylko, gdy uczeń jest w jej trakcie; nowa albo wznowiona po przerwie (ponad 2 h)
+    // liczy od teraz, żeby nie pokazywać czasu od wczoraj.
+    const wTrakcie = sesja.answers.length > 0 && Date.now() - zalozona < 2 * 3600_000;
+    const poczatek = wTrakcie ? zalozona : Date.now();
     startyZegara.set(sesja.id, poczatek);
     setStartZegara(poczatek);
   }
@@ -366,11 +373,13 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
   const pozycja = ocena?.position ?? pytanie?.position;
   // W kolejce „Powtórz wszystkie” nagłówek mówi, która to powtórka, a licznik niżej: które zadanie w niej.
   const wKolejce = diagnoza ? null : biezacaWKolejce();
+  // Tytułem jest umiejętność, którą uczeń wybrał na karcie, a nie sam rodzaj ćwiczenia.
+  const nazwaUmiejetnosci = mapaRundy.dane?.skills.find((u) => u.skill_id === sesja.skill_id)?.name;
 
   return (
     <main className={`container czytanie ${s.strona}`}>
-      <NaglowekRundy tytul={wKolejce ? `Powtórka ${wKolejce.numer} z ${wKolejce.razem}` : nazwaFormatuNauki[sesja.format]} adres={diagnoza ? adresDiagnozy(sesja.level) : adresNauki(sesja.level, sesja.skill_id ?? undefined)} nazwa={diagnoza ? "Diagnoza" : undefined}>
-        <p className="small muted">Język angielski · {nazwaPoziomu[sesja.level]}{wKolejce && ` · ${nazwaFormatuNauki[sesja.format]}`}</p>
+      <NaglowekRundy tytul={wKolejce ? `Powtórka ${wKolejce.numer} z ${wKolejce.razem}` : diagnoza ? nazwaFormatuNauki[sesja.format] : nazwaUmiejetnosci ?? nazwaFormatuNauki[sesja.format]} adres={diagnoza ? adresDiagnozy(sesja.level) : adresNauki(sesja.level, sesja.skill_id ?? undefined)} nazwa={diagnoza ? "Diagnoza" : undefined}>
+        <p className="small muted">{[!diagnoza && (wKolejce || nazwaUmiejetnosci) && nazwaFormatuNauki[sesja.format], "Język angielski", nazwaPoziomu[sesja.level]].filter(Boolean).join(" · ")}</p>
       </NaglowekRundy>
       <section className={s.postep} aria-label="Postęp rundy">
         <div className={s.wierszPostepu}>
