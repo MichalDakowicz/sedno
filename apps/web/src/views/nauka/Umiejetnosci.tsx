@@ -26,7 +26,7 @@ import { OBSZARY_NAUKI } from "../../nauka/gotowosc";
 import { Ogrod } from "../../components/Ogrod";
 import { rozgrzej } from "../../nauka/rozgrzewanie";
 import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
-import { MINUTY_RUNDY, usePolecenieDnia } from "../../nauka/dzis";
+import { MINUTY_RUNDY, useDzisAngielski } from "../../nauka/dzis";
 import s from "./Umiejetnosci.module.css";
 import { MAPA_WIEDZY_WLACZONA } from "../../nauka/wiedza";
 
@@ -162,7 +162,8 @@ export function Umiejetnosci() {
   const innyPrzedmiot = angielski ? null : coDzisBezRund[wybranyPrzedmiot] ?? { akcja: { do: adresMapy(poziom), etykieta: "Mapa angielskiego" } };
   const mapa = useZapytanie(angielski ? zapytania.mapa(poziom) : null);
   const plan = useZapytanie(angielski ? zapytania.plan(poziom) : null);
-  const polecenie = usePolecenieDnia(poziom, angielski);
+  // „Tu dziś” to ta sama propozycja co na pulpicie i w Nauce, nie osobne polecenie mapy.
+  const dzis = useDzisAngielski(poziom).dzis;
   const uczenie = useUczenie();
   const umiejetnosci = mapa.dane?.skills;
   const id = parametry.get("umiejetnosc");
@@ -204,7 +205,7 @@ export function Umiejetnosci() {
             <div className={s.ogrod}>
               <Ogrod cel={celPrzedmiotu(uczenie, "angielski")} umiejetnosci={umiejetnosci} poziom={poziom} adres={(u) => adresMapy(poziom, u.skill_id)} wybrana={id}
                 onZapowiedz={(u) => rozgrzej(zapytania.dowody(poziom, u.skill_id))}
-                tuDzis={polecenie.dane?.skill_id ?? null} etykieta={`Ogród umiejętności, poziom ${poziom}`} />
+                tuDzis={dzis?.skill_id ?? null} etykieta={`Ogród umiejętności, poziom ${poziom}`} />
             </div>
             <div className={s.lista}>
             {OBSZARY.map(({ id: obszar, nazwa }, i) => {
