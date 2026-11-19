@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sedno – Pięć zakładek, pięć pytań</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<h1>Pięć zakładek, pięć pytań</h1>
+<p class="sub">Każda pozycja menu odpowiada na jedno pytanie ucznia i ma jedną główną akcję widoczną bez przewijania.</p>
+
+<table>
+  <thead><tr><th>Zakładka</th><th>Pytanie ucznia</th><th>Na ekranie</th><th>Główna akcja</th></tr></thead>
+  <tbody>
+    <tr><td>Pulpit</td><td>Co dziś i jak mi idzie?</td><td>karta „Dziś warto”, gotowość z każdego przedmiotu (pierścień, zdanie, ogród w miniaturze), „Twój tydzień”</td><td>przycisk z karty dnia</td></tr>
+    <tr><td>Nauka</td><td>Czego chcę się teraz uczyć?</td><td>przedmiot, jedna runda z nazwą umiejętności, trzy drogi (Pestka, wypowiedź, arkusz), reszta zwinięta</td><td>„Zacznij rundę · 5 min”</td></tr>
+    <tr><td>Arkusze</td><td>Który arkusz rozwiązać?</td><td>„Kontynuuj” dla arkusza w trakcie, lista z wynikiem w pierścieniu</td><td>przycisk w wierszu</td></tr>
+    <tr><td>Mapa umiejętności</td><td>Na ile jestem gotowy?</td><td>gotowość z celem, ogród roślin w grządkach obszarów, panel umiejętności</td><td>„Zacznij rundę” w panelu</td></tr>
+    <tr><td>Powtórki</td><td>Co mi ucieka?</td><td>liczba na dziś, zdanie o kolejnych dniach, grupy według umiejętności</td><td>„Powtórz wszystkie”</td></tr>
+  </tbody>
+</table>
+
+<h2>Pętla nauki</h2>
+<figure>
+<svg viewBox="0 0 720 230" role="img" aria-label="Pętla: quiz celów, diagnoza, ogród, Dziś warto, runda, rozbiór, powtórki i z powrotem do ogrodu">
+  <g font-size="14" fill="var(--text)">
+    <rect x="10" y="20" width="120" height="44" rx="12" fill="none" stroke="var(--line)"/><text x="70" y="47" text-anchor="middle">Quiz celów</text>
+    <rect x="160" y="20" width="120" height="44" rx="12" fill="none" stroke="var(--line)"/><text x="220" y="47" text-anchor="middle">Diagnoza</text>
+    <rect x="310" y="20" width="120" height="44" rx="12" fill="none" stroke="var(--accent)"/><text x="370" y="47" text-anchor="middle">Ogród</text>
+    <rect x="460" y="20" width="120" height="44" rx="12" fill="none" stroke="var(--line)"/><text x="520" y="47" text-anchor="middle">Dziś warto</text>
+    <rect x="590" y="110" width="120" height="44" rx="12" fill="none" stroke="var(--line)"/><text x="650" y="137" text-anchor="middle">Runda</text>
+    <rect x="400" y="170" width="140" height="44" rx="12" fill="none" stroke="var(--line)"/><text x="470" y="197" text-anchor="middle">Rozbiór</text>
+    <rect x="200" y="170" width="140" height="44" rx="12" fill="none" stroke="var(--line)"/><text x="270" y="197" text-anchor="middle">Powtórki</text>
+  </g>
+  <g stroke="var(--muted)" fill="none" stroke-width="1.5">
+    <path d="M130 42h30M280 42h30M430 42h30"/>
+    <path d="M580 42q70 0 70 68"/>
+    <path d="M650 154q0 38-110 38"/>
+    <path d="M400 192h-60"/>
+    <path d="M200 192q-60 0-60-60q0-90 170-90" stroke-dasharray="4 4"/>
+  </g>
+</svg>
+<figcaption>Każdy ekran końcowy ma jedną następną akcję w tej pętli. Linia przerywana: po powtórkach wraca się do ogrodu.</figcaption>
+</figure>
+
+<h2>Ekrany końcowe</h2>
+<ul>
+  <li><b>Wynik quizu celów:</b> zdanie Pestki z celem i czasem, potem „Sprawdźmy, od czego zacząć” (diagnoza).</li>
+  <li><b>Wynik diagnozy:</b> karta dnia z najsłabszą umiejętnością z diagnozy.</li>
+  <li><b>Rozbiór rundy:</b> roślina rośnie, gotowość względem celu, jedna akcja „Dalej” (następna powtórka z kolejki albo polecenie Pestki).</li>
+  <li><b>Koniec powtórek:</b> Pestka z dumą i „Zobacz ogród”.</li>
+  <li><b>Wynik arkusza:</b> ile brakuje do celu, „Omów błędy z Pestką”, a bez błędów do omówienia ogród albo pulpit.</li>
+</ul>
+
+<h2>Słownik dla ucznia</h2>
+<ul>
+  <li><b>Gotowość</b> mówi o przedmiocie: średnie opanowanie umiejętności ważone punktami na maturze, umiejętności bez oceny liczą się jako zero. Przy małej liczbie prób jest wstępna (pierścień w kreskę).</li>
+  <li><b>Opanowanie</b> mówi o jednej umiejętności i wyznacza stadium rośliny.</li>
+  <li><b>Obszary</b> to grządki ogrodu: słuchanie, czytanie, środki językowe, pisanie. Te same nazwy w quizie celów i w kontekście Pestki.</li>
+  <li><b>Cel</b> w procentach z quizu celów: kreska na pierścieniu, w karcie dnia, w „Twoim tygodniu”, w wyniku arkusza i w rozbiorze.</li>
+</ul>
+</main>
+<script src="nav.js" defer></script>
+</body>
+</html>

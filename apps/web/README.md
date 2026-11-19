@@ -17,10 +17,10 @@ Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (
 | --- | --- |
 | `/logowanie` | Logowanie: Google, e-mail, wejście na konto demo |
 | `/witaj` | Onboarding: Pestka, przedmioty, kilka pytań o naukę, na końcu diagnoza albo pulpit |
-| `/` | Pulpit ogólny: propozycja dnia (`nauka/dzis.ts`, karta `components/KartaDnia.tsx`), widgety z układu pulpitu (m.in. „Twój tydzień”), lista przedmiotów |
+| `/` | Pulpit ogólny: propozycja dnia (`nauka/dzis.ts`, karta `components/KartaDnia.tsx`), gotowość z każdego przedmiotu (`views/pulpit/GotowoscPrzedmiotow.tsx`, pod angielskim ogród w miniaturze), widgety z układu pulpitu (domyślnie „Twój tydzień”); zaproszenie do quizu celów, dopóki nie zrobiony |
 | `/przedmiot/:id` | Pulpit zawężony do przedmiotu: propozycja dnia, arkusze przedmiotu, widgety |
 | `/uklad-pulpitu` | Wybór i kolejność widgetów pulpitu, osobno dla każdego przedmiotu |
-| `/nauka` | Nauka (angielski): propozycja dnia, Wolny temat, sposoby nauki z polecanym, inne przedmioty, „Chcę coś innego” (poziom i umiejętność), niedokończone rundy |
+| `/nauka` | Nauka: przedmiot (pigułki, `?przedmiot`, zapamiętany w przeglądarce), karta „Zacznij rundę” z umiejętnością (`?umiejetnosc`, zmiana z miniatury ogrodu), trzy drogi (Zapytaj Pestkę, Napisz wypowiedź, Rozwiąż arkusz), „Więcej sposobów” zwinięte, „Dokończ” (do 3 rund) |
 | `/nauka/runda`, `/nauka/runda/:id` | Szybka runda albo „Napraw błąd”: start z parametrów (`?poziom&umiejetnosc&format&powtorz`) i trwająca runda; w tym samym widoku sesja diagnozy (koniec prowadzi do `/nauka/diagnoza`) |
 | `/nauka/rozbior/:id` | Rozbiór zakończonej rundy: zmiana opanowania, zadania, następny krok; dla sesji diagnozy wynik na umiejętność (`views/nauka/WynikDiagnozy.tsx`) |
 | `/nauka/uczen-uczy` | Uczeń uczy AI: wyjaśnienie zasady Koledze, ocena sędziego |
@@ -31,8 +31,9 @@ Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (
 | `/nauka/mapa-wiedzy` | Mapa wiedzy (`?przedmiot`): notatki ucznia, graf połączeń (od 640 px), propozycje Pestki do przyjęcia albo odrzucenia |
 | `/nauka/wizualizacje` | Modele do zobaczenia (`?model=parabola\|wyszukiwanie-binarne\|tekst-parafraza`): katalog z `wizualizacje`, stan z `wizualizacja` |
 | `/nauka/diagnoza` | Diagnoza na start (`nauka/diagnoza.ts`): jedna krótka sesja (`nauka_diagnoza_start`, ok. 16 zadań), stan na koncie osobno dla poziomu, na końcu wynik na umiejętność i propozycja dnia. Bez tych funkcji w bazie dawna wersja: po jednej rundzie z każdego obszaru, stan w przeglądarce |
-| `/umiejetnosci` | Mapa umiejętności: opanowanie umiejętności, panel z linią opanowania w czasie i próbami (`?umiejetnosc=`) |
-| `/powtorki` | Powtórki: propozycja dnia, błędy do przećwiczenia, umiejętności do odświeżenia |
+| `/umiejetnosci` | Mapa umiejętności: gotowość (`components/Gotowosc.tsx`), ogród (`components/Ogrod.tsx`, poniżej 640 px lista wierszy), panel z linią opanowania w czasie i próbami (`?umiejetnosc=`) |
+| `/powtorki` | Powtórki: liczba na dziś, „Powtórz wszystkie” (kolejka w `nauka/kolejka.ts`: rozbiór każdej rundy proponuje następną, ostatni kończy się ogrodem), zwinięte grupy według umiejętności |
+| `/cele` | Quiz celów z Pestką (`views/QuizCelow.tsx`): cel w % na przedmiot, mocne i słabe obszary, czas i dni; ten sam quiz jest krokiem onboardingu |
 | `/arkusze` | Lista arkuszy CKE: angielski według poziomu, matematyka (podstawowy), informatyka (rozszerzony); `?przedmiot&poziom` |
 | `/arkusze/:id` | Rozwiązywanie arkusza i sprawdzanie z kluczem CKE, omawianie błędów z Pestką |
 | `/tutor` | Pełny widok rozmowy z Pestką |
@@ -42,6 +43,21 @@ Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (
 | `/ustawienia` | Motyw, rozmiar tekstu, dostępność, zachowanie Pestki |
 | `/szablony`, `/szablony/:slug` | Prototypy z `src/szablony/` (został „Napraw błąd”); opis w `src/szablony/README.md` |
 | `*` | Nie ma takiej strony (`views/NieMaStrony.tsx`): zmartwiona Pestka, adres i „Wróć na pulpit” |
+
+## Dane ekranów: rejestr zapytań i rozgrzewanie
+
+- **Rejestr** `src/nauka/zapytania.ts`: jeden klucz i jedna funkcja pobierająca na rodzaj danych (mapa, powtórki, plan, historia, aktywność, diagnoza, dowody, polecenie dnia, otwarte rundy). Widoki biorą dane przez `useZapytanie(zapytania.mapa(poziom))` (`src/nauka/stan.ts`), więc te same dane mają ten sam klucz w pamięci na każdym ekranie.
+- **Pamięć** `src/nauka/pamiec.ts`: stale-while-revalidate z kluczem `<id konta>:<klucz>`. `pobierzWspolnie` współdzieli obietnicę w locie, więc rozgrzewanie, widok i dwa widgety pytają bazę raz. Zmiana w nauce (`uniewaznijNauke`) czyści pamięć i zapytania w locie; odpowiedź wysłana przed zmianą nie trafia już do pamięci.
+- **Rozgrzewanie** `src/nauka/rozgrzewanie.ts`: `useRozgrzewanie()` w `AppLayout` po zalogowaniu, w `requestIdleCallback`, pobiera dane pięciu pozycji menu dla poziomu angielskiego z profilu; `rozgrzewajLink(do)` w `TopNav` robi to samo przy najechaniu, fokusie i dotknięciu linku, a roślina w ogrodzie rozgrzewa próby panelu. Lista arkuszy (`arkusze/dane.ts`, `rozgrzejListeArkuszy`) i wiersze postępu konta (`konto/wyniki.ts`, `rozgrzejPostepyKonta`) mają własne wspólne obietnice.
+- **Wejścia** bez powtórek: `AppLayout` oznacza stronę już obejrzaną w sesji (`oznaczStrone` w `src/ruch.tsx`, `data-strona-znana`), a `.wejscie`, `useWejscie` i `useLiczba` stoją wtedy od razu na wartości. `.wejscie` to samo krycie.
+- Pomiar (dev, konto testowe, zimna pamięć po przeładowaniu, klik 1,5 s po starcie): od kliknięcia w menu do treści 11–22 ms zamiast 51–317 ms, zmiany wysokości strony po wejściu 0 zamiast 1–6, CLS 0 w obu wersjach.
+
+## Gotowość, ogród i cele
+
+- `src/nauka/gotowosc.ts`: gotowość z przedmiotu = średnie opanowanie umiejętności ważone `exam_points` (bez punktów waga 1), nieocenione liczą się jako 0; wstępna, gdy oceniona jest mniej niż połowa wagi albo prób jest mniej niż 20. `wniosekGotowosci` daje zdanie (najmocniejszy obszar, najwięcej do zyskania, ile brakuje do celu).
+- `src/components/Ogrod.tsx`: rośliny w grządkach `OBSZARY_NAUKI`; stadia z ostatniej wizyty w `localStorage` (`sedno.ogrod.<konto>.<poziom>`), roślina rośnie tylko przy wyższym stadium. `adres` (link do panelu) albo `onWybierz` (wybór w Nauce), `onZapowiedz` (rozgrzanie).
+- Cele w `profiles.learning` przez `src/konto/profilUcznia.ts` (kopia w `localStorage`): `celProcent`, `mocne`, `slabe`, `dni`, `czas`, `quiz`. `celPrzedmiotu(u, id)` (procent z quizu, a bez niego dawny wybór z `CELE`) i `minutyDziennie(u)` czytają gotowość, karta dnia (`nauka/dzis.ts`), „Twój tydzień”, wynik arkusza i rozbiór; `opisProfilu()` przekazuje cele, mocne i słabe strony Pestce w rozmowie. Tablica (`omow-brudnopis`) ich nie dostaje, bo funkcja serwera nie ma na to pola.
+- `nauka/dzis.ts`: po diagnozie zakończonej dziś karta dnia proponuje najsłabszą umiejętność z diagnozy; obszar zadeklarowany jako słaby ma pierwszeństwo przed poleceniem z mapy, dopóki jego umiejętności mają mało danych.
 
 ## Nauka z Pestką (funkcja `nauka-ai`)
 
@@ -80,7 +96,7 @@ Pestka jest na każdym koncie i nie ma stałego miejsca w treści (`TutorGuide.t
 - **Emocje:** `TutorAvatar.tsx` ma stany `idle`, `thinking`, `talking` i emocje `radosc`, `duma`, `zmartwienie`, `sen`, `swieto` (kiedy która: `DESIGN.md`). Sen włącza jeden timeout w `TutorProvider` po 3 min bez ruchu ucznia; wskaźnik, klawiatura albo przewijanie ją budzą.
 - **Głos:** wszystkie gotowe kwestie są w `pestka/glos.ts` (`glos`, `wybierz(lista, n, liczba?)`, `powitanie()`). Widoki nie wpisują własnych tekstów Pestki.
 - **Stany:** `components/StanPestki.tsx` (twarz w emocji, zdanie z `glos.ts`, jedno działanie) w pustych stanach, w `BladPestki` / `BladNauki` i na stronie 404; `Ladowanie` po 1 s pokazuje myślącą Pestkę.
-- **Kiełkująca pestka:** `nauka/stadia.ts` (stadium z opanowania, progi `PROGI_STADIOW`) i rysunek `components/Kielek.tsx`: wiersze mapy, panel umiejętności, rozbiór, „ogród” w widgecie mapy.
+- **Kiełkująca pestka:** `nauka/stadia.ts` (stadium z opanowania, progi `PROGI_STADIOW`) i rysunek `components/Kielek.tsx`: ogród (`components/Ogrod.tsx`) na mapie, na pulpicie i w Nauce, wiersze mapy na telefonie, panel umiejętności, rozbiór.
 - **Znak:** `components/Znak.tsx` (Pestka i „Sedno” w pasku i na logowaniu). Favicon `public/pestka.svg`, ikony PNG (zwykłe, maskowalna, apple-touch) generuje `node scripts/ikony.mjs` z tego samego rysunku; `public/manifest.webmanifest`.
 
 ## Arkusze
