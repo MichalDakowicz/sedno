@@ -1,88 +1,66 @@
 .page {
   display: grid;
-  gap: 32px;
-  padding-top: 32px;
+  gap: var(--s-6);
+  padding-top: var(--s-6);
   padding-bottom: 120px;
-}
-
-.head {
-  display: grid;
-  gap: 16px;
-  max-width: 640px;
 }
 
 .levels {
   position: relative;
   display: flex;
-  gap: 8px;
+  gap: var(--s-2);
   overflow-x: auto;
-  margin: -8px;
-  padding: 8px;
+  margin: calc(-1 * var(--s-2));
+  padding: var(--s-2);
   scrollbar-width: none;
 }
 
+/* Zakładki przedmiotu i poziomu: te same pigułki co poziom matury na Nauce, w Powtórkach i na mapie. */
 .level {
+  composes: pigulka from global;
   flex-shrink: 0;
-  min-height: 44px;
-  padding: 8px 20px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  background: transparent;
-  font-size: calc(15px * var(--skala-tekstu, 1));
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
-}
-
-.level:hover {
-  color: var(--fg);
-  background: var(--surface);
-}
-
-.levelActive {
-  color: var(--fg);
-  background: var(--surface);
-  border-color: transparent;
-  box-shadow: var(--shadow-float);
+  font-family: inherit;
 }
 
 .levelCount {
-  margin-left: 8px;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  margin-left: var(--s-2);
+  font-size: var(--t-xs);
   color: var(--subtle);
   font-variant-numeric: tabular-nums;
 }
 
+/* Poziomy i przedmioty z profilu, których arkuszy jeszcze nie ma: jedno miejsce pod zakładkami. */
+.braki {
+  display: grid;
+  gap: var(--s-1);
+}
+
 .group {
   display: grid;
-  gap: 12px;
+  gap: var(--s-3);
 }
 
 .groupHead {
   display: grid;
-  gap: 4px;
+  gap: var(--s-1);
 }
 
 .list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(204px, 1fr));
-  gap: 12px;
+  gap: var(--s-3);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* Karta roku: wspólna .karta, ciaśniej, bo stoi w siatce kilku obok siebie. */
 .card {
+  composes: karta from global;
   display: grid;
-  gap: 4px;
+  gap: var(--s-1);
   height: 100%;
-  padding: 18px;
-  border-radius: var(--r-md);
-  background: var(--surface);
-  box-shadow: var(--shadow-float);
+  padding: var(--s-4);
 }
 
 .card:hover .action {
@@ -95,16 +73,12 @@
   letter-spacing: -0.03em;
 }
 
-.session {
-  text-transform: capitalize;
-}
-
 .status {
-  margin: 8px 0 12px;
+  margin: var(--s-2) 0 var(--s-3);
 }
 
 .score {
-  font-size: calc(18px * var(--skala-tekstu, 1));
+  font-size: var(--t-md);
   font-weight: 500;
 }
 
@@ -115,20 +89,16 @@
 
 .empty {
   display: grid;
-  gap: 12px;
+  gap: var(--s-3);
   justify-items: start;
   max-width: 560px;
-  padding: 32px;
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-float);
 }
 
 .code {
   margin: 0;
-  padding: 14px 18px;
+  padding: var(--s-3) var(--s-4);
   border-radius: var(--r-sm);
   background: var(--bg);
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
 }
 

@@ -28,16 +28,29 @@ export function zNakladka(a: Arkusz): Arkusz {
 
 type Stan<T> = { dane: T | null; blad: string | null; laduje: boolean };
 
-function useZapytanie<T>(klucz: string, pobierz: () => PromiseLike<{ data: T | null; error: { message: string } | null }>): Stan<T> {
-  const [stan, setStan] = useState<Stan<T>>({ dane: null, blad: null, laduje: true });
+// pamiec: wynik z wcześniejszego wejścia pokazujemy od razu, bez szkieletu i bez ponownego pobierania.
+function useZapytanie<T>(klucz: string, pobierz: () => PromiseLike<{ data: T | null; error: { message: string } | null }>, pamiec?: Map<string, T>): Stan<T> {
+  const zPamieci = (k: string): Stan<T> | null => {
+    const dane = pamiec?.get(k);
+    return dane ? { dane, blad: null, laduje: false } : null;
+  };
+  const [stan, setStan] = useState<Stan<T>>(() => zPamieci(klucz) ?? { dane: null, blad: null, laduje: true });
   useEffect(() => {
+    const zapis = zPamieci(klucz);
+    if (zapis) {
+      setStan(zapis);
+      return;
+    }
     let aktualne = true;
     setStan({ dane: null, blad: null, laduje: true });
     pobierz().then(({ data, error }) => {
       if (!aktualne) return;
       if (error) setStan({ dane: null, blad: error.message, laduje: false });
       else if (data === null || (Array.isArray(data) && data.length === 0)) setStan({ dane: null, blad: "brak-danych", laduje: false });
-      else setStan({ dane: data, blad: null, laduje: false });
+      else {
+        pamiec?.set(klucz, data);
+        setStan({ dane: data, blad: null, laduje: false });
+      }
     });
     return () => {
       aktualne = false;
@@ -65,7 +78,20 @@ function pobierzListe() {
   return lista;
 }
 
-export const useListaArkuszy = () => useZapytanie<ArkuszWpis[]>("lista", pobierzListe);
+const listy = new Map<string, ArkuszWpis[]>();
+
+export const useListaArkuszy = () => useZapytanie<ArkuszWpis[]>("lista", pobierzListe, listy);
+
+// Treść arkusza się nie zmienia, więc w obrębie sesji pobieramy ją raz. Runda nauki otwiera ten sam arkusz
+// przy każdym pytaniu, a bez pamięci każde pytanie czekało na cały arkusz od nowa.
+const arkusze = new Map<string, Arkusz>();
+
+/** Po wylogowaniu następne konto pobiera arkusze od nowa (dostęp sprawdza RLS). */
+export function wyczyscArkusze() {
+  arkusze.clear();
+  listy.clear();
+  lista = null;
+}
 
 export const useArkusz = (id: string) =>
   useZapytanie<Arkusz>(`arkusz:${id}`, () =>
@@ -75,4 +101,4 @@ export const useArkusz = (id: string) =>
       .eq("id", id)
       .maybeSingle()
       .then(({ data, error }) => ({ data: data ? zNakladka(data.data as Arkusz) : null, error })),
-  );
+  arkusze);

@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
 import { useProfil } from "../auth";
+import { brakArkuszy } from "../konto/przedmioty";
+import { NaglowekStrony } from "../components/NaglowekStrony";
 import { Ladowanie } from "../components/Ladowanie";
+import { Pierscien } from "../components/wykresy";
 import { Plywak } from "../components/Plywak";
 import styles from "./Arkusze.module.css";
 
@@ -14,27 +17,27 @@ const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string; lead: string }[]
     id: "angielski",
     nazwa: "Angielski",
     opis: "Język angielski · matura od 2015",
-    lead: "Arkusze maturalne CKE do rozwiązania w przeglądarce. Zadania zamknięte sprawdzam od razu z kluczem, otwarte porównuję z zasadami oceniania.",
+    lead: "Arkusze maturalne CKE do rozwiązania w przeglądarce.",
   },
   {
     id: "matematyka",
     nazwa: "Matematyka",
     opis: "Matematyka · poziom podstawowy · matura od 2023",
-    lead: "Zadania wyglądają jak w arkuszu CKE. Przy każdym masz brudnopis do obliczeń i szkiców, a przy zadaniach z rysunkiem możesz rysować po figurze.",
+    lead: "Arkusze maturalne CKE z brudnopisem przy każdym zadaniu.",
   },
   {
     id: "informatyka",
     nazwa: "Informatyka",
     opis: "Informatyka · poziom rozszerzony · matura od 2023",
-    lead: "Zadania z arkusza CKE razem z plikami danych. Program napiszesz i uruchomisz w Pythonie, zapytania SQL sprawdzisz na tabelach z plików, a dane pobierzesz do Excela albo Accessa.",
+    lead: "Arkusze maturalne CKE z plikami danych, Pythonem i SQL.",
   },
 ];
 const POZIOMY: Poziom[] = ["podstawowy", "rozszerzony", "dwujezyczny"];
 const NAZWY: Record<Poziom, string> = { podstawowy: "Podstawowy", rozszerzony: "Rozszerzony", dwujezyczny: "Dwujęzyczny" };
 
 const FORMULY = [
-  { id: "2023", nazwa: "Formuła 2023", opis: "Obecna matura, od 2023 roku. Taki egzamin napiszesz." },
-  { id: "2015", nazwa: "Formuła 2015", opis: "Matura z lat 2015–2023. Inny układ zadań i mniej punktów, ale dobra do ćwiczeń." },
+  { id: "2023", nazwa: "Formuła 2023", opis: "Obecna matura." },
+  { id: "2015", nazwa: "Formuła 2015", opis: "Starsza matura, dobra do ćwiczeń." },
 ];
 
 export function Arkusze() {
@@ -42,29 +45,32 @@ export function Arkusze() {
   const profil = useProfil();
   // Domyślnie przedmiot i poziom, które konto zdaje (pierwszy z listy, jeśli zdaje kilka).
   const poziomKonta = (p: Przedmiot) => profil?.subjects.find((s) => s.id === p)?.poziom as Poziom | undefined;
-  const [przedmiot, setPrzedmiot] = useState<Przedmiot>(() => PRZEDMIOTY.find((p) => poziomKonta(p.id))?.id ?? "angielski");
-  const [wybranyPoziom, setPoziom] = useState<Poziom>(() => poziomKonta(przedmiot) ?? "podstawowy");
+  // ?przedmiot=…&poziom=… (z pulpitu i Nauki) otwiera od razu właściwą zakładkę.
+  const [parametry] = useSearchParams();
+  const zAdresu = PRZEDMIOTY.find((p) => p.id === parametry.get("przedmiot"))?.id;
+  const poziomZAdresu = POZIOMY.find((p) => p === parametry.get("poziom"));
+  const [przedmiot, setPrzedmiot] = useState<Przedmiot>(() => zAdresu ?? PRZEDMIOTY.find((p) => poziomKonta(p.id))?.id ?? "angielski");
+  const [wybranyPoziom, setPoziom] = useState<Poziom>(() => poziomZAdresu ?? poziomKonta(przedmiot) ?? "podstawowy");
   const opis = PRZEDMIOTY.find((p) => p.id === przedmiot)!;
   const zPrzedmiotu = dane?.filter((a) => (a.przedmiot ?? "angielski") === przedmiot);
   // Poziomy, dla których są arkusze (matematyka na razie tylko podstawowa).
   const poziomy = POZIOMY.filter((p) => !zPrzedmiotu || zPrzedmiotu.some((a) => a.poziom === p));
   const poziom = poziomy.includes(wybranyPoziom) ? wybranyPoziom : (poziomy[0] ?? "podstawowy");
+  // Poziom z profilu, którego arkuszy jeszcze nie ma, i przedmioty z profilu bez żadnych arkuszy: mówimy to wprost.
+  const brakPoziomu = zPrzedmiotu && poziomKonta(przedmiot) && !poziomy.includes(poziomKonta(przedmiot)!) ? poziomKonta(przedmiot)! : null;
+  const bezArkuszy = (profil?.subjects ?? []).filter((s) => !PRZEDMIOTY.some((p) => p.id === s.id)).map((s) => s.id);
 
   return (
     <main className={`container ${styles.page}`}>
-      <header className={styles.head}>
-        <span className="label">{opis.opis}</span>
-        <h1 className="display">Arkusze</h1>
-        <p className="lead">{opis.lead}</p>
-      </header>
+      <NaglowekStrony etykieta={opis.opis} tytul="Arkusze" lead={opis.lead} />
 
       <nav className={styles.levels} aria-label="Przedmiot">
-        <Plywak zalezy={przedmiot} />
+        <Plywak wyglad="pigulka" />
         {PRZEDMIOTY.map((p) => (
           <button
             key={p.id}
             type="button"
-            className={`${styles.level} ${przedmiot === p.id ? styles.levelActive : ""}`}
+            className={styles.level}
             onClick={() => {
               setPrzedmiot(p.id);
               setPoziom(poziomKonta(p.id) ?? "podstawowy");
@@ -78,14 +84,23 @@ export function Arkusze() {
 
       {poziomy.length > 1 && (
         <nav className={styles.levels} aria-label="Poziom">
-          <Plywak zalezy={`${przedmiot}-${poziom}-${poziomy.length}`} />
+          <Plywak wyglad="pigulka" />
           {poziomy.map((p) => (
-            <button key={p} type="button" className={`${styles.level} ${poziom === p ? styles.levelActive : ""}`} onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
+            <button key={p} type="button" className={styles.level} onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
               {NAZWY[p]}
               {zPrzedmiotu && <span className={styles.levelCount}>{zPrzedmiotu.filter((a) => a.poziom === p).length}</span>}
             </button>
           ))}
         </nav>
+      )}
+
+      {(brakPoziomu || bezArkuszy.length > 0) && (
+        <div className={styles.braki}>
+          {brakPoziomu && <p className="muted">{brakArkuszy(przedmiot, brakPoziomu, poziomy)}</p>}
+          {[...new Set(bezArkuszy)].map((id) => (
+            <p key={id} className="muted">{brakArkuszy(id, null, [])}</p>
+          ))}
+        </div>
       )}
 
       {laduje && <Ladowanie ksztalt="wiersze" ile={5} etykieta="Wczytuję listę arkuszy" />}
@@ -117,14 +132,14 @@ export function Arkusze() {
 function Karta({ arkusz: a }: { arkusz: ArkuszWpis }) {
   const postep = wczytajPostep(a.id);
   const zaczety = Object.keys(postep.odpowiedzi).length > 0;
-  const proc = postep.wynik ? Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100) : null;
+  const proc = postep.wynik && postep.wynik.mozliwe > 0 ? Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100) : null;
   return (
     <li>
       <Link to={`/arkusze/${a.id}`} className={styles.card} title={a.symbol}>
+        <span className="kicker">{a.sesja}</span>
         <span className={styles.year}>{a.rok}</span>
-        <span className={`small muted ${styles.session}`}>{a.sesja}</span>
         <span className={styles.status}>
-          {proc !== null ? <span className={styles.score}>{proc}%</span> : zaczety ? <span className="small muted">w trakcie</span> : <span className="small muted">nierozwiązany</span>}
+          {proc !== null ? <Pierscien wartosc={proc / 100} prog={a.poziom === "podstawowy" ? 0.3 : undefined} rozmiar={48} opis={`Wynik ${proc}%`} /> : zaczety ? <span className="small muted">w trakcie</span> : <span className="small muted">nierozwiązany</span>}
         </span>
         <span className={`btn btn-ghost ${styles.action}`}>
           {proc !== null ? "Zobacz wynik" : zaczety ? "Kontynuuj" : "Rozwiąż"}

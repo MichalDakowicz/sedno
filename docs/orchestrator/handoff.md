@@ -1,29 +1,25 @@
 # Orchestration: handoff
 
-_Updated 2026-11-18 (evening)_
+_Updated 2026-11-18_
 
-**State.** Phase 2 (English learning loop) was built and merged by the teammate: backend PR #55, views PR #56 (Nauka, Mapa umiejętności, Szybka runda, Rozbiór, Powtórki, Uczeń uczy), migration 0015 (audit fixes for repeating wrong tasks and clearing the mistake flag), then PRs #57–#65 (scratchpad, generated variants and open-answer grading in 0016, Nauka loading). Production and staging (`dev`) run the same code as `main` (`904d468`). The orchestrator's own unit-3 branch `mapa-umiejetnosci` duplicates #56 and is dropped (kept, not merged). The orchestrator now verifies the merged work against `goal.md` and turns gaps into fix units.
+**State.** Goal 2 (English learning loop) is achieved, 17/17 bars, archived in `goals/2026-11-18-petla-nauki-angielskiego.md`. No active goal. `main` is at `e5e82c6`; production and staging databases run migrations up to 0019 (autodeploy logs: `gotowe: sedno ← main e5e82c6`, staging at the same code).
 
-**Goal.** 10/17 bars, with evidence in `goal.md`.
+**How it went.** The teammate built the backend and the views (PRs #55, #56, then #57–#65). The orchestrator verified them against the goal (import report, PDF spot-checks, three Opus audits, five Haiku tester runs on staging, a hand calculation of mastery) and built the fixes: #66–#68 (abandoned rounds, listening segment, breakdown summary, decay as estimate × retention, Powtórki grouping) and #69–#71 (writing skill out of automatic ranking, „mało danych” threshold without ageing, delete only open rounds, focus fixes, „Ćwicz” first, dashboard widgets Powtórki / Kontynuuj / Wybierz temat). All merged at the user's yes.
 
-**Verified 2026-11-18.** Typecheck and build on `904d468`. Opus audit of #56 + 0015 (0 blockers, 3 majors, 9 minors). Haiku tester run of the whole loop on staging (round, breakdown, map, Powtórki, reload, second tab, network failure, 375 px, dark, keyboard, console).
+**Decisions this run.** Backend and views from the teammate, orchestrator verifies and fixes. Student-facing skill names approved (migration 0009). Displayed mastery = Elo estimate × retention; breakdown before/after = estimate without decay. Skills without scored CKE evidence (pisanie) are left out of automatic recommendations and the weekly plan. „Usuń” for unfinished rounds without confirm (as in the student profile).
 
-**Fix units (2026-11-18), built by the orchestrator, merged into `main` at the user's yes (`5c5d329`); 0017 and 0018 applied on production by the autodeploy.**
-- PR #66 `porzucone-rundy`: reuse of open rounds (also repeat rounds of the same item), „Usuń” in „Ostatnio” for all levels and formats, specific messages for the 10-round cap and bad URL params, feedback survives reload, live region with the correct answer and explanation, focus after „Ćwicz”, area names in the picker.
-- PR #67 `sluchanie-i-rozbior`: whole-task listening segment before answering (only when every question has a fragment), breakdown summary „Co poszło dobrze, a co nie” with counts, note that the map shows decay.
-- PR #68 `zanikanie-i-powtorki`: migrations 0017 (displayed score = Elo estimate × retention, Elo at full weight, fewer map computations) and 0018 (breakdown before/after both the estimate; weekly plan ranking), Powtórki grouped by skill with dates and loading state, „Dziś warto” loading, `nauka.md` and `docs/mapa-dowody.html` updated.
-- All three: up to date with `main`, typecheck and build green together; 0017 and 0018 applied on staging; tester runs on staging; two audit rounds, the last with no blockers or majors. Repeat-round reuse checked by the orchestrator in the browser on staging.
-- Left on purpose: „Usuń” without confirm (as in the student profile); listening segment seek on iOS Safari untested; per-question fragment after answering stays inside „Treść zadania”; the round grows after a mistake by design; a „Failed to load resource: 400” on every page load (no learning RPC; source unknown, likely pre-existing).
+**Not verified / left.** Listed in `NASTEPNE.md` section 0 („Pętla nauki angielskiego, faza 2”): micro-skills, weekly trend, low-confidence bar and names/codes toggle on the map; diagnosis prompt at „mało danych”; „Odłóż” in Powtórki; listening segment seek on iOS Safari; per-question fragment after answering inside „Treść zadania”; dashboard runs the map 3–4 times per load (not measured); an occasional „Failed to load resource: 400” on page load (not seen on the last clean load). The production frontend (Firebase Hosting `trafwsedno`) was redeployed by the orchestrator from `main` at the user's request on 2026-11-18 (`firebase deploy --only hosting`); production serves the new bundle (contains the #66–#71 views); smoke-tested signed in (read-only, no rounds started): dashboard shows Powtórki, Kontynuuj and the map widget; /umiejetnosci, /nauka and /powtorki (with „Szacowany czas”) load; no console errors.
 
-**Not verified.** Large text: the app sizes text in px, so the 200% root-font check proves nothing; retest with browser zoom. Hand calculation of mastery (bar 1 of Works). Matching every template/doc page.
+**In flight.** Nothing. Test data on the staging account: a few unfinished rounds and many listening mistakes in Powtórki.
 
-**Test data left on staging.** Unfinished rounds from the tester (18 Nov, Dobieraj 4/6; Powtórki 8.3 2/7; 17 Nov). They count toward the 10-session cap.
+**Claimed but unfinished.** None.
 
-**In flight.** Nothing. The production frontend (Firebase Hosting, deployed by the teammate) is not redeployed by the orchestrator; it still serves the views from before #66–#68 and works with the new backend (same RPC signatures).
-
-**Next.** Run the hand calculation of mastery for the test account, the full keyboard path and a browser-zoom large-text check, then the goal review.
+**Next.**
+- User: agree with the teammate on the split of work for the next goal (two agent teams worked on the same goal twice this run).
+- Next orchestrator: draft goal 3 with the user (candidates in `NASTEPNE.md`: other subjects, „Do matury” forecast and weekly plan, other formats).
 
 **Housekeeping.**
 - `npm run dev:staging` runs in the terminal tab „dev staging” from `C:\sedno` on `main`.
-- Worktrees: `C:\sedno-pr55` (junctions `node_modules`, `data/cke`, `data/nagrania`; delete them before `git worktree remove`), `C:\sedno-dev` (branch `dev-scal`), `.claude/worktrees/agent-aa52a1d936546d89f` (branch `mapa-umiejetnosci`, dropped). Remove when no longer needed.
+- Merged branches deleted on GitHub (only `main` and `dev` remain) and locally for this run. Left: `C:\sedno-dev` (junction `node_modules`; local branch `dev-scal` for staging merges) and the worktree with the dropped unmerged branch `mapa-umiejetnosci`; worktrees of other sessions untouched.
 - The built-in browser loses the staging session when the pane restarts; the user signs in again.
+- After switching branches under a running dev server, restart it: stale hot-reload modules cause false console errors (`useTutor poza TutorProvider`).

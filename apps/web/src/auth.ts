@@ -5,9 +5,11 @@ import { supabase } from "./supabase";
 import { poprawne, type MojPrzedmiot } from "./konto/przedmioty";
 import { wyczyscRozmowy, wyslijOczekujace } from "./konto/rozmowy";
 import { wyczyscOstatnie } from "./components/szukaj";
+import { wyczyscArkusze } from "./arkusze/dane";
 import { splukajProfil } from "./konto/profilUcznia";
 import { splukajUstawienia } from "./konto/ustawienia";
 import { splukajUklad } from "./konto/ukladPulpitu";
+import { splukajPostepy, wyczyscPostepyLokalne } from "./arkusze/postep";
 
 export type Profil = {
   id: string;
@@ -34,6 +36,7 @@ supabase.auth.onAuthStateChange((event, session) => {
   if (event === "SIGNED_OUT") {
     wyczyscRozmowy();
     wyczyscOstatnie();
+    wyczyscArkusze();
   }
   current = session;
   ready = true;
@@ -71,23 +74,18 @@ export async function loginPassword(email: string, password: string): Promise<st
 }
 
 export async function logout(): Promise<void> {
-  // Zaległe zapisy rozmów, ustawień i profilu ucznia idą jeszcze z sesją, potem czyścimy; nieudany ani zawieszony (limit 3 s) zapis nie blokuje wylogowania.
+  // Zaległe zapisy rozmów, postępu w arkuszach, ustawień i profilu ucznia idą jeszcze z sesją, potem czyścimy; nieudany ani zawieszony (limit 3 s) zapis nie blokuje wylogowania.
   try {
-    await Promise.race([Promise.all([wyslijOczekujace(), splukajUstawienia(), splukajProfil(), splukajUklad()]), new Promise((r) => setTimeout(r, 3000))]);
+    await Promise.race([Promise.all([wyslijOczekujace(), splukajPostepy(), splukajUstawienia(), splukajProfil(), splukajUklad()]), new Promise((r) => setTimeout(r, 3000))]);
   } catch {
     // zostaje lokalna kopia, która i tak jest czyszczona
   }
   wyczyscRozmowy();
   wyczyscOstatnie();
+  // Lokalna kopia postępu należy do konta; następna osoba na tym komputerze zaczyna od zera. Pamięć postępu
+  // czyści zdarzenie SIGNED_OUT w postep.ts, więc otwarte widoki dostają już pustą przeglądarkę.
+  wyczyscPostepyLokalne();
   await supabase.auth.signOut();
-  // Lokalna kopia postępu należy do konta; następna osoba na tym komputerze zaczyna od zera.
-  try {
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith("sedno.arkusz."))
-      .forEach((k) => localStorage.removeItem(k));
-  } catch {
-    // zablokowany storage: nic do sprzątania
-  }
 }
 
 // Profil wspólny dla całej aplikacji: jedno zapytanie na konto, zmiany widzą wszystkie widoki.
@@ -137,4 +135,14 @@ export async function saveSubjects(subjects: MojPrzedmiot[]): Promise<boolean> {
   if (profil?.id === id && profil.data) profil = { id, data: { ...profil.data, subjects } };
   profilListeners.forEach((l) => l());
   return true;
+}
+
+// Słowa, od których zaczynają się nazwy kont niebędące imieniem (konto testowe, demo, szkolne).
+const NIE_IMIONA = new Set(["konto", "test", "testowe", "demo", "uczeń", "uczen", "user", "admin", "jury", "gość", "gosc", "klasa", "szkoła", "szkola"]);
+
+/** Imię do powitania („Cześć, Ola.”) albo null, gdy nazwa konta nie wygląda na imię („Konto testowe”, adres, cyfry). */
+export function imieZNazwy(nazwa: string | null | undefined): string | null {
+  const pierwsze = nazwa?.trim().split(/\s+/)[0];
+  if (!pierwsze || /[\d@_.]/.test(pierwsze) || NIE_IMIONA.has(pierwsze.toLocaleLowerCase("pl"))) return null;
+  return pierwsze;
 }

@@ -80,13 +80,16 @@ export const shadowDark = {
   raised: "0 12px 40px rgba(0, 0, 0, 0.5)",
 } as const;
 
+// Tylko te promienie (tokens.css --r-*). xs: znaczniki, małe pola, ścięty róg dymka rozmowy.
 export const radius = {
+  xs: 6,
   sm: 12,
   md: 20,
   lg: 28,
   pill: 999,
 } as const;
 
+// Ta sama drabinka co --s-1…--s-8 w tokens.css (9 tylko dla mobile).
 export const space = {
   1: 4,
   2: 8,
@@ -108,11 +111,24 @@ export const type = {
   h3: { size: 20, line: 1.3, tracking: -0.015, weight: 500 },
   body: { size: 16, line: 1.5, tracking: 0, weight: 400 },
   lead: { size: 19, line: 1.65, tracking: 0, weight: 400 },
-  small: { size: 14, line: 1.45, tracking: 0, weight: 400 },
-  label: { size: 12, line: 1.3, tracking: 0.08, weight: 600 },
+  small: { size: 15, line: 1.45, tracking: 0, weight: 400 },
+  label: { size: 13, line: 1.3, tracking: 0.08, weight: 600 },
 } as const;
+
+// Skala tekstu (tokens.css --t-*). Treść do czytania co najmniej sm; xs tylko etykiety wersalikami i metadane.
+export const textSize = { xs: 13, sm: 15, md: 17, lg: 20 } as const;
 
 export const shadow = {
   float: "0 8px 32px rgba(15, 21, 29, 0.08)",
   raised: "0 12px 40px rgba(15, 21, 29, 0.16)",
+} as const;
+
+// Ruch (tokens.css --ruch-*): czasy w ms i sprężyna dla wartości liczonych w JS (apps/web/src/ruch.ts).
+export const motion = {
+  fast: 150,
+  normal: 250,
+  slow: 400,
+  easing: [0.2, 0, 0, 1],
+  /** Sprężyna: sztywność i tłumienie (masa 1). Daje ok. 8% przestrzelenia, jak --ruch-sprezyna. */
+  spring: { stiffness: 260, damping: 20 },
 } as const;

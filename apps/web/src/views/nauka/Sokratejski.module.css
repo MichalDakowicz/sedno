@@ -1,0 +1,86 @@
+/* Pierwsza sekcja pod nagłówkiem strony: linię daje już nagłówek. */
+.bezLinii {
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Okno rozmowy: karta z tym samym układem dymków co rozmowa z Pestką (TutorChat.module.css). */
+.okno {
+  display: grid;
+  padding: 0;
+  overflow: hidden;
+}
+
+.pasek {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-5) 0;
+}
+
+.pasek button {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.lista {
+  max-height: min(56vh, 460px);
+  min-height: 160px;
+  margin: 0;
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+
+.lista li p {
+  margin: 0;
+}
+
+.kompozytor {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-2);
+  padding: var(--s-4) var(--s-5);
+  border-top: 1px solid var(--line);
+}
+
+.kompozytor textarea {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  line-height: 1.45;
+  resize: none;
+}
+
+.kompozytor textarea:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.kompozytor :global(.btn) {
+  width: 52px;
+  min-height: 52px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.blad {
+  padding: 0 var(--s-5) var(--s-4);
+}
+
+@media (max-width: 640px) {
+  .pasek,
+  .kompozytor,
+  .blad {
+    padding-inline: var(--s-4);
+  }
+}

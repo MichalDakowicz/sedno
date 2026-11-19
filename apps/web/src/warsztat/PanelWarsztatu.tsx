@@ -22,6 +22,8 @@ type Props = {
   // Pytania, do których można wstawić wynik (otwarte, jeszcze niesprawdzone).
   doWstawienia: string[];
   onWstaw: (nr: string, tekst: string) => void;
+  // Zgodność z kluczem CKE dopiero po sprawdzeniu zadania albo arkusza: wcześniej podpowiadałaby, czy wynik jest dobry.
+  kluczWidoczny: boolean;
   uklad: Uklad;
   otwarty: boolean;
   onSchowaj: () => void;
@@ -29,8 +31,9 @@ type Props = {
   przycisk: RefObject<HTMLElement | null>;
 };
 
-export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis, doWstawienia, onWstaw, uklad, otwarty, onSchowaj, przycisk }: Props) {
-  const { pliki, nazwy, tabelaryczne, plikiTabel, tryby, tryb, klucz } = useMaterialy(zadanie, wszystkie, zapis);
+export function PanelWarsztatu({ zadanie, pliki: wszystkie, zip, zapis, onZapis, doWstawienia, onWstaw, kluczWidoczny, uklad, otwarty, onSchowaj, przycisk }: Props) {
+  const { pliki, nazwy, tabelaryczne, plikiTabel, tryby, tryb, klucz: kluczZadania } = useMaterialy(zadanie, wszystkie, zapis);
+  const klucz = kluczWidoczny ? kluczZadania : [];
   // Skoroszyt trzyma funkcje zwrotne z chwili zamontowania, więc zapis składamy z najnowszego stanu, nie z domknięcia.
   const najnowszy = useRef({ zapis, tryb, onZapis });
   najnowszy.current = { zapis, tryb, onZapis };

@@ -3,7 +3,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  margin-top: -16px;
+  margin-top: calc(-1 * var(--s-4));
   scroll-margin-bottom: 24px;
   border-radius: var(--r-lg);
   background: var(--surface);
@@ -11,7 +11,7 @@
     0 0 0 1px color-mix(in srgb, var(--fg) 6%, transparent),
     var(--shadow-float);
   transform-origin: 32px 0;
-  animation: wyplun 0.4s cubic-bezier(0.3, 1.3, 0.5, 1);
+  animation: wyplun var(--ruch-wolny) var(--ruch-sprezyna);
 }
 
 @keyframes wyplun {
@@ -34,8 +34,8 @@
 .head {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 14px 12px 16px;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-3) var(--s-3) var(--s-4);
   border-bottom: 1px solid var(--line);
 }
 
@@ -58,35 +58,35 @@
 
 .lista {
   max-height: 460px;
-  padding: 16px 20px;
+  padding: var(--s-4) var(--s-4);
 }
 
 /* Fragmenty nagrania błędnych pytań nad rozmową, oddzielone linią. */
 .nagrania {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding-bottom: 12px;
+  gap: var(--s-2);
+  padding-bottom: var(--s-3);
   border-bottom: 1px solid var(--line);
 }
 
 .przyklad {
   display: grid;
-  gap: 10px;
-  padding-top: 14px;
+  gap: var(--s-3);
+  padding-top: var(--s-3);
   border-top: 1px solid var(--line);
 }
 
 .opcje {
   display: grid;
-  gap: 6px;
+  gap: var(--s-2);
 }
 
 .opcja {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-2);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   background: var(--surface);
@@ -122,16 +122,16 @@
   height: 26px;
   border-radius: 50%;
   background: var(--bg);
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-weight: 600;
 }
 
 .wyjasnienie {
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
 }
 
 .form {
-  padding: 10px 16px 0;
+  padding: var(--s-2) var(--s-4) 0;
   border-top: 1px solid var(--line);
 }
 
@@ -142,8 +142,8 @@
 .akcje {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
-  padding: 10px 16px 14px;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-4) var(--s-3);
 }
 
 .akcje :global(.btn-primary) {
@@ -154,7 +154,7 @@
 .laduje {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
   color: var(--muted);
 }
 

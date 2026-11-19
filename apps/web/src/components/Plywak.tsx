@@ -1,16 +1,18 @@
 // Szklana pigułka pod aktywną zakładką. Przy zmianie zakładki najpierw rozciąga się w stronę nowej,
 // potem dociąga drugą krawędź, więc wygląda, jakby przelewała się między przyciskami.
 // Kładziemy ją jako pierwsze dziecko kontenera z position: relative; aktywny element ma
-// data-aktywny="true" albo aria-pressed="true".
+// data-aktywny="true", aria-pressed="true", aria-current="page" albo aria-checked="true".
+// wyglad="pigulka": zaznaczona pigułka wyboru (components/Pigulki.tsx) zamiast szklanej pigułki menu.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import styles from "./Plywak.module.css";
 
 type Pozycja = { left: number; right: number; top: number; height: number };
 
-const AKTYWNY = '[data-aktywny="true"], [aria-pressed="true"]';
+const AKTYWNY = '[data-aktywny="true"], [aria-pressed="true"], [aria-current="page"], [aria-checked="true"]';
+const ATRYBUTY = ["data-aktywny", "aria-pressed", "aria-current", "aria-checked"];
 
 /** jako="li" w liście (<ul>), żeby HTML był poprawny; wtedy kontenerem jest lista. */
-export function Plywak({ zalezy, jako = "span" }: { zalezy: unknown; jako?: "span" | "li" }) {
+export function Plywak({ zalezy, jako = "span", wyglad = "szklo" }: { zalezy?: unknown; jako?: "span" | "li"; wyglad?: "szklo" | "pigulka" }) {
   const ref = useRef<HTMLElement>(null);
   const [poz, setPoz] = useState<Pozycja | null>(null);
   const [kierunek, setKierunek] = useState<"prawo" | "lewo">("prawo");
@@ -52,7 +54,8 @@ export function Plywak({ zalezy, jako = "span" }: { zalezy: unknown; jako?: "spa
       obserwuj();
       zmierz();
     });
-    mo.observe(kontener, { childList: true, subtree: true, characterData: true });
+    // Zmiana zaznaczenia to zmiana atrybutu, więc grupa nie musi przekazywać, co jest wybrane.
+    mo.observe(kontener, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATRYBUTY });
     void document.fonts?.ready.then(zmierz);
     // Animacja dopiero po pierwszym ustawieniu, żeby pigułka nie wjeżdżała przy wejściu na stronę.
     const t = window.setTimeout(() => setGotowy(true), 50);
@@ -69,7 +72,7 @@ export function Plywak({ zalezy, jako = "span" }: { zalezy: unknown; jako?: "spa
       ref={ref as React.Ref<never>}
       aria-hidden="true"
       role={jako === "li" ? "presentation" : undefined}
-      className={`${styles.plywak} ${gotowy ? styles[kierunek] : ""} ${poz ? "" : styles.ukryty}`}
+      className={`${styles.plywak} ${wyglad === "pigulka" ? styles.pigulka : ""} ${gotowy ? styles[kierunek] : ""} ${poz ? "" : styles.ukryty}`}
       style={poz ? { left: poz.left, right: poz.right, top: poz.top, height: poz.height } : undefined}
     />
   );

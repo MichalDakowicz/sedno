@@ -1,0 +1,23 @@
+// Znak Sedno: Pestka obok napisu „Sedno”. Ten sam rysunek co favicon i ikony aplikacji (public/pestka.svg),
+// uproszczony do małego rozmiaru: bez blasku i policzków, które przy 24 px tylko brudzą.
+import s from "./Znak.module.css";
+
+export function ZnakPestki({ rozmiar = 24 }: { rozmiar?: number }) {
+  return (
+    <svg className={s.pestka} width={rozmiar} height={rozmiar} viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M32 4c13.5 0 24 8.6 26.6 21.4 2.4 11.9-2 24-12.6 30.2C38.8 59.8 25.2 59.8 18 55.6 7.4 49.4 3 37.3 5.4 25.4 8 12.6 18.5 4 32 4Z" />
+      <ellipse className={s.oko} cx="24" cy="30" rx="4" ry="5.4" />
+      <ellipse className={s.oko} cx="40" cy="30" rx="4" ry="5.4" />
+      <path className={s.usmiech} d="M26.5 41c3.2 3 7.8 3 11 0" />
+    </svg>
+  );
+}
+
+export function Znak() {
+  return (
+    <span className={s.znak}>
+      <ZnakPestki />
+      Sedno
+    </span>
+  );
+}

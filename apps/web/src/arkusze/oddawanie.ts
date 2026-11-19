@@ -138,21 +138,26 @@ export function opisOceny(s: StanOdpowiedzi): string {
   return "Brak klucza do porównania: po sprawdzeniu ocenisz sam według rozwiązania CKE.";
 }
 
-export const WSKAZOWKI: Record<RodzajWskazowki, { tytul: string; tekst: string }> = {
+// tekst: jedna linia, bez której uczeń nie wie, gdzie wpisać odpowiedź; pestka: reszta, którą Pestka mówi na żądanie.
+export const WSKAZOWKI: Record<RodzajWskazowki, { tytul: string; tekst: string; pestka: string }> = {
   plik: {
     tytul: "W Sedno",
-    tekst: "Pliku wyników nie tworzysz ani nie wysyłasz. Wpisz każdą odpowiedź w pole pod odpowiednim poleceniem (numeru zadania nie dopisujesz). Sedno sprawdza wpisany wynik z kluczem CKE, a samego pliku nie ocenia. Na egzaminie plik trzeba oddać.",
+    tekst: "Wpisz każdą odpowiedź w pole pod poleceniem, bez pliku wyników.",
+    pestka: "Wpisany wynik porównuję z kluczem CKE, numeru zadania nie dopisujesz. Na egzaminie plik wyników trzeba oddać.",
   },
   plikProgram: {
     tytul: "W Sedno",
-    tekst: "Program uruchamiasz w panelu materiałów do zadania; kod jest roboczy i nie jest oceniany. Pliku wyników nie tworzysz ani nie wysyłasz: wpisz każdą odpowiedź w pole pod odpowiednim poleceniem (numeru zadania nie dopisujesz). Sedno sprawdza wpisany wynik z kluczem CKE. Na egzaminie oddajesz plik wyników i pliki z kodem.",
+    tekst: "Program uruchom w panelu materiałów, a każdą odpowiedź wpisz w pole pod poleceniem.",
+    pestka: "Kod jest roboczy i nie jest oceniany, pliku wyników nie tworzysz. Na egzaminie oddajesz plik wyników i pliki z kodem.",
   },
   wykres: {
     tytul: "W Sedno",
-    tekst: "Wykresu tu nie rysujesz i nie jest on oceniany. Wpisz w polu pod poleceniem zestawienie, z którego powstałby wykres, a po sprawdzeniu porównasz je z kluczem CKE. Na egzaminie wykres trzeba oddać w pliku.",
+    tekst: "Zamiast wykresu wpisz w pole zestawienie, z którego by powstał.",
+    pestka: "Po sprawdzeniu porównasz zestawienie z kluczem CKE. Na egzaminie wykres trzeba oddać w pliku.",
   },
   program: {
     tytul: "W Sedno",
-    tekst: "Program uruchamiasz w panelu materiałów do zadania; kod jest roboczy i nie jest oceniany. Oceniamy wynik, który wpiszesz w pole pod poleceniem. Na egzaminie oddajesz też plik z kodem.",
+    tekst: "Program uruchom w panelu materiałów, a wynik wpisz w pole pod poleceniem.",
+    pestka: "Kod jest roboczy i nie jest oceniany. Na egzaminie oddajesz też plik z kodem.",
   },
 };

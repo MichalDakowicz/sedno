@@ -1,27 +1,21 @@
 .strona {
   display: grid;
-  gap: 40px;
-  padding-top: 32px;
+  gap: var(--s-7);
+  padding-top: var(--s-6);
   padding-bottom: 120px;
-}
-
-.glowa {
-  display: grid;
-  gap: 12px;
-  justify-items: start;
 }
 
 /* Sekcje rozdziela linia, nie karta. */
 .sekcja {
   display: grid;
-  gap: 20px;
-  padding-top: 28px;
+  gap: var(--s-4);
+  padding-top: var(--s-4);
   border-top: 1px solid var(--line);
 }
 
 .pierwszy {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
   justify-items: start;
 }
 
@@ -37,30 +31,8 @@
   letter-spacing: 0;
 }
 
-.wiersze {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--line);
-}
-
-.wiersz {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 16px;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.wierszTekst {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
 .dni {
-  font-size: calc(18px * var(--skala-tekstu, 1));
+  font-size: var(--t-md);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -71,4 +43,13 @@
 
 .przypis {
   margin: 0;
+}
+
+/* Lista egzaminów z dniami pod rozwinięciem: oś czasu wyżej mówi to samo obrazem. */
+.rozwijane > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--primary-text);
+  cursor: pointer;
 }

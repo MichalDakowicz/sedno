@@ -15,6 +15,8 @@ const sekundy = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60
 /** podpis: numer pytania przed przyciskiem (np. w karcie omawiania, gdzie fragmentów jest kilka). */
 export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragment: CzescNagrania; podpis?: string }) {
   const [gra, setGra] = useState(false);
+  // Ile fragmentu już zagrało (0–1): pasek pod przyciskiem pokazuje, że nagranie idzie i ile zostało.
+  const [postep, setPostep] = useState(0);
   const zatrzymajMoj = useRef<(() => void) | null>(null);
   useEffect(() => () => zatrzymajMoj.current?.(), []);
 
@@ -34,12 +36,14 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
       setGra(false);
     };
     const naCzas = () => {
+      setPostep(Math.min(1, Math.max(0, (a.currentTime - fragment.od) / Math.max(1, fragment.do - fragment.od))));
       if (a.currentTime >= fragment.do) stop();
     };
     a.addEventListener("timeupdate", naCzas);
     a.currentTime = fragment.od;
     zatrzymajGrajacy = stop;
     zatrzymajMoj.current = stop;
+    setPostep(0);
     setGra(true);
     void a.play().catch(stop);
   }
@@ -54,6 +58,11 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
           {sekundy(fragment.od)}–{sekundy(fragment.do)}
         </span>
       </button>
+      {(gra || postep > 0) && (
+        <span className={styles.pasek} role="progressbar" aria-label="Odtworzona część fragmentu" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(postep * 100)}>
+          <span style={{ width: `${postep * 100}%` }} />
+        </span>
+      )}
       {fragment.tekst && <blockquote className={styles.tekst}>{fragment.tekst}</blockquote>}
     </div>
   );

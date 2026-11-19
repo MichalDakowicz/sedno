@@ -1,5 +1,7 @@
 // Postęp w arkuszu: pamięć przeglądarki jako szybka kopia, konto w Supabase jako źródło prawdy.
 // Bez sieci albo przed zalogowaniem wszystko działa lokalnie, a zapis dogania konto później.
+// Zmiana, która jeszcze nie dotarła na konto, ma znacznik „niewysłane” z właścicielem: taka lokalna kopia wygrywa
+// ze starszą z konta i idzie na konto przy pobraniu, po błędzie (ponowienie), po powrocie sieci i przy pagehide.
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { currentUserId } from "../auth";
 import { supabase } from "../supabase";
@@ -79,10 +81,196 @@ function zapiszLokalnie(id: string, p: Postep): boolean {
   }
 }
 
+// Znaczniki niewysłanych zmian: { [id arkusza]: { kto, baza } }. kto: konto, na które zmiana ma trafić
+// (null: zmiana sprzed zalogowania). baza: zmiana zrobiona na kopii znanej z konta albo z tej przeglądarki;
+// bez niej (pierwsze wejście na tym urządzeniu i błąd sieci przy pobraniu) łączymy z kontem zamiast je nadpisać.
+type Znacznik = { kto: string | null; baza: boolean };
+const KLUCZ_NIEWYSLANYCH = "sedno.arkusze.niewyslane";
+// Konto, do którego należą lokalne kopie postępu: inne konto na tym komputerze zaczyna od zera.
+const KLUCZ_WLASCICIELA = "sedno.arkusze.wlasciciel";
+const PONOWIENIE_MS = 30_000;
+
+function niewyslane(): Record<string, Znacznik> {
+  try {
+    const v: unknown = JSON.parse(localStorage.getItem(KLUCZ_NIEWYSLANYCH) ?? "{}");
+    if (!v || typeof v !== "object" || Array.isArray(v)) return {};
+    const wynik: Record<string, Znacznik> = {};
+    for (const [id, z] of Object.entries(v as Record<string, unknown>)) {
+      if (!z || typeof z !== "object") continue;
+      const { kto, baza } = z as Record<string, unknown>;
+      wynik[id] = { kto: typeof kto === "string" ? kto : null, baza: baza === true };
+    }
+    return wynik;
+  } catch {
+    return {};
+  }
+}
+
+function zapiszNiewyslane(n: Record<string, Znacznik>) {
+  try {
+    if (Object.keys(n).length) localStorage.setItem(KLUCZ_NIEWYSLANYCH, JSON.stringify(n));
+    else localStorage.removeItem(KLUCZ_NIEWYSLANYCH);
+  } catch {
+    // zablokowany storage: zmiana i tak czeka w kolejce zapisu do końca sesji
+  }
+}
+
+function znacznik(id: string, user: string): Znacznik | null {
+  const z = niewyslane()[id];
+  return z && (z.kto === user || z.kto === null) ? z : null;
+}
+
+function oznacz(id: string, kto: string | null, baza: boolean) {
+  const n = niewyslane();
+  const byl = n[id];
+  n[id] = { kto: kto ?? byl?.kto ?? null, baza: byl ? byl.baza || baza : baza };
+  zapiszNiewyslane(n);
+}
+
+function odznacz(id: string) {
+  const n = niewyslane();
+  if (!(id in n)) return;
+  delete n[id];
+  zapiszNiewyslane(n);
+}
+
+function maKopie(id: string): boolean {
+  try {
+    return localStorage.getItem(klucz(id)) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/** Kopia z konta połączona z lokalną zrobioną bez jej znajomości: lokalne wpisy wygrywają, nic z konta nie ginie. */
+export function scal(konto: Postep, lok: Postep): Postep {
+  const mapa = <T,>(a?: Record<string, T>, b?: Record<string, T>) => (a || b ? { ...a, ...b } : undefined);
+  return {
+    ...konto,
+    ...lok,
+    odpowiedzi: { ...konto.odpowiedzi, ...lok.odpowiedzi },
+    samoocena: { ...konto.samoocena, ...lok.samoocena },
+    sprawdzony: konto.sprawdzony || lok.sprawdzony,
+    sprawdzoneZadania: [...new Set([...(konto.sprawdzoneZadania ?? []), ...(lok.sprawdzoneZadania ?? [])])],
+    wynik: lok.wynik ?? konto.wynik,
+    czas: lok.czas ?? konto.czas,
+    brudnopisy: mapa(konto.brudnopisy, lok.brudnopisy),
+    omowione: mapa(konto.omowione, lok.omowione),
+    rozmowyOmowien: mapa(konto.rozmowyOmowien, lok.rozmowyOmowien),
+    warsztat: mapa(konto.warsztat, lok.warsztat),
+    czasZadan: mapa(konto.czasZadan, lok.czasZadan),
+  };
+}
+
+// Wspólny stan postępu w pamięci: kilka miejsc naraz (arkusz i zegar w pasku) widzi ten sam postęp
+// i każda zmiana trafia do wszystkich.
+const pamiec = new Map<string, Postep>();
+const sluchacze = new Map<string, Set<(p: Postep) => void>>();
+// Numer zmiany na arkusz: odpowiedź z konta, która przyszła po lokalnej zmianie, jest już nieaktualna
+// (zapis na konto idzie z opóźnieniem), więc jej nie bierzemy. Konto czytamy raz na arkusz w sesji,
+// a do `pobrane` arkusz trafia dopiero po udanej odpowiedzi.
+const wersje = new Map<string, number>();
+const pobrane = new Set<string>();
 const oczekujace = new Map<string, ReturnType<typeof setTimeout>>();
+const ponowienia = new Map<string, ReturnType<typeof setTimeout>>();
+// Konto, którego postęp jest w pamięci (undefined: jeszcze nie wiadomo).
+let wlascicielPamieci: string | null | undefined;
+
+function ustaw(id: string, p: Postep) {
+  pamiec.set(id, p);
+  sluchacze.get(id)?.forEach((f) => f(p));
+}
+
+/** Zapomina postęp w pamięci (wylogowanie, inne konto). Otwarte widoki dostają to, co zostało w przeglądarce. */
+export function wyczyscPostepy() {
+  oczekujace.forEach((t) => clearTimeout(t));
+  ponowienia.forEach((t) => clearTimeout(t));
+  oczekujace.clear();
+  ponowienia.clear();
+  pamiec.clear();
+  pobrane.clear();
+  wersje.clear();
+  for (const [id, lista] of sluchacze) {
+    const p = wczytajPostep(id);
+    lista.forEach((f) => f(p));
+  }
+}
+
+/** Usuwa lokalne kopie postępu i znaczniki (wylogowanie): następna osoba na tym komputerze zaczyna od zera. */
+export function wyczyscPostepyLokalne() {
+  try {
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith("sedno.arkusz.") || k === KLUCZ_NIEWYSLANYCH || k === KLUCZ_WLASCICIELA)
+      .forEach((k) => localStorage.removeItem(k));
+  } catch {
+    // zablokowany storage: nic do sprzątania
+  }
+}
+
+function pilnujWlasciciela(user: string | null) {
+  if (user === wlascicielPamieci) return;
+  const poprzedni = wlascicielPamieci;
+  wlascicielPamieci = user;
+  if (!user) {
+    // Wylogowanie albo wygasła sesja: w pamięci nie zostaje nic z tego konta (lokalne kopie sprząta logout()).
+    if (poprzedni) wyczyscPostepy();
+    return;
+  }
+  let zapisany: string | null = null;
+  try {
+    zapisany = localStorage.getItem(KLUCZ_WLASCICIELA);
+  } catch {
+    // bez storage pilnujemy tylko pamięci
+  }
+  const inneWPrzegladarce = zapisany !== null && zapisany !== user;
+  if (inneWPrzegladarce) wyczyscPostepyLokalne();
+  try {
+    localStorage.setItem(KLUCZ_WLASCICIELA, user);
+  } catch {
+    // jw.
+  }
+  if (inneWPrzegladarce || (poprzedni && poprzedni !== user)) wyczyscPostepy();
+}
+
+supabase.auth.onAuthStateChange((_zdarzenie, sesja) => pilnujWlasciciela(sesja?.user.id ?? null));
+
+async function wyslij(id: string, user: string): Promise<void> {
+  if (currentUserId() !== user || wlascicielPamieci !== user) return;
+  clearTimeout(ponowienia.get(id));
+  ponowienia.delete(id);
+  const wersja = wersje.get(id) ?? 0;
+  try {
+    // Zmiana zrobiona bez znajomości kopii z konta: najpierw ją czytamy i łączymy, żeby nie nadpisać konta.
+    const z = znacznik(id, user);
+    if (z && !z.baza && !pobrane.has(id)) {
+      const { data, error } = await supabase.from("sheet_progress").select("data").eq("user_id", user).eq("sheet_id", id).maybeSingle();
+      if (error) throw error;
+      if (currentUserId() !== user) return;
+      rozstrzygnij(id, data ? { ...pusty, ...(data.data as Postep) } : null, user, wersje.get(id) ?? 0, false);
+    }
+    const dane = pamiec.get(id) ?? wczytajPostep(id);
+    const { error } = await supabase.from("sheet_progress").upsert({ user_id: user, sheet_id: id, data: dane });
+    if (error) throw error;
+    if (currentUserId() !== user) return;
+    pobrane.add(id);
+    // Znacznik schodzi tylko wtedy, gdy w trakcie zapisu nie przyszła nowsza zmiana.
+    if ((wersje.get(id) ?? 0) === wersja && !oczekujace.has(id)) odznacz(id);
+    if (!oczekujace.has(id)) ustawStan("zapisano");
+  } catch {
+    if (currentUserId() !== user) return;
+    if (!oczekujace.has(id)) ustawStan("blad");
+    ponowienia.set(
+      id,
+      setTimeout(() => {
+        ponowienia.delete(id);
+        if (znacznik(id, user)) void wyslij(id, user);
+      }, PONOWIENIE_MS),
+    );
+  }
+}
 
 // Zapis na konto z opóźnieniem, żeby nie wysyłać każdej zmiany osobno.
-function zapiszNaKonto(id: string, p: Postep) {
+function zapiszNaKonto(id: string) {
   const user = currentUserId();
   if (!user) return;
   ustawStan("zapisywanie");
@@ -91,52 +279,76 @@ function zapiszNaKonto(id: string, p: Postep) {
     id,
     setTimeout(() => {
       oczekujace.delete(id);
-      // Zapytanie Supabase rusza dopiero po then/await.
-      void supabase
-        .from("sheet_progress")
-        .upsert({ user_id: user, sheet_id: id, data: p })
-        .then(
-          ({ error }) => {
-            // Czeka już nowszy zapis: stan zmieni dopiero on.
-            if (!oczekujace.has(id)) ustawStan(error ? "blad" : "zapisano");
-          },
-          () => ustawStan("blad"),
-        );
+      void wyslij(id, user);
     }, 800),
   );
 }
 
-/** Ściąga cały postęp konta do pamięci przeglądarki. */
-export async function pobierzPostepy(user: string): Promise<void> {
-  const { data, error } = await supabase.from("sheet_progress").select("sheet_id, data").eq("user_id", user);
-  if (error || !data) return;
-  for (const row of data) zapiszLokalnie(row.sheet_id, { ...pusty, ...(row.data as Postep) });
+/**
+ * Kopia z konta dla arkusza (null: na koncie nic nie ma). Niewysłana lokalna zmiana wygrywa i idzie na konto;
+ * bez niej bierzemy konto, chyba że od chwili zapytania przyszła lokalna zmiana (`wersja`).
+ */
+function rozstrzygnij(id: string, zKonta: Postep | null, user: string, wersja: number, wyslijPotem = true) {
+  const z = znacznik(id, user);
+  pobrane.add(id);
+  if (z) {
+    if (zKonta && !z.baza) {
+      const scalony = scal(zKonta, pamiec.get(id) ?? wczytajPostep(id));
+      zapiszLokalnie(id, scalony);
+      ustaw(id, scalony);
+    }
+    oznacz(id, user, true);
+    if (wyslijPotem) void wyslij(id, user);
+    return;
+  }
+  if (!zKonta || (wersje.get(id) ?? 0) !== wersja) return;
+  zapiszLokalnie(id, zKonta);
+  if (pamiec.has(id)) ustaw(id, zKonta);
 }
 
-// Wspólny stan postępu w pamięci: kilka miejsc naraz (arkusz i zegar w pasku) widzi ten sam postęp
-// i każda zmiana trafia do wszystkich.
-const pamiec = new Map<string, Postep>();
-const sluchacze = new Map<string, Set<(p: Postep) => void>>();
-// Numer zmiany na arkusz: odpowiedź z konta, która przyszła po lokalnej zmianie, jest już nieaktualna
-// (zapis na konto idzie z opóźnieniem), więc jej nie bierzemy. Konto czytamy raz na arkusz w sesji.
-const wersje = new Map<string, number>();
-const pobrane = new Set<string>();
+/** Ściąga cały postęp konta do pamięci przeglądarki; niewysłane lokalne zmiany idą na konto. */
+export async function pobierzPostepy(user: string): Promise<void> {
+  pilnujWlasciciela(user);
+  const przed = new Map(wersje);
+  const { data, error } = await supabase.from("sheet_progress").select("sheet_id, data").eq("user_id", user);
+  if (error || !data || currentUserId() !== user || wlascicielPamieci !== user) return;
+  const naKoncie = new Set<string>();
+  for (const row of data) {
+    naKoncie.add(row.sheet_id);
+    rozstrzygnij(row.sheet_id, { ...pusty, ...(row.data as Postep) }, user, przed.get(row.sheet_id) ?? 0);
+  }
+  for (const id of Object.keys(niewyslane())) if (!naKoncie.has(id) && znacznik(id, user)) rozstrzygnij(id, null, user, przed.get(id) ?? 0);
+}
 
-function ustaw(id: string, p: Postep) {
-  pamiec.set(id, p);
-  sluchacze.get(id)?.forEach((f) => f(p));
+/** Wysyła od razu zaległe zapisy (pagehide, wylogowanie, powrót sieci) i czeka na nie. */
+export function splukajPostepy(): Promise<void> {
+  const user = currentUserId();
+  if (!user) return Promise.resolve();
+  const ids = new Set([...oczekujace.keys(), ...Object.keys(niewyslane()).filter((id) => znacznik(id, user))]);
+  oczekujace.forEach((t) => clearTimeout(t));
+  oczekujace.clear();
+  return Promise.all([...ids].map((id) => wyslij(id, user))).then(() => undefined);
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", () => void splukajPostepy());
+  window.addEventListener("online", () => void splukajPostepy());
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") void splukajPostepy();
+  });
 }
 
 export function usePostep(id: string) {
   const [postep, setPostep] = useState<Postep>(() => pamiec.get(id) ?? wczytajPostep(id));
 
   useEffect(() => {
+    const user = currentUserId();
+    if (user) pilnujWlasciciela(user);
     if (!pamiec.has(id)) pamiec.set(id, wczytajPostep(id));
     setPostep(pamiec.get(id)!);
     const lista = sluchacze.get(id) ?? new Set();
     sluchacze.set(id, lista);
     lista.add(setPostep);
-    const user = currentUserId();
     let live = true;
     const wersja = wersje.get(id) ?? 0;
     if (user && !pobrane.has(id))
@@ -146,13 +358,14 @@ export function usePostep(id: string) {
         .eq("user_id", user)
         .eq("sheet_id", id)
         .maybeSingle()
-        .then(({ data }) => {
-          pobrane.add(id);
-          if (!live || !data || (wersje.get(id) ?? 0) !== wersja) return;
-          const zKonta = { ...pusty, ...(data.data as Postep) };
-          zapiszLokalnie(id, zKonta);
-          ustaw(id, zKonta);
-        });
+        .then(
+          ({ data, error }) => {
+            // Błąd albo porzucone zapytanie (wyjście z arkusza, inne konto) nie liczy się jako pobrane: następne wejście pyta znowu.
+            if (!live || error || currentUserId() !== user) return;
+            rozstrzygnij(id, data ? { ...pusty, ...(data.data as Postep) } : null, user, wersja);
+          },
+          () => {},
+        );
     return () => {
       live = false;
       lista.delete(setPostep);
@@ -161,12 +374,15 @@ export function usePostep(id: string) {
 
   const zmien = useCallback(
     (f: (p: Postep) => Postep) => {
+      const user = currentUserId();
       const nowy = f(pamiec.get(id) ?? wczytajPostep(id));
+      const baza = pobrane.has(id) || maKopie(id);
       wersje.set(id, (wersje.get(id) ?? 0) + 1);
       const lokalnie = zapiszLokalnie(id, nowy);
-      zapiszNaKonto(id, nowy);
-      if (!currentUserId()) ustawStan(lokalnie ? "lokalnie" : "blad");
+      oznacz(id, user, baza);
       ustaw(id, nowy);
+      zapiszNaKonto(id);
+      if (!user) ustawStan(lokalnie ? "lokalnie" : "blad");
     },
     [id],
   );

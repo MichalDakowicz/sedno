@@ -7,7 +7,7 @@ import { Pause, Pin, PinOff, Play, Timer, X } from "lucide-react";
 import type { Czas } from "../arkusze/postep";
 import { useTutor } from "./TutorContext";
 import styles from "./Zegar.module.css";
-import { mniejRuchu } from "../motyw";
+import { mniejRuchu } from "../ruch";
 
 const MIN = 60_000;
 

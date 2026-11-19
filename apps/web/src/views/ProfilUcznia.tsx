@@ -8,18 +8,21 @@ import { PRZEDMIOTY, zgrupuj, type PrzedmiotId } from "../konto/przedmioty";
 import { useWynikiKonta } from "../konto/wyniki";
 import { useListaArkuszy } from "../arkusze/dane";
 import s from "./ProfilUcznia.module.css";
+import { NaglowekStrony } from "../components/NaglowekStrony";
+import { Pigulki } from "../components/Pigulki";
+import { Liczba } from "../ruch";
 
 function Wybor({ pytanie, opcje, wybrana, onZmiana }: { pytanie: string; opcje: Opcja[]; wybrana?: string; onZmiana: (id: string) => void }) {
   return (
-    <div className={s.pytanie} role="group" aria-label={pytanie}>
+    <div className={s.pytanie} role="group" aria-label={pytanie} data-tutor-about="Wybraną odpowiedź wyczyścisz, klikając ją jeszcze raz.">
       <span>{pytanie}</span>
-      <div className={s.chipy}>
+      <Pigulki>
         {opcje.map((o) => (
-          <button key={o.id} type="button" aria-pressed={o.id === wybrana} className={`${s.chip} ${o.id === wybrana ? s.chipAktywny : ""}`} onClick={() => onZmiana(o.id)}>
+          <button key={o.id} type="button" aria-pressed={o.id === wybrana} className="pigulka" onClick={() => onZmiana(o.id)}>
             {o.nazwa}
           </button>
         ))}
-      </div>
+      </Pigulki>
     </div>
   );
 }
@@ -52,6 +55,42 @@ export function CzasICel({ przedmioty }: { przedmioty: PrzedmiotId[] }) {
 const LIMIT_LICZNIKA = 100;
 
 const kiedy = (iso: string) => new Date(iso).toLocaleDateString("pl-PL", { day: "numeric", month: "short" }).replace(".", "");
+
+const PORY = [
+  { od: 5, do: 12, nazwa: "rano" },
+  { od: 12, do: 17, nazwa: "po południu" },
+  { od: 17, do: 22, nazwa: "wieczorem" },
+  { od: 22, do: 29, nazwa: "w nocy" },
+];
+const godzinaWarszawa = new Intl.DateTimeFormat("pl-PL", { hour: "numeric", hourCycle: "h23", timeZone: "Europe/Warsaw" });
+
+/** Wnioski jako kilka liczb: ile arkuszy, średni wynik i pora nauki (z dat zapisu postępu arkuszy). */
+function LiczbyUcznia({ wyniki }: { wyniki: NonNullable<ReturnType<typeof useWynikiKonta>> }) {
+  const lista = wyniki.podsumowania.flatMap((p) => p.wyniki);
+  if (!lista.length) return null;
+  const srednia = Math.round(lista.reduce((s, w) => s + (w.mozliwe ? w.zdobyte / w.mozliwe : 0), 0) / lista.length * 100);
+  const godziny = wyniki.wiersze.map((w) => Number(godzinaWarszawa.format(new Date(w.updated_at))));
+  const liczPory = PORY.map((p) => ({ ...p, ile: godziny.filter((g) => (g < 5 ? g + 24 : g) >= p.od && (g < 5 ? g + 24 : g) < p.do).length }));
+  const pora = godziny.length >= 3 ? liczPory.reduce((a, b) => (b.ile > a.ile ? b : a)) : null;
+  return (
+    <dl className={s.liczby}>
+      <div>
+        <dt>sprawdzone arkusze</dt>
+        <dd><Liczba wartosc={lista.length} /></dd>
+      </div>
+      <div>
+        <dt>średni wynik</dt>
+        <dd><Liczba wartosc={srednia} />%</dd>
+      </div>
+      {pora && pora.ile > 0 && (
+        <div>
+          <dt>najczęściej uczysz się</dt>
+          <dd className={s.slowo}>{pora.nazwa}</dd>
+        </div>
+      )}
+    </dl>
+  );
+}
 
 export function ProfilUcznia() {
   const profil = useProfil();
@@ -86,11 +125,7 @@ export function ProfilUcznia() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <header className={s.glowa}>
-        <span className="label">Profil</span>
-        <h1 className="display">Profil ucznia</h1>
-        <p className="muted">Wszystkie odpowiedzi są dobrowolne. Możesz je zmienić albo usunąć, a wybraną odpowiedź wyczyścisz, klikając ją jeszcze raz.</p>
-      </header>
+      <NaglowekStrony etykieta="Profil" tytul="Profil ucznia" lead="Jak się uczysz i do czego dążysz. Każda odpowiedź jest dobrowolna." />
 
       <section className={s.sekcja} aria-labelledby="pu-jak">
         <h2 id="pu-jak" className="h2">
@@ -107,20 +142,22 @@ export function ProfilUcznia() {
       </section>
 
       <section className={s.sekcja} aria-labelledby="pu-priorytety">
-        <h2 id="pu-priorytety" className="h2">
+        <h2 id="pu-priorytety" className="h2" data-tutor-about="Mogę dopisać priorytet sama, gdy powiesz o nim w rozmowie. Zawsze dam ci o tym znać.">
           Priorytety
         </h2>
         {priorytety.length > 0 && (
-          <ul className={s.wiersze}>
+          <ul className={`wiersze ${s.wiersze}`}>
             {priorytety.map((p) => (
-              <li key={p.id} className={s.wiersz}>
-                <span className={s.wierszTekst}>
+              <li key={p.id} className="wiersz">
+                <span className="wiersz-tresc">
                   <span>{p.tekst}</span>
-                  <span className="muted small">{p.zrodlo === "uczen" ? "dodane przez ciebie" : `Pestka, z rozmowy ${kiedy(p.kiedy)}`}</span>
+                  <span className="wiersz-opis">{p.zrodlo === "uczen" ? "dodane przez ciebie" : `Pestka, z rozmowy ${kiedy(p.kiedy)}`}</span>
                 </span>
-                <button type="button" className={`link ${s.usun}`} onClick={() => usunPriorytet(p.id)} aria-label={`Usuń priorytet: ${p.tekst}`}>
-                  Usuń
-                </button>
+                <span className="wiersz-akcja">
+                  <button type="button" className={`link ${s.usun}`} onClick={() => usunPriorytet(p.id)} aria-label={`Usuń priorytet: ${p.tekst}`}>
+                    Usuń
+                  </button>
+                </span>
               </li>
             ))}
           </ul>
@@ -144,13 +181,13 @@ export function ProfilUcznia() {
         <p className="muted small" aria-live="polite">
           {powtorka ? "Ten priorytet już jest na liście." : szkic.length >= LIMIT_LICZNIKA ? `${szkic.length}/${MAX_DLUGOSC} znaków` : ""}
         </p>
-        <p className="muted small">Pestka może dopisać priorytet sama, gdy powiesz o nim w rozmowie. Zawsze dostaniesz o tym informację.</p>
       </section>
 
       <section className={s.sekcja} aria-labelledby="pu-wnioski">
         <h2 id="pu-wnioski" className="h2">
           Co wiemy z twoich wyników
         </h2>
+        {wyniki && <LiczbyUcznia wyniki={wyniki} />}
         {wnioski.stan === "laduje" ? (
           <p className="muted">Liczę wnioski z twoich arkuszy…</p>
         ) : wnioski.stan === "blad" || (listaBlad && listaBlad !== "brak-danych") ? (
@@ -169,13 +206,15 @@ export function ProfilUcznia() {
               <span className="label">
                 {g.nazwa} ({g.poziom}) · z {g.arkuszy} arkuszy
               </span>
-              <ul className={s.wiersze}>
+              <ul className={`wiersze ${s.wiersze}`}>
                 {g.wnioski.map((w) => (
-                  <li key={w.id} className={s.wiersz}>
-                    <span>{w.tekst}</span>
-                    <button type="button" className={`link ${s.usun}`} onClick={() => usunWniosek(w.id)} aria-label={`Usuń wniosek: ${w.tekst}`}>
-                      Usuń
-                    </button>
+                  <li key={w.id} className="wiersz">
+                    <span className="wiersz-tresc">{w.tekst}</span>
+                    <span className="wiersz-akcja">
+                      <button type="button" className={`link ${s.usun}`} onClick={() => usunWniosek(w.id)} aria-label={`Usuń wniosek: ${w.tekst}`}>
+                        Usuń
+                      </button>
+                    </span>
                   </li>
                 ))}
               </ul>

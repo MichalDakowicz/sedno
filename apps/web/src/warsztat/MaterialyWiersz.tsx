@@ -18,8 +18,14 @@ export function MaterialyWiersz({ zadanie, pliki: wszystkie, zip, otwarty, onOtw
   return (
     <div className={styles.wiersz}>
       {Object.keys(pliki).length > 0 && <Pliki pliki={pliki} zip={zip} />}
-      <button type="button" className="btn btn-ghost btn-sm" aria-expanded={otwarty} onClick={(e) => onOtworz(e.currentTarget)}>
-        {ma ? <PanelRight size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />} {ma ? "Otwórz materiały i brudnopis do tego zadania" : "Brudnopis i Python do tego zadania"}
+      <button
+        type="button"
+        className="btn btn-ghost btn-sm"
+        aria-expanded={otwarty}
+        onClick={(e) => onOtworz(e.currentTarget)}
+        data-tutor-about="Programy, zapytania i obliczenia z panelu zapisują się w tej przeglądarce i nie są oceniane. Do wyniku liczy się tylko to, co wstawisz do pola pod poleceniem."
+      >
+        {ma ? <PanelRight size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />} {ma ? "Materiały" : "Brudnopis i Python"}
       </button>
     </div>
   );

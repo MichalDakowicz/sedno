@@ -1,19 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Menu, RotateCcw, Target, X } from "lucide-react";
+import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Map as MapaIkona, Menu, MessageCircle, RotateCcw, Settings, UserRound, X } from "lucide-react";
 import { logout } from "../auth";
+import { Znak } from "./Znak";
 import { Plywak } from "./Plywak";
 import { resetTour, useTutor } from "./TutorContext";
 import { OTWORZ_SZUKAJ } from "./Wyszukiwanie";
 import styles from "./TopNav.module.css";
-import { mniejRuchu } from "../motyw";
+import { mniejRuchu } from "../ruch";
 
 const links = [
   { to: "/", label: "Pulpit", icon: LayoutGrid, end: true },
   { to: "/nauka", label: "Nauka", icon: GraduationCap },
   { to: "/arkusze", label: "Arkusze", icon: FileText },
-  { to: "/umiejetnosci", label: "Mapa umiejętności", icon: Target },
+  { to: "/umiejetnosci", label: "Mapa umiejętności", icon: MapaIkona },
   { to: "/powtorki", label: "Powtórki", icon: RotateCcw },
+];
+
+const DODATKOWE = [
+  { to: "/tutor", label: "Pestka", icon: MessageCircle },
+  { to: "/do-matury", label: "Do matury", icon: CalendarDays },
+  { to: "/profil", label: "Profil", icon: UserRound },
+  { to: "/ustawienia", label: "Ustawienia", icon: Settings },
 ];
 
 export function TopNav() {
@@ -59,6 +67,8 @@ export function TopNav() {
 
   // Pulpit przedmiotu też należy do „Pulpitu”.
   const onDashboard = location.pathname === "/" || location.pathname.startsWith("/przedmiot/");
+  const aktywny = (to: string, end?: boolean) =>
+    end ? onDashboard : location.pathname === to || location.pathname.startsWith(`${to}/`);
   const { startTour } = useTutor();
 
   // Przewodnik zaczyna się na pulpicie ogólnym, więc z innej strony najpierw tam przechodzimy.
@@ -71,8 +81,8 @@ export function TopNav() {
   return (
     <div className={styles.wrap}>
       <nav className={styles.nav} aria-label="Główna">
-        <Link to="/" className={styles.logo}>
-          Sedno
+        <Link to="/" className={styles.logo} aria-label="Sedno, pulpit">
+          <Znak />
         </Link>
 
         {/* Środek paska: menu i miejsce na „wyspę” zegara arkusza (components/Zegar.tsx). Są wyśrodkowane
@@ -85,8 +95,9 @@ export function TopNav() {
                 <NavLink
                   to={to}
                   end={end}
-                  data-aktywny={end ? onDashboard : location.pathname === to || location.pathname.startsWith(`${to}/`)}
-                  className={({ isActive }) => `${styles.link} ${isActive || (end && onDashboard) ? styles.active : ""}`}
+                  data-aktywny={aktywny(to, end)}
+                  className={`${styles.link} ${aktywny(to, end) ? styles.active : ""}`}
+                  aria-current={aktywny(to, end) ? "page" : undefined}
                 >
                   <Icon size={16} strokeWidth={2} aria-hidden="true" />
                   {label}
@@ -133,17 +144,23 @@ export function TopNav() {
           <ul>
             {links.map(({ to, label, icon: Icon, end }) => (
               <li key={to}>
-                <NavLink to={to} end={end} className={({ isActive }) => (isActive || (end && onDashboard) ? styles.mobileActive : "")}>
+                <NavLink to={to} end={end} className={aktywny(to, end) ? styles.mobileActive : ""} aria-current={aktywny(to, end) ? "page" : undefined}>
                   <Icon size={18} strokeWidth={2} aria-hidden="true" />
                   {label}
                 </NavLink>
               </li>
             ))}
-            <li>
-              <NavLink to="/profil" className={({ isActive }) => (isActive ? styles.mobileActive : "")}>
-                Profil
-              </NavLink>
-            </li>
+          </ul>
+          {/* Na telefonie nie ma przycisku profilu ani stałego miejsca Pestki, więc te strony są w menu. */}
+          <ul>
+            {DODATKOWE.map(({ to, label, icon: Icon }) => (
+              <li key={to}>
+                <NavLink to={to} className={({ isActive }) => (isActive ? styles.mobileActive : "")}>
+                  <Icon size={18} strokeWidth={2} aria-hidden="true" />
+                  {label}
+                </NavLink>
+              </li>
+            ))}
           </ul>
           <button type="button" className="btn btn-ghost" onClick={signOut}>
             Wyloguj

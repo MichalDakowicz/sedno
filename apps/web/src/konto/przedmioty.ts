@@ -16,6 +16,16 @@ export const nazwaPoziomu: Record<Poziom, string> = { podstawowy: "podstawowy", 
 
 export const przedmiot = (id: string) => PRZEDMIOTY.find((p) => p.id === id);
 
+// Formy do zdań o brakach: „Arkuszy z matematyki na poziomie rozszerzonym jeszcze nie ma.”
+export const przedmiotZ: Record<PrzedmiotId, string> = { polski: "z polskiego", matematyka: "z matematyki", angielski: "z angielskiego", informatyka: "z informatyki" };
+export const naPoziomie: Record<Poziom, string> = { podstawowy: "na poziomie podstawowym", rozszerzony: "na poziomie rozszerzonym", dwujezyczny: "na poziomie dwujęzycznym" };
+
+/** „Arkuszy z matematyki na poziomie rozszerzonym jeszcze nie ma. Możesz ćwiczyć na poziomie podstawowym.” */
+export function brakArkuszy(id: PrzedmiotId, poziom: Poziom | null, inne: Poziom[]): string {
+  const brak = `Arkuszy ${przedmiotZ[id]}${poziom ? ` ${naPoziomie[poziom]}` : ""} jeszcze nie ma w Sedno.`;
+  return inne.length ? `${brak} Możesz ćwiczyć ${naPoziomie[inne[0]!]}.` : brak;
+}
+
 /** Odfiltrowuje wpisy, których katalog nie zna (np. po zmianie listy przedmiotów). */
 export function poprawne(raw: unknown): MojPrzedmiot[] {
   if (!Array.isArray(raw)) return [];

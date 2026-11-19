@@ -16,7 +16,7 @@
 }
 
 .eyes {
-  transition: transform 0.3s ease;
+  transition: transform var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .mouth {
@@ -44,6 +44,61 @@
   animation: talk 0.32s ease-in-out infinite alternate;
 }
 
+/* Radość: oczy w łuki i jeden sprężysty podskok, potem zwykły oddech. */
+.radosc .body {
+  animation:
+    podskok var(--ruch-wolny) var(--ruch-sprezyna),
+    breathe 4s ease-in-out var(--ruch-wolny) infinite;
+}
+
+/* Duma: zamknięte, zadowolone oczy, wypięta pierś i mocniejsze policzki. */
+.duma .body {
+  animation:
+    wypiecie var(--ruch-wolny) var(--ruch-sprezyna) both,
+    breathe 4s ease-in-out var(--ruch-wolny) infinite;
+}
+
+.duma .policzek,
+.swieto .policzek {
+  opacity: 0.95;
+}
+
+/* Zmartwienie: brwi do góry, wzrok w dół, lekkie przechylenie. */
+.zmartwienie .body {
+  transform: rotate(-4deg);
+  animation: none;
+}
+
+.zmartwienie .eyes {
+  transform: translateY(2px);
+}
+
+/* Sen: zamknięte oczy, wolny oddech, unoszące się „z”. */
+.sen .body {
+  animation-duration: 6s;
+}
+
+.zetka {
+  opacity: 0;
+  animation: zetka 3.2s ease-in-out infinite;
+}
+
+.zetka + .zetka {
+  animation-delay: 1.6s;
+}
+
+/* Świętowanie: podskok i rozsypane konfetti, raz. */
+.swieto .body {
+  animation:
+    podskok var(--ruch-wolny) var(--ruch-sprezyna),
+    breathe 4s ease-in-out var(--ruch-wolny) infinite;
+}
+
+.konfetti {
+  transform-origin: 32px 32px;
+  animation: konfetti var(--ruch-wolny) var(--ruch-sprezyna) both;
+}
+
 @keyframes breathe {
   50% {
     transform: scale(1.035, 0.975);
@@ -67,5 +122,47 @@
   }
   to {
     transform: scaleY(1);
+  }
+}
+
+@keyframes podskok {
+  0% {
+    transform: translateY(0) scale(1.08, 0.9);
+  }
+  45% {
+    transform: translateY(-6px) scale(0.96, 1.05);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes wypiecie {
+  from {
+    transform: scale(0.94);
+  }
+  to {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes zetka {
+  0% {
+    opacity: 0;
+    transform: translate(0, 4px);
+  }
+  30% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(3px, -6px);
+  }
+}
+
+@keyframes konfetti {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
   }
 }

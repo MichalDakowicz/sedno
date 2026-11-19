@@ -1,7 +1,7 @@
 .sekcja {
   display: grid;
-  gap: 20px;
-  padding-top: 28px;
+  gap: var(--s-5);
+  padding-top: var(--s-5);
   border-top: 1px solid var(--line);
 }
 
@@ -15,40 +15,9 @@
 .wiersz {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 16px;
+  gap: var(--s-4);
   align-items: center;
-  padding: 16px 0;
+  padding: var(--s-4) 0;
   border-bottom: 1px solid var(--line);
 }
 
-.chipy {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 6px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  background: transparent;
-  font-size: calc(14px * var(--skala-tekstu, 1));
-  font-weight: 500;
-  color: var(--muted);
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.chipAktywny {
-  color: var(--fg);
-  background: var(--surface);
-  border-color: transparent;
-  box-shadow: var(--shadow-float);
-}
-
-/* Wyłączony: pusty tor z obwódką i pełna gałka w --subtle (ponad 3:1 na tle, WCAG 1.4.11), także w ciemnym
-   motywie i przy większym kontraście. Włączony: tor --success i gałka --surface. */

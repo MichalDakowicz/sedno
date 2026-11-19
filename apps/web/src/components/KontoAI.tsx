@@ -166,24 +166,38 @@ export function KontoAI() {
   return (
     <section className={styles.section} id="ai" ref={sectionRef}>
       <div className={styles.head}>
-        <h2 className="h3">AI na koncie</h2>
-        <p className="muted small">Sedno nie ma wspólnego klucza. Pestka używa dostawców zapisanych na tym koncie.</p>
+        <h2 className="h2" data-tutor-about="Sedno nie ma wspólnego klucza. Używam dostawców zapisanych na tym koncie.">AI na koncie</h2>
       </div>
 
+      {creds.length > 0 && usage.length > 0 && (
+        <dl className={styles.liczby}>
+          <div>
+            <dt>zapytań do Pestki</dt>
+            <dd>{usage.length}{usage.length >= 500 ? "+" : ""}</dd>
+          </div>
+          <div>
+            <dt>odpowiedzi bez błędu</dt>
+            <dd>{Math.round((usage.filter((u) => u.ok).length / usage.length) * 100)}%</dd>
+          </div>
+        </dl>
+      )}
+
       {creds.length > 0 && (
-        <ul className={styles.list}>
+        <ul className={`wiersze ${styles.list}`}>
           {creds.map((c) => (
-            <li key={c.provider} className={styles.row}>
-              <span className={styles.grow}>
-                <strong>{c.provider}</strong> <span className="muted">· {c.model}</span>
-                <span className="muted small"> · klucz …{c.key_last4}</span>
+            <li key={c.provider} className="wiersz">
+              <span className="wiersz-tresc">
+                <span className="wiersz-nazwa">{c.provider}</span>
+                <span className="wiersz-opis">{c.model} · klucz …{c.key_last4}</span>
               </span>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => void test(c.provider)}>
-                Sprawdź
-              </button>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => void remove(c.provider)}>
-                Usuń
-              </button>
+              <span className="wiersz-akcja">
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => void test(c.provider)}>
+                  Sprawdź
+                </button>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => void remove(c.provider)}>
+                  Usuń
+                </button>
+              </span>
             </li>
           ))}
         </ul>
@@ -198,7 +212,7 @@ export function KontoAI() {
                 <span>
                   <strong>{t.label}</strong> <span className="muted small">{t.hint}</span>
                 </span>
-                <select className="input" value={r?.provider ?? ""} onChange={(e) => void route(t.id, e.target.value, "")} aria-label={`Dostawca dla zadań: ${t.label}`}>
+                <select className="select" value={r?.provider ?? ""} onChange={(e) => void route(t.id, e.target.value, "")} aria-label={`Dostawca dla zadań: ${t.label}`}>
                   <option value="">brak</option>
                   {creds.map((c) => (
                     <option key={c.provider} value={c.provider}>
@@ -216,7 +230,7 @@ export function KontoAI() {
                   disabled={!r}
                 />
                 <select
-                  className="input"
+                  className="select"
                   value={r?.reasoning_effort ?? ""}
                   onChange={(e) => r && void zmienMyslenie(r, e.target.value || null)}
                   aria-label={`Poziom myślenia dla zadań: ${t.label}`}
@@ -237,7 +251,7 @@ export function KontoAI() {
       <form className={styles.form} onSubmit={save}>
         <div className="field">
           <label htmlFor="ai-preset">Dodaj dostawcę</label>
-          <select id="ai-preset" className="input" value={preset} onChange={(e) => choose(e.target.value as PresetId)}>
+          <select id="ai-preset" className="select" value={preset} onChange={(e) => choose(e.target.value as PresetId)}>
             {presets.map((id) => (
               <option key={id} value={id}>
                 {PRESETS[id].label}
@@ -273,8 +287,10 @@ export function KontoAI() {
       )}
 
       {groups.size > 0 && (
+        <details className={styles.zuzycie}>
+        <summary>Zużycie według dostawcy i modelu</summary>
         <table className={styles.usage}>
-          <caption className="label">Zużycie (ostatnie 500 zapytań)</caption>
+          <caption className="visually-hidden">Zużycie (ostatnie 500 zapytań)</caption>
           <thead>
             <tr>
               <th>Dostawca · model · poziom</th>
@@ -296,6 +312,7 @@ export function KontoAI() {
             ))}
           </tbody>
         </table>
+        </details>
       )}
     </section>
   );

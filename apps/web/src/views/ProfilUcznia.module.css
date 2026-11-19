@@ -1,85 +1,26 @@
 .strona {
   display: grid;
-  gap: 40px;
-  padding-top: 32px;
+  gap: var(--s-7);
+  padding-top: var(--s-6);
   padding-bottom: 120px;
-}
-
-.glowa {
-  display: grid;
-  gap: 12px;
-  justify-items: start;
 }
 
 /* Sekcje rozdziela linia, nie karta. */
 .sekcja {
   display: grid;
-  gap: 20px;
-  padding-top: 28px;
+  gap: var(--s-4);
+  padding-top: var(--s-4);
   border-top: 1px solid var(--line);
 }
 
 .pytanie {
   display: grid;
-  gap: 10px;
+  gap: var(--s-3);
 }
 
-.chipy {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 40px;
-  padding: 6px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  background: transparent;
-  font: inherit;
-  font-size: calc(14px * var(--skala-tekstu, 1));
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.chip:hover {
-  color: var(--fg);
-}
-
-.chipAktywny {
-  color: var(--fg);
-  background: var(--surface);
-  border-color: transparent;
-  box-shadow: var(--shadow-float);
-}
-
+/* Priorytety i wnioski: wspólny .wiersz, „Usuń” w kolumnie akcji. */
 .wiersze {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--line);
-}
-
-.wiersz {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 16px;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.wierszTekst {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.wierszTekst > span:first-child {
-  overflow-wrap: anywhere;
+  --wiersz-akcja: auto;
 }
 
 .usun {
@@ -87,13 +28,13 @@
   border: 0;
   background: none;
   font: inherit;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   cursor: pointer;
 }
 
 .dodaj {
   display: flex;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .dodaj input {
@@ -103,7 +44,7 @@
 
 .grupaWnioskow {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .przycisk {
@@ -114,4 +55,36 @@
   .dodaj {
     flex-direction: column;
   }
+}
+
+/* Wnioski jako kilka liczb z podpisem, bez tabeli. */
+.liczby {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+  gap: var(--s-4) var(--s-5);
+  margin: 0;
+}
+
+.liczby div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--s-1);
+}
+
+.liczby dt {
+  font-size: var(--t-sm);
+  color: var(--subtle);
+}
+
+.liczby dd {
+  margin: 0;
+  font-size: calc(40px * var(--skala-tekstu, 1));
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.liczby dd.slowo {
+  font-size: calc(28px * var(--skala-tekstu, 1));
+  line-height: 1.15;
 }

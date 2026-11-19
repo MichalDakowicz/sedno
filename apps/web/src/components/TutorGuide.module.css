@@ -13,7 +13,7 @@
 .spot {
   position: fixed;
   z-index: 44;
-  border-radius: 22px;
+  border-radius: var(--r-md);
   pointer-events: none;
   box-shadow:
     0 0 0 3px color-mix(in srgb, var(--primary) 95%, transparent),
@@ -115,8 +115,8 @@
 .bubble {
   position: absolute;
   display: grid;
-  gap: 10px;
-  padding: 16px 18px;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-4);
   border-radius: var(--r-md);
   background: var(--surface);
   box-shadow: var(--shadow-float), 0 0 0 1px var(--line);
@@ -147,13 +147,13 @@
 .right {
   left: calc(100% + 12px);
   top: -10px;
-  border-top-left-radius: 6px;
+  border-top-left-radius: var(--r-xs);
 }
 
 .left {
   right: calc(100% + 12px);
   top: -10px;
-  border-top-right-radius: 6px;
+  border-top-right-radius: var(--r-xs);
 }
 
 .right.up,
@@ -164,12 +164,12 @@
 
 .right.up {
   border-top-left-radius: var(--r-md);
-  border-bottom-left-radius: 6px;
+  border-bottom-left-radius: var(--r-xs);
 }
 
 .left.up {
   border-top-right-radius: var(--r-md);
-  border-bottom-right-radius: 6px;
+  border-bottom-right-radius: var(--r-xs);
 }
 
 .below {
@@ -201,7 +201,7 @@
 }
 
 .step {
-  font-size: calc(12px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -211,11 +211,11 @@
 .step,
 .text {
   /* miejsce na krzyżyk */
-  padding-right: 28px;
+  padding-right: var(--s-5);
 }
 
 .text {
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   line-height: 1.5;
 }
 
@@ -223,7 +223,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
   padding-top: 2px;
 }
 
@@ -233,7 +233,7 @@
 
 /* W dymku oba przyciski tej samej wielkości, obok siebie (główny tylko kolorem i pogrubieniem). */
 .actions :global(.btn-primary.btn-sm) {
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
 }
 
 /* Dymek bez przycisków (np. „Zaczynamy od zadania 1.”) nie trzyma pustego miejsca. */
@@ -242,10 +242,10 @@
 }
 
 .skip {
-  padding: 8px 4px;
+  padding: var(--s-2) var(--s-1);
   border: 0;
   background: none;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   color: var(--muted);
   cursor: pointer;
 }
@@ -255,7 +255,7 @@
 }
 
 .wait {
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   color: var(--primary-text);
   font-weight: 500;
 }

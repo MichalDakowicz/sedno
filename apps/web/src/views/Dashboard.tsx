@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Navigate, useParams } from "react-router-dom";
-import { ArrowRight, ChevronRight, LayoutGrid, LayoutList, Plus } from "lucide-react";
+import { ArrowRight, ChevronRight, LayoutGrid, Plus } from "lucide-react";
 import { isTourDone, useTutor, type Hint } from "../components/TutorContext";
 import { SubjectIcon } from "../components/icons";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
-import { saveSubjects, useProfil, useSession } from "../auth";
+import { saveSubjects, useProfil, useSession, imieZNazwy } from "../auth";
 import { useAiReady } from "../ai";
 import { dniDoMatury, nazwaPoziomu, opisPoziomow, przedmiot, zgrupuj, type MojPrzedmiot } from "../konto/przedmioty";
 import { dniDo, egzaminyUcznia, najblizszy, odmianaDni } from "../konto/terminy";
@@ -15,6 +15,7 @@ import { Plywak } from "../components/Plywak";
 import { Ladowanie } from "../components/Ladowanie";
 import { Wejscia } from "../szablony/Wejscia";
 import { Dzis } from "./pulpit/Dzis";
+import { trwa, useDiagnoza } from "../nauka/diagnoza";
 import { widget, type KontekstPulpitu } from "./pulpit/widgety";
 import { Wynikowy, procent, tytul } from "./pulpit/wspolne";
 import styles from "./Dashboard.module.css";
@@ -60,7 +61,6 @@ function BezPrzedmiotow() {
       <h2 id="choose-title" className="h2">
         Które przedmioty zdajesz?
       </h2>
-      <p className="muted">Pulpit, propozycje i Pestka dopasują się do nich. Zmienisz je w profilu.</p>
       <WyborPrzedmiotow value={wybor} onChange={setWybor} />
       <button
         type="button"
@@ -89,10 +89,13 @@ export function Dashboard() {
   const nastepny = najblizszy(egzaminy);
   const dniHero = nastepny ? dniDo(nastepny.data) : egzaminy.length ? null : dniDoMatury();
   const dane = useWynikiKonta(moje);
+  // Dane z pamięci (powrót na pulpit) są od razu na miejscu: bez animacji wejścia, która udawałaby wczytywanie.
+  const wejscie = useRef(dane ? "" : "wejscie").current;
   const { showHints, startTour } = useTutor();
   const { pestkaSama } = useUstawienia();
   const klucz = aktywny?.id ?? WSZYSTKIE;
   const uklad = useUklad(klucz);
+  const diagnoza = useDiagnoza();
 
   const zakres = dane ? (aktywny ? dane.podsumowania.filter((p) => p.przedmiot.id === aktywny.id) : dane.podsumowania) : [];
   const propozycje = dane ? zakres.map((p) => propozycja(p, dane.wiersze)) : [];
@@ -115,7 +118,7 @@ export function Dashboard() {
   const reszta = wlaczone.slice(obok ? 1 : 0);
   const kontekst: KontekstPulpitu = { zakres, co, aktywny: aktywny?.id, ai, maPrzedmioty: moje.length > 0, obok: false };
 
-  const imie = profil?.display_name?.split(" ")[0];
+  const imie = imieZNazwy(profil?.display_name);
   const p = aktywny ? przedmiot(aktywny.id)! : null;
 
   return (
@@ -140,11 +143,12 @@ export function Dashboard() {
             </>
           )}
         </h1>
-        <p className="muted">{egzaminy.length ? "Sesja majowa 2027. Terminy z komunikatu CKE, do weryfikacji." : "Sesja majowa 2027. Dokładne daty egzaminów poda harmonogram CKE."}</p>
-        <Link to={aktywny ? `/uklad-pulpitu?przedmiot=${aktywny.id}` : "/uklad-pulpitu"} className={styles.ukladLink}>
-          <LayoutList size={14} aria-hidden="true" />
-          Układ pulpitu
-        </Link>
+        {/* Diagnoza na start (nauka/diagnoza.ts): zaproszenie, póki nie skończona ani pominięta; po przerwie „Dokończ”. */}
+        {moje.some((m) => m.id === "angielski") && (!aktywny || aktywny.id === "angielski") && !diagnoza.koniec && !diagnoza.pominieta && (
+          <Link to="/nauka/diagnoza" className="link">
+            {trwa(diagnoza) ? "Dokończ diagnozę" : "Sprawdźmy, od czego zacząć"} <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        )}
       </section>
 
       {profil && !moje.length && <BezPrzedmiotow />}
@@ -152,7 +156,7 @@ export function Dashboard() {
       {!dane && <Ladowanie ksztalt="pulpit" ile={3} etykieta="Wczytuję twoje arkusze i wyniki" />}
 
       {dane && co && (
-        <section className={`${styles.top} ${obok ? "" : styles.topSam} wejscie`}>
+        <section className={`${styles.top} ${obok ? "" : styles.topSam} ${wejscie}`}>
           <Dzis {...kontekst} />
           {obok && (
             <div className={styles.side}>
@@ -162,40 +166,39 @@ export function Dashboard() {
         </section>
       )}
 
-      {dane && aktywny && zakres.map((s) => <ArkuszePrzedmiotu key={s.przedmiot.poziom} podsumowanie={s} zPoziomem={zakres.length > 1} />)}
+      {dane && aktywny && zakres.map((s) => <ArkuszePrzedmiotu key={s.przedmiot.poziom} podsumowanie={s} zPoziomem={zakres.length > 1} wejscie={wejscie} />)}
 
       {dane && !aktywny && moje.length > 0 && (
-        <section className={`${styles.section} wejscie`} aria-labelledby="subjects-title">
+        <section className={`${styles.section} ${wejscie}`} aria-labelledby="subjects-title">
           <div className={styles.sectionHead}>
             <h2 id="subjects-title" className="h2">
               Twoje przedmioty
             </h2>
           </div>
-          <ul className={styles.rows}>
+          <ul className={`wiersze ${styles.listaWynikow}`}>
             {dane.podsumowania.map((s) => {
               const pr = przedmiot(s.przedmiot.id)!;
               return (
                 <li key={`${pr.id}-${s.przedmiot.poziom}`}>
-                  <Link to={`/przedmiot/${pr.id}`} className={styles.subjectRow}>
-                    <SubjectIcon subject={pr} size="lg" />
-                    <span className={styles.subjectName}>
+                  <Link to={`/przedmiot/${pr.id}`} className="wiersz">
+                    <span className="wiersz-ikona"><SubjectIcon subject={pr} size="lg" /></span>
+                    <span className="wiersz-tresc">
                       <span className="h3">{pr.nazwa}</span>
-                      <span className="muted small">poziom {nazwaPoziomu[s.przedmiot.poziom]}</span>
+                      <span className="wiersz-opis">
+                        poziom {nazwaPoziomu[s.przedmiot.poziom]} · {s.arkusze.length ? `${s.wyniki.length} z ${s.arkusze.length} arkuszy sprawdzonych` : "arkuszy jeszcze nie ma"}
+                      </span>
                     </span>
-                    <span className={styles.subjectMastery}>
+                    <span className="wiersz-wartosc">
                       {s.srednia !== null ? (
-                        <>
+                        <span className="wiersz-pasek">
                           <Wynikowy value={s.srednia} />
-                          <span className={styles.pct}>{s.srednia}%</span>
-                        </>
+                          <span>{s.srednia}%</span>
+                        </span>
                       ) : (
-                        <span className="muted small">bez wyniku</span>
+                        <span className="muted">bez wyniku</span>
                       )}
                     </span>
-                    <span className={styles.note}>
-                      {s.arkusze.length ? `${s.wyniki.length} z ${s.arkusze.length} arkuszy sprawdzonych` : "arkusze w drodze"}
-                    </span>
-                    <ChevronRight size={20} className={styles.chevron} aria-hidden="true" />
+                    <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
                   </Link>
                 </li>
               );
@@ -206,15 +209,16 @@ export function Dashboard() {
 
       {dane && reszta.map((w) => <w.Komponent key={w.id} {...kontekst} />)}
 
-      <Wejscia tytul="W przygotowaniu" slugi={["mapa-wiedzy"]} />
+      {/* Prototypy z src/szablony są dla nas, nie dla ucznia ani jury: tylko w trybie deweloperskim. */}
+      {dane && import.meta.env.DEV && <Wejscia tytul="W przygotowaniu" slugi={["mapa-wiedzy"]} />}
     </main>
   );
 }
 
-function ArkuszePrzedmiotu({ podsumowanie: s, zPoziomem }: { podsumowanie: Podsumowanie; zPoziomem: boolean }) {
+function ArkuszePrzedmiotu({ podsumowanie: s, zPoziomem, wejscie }: { podsumowanie: Podsumowanie; zPoziomem: boolean; wejscie: string }) {
   const tytulId = `sheets-title-${s.przedmiot.poziom}`;
   return (
-    <section className={`${styles.section} wejscie`} aria-labelledby={tytulId}>
+    <section className={`${styles.section} ${wejscie}`} aria-labelledby={tytulId}>
       <div className={styles.sectionHead}>
         <h2 id={tytulId} className="h2">
           Twoje arkusze{zPoziomem ? `, poziom ${nazwaPoziomu[s.przedmiot.poziom]}` : ""}
@@ -224,34 +228,46 @@ function ArkuszePrzedmiotu({ podsumowanie: s, zPoziomem }: { podsumowanie: Podsu
         </Link>
       </div>
       {s.wyniki.length || s.zaczete.length ? (
-        <ul className={styles.rows}>
+        <ul className={`wiersze ${styles.listaWynikow}`}>
           {s.zaczete.map((z) => (
             <li key={z.arkusz.id}>
-              <Link to={`/arkusze/${z.arkusz.id}`} className={styles.skill}>
-                <span className={styles.skillName}>{tytul(z.arkusz)}</span>
-                <span className="muted small">w trakcie</span>
-                <span className={styles.pct} />
-                <span className={styles.note}>
-                  {z.odpowiedzi} z {z.arkusz.pytan} odpowiedzi
+              <Link to={`/arkusze/${z.arkusz.id}`} className="wiersz">
+                <span className="wiersz-tresc">
+                  <span className="wiersz-nazwa">{tytul(z.arkusz)}</span>
+                  <span className="wiersz-opis">{z.odpowiedzi} z {z.arkusz.pytan} odpowiedzi</span>
                 </span>
+                <span className="wiersz-wartosc muted">w trakcie</span>
+                <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
               </Link>
             </li>
           ))}
           {s.wyniki.map((w) => (
             <li key={w.arkusz.id}>
-              <Link to={`/arkusze/${w.arkusz.id}`} className={styles.skill}>
-                <span className={styles.skillName}>{tytul(w.arkusz)}</span>
-                <Wynikowy value={procent(w)} />
-                <span className={styles.pct}>{procent(w)}%</span>
-                <span className={styles.note}>
-                  {w.zdobyte}/{w.mozliwe} pkt
+              <Link to={`/arkusze/${w.arkusz.id}`} className="wiersz">
+                <span className="wiersz-tresc">
+                  <span className="wiersz-nazwa">{tytul(w.arkusz)}</span>
+                  <span className="wiersz-opis">{w.zdobyte}/{w.mozliwe} pkt</span>
                 </span>
+                <span className="wiersz-wartosc">
+                  <span className="wiersz-pasek">
+                    <Wynikowy value={procent(w)} />
+                    <span>{procent(w)}%</span>
+                  </span>
+                </span>
+                <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
               </Link>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="muted">Nie masz jeszcze rozwiązanych arkuszy z tego przedmiotu.</p>
+        <div className={styles.pusty}>
+          <p className="muted">Nie masz jeszcze rozwiązanych arkuszy z tego przedmiotu.</p>
+          {s.arkusze[0] && (
+            <Link to={`/arkusze/${s.arkusze[0].id}`} className="btn btn-secondary btn-sm">
+              Rozwiąż pierwszy arkusz
+            </Link>
+          )}
+        </div>
       )}
     </section>
   );

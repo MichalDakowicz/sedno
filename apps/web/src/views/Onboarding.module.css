@@ -5,14 +5,14 @@
 }
 
 .top {
-  padding-top: 32px;
+  padding-top: var(--s-6);
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: var(--s-5);
 }
 
 .logo {
-  font-size: calc(20px * var(--skala-tekstu, 1));
+  font-size: var(--t-lg);
   font-weight: 700;
   letter-spacing: -0.04em;
 }
@@ -20,7 +20,7 @@
 .progress {
   flex: 1;
   display: flex;
-  gap: 6px;
+  gap: var(--s-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -32,7 +32,7 @@
   height: 4px;
   border-radius: var(--r-pill);
   background: var(--line);
-  transition: background 0.3s;
+  transition: background var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .progress li.done {
@@ -44,9 +44,9 @@
   margin-left: auto;
   background: none;
   border: 0;
-  padding: 4px 0;
+  padding: var(--s-1) 0;
   font: inherit;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   color: var(--muted);
   cursor: pointer;
 }
@@ -64,16 +64,16 @@
   flex: 1;
   display: grid;
   align-items: center;
-  padding-top: 48px;
-  padding-bottom: 64px;
+  padding-top: var(--s-7);
+  padding-bottom: var(--s-8);
 }
 
 .step {
   display: grid;
-  gap: 24px;
+  gap: var(--s-5);
   justify-items: start;
   max-width: 640px;
-  animation: wejscie 0.35s ease-out;
+  animation: wejscie var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 @keyframes wejscie {
@@ -86,8 +86,8 @@
 .task {
   width: 100%;
   display: grid;
-  gap: 12px;
-  padding: 24px;
+  gap: var(--s-3);
+  padding: var(--s-5);
   background: var(--surface);
   border-radius: var(--r-md);
   box-shadow: var(--shadow-float);
@@ -95,29 +95,29 @@
 
 .question {
   margin: 0;
-  font-size: calc(20px * var(--skala-tekstu, 1));
+  font-size: var(--t-lg);
 }
 
 .options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: var(--s-3);
 }
 
 .option {
   display: flex;
   align-items: center;
   text-align: left;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-3);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   background: var(--bg);
   font: inherit;
-  font-size: calc(17px * var(--skala-tekstu, 1));
+  font-size: var(--t-md);
   color: var(--fg);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa), background var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .option:hover:not(:disabled) {
@@ -129,7 +129,7 @@
 }
 
 .letter {
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-weight: 600;
   color: var(--muted);
 }
@@ -149,27 +149,27 @@
   max-height: 340px;
   overflow-y: auto;
   display: grid;
-  gap: 14px;
+  gap: var(--s-4);
 }
 
 .tutorRow {
   display: flex;
-  gap: 10px;
+  gap: var(--s-3);
   align-items: flex-start;
 }
 
 .tutorText {
   margin: 0;
-  padding: 12px 16px;
+  padding: var(--s-3) var(--s-4);
   background: var(--surface);
-  border-radius: 4px var(--r-md) var(--r-md) var(--r-md);
+  border-radius: var(--r-xs) var(--r-md) var(--r-md) var(--r-md);
   box-shadow: var(--shadow-float);
   line-height: 1.5;
 }
 
 .note {
-  margin: 6px 0 0 4px;
-  font-size: calc(12px * var(--skala-tekstu, 1));
+  margin: var(--s-2) 0 0 var(--s-1);
+  font-size: var(--t-xs);
   color: var(--subtle);
 }
 
@@ -177,7 +177,7 @@
   margin: 0;
   justify-self: end;
   max-width: 80%;
-  padding: 10px 16px;
+  padding: var(--s-2) var(--s-4);
   background: var(--secondary);
   color: var(--secondary-fg);
   border-radius: var(--r-md) 4px var(--r-md) var(--r-md);
@@ -185,8 +185,8 @@
 
 .typing {
   display: inline-flex;
-  gap: 4px;
-  padding: 16px;
+  gap: var(--s-1);
+  padding: var(--s-4);
 }
 
 .typing i {
@@ -215,7 +215,7 @@
 .reply {
   width: 100%;
   display: flex;
-  gap: 10px;
+  gap: var(--s-3);
 }
 
 .reply input {
@@ -232,9 +232,9 @@
 
 .where li {
   display: flex;
-  gap: 14px;
+  gap: var(--s-4);
   align-items: flex-start;
-  padding: 14px 0;
+  padding: var(--s-3) 0;
   border-bottom: 1px solid var(--line);
   line-height: 1.5;
 }
@@ -251,7 +251,7 @@
   }
 
   .main {
-    padding-top: 32px;
+    padding-top: var(--s-6);
   }
 }
 
@@ -265,19 +265,19 @@
 .subjects {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .subjectTab {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 14px 6px 8px;
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-3) var(--s-1) var(--s-2);
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   background: var(--surface);
   font: inherit;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   color: var(--muted);
   cursor: pointer;
 }
@@ -289,5 +289,5 @@
 
 .profil {
   display: grid;
-  gap: 20px;
+  gap: var(--s-5);
 }

@@ -1,0 +1,33 @@
+.znak {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+}
+
+.pestka {
+  flex: none;
+  fill: var(--primary);
+  transition: transform var(--ruch-wolny) var(--ruch-sprezyna);
+}
+
+/* Ciemne oczy na pomarańczu w obu motywach: Pestka wygląda tak samo, zmienia się tylko tło. */
+.oko {
+  fill: #0f151d;
+}
+
+.usmiech {
+  fill: none;
+  stroke: #0f151d;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+/* Najechany znak lekko podskakuje, jak Pestka. */
+a:hover > .znak .pestka,
+a:focus-visible > .znak .pestka {
+  transform: translateY(-2px) rotate(-6deg);
+}

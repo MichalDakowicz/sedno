@@ -16,7 +16,7 @@ import { TutorAvatar } from "./TutorAvatar";
 import chat from "./TutorChat.module.css";
 import { WsparcieNota } from "./TutorChat";
 import styles from "./OmowienieBledow.module.css";
-import { mniejRuchu } from "../motyw";
+import { mniejRuchu } from "../ruch";
 
 export type Wiadomosc = { od: "tutor" | "uczen"; tekst: string };
 
@@ -77,6 +77,7 @@ export function OmowienieBledow({
   onZapiszRozmowe,
   onZamknij,
   wejscie,
+  etykieta,
 }: {
   arkusz: Arkusz;
   postep: Postep;
@@ -88,6 +89,8 @@ export function OmowienieBledow({
   onZapiszRozmowe: (zadanie: number, rozmowa: Wiadomosc[]) => void;
   onZamknij: () => void;
   wejscie?: Wejscie | null;
+  /** Nagłówek karty zamiast „Błąd 1 z 3 · zadanie 4.” (np. w rundzie nauki, gdzie omawiane jest jedno pytanie). */
+  etykieta?: string;
 }) {
   // Wcześniejsza rozmowa o tym zadaniu wraca z postępu arkusza (synchronizowanego z kontem).
   const zapisana = postep.rozmowyOmowien?.[d.zadanie.nr];
@@ -272,7 +275,7 @@ export function OmowienieBledow({
           <TutorAvatar size={40} state={stanPestki} className={styles.avatar} />
         </span>
         <span className="label">
-          {d.wypracowanie ? "Wypracowanie" : "Błąd"} {numer} z {wszystkich} · zadanie {nr}.
+          {etykieta ?? `${d.wypracowanie ? "Wypracowanie" : d.pusty ? "Bez odpowiedzi" : "Błąd"} · ${numer} z ${wszystkich} · zadanie ${nr}.`}
         </span>
         <button type="button" className={styles.zamknij} onClick={onZamknij} aria-label="Zakończ omawianie">
           <X size={18} />
@@ -362,7 +365,7 @@ export function OmowienieBledow({
           </button>
         )}
         <button type="button" className="btn btn-primary btn-sm" onClick={() => odejdz(ostatni ? onZamknij : onDalej)} disabled={odchodzi}>
-          {ostatni ? "Zakończ" : "Następny błąd"} <ArrowRight size={16} aria-hidden="true" />
+          {ostatni ? "Zakończ" : "Następne zadanie"} <ArrowRight size={16} aria-hidden="true" />
         </button>
       </div>
     </section>

@@ -1,0 +1,22 @@
+.blad,
+.brak {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-3);
+}
+
+.blad {
+  padding-inline-start: var(--s-3);
+  border-inline-start: 2px solid var(--danger);
+}
+
+.akcje {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3) var(--s-4);
+}
+
+.akcje:empty {
+  display: none;
+}

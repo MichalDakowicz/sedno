@@ -19,8 +19,8 @@ export function Tutor() {
       <main className={`container ${styles.page}`}>
         <section className={styles.intro}>
           <TutorAvatar size={96} className={styles.avatar} />
-          <h1 className="h1">Pestka czeka na AI</h1>
-          <p className="muted">Pojawię się, gdy podepniesz do konta dostawcę AI. Sedno nie ma wspólnego klucza.</p>
+          <h1 className="h1">Pestka czeka na połączenie</h1>
+          <p className="muted">Odpowiem, gdy połączysz mnie z kontem w profilu.</p>
           <PodlaczAI />
         </section>
       </main>
@@ -30,10 +30,10 @@ export function Tutor() {
 
   return (
     <main className={`container ${styles.page}`}>
-      <section className={styles.intro}>
+      <section className={`obok-karty ${styles.intro}`}>
         <TutorAvatar size={96} state={state} className={styles.avatar} />
         <h1 className="h1">Pestka</h1>
-        <p className="muted">Twoja tutorka. Prowadzi cię pytaniami do zrozumienia, zamiast podawać gotowe odpowiedzi. Wklej zadanie albo opisz, co sprawia ci kłopot.</p>
+        <p className="muted" data-tutor-about="Prowadzę pytaniami do zrozumienia, zamiast podawać gotowe odpowiedzi.">Wklej zadanie albo opisz, co sprawia ci kłopot.</p>
         {moje.length > 0 && (
           <dl className={styles.context}>
             {zgrupuj(moje).map((m) => {
