@@ -39,6 +39,7 @@ Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (
 | `/profil-ucznia` | Jak się uczysz, czas i cel, priorytety, wnioski z wyników |
 | `/ustawienia` | Motyw, rozmiar tekstu, dostępność, zachowanie Pestki |
 | `/szablony`, `/szablony/:slug` | Prototypy z `src/szablony/` (tylko w trybie deweloperskim na pulpicie); opis w `src/szablony/README.md` |
+| `*` | Nie ma takiej strony (`views/NieMaStrony.tsx`): zmartwiona Pestka, adres i „Wróć na pulpit” |
 
 ## Nauka z Pestką (funkcja `nauka-ai`)
 
@@ -64,6 +65,11 @@ Pestka jest na każdym koncie i nie ma stałego miejsca w treści (`TutorGuide.t
 - **Przewodnik:** przy pierwszym wejściu na pulpit (`tourHints`). Przyciemnia resztę ekranu wokół wskazanego elementu (`.spot`), a zwykła wskazówka tylko obwodzi element pierścieniem. Ostatni krok czeka na przywołanie. Ponownie tylko z `/profil` („Pokaż przewodnik z Pestką”), nie z dymka Pestki: tam zostają rzeczy na co dzień.
 - **Przywołanie:** prawy przycisk (na telefonie przytrzymanie) w dowolnym miejscu poza polami tekstowymi i płótnem tablicy (tam jest menu Excalidraw i panel „Pestka w brudnopisie”). Jeśli element pod kursorem ma `data-tutor-about="…"`, Pestka wyjaśnia go w dymku.
 - **Odprawienie:** krzyżyk w dymku albo Escape: dymek gaśnie, Pestka skacze na spoczynek. Kliknięcie w avatar otwiera rozmowę w panelu bocznym (`TutorDock.tsx`).
+- **Emocje:** `TutorAvatar.tsx` ma stany `idle`, `thinking`, `talking` i emocje `radosc`, `duma`, `zmartwienie`, `sen`, `swieto` (kiedy która: `DESIGN.md`). Sen włącza jeden timeout w `TutorProvider` po 3 min bez ruchu ucznia; wskaźnik, klawiatura albo przewijanie ją budzą.
+- **Głos:** wszystkie gotowe kwestie są w `pestka/glos.ts` (`glos`, `wybierz(lista, n, liczba?)`, `powitanie()`). Widoki nie wpisują własnych tekstów Pestki.
+- **Stany:** `components/StanPestki.tsx` (twarz w emocji, zdanie z `glos.ts`, jedno działanie) w pustych stanach, w `BladPestki` / `BladNauki` i na stronie 404; `Ladowanie` po 1 s pokazuje myślącą Pestkę.
+- **Kiełkująca pestka:** `nauka/stadia.ts` (stadium z opanowania, progi `PROGI_STADIOW`) i rysunek `components/Kielek.tsx`: wiersze mapy, panel umiejętności, rozbiór, „ogród” w widgecie mapy.
+- **Znak:** `components/Znak.tsx` (Pestka i „Sedno” w pasku i na logowaniu). Favicon `public/pestka.svg`, ikony PNG (zwykłe, maskowalna, apple-touch) generuje `node scripts/ikony.mjs` z tego samego rysunku; `public/manifest.webmanifest`.
 
 ## Arkusze
 
@@ -88,3 +94,5 @@ Zasady wyglądu dla wszystkich ekranów (kolory, skala tekstu, odstępy, zaokrą
 - Nazwy zadań z `nazwaZadaniaCke` i `nazwaZadaniaRundy` (`arkusze/typy.ts`).
 - Ciemny motyw: blok `@media` na końcu `tokens.css` i `:root[data-motyw]`; Excalidraw, Monaco i Chart.js znają motyw przez `src/motyw.ts`. Obrazy z arkuszy zostają bez zmian (białe podłoże).
 - Pasek nawigacji ma tło z zanikaniem, żeby przewijana treść nie prześwitywała nad nim.
+- Ruch: `src/ruch.tsx` (`mniejRuchu()` i `useMniejRuchu()` jako jedyne miejsce decyzji o „Mniej ruchu”, `sprezyna()`, `krzywa()`, `useLiczba()` / `<Liczba>`), tokeny `--ruch-*` w `tokens.css`. Zasady w `DESIGN.md`.
+- Wykresy: `components/wykresy/` (`PasekProgu`, `Linia`, `Kropki`, `OsCzasu`, `PasDni`, `Pierscien`), inline SVG w tokenach z `aria-label`; wartość animuje się po wejściu w ekran.
