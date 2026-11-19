@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { Camera, ChevronRight, CircleHelp, FileText, PenLine, GraduationCap, MessagesSquare, Network, RotateCcw, Timer } from "lucide-react";
 import { TutorAvatar } from "../../components/TutorAvatar";
 import type { Poziom } from "../../arkusze/typy";
@@ -12,8 +12,8 @@ import { nazwaPoziomu, przedmiot, type PrzedmiotId } from "../../konto/przedmiot
 import { klasaPrzedmiotu, PasekPrzedmiotow } from "../../components/PasekPrzedmiotow";
 import { Ogrod } from "../../components/Ogrod";
 import { adresRundy, adresStartu } from "../../nauka/adresy";
-import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki, type Umiejetnosc } from "../../nauka/api";
-import { coDzisBezRund, MINUTY_RUNDY, useDzisAngielski, usePolecenieDnia, type Sposob } from "../../nauka/dzis";
+import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki } from "../../nauka/api";
+import { coDzisBezRund, MINUTY_RUNDY, useDzisAngielski, usePolecenieDnia } from "../../nauka/dzis";
 import { KartaDnia } from "../../components/KartaDnia";
 import { SekcjaPowtorek } from "./Powtorki";
 import { useOtwarteRundy, usePoziomNauki, useZapytanie } from "../../nauka/stan";
@@ -123,18 +123,15 @@ export function Nauka() {
   const akcjaBezRund = bezRund?.akcja;
   const maArkusze = wybranyPrzedmiot !== "polski";
 
-  // Trzy równorzędne drogi obok głównej akcji.
-  const drogi: { id: string; to?: string; nazwa: string; opis: string; ikona: ReactNode; temat?: boolean }[] = [
-    { id: "temat", nazwa: "Zapytaj Pestkę o temat", opis: "Wpisz, czego nie rozumiesz.", ikona: <MessagesSquare size={20} aria-hidden="true" />, temat: true },
-    ...(angielski ? [{ id: "pisanie", to: `/nauka/pisanie?poziom=${poziom}`, nazwa: "Napisz wypowiedź", opis: "Krok po kroku, z uwagami Pestki.", ikona: <PenLine size={20} aria-hidden="true" /> }] : []),
-    ...(maArkusze ? [{ id: "arkusz", to: `/arkusze?przedmiot=${wybranyPrzedmiot}`, nazwa: "Rozwiąż arkusz", opis: "Cała matura CKE z kluczem.", ikona: <FileText size={20} aria-hidden="true" /> }] : []),
-  ];
-
-  const wiecej: { id: Sposob; to: string; nazwa: string; kiedy: string; ikona: ReactNode }[] = [
-    ...(angielski && aiGotowe !== false ? [{ id: "sokratejski" as const, to: `/nauka/sokratejski?poziom=${poziom}${umiejetnosc ? `&umiejetnosc=${umiejetnosc.skill_id}` : ""}`, nazwa: "Rozmowa z pytaniami", kiedy: "Chcesz zrozumieć, nie tylko trafić.", ikona: <CircleHelp size={18} aria-hidden="true" /> }] : []),
-    ...(wybranyPrzedmiot === "matematyka" || wybranyPrzedmiot === "informatyka" ? [{ id: "zdjecie" as const, to: "/nauka/zdjecie", nazwa: "Zdjęcie z kartki", kiedy: "Rozwiązujesz na papierze i chcesz omówienia.", ikona: <Camera size={18} aria-hidden="true" /> }] : []),
+  // Wszystkie inne sposoby nauki w jednej liście wierszy, każdy z jednym zdaniem „kiedy”: bez kafli, pól i zwijania.
+  const sposoby: { id: string; to: string; nazwa: string; kiedy: string; ikona: ReactNode }[] = [
+    ...(aiGotowe !== false ? [{ id: "temat", to: "/tutor", nazwa: "Zapytaj Pestkę", kiedy: "Nie rozumiesz tematu i chcesz go omówić.", ikona: <MessagesSquare size={18} aria-hidden="true" /> }] : []),
+    ...(maArkusze ? [{ id: "arkusz", to: `/arkusze?przedmiot=${wybranyPrzedmiot}`, nazwa: "Rozwiąż arkusz", kiedy: "Chcesz sprawdzić się na całej maturze.", ikona: <FileText size={18} aria-hidden="true" /> }] : []),
+    ...(angielski ? [{ id: "pisanie", to: `/nauka/pisanie?poziom=${poziom}`, nazwa: "Napisz wypowiedź", kiedy: "Ćwiczysz pisanie krok po kroku, z uwagami Pestki.", ikona: <PenLine size={18} aria-hidden="true" /> }] : []),
+    ...(angielski && aiGotowe !== false ? [{ id: "sokratejski", to: `/nauka/sokratejski?poziom=${poziom}${umiejetnosc ? `&umiejetnosc=${umiejetnosc.skill_id}` : ""}`, nazwa: "Rozmowa z pytaniami", kiedy: "Chcesz zrozumieć, nie tylko trafić.", ikona: <CircleHelp size={18} aria-hidden="true" /> }] : []),
+    ...(wybranyPrzedmiot === "matematyka" || wybranyPrzedmiot === "informatyka" ? [{ id: "zdjecie", to: "/nauka/zdjecie", nazwa: "Zdjęcie z kartki", kiedy: "Rozwiązujesz na papierze i chcesz omówienia.", ikona: <Camera size={18} aria-hidden="true" /> }] : []),
     { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Naucz Kolegę", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
-    ...(MAPA_WIEDZY_WLACZONA ? [{ id: "mapa-wiedzy" as const, to: `/nauka/mapa-wiedzy?przedmiot=${wybranyPrzedmiot}`, nazwa: "Mapa wiedzy", kiedy: "Zbierasz pojęcia i chcesz zobaczyć, co je łączy.", ikona: <Network size={18} aria-hidden="true" /> }] : []),
+    ...(MAPA_WIEDZY_WLACZONA ? [{ id: "mapa-wiedzy", to: `/nauka/mapa-wiedzy?przedmiot=${wybranyPrzedmiot}`, nazwa: "Mapa wiedzy", kiedy: "Zbierasz pojęcia i chcesz zobaczyć, co je łączy.", ikona: <Network size={18} aria-hidden="true" /> }] : []),
   ];
 
   return (
@@ -204,39 +201,6 @@ export function Nauka() {
       {/* Powtórki zaraz pod kartą dnia: to też odpowiedź na „co teraz ćwiczyć” (dawniej osobna zakładka). */}
       <SekcjaPowtorek przedmiot={wybranyPrzedmiot} poziom={(profil?.subjects.find((p) => p.id === wybranyPrzedmiot)?.poziom ?? null) as Poziom | null} />
 
-      <ul className={s.drogi} aria-label="Inne drogi">
-        {drogi.map((d) => (
-          <li key={d.id} className={s.droga}>
-            {d.temat ? (
-              <WolnyTemat key={`${wybranyPrzedmiot}-${poziom}`} przedmiotId={wybranyPrzedmiot} poziom={poziom} umiejetnosci={umiejetnosci} ikona={d.ikona} nazwa={d.nazwa} />
-            ) : (
-              <Link to={d.to!} className={s.drogaLink}>
-                <span className={s.ikona}>{d.ikona}</span>
-                <span className="h3">{d.nazwa}</span>
-                <span className="small muted">{d.opis}</span>
-              </Link>
-            )}
-          </li>
-        ))}
-      </ul>
-
-      <section className={s.sekcja} aria-labelledby="wiecej-sposobow">
-        <h2 className="h2" id="wiecej-sposobow">Więcej sposobów</h2>
-        <ul className={`wiersze ${s.sposoby}`}>
-          {wiecej.map((x) => (
-            <li key={x.id}>
-              <Link to={x.to} className="wiersz">
-                <span className={`wiersz-ikona ${s.ikona}`}>{x.ikona}</span>
-                <span className="wiersz-tresc">
-                  <span className="h3">{x.nazwa}</span>
-                  <span className="wiersz-opis">{x.kiedy}</span>
-                </span>
-                <span className="wiersz-akcja"><ChevronRight size={18} aria-hidden="true" /></span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
 
       {angielski && ostatnie.stan === "gotowe" && sesje.length > 0 && (
         <section className={s.sekcja} aria-labelledby="ostatnio">
@@ -271,6 +235,24 @@ export function Nauka() {
         </section>
       )}
       {angielski && ostatnie.stan === "blad" && <BladNauki komunikat="Nie udało się wczytać niedokończonych rund." ponow={ostatnie.ponow} />}
+
+      <section className={s.sekcja} aria-labelledby="inne-sposoby">
+        <h2 className="h2" id="inne-sposoby">Inne sposoby</h2>
+        <ul className={`wiersze ${s.sposoby}`}>
+          {sposoby.map((x) => (
+            <li key={x.id}>
+              <Link to={x.to} className="wiersz">
+                <span className={`wiersz-ikona ${s.ikona}`}>{x.ikona}</span>
+                <span className="wiersz-tresc">
+                  <span className="h3">{x.nazwa}</span>
+                  <span className="wiersz-opis">{x.kiedy}</span>
+                </span>
+                <span className="wiersz-akcja"><ChevronRight size={18} aria-hidden="true" /></span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
     </main>
   );
 }
@@ -291,76 +273,3 @@ function WierszFormat({ to, nazwa, opis, ikona, akcja }: { to: string; nazwa: st
   return akcja ? wiersz : <li>{wiersz}</li>;
 }
 
-function WolnyTemat({ przedmiotId, poziom, umiejetnosci, ikona, nazwa }: { przedmiotId: PrzedmiotId; poziom: Poziom; umiejetnosci: Umiejetnosc[]; ikona: ReactNode; nazwa: string }) {
-  const tutor = useTutor();
-  const aktualnyTutor = useRef(tutor);
-  aktualnyTutor.current = tutor;
-  const navigate = useNavigate();
-  const [temat, ustawTemat] = useState("");
-  const [wysylam, ustawWysylam] = useState(false);
-  const [komunikat, ustawKomunikat] = useState("");
-  const trwajace = useRef<AbortController | null>(null);
-  useEffect(() => () => trwajace.current?.abort(), []);
-
-  async function zapytaj(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const tekst = temat.trim();
-    if (!tekst || trwajace.current || !tutor.aiGotowe || tutor.state !== "idle") return;
-    const ctrl = new AbortController();
-    trwajace.current = ctrl;
-    ustawWysylam(true);
-    ustawKomunikat("");
-
-    try {
-      // Dopasowanie tematu do umiejętności jest tylko dla angielskiego (mapa umiejętności).
-      const dopasowanie = przedmiotId === "angielski" ? await naukaApi.temat(tekst, poziom, ctrl.signal).catch(() => null) : null;
-      if (ctrl.signal.aborted) return;
-      const { aiGotowe, state, zapytajWNowej } = aktualnyTutor.current;
-      if (!aiGotowe || state !== "idle") {
-        ustawKomunikat("Pestka jest teraz zajęta. Spróbuj za chwilę.");
-        return;
-      }
-      const umiejetnosc = umiejetnosci.find((u) => u.skill_id === dopasowanie?.umiejetnosc);
-      const kontekst = umiejetnosc ? ` Umiejętność: ${umiejetnosc.name}.` : "";
-      const wstep = przedmiotId === "angielski" ? `angielski (poziom ${nazwaPoziomu[poziom]})` : przedmiot(przedmiotId)!.nazwa.toLowerCase();
-      zapytajWNowej(`Chcę poćwiczyć temat z matury (${wstep}).${kontekst} Temat: ${tekst}`);
-      navigate("/tutor");
-    } finally {
-      trwajace.current = null;
-      if (!ctrl.signal.aborted) ustawWysylam(false);
-    }
-  }
-
-  return (
-    <form className={s.formularz} onSubmit={(event) => void zapytaj(event)} aria-labelledby="wolny-temat" aria-busy={wysylam}>
-      <span className={s.ikona}>{ikona}</span>
-      <h2 className="h3" id="wolny-temat">{nazwa}</h2>
-      {tutor.aiGotowe === false ? (
-        <p className="small muted">Pestka jest chwilowo niedostępna. Spróbuj za chwilę.</p>
-      ) : (
-        <>
-          <label className={s.pole}>
-            <span className="visually-hidden">Czego chcesz się nauczyć?</span>
-            <input
-              type="text"
-              className="input"
-              placeholder={przedmiotId === "angielski" ? "Np. mowa zależna" : przedmiotId === "matematyka" ? "Np. ciągi geometryczne" : przedmiotId === "informatyka" ? "Np. rekurencja" : "Np. plan rozprawki"}
-              value={temat}
-              onChange={(event) => ustawTemat(event.target.value)}
-              maxLength={280}
-              required
-              disabled={wysylam}
-            />
-          </label>
-          <button type="submit" className={`btn btn-secondary btn-sm ${s.przycisk}`} disabled={!tutor.aiGotowe || tutor.state !== "idle" || !temat.trim() || wysylam}>
-            <MessagesSquare size={18} aria-hidden="true" />
-            {wysylam ? "Dobieram temat…" : "Zapytaj"}
-          </button>
-        </>
-      )}
-      {tutor.aiGotowe === undefined && <span role="status" className="visually-hidden">Sprawdzam dostęp do Pestki…</span>}
-      {tutor.aiGotowe && tutor.state !== "idle" && !wysylam && !komunikat && <p className="small muted">Pestka odpowiada w innej rozmowie.</p>}
-      {komunikat && <p role="alert" className="small">{komunikat}</p>}
-    </form>
-  );
-}

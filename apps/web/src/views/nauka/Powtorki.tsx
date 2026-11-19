@@ -6,7 +6,7 @@ import { adresStartu } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
-import { BladNauki, formatRundy, procentNauki } from "./NaukaPowtorki";
+import { BladNauki, formatRundy } from "./NaukaPowtorki";
 import { powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
 import { zacznijKolejke } from "../../nauka/kolejka";
 import { StanPestki } from "../../components/StanPestki";
@@ -64,58 +64,15 @@ function PowtorkiAngielski() {
           {doZrobienia.length > 1 ? `Powtórz wszystkie · ${doZrobienia.length}` : "Powtórz"}
         </button>
       </div>
-      <ul className={`wiersze ${s.wiersze}`}>
-        {grupy.map((grupa) => <GrupaPowtorek key={grupa[0]!.skill_id} poziom={poziom} zadania={grupa} />)}
-      </ul>
+      {/* Bez listy umiejętności: jeden wiersz z liczbą i jednym działaniem. Którą umiejętność powtórzyć osobno, widać w ogrodzie. */}
+      {grupy.length > 1 && <p className="small muted">{grupy.map((g) => g[0]!.name).slice(0, 3).join(", ")}{grupy.length > 3 ? ` i ${grupy.length - 3} ${grupy.length - 3 === 1 ? "inna" : "inne"}` : ""}</p>}
     </>
   );
 }
 
 const zadan = (n: number) => (n === 1 ? "zadanie" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "zadania" : "zadań");
 
-/** Jedna umiejętność, jeden wiersz: co czeka (błędne zadania albo zanikająca pamięć) i od razu przycisk powtórki.
- *  Przycisk startuje kolejkę powtórek tej umiejętności, tak jak „Powtórz wszystkie” dla całej listy. */
-function GrupaPowtorek({ poziom, zadania }: { poziom: Poziom; zadania: Powtorka[] }) {
-  const navigate = useNavigate();
-  const [pierwsze] = zadania;
-  if (!pierwsze) return null;
-  const bledy = zadania.filter((p) => p.mistake).length;
-  const opis = [bledy > 0 && `${bledy} ${zadan(bledy)} z błędem`, bledy < zadania.length && "wylatuje z pamięci"].filter(Boolean).join(", ");
-  function powtorz() {
-    const adres = zacznijKolejke(zadania.map((p) => adresCwiczenia(poziom, p)));
-    if (adres) navigate(adres);
-  }
-  return (
-    <li className={`wiersz ${s.grupa}`}>
-      <div className="wiersz-tresc">
-        <h3 className="h3">{pierwsze.name}</h3>
-        <p className="wiersz-opis">{opis}</p>
-      </div>
-      <div className="wiersz-wartosc">{pierwsze.retention !== null && <Pamiec retencja={pierwsze.retention} />}</div>
-      <div className="wiersz-akcja">
-        <button type="button" className="btn btn-ghost btn-sm" onClick={powtorz}>
-          <RotateCcw size={15} aria-hidden="true" />
-          Powtórz
-        </button>
-      </div>
-    </li>
-  );
-}
 
-const OPIS_PAMIECI = "To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia, a powtórka go odświeża.";
-
-function Pamiec({ retencja }: { retencja: number }) {
-  // Ten sam pasek co opanowanie na mapie (tor 6 px, procent w stałej kolumnie), podpis nad nim od tej samej krawędzi.
-  return (
-    <span className={`wiersz-pasek ${s.retencja}`} data-tutor-about={OPIS_PAMIECI}>
-      <span className={s.retencjaPodpis} aria-hidden="true">Pamiętasz ok.</span>
-      <span className={s.retencjaTor} aria-hidden="true">
-        <span style={{ width: `${Math.round(Math.min(1, Math.max(0, retencja)) * 100)}%` }} />
-      </span>
-      <span><span className="visually-hidden">Pamiętasz ok. </span>{procentNauki.format(retencja)}</span>
-    </span>
-  );
-}
 
 /** Sekcja „Do powtórki” w Nauce: angielski z rund (błędy i zanikające umiejętności), pozostałe przedmioty
  *  z zadań z błędem w sprawdzonych arkuszach. Kiedyś osobna zakładka; adres /powtorki prowadzi tutaj. */
@@ -148,7 +105,7 @@ function PowtorkiZArkuszy({ przedmiot: p, poziom }: { przedmiot: PrzedmiotId; po
       <p className={s.liczba}><strong>{bledy.length}</strong> {zadan(bledy.length)} do poprawy</p>
       <section aria-label="Zadania do poprawy">
         <ul className={`wiersze ${s.wiersze}`}>
-          {bledy.map((b) => (
+          {bledy.slice(0, 3).map((b) => (
             <li key={`${b.arkusz.id}:${b.zadanie}`} className={`wiersz ${s.grupa}`}>
               <div className="wiersz-tresc">
                 <h3 className="h3">{nazwaBledu(b)}</h3>

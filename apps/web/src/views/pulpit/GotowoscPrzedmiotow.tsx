@@ -65,7 +65,8 @@ function WierszPrzedmiotu({ s }: { s: Podsumowanie }) {
   );
 }
 
-function PowtorkiNaDzis({ poziom }: { poziom: Podsumowanie["przedmiot"]["poziom"] }) {
+/** Link „N powtórek na dziś” pod kartą dnia na pulpicie (to pytanie „co robić”, nie „jak mi idzie”). */
+export function PowtorkiNaDzis({ poziom }: { poziom: Podsumowanie["przedmiot"]["poziom"] }) {
   const powtorki = useZapytanie(zapytania.powtorki(poziom));
   // Miejsce na link, zanim dojdą powtórki: znika tylko, gdy żadnych nie ma.
   if (powtorki.stan === "ladowanie") return <span className={w.linkPowtorekZastepczy} aria-hidden="true" />;
@@ -80,7 +81,6 @@ function PowtorkiNaDzis({ poziom }: { poziom: Podsumowanie["przedmiot"]["poziom"
 
 export function GotowoscPrzedmiotow({ zakres }: { zakres: Podsumowanie[] }) {
   if (!zakres.length) return null;
-  const angielski = zakres.find((s) => s.przedmiot.id === "angielski");
   return (
     <section className={styles.section} aria-labelledby="gotowosc-title">
       <h2 id="gotowosc-title" className="h2">Gotowość do matury</h2>
@@ -89,7 +89,6 @@ export function GotowoscPrzedmiotow({ zakres }: { zakres: Podsumowanie[] }) {
           ? <WierszAngielskiego key={`angielski-${s.przedmiot.poziom}`} s={s} />
           : <WierszPrzedmiotu key={`${s.przedmiot.id}-${s.przedmiot.poziom}`} s={s} />)}
       </ul>
-      {angielski && <PowtorkiNaDzis poziom={angielski.przedmiot.poziom} />}
     </section>
   );
 }
