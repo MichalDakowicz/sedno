@@ -4,7 +4,7 @@ import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { AiError } from "../ai";
 import { currentUserId } from "../auth";
 import { functionsUrl, supabase } from "../supabase";
-import { czytajOdpowiedzTablicy } from "./strumienTablicy";
+import { czytajOdpowiedzTablicy, type ZdarzeniaTablicy } from "./strumienTablicy";
 
 export type Punkt = [number, number];
 type Ramka = [Punkt, Punkt];
@@ -114,7 +114,7 @@ function wspolrzedneObrazu(elementy: readonly ZywyElement[], zmienione: readonly
 const CZAS_ODPOWIEDZI = 65_000;
 
 /** Wywołanie nauka-ai zwykłym fetch w trybie strumienia (functions.invoke czeka na całą odpowiedź). */
-async function zapytajFunkcje(body: Record<string, unknown>, signal: AbortSignal, onWskazowka?: (tekst: string) => void) {
+async function zapytajFunkcje(body: Record<string, unknown>, signal: AbortSignal, naZywo?: ZdarzeniaTablicy) {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new AiError("not_signed_in", 401);
@@ -133,7 +133,7 @@ async function zapytajFunkcje(body: Record<string, unknown>, signal: AbortSignal
       body: JSON.stringify({ ...body, stream: true }),
       signal: kontroler.signal,
     });
-    return await czytajOdpowiedzTablicy(res, onWskazowka);
+    return await czytajOdpowiedzTablicy(res, naZywo);
   } catch (e) {
     signal.throwIfAborted();
     // Brak sieci, przekroczony czas albo urwane połączenie: jak dawniej przy functions.invoke.
@@ -145,12 +145,12 @@ async function zapytajFunkcje(body: Record<string, unknown>, signal: AbortSignal
 }
 
 /**
- * Pyta Pestkę o tablicę. onWskazowka dostaje wskazówkę pisaną na bieżąco (sklejone fragmenty strumienia), zanim
- * dojdzie cała odpowiedź; przy funkcji sprzed strumienia nie jest wołane.
+ * Pyta Pestkę o tablicę. naZywo dostaje kawałki strumienia, zanim dojdzie cała odpowiedź: wskazówkę pisaną na bieżąco
+ * oraz gotowe figury i dopiski; przy funkcji sprzed strumienia nic nie jest wołane.
  */
 export async function omowTablice(
   api: ExcalidrawImperativeAPI, user: string, polecenie: string, pytanie: string, signal: AbortSignal, prowadzenie?: Prowadzenie,
-  onWskazowka?: (tekst: string) => void,
+  naZywo?: ZdarzeniaTablicy,
 ) {
   const scena = api.getSceneElements();
   const elementy = prowadzenie ? bezZapisowPestki(scena) : scena;
@@ -165,7 +165,7 @@ export async function omowTablice(
     prowadzenie: wspolrzedne && {
       zmiana: wspolrzedne.zmiana, poprzedniaWskazowka: prowadzenie?.poprzedniaWskazowka, zapisUcznia: zapisUcznia || undefined,
     },
-  }, signal, onWskazowka) as OdpowiedzPestki | null;
+  }, signal, naZywo) as OdpowiedzPestki | null;
   if (!data || typeof data.wskazowka !== "string" || !Array.isArray(data.ksztalty)) {
     throw new AiError("server_error", 500);
   }

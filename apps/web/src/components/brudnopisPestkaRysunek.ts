@@ -2,7 +2,7 @@ import { CaptureUpdateAction, convertToExcalidrawElements, FONT_FAMILY, getCommo
 import type { AppState, ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import type { ExcalidrawElement, NonDeleted } from "@excalidraw/excalidraw/element/types";
 import { rzutBryly } from "./brudnopisBryla";
-import { bezZapisowPestki, DOMYSLNY_OBROT_BRYLY, type OdpowiedzPestki, type Punkt } from "./brudnopisPestkaApi";
+import { bezZapisowPestki, DOMYSLNY_OBROT_BRYLY, type BrylaPestki, type DopisekPestki, type Ksztalt, type OdpowiedzPestki, type Punkt } from "./brudnopisPestkaApi";
 import { czcionkaTekstu, liniaBazowa, szerokoscTekstu, wierszWzoru, type Napis } from "./brudnopisPestkaWzory";
 
 type Szkielet = NonNullable<Parameters<typeof convertToExcalidrawElements>[0]>[number];
@@ -84,79 +84,103 @@ function tekst(styl: object, n: Napis): ExcalidrawElement {
   return dopasujTekst(convertToExcalidrawElements([{ ...styl, type: "text", x: n.x, y: n.y, text: n.tekst, fontSize: n.fontSize, fontFamily: n.fontFamily }])[0]!);
 }
 
-export function przygotujZapisPestki(api: ExcalidrawImperativeAPI, dane: OdpowiedzPestki, czyBazowy: (id: string) => boolean): ZapisPestki {
-  const { dopiski, ksztalty, bryla, obrotBryly, obszarBledu } = dane;
-  const grupa = crypto.randomUUID();
-  const styl = { strokeColor: RYSUNEK.strokeColor, groupIds: [grupa], customData: { pestka: true } };
-  const ramka = obszarBledu ? convertToExcalidrawElements([{
-    ...styl, ...obszarBledu, type: "rectangle", strokeColor: BLAD, strokeWidth: 2.5, roughness: 0,
-  }]) : [];
-  if (!dopiski.length && !ksztalty.length && !bryla) return { elementy: ramka, pozaWidokiem: false };
+/** Element zapisu Pestki w kolejności, w jakiej przychodzi ze strumienia (figury, potem dopiski). */
+export type PozycjaZapisu = { ksztalt: Ksztalt } | { dopisek: DopisekPestki };
 
-  // Najpierw układ od (0, 0), potem przesunięcie całego bloku w wolne miejsce.
+// Układ zapisu od (0, 0), dokładany po kawałku: podpis „Pestka”, potem pozycje jedna pod drugą w kolejności
+// przyjścia. Kolejne figury tworzą jeden blok ROZMIAR × ROZMIAR (wspólny układ współrzędnych), dopisek zaczyna nowy
+// wiersz pod spodem, bryła na końcu. Ten sam układ dla strumienia i dla pełnej odpowiedzi, więc rysunek na żywo
+// i po wyniku jest identyczny.
+function ukladZapisu(styl: object) {
   const tresc: ExcalidrawElement[] = [tekst(styl, { tekst: "Pestka", fontFamily: FONT_FAMILY.Excalifont, fontSize: 15, x: 0, y: 0 })];
   let y = 15 * 1.25 + 16;
-  for (const dopisek of dopiski) {
-    if (dopisek.typ === "kod") {
-      const e = tekst(styl, { tekst: dopisek.tekst, fontFamily: FONT_FAMILY.Cascadia, fontSize: 17, x: 0, y });
-      tresc.push(e);
-      y += e.height + 16;
-      continue;
+  let blokFigur: number | null = null;
+  function dodaj(p: PozycjaZapisu): ExcalidrawElement[] {
+    const nowe: ExcalidrawElement[] = [];
+    if ("ksztalt" in p) {
+      if (blokFigur === null) {
+        blokFigur = y;
+        y += ROZMIAR + 24;
+      }
+      const przesun = ([x, lokalneY]: Punkt): Punkt => [x * ROZMIAR, blokFigur! + lokalneY * ROZMIAR];
+      const ksztalt = p.ksztalt;
+      let figury: Szkielet[];
+      if (ksztalt.typ === "trojkat") {
+        const [a, b, c] = ksztalt.punkty.map(przesun);
+        figury = [odcinek([a, b]), odcinek([b, c]), odcinek([c, a])];
+      } else {
+        const [a, b] = ksztalt.punkty.map(przesun);
+        figury = ksztalt.typ === "odcinek" || ksztalt.typ === "strzalka"
+          ? [odcinek([a, b], ksztalt.typ === "strzalka" ? "arrow" : "line")]
+          : [{
+            ...RYSUNEK, type: ksztalt.typ === "prostokat" ? "rectangle" : "ellipse",
+            x: Math.min(a[0], b[0]), y: Math.min(a[1], b[1]),
+            width: Math.abs(a[0] - b[0]), height: Math.abs(a[1] - b[1]),
+          }];
+      }
+      nowe.push(...convertToExcalidrawElements(figury.map((e) => ({ ...e, ...styl }))));
+    } else {
+      blokFigur = null;
+      const dopisek = p.dopisek;
+      if (dopisek.typ === "kod") {
+        const e = tekst(styl, { tekst: dopisek.tekst, fontFamily: FONT_FAMILY.Cascadia, fontSize: 17, x: 0, y });
+        nowe.push(e);
+        y += e.height + 16;
+      } else {
+        for (const linia of dopisek.tekst.split("\n")) {
+          const wiersz = wierszWzoru(linia, 0, y, 20, dopisek.typ === "obliczenia");
+          const czesci = [
+            ...convertToExcalidrawElements(wiersz.kreski.map((k) => ({ ...odcinek(k), ...styl }))).map((element) => ({ x: element.x, element })),
+            ...wiersz.napisy.filter((n) => n.tekst.trim()).map((n) => ({ x: n.x, element: tekst(styl, n) })),
+          ];
+          // Elementy prawie w tym samym miejscu zostają w kolejności z układu: kreska przed liczbą pod nią, licznik przed mianownikiem.
+          nowe.push(...czesci.sort((a, b) => (Math.abs(a.x - b.x) < 12 ? 0 : a.x - b.x)).map((c) => c.element));
+          y += wiersz.wys + 4;
+        }
+        y += 12;
+      }
     }
-    for (const linia of dopisek.tekst.split("\n")) {
-      const wiersz = wierszWzoru(linia, 0, y, 20, dopisek.typ === "obliczenia");
-      const czesci = [
-        ...convertToExcalidrawElements(wiersz.kreski.map((k) => ({ ...odcinek(k), ...styl }))).map((element) => ({ x: element.x, element })),
-        ...wiersz.napisy.filter((n) => n.tekst.trim()).map((n) => ({ x: n.x, element: tekst(styl, n) })),
-      ];
-      // Elementy prawie w tym samym miejscu zostają w kolejności z układu: kreska przed liczbą pod nią, licznik przed mianownikiem.
-      tresc.push(...czesci.sort((a, b) => (Math.abs(a.x - b.x) < 12 ? 0 : a.x - b.x)).map((c) => c.element));
-      y += wiersz.wys + 4;
-    }
-    y += 12;
+    tresc.push(...nowe);
+    return nowe;
   }
-  const przesun = ([x, lokalneY]: Punkt): Punkt => [x * ROZMIAR, y + lokalneY * ROZMIAR];
-  const figury = ksztalty.flatMap((ksztalt): Szkielet[] => {
-    if (ksztalt.typ === "trojkat") {
-      const [a, b, c] = ksztalt.punkty.map(przesun);
-      return [odcinek([a, b]), odcinek([b, c]), odcinek([c, a])];
-    }
-    const [a, b] = ksztalt.punkty.map(przesun);
-    if (ksztalt.typ === "odcinek" || ksztalt.typ === "strzalka") {
-      return [odcinek([a, b], ksztalt.typ === "strzalka" ? "arrow" : "line")];
-    }
-    return [{
-      ...RYSUNEK, type: ksztalt.typ === "prostokat" ? "rectangle" : "ellipse",
-      x: Math.min(a[0], b[0]), y: Math.min(a[1], b[1]),
-      width: Math.abs(a[0] - b[0]), height: Math.abs(a[1] - b[1]),
-    }];
-  });
-  tresc.push(...convertToExcalidrawElements(figury.map((e) => ({ ...e, ...styl }))));
-  if (bryla) {
-    const rzut = rzutBryly(bryla, obrotBryly ?? DOMYSLNY_OBROT_BRYLY, 1.6);
-    const goraBryly = y + (figury.length ? ROZMIAR + 24 : 0);
+  function dodajBryle(bryla: BrylaPestki, obrot: number): ExcalidrawElement[] {
+    const rzut = rzutBryly(bryla, obrot, 1.6);
+    const goraBryly = y;
     const linie = rzut.linie.map(({ punkty, ukryta }) => ({
       ...odcinek(punkty.map(([px, py]) => [px, goraBryly + py]), "line", ukryta), ...styl,
     }));
     const etykiety = rzut.etykiety.map(({ punkt: [px, py], tekst }) => ({
       ...styl, type: "text" as const, x: px, y: goraBryly + py, text: tekst, fontSize: 16, fontFamily: FONT_FAMILY.Excalifont,
     }));
-    tresc.push(
+    const nowe = [
       ...convertToExcalidrawElements(linie),
       ...convertToExcalidrawElements(etykiety).map((e) => {
         const napis = dopasujTekst(e);
         return { ...napis, x: e.x - (napis.width - ZAPAS_TEKSTU) / 2, y: e.y - e.height / 2 };
       }),
-    );
+    ];
+    tresc.push(...nowe);
+    return nowe;
   }
+  return { tresc, dodaj, dodajBryle };
+}
 
+const stylZapisu = () => ({ strokeColor: RYSUNEK.strokeColor, groupIds: [crypto.randomUUID()], customData: { pestka: true } });
+
+function ramkaBledu(styl: object, obszar: OdpowiedzPestki["obszarBledu"]) {
+  return obszar ? convertToExcalidrawElements([{ ...styl, ...obszar, type: "rectangle", strokeColor: BLAD, strokeWidth: 2.5, roughness: 0 }]) : [];
+}
+
+// Miejsce na blok zapisu (granice tresc w układzie od zera): wolne w widoku przy ostatniej kresce, a gdy go nie ma,
+// obok całej pracy. min: najmniejszy zakładany rozmiar bloku, gdy reszta zapisu jeszcze nie przyszła (strumień).
+function miejsceZapisu(api: ExcalidrawImperativeAPI, tresc: readonly ExcalidrawElement[], czyBazowy: (id: string) => boolean, min = 0) {
   const stan = api.getAppState();
   const zoom = stan.zoom.value;
   const scena = api.getSceneElements();
   const [bx1, by1, bx2, by2] = getCommonBounds(tresc);
   const gutter = MIEJSCE_NA_PESTKE / zoom;
-  const w = bx2 - bx1 + gutter;
-  const h = by2 - by1;
+  const w = Math.max(bx2 - bx1, min) + gutter;
+  const h = Math.max(by2 - by1, min);
   const widok = widokTablicy(stan);
   const kreska = ostatniaKreska(scena, czyBazowy);
   const wolne = wolneMiejsce(scena.map(granice), w, h, widok, kreska && granice(kreska), zoom);
@@ -169,11 +193,81 @@ export function przygotujZapisPestki(api: ExcalidrawImperativeAPI, dane: Odpowie
     const [, y1, x2] = scena.length ? getCommonBounds(scena) : [0, 0, -64, 0];
     [x0, y0] = [x2 + 64 + gutter, kreska ? granice(kreska).y : y1];
   }
-  const dx = x0 - bx1;
-  const dy = y0 - by1;
-  const blok = { x: x0 - gutter, y: y0, w, h };
-  const pozaWidokiem = !(blok.x >= widok.x && blok.y >= widok.y && blok.x + w <= widok.x + widok.w && blok.y + h <= widok.y + widok.h);
-  return { elementy: [...ramka, ...tresc.map((e) => ({ ...e, x: e.x + dx, y: e.y + dy }))], pozaWidokiem };
+  return { dx: x0 - bx1, dy: y0 - by1 };
+}
+
+function pozaWidokiem(api: ExcalidrawImperativeAPI, elementy: readonly ExcalidrawElement[]) {
+  if (!elementy.length) return false;
+  const widok = widokTablicy(api.getAppState());
+  const gutter = MIEJSCE_NA_PESTKE / api.getAppState().zoom.value;
+  const [x1, y1, x2, y2] = getCommonBounds(elementy);
+  return !(x1 - gutter >= widok.x && y1 >= widok.y && x2 <= widok.x + widok.w && y2 <= widok.y + widok.h);
+}
+
+const przesunElementy = (elementy: readonly ExcalidrawElement[], dx: number, dy: number) => elementy.map((e) => ({ ...e, x: e.x + dx, y: e.y + dy }));
+
+export function przygotujZapisPestki(api: ExcalidrawImperativeAPI, dane: OdpowiedzPestki, czyBazowy: (id: string) => boolean): ZapisPestki {
+  const { dopiski, ksztalty, bryla, obrotBryly, obszarBledu } = dane;
+  const styl = stylZapisu();
+  const ramka = ramkaBledu(styl, obszarBledu);
+  if (!dopiski.length && !ksztalty.length && !bryla) return { elementy: ramka, pozaWidokiem: false };
+  const uklad = ukladZapisu(styl);
+  for (const ksztalt of ksztalty) uklad.dodaj({ ksztalt });
+  for (const dopisek of dopiski) uklad.dodaj({ dopisek });
+  if (bryla) uklad.dodajBryle(bryla, obrotBryly ?? DOMYSLNY_OBROT_BRYLY);
+  const { dx, dy } = miejsceZapisu(api, uklad.tresc, czyBazowy);
+  const tresc = przesunElementy(uklad.tresc, dx, dy);
+  return { elementy: [...ramka, ...tresc], pozaWidokiem: pozaWidokiem(api, tresc) };
+}
+
+/**
+ * Zapis Pestki rysowany na żywo ze strumienia: każda figura i dopisek dostaje miejsce od razu (blok zakłada rozmiar
+ * co najmniej ROZMIAR, zanim przyjdzie reszta). dokoncz() przy wyniku zwraca to, czego jeszcze nie ma na tablicy
+ * (ramka błędu, bryła), albo null, gdy wynik różni się od tego, co przyszło w strumieniu: wtedy rysunek z wyniku
+ * zastępuje zapis na żywo, bez dublowania.
+ */
+export function zapisNaZywo(api: ExcalidrawImperativeAPI, czyBazowy: (id: string) => boolean) {
+  const styl = stylZapisu();
+  const uklad = ukladZapisu(styl);
+  const ksztalty: Ksztalt[] = [];
+  const dopiski: DopisekPestki[] = [];
+  let miejsce: { dx: number; dy: number } | null = null;
+  const elementy: ExcalidrawElement[] = [];
+  return {
+    /** Wszystko, co już jest na tablicy z tego zapisu (w kolejności rysowania). */
+    elementy,
+    dodaj(p: PozycjaZapisu): ExcalidrawElement[] {
+      if ("ksztalt" in p) ksztalty.push(p.ksztalt);
+      else dopiski.push(p.dopisek);
+      const pierwsze = !miejsce;
+      const nowe = uklad.dodaj(p);
+      miejsce ??= miejsceZapisu(api, uklad.tresc, czyBazowy, ROZMIAR);
+      const naTablicy = przesunElementy(pierwsze ? uklad.tresc : nowe, miejsce.dx, miejsce.dy);
+      elementy.push(...naTablicy);
+      return naTablicy;
+    },
+    dokoncz(dane: OdpowiedzPestki): { reszta: ExcalidrawElement[]; pozaWidokiem: boolean } | null {
+      if (!miejsce || JSON.stringify(dane.ksztalty) !== JSON.stringify(ksztalty) || JSON.stringify(dane.dopiski) !== JSON.stringify(dopiski)) return null;
+      const bryla = dane.bryla ? przesunElementy(uklad.dodajBryle(dane.bryla, dane.obrotBryly ?? DOMYSLNY_OBROT_BRYLY), miejsce.dx, miejsce.dy) : [];
+      const reszta = [...ramkaBledu(styl, dane.obszarBledu), ...bryla];
+      return { reszta, pozaWidokiem: pozaWidokiem(api, [...elementy, ...bryla]) };
+    },
+  };
+}
+
+/** Dokłada zapis na żywo bez kroku cofania: cała odpowiedź staje się jednym krokiem przy zatwierdzeniu po wyniku. */
+export function dolozNaZywo(api: ExcalidrawImperativeAPI, nowe: readonly ExcalidrawElement[]) {
+  api.updateScene({ elements: [...api.getSceneElementsIncludingDeleted(), ...nowe], captureUpdate: CaptureUpdateAction.EVENTUALLY });
+}
+
+/** Usuwa zapis na żywo (błąd, przerwanie albo wynik inny niż strumień), też bez kroku cofania. */
+export function usunNaZywo(api: ExcalidrawImperativeAPI, elementy: readonly ExcalidrawElement[]) {
+  if (!elementy.length) return;
+  const ids = new Set(elementy.map((e) => e.id));
+  api.updateScene({
+    elements: api.getSceneElementsIncludingDeleted().map((e) => (ids.has(e.id) && !e.isDeleted ? newElementWith(e, { isDeleted: true }) : e)),
+    captureUpdate: CaptureUpdateAction.EVENTUALLY,
+  });
 }
 
 export function zapiszDopiskiPestki(api: ExcalidrawImperativeAPI, nowe: readonly ExcalidrawElement[]) {
