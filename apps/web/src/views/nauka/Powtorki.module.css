@@ -62,11 +62,9 @@
   overflow-wrap: anywhere;
 }
 
-/* Grupa błędów jednej umiejętności: nagłówek raz, zadania jako wiersze rozdzielone cienką linią. */
-.grupa {
-  display: grid;
-  gap: var(--s-1);
-  padding: var(--s-4) 0;
+/* Umiejętność w Powtórkach to zwykły .wiersz: opis pod nazwą, pamięć w stałej kolumnie, „Powtórz” na końcu. */
+.grupa :global(.wiersz-opis) {
+  margin: 0;
 }
 
 .grupaGlowa {

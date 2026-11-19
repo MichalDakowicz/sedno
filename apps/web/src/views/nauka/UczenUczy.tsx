@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { FunctionsHttpError } from "@supabase/supabase-js";
-import { ChevronRight, Send } from "lucide-react";
+import { Check, ChevronRight, Circle, CircleHelp, Send, X } from "lucide-react";
+import { TutorAvatar } from "../../components/TutorAvatar";
+import c from "../../components/TutorChat.module.css";
 import { AiError, aiErrorText } from "../../ai";
 import { supabase } from "../../supabase";
 import styles from "./UczenUczy.module.css";
@@ -41,7 +43,7 @@ async function wywolaj<T>(body: Zadanie, signal: AbortSignal): Promise<T> {
 function komunikat(blad: unknown): string {
   if (!(blad instanceof AiError)) return "Wystąpił błąd. Spróbuj ponownie.";
   if (blad.code === "network_error") return "Nie udało się połączyć z Sednem. Spróbuj ponownie.";
-  if (blad.code === "no_provider") return "Sędzia jest chwilowo niedostępny. Spróbuj za chwilę.";
+  if (blad.code === "no_provider") return "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.";
   if (blad.code === "bad_model_response") return "Ocena Sędziego nie dotarła w poprawnej formie. Spróbuj ponownie.";
   return aiErrorText(blad.code);
 }
@@ -123,14 +125,17 @@ function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void 
       <div className={styles.uklad}>
         <section className={styles.rozmowa} aria-label="Rozmowa">
           <ol ref={lista} className={styles.wiadomosci} role="log" aria-label="Rozmowa z Kolegą">
-            <li className={styles.kolega}>
-              <strong>Kolega</strong>
-              <p lang="en">{scenariusz.przyklad}</p>
+            <li className={c.tutorRow}>
+              <span className={styles.awatarKolegi} aria-hidden="true">K</span>
+              <p className={c.tutorText} lang="en"><span className="visually-hidden">Kolega: </span>{scenariusz.przyklad}</p>
             </li>
             {tury.map(({ odpowiedz, ocena: wynik }, i) => (
               <Fragment key={i}>
-                <li className={styles.uczen}><strong>Ty</strong><p>{odpowiedz}</p></li>
-                <li className={styles.kolega}><strong>Kolega</strong><p>{wynik.kolega}</p></li>
+                <li className={c.studentText}><span className="visually-hidden">Ty: </span>{odpowiedz}</li>
+                <li className={c.tutorRow}>
+                  <span className={styles.awatarKolegi} aria-hidden="true">K</span>
+                  <p className={c.tutorText}><span className="visually-hidden">Kolega: </span>{wynik.kolega}</p>
+                </li>
               </Fragment>
             ))}
           </ol>
@@ -169,20 +174,27 @@ function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void 
                   <Send size={17} aria-hidden="true" />
                   {blad ? "Ponów wysłanie" : "Wyślij"}
                 </button>
-                {czeka && <p role="status" className="small muted">Sędzia sprawdza odpowiedź…</p>}
+                {czeka && <p role="status" className="small muted">Pestka sprawdza odpowiedź…</p>}
               </div>
             </form>
           )}
         </section>
         <aside className={`obok-karty ${styles.sedzia}`} aria-labelledby="uczen-sedzia">
-          <h3 className="h3" id="uczen-sedzia">Sędzia sprawdza</h3>
+          <h3 className={`h3 ${styles.pestkaPatrzy}`} id="uczen-sedzia">
+            <TutorAvatar size={32} state={czeka ? "thinking" : "idle"} />
+            Pestka patrzy
+          </h3>
           <ul className={styles.kryteria} aria-live="polite">
             {scenariusz.kryteria.map((id) => {
               const status = ocena?.statusy[id] ?? "do-zrobienia";
               return (
                 <li key={id}>
                   <span>{KRYTERIA[id] ?? id}</span>
-                  <span className="small" data-status={status}>{STATUS[status]}</span>
+                  <span className={styles.znak} data-status={status} title={STATUS[status]}>
+                    {status === "dobrze" ? <Check size={18} aria-hidden="true" /> : status === "do-poprawy" ? <X size={18} aria-hidden="true" />
+                      : status === "niepewne" ? <CircleHelp size={18} aria-hidden="true" /> : <Circle size={18} aria-hidden="true" />}
+                    <span className="visually-hidden">{STATUS[status]}</span>
+                  </span>
                 </li>
               );
             })}
