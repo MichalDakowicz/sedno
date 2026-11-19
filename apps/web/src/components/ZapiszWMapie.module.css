@@ -39,3 +39,15 @@
 .blad {
   color: var(--danger);
 }
+
+.przycisk[data-kompakt] {
+  justify-content: center;
+  width: 32px;
+  border-radius: var(--r-pill);
+  color: var(--subtle);
+}
+
+.przycisk[data-kompakt]:hover:not(:disabled) {
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
