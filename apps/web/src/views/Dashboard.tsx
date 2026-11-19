@@ -143,7 +143,6 @@ export function Dashboard() {
             </>
           )}
         </h1>
-        <p className="muted">{egzaminy.length ? "Sesja majowa 2027. Terminy z komunikatu CKE, do weryfikacji." : "Sesja majowa 2027. Dokładne daty egzaminów poda harmonogram CKE."}</p>
         {/* Diagnoza na start (nauka/diagnoza.ts): zaproszenie, póki nie skończona ani pominięta; po przerwie „Dokończ”. */}
         {moje.some((m) => m.id === "angielski") && (!aktywny || aktywny.id === "angielski") && !diagnoza.koniec && !diagnoza.pominieta && (
           <Link to="/nauka/diagnoza" className="link">

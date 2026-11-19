@@ -33,7 +33,7 @@ export function DoMatury({ aktywny, maPrzedmioty }: KontekstPulpitu) {
           {dni}
           <span> {odmianaDni(dni)}</span>
           <span className={styles.statOpis}>
-            {e.znana ? `${nazwaEgzaminu(e)}, ${opisDaty(e.data)} (do weryfikacji)` : `${nazwaEgzaminu(e)}, początek sesji majowej 2027`}
+            {e.znana ? `${nazwaEgzaminu(e)}, ${opisDaty(e.data)}` : `${nazwaEgzaminu(e)}, termin poda CKE`}
           </span>
         </p>
       )}

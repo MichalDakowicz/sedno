@@ -40,8 +40,8 @@ export function DoMatury() {
                   </span>
                   <span className="muted small">
                     {pierwszy.znana
-                      ? `${nazwaEgzaminu(pierwszy)}, ${opisDaty(pierwszy.data)} (do weryfikacji)`
-                      : `${nazwaEgzaminu(pierwszy)}, początek sesji majowej 2027. Dokładne daty egzaminów poda harmonogram CKE.`}
+                      ? `${nazwaEgzaminu(pierwszy)}, ${opisDaty(pierwszy.data)}`
+                      : `${nazwaEgzaminu(pierwszy)}, termin poda CKE`}
                   </span>
                 </>
               ) : (
@@ -53,7 +53,7 @@ export function DoMatury() {
                 <li key={`${e.przedmiotId}-${e.poziom}`} className="wiersz">
                   <span className="wiersz-tresc">
                     <span className="h3">{nazwaEgzaminu(e)}</span>
-                    <span className="wiersz-opis">{e.znana ? opisDaty(e.data) : "data wg harmonogramu CKE"}</span>
+                    <span className="wiersz-opis">{e.znana ? opisDaty(e.data) : "termin poda CKE"}</span>
                   </span>
                   {minal(e) ? (
                     <span className="wiersz-wartosc muted">po egzaminie</span>
@@ -66,7 +66,7 @@ export function DoMatury() {
               ))}
             </ul>
             <p className={`muted small ${s.przypis}`}>
-              Terminy z komunikatu CKE z 20 sierpnia 2026, do weryfikacji w BIP CKE.
+              Terminy z komunikatu CKE z 20 sierpnia 2026.
             </p>
           </>
         )}
