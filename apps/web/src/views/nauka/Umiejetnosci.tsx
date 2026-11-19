@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { nazwaZadaniaCke, nazwaZadaniaRundy, type Poziom } from "../../arkusze/typy";
@@ -13,8 +13,10 @@ import { WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie } from "./Opanowanie";
 import { ZakladkiNauki } from "./ZakladkiNauki";
 
-const KLUCZ_KODOW = "sedno.mapa.kody";
 import s from "./Umiejetnosci.module.css";
+
+// Dawny przełącznik kodów wymagań CKE zapisywał się w przeglądarce; sprzątamy po nim.
+try { localStorage.removeItem("sedno.mapa.kody"); } catch { /* bez dostępu do pamięci nie ma czego sprzątać */ }
 
 const OBSZARY = [
   { id: "słuchanie", nazwa: "Rozumienie ze słuchu" },
@@ -101,17 +103,6 @@ export function Umiejetnosci() {
   const id = parametry.get("umiejetnosc");
   const wybrana = umiejetnosci?.find((u) => u.skill_id === id);
   const ostatniPanel = useRef<string | null>(null);
-  // Kody wymagań CKE (II.2, III.5) są dla nauczyciela, nie dla ucznia: widać je dopiero po włączeniu.
-  const [kody, ustawKody] = useState(() => {
-    try { return localStorage.getItem(KLUCZ_KODOW) === "1"; } catch { return false; }
-  });
-  const przelaczKody = () => {
-    ustawKody((k) => {
-      try { localStorage.setItem(KLUCZ_KODOW, k ? "0" : "1"); } catch { /* bez pamięci przełącznik działa do odświeżenia */ }
-      return !k;
-    });
-  };
-
   useEffect(() => {
     if (wybrana) ostatniPanel.current = wybrana.skill_id;
     else if (ostatniPanel.current && !id && mapa.stan === "gotowe") {
@@ -134,12 +125,6 @@ export function Umiejetnosci() {
           ))}
         </nav>
         {angielski && <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />}
-        {angielski && (
-          <label className={`small muted ${s.przelacznikKodow}`}>
-            <button type="button" role="switch" aria-checked={kody} className={`przelacznik ${kody ? "przelacznikWl" : ""}`} onClick={przelaczKody} />
-            Pokaż kody wymagań CKE
-          </label>
-        )}
       </div>
       {!angielski && (
         <div className={s.blok}>
@@ -168,7 +153,7 @@ export function Umiejetnosci() {
                     {wObszarze.map((u) => (
                       <li key={u.skill_id}>
                         <Link id={`umiejetnosc-${u.skill_id}`} to={adresMapy(poziom, u.skill_id)} className={`wiersz ${s.wiersz}`} aria-current={u.skill_id === id ? "true" : undefined}>
-                          <span className={`wiersz-tresc ${s.nazwa}`}>{u.name}{kody && <span className="wiersz-opis">{u.codes.join(" · ")}</span>}</span>
+                          <span className={`wiersz-tresc ${s.nazwa}`}>{u.name}</span>
                           <span className="wiersz-wartosc"><Opanowanie {...u} /></span>
                           <span className="wiersz-akcja"><ChevronRight size={18} aria-hidden="true" /></span>
                         </Link>
