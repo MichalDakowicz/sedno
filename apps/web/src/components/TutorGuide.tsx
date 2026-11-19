@@ -667,7 +667,7 @@ export function TutorGuide() {
       )}
       <div
         ref={guideRef}
-        className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""} ${wOku ? styles.wOku : ""} ${faza ? styles[faza] : ""}`}
+        className={`${styles.guide} ${moving ? styles.moving : ""} ${wOku ? styles.wOku : ""} ${faza ? styles[faza] : ""}`}
         style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
       >
         <button
