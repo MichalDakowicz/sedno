@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { TutorAvatar } from "./TutorAvatar";
 import { useTutor, type Hint } from "./TutorContext";
 import { CZAS, mniejRuchu } from "../ruch";
+import { glos } from "../pestka/glos";
 import styles from "./TutorGuide.module.css";
 
 const AV = 48;
@@ -464,7 +465,7 @@ export function TutorGuide() {
 
             {summon ? (
               <>
-                <p className={styles.text}>{summon.about ?? (summon.kontekst ? `Widzę: ${summon.kontekst.tytul}. Zapytasz mnie o nie?` : "Jestem. W czym ci pomóc?")}</p>
+                <p className={styles.text}>{summon.about ?? (summon.kontekst ? glos.rozmowa.widze.replace("{n}", summon.kontekst.tytul) : glos.rozmowa.przywolanie)}</p>
                 <div className={styles.actions}>
                   <button type="button" className="btn btn-primary btn-sm" onClick={() => open(summon.kontekst)}>
                     {summon.kontekst ? "Zapytaj o to zadanie" : "Porozmawiajmy"}
@@ -474,7 +475,7 @@ export function TutorGuide() {
                       type="button"
                       className="btn btn-ghost btn-sm"
                       onClick={() =>
-                        showHints(`ask-${Date.now()}`, [{ target: "today-cta", text: "To polecam na dziś. Krótko i w twoim najsłabszym miejscu." }])
+                        showHints(`ask-${Date.now()}`, [{ target: "today-cta", text: glos.rozmowa.coDzis }])
                       }
                     >
                       Co dziś robić?

@@ -150,7 +150,7 @@ export function Onboarding() {
             <h1 className="display">
               Cześć{imie ? `, ${imie}` : ""}! <span className="accent">Jestem Pestka.</span>
             </h1>
-            <p className="lead">Będę twoją tutorką w Sedno. Nie podaję gotowych odpowiedzi: zadaję pytania, aż dojdziesz do rozwiązania. Tak zostaje w głowie dłużej.</p>
+            <p className="lead">Będę uczyć się z tobą w Sedno. Nie podaję gotowych odpowiedzi: zadaję pytania, aż dojdziesz do rozwiązania. Tak zostaje w głowie dłużej.</p>
             <button type="button" className="btn btn-primary" onClick={() => setKrok(1)}>
               Zaczynamy
             </button>
@@ -244,7 +244,7 @@ export function Onboarding() {
           ) : (
             <section className={styles.step}>
               <TutorAvatar size={64} />
-              <h1 className="h1">Pojawię się po podpięciu AI</h1>
+              <h1 className="h1">Odpowiem naprawdę po połączeniu w profilu</h1>
               <p className="lead">
                 Sedno nie ma wspólnego klucza do AI: każde konto podpina własnego dostawcę. Dopóki tego nie zrobisz, nie będzie mnie w aplikacji, a arkusze
                 sprawdzają się bez mojego komentarza.
@@ -347,7 +347,7 @@ function Pokaz({ ai, przedmioty: wpisyKonta, onDalej }: { ai: boolean; przedmiot
 
   return (
     <section className={styles.step}>
-      <span className="label">Pokaz · {ai ? "odpowiada AI z twojego konta" : "bez AI: odpowiedzi przygotowane"}</span>
+      <span className="label">Pokaz · {ai ? "odpowiada Pestka z twojego konta" : "bez połączenia: odpowiedzi przygotowane"}</span>
       <h1 className="h1">Rozwiąż, a ja zareaguję</h1>
 
       {przedmioty.length > 1 && (
@@ -394,7 +394,7 @@ function Pokaz({ ai, przedmioty: wpisyKonta, onDalej }: { ai: boolean; przedmiot
                 <TutorAvatar size={32} state={i === wpisy.length - 1 ? stan : "idle"} />
                 <div>
                   <Markdown className={styles.tutorText}>{w.tekst}</Markdown>
-                  {w.przygotowane && <p className={styles.note}>Odpowiedź przygotowana na pokaz. Po podpięciu AI odpowiem naprawdę.</p>}
+                  {w.przygotowane && <p className={styles.note}>Odpowiedź przygotowana na pokaz. Po połączeniu w profilu odpowiem naprawdę.</p>}
                   {w.powtorzenie && <p className={styles.note}>Model powtórzył poprzednią odpowiedź, więc pokazuję przygotowaną.</p>}
                 </div>
               </div>

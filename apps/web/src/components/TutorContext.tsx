@@ -5,6 +5,7 @@ import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA
 import { bezEmoji, powtarzaTutora, priorytetDozwolony, rozmowa, trudnaSprawa, wytnijPriorytety } from "../pestka";
 import { dodajPriorytet, listaPelna, opisProfilu, usunPriorytet } from "../konto/profilUcznia";
 import { useUstawienia } from "../konto/ustawienia";
+import { glos } from "../pestka/glos";
 
 /** Priorytet, który Pestka zapisała w profilu ucznia z danej wypowiedzi (tylko na ekranie); cofniete: uczeń go cofnął. */
 export type ZapisPriorytetu = { id: string; tekst: string; cofniete?: boolean };
@@ -138,7 +139,7 @@ export function resetTour() {
 export const tourHints: Hint[] = [
   {
     target: "hero",
-    text: "Cześć, jestem Pestka, twoja tutorka. Nie mam stałego miejsca: pojawiam się tam, gdzie mam ci coś do powiedzenia. Pokażę ci, jak tu działam.",
+    text: "Cześć, jestem Pestka. Nie mam stałego miejsca: pojawiam się tam, gdzie mam ci coś do powiedzenia. Pokażę ci, jak tu działam.",
   },
   {
     target: ["nav-links", "nav-menu"],
@@ -170,10 +171,10 @@ export const tourHints: Hint[] = [
 const shownHints = new Set<string>();
 
 // Bez listy przedmiotów: strona Pestki pokazuje je obok, a model i tak dostaje je w kontekście rozmowy.
-const greeting = "Cześć, jestem Pestka. Wklej zadanie albo napisz, z czym masz kłopot, a przejdziemy przez to razem.";
+const greeting: string = glos.rozmowa.powitanie;
 
 // Bez AI Pestka jest na ekranie (przewodnik, gotowe dymki), ale rozmawiać nie może: mówi wprost, czego brakuje.
-const noAi = "Żeby odpowiadać, potrzebuję AI podpiętego do konta. Zrobisz to w profilu, w sekcji „AI na koncie”.";
+const noAi: string = glos.rozmowa.bezPolaczenia;
 
 /** przedmioty: opis przedmiotów konta do kontekstu rozmowy, np. „polski (podstawowy), angielski (rozszerzony)”. */
 export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { children: ReactNode; ai?: boolean | undefined; przedmioty?: string }) {

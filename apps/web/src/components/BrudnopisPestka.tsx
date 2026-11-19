@@ -192,7 +192,7 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
               {dymek.ponow && dymek.blad && !BEZ_PONOWIENIA.has(dymek.blad) && (
                 <button type="button" className="btn btn-secondary btn-sm" onClick={dymek.ponow}>Spróbuj ponownie</button>
               )}
-              {dymek.blad && DO_PROFILU.has(dymek.blad) && <Link className="link small" to="/profil">Sprawdź dostawcę AI w profilu</Link>}
+              {dymek.blad && DO_PROFILU.has(dymek.blad) && <Link className="link small" to="/profil">Sprawdź połączenie Pestki w profilu</Link>}
               {dymek.zetrzyj && <button type="button" className="btn btn-ghost btn-sm" onClick={dymek.zetrzyj}>Zetrzyj</button>}
             </div>
           )}

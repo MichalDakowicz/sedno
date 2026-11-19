@@ -16,7 +16,8 @@ import {
   czyPrzerwane, naukaAi, type OcenaRozwiazania, type OdpowiedzWariantu, type Wariant, type ZadanieWariantu,
 } from "../../nauka/ai";
 import { useZapytanieNauki } from "../../nauka/stan";
-import { PestkaMowi, tekstyPestki, wybierz } from "./PestkaRundy";
+import { PestkaMowi } from "./PestkaRundy";
+import { glos, wybierz } from "../../pestka/glos";
 import { odczytajRunde, UUID_SESJI, zapiszRunde } from "./sesjaRundy";
 import s from "./SzybkaRunda.module.css";
 import z from "./Zadania.module.css";
@@ -340,10 +341,10 @@ function Werdykt({ ocena, zadanie, odpowiedz, seria, numer, tytulRef, wyjasnij, 
   const czesc = !niepewne && !pelne && (ocena.punkty ?? 0) > 0;
   const naglowek = niepewne ? "Do weryfikacji" : pelne ? "Dobra odpowiedź" : czesc ? "Część punktów" : "Tym razem nie";
   const Ikona = niepewne ? CircleHelp : pelne ? Check : CircleAlert;
-  const reakcja = niepewne ? wybierz(tekstyPestki.niepewne, numer)
-    : pelne ? (seria >= 3 ? wybierz(tekstyPestki.seria, numer).replace("{n}", String(seria)) : wybierz(tekstyPestki.dobrze, numer))
-      : czesc ? wybierz(tekstyPestki.czesciowo, numer)
-        : wybierz(wyjasnij ? tekstyPestki.zle : tekstyPestki.zleSprobuj, numer);
+  const reakcja = niepewne ? wybierz(glos.blad.niepewne, numer)
+    : pelne ? (seria >= 3 ? wybierz(glos.seria, numer).replace("{n}", String(seria)) : wybierz(glos.dobrze, numer))
+      : czesc ? wybierz(glos.blad.czesciowo, numer)
+        : wybierz(wyjasnij ? glos.blad.zle : glos.blad.sprobuj, numer);
   return (
     <div className={s.formularz} data-tutor="werdykt">
       <div className={s.werdykt}>

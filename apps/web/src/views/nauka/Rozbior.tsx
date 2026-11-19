@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Check, ChevronRight, CircleAlert, CircleMinus, Sparkles } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, CircleAlert, CircleMinus } from "lucide-react";
 import { trwa, useDiagnoza } from "../../nauka/diagnoza";
 import { Link, useParams } from "react-router-dom";
 import { nazwaPoziomu, nazwaZadaniaCke } from "../../arkusze/typy";
@@ -9,8 +9,9 @@ import { Ladowanie } from "../../components/Ladowanie";
 import { adresMapy, adresNauki, adresPowtorek, adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type MapaNauki, type OdpowiedzNauki, type SesjaNauki } from "../../nauka/api";
 import { nazwaOdpowiedzi, useSesjaRundy } from "./sesjaRundy";
-import { PestkaMowi, wybierz } from "./PestkaRundy";
-import type { AvatarState } from "../../components/TutorAvatar";
+import { PestkaMowi } from "./PestkaRundy";
+import { glos, wybierz } from "../../pestka/glos";
+import { TutorAvatar, type AvatarState } from "../../components/TutorAvatar";
 import { TrescRundy } from "./TrescRundy";
 import { Kropki, PasekProgu } from "../../components/wykresy";
 import { Kielek } from "../../components/Kielek";
@@ -64,17 +65,12 @@ function tytulZmiany(przed: number | null, po: number | null, zmiana: number | n
 
 const nazwyBledow: Record<string, string> = { "jezyk-i-forma": "Błędy językowe i dotyczące formy" };
 
-const podsumowaniaPestki = {
-  bezbledna: ["Bezbłędna runda. Tak się buduje pewność.", "Wszystko dobrze. Ta umiejętność idzie w górę."],
-  dobra: ["Dobra runda. Zostało kilka rzeczy do dopracowania.", "Większość dobrze. Zerknij na to, co nie wyszło."],
-  slaba: ["Ta umiejętność potrzebuje jeszcze kilku rund. Zacznij od zadań z błędem.", "Trudna runda. Przejrzyj błędy, a następna pójdzie lepiej."],
-};
 
 /** Jedno zdanie Pestki o rundzie: na tej samej zasadzie co reakcje przy werdykcie (gotowe teksty, bez AI). */
 function zdaniePestki(odpowiedzi: OdpowiedzNauki[]) {
   const dobre = odpowiedzi.filter((a) => a.correct).length;
   const udzial = odpowiedzi.length ? dobre / odpowiedzi.length : 0;
-  const lista = udzial === 1 ? podsumowaniaPestki.bezbledna : udzial >= 0.6 ? podsumowaniaPestki.dobra : podsumowaniaPestki.slaba;
+  const lista = udzial === 1 ? glos.rozbior.bezbledna : udzial >= 0.6 ? glos.rozbior.dobra : glos.rozbior.slaba;
   return wybierz(lista, odpowiedzi.length);
 }
 
@@ -202,9 +198,9 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaNauki & { result: NonNullable<Se
         </div>
       ) : dalej && (
         <section className={s.nastepnyKrok} aria-labelledby="dalej-po-rundzie">
-          <span className="kicker"><Sparkles size={14} strokeWidth={2.2} aria-hidden="true" /> Dalej</span>
+          <span className="kicker"><TutorAvatar size={22} /> Dalej</span>
           <h2 id="dalej-po-rundzie" className="h2">{nastepna ?? "Następne ćwiczenie"}</h2>
-          <p>{dalej.reason}</p>
+          <p>Dalej wybrałam to ćwiczenie. {dalej.reason}</p>
           <div className={s.akcje}>
             <Link className="btn btn-primary" to={adresStartu(level, dalej.skill_id, dalej.format, dalej.repeat_id ?? undefined)}>
               {nazwaFormatuNauki[dalej.format]} · {dalej.minutes} min <ArrowRight size={17} aria-hidden="true" />

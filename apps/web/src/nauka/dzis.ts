@@ -55,7 +55,7 @@ export function zArkuszy(co: Propozycja): PropozycjaDnia {
       rodzaj: "arkusz",
       przedmiot: id,
       tytul: "Dokończ arkusz",
-      powod: `${tytulArkusza(z.arkusz)}, poziom ${poziom}. Masz już ${z.odpowiedzi} z ${z.arkusz.pytan} odpowiedzi, wynik zobaczysz po sprawdzeniu.`,
+      powod: `Na dziś wybrałam dokończenie: ${tytulArkusza(z.arkusz)}, poziom ${poziom}, bo masz już ${z.odpowiedzi} z ${z.arkusz.pytan} odpowiedzi. Wynik pokażę po sprawdzeniu.`,
       akcja: { do: `/arkusze/${z.arkusz.id}`, etykieta: "Wróć do arkusza" },
       minuty: null,
       ikona: "arkusz",
@@ -67,8 +67,8 @@ export function zArkuszy(co: Propozycja): PropozycjaDnia {
       przedmiot: id,
       tytul: tytulArkusza(co.arkusz),
       powod: co.ostatni
-        ? `Ostatni wynik: ${procent(co.ostatni)}% (${tytulArkusza(co.ostatni.arkusz).toLowerCase()}). Kolejny arkusz pokaże, czy to stały poziom.`
-        : `Nie masz jeszcze wyniku z tego przedmiotu. Najnowszy arkusz na poziomie ${poziom} pokaże, od czego zacząć.`,
+        ? `Na dziś wybrałam ten arkusz, bo ostatni wynik to ${procent(co.ostatni)}% (${tytulArkusza(co.ostatni.arkusz).toLowerCase()}), a kolejny pokaże, czy to stały poziom.`
+        : `Na dziś wybrałam najnowszy arkusz na poziomie ${poziom}, bo nie mam jeszcze twojego wyniku z tego przedmiotu.`,
       akcja: { do: `/arkusze/${co.arkusz.id}`, etykieta: "Rozwiąż arkusz" },
       minuty: co.arkusz.czas ?? null,
       ikona: "arkusz",
@@ -80,7 +80,7 @@ export function zArkuszy(co: Propozycja): PropozycjaDnia {
       rodzaj: "wszystko",
       przedmiot: id,
       tytul: "Wszystkie arkusze rozwiązane",
-      powod: `Masz wyniki ze wszystkich arkuszy na poziomie ${poziom}, które są w Sedno.${co.ostatni ? ` Ostatni: ${procent(co.ostatni)}%.` : ""}${zadania ? " Ćwicz dalej na zadaniach z nowymi danymi." : ""}`,
+      powod: `Wszystkie arkusze na poziomie ${poziom} w Sedno masz za sobą.${co.ostatni ? ` Ostatni: ${procent(co.ostatni)}%.` : ""}${zadania ? " Na dziś wybrałam zadania z nowymi danymi, bo arkusze się skończyły." : ""}`,
       akcja: zadania ?? { do: "/arkusze", etykieta: "Przejrzyj arkusze" },
       minuty: null,
       ikona: "arkusz",
@@ -145,7 +145,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
         rodzaj: "runda",
         przedmiot: "angielski",
         tytul: nazwa,
-        powod: `${nazwaFormatuNauki[runda.format]} czeka niedokończona. Dokończ ją, zanim zaczniesz coś nowego.`,
+        powod: `Na dziś wybrałam dokończenie rundy (${nazwaFormatuNauki[runda.format].toLowerCase()}), bo lepiej skończyć zaczęte, zanim zaczniesz coś nowego.`,
         akcja: { do: adresRundy(runda.id), etykieta: "Wznów rundę" },
         minuty: MINUTY_RUNDY,
         ikona: "runda",
@@ -164,7 +164,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
         rodzaj: "powtorka",
         przedmiot: "angielski",
         tytul: dzis.name,
-        powod: dzis.mistake ? "Wróć do zadania, które sprawiło trudność. Jedna krótka runda wystarczy." : "Czas przypomnieć sobie tę umiejętność, zanim wyleci z pamięci.",
+        powod: dzis.mistake ? "Na dziś wybrałam powtórkę zadania, bo ostatnio sprawiło trudność. Jedna krótka runda wystarczy." : "Na dziś wybrałam tę umiejętność, bo zaczyna wylatywać z pamięci.",
         akcja: { do: adresStartu(poziom, dzis.skill_id, powtorz ? "szybka-runda" : dzis.format === "napraw-blad" ? "napraw-blad" : "szybka-runda", powtorz), etykieta: powtorz ? "Powtórz zadanie" : "Zacznij powtórkę" },
         minuty: MINUTY_RUNDY,
         ikona: "runda",
@@ -182,7 +182,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
         rodzaj: "polecenie",
         przedmiot: "angielski",
         tytul: p.nazwa,
-        powod: p.reason,
+        powod: `Na dziś wybrałam to ćwiczenie. ${p.reason}`,
         akcja: { do: adresStartu(poziom, p.skill_id, p.format, p.repeat_id ?? undefined), etykieta: nazwaFormatuNauki[p.format] },
         minuty: p.minutes > 0 ? p.minutes : MINUTY_RUNDY,
         ikona: "runda",
@@ -190,7 +190,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
     };
 
   // 4. Nowy arkusz (albo to, co zostało z arkuszy).
-  return { stan: "gotowe", dzis: zArk ?? (powtorki.dane?.queue.length ? { rodzaj: "powtorka", przedmiot: "angielski", tytul: "Powtórki", powod: "Na liście czekają powtórki z ostatnich ćwiczeń.", akcja: { do: adresPowtorek(poziom), etykieta: "Otwórz powtórki" }, minuty: MINUTY_RUNDY, ikona: "runda" } : null) };
+  return { stan: "gotowe", dzis: zArk ?? (powtorki.dane?.queue.length ? { rodzaj: "powtorka", przedmiot: "angielski", tytul: "Powtórki", powod: "Na dziś wybrałam powtórki, bo na liście czekają zadania z ostatnich ćwiczeń.", akcja: { do: adresPowtorek(poziom), etykieta: "Otwórz powtórki" }, minuty: MINUTY_RUNDY, ikona: "runda" } : null) };
 }
 
 /** Propozycja dnia w Nauce i w Powtórkach: rundy i arkusze angielskiego na wybranym poziomie, jak na pulpicie angielskiego. */

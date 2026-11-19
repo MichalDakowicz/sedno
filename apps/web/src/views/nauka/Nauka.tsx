@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowRight, Camera, ChevronRight, CircleHelp, FileText, PenLine, GraduationCap, MessagesSquare, Sparkles, Timer, Wrench } from "lucide-react";
+import { ArrowRight, Camera, ChevronRight, CircleHelp, FileText, PenLine, GraduationCap, MessagesSquare, Timer, Wrench } from "lucide-react";
+import { TutorAvatar } from "../../components/TutorAvatar";
 import type { Poziom } from "../../arkusze/typy";
 import { useProfil } from "../../auth";
 import { KartaDnia } from "../../components/KartaDnia";
@@ -107,7 +108,7 @@ export function Nauka() {
     ...(aiGotowe !== false ? [{ id: "sokratejski" as const, to: `/nauka/sokratejski?poziom=${poziom}${doSposobow ? `&umiejetnosc=${doSposobow.skill_id}` : ""}`, nazwa: "Rozmowa z pytaniami", kiedy: "Chcesz zrozumieć, nie tylko trafić.", ikona: <CircleHelp size={18} aria-hidden="true" /> }] : []),
     { id: "pisanie", to: `/nauka/pisanie?poziom=${poziom}`, nazwa: "Pisanie krok po kroku", kiedy: "Ćwiczysz wypowiedź pisemną.", ikona: <PenLine size={18} aria-hidden="true" /> },
     { id: "zdjecie", to: "/nauka/zdjecie", nazwa: "Zdjęcie z kartki", kiedy: "Rozwiązujesz na papierze i chcesz omówienia.", ikona: <Camera size={18} aria-hidden="true" /> },
-    { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Uczeń uczy AI", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
+    { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Naucz Kolegę", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
     // Wiersz stoi też w trakcie sprawdzania AI (undefined), żeby lista nie urosła o wiersz po chwili.
     ...(aiGotowe !== false ? [{ id: "rozmowa" as const, to: "/tutor", nazwa: "Rozmowa z Pestką", kiedy: "Coś jest niejasne i potrzebne jest wyjaśnienie.", ikona: <MessagesSquare size={18} aria-hidden="true" /> }] : []),
   ];
@@ -144,7 +145,7 @@ export function Nauka() {
                 <span className="wiersz-wartosc">
                   {x.id === polecany.sposob && (
                     <span className="kicker" data-tutor-about={polecany.powod}>
-                      <Sparkles size={14} strokeWidth={2.2} aria-hidden="true" /> Polecam
+                      <TutorAvatar size={22} /> Polecam
                     </span>
                   )}
                 </span>
@@ -162,7 +163,7 @@ export function Nauka() {
             {bezRund.map((id) => {
               const p = przedmiot(id)!;
               const co = coDzisBezRund[id]!;
-              const akcja = co.akcja.do === "/tutor" && aiGotowe === false ? { do: "/profil#ai", etykieta: "Podepnij AI w profilu" } : co.akcja;
+              const akcja = co.akcja.do === "/tutor" && aiGotowe === false ? { do: "/profil#ai", etykieta: "Połącz Pestkę w profilu" } : co.akcja;
               return (
                 <li key={id}>
                   <Link to={akcja.do} className="wiersz" aria-label={`${p.nazwa}: ${akcja.etykieta}`}>
@@ -211,10 +212,10 @@ export function Nauka() {
               <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie" />
             ) : polecenie.dane ? (
               <article className={s.polecenieBlok} aria-labelledby="nauka-polecenie">
-                <span className="kicker"><Sparkles size={14} strokeWidth={2.2} aria-hidden="true" /> Polecam</span>
+                <span className="kicker"><TutorAvatar size={22} /> Polecam</span>
                 <h3 id="nauka-polecenie" className="h1" tabIndex={-1} ref={naglowekPolecenia}>{powtorz ? "Powtórz zadanie" : nazwaFormatuNauki[format]}</h3>
                 <p className="h3">{wybrana.name}</p>
-                <p className="muted">{polecenie.dane.reason}</p>
+                <p className="muted">Wybrałam to ćwiczenie. {polecenie.dane.reason}</p>
                 <Link to={adresStartu(poziom, wybrana.skill_id, format, powtorz)} className={`btn btn-primary ${s.przycisk}`}>
                   {polecenie.dane.minutes > 0 ? `Zacznij · ${polecenie.dane.minutes} min` : "Zacznij"}
                   <ArrowRight size={18} aria-hidden="true" />
@@ -333,7 +334,7 @@ function WolnyTemat({ poziom, umiejetnosci }: { poziom: Poziom; umiejetnosci: Um
     <form className={s.formularz} onSubmit={(event) => void zapytaj(event)} aria-labelledby="wolny-temat" aria-busy={wysylam}>
       <h2 className="h2" id="wolny-temat">Wolny temat</h2>
       {tutor.aiGotowe === false ? (
-        <Link to="/profil#ai" className="link">Podepnij AI, żeby zapytać Pestkę</Link>
+        <Link to="/profil#ai" className="link">Połącz Pestkę w profilu, żeby ją zapytać</Link>
       ) : (
         <>
           <label className={s.pole}>

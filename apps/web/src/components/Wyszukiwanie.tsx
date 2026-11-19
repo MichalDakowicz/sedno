@@ -29,7 +29,7 @@ const GRUPY: { rodzaj: RodzajWyniku; nazwa: string; limit: number }[] = [
 const DEFINICJE_AKCJI = [
   { id: "akcja:pulpit", tytul: "Pulpit", opis: "", klucze: "strona glowna start", sciezka: "/" },
   { id: "akcja:arkusze", tytul: "Arkusze", opis: "Arkusze maturalne CKE", klucze: "arkusz matura cke", sciezka: "/arkusze" },
-  { id: "akcja:pestka", tytul: "Rozmowa z Pestką", opis: "Tutor AI", klucze: "tutor czat pytanie", sciezka: "/tutor" },
+  { id: "akcja:pestka", tytul: "Rozmowa z Pestką", opis: "Pestka", klucze: "tutor czat pytanie", sciezka: "/tutor" },
   { id: "akcja:profil", tytul: "Profil", opis: "Przedmioty i konto AI", klucze: "konto przedmioty ai klucz", sciezka: "/profil" },
   { id: "akcja:ustawienia", tytul: "Ustawienia", opis: "Wygląd, dostępność i Pestka", klucze: "motyw ciemny jasny tekst rozmiar dostepnosc pestka wyglad", sciezka: "/ustawienia" },
   { id: "akcja:profil-ucznia", tytul: "Profil ucznia", opis: "Sposób nauki, cele i priorytety", klucze: "profil uczen cel cele priorytety czas nauka", sciezka: "/profil-ucznia" },
@@ -45,7 +45,7 @@ const SPOSOBY: Wynik[] = [
   { id: "sposob:sokratejski", tytul: "Rozmowa z pytaniami", opis: "Pestka pyta, potem mini-test", klucze: "sokratejski pytania rozmowa mini test", sciezka: "/nauka/sokratejski" },
   { id: "sposob:pisanie", tytul: "Pisanie krok po kroku", opis: "Wypowiedź pisemna etapami", klucze: "pisanie wypowiedz email wypracowanie list", sciezka: "/nauka/pisanie" },
   { id: "sposob:zdjecie", tytul: "Zdjęcie z kartki", opis: "Pestka omawia rozwiązanie z papieru", klucze: "zdjecie kartka aparat foto rozwiazanie", sciezka: "/nauka/zdjecie" },
-  { id: "sposob:uczen-uczy", tytul: "Uczeń uczy AI", opis: "Wyjaśnij zasadę Koledze", klucze: "uczen uczy kolega wyjasnij", sciezka: "/nauka/uczen-uczy" },
+  { id: "sposob:uczen-uczy", tytul: "Naucz Kolegę", opis: "Wyjaśnij zasadę Koledze", klucze: "uczen uczy kolega wyjasnij", sciezka: "/nauka/uczen-uczy" },
   { id: "sposob:diagnoza", tytul: "Diagnoza", opis: "Sprawdźmy, od czego zacząć", klucze: "diagnoza poziom start test", sciezka: "/nauka/diagnoza" },
 ].map((s) => ({ id: s.id, rodzaj: "sposob" as const, tytul: s.tytul, opis: s.opis, slowa: slowaTekstu(`${s.tytul} ${s.opis} ${s.klucze}`), sciezka: s.sciezka }));
 const AKCJE: Wynik[] = DEFINICJE_AKCJI.map((a) => ({
@@ -261,7 +261,7 @@ function Okno({ zamknij }: { zamknij: () => void }) {
         </li>
       );
     const Ikona = typeof p === "string" ? Sparkles : IKONY[p.rodzaj];
-    const nazwa = p === "pestka" ? `Zapytaj Pestkę: „${pytanie}”` : p === "ai" ? "Podepnij AI, żeby pytać Pestkę" : p.tytul;
+    const nazwa = p === "pestka" ? `Zapytaj Pestkę: „${pytanie}”` : p === "ai" ? "Połącz Pestkę w profilu, żeby ją pytać" : p.tytul;
     return (
       <li
         key={idPoz(p)}

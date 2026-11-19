@@ -42,7 +42,7 @@ async function wywolaj<T>(body: Zadanie, signal: AbortSignal): Promise<T> {
 function komunikat(blad: unknown): string {
   if (!(blad instanceof AiError)) return "Wystąpił błąd. Spróbuj ponownie.";
   if (blad.code === "network_error") return "Nie udało się połączyć z Sednem. Spróbuj ponownie.";
-  if (blad.code === "no_provider") return "Podepnij dostawcę AI dla zadań ważnych, aby Sędzia mógł sprawdzić odpowiedź.";
+  if (blad.code === "no_provider") return "Połącz w profilu dostawcę dla zadań ważnych, żeby Sędzia mógł sprawdzić odpowiedź.";
   if (blad.code === "bad_model_response") return "Ocena Sędziego nie dotarła w poprawnej formie. Spróbuj ponownie.";
   return aiErrorText(blad.code);
 }
@@ -158,7 +158,7 @@ function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void 
               {blad && (
                 <div className={styles.blad} role="alert">
                   <p>{blad.tekst}</p>
-                  {blad.konfiguracja && <Link to="/profil#ai" className={styles.link}>Ustaw dostawcę AI</Link>}
+                  {blad.konfiguracja && <Link to="/profil#ai" className={styles.link}>Ustaw dostawcę w profilu</Link>}
                 </div>
               )}
               <div className={styles.akcje}>
@@ -227,7 +227,7 @@ export function UczenUczy() {
 
   return (
     <main className={`container ${styles.strona}`}>
-      <NaglowekStrony wstecz={{ do: "/nauka", nazwa: "Nauka" }} tytul="Uczeń uczy AI" lead="Popraw przykład Kolegi i wyjaśnij mu, dlaczego zmiana działa." />
+      <NaglowekStrony wstecz={{ do: "/nauka", nazwa: "Nauka" }} tytul="Naucz Kolegę" lead="Popraw przykład Kolegi i wyjaśnij mu, dlaczego zmiana działa." />
       {scenariusz ? (
         <Runda scenariusz={scenariusz} wroc={wroc} />
       ) : (

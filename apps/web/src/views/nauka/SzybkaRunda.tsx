@@ -11,7 +11,8 @@ import { adresNauki, adresPowtorek, adresRozbioru, adresRundy } from "../../nauk
 import { naukaApi, nazwaFormatuNauki, type FormatNauki, type OdpowiedzNauki, type PytanieNauki, type SesjaNauki } from "../../nauka/api";
 import { usePoziomNauki } from "../../nauka/stan";
 import { KafleOdpowiedzi, TrescRundy } from "./TrescRundy";
-import { KontekstRundy, PestkaMowi, tekstyPestki, wybierz } from "./PestkaRundy";
+import { KontekstRundy, PestkaMowi } from "./PestkaRundy";
+import { glos, wybierz } from "../../pestka/glos";
 import { WyjasnienieRundy } from "./WyjasnienieRundy";
 import { czyBladBezPonowienia, czyZaDuzoSesji, komunikatRundy, nazwaOdpowiedzi, odczytajRunde, useSesjaRundy, UUID_SESJI, zapiszRunde } from "./sesjaRundy";
 import s from "./SzybkaRunda.module.css";
@@ -194,11 +195,11 @@ function tekstReakcji(o: OdpowiedzNauki, r: Reakcja, wyjasnienie: boolean): stri
   const n = o.position;
   const pominiete = !o.correct && !o.answer.trim();
   const glowny = o.correct
-    ? r.seria >= 3 ? wybierz(tekstyPestki.seria, n).replace("{n}", String(r.seria)) : wybierz(tekstyPestki.dobrze, n)
-    : r.zleZRzedu >= 3 ? wybierz(tekstyPestki.zwolnij, n)
-      : pominiete ? wybierz(tekstyPestki.pominiete, n)
-        : wybierz(wyjasnienie ? tekstyPestki.zle : tekstyPestki.zleBezWyjasnienia, n);
-  return r.dolozone ? `${glowny} ${wybierz(tekstyPestki.dokladam, n)}` : glowny;
+    ? r.seria >= 3 ? wybierz(glos.seria, n).replace("{n}", String(r.seria)) : wybierz(glos.dobrze, n)
+    : r.zleZRzedu >= 3 ? wybierz(glos.blad.zwolnij, n)
+      : pominiete ? wybierz(glos.blad.pominiete, n)
+        : wybierz(wyjasnienie ? glos.blad.zle : glos.blad.bezWyjasnienia, n);
+  return r.dolozone ? `${glowny} ${wybierz(glos.blad.dokladam, n)}` : glowny;
 }
 
 function OcenaRundy({ odpowiedz, sesja, skonczona, dalej, reakcja }: {
@@ -218,7 +219,7 @@ function OcenaRundy({ odpowiedz, sesja, skonczona, dalej, reakcja }: {
       <MessageCircle size={16} aria-hidden="true" /> Wyjaśnij z Pestką
     </button>
   );
-  const bezAi = cke && aiGotowe === false && <Link to="/profil#ai" className="link small">Podepnij AI w profilu, a Pestka wyjaśni to zadanie</Link>;
+  const bezAi = cke && aiGotowe === false && <Link to="/profil#ai" className="link small">Połącz Pestkę w profilu, a wyjaśni to zadanie</Link>;
   return (
     // Ten sam układ co pytanie (tytuł, treść, kafle w tym samym miejscu), więc kafle nie skaczą, tylko zmieniają stan;
     // werdykt z Pestką dochodzi pod nimi.

@@ -21,7 +21,7 @@ export function BrakPestki({ tekst }: { tekst: string }) {
   return (
     <div className={s.brak}>
       <p>{tekst}</p>
-      <Link to="/profil#ai" className="btn btn-secondary">Podepnij AI w profilu</Link>
+      <Link to="/profil#ai" className="btn btn-secondary">Połącz Pestkę w profilu</Link>
     </div>
   );
 }

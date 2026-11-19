@@ -11,23 +11,6 @@ import type { OdpowiedzNauki, PolecenieNauki } from "../../nauka/api";
 import { nazwaOdpowiedzi } from "./sesjaRundy";
 import s from "./SzybkaRunda.module.css";
 
-// Losowy początek na kartę, a dalej kolejne pozycje listy: teksty się zmieniają, ale nie powtarzają co chwilę.
-const przesuniecie = Math.floor(Math.random() * 100);
-export const wybierz = (lista: readonly string[], n: number) => lista[(n + przesuniecie) % lista.length]!;
-
-export const tekstyPestki = {
-  dobrze: ["Dobrze.", "Zgadza się.", "Tak, to ta.", "Trafione.", "Dokładnie tak."],
-  seria: ["Dobrze. To już {n} z rzędu.", "{n} dobre z rzędu.", "Zgadza się. {n} z rzędu, tak trzymaj."],
-  zle: ["Tym razem nie. Wyjaśnić?", "To nie ta. Wyjaśnić, dlaczego?", "Nie tym razem. Mogę pokazać, gdzie jest haczyk."],
-  zleBezWyjasnienia: ["Tym razem nie. Zerknij na wyjaśnienie.", "To nie ta. Wyjaśnienie jest pod spodem."],
-  pominiete: ["Pominięte. Poprawną odpowiedź widać na zielono.", "Bez odpowiedzi. Zerknij, która była dobra."],
-  zwolnij: ["Zwolnijmy. Przy następnym weź podpowiedź, jeśli utkniesz.", "Trzy z rzędu nie wyszły. Zwolnijmy i czytajmy uważniej."],
-  dokladam: ["Dokładam jedno zadanie, żeby to utrwalić.", "Jeszcze jedno zadanie na utrwalenie."],
-  czesciowo: ["Część się zgadza. Zerknij, gdzie brakuje punktu.", "Blisko. Jedno kryterium jeszcze nie wyszło."],
-  zleSprobuj: ["Tym razem nie. Spróbuj jeszcze raz albo weź następne.", "To nie to. Sprawdź obliczenia i spróbuj ponownie."],
-  niepewne: ["Tego nie ocenię pewnie. Sprawdź zapis odpowiedzi.", "Nie umiem tego jednoznacznie sprawdzić. Zerknij na format."],
-} as const;
-
 /** Pestka z dymkiem w treści strony. Przy pojawieniu się podskakuje i chwilę mówi; z emocją pokazuje ją od razu i zostaje przy niej. */
 export function PestkaMowi({ tekst, emocja, children }: { tekst: string; emocja?: AvatarState; children?: ReactNode }) {
   const [mowi, setMowi] = useState(true);

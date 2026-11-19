@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import type { Ton } from "../konto/przedmioty";
 
-export type Format = "Napraw błąd" | "Szybkie rundy" | "Uczeń uczy AI" | "Krok po kroku" | "Tutor";
+export type Format = "Napraw błąd" | "Szybkie rundy" | "Naucz Kolegę" | "Krok po kroku" | "Tutor";
 import styles from "./icons.module.css";
 
 const subjectIcons: Record<string, LucideIcon> = {
@@ -25,7 +25,7 @@ const subjectIcons: Record<string, LucideIcon> = {
 export const formatIcons: Record<Format, LucideIcon> = {
   "Napraw błąd": Wrench,
   "Szybkie rundy": Zap,
-  "Uczeń uczy AI": GraduationCap,
+  "Naucz Kolegę": GraduationCap,
   "Krok po kroku": Footprints,
   Tutor: MessagesSquare,
 };
