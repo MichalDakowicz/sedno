@@ -17,7 +17,8 @@
 }
 
 .karta {
-  height: 240px;
+  /* Wysokość karty propozycji dnia (KartaDnia) na szerokim ekranie. */
+  height: 300px;
   max-width: 600px;
   border-radius: var(--r-lg) !important;
 }

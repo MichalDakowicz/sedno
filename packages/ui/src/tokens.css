@@ -75,7 +75,8 @@
   --scrim: rgba(15, 21, 29, 0.18);
   --scrim-strong: rgba(28, 22, 17, 0.5);
 
-  --font: "Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* „Inter fallback” (apps/web global.css) ma metryki Intera, więc podmiana fontu po wczytaniu nie przesuwa układu. */
+  --font: "Inter Variable", Inter, "Inter fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 /* Element z .motyw-jasny zostaje jasny w ciemnym motywie (np. arkusz kalkulacyjny):

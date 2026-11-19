@@ -1,5 +1,16 @@
 @import "@sedno/ui/tokens.css";
 
+/* Zastępczy krój na czas wczytywania Intera: Arial przeskalowany do metryk Intera (te same wartości co w next/font),
+   więc tekst nie zmienia szerokości ani wysokości, gdy dochodzi właściwy font, i strona nie podskakuje. */
+@font-face {
+  font-family: "Inter fallback";
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 107.12%;
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+}
+
 *,
 *::before,
 *::after {

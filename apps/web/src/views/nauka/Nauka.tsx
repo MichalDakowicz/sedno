@@ -100,11 +100,13 @@ export function Nauka() {
   }
 
   const sposoby: { id: Sposob; to: string; nazwa: string; kiedy: string; ikona: ReactNode }[] = [
-    ...(doSposobow ? [{ id: "szybka-runda" as const, to: adresStartu(poziom, doSposobow.skill_id), nazwa: "Szybka runda", kiedy: "Masz 5 minut.", ikona: <Timer size={18} aria-hidden="true" /> }] : []),
-    ...(doNaprawy ? [{ id: "napraw-blad" as const, to: adresStartu(poziom, doNaprawy.skill_id, "napraw-blad"), nazwa: "Napraw błąd", kiedy: "Mylisz formy i chcesz wiedzieć dlaczego.", ikona: <Wrench size={18} aria-hidden="true" /> }] : []),
+    // Do wczytania mapy wiersze rund stoją z linkiem do wyboru umiejętności, żeby lista nie rosła po chwili.
+    ...(doSposobow || mapa.stan === "ladowanie" ? [{ id: "szybka-runda" as const, to: doSposobow ? adresStartu(poziom, doSposobow.skill_id) : "#cos-innego", nazwa: "Szybka runda", kiedy: "Masz 5 minut.", ikona: <Timer size={18} aria-hidden="true" /> }] : []),
+    ...(doNaprawy || mapa.stan === "ladowanie" ? [{ id: "napraw-blad" as const, to: doNaprawy ? adresStartu(poziom, doNaprawy.skill_id, "napraw-blad") : "#cos-innego", nazwa: "Napraw błąd", kiedy: "Mylisz formy i chcesz wiedzieć dlaczego.", ikona: <Wrench size={18} aria-hidden="true" /> }] : []),
     { id: "arkusze", to: "/arkusze?przedmiot=angielski", nazwa: "Arkusze CKE", kiedy: "Przed maturą próbną albo gdy masz dwie godziny.", ikona: <FileText size={18} aria-hidden="true" /> },
     { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Uczeń uczy AI", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
-    ...(aiGotowe === true ? [{ id: "rozmowa" as const, to: "/tutor", nazwa: "Rozmowa z Pestką", kiedy: "Coś jest niejasne i potrzebne jest wyjaśnienie.", ikona: <MessagesSquare size={18} aria-hidden="true" /> }] : []),
+    // Wiersz stoi też w trakcie sprawdzania AI (undefined), żeby lista nie urosła o wiersz po chwili.
+    ...(aiGotowe !== false ? [{ id: "rozmowa" as const, to: "/tutor", nazwa: "Rozmowa z Pestką", kiedy: "Coś jest niejasne i potrzebne jest wyjaśnienie.", ikona: <MessagesSquare size={18} aria-hidden="true" /> }] : []),
   ];
 
   return (
@@ -350,7 +352,7 @@ function WolnyTemat({ poziom, umiejetnosci }: { poziom: Poziom; umiejetnosci: Um
           </button>
         </>
       )}
-      {tutor.aiGotowe === undefined && <span role="status" className="small muted">Sprawdzam dostęp do Pestki…</span>}
+      {tutor.aiGotowe === undefined && <span role="status" className="visually-hidden">Sprawdzam dostęp do Pestki…</span>}
       {tutor.aiGotowe && tutor.state !== "idle" && !wysylam && !komunikat && <p className="small muted">Pestka odpowiada w innej rozmowie.</p>}
       {komunikat && <p role="alert" className="small">{komunikat}</p>}
     </form>
