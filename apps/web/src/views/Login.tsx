@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { TutorAvatar } from "../components/TutorAvatar";
+import { Znak } from "../components/Znak";
 import { loginGoogle, loginPassword, useSession } from "../auth";
 import styles from "./Login.module.css";
 
@@ -41,7 +42,7 @@ export function Login() {
   return (
     <div className={styles.page}>
       <header className={`container ${styles.top}`}>
-        <span className={styles.logo}>Sedno</span>
+        <span className={styles.logo}><Znak /></span>
       </header>
 
       <main className={`container ${styles.main}`}>

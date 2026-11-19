@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Map as MapaIkona, Menu, MessageCircle, RotateCcw, Settings, UserRound, X } from "lucide-react";
 import { logout } from "../auth";
+import { Znak } from "./Znak";
 import { Plywak } from "./Plywak";
 import { resetTour, useTutor } from "./TutorContext";
 import { OTWORZ_SZUKAJ } from "./Wyszukiwanie";
@@ -80,8 +81,8 @@ export function TopNav() {
   return (
     <div className={styles.wrap}>
       <nav className={styles.nav} aria-label="Główna">
-        <Link to="/" className={styles.logo}>
-          Sedno
+        <Link to="/" className={styles.logo} aria-label="Sedno, pulpit">
+          <Znak />
         </Link>
 
         {/* Środek paska: menu i miejsce na „wyspę” zegara arkusza (components/Zegar.tsx). Są wyśrodkowane
