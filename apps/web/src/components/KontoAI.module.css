@@ -1,68 +1,52 @@
 .section {
   display: grid;
-  gap: 20px;
+  gap: var(--s-5);
 }
 
 .head {
   display: grid;
-  gap: 4px;
+  gap: var(--s-1);
 }
 
+/* Dostawcy: wspólny .wiersz, akcje (Sprawdź, Usuń) w kolumnie na szerokość przycisków. */
 .list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--line);
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
-  flex-wrap: wrap;
-}
-
-.grow {
-  flex: 1;
-  min-width: 200px;
+  --wiersz-akcja: auto;
 }
 
 .tiers {
   display: grid;
-  gap: 12px;
+  gap: var(--s-3);
 }
 
 .tier {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: var(--s-3);
   align-items: center;
 }
 
 .form {
   display: grid;
-  gap: 14px;
+  gap: var(--s-4);
   max-width: 420px;
 }
 
 .usage {
   width: 100%;
   border-collapse: collapse;
-  font-size: calc(14px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   font-variant-numeric: tabular-nums;
 }
 
 .usage caption {
   text-align: left;
-  padding-bottom: 8px;
+  padding-bottom: var(--s-2);
 }
 
 .usage th,
 .usage td {
   text-align: left;
-  padding: 8px 8px 8px 0;
+  padding: var(--s-2) var(--s-2) var(--s-2) 0;
   border-bottom: 1px solid var(--line);
 }
 
@@ -80,4 +64,39 @@
     display: block;
     overflow-x: auto;
   }
+}
+
+/* Stan Pestki dwiema liczbami; tabela zużycia pod rozwinięciem. */
+.liczby {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4) var(--s-6);
+  margin: 0;
+}
+
+.liczby div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--s-1);
+}
+
+.liczby dt {
+  font-size: var(--t-sm);
+  color: var(--subtle);
+}
+
+.liczby dd {
+  margin: 0;
+  font-size: calc(32px * var(--skala-tekstu, 1));
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.zuzycie > summary {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--primary-text);
 }

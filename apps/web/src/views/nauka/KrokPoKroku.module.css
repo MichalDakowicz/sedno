@@ -1,0 +1,85 @@
+/* Pierwsza sekcja pod nagłówkiem strony: linię daje już nagłówek. */
+.bezLinii {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.formularz,
+.pole {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.formularz {
+  gap: var(--s-4);
+}
+
+.tekst {
+  width: 100%;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.tekst:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.polecenie {
+  max-height: 10em;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: var(--muted);
+}
+
+.glowa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2) var(--s-4);
+}
+
+.calosc {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.licznik {
+  font-variant-numeric: tabular-nums;
+}
+
+.kryteria {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.kryteria li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-1) var(--s-3);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.kryteria [data-status] {
+  color: var(--muted);
+}
+
+.kryteria [data-status="dobrze"] {
+  color: var(--success-strong);
+}
+
+.kryteria [data-status="do-poprawy"] {
+  color: var(--primary-text);
+}

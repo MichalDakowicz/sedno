@@ -1,0 +1,60 @@
+/* Pierwsza sekcja pod nagłówkiem strony: linię daje już nagłówek. */
+.bezLinii {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.polecenie {
+  max-height: 14em;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: var(--muted);
+}
+
+.pole {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.tekst {
+  width: 100%;
+  padding: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.tekst:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.tekst:disabled {
+  color: var(--muted);
+}
+
+.podglad {
+  display: block;
+  max-width: 100%;
+  max-height: 360px;
+  border-radius: var(--r-sm);
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.watpliwosci {
+  display: grid;
+  gap: var(--s-1);
+  margin: 0;
+  padding-inline-start: var(--s-3);
+  border-inline-start: 2px solid var(--primary);
+  list-style: none;
+  color: var(--muted);
+}
+
+.pytanie {
+  font-weight: 500;
+}

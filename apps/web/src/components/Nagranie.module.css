@@ -1,18 +1,18 @@
 .slot {
   display: grid;
-  gap: 8px;
+  gap: var(--s-2);
   width: 100%;
   min-height: 60px;
-  margin-top: 8px;
+  margin-top: var(--s-2);
 }
 
 .player {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--s-3);
   width: 100%;
   min-height: 60px;
-  padding: 8px 14px 8px 8px;
+  padding: var(--s-2) var(--s-3) var(--s-2) var(--s-2);
   border-radius: var(--r-pill);
   background: var(--surface);
   box-shadow: var(--shadow-float);
@@ -29,7 +29,7 @@
   box-shadow:
     var(--shadow-raised),
     0 0 0 1px var(--line);
-  animation: wjazd 0.25s ease-out;
+  animation: wjazd var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 @keyframes wjazd {
@@ -61,7 +61,7 @@
   background: var(--primary-strong);
   color: var(--primary-fg);
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .play:hover {
@@ -74,11 +74,11 @@
   gap: 2px;
   flex-shrink: 0;
   height: 36px;
-  padding: 0 10px;
+  padding: 0 var(--s-2);
   border: 0;
   border-radius: var(--r-pill);
   background: transparent;
-  font-size: calc(12px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
@@ -92,7 +92,7 @@
 .time {
   flex-shrink: 0;
   min-width: 38px;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-variant-numeric: tabular-nums;
   color: var(--muted);
   text-align: center;
@@ -103,7 +103,7 @@
   min-width: 40px;
   height: 6px;
   appearance: none;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: linear-gradient(to right, var(--primary) var(--postep), var(--line) var(--postep));
   cursor: pointer;
 }
@@ -131,13 +131,13 @@
   }
 
   .player {
-    gap: 6px;
-    padding: 6px 10px 6px 6px;
+    gap: var(--s-2);
+    padding: var(--s-1) var(--s-2) var(--s-1) var(--s-1);
   }
 
   /* Przy większym tekście wszystko ma się zmieścić w przypiętym pasku (ok. 280 px). */
   .small {
-    padding: 0 6px;
+    padding: 0 var(--s-1);
   }
 
   .time {

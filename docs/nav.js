@@ -514,6 +514,34 @@
   ]
  },
  {
+  "id": "pestka",
+  "title": "Pestka",
+  "group": "Aplikacja",
+  "desc": "Tutorka Sedna: charakter, głos, emocje, kiełkująca pestka i znak.",
+  "pages": [
+   {
+    "id": "pestka-karta",
+    "title": "Kim jest Pestka"
+   },
+   {
+    "id": "pestka-glos",
+    "title": "Jak mówi"
+   },
+   {
+    "id": "pestka-emocje",
+    "title": "Emocje"
+   },
+   {
+    "id": "pestka-wzrost",
+    "title": "Kiełkująca pestka"
+   },
+   {
+    "id": "pestka-znak",
+    "title": "Znak Sedna"
+   }
+  ]
+ },
+ {
   "id": "struktura",
   "title": "Struktura produktu",
   "group": "Podstawy",

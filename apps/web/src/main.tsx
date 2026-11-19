@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "@fontsource-variable/inter";
 import "./styles/global.css";
 import { AppLayout } from "./components/AppLayout";
@@ -21,11 +21,17 @@ import { Arkusz } from "./views/Arkusz";
 import { Onboarding } from "./views/Onboarding";
 import { Spis, SzablonWidok } from "./szablony/Szablony";
 import { Nauka } from "./views/nauka/Nauka";
+import { Diagnoza } from "./views/nauka/Diagnoza";
 import { Powtorki } from "./views/nauka/Powtorki";
 import { Rozbior } from "./views/nauka/Rozbior";
 import { SzybkaRunda } from "./views/nauka/SzybkaRunda";
 import { UczenUczy } from "./views/nauka/UczenUczy";
+import { Zadania } from "./views/nauka/Zadania";
+import { Zdjecie } from "./views/nauka/Zdjecie";
+import { Sokratejski } from "./views/nauka/Sokratejski";
+import { KrokPoKroku } from "./views/nauka/KrokPoKroku";
 import { Umiejetnosci } from "./views/nauka/Umiejetnosci";
+import { NieMaStrony } from "./views/NieMaStrony";
 
 // Ustawienia stosują się od startu, nie dopiero na ich stronie.
 uruchomUstawienia();
@@ -47,6 +53,11 @@ createRoot(document.getElementById("root")!).render(
           <Route path="nauka/runda/:id" element={<SzybkaRunda />} />
           <Route path="nauka/rozbior/:id" element={<Rozbior />} />
           <Route path="nauka/uczen-uczy" element={<UczenUczy />} />
+          <Route path="nauka/zadania" element={<Zadania />} />
+          <Route path="nauka/zdjecie" element={<Zdjecie />} />
+          <Route path="nauka/sokratejski" element={<Sokratejski />} />
+          <Route path="nauka/pisanie" element={<KrokPoKroku />} />
+          <Route path="nauka/diagnoza" element={<Diagnoza />} />
           <Route path="arkusze" element={<Arkusze />} />
           <Route path="arkusze/:id" element={<Arkusz />} />
           <Route path="umiejetnosci" element={<Umiejetnosci />} />
@@ -58,8 +69,8 @@ createRoot(document.getElementById("root")!).render(
           <Route path="ustawienia" element={<Ustawienia />} />
           <Route path="do-matury" element={<DoMatury />} />
           <Route path="uklad-pulpitu" element={<UkladPulpitu />} />
+          <Route path="*" element={<NieMaStrony />} />
         </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <ScrollBar />
     </BrowserRouter>

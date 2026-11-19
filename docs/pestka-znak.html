@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sedno – Znak Sedna</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<h1>Znak Sedna</h1>
+<p class="sub">Pestka obok napisu „Sedno”: w pasku, na logowaniu i w ikonach.</p>
+<p class="lead">Znakiem aplikacji jest sama Pestka. Ten sam rysunek widać w pasku menu, na ekranie logowania, w karcie przeglądarki i na ekranie telefonu.</p>
+
+<figure>
+<svg viewBox="0 0 560 150" role="img" aria-label="Znak Sedna: Pestka obok napisu Sedno oraz ikona aplikacji w trzech rozmiarach">
+  <g transform="translate(16 43) scale(1)">
+    <path class="p-cialo" d="M32 4c13.5 0 24 8.6 26.6 21.4 2.4 11.9-2 24-12.6 30.2C38.8 59.8 25.2 59.8 18 55.6 7.4 49.4 3 37.3 5.4 25.4 8 12.6 18.5 4 32 4Z"/>
+    <ellipse class="p-rys" cx="24" cy="30" rx="4" ry="5.4"/><ellipse class="p-rys" cx="40" cy="30" rx="4" ry="5.4"/>
+    <path class="p-kreska" style="stroke-width:3.2" d="M26.5 41c3.2 3 7.8 3 11 0"/>
+  </g>
+  <text x="92" y="92" style="fill:var(--text);font:700 44px var(--font);letter-spacing:-.04em">Sedno</text>
+
+  <rect x="290" y="27" width="96" height="96" rx="22" style="fill:var(--surface);stroke:var(--line2)" stroke-width="1.5"/>
+  <g transform="translate(302 39) scale(1.125)">
+    <path class="p-cialo" d="M32 4c13.5 0 24 8.6 26.6 21.4 2.4 11.9-2 24-12.6 30.2C38.8 59.8 25.2 59.8 18 55.6 7.4 49.4 3 37.3 5.4 25.4 8 12.6 18.5 4 32 4Z"/>
+    <ellipse class="p-blask" cx="22" cy="16" rx="7" ry="4" transform="rotate(-24 22 16)"/>
+    <circle class="p-policzek" cx="16.5" cy="38" r="4"/><circle class="p-policzek" cx="47.5" cy="38" r="4"/>
+    <ellipse class="p-rys" cx="24" cy="30" rx="3.4" ry="4.6"/><ellipse class="p-rys" cx="40" cy="30" rx="3.4" ry="4.6"/>
+    <path class="p-kreska" d="M27 40.5c2.8 2.6 7.2 2.6 10 0"/>
+  </g>
+  <g transform="translate(410 51) scale(.75)">
+    <path class="p-cialo" d="M32 4c13.5 0 24 8.6 26.6 21.4 2.4 11.9-2 24-12.6 30.2C38.8 59.8 25.2 59.8 18 55.6 7.4 49.4 3 37.3 5.4 25.4 8 12.6 18.5 4 32 4Z"/>
+    <ellipse class="p-rys" cx="24" cy="30" rx="3.4" ry="4.6"/><ellipse class="p-rys" cx="40" cy="30" rx="3.4" ry="4.6"/>
+    <path class="p-kreska" d="M27 40.5c2.8 2.6 7.2 2.6 10 0"/>
+  </g>
+  <g transform="translate(480 63) scale(.375)">
+    <path class="p-cialo" d="M32 4c13.5 0 24 8.6 26.6 21.4 2.4 11.9-2 24-12.6 30.2C38.8 59.8 25.2 59.8 18 55.6 7.4 49.4 3 37.3 5.4 25.4 8 12.6 18.5 4 32 4Z"/>
+    <ellipse class="p-rys" cx="24" cy="30" rx="4" ry="5.4"/><ellipse class="p-rys" cx="40" cy="30" rx="4" ry="5.4"/>
+    <path class="p-kreska" style="stroke-width:3.2" d="M26.5 41c3.2 3 7.8 3 11 0"/>
+  </g>
+  <g class="svg-s" text-anchor="middle">
+    <text x="338" y="143">ikona aplikacji</text><text x="434" y="143">średni</text><text x="492" y="143">w pasku</text>
+  </g>
+</svg>
+<figcaption>Przy małym rozmiarze znak traci blask i policzki, które w 24 px tylko brudzą rysunek.</figcaption>
+</figure>
+
+<h2>Zasady</h2>
+<ul>
+  <li><b>Jeden rysunek.</b> Znak, ikona w karcie przeglądarki i ikony na telefonie powstają z tego samego rysunku Pestki.</li>
+  <li><b>Ciemne oczy na pomarańczu</b> w obu motywach. Pestka wygląda tak samo, zmienia się tylko tło.</li>
+  <li><b>Napis „Sedno”</b> w Interze, pogrubiony, z ciasnym odstępem liter.</li>
+  <li><b>Ruch:</b> po najechaniu znak w pasku lekko podskakuje i przechyla się, jak Pestka. Przy „Mniej ruchu” stoi.</li>
+  <li><b>Ikony aplikacji:</b> zwykłe, maskowalne dla Androida i dla ekranu iPhone'a, wszystkie generowane skryptem z tego samego rysunku. Aplikację można dodać do ekranu głównego telefonu.</li>
+</ul>
+</main>
+<script src="nav.js" defer></script>
+</body>
+</html>

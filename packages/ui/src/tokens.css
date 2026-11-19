@@ -44,10 +44,30 @@
 
   --gradient-accent: linear-gradient(100deg, #ff5e3a 0%, #ff8a3d 26%, #ff6f52 50%, #ff8a3d 74%, #ff5e3a 100%);
 
+  /* Promienie: tylko te. --r-xs dla znaczników, małych pól i ściętego rogu dymka rozmowy. */
+  --r-xs: 6px;
   --r-sm: 12px;
   --r-md: 20px;
   --r-lg: 28px;
   --r-pill: 999px;
+
+  /* Skala tekstu (rośnie z ustawieniem „Rozmiar tekstu”). Treść zadań, wyjaśnienia i opisy w wierszach co najmniej --t-sm;
+     --t-xs tylko dla etykiet wersalikami i metadanych. Tekst ciągły 16px (body), nagłówki w klasach .h1–.h3. */
+  --t-xs: calc(13px * var(--skala-tekstu, 1));
+  --t-sm: calc(15px * var(--skala-tekstu, 1));
+  --t-md: calc(17px * var(--skala-tekstu, 1));
+  --t-lg: calc(20px * var(--skala-tekstu, 1));
+
+  /* Odstępy: tylko te (gap, margin, padding). Wewnątrz jednej kontrolki mniejszy stopień, między elementami większy.
+     Wyjątki: 1–3 px na obwódki i korekty optyczne, paddingi ustalające wysokość przycisków, pól i pigułek. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
 
   --shadow-float: 0 8px 32px rgba(15, 21, 29, 0.08);
   --shadow-raised: 0 12px 40px rgba(15, 21, 29, 0.16);
@@ -55,13 +75,33 @@
   --scrim: rgba(15, 21, 29, 0.18);
   --scrim-strong: rgba(28, 22, 17, 0.5);
 
-  --font: "Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* „Inter fallback” (apps/web global.css) ma metryki Intera, więc podmiana fontu po wczytaniu nie przesuwa układu. */
+  --font: "Inter Variable", Inter, "Inter fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 /* Element z .motyw-jasny zostaje jasny w ciemnym motywie (np. arkusz kalkulacyjny):
    deklaruje jasne tokeny u siebie, więc wszystko w środku dziedziczy jasne wartości. */
 .motyw-jasny {
   color: var(--fg);
+}
+
+/* Ruch: trzy czasy i dwie krzywe, nic dłuższego niż --ruch-wolny (wyjątek: skok Pestki). Zwykła krzywa do zmian stanu
+   (kolor, przejście treści), sprężysta do rzeczy, które coś „przenoszą” (wskaźnik zaznaczenia, kafel, pasek, licznik).
+   Ten sam ruch w JS: apps/web/src/ruch.ts. „Mniej ruchu” wyłącza wszystko w global.css. */
+:root {
+  --ruch-szybki: 150ms;
+  --ruch-zwykly: 250ms;
+  --ruch-wolny: 400ms;
+  --ruch-krzywa: cubic-bezier(0.2, 0, 0, 1);
+  /* Zapas dla przeglądarek bez linear(): lekkie przestrzelenie zamiast prawdziwego odbicia. */
+  --ruch-sprezyna: cubic-bezier(0.3, 1.35, 0.5, 1);
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    /* Sprężyna z tłumieniem 0,62: ok. 8% przestrzelenia i jedno łagodne wahnięcie. */
+    --ruch-sprezyna: linear(0, 0.047, 0.161, 0.31, 0.47, 0.623, 0.757, 0.868, 0.954, 1.015, 1.054, 1.076, 1.083, 1.081, 1.073, 1.061, 1.047, 1.034, 1.023, 1.013, 1.005, 1, 0.996, 0.994, 1);
+  }
 }
 
 /* Ciemny motyw: domyślnie za ustawieniem systemu, w Ustawieniach można go wymusić (data-motyw). Paleta jak w docs/style.css. Jedyne odstępstwo:

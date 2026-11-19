@@ -1,14 +1,21 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowRight, ChevronRight, FileText, GraduationCap, MessagesSquare, Sparkles, Timer, Wrench } from "lucide-react";
+import { ArrowRight, Camera, ChevronRight, CircleHelp, FileText, PenLine, GraduationCap, MessagesSquare, Timer, Wrench } from "lucide-react";
+import { TutorAvatar } from "../../components/TutorAvatar";
 import type { Poziom } from "../../arkusze/typy";
+import { useProfil } from "../../auth";
+import { KartaDnia } from "../../components/KartaDnia";
+import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { useTutor } from "../../components/TutorContext";
-import { nazwaPoziomu } from "../../konto/przedmioty";
+import { SubjectIcon } from "../../components/icons";
+import { nazwaPoziomu, przedmiot } from "../../konto/przedmioty";
 import { adresMapy, adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki, type Umiejetnosc } from "../../nauka/api";
+import { coDzisBezRund, polecanySposob, useDzisAngielski, usePolecenieDnia, type Sposob } from "../../nauka/dzis";
 import { useOtwarteRundy, usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
-import { Angielski, BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
+import { OPIS_OPANOWANIA } from "./Opanowanie";
+import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
 import s from "./NaukaPowtorki.module.css";
 
 // Te same nazwy obszarów co na mapie umiejętności (Umiejetnosci.tsx).
@@ -22,14 +29,19 @@ const NAZWY_OBSZAROW: Record<string, string> = {
 export function Nauka() {
   const [poziom, ustawPoziom] = usePoziomNauki();
   const [params, ustawParams] = useSearchParams();
+  const profil = useProfil();
   const { aiGotowe } = useTutor();
   const mapa = useZapytanieNauki(`nauka:mapa:${poziom}`, (signal) => naukaApi.mapa(poziom, signal));
   const umiejetnosci = mapa.dane?.skills ?? [];
   const wybrana = umiejetnosci.find((u) => u.skill_id === params.get("umiejetnosc"));
+  // Polecenie dla umiejętności wybranej w „Chcę coś innego”; propozycję dnia liczy nauka/dzis.ts.
   const polecenie = useZapytanieNauki(
-    mapa.stan === "gotowe" ? `nauka:polec:${poziom}:${wybrana?.skill_id ?? ""}` : null,
+    mapa.stan === "gotowe" && wybrana ? `nauka:polec:${poziom}:${wybrana.skill_id}` : null,
     (signal) => naukaApi.polec(poziom, wybrana?.skill_id, signal),
   );
+  const polecenieDnia = usePolecenieDnia(poziom);
+  const dzis = useDzisAngielski(poziom);
+  const podsumowanie = dzis.podsumowanie;
   const ostatnie = useOtwarteRundy(poziom);
   const { hash } = useLocation();
   const naglowek = useRef<HTMLHeadingElement>(null);
@@ -40,12 +52,17 @@ export function Nauka() {
   // Fokus przenosimy tylko po wejściu z parametrem (np. „Ćwicz”), nie przy zwykłym otwarciu strony.
   const fokusPolecenia = useRef(params.get("umiejetnosc") !== null);
   const fokusOstatnio = useRef(hash === "#ostatnio");
-  const umiejetnosc = wybrana ?? umiejetnosci.find((u) => u.skill_id === polecenie.dane?.skill_id);
   const powtorz = polecenie.dane?.repeat_id ?? undefined;
   const format = powtorz ? "szybka-runda" : formatRundy(polecenie.dane?.format);
   const sesje = ostatnie.dane?.sesje ?? [];
   const kilkaPoziomow = new Set(sesje.map((sesja) => sesja.level)).size > 1;
   const polecenieGotowe = mapa.stan !== "ladowanie" && polecenie.stan !== "ladowanie";
+
+  // Umiejętność do sposobów nauki: wybrana, inaczej ta z polecenia dnia.
+  const doSposobow = wybrana ?? umiejetnosci.find((u) => u.skill_id === polecenieDnia.dane?.skill_id) ?? umiejetnosci[0];
+  const doNaprawy = [doSposobow, ...umiejetnosci].find((u) => u?.formats.includes("napraw-blad"));
+  const polecany = polecanySposob(!!podsumowanie?.wyniki.length, polecenieDnia.dane?.format);
+  const bezRund = (profil?.subjects ?? []).map((p) => p.id).filter((id, i, all) => all.indexOf(id) === i && coDzisBezRund[id]);
 
   useEffect(() => {
     if (!fokusPolecenia.current || !polecenieGotowe) return;
@@ -83,21 +100,95 @@ export function Nauka() {
     });
   }
 
+  const sposoby: { id: Sposob; to: string; nazwa: string; kiedy: string; ikona: ReactNode }[] = [
+    // Do wczytania mapy wiersze rund stoją z linkiem do wyboru umiejętności, żeby lista nie rosła po chwili.
+    ...(doSposobow || mapa.stan === "ladowanie" ? [{ id: "szybka-runda" as const, to: doSposobow ? adresStartu(poziom, doSposobow.skill_id) : "#cos-innego", nazwa: "Szybka runda", kiedy: "Masz 5 minut.", ikona: <Timer size={18} aria-hidden="true" /> }] : []),
+    ...(doNaprawy || mapa.stan === "ladowanie" ? [{ id: "napraw-blad" as const, to: doNaprawy ? adresStartu(poziom, doNaprawy.skill_id, "napraw-blad") : "#cos-innego", nazwa: "Napraw błąd", kiedy: "Mylisz formy i chcesz wiedzieć dlaczego.", ikona: <Wrench size={18} aria-hidden="true" /> }] : []),
+    { id: "arkusze", to: "/arkusze?przedmiot=angielski", nazwa: "Arkusze CKE", kiedy: "Przed maturą próbną albo gdy masz dwie godziny.", ikona: <FileText size={18} aria-hidden="true" /> },
+    ...(aiGotowe !== false ? [{ id: "sokratejski" as const, to: `/nauka/sokratejski?poziom=${poziom}${doSposobow ? `&umiejetnosc=${doSposobow.skill_id}` : ""}`, nazwa: "Rozmowa z pytaniami", kiedy: "Chcesz zrozumieć, nie tylko trafić.", ikona: <CircleHelp size={18} aria-hidden="true" /> }] : []),
+    { id: "pisanie", to: `/nauka/pisanie?poziom=${poziom}`, nazwa: "Pisanie krok po kroku", kiedy: "Ćwiczysz wypowiedź pisemną.", ikona: <PenLine size={18} aria-hidden="true" /> },
+    { id: "zdjecie", to: "/nauka/zdjecie", nazwa: "Zdjęcie z kartki", kiedy: "Rozwiązujesz na papierze i chcesz omówienia.", ikona: <Camera size={18} aria-hidden="true" /> },
+    { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Naucz Kolegę", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
+    // Wiersz stoi też w trakcie sprawdzania AI (undefined), żeby lista nie urosła o wiersz po chwili.
+    ...(aiGotowe !== false ? [{ id: "rozmowa" as const, to: "/tutor", nazwa: "Rozmowa z Pestką", kiedy: "Coś jest niejasne i potrzebne jest wyjaśnienie.", ikona: <MessagesSquare size={18} aria-hidden="true" /> }] : []),
+  ];
+
   return (
     <main className={`container ${s.strona}`}>
-      <header className={s.glowa}>
-        <Angielski />
-        <h1 className="display" tabIndex={-1} ref={naglowek}>Nauka</h1>
-        <p className="lead">Wybierz umiejętność i zrób krótką rundę przed maturą.</p>
-      </header>
+      <NaglowekStrony etykieta="Język angielski" tytul="Nauka" tytulRef={naglowek} lead="Krótkie rundy przed maturą." />
 
-      <section className={s.sekcja} aria-label="Wybór ćwiczenia">
+      <div className={s.para}>
+        {dzis.stan === "ladowanie" ? (
+          <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie na dziś" />
+        ) : dzis.dzis ? (
+          <KartaDnia dzis={dzis.dzis} />
+        ) : (
+          <div className={s.stan}>
+            <p className="muted">Na tym poziomie nie ma jeszcze gotowej rundy.</p>
+            <Link to="/arkusze?przedmiot=angielski" className={`btn btn-secondary ${s.przycisk}`}>Rozwiąż arkusz</Link>
+          </div>
+        )}
+        <WolnyTemat key={poziom} poziom={poziom} umiejetnosci={umiejetnosci} />
+      </div>
+
+      <section className={s.sekcja} aria-labelledby="sposoby-nauki">
+        <h2 className="h2" id="sposoby-nauki">Sposoby nauki</h2>
+        <ul className={`wiersze ${s.sposoby}`}>
+          {sposoby.map((x) => (
+            <li key={x.id}>
+              <Link to={x.to} className="wiersz">
+                <span className={`wiersz-ikona ${s.ikona}`}>{x.ikona}</span>
+                <span className="wiersz-tresc">
+                  <span className="h3">{x.nazwa}</span>
+                  <span className="wiersz-opis">{x.kiedy}</span>
+                </span>
+                <span className="wiersz-wartosc">
+                  {x.id === polecany.sposob && (
+                    <span className="kicker" data-tutor-about={polecany.powod}>
+                      <TutorAvatar size={22} /> Polecam
+                    </span>
+                  )}
+                </span>
+                <span className="wiersz-akcja"><ChevronRight size={18} aria-hidden="true" /></span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {bezRund.length > 0 && (
+        <section className={s.sekcja} aria-labelledby="inne-przedmioty">
+          <h2 className="h2" id="inne-przedmioty">Inne przedmioty</h2>
+          <ul className="wiersze">
+            {bezRund.map((id) => {
+              const p = przedmiot(id)!;
+              const co = coDzisBezRund[id]!;
+              const akcja = co.akcja.do === "/tutor" && aiGotowe === false ? { do: "/profil#ai", etykieta: "Połącz Pestkę w profilu" } : co.akcja;
+              return (
+                <li key={id}>
+                  <Link to={akcja.do} className="wiersz" aria-label={`${p.nazwa}: ${akcja.etykieta}`}>
+                    <span className="wiersz-ikona"><SubjectIcon subject={p} size="lg" /></span>
+                    <span className="wiersz-tresc">
+                      <span className="h3">{p.nazwa}</span>
+                      <span className="wiersz-opis">{co.tekst}</span>
+                    </span>
+                    <span className="wiersz-akcja"><ChevronRight size={18} aria-hidden="true" /></span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      <section className={s.sekcja} aria-labelledby="cos-innego-tytul" id="cos-innego">
+        <h2 className="h2" id="cos-innego-tytul">Chcę coś innego</h2>
         <div className={s.pola}>
           <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />
           <label className={s.pole}>
             <span className="small muted">Umiejętność</span>
-            <select value={wybrana?.skill_id ?? ""} onChange={(e) => ustawUmiejetnosc(e.target.value)} disabled={mapa.stan !== "gotowe"}>
-              <option value="">Dobierz dla mnie</option>
+            <select className="select" value={wybrana?.skill_id ?? ""} onChange={(e) => ustawUmiejetnosc(e.target.value)} disabled={mapa.stan !== "gotowe"}>
+              <option value="">Wybierz umiejętność</option>
               {[...new Set(umiejetnosci.map((u) => u.area))].map((obszar) => (
                 <optgroup key={obszar} label={NAZWY_OBSZAROW[obszar] ?? obszar}>
                   {umiejetnosci.filter((u) => u.area === obszar).map((u) => <option key={u.skill_id} value={u.skill_id}>{u.name}</option>)}
@@ -106,84 +197,38 @@ export function Nauka() {
             </select>
           </label>
         </div>
-        {umiejetnosc && (
-          <div className={s.akcje}>
-            <Link to={adresMapy(poziom, umiejetnosc.skill_id)} className="link">Zobacz opanowanie</Link>
-            <span className="small muted">
-              {umiejetnosc.score === null ? "Za mało danych" : procentNauki.format(umiejetnosc.score)}
-            </span>
-          </div>
+        {mapa.stan === "blad" && <BladNauki komunikat="Nie udało się wczytać umiejętności." ponow={mapa.ponow} />}
+        {wybrana && (
+          <>
+            <div className={s.opanowanieWybranej}>
+              <p className="small muted" data-tutor-about={OPIS_OPANOWANIA}>
+                Opanowanie: {wybrana.score === null ? "za mało danych" : procentNauki.format(wybrana.score)}
+              </p>
+              <Link to={adresMapy(poziom, wybrana.skill_id)} className="link small">Zobacz na mapie <ArrowRight size={14} aria-hidden="true" /></Link>
+            </div>
+            {polecenie.stan === "blad" ? (
+              <BladNauki komunikat="Nie udało się dobrać ćwiczenia." ponow={polecenie.ponow} />
+            ) : polecenie.stan === "ladowanie" ? (
+              <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie" />
+            ) : polecenie.dane ? (
+              <article className={s.polecenieBlok} aria-labelledby="nauka-polecenie">
+                <span className="kicker"><TutorAvatar size={22} /> Polecam</span>
+                <h3 id="nauka-polecenie" className="h1" tabIndex={-1} ref={naglowekPolecenia}>{powtorz ? "Powtórz zadanie" : nazwaFormatuNauki[format]}</h3>
+                <p className="h3">{wybrana.name}</p>
+                <p className="muted">Wybrałam to ćwiczenie. {polecenie.dane.reason}</p>
+                <Link to={adresStartu(poziom, wybrana.skill_id, format, powtorz)} className={`btn btn-primary ${s.przycisk}`}>
+                  {polecenie.dane.minutes > 0 ? `Zacznij · ${polecenie.dane.minutes} min` : "Zacznij"}
+                  <ArrowRight size={18} aria-hidden="true" />
+                </Link>
+              </article>
+            ) : (
+              <div className={s.stan}>
+                <p className="muted">Dla tej umiejętności nie ma jeszcze gotowej rundy.</p>
+                <button type="button" className={`btn btn-secondary ${s.przycisk}`} onClick={() => ustawUmiejetnosc("")}>Wybierz inną</button>
+              </div>
+            )}
+          </>
         )}
-      </section>
-
-      <div className={s.para}>
-        {mapa.stan === "blad" ? (
-          <BladNauki komunikat="Nie udało się wczytać umiejętności." ponow={mapa.ponow} />
-        ) : polecenie.stan === "blad" ? (
-          <BladNauki komunikat="Nie udało się dobrać ćwiczenia." ponow={polecenie.ponow} />
-        ) : mapa.stan === "ladowanie" || polecenie.stan === "ladowanie" ? (
-          <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie" />
-        ) : polecenie.dane && umiejetnosc ? (
-          <article className={s.karta} aria-labelledby="nauka-polecenie">
-            <span className={`label ${s.nadtytul}`}><Sparkles size={16} aria-hidden="true" /> Polecam</span>
-            <h2 id="nauka-polecenie" className="h1" tabIndex={-1} ref={naglowekPolecenia}>{powtorz ? "Powtórz zadanie" : nazwaFormatuNauki[format]}</h2>
-            <p className="h3">{umiejetnosc.name}</p>
-            <p className="muted">{polecenie.dane.reason}</p>
-            <Link to={adresStartu(poziom, umiejetnosc.skill_id, format, powtorz)} className={`btn btn-primary ${s.przycisk}`}>
-              {polecenie.dane.minutes > 0 ? `Zacznij · ${polecenie.dane.minutes} min` : "Zacznij"}
-              <ArrowRight size={18} aria-hidden="true" />
-            </Link>
-          </article>
-        ) : (
-          <div className={s.stan}>
-            <p className="muted">
-              {wybrana ? "Brak gotowej rundy dla tej umiejętności. Wybierz inne ćwiczenie z listy poniżej." : "Brak gotowej rundy na tym poziomie."}
-            </p>
-          </div>
-        )}
-        <WolnyTemat key={poziom} poziom={poziom} umiejetnosci={umiejetnosci} />
-      </div>
-
-      <section className={s.sekcja} aria-labelledby="inne-formaty">
-        <h2 className="h2" id="inne-formaty">Inne sposoby nauki</h2>
-        <ul className={s.wiersze}>
-          {umiejetnosc && umiejetnosc.formats.includes("szybka-runda") && (powtorz || !polecenie.dane || format !== "szybka-runda") && (
-            <WierszFormat
-              to={adresStartu(poziom, umiejetnosc.skill_id)}
-              nazwa="Szybka runda"
-              opis="Kilka zadań ze sprawdzeniem po każdej odpowiedzi."
-              ikona={<Timer size={18} aria-hidden="true" />}
-            />
-          )}
-          {umiejetnosc && umiejetnosc.formats.includes("napraw-blad") && (!polecenie.dane || format !== "napraw-blad") && (
-            <WierszFormat
-              to={adresStartu(poziom, umiejetnosc.skill_id, "napraw-blad")}
-              nazwa="Napraw błąd"
-              opis="Popraw zdania i sprawdź, dlaczego dana forma jest właściwa."
-              ikona={<Wrench size={18} aria-hidden="true" />}
-            />
-          )}
-          <WierszFormat
-            to="/arkusze"
-            nazwa="Arkusze CKE"
-            opis="Rozwiązuj oryginalne zadania maturalne."
-            ikona={<FileText size={18} aria-hidden="true" />}
-          />
-          <WierszFormat
-            to="/nauka/uczen-uczy"
-            nazwa="Uczeń uczy AI"
-            opis="Wytłumacz zasadę Koledze i sprawdź, czy potrafi jej użyć."
-            ikona={<GraduationCap size={18} aria-hidden="true" />}
-          />
-          {aiGotowe === true && (
-            <WierszFormat
-              to="/tutor"
-              nazwa="Rozmowa z Pestką"
-              opis="Poproś o przykład, wskazówkę lub wyjaśnienie."
-              ikona={<MessagesSquare size={18} aria-hidden="true" />}
-            />
-          )}
-        </ul>
       </section>
 
       <section className={s.sekcja} aria-labelledby="ostatnio">
@@ -218,7 +263,12 @@ export function Nauka() {
                 );
               })}
             </ul>
-          ) : <p className="muted">Nie masz niedokończonych ćwiczeń.</p>
+          ) : (
+            <div className={s.stan}>
+              <p className="muted">Nie masz niedokończonych ćwiczeń.</p>
+              {doSposobow && <Link to={adresStartu(poziom, doSposobow.skill_id)} className={`btn btn-secondary ${s.przycisk}`}>Zacznij szybką rundę</Link>}
+            </div>
+          )
         )}
         {bladUsuwania && <p role="alert" className={s.blad}>{bladUsuwania}</p>}
       </section>
@@ -284,7 +334,7 @@ function WolnyTemat({ poziom, umiejetnosci }: { poziom: Poziom; umiejetnosci: Um
     <form className={s.formularz} onSubmit={(event) => void zapytaj(event)} aria-labelledby="wolny-temat" aria-busy={wysylam}>
       <h2 className="h2" id="wolny-temat">Wolny temat</h2>
       {tutor.aiGotowe === false ? (
-        <Link to="/profil#ai" className="link">Podepnij AI, żeby zapytać Pestkę</Link>
+        <Link to="/profil#ai" className="link">Połącz Pestkę w profilu, żeby ją zapytać</Link>
       ) : (
         <>
           <label className={s.pole}>
@@ -306,7 +356,7 @@ function WolnyTemat({ poziom, umiejetnosci }: { poziom: Poziom; umiejetnosci: Um
           </button>
         </>
       )}
-      {tutor.aiGotowe === undefined && <span role="status" className="small muted">Sprawdzam dostęp do Pestki…</span>}
+      {tutor.aiGotowe === undefined && <span role="status" className="visually-hidden">Sprawdzam dostęp do Pestki…</span>}
       {tutor.aiGotowe && tutor.state !== "idle" && !wysylam && !komunikat && <p className="small muted">Pestka odpowiada w innej rozmowie.</p>}
       {komunikat && <p role="alert" className="small">{komunikat}</p>}
     </form>

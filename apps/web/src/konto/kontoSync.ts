@@ -221,7 +221,8 @@ export function utworzMagazyn<T>(o: Opcje<T>): Magazyn<T> {
     const maDane = Object.keys(o.doWire(o.zWire(konto))).length > 0;
     // Nic nigdy nie zapisano na koncie: lokalnych danych nie wysyłamy bez flagi.
     if (!kz && !maDane) return;
-    if (kz && kz < zapisano) return;
+    // Bez niezapisanych zmian konto wygrywa. Znaczników czasu nie porównujemy: pochodzą z zegarów różnych urządzeń,
+    // więc nowszy zapis z urządzenia ze spóźnionym zegarem byłby pominięty.
     const nowe = o.zWire(konto);
     zapiszLokalnie({ ...o.doWire(nowe), zapisano: kz }, id);
     ustaw(nowe, kz);

@@ -11,7 +11,7 @@ import { PodlaczAI } from "../components/PodlaczAI";
 import { Markdown } from "../components/Markdown";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import { SubjectIcon } from "../components/icons";
-import { markOnboarded, saveSubjects, useProfil, useSession } from "../auth";
+import { markOnboarded, saveSubjects, useProfil, useSession, imieZNazwy } from "../auth";
 import { streamAi, useAiReady } from "../ai";
 import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
 import { CzasICel, PytaniaOSposobie } from "./ProfilUcznia";
@@ -111,7 +111,7 @@ export function Onboarding() {
   if (session === false) return <Navigate to="/logowanie" replace />;
   if (!session || profil === undefined || ai === undefined) return null;
 
-  const imie = profil?.display_name?.split(" ")[0];
+  const imie = imieZNazwy(profil?.display_name);
   const przedmioty = wybor ?? profil?.subjects ?? [];
 
   async function zakoncz(dokad: string) {
@@ -150,7 +150,7 @@ export function Onboarding() {
             <h1 className="display">
               Cześć{imie ? `, ${imie}` : ""}! <span className="accent">Jestem Pestka.</span>
             </h1>
-            <p className="lead">Będę twoją tutorką w Sedno. Nie podaję gotowych odpowiedzi: zadaję pytania, aż dojdziesz do rozwiązania. Tak zostaje w głowie dłużej.</p>
+            <p className="lead">Będę uczyć się z tobą w Sedno. Nie podaję gotowych odpowiedzi: zadaję pytania, aż dojdziesz do rozwiązania. Tak zostaje w głowie dłużej.</p>
             <button type="button" className="btn btn-primary" onClick={() => setKrok(1)}>
               Zaczynamy
             </button>
@@ -222,15 +222,29 @@ export function Onboarding() {
             <section className={styles.step}>
               <TutorAvatar size={64} state="talking" />
               <h1 className="h1">Wszystko gotowe</h1>
-              <p className="lead">Twoje konto ma podpięte AI, więc odpowiadam naprawdę. Na pulpicie oprowadzę cię po aplikacji.</p>
-              <button type="button" className="btn btn-primary" onClick={() => void zakoncz("/")}>
-                Przejdź do pulpitu
-              </button>
+              <p className="lead">
+                Twoje konto ma podpięte AI, więc odpowiadam naprawdę.{" "}
+                {przedmioty.some((p) => p.id === "angielski") ? "Kilka krótkich rund pokaże mi, od czego zacząć." : "Na pulpicie oprowadzę cię po aplikacji."}
+              </p>
+              {przedmioty.some((p) => p.id === "angielski") ? (
+                <>
+                  <button type="button" className="btn btn-primary" onClick={() => void zakoncz("/nauka/diagnoza")}>
+                    Sprawdźmy, od czego zacząć
+                  </button>
+                  <button type="button" className={styles.later} onClick={() => void zakoncz("/")}>
+                    Przejdź do pulpitu
+                  </button>
+                </>
+              ) : (
+                <button type="button" className="btn btn-primary" onClick={() => void zakoncz("/")}>
+                  Przejdź do pulpitu
+                </button>
+              )}
             </section>
           ) : (
             <section className={styles.step}>
               <TutorAvatar size={64} />
-              <h1 className="h1">Pojawię się po podpięciu AI</h1>
+              <h1 className="h1">Odpowiem naprawdę po połączeniu w profilu</h1>
               <p className="lead">
                 Sedno nie ma wspólnego klucza do AI: każde konto podpina własnego dostawcę. Dopóki tego nie zrobisz, nie będzie mnie w aplikacji, a arkusze
                 sprawdzają się bez mojego komentarza.
@@ -333,7 +347,7 @@ function Pokaz({ ai, przedmioty: wpisyKonta, onDalej }: { ai: boolean; przedmiot
 
   return (
     <section className={styles.step}>
-      <span className="label">Pokaz · {ai ? "odpowiada AI z twojego konta" : "bez AI: odpowiedzi przygotowane"}</span>
+      <span className="label">Pokaz · {ai ? "odpowiada Pestka z twojego konta" : "bez połączenia: odpowiedzi przygotowane"}</span>
       <h1 className="h1">Rozwiąż, a ja zareaguję</h1>
 
       {przedmioty.length > 1 && (
@@ -380,7 +394,7 @@ function Pokaz({ ai, przedmioty: wpisyKonta, onDalej }: { ai: boolean; przedmiot
                 <TutorAvatar size={32} state={i === wpisy.length - 1 ? stan : "idle"} />
                 <div>
                   <Markdown className={styles.tutorText}>{w.tekst}</Markdown>
-                  {w.przygotowane && <p className={styles.note}>Odpowiedź przygotowana na pokaz. Po podpięciu AI odpowiem naprawdę.</p>}
+                  {w.przygotowane && <p className={styles.note}>Odpowiedź przygotowana na pokaz. Po połączeniu w profilu odpowiem naprawdę.</p>}
                   {w.powtorzenie && <p className={styles.note}>Model powtórzył poprzednią odpowiedź, więc pokazuję przygotowaną.</p>}
                 </div>
               </div>

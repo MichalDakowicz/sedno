@@ -1,20 +1,45 @@
 // Stan wczytywania bez migania: przy szybkim wczytaniu nic się nie pokazuje, a szkielet o kształcie
-// treści pojawia się dopiero po chwili. Czytnik ekranu od razu dostaje komunikat.
+// treści pojawia się dopiero po chwili. Miejsce na szkielet jest zajęte od razu, więc ani szkielet, ani treść
+// po nim nie przesuwają reszty strony. Czytnik ekranu od razu dostaje komunikat.
 import { useEffect, useState } from "react";
+import { TutorAvatar } from "./TutorAvatar";
+import { glos, wybierz } from "../pestka/glos";
 import styles from "./Ladowanie.module.css";
+
+// Po tylu ms nad szkieletem siada Pestka, która „myśli”, z jednym zdaniem: długie czekanie nie jest szare.
+const DLUGO = 1000;
 
 type Ksztalt = "wiersze" | "tekst" | "pulpit" | "blok";
 
+// Wysokość szkieletu z Ladowanie.module.css (wiersz 64 px, odstęp 12 px, karta 300 px, linia 16 px).
+function wysokosc(ksztalt: Ksztalt, ile: number) {
+  if (ksztalt === "blok") return 300;
+  if (ksztalt === "wiersze") return ile * 64 + (ile - 1) * 12;
+  if (ksztalt === "tekst") return 52 + ile * 28;
+  return 300 + 72 + ile * 76;
+}
+
 export function Ladowanie({ ksztalt = "wiersze", ile = 4, etykieta, opoznienie = 350 }: { ksztalt?: Ksztalt; ile?: number; etykieta: string; opoznienie?: number }) {
   const [widac, setWidac] = useState(false);
+  const [dlugo, setDlugo] = useState(false);
   useEffect(() => {
     const t = window.setTimeout(() => setWidac(true), opoznienie);
-    return () => window.clearTimeout(t);
+    const d = window.setTimeout(() => setDlugo(true), Math.max(DLUGO, opoznienie));
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(d);
+    };
   }, [opoznienie]);
 
   return (
-    <div className={styles.wrap} role="status" aria-busy="true">
+    <div className={styles.wrap} data-ksztalt={ksztalt} style={{ minHeight: wysokosc(ksztalt, ile) }} role="status" aria-busy="true">
       <span className="visually-hidden">{etykieta}…</span>
+      {dlugo && (
+        <span className={styles.pestka} aria-hidden="true">
+          <TutorAvatar size={32} state="thinking" />
+          {wybierz(glos.ladowanie, etykieta.length)}
+        </span>
+      )}
       {widac && (
         <div className={styles.szkielet} aria-hidden="true">
           {ksztalt === "pulpit" && (

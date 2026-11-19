@@ -1,40 +1,27 @@
 .strona {
   display: grid;
-  gap: 28px;
-  padding-top: 16px;
+  gap: var(--s-6);
+  padding-top: var(--s-6);
   padding-bottom: 110px;
 }
 
-.naglowek,
 .sekcja,
 .sedzia {
   display: grid;
-  gap: 12px;
+  gap: var(--s-3);
   align-content: start;
   justify-items: start;
 }
 
-.sekcja,
-.sedzia {
-  padding-top: 20px;
+.sekcja {
+  padding-top: var(--s-4);
   border-top: 1px solid var(--line);
 }
 
-.powrot,
 .link {
-  color: var(--primary-text);
-}
-
-.powrot {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-}
-
-.powrot:hover,
-.link:hover {
+  color: var(--fg);
   text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .tematy,
@@ -61,8 +48,8 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
-  padding: 14px 0;
+  gap: var(--s-3);
+  padding: var(--s-3) 0;
 }
 
 .tematy button {
@@ -87,7 +74,9 @@
   display: grid;
   grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
   align-items: start;
-  gap: 32px;
+  gap: var(--s-6);
+  /* „Sędzia sprawdza” (.obok-karty) zaczyna się na wysokości pierwszej wiadomości w karcie rozmowy. */
+  --wnetrze-karty: 20px;
 }
 
 .rozmowa {
@@ -99,10 +88,10 @@
 
 .wiadomosci {
   display: grid;
-  gap: 12px;
+  gap: var(--s-3);
   max-height: min(48vh, 320px);
   overflow-y: auto;
-  padding: 20px;
+  padding: var(--s-4);
   overflow-wrap: anywhere;
 }
 
@@ -110,8 +99,8 @@
 .uczen {
   display: grid;
   justify-items: start;
-  gap: 4px;
-  padding: 10px 14px;
+  gap: var(--s-1);
+  padding: var(--s-2) var(--s-3);
   max-width: 90%;
 }
 
@@ -123,27 +112,27 @@
 .kolega {
   justify-self: start;
   background: var(--bg);
-  border-radius: 16px 16px 16px 4px;
+  border-radius: var(--r-md) var(--r-md) var(--r-md) var(--r-xs);
 }
 
 .uczen {
   justify-self: end;
   background: var(--secondary);
   color: var(--secondary-fg);
-  border-radius: 16px 16px 4px 16px;
+  border-radius: var(--r-md) var(--r-md) var(--r-xs) var(--r-md);
 }
 
 .kompozytor {
   display: grid;
-  gap: 12px;
-  padding: 16px 20px 20px;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-4) var(--s-4);
   border-top: 1px solid var(--line);
 }
 
 .kompozytor textarea {
   width: 100%;
   min-height: 92px;
-  padding: 10px 12px;
+  padding: var(--s-2) var(--s-3);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   background: var(--bg);
@@ -158,7 +147,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
 }
 
 .kryteria li {
@@ -181,17 +170,17 @@
 .blad {
   display: grid;
   justify-items: start;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
-@media (max-width: 765px) {
+@media (max-width: 900px) {
   .uklad {
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
+    gap: var(--s-5);
   }
 
   .wiadomosci,
   .kompozytor {
-    padding-inline: 16px;
+    padding-inline: var(--s-4);
   }
 }

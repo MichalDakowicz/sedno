@@ -3,7 +3,7 @@
   position: sticky;
   top: 0;
   z-index: 30;
-  padding: 16px 24px 20px;
+  padding: var(--s-4) var(--s-5) var(--s-4);
   background: linear-gradient(to bottom, var(--bg) 75%, color-mix(in srgb, var(--bg) 0%, transparent));
 }
 
@@ -17,16 +17,16 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: var(--s-5);
   min-height: 64px;
-  padding: 8px 8px 8px 28px;
+  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-5);
   border-radius: var(--r-pill);
   background: var(--surface);
   box-shadow: var(--shadow-float);
 }
 
 .logo {
-  font-size: calc(20px * var(--skala-tekstu, 1));
+  font-size: var(--t-lg);
   font-weight: 700;
   letter-spacing: -0.04em;
   white-space: nowrap;
@@ -35,7 +35,7 @@
 .srodek {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
   margin: 0 auto;
   min-width: 0;
 }
@@ -47,7 +47,7 @@
 .links {
   position: relative;
   display: flex;
-  gap: 4px;
+  gap: var(--s-1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -56,15 +56,15 @@
 .link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
   border-radius: var(--r-pill);
-  font-size: calc(15px * var(--skala-tekstu, 1));
+  font-size: var(--t-sm);
   color: var(--muted);
   white-space: nowrap;
   transition:
-    color 0.15s ease,
-    background-color 0.15s ease;
+    color var(--ruch-szybki) var(--ruch-krzywa),
+    background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .link:hover {
@@ -83,7 +83,7 @@
 .right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
 }
 
 .profile {
@@ -95,7 +95,7 @@
   border-radius: 50%;
   background: var(--primary-strong);
   color: var(--primary-fg);
-  font-size: calc(19px * var(--skala-tekstu, 1));
+  font-size: var(--t-lg);
   font-weight: 700;
   cursor: pointer;
 }
@@ -130,9 +130,9 @@
 
 .mobileMenu {
   display: grid;
-  gap: 20px;
-  margin-top: 8px;
-  padding: 16px 20px 20px;
+  gap: var(--s-5);
+  margin-top: var(--s-2);
+  padding: var(--s-4) var(--s-4) var(--s-4);
   border-radius: var(--r-lg);
   background: var(--surface);
   box-shadow: var(--shadow-float);
@@ -147,10 +147,10 @@
 .mobileMenu li a {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 0;
+  gap: var(--s-3);
+  padding: var(--s-3) 0;
   border-bottom: 1px solid var(--line);
-  font-size: calc(18px * var(--skala-tekstu, 1));
+  font-size: var(--t-md);
   letter-spacing: -0.01em;
   color: var(--muted);
 }
@@ -161,6 +161,13 @@
 
 .mobileMenu li a.mobileActive svg {
   color: var(--primary-text);
+}
+
+/* Pięć pozycji i wyspa zegara mieszczą się od 961 px dopiero bez ikon przy etykietach. */
+@media (max-width: 1180px) {
+  .link svg {
+    display: none;
+  }
 }
 
 @media (max-width: 960px) {
@@ -180,11 +187,11 @@
 
 @media (max-width: 640px) {
   .wrap {
-    padding: 12px 16px 16px;
+    padding: var(--s-3) var(--s-4) var(--s-4);
   }
 
   .nav {
     min-height: 56px;
-    padding: 4px 4px 4px 20px;
+    padding: var(--s-1) var(--s-1) var(--s-1) var(--s-4);
   }
 }

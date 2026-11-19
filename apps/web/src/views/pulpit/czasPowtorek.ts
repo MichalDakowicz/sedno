@@ -1,7 +1,5 @@
+import { nazwaZadaniaCke, nazwaZadaniaRundy } from "../../arkusze/typy";
 import type { Powtorka } from "../../nauka/api";
-
-// Każda rekomendacja z nauka_polec i nauka_powtorki ma w SQL stałe 5 minut na jedną krótką rundę.
-const MINUTY_RUNDY = 5;
 
 export function kluczPowtorki(p: Powtorka) {
   const m = p.mistake;
@@ -20,14 +18,35 @@ export function unikalnePowtorki(kolejka: Powtorka[]) {
   });
 }
 
-export const szacowanyCzas = (rundy: number) => `ok. ${rundy * MINUTY_RUNDY} minut`;
-
-/** Podpis źródła błędu bez linku: arkusz z numerem zadania albo poprzednie ćwiczenie. */
+/** Podpis źródła błędu bez linku: „Matura maj 2026 · zadanie 1.3” albo „Szybka runda z 18 listopada · zadanie 5”. */
 export function etykietaZrodla(blad: NonNullable<Powtorka["mistake"]>): string | null {
-  if (blad.sheet_id) {
-    const rok = blad.sheet_id.match(/-(20\d{2})-/)?.[1];
-    return [rok ? `Arkusz CKE ${rok}` : "Arkusz CKE", blad.question ? `zad. ${blad.question}` : null].filter(Boolean).join(" · ");
-  }
-  if (blad.session_id) return blad.question ? `Poprzednie ćwiczenie · zad. ${blad.question}` : "Wynik poprzedniego ćwiczenia";
+  if (blad.sheet_id) return blad.question ? nazwaZadaniaCke(blad.sheet_id, blad.question) : nazwaZadaniaCke(blad.sheet_id, "").replace(/ · zadanie $/, "");
+  if (blad.session_id) return blad.question ? nazwaZadaniaRundy(blad.happened_at, blad.question) : "Wynik poprzedniej rundy";
   return null;
 }
+
+const dzienWarszawa = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Warsaw" });
+const skrotDnia = new Intl.DateTimeFormat("pl-PL", { weekday: "short", timeZone: "UTC" });
+
+/**
+ * Liczba powtórek na każdy z najbliższych `ile` dni (strefa Europe/Warsaw). Zaległe, bez terminu i błędy do poprawy
+ * (są gotowe od razu, due_at to termin powtórki całej umiejętności) liczą się do dziś. Pozycje dalej niż `ile` dni nie wchodzą.
+ */
+export function powtorkiNaDni(kolejka: Powtorka[], ile = 7) {
+  const dzis = dzienWarszawa.format(new Date());
+  const dni = Array.from({ length: ile }, (_, i) => {
+    const d = new Date(`${dzis}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + i);
+    const data = d.toISOString().slice(0, 10);
+    return { data, podpis: i === 0 ? "dziś" : skrotDnia.format(d).replace(".", ""), liczba: 0 };
+  });
+  for (const p of kolejka) {
+    const data = p.due_at && !p.mistake ? dzienWarszawa.format(new Date(p.due_at)) : dzis;
+    const dzien = data <= dzis ? dni[0] : dni.find((d) => d.data === data);
+    if (dzien) dzien.liczba++;
+  }
+  return dni;
+}
+
+export const odmianaPowtorek = (n: number) =>
+  n === 1 ? "powtórka" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "powtórki" : "powtórek";

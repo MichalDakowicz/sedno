@@ -1,13 +1,35 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { TutorAvatar } from "./TutorAvatar";
 import { TutorChat } from "./TutorChat";
 import { useTutor } from "./TutorContext";
 import styles from "./TutorDock.module.css";
 
+// Podpis w doku mówi, na co Pestka patrzy razem z uczniem: zadanie z rozmowy, a bez niego strona.
+const MIEJSCA: [string, string][] = [
+  ["/nauka/runda", "przy rundzie"],
+  ["/nauka/rozbior", "przy rozbiorze rundy"],
+  ["/nauka", "przy nauce"],
+  ["/arkusze/", "przy arkuszu"],
+  ["/arkusze", "przy liście arkuszy"],
+  ["/umiejetnosci", "przy mapie umiejętności"],
+  ["/powtorki", "przy powtórkach"],
+  ["/do-matury", "przy odliczaniu do matury"],
+  ["/profil", "przy profilu"],
+  ["/ustawienia", "przy ustawieniach"],
+  ["/przedmiot/", "przy pulpicie"],
+];
+
+export function gdziePatrzy(sciezka: string, temat: string | null) {
+  if (temat) return `przy: ${temat}`;
+  if (sciezka === "/") return "przy pulpicie";
+  return MIEJSCA.find(([poczatek]) => sciezka.startsWith(poczatek))?.[1] ?? "obok ciebie";
+}
+
 // Wysuwany panel rozmowy z Pestką. Otwiera się kliknięciem w wędrującego avatara albo z jego dymka.
 export function TutorDock() {
-  const { isOpen, close, state } = useTutor();
+  const { isOpen, close, state, tematRozmowy } = useTutor();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -26,7 +48,7 @@ export function TutorDock() {
               <TutorAvatar size={40} state={state} />
               <div className={styles.headerText}>
                 <p className={styles.title}>Pestka</p>
-                <p className={styles.context}>tutor</p>
+                <p className={styles.context}>{gdziePatrzy(pathname, tematRozmowy)}</p>
               </div>
               <Link to="/tutor" className={styles.iconBtn} onClick={close} aria-label="Otwórz na pełnym ekranie">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">

@@ -1,0 +1,125 @@
+.polecenie {
+  font-size: var(--t-md);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.dane {
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: var(--t-sm);
+  overflow-wrap: anywhere;
+}
+
+.zdanie {
+  padding-inline-start: var(--s-4);
+  border-inline-start: 2px solid var(--line);
+  font-size: var(--t-md);
+}
+
+.tabela {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tabela table {
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela caption {
+  padding-bottom: var(--s-2);
+  text-align: left;
+}
+
+.tabela :is(th, td) {
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--line);
+  text-align: left;
+}
+
+.tabela th {
+  font-weight: 600;
+}
+
+.pola {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: var(--s-3) var(--s-4);
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+  border: 0;
+}
+
+.pola legend {
+  margin-bottom: var(--s-2);
+  padding: 0;
+}
+
+.pole {
+  display: grid;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.kod {
+  width: 100%;
+  min-height: 140px;
+  padding: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: var(--t-sm);
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.kod:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.punkty {
+  margin-inline-start: auto;
+  padding-inline-start: var(--s-3);
+  font-size: var(--t-lg);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.kryteria {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.kryteria li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.kryteria li[data-ok="true"] svg {
+  color: var(--success-strong);
+}
+
+.kryteria li[data-ok="false"] svg {
+  color: var(--danger);
+}
+
+/* Pierwsza sekcja pod nagłówkiem strony: linię daje już nagłówek. */
+.bezLinii {
+  padding-top: 0;
+  border-top: 0;
+}

@@ -1,10 +1,11 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { FunctionsHttpError } from "@supabase/supabase-js";
-import { ArrowLeft, ChevronRight, Send } from "lucide-react";
+import { ChevronRight, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AiError, aiErrorText } from "../../ai";
 import { supabase } from "../../supabase";
 import styles from "./UczenUczy.module.css";
+import { NaglowekStrony } from "../../components/NaglowekStrony";
 
 type Scenariusz = { id: string; tytul: string; polecenie: string; przyklad: string; kryteria: string[] };
 type Status = "dobrze" | "do-poprawy" | "do-zrobienia" | "niepewne";
@@ -41,7 +42,7 @@ async function wywolaj<T>(body: Zadanie, signal: AbortSignal): Promise<T> {
 function komunikat(blad: unknown): string {
   if (!(blad instanceof AiError)) return "Wystąpił błąd. Spróbuj ponownie.";
   if (blad.code === "network_error") return "Nie udało się połączyć z Sednem. Spróbuj ponownie.";
-  if (blad.code === "no_provider") return "Podepnij dostawcę AI dla zadań ważnych, aby Sędzia mógł sprawdzić odpowiedź.";
+  if (blad.code === "no_provider") return "Połącz w profilu dostawcę dla zadań ważnych, żeby Sędzia mógł sprawdzić odpowiedź.";
   if (blad.code === "bad_model_response") return "Ocena Sędziego nie dotarła w poprawnej formie. Spróbuj ponownie.";
   return aiErrorText(blad.code);
 }
@@ -157,7 +158,7 @@ function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void 
               {blad && (
                 <div className={styles.blad} role="alert">
                   <p>{blad.tekst}</p>
-                  {blad.konfiguracja && <Link to="/profil#ai" className={styles.link}>Ustaw dostawcę AI</Link>}
+                  {blad.konfiguracja && <Link to="/profil#ai" className={styles.link}>Ustaw dostawcę w profilu</Link>}
                 </div>
               )}
               <div className={styles.akcje}>
@@ -175,7 +176,7 @@ function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void 
             </form>
           )}
         </section>
-        <aside className={styles.sedzia} aria-labelledby="uczen-sedzia">
+        <aside className={`obok-karty ${styles.sedzia}`} aria-labelledby="uczen-sedzia">
           <h3 className="h3" id="uczen-sedzia">Sędzia sprawdza</h3>
           <ul className={styles.kryteria} aria-live="polite">
             {scenariusz.kryteria.map((id) => {
@@ -226,11 +227,7 @@ export function UczenUczy() {
 
   return (
     <main className={`container ${styles.strona}`}>
-      <header className={styles.naglowek}>
-        <Link to="/nauka" className={styles.powrot}><ArrowLeft size={17} aria-hidden="true" />Nauka</Link>
-        <h1 className="h1">Uczeń uczy AI</h1>
-        <p className="muted">Popraw przykład Kolegi i wyjaśnij mu, dlaczego zmiana działa.</p>
-      </header>
+      <NaglowekStrony wstecz={{ do: "/nauka", nazwa: "Nauka" }} tytul="Naucz Kolegę" lead="Popraw przykład Kolegi i wyjaśnij mu, dlaczego zmiana działa." />
       {scenariusz ? (
         <Runda scenariusz={scenariusz} wroc={wroc} />
       ) : (

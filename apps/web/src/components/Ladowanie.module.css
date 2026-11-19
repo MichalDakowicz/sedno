@@ -1,11 +1,30 @@
 .wrap {
+  position: relative;
   min-height: 1px;
+}
+
+/* Pestka nad szkieletem przy dłuższym czekaniu: leży na nim (absolute), więc nie przesuwa układu. */
+.pestka {
+  position: absolute;
+  top: var(--s-3);
+  left: var(--s-3);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-4) var(--s-1) var(--s-1);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  font-size: var(--t-sm);
+  color: var(--muted);
+  animation: pojaw var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .szkielet {
   display: grid;
-  gap: 12px;
-  animation: pojaw 0.25s ease-out;
+  gap: var(--s-3);
+  animation: pojaw var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .szkielet > span {
@@ -17,7 +36,8 @@
 }
 
 .karta {
-  height: 240px;
+  /* Wysokość karty propozycji dnia (KartaDnia) na szerokim ekranie. */
+  height: 300px;
   max-width: 600px;
   border-radius: var(--r-lg) !important;
 }
@@ -25,7 +45,7 @@
 .naglowek {
   width: 220px;
   height: 28px;
-  margin-top: 28px;
+  margin-top: var(--s-6);
 }
 
 .wiersz {
@@ -35,7 +55,7 @@
 .tytul {
   width: 60%;
   height: 40px;
-  margin-bottom: 12px;
+  margin-bottom: var(--s-3);
 }
 
 .linia {

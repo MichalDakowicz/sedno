@@ -16,10 +16,27 @@ const LIMIT = 20;
 /** Zdarzenie po ściągnięciu rozmów z konta: TutorContext odświeża wtedy listę. */
 export const ZMIANA_ROZMOW = "sedno-rozmowy";
 
+// Wpis w localStorage mógł zostać uszkodzony (inna wersja aplikacji, ręczna edycja): bierzemy tylko poprawne rozmowy.
+function poprawnaRozmowa(r: unknown): r is Rozmowa {
+  if (!r || typeof r !== "object") return false;
+  const { id, tytul, kiedy, wiadomosci } = r as Record<string, unknown>;
+  return (
+    typeof id === "string" &&
+    typeof tytul === "string" &&
+    typeof kiedy === "string" &&
+    Array.isArray(wiadomosci) &&
+    wiadomosci.every((m: unknown) => {
+      const w = m as Partial<WiadomoscRozmowy> | null;
+      return !!w && (w.from === "tutor" || w.from === "student") && typeof w.text === "string";
+    })
+  );
+}
+
 export function wczytajRozmowy(): Rozmowa[] {
   try {
     const z = localStorage.getItem(KLUCZ);
-    return z ? (JSON.parse(z) as Rozmowa[]) : [];
+    const lista: unknown = z ? JSON.parse(z) : [];
+    return Array.isArray(lista) ? lista.filter(poprawnaRozmowa) : [];
   } catch {
     return [];
   }

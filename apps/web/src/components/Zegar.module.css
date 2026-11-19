@@ -2,7 +2,7 @@
    zegar z pauzą i wyłączeniem. Gdy paska nie ma, pełny zegar wisi pod nim na środku ekranu. */
 .wyspa {
   position: relative;
-  animation: wynurz 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
+  animation: wynurz var(--ruch-wolny) var(--ruch-sprezyna);
 }
 
 @keyframes wynurz {
@@ -15,9 +15,9 @@
 .czas {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
   height: 40px;
-  padding: 0 16px 0 14px;
+  padding: 0 var(--s-4) 0 var(--s-3);
   border: 0;
   border-radius: var(--r-pill);
   background: var(--fg);
@@ -35,7 +35,7 @@
 }
 
 .pauzaZnak {
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-weight: 400;
   color: color-mix(in srgb, var(--surface) 70%, transparent);
 }
@@ -62,8 +62,8 @@
 .panel {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 6px 6px 20px;
+  gap: var(--s-1);
+  padding: var(--s-1) var(--s-1) var(--s-1) var(--s-4);
   border-radius: var(--r-pill);
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   -webkit-backdrop-filter: blur(12px) saturate(1.6);
@@ -102,7 +102,7 @@
 
 /* Odpięty zegar zostaje sam: wyspa w pasku znika razem z odstępem od menu. */
 .bezWyspy {
-  margin-left: -12px;
+  margin-left: calc(-1 * var(--s-3));
 }
 
 .bezWyspy > .czas {
@@ -126,9 +126,9 @@
   min-width: 0;
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  margin-right: 8px;
-  font-size: calc(20px * var(--skala-tekstu, 1));
+  gap: var(--s-2);
+  margin-right: var(--s-2);
+  font-size: var(--t-lg);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--fg);
@@ -138,7 +138,7 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: calc(13px * var(--skala-tekstu, 1));
+  font-size: var(--t-xs);
   font-weight: 400;
   color: var(--subtle);
 }

@@ -14,7 +14,6 @@ export function WybierzTemat({ zakres, aktywny }: KontekstPulpitu) {
       <div className={styles.sectionHead}>
         <h2 id="temat-widget" className="h2">Wybierz temat</h2>
       </div>
-      <p className="muted">Wskaż umiejętność lub temat, także taki, który już znasz, np. przed sprawdzianem.</p>
       <div>
         <Link to={adresNauki(poziom)} className="link">
           Wybierz umiejętność <ArrowRight size={14} aria-hidden="true" />

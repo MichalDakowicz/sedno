@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sedno – Kiełkująca pestka</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<h1>Kiełkująca pestka</h1>
+<p class="sub">Każda umiejętność to roślina w jednym z czterech stadiów.</p>
+<p class="lead">Zamiast samego procentu uczeń widzi, jak umiejętność rośnie: z pestki wyrasta kiełek, potem roślina z liśćmi, a na końcu drzewko z owocem.</p>
+
+<figure>
+<svg viewBox="0 0 480 170" role="img" aria-label="Cztery stadia: pestka poniżej 25 procent, kiełek od 25, roślina z liśćmi od 45, drzewko z owocem od 60 procent opanowania">
+  <g transform="translate(12 6) scale(2)">
+    <ellipse class="k-ziemia" cx="24" cy="43" rx="17" ry="3.5"/>
+    <path class="k-nasiono" d="M24 21c7.4 0 12.6 5.6 12.6 11.8 0 5.4-5.4 9-12.6 9s-12.6-3.6-12.6-9C11.4 26.6 16.6 21 24 21Z"/>
+    <ellipse class="k-blask" cx="19.5" cy="27.5" rx="3.6" ry="2" transform="rotate(-25 19.5 27.5)"/>
+  </g>
+  <g transform="translate(132 6) scale(2)">
+    <ellipse class="k-ziemia" cx="24" cy="43" rx="17" ry="3.5"/>
+    <path class="k-nasiono" d="M24 37c3.8 0 6.6 2 6.6 4.2 0 1.4-3 2.3-6.6 2.3s-6.6-.9-6.6-2.3c0-2.2 2.8-4.2 6.6-4.2Z"/>
+    <path class="k-lodyga" d="M24 38v-11"/>
+    <path class="k-lisc" d="M24 28c-1-4.2-4.6-6-8.4-5.4.6 3.8 3.8 6.2 8.4 5.4Z"/>
+    <path class="k-lisc2" d="M24 27c1.2-3.6 4.2-5 7.4-4.4-.8 3.2-3.6 5.2-7.4 4.4Z"/>
+  </g>
+  <g transform="translate(252 6) scale(2)">
+    <ellipse class="k-ziemia" cx="24" cy="43" rx="17" ry="3.5"/>
+    <path class="k-nasiono" d="M24 37c3.8 0 6.6 2 6.6 4.2 0 1.4-3 2.3-6.6 2.3s-6.6-.9-6.6-2.3c0-2.2 2.8-4.2 6.6-4.2Z"/>
+    <path class="k-lodyga" d="M24 38V18"/>
+    <path class="k-lisc" d="M24 31c-1.4-5.4-6-7.6-11-6.8.8 5 5 8 11 6.8Z"/>
+    <path class="k-lisc2" d="M24 26c1.4-5.4 6-7.6 11-6.8-.8 5-5 8-11 6.8Z"/>
+    <path class="k-lisc" d="M24 20c-.8-3.6-3.8-5-7.2-4.4.6 3.2 3.4 5.2 7.2 4.4Z"/>
+    <path class="k-lisc2" d="M24 19c.4-3.2 2.4-5.4 5-6-.2 3-2 5.2-5 6Z"/>
+  </g>
+  <g transform="translate(372 6) scale(2)">
+    <ellipse class="k-ziemia" cx="24" cy="43" rx="17" ry="3.5"/>
+    <path class="k-nasiono" d="M24 37c3.8 0 6.6 2 6.6 4.2 0 1.4-3 2.3-6.6 2.3s-6.6-.9-6.6-2.3c0-2.2 2.8-4.2 6.6-4.2Z"/>
+    <path class="k-lodyga" style="stroke-width:3.4" d="M24 40V20"/>
+    <circle class="k-korona" cx="16.5" cy="21" r="8.5"/>
+    <circle class="k-korona" cx="31.5" cy="20" r="9"/>
+    <circle class="k-korona" cx="24" cy="12.5" r="9.5"/>
+    <circle class="k-blask" cx="21" cy="10" r="3.4" style="opacity:.3"/>
+    <circle class="k-owoc" cx="30" cy="22" r="4.4"/>
+    <ellipse class="k-blask" cx="28.6" cy="20.5" rx="1.4" ry=".9" transform="rotate(-25 28.6 20.5)"/>
+  </g>
+  <g text-anchor="middle">
+    <text class="svg-t" x="60" y="132">pestka</text><text class="svg-s" x="60" y="152">poniżej 25%</text>
+    <text class="svg-t" x="180" y="132">kiełek</text><text class="svg-s" x="180" y="152">od 25%</text>
+    <text class="svg-t" x="300" y="132">roślina</text><text class="svg-s" x="300" y="152">od 45%</text>
+    <text class="svg-t" x="420" y="132">drzewko</text><text class="svg-s" x="420" y="152">od 60%</text>
+  </g>
+</svg>
+<figcaption>Progi opanowania. Pestka to też umiejętność bez żadnej oceny.</figcaption>
+</figure>
+
+<h2>Dlaczego pomarańczowa</h2>
+<p>Roślina ma kolory Pestki, nie zieleń. Zielony znaczy w Sednie tylko „dobrze”, więc zielona roślina myliłaby się z poprawną odpowiedzią.</p>
+
+<h2>Progi</h2>
+<p>Progi są niżej, niż byłyby przy pełnej skali. Opanowanie liczone z samych rund zatrzymuje się dziś około 67%, więc przy wyższych progach drzewko byłoby nieosiągalne. Po poprawce wzoru w bazie progi przestroimy. Wszystkie są w jednym miejscu, w kodzie nauki.</p>
+
+<h2>Gdzie rośnie</h2>
+<ul>
+  <li><b>Mapa umiejętności:</b> mała roślina w każdym wierszu, duża w panelu umiejętności obok liczby opanowania.</li>
+  <li><b>Rozbiór rundy:</b> gdy stadium się zmieni, stara roślina przechodzi w nową i nowe części rosną od ziemi.</li>
+  <li><b>Pulpit:</b> widget mapy to „ogród” czterech obszarów i jedno zdanie: gdzie rośnie najlepiej, a gdzie czekają same pestki.</li>
+</ul>
+</main>
+<script src="nav.js" defer></script>
+</body>
+</html>

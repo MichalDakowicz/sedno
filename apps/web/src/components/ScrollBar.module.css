@@ -6,7 +6,7 @@
   z-index: 60;
   width: 16px;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 /* Widoczny przy przewijaniu, przeciąganiu i po najechaniu na prawą krawędź. */
@@ -20,13 +20,13 @@
   top: 0;
   right: 4px;
   width: 6px;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: color-mix(in srgb, var(--fg) 28%, transparent);
   cursor: grab;
   touch-action: none;
   transition:
-    width 0.15s ease,
-    background-color 0.15s ease;
+    width var(--ruch-szybki) var(--ruch-krzywa),
+    background-color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .track:hover .thumb,

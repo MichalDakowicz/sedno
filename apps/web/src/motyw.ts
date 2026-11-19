@@ -28,12 +28,6 @@ const subskrybuj = (zmiana: () => void) => naZmianeMotywu(zmiana);
 
 export const useCiemny = () => useSyncExternalStore(subskrybuj, czyCiemny);
 
-/** „Mniej ruchu”: wybór z Ustawień (data-mniej-ruchu na <html>), a bez niego ustawienie systemu. */
-export function mniejRuchu() {
-  const wybor = document.documentElement.dataset.mniejRuchu;
-  return wybor ? wybor === "tak" : window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
 // Kolor paska przeglądarki za wybranym motywem; bez wyboru zostają meta z index.html (za systemem).
 const KOLOR_PASKA = { jasny: "#fff9f6", ciemny: "#10151c" };
 

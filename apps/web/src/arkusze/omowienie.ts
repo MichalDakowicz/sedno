@@ -6,17 +6,45 @@ import type { Postep } from "./postep";
 import { liczSlowa, policzPytania, werdykt, zakresSlow } from "./sprawdz";
 import { nazwaPrzedmiotu, type Arkusz, type Pytanie, type Zadanie } from "./typy";
 
-export type DoOmowienia = { zadanie: Zadanie; wypracowanie: boolean };
+/** pusty: zadanie bez żadnej odpowiedzi, które Pestka proponuje przejść razem po błędach. */
+export type DoOmowienia = { zadanie: Zadanie; wypracowanie: boolean; pusty?: boolean };
 
-/** Zadania z odpowiedzią i bez kompletu punktów oraz napisane wypracowania. Puste zadania pomijamy. */
+/**
+ * Najpierw zadania z odpowiedzią i bez kompletu punktów oraz napisane wypracowania, potem zadania bez żadnej
+ * odpowiedzi (bez wypracowań: pisanie od zera to osobna praca).
+ */
 export function doOmowienia(a: Arkusz, p: Postep): DoOmowienia[] {
-  return a.zadania.flatMap((z): DoOmowienia[] => {
+  const puste: DoOmowienia[] = [];
+  const bledy = a.zadania.flatMap((z): DoOmowienia[] => {
     const odpowiedziane = z.pytania.filter((q) => p.odpowiedzi[q.nr]?.trim());
-    if (!odpowiedziane.length) return [];
-    if (z.pytania.some((q) => q.typ === "wypowiedz")) return [{ zadanie: z, wypracowanie: true }];
+    const wypracowanie = z.pytania.some((q) => q.typ === "wypowiedz");
+    if (!odpowiedziane.length) {
+      if (!wypracowanie && z.pytania.length) puste.push({ zadanie: z, wypracowanie: false, pusty: true });
+      return [];
+    }
+    if (wypracowanie) return [{ zadanie: z, wypracowanie: true }];
     const w = policzPytania(z.pytania, p.odpowiedzi, p.samoocena);
     return w.zdobyte < w.mozliwe ? [{ zadanie: z, wypracowanie: false }] : [];
   });
+  return [...bledy, ...puste];
+}
+
+/**
+ * Błędne odpowiedzi (pytania z odpowiedzią i bez kompletu punktów, bez wypowiedzi pisemnych) i pytania bez odpowiedzi
+ * (wszystkie, jak w spisie zadań i na pulpicie, żeby liczby się sumowały).
+ */
+export function policzBledy(a: Arkusz, p: Postep): { bledne: number; bezOdpowiedzi: number; pytan: number } {
+  const pytania = a.zadania.flatMap((z) => z.pytania);
+  let bledne = 0;
+  let bezOdpowiedzi = 0;
+  for (const q of pytania) {
+    if (!p.odpowiedzi[q.nr]?.trim()) bezOdpowiedzi++;
+    else if (q.typ !== "wypowiedz") {
+      const w = policzPytania([q], p.odpowiedzi, p.samoocena);
+      if (w.doOceny === 0 && w.zdobyte < w.mozliwe) bledne++;
+    }
+  }
+  return { bledne, bezOdpowiedzi, pytan: pytania.length };
 }
 
 /** Luna (zadania lekkie) wystarcza do zadań każdego przedmiotu; sol (ważne) tylko do wypracowań. */
@@ -83,7 +111,13 @@ export function tekstZadania(z: Zadanie, p: Postep): string {
 /** Prompt systemowy rozmowy o jednym zadaniu. */
 export function promptOmowienia(a: Arkusz, d: DoOmowienia, p: Postep, krotko?: boolean): string {
   const przedmiot = `${nazwaPrzedmiotu[a.przedmiot] ?? a.przedmiot}, poziom ${a.poziom}`;
-  const zasady = d.wypracowanie
+  const zasady = d.pusty
+    ? [
+        "Uczeń nie odpowiedział na to zadanie. Przejdź je z nim, zanim zobaczy rozwiązanie.",
+        "Na start zapytaj, od czego by zaczął albo co rozumie z polecenia. Prowadź jednym pytaniem naraz.",
+        "Klucz CKE znasz, ale nie podawaj odpowiedzi, dopóki uczeń sam do niej nie dojdzie albo dwa razy nie utknie; wtedy wyjaśnij krótko.",
+      ]
+    : d.wypracowanie
     ? [
         "Omawiasz z uczniem jego wypracowanie z tego arkusza.",
         "Zacznij od jednej mocnej strony tekstu, potem wskaż jedną, najważniejszą rzecz do poprawy i zapytaj, jak by ją poprawił.",
@@ -100,13 +134,49 @@ export function promptOmowienia(a: Arkusz, d: DoOmowienia, p: Postep, krotko?: b
 
 export type Przyklad = { tresc: string; opcje: Record<string, string>; poprawna: string; wyjasnienie: string };
 
-function json<T>(tekst: string): T | null {
-  const m = tekst.match(/\{[\s\S]*\}/);
-  try {
-    return m ? (JSON.parse(m[0]) as T) : null;
-  } catch {
-    return null;
+// Kolejne kandydaty na obiekt JSON w odpowiedzi modelu: od każdej klamry do pasującej zamykającej (z pominięciem
+// klamer w napisach), więc tekst przed i po JSON-ie, także z klamrami, nie psuje odczytu.
+function* obiektyJson(tekst: string): Generator<string> {
+  for (let start = tekst.indexOf("{"); start >= 0; start = tekst.indexOf("{", start + 1)) {
+    let glebokosc = 0;
+    let wNapisie = false;
+    for (let i = start; i < tekst.length; i++) {
+      const z = tekst[i];
+      if (wNapisie) {
+        if (z === "\\") i++;
+        else if (z === '"') wNapisie = false;
+      } else if (z === '"') wNapisie = true;
+      else if (z === "{") glebokosc++;
+      else if (z === "}" && --glebokosc === 0) {
+        yield tekst.slice(start, i + 1);
+        break;
+      }
+    }
   }
+}
+
+// Model wstawia LaTeX z pojedynczym ukośnikiem: „\(” czy „\sqrt” to błędne sekwencje JSON (podwajamy ukośnik),
+// a „\frac”, „\theta”, „\right”, „\beta” parsują się jako znaki sterujące (wracają do postaci z ukośnikiem).
+const naprawUkosniki = (s: string) => s.replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, "\\\\");
+
+function przywrocLatex(v: unknown): unknown {
+  if (typeof v === "string") return v.replace(/\f(?=[a-zA-Z])/g, "\\f").replace(/\x08(?=[a-zA-Z])/g, "\\b").replace(/\t(?=[a-zA-Z])/g, "\\t").replace(/\r(?=[a-zA-Z])/g, "\\r");
+  if (Array.isArray(v)) return v.map(przywrocLatex);
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, przywrocLatex(x)]));
+  return v;
+}
+
+function json<T>(tekst: string): T | null {
+  for (const kandydat of obiektyJson(tekst)) {
+    for (const wersja of [kandydat, naprawUkosniki(kandydat)]) {
+      try {
+        return przywrocLatex(JSON.parse(wersja)) as T;
+      } catch {
+        // następna próba
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -139,4 +209,15 @@ export async function zrobPrzyklad(a: Arkusz, d: DoOmowienia, p: Postep): Promis
     if (r?.odpowiedz?.trim().toUpperCase() === zad.poprawna.trim().toUpperCase()) return zad;
   }
   return null;
+}
+
+// Linie z kluczem i oceną z opisu pytania (opisPytania): przed sprawdzeniem nie mogą trafić do modelu.
+const KLUCZ = /^(Poprawna odpowiedź|Poprawne odpowiedzi|Też akceptowane|Zasady oceniania|Ocena:)/;
+
+/** Zadanie jako kontekst rozmowy z Pestką. Przed sprawdzeniem bez klucza, żeby nie zdradziła odpowiedzi. */
+export function kontekstZadania(z: Zadanie, p: Pick<Postep, "odpowiedzi" | "samoocena">, sprawdzone: boolean): string {
+  const tekst = tekstZadania(z, { sprawdzony: sprawdzone, sprawdzoneZadania: [], ...p });
+  if (sprawdzone) return tekst;
+  const bez = tekst.split("\n").filter((l) => !KLUCZ.test(l)).join("\n");
+  return `${bez}\n\nUczeń jeszcze nie sprawdził tego zadania. Nie podawaj poprawnej odpowiedzi ani nie mów, czy jego odpowiedź jest dobra: naprowadzaj pytaniami.`;
 }

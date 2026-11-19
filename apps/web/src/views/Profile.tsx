@@ -6,6 +6,7 @@ import { KontoAI } from "../components/KontoAI";
 import { resetTour } from "../components/TutorContext";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import type { MojPrzedmiot } from "../konto/przedmioty";
+import { NaglowekStrony } from "../components/NaglowekStrony";
 
 export function Profile() {
   const navigate = useNavigate();
@@ -28,18 +29,11 @@ export function Profile() {
   }
 
   return (
-    <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
-      <div style={{ display: "grid", gap: 12 }}>
-        <span className="label">Profil</span>
-        <h1 className="display">{profil?.display_name ?? "Twoje konto"}</h1>
-        {session && <p className="muted">{session.user.email}</p>}
-      </div>
+    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: 120, display: "grid", gap: "var(--s-6)" }}>
+      <NaglowekStrony etykieta="Profil" tytul={profil?.display_name ?? "Twoje konto"} lead={session ? session.user.email : undefined} />
 
       <section id="przedmioty" ref={przedmiotyRef} style={{ display: "grid", gap: 16, justifyItems: "start" }}>
-        <div style={{ display: "grid", gap: 4 }}>
-          <h2 className="h3">Przedmioty maturalne</h2>
-          <p className="muted small">Pulpit, propozycje i Pestka dopasowują się do nich.</p>
-        </div>
+        <h2 className="h2" data-tutor-about="Pulpit, propozycje i ja dopasowujemy się do tych przedmiotów.">Przedmioty maturalne</h2>
         {profil && <WyborPrzedmiotow value={profil.subjects} onChange={(v) => void zmien(v)} />}
         {blad && (
           <p className="small" role="alert">
@@ -50,27 +44,24 @@ export function Profile() {
 
       <KontoAI />
 
-      <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
-        <h2 className="h3">Ustawienia</h2>
-        <p className="muted small">Motyw, rozmiar tekstu, dostępność i zachowanie Pestki.</p>
+      <section style={{ display: "grid", gap: 4, paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)", justifyItems: "start" }}>
+        <h2 className="h2">Ustawienia</h2>
         <Link to="/ustawienia" className="link" style={{ marginTop: 12 }}>
           Otwórz ustawienia
           <ArrowRight size={16} aria-hidden="true" />
         </Link>
       </section>
 
-      <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
-        <h2 className="h3">Profil ucznia</h2>
-        <p className="muted small">Jak się uczysz, ile masz czasu, cele, priorytety i to, co Sedno wie z twoich wyników.</p>
+      <section style={{ display: "grid", gap: 4, paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)", justifyItems: "start" }}>
+        <h2 className="h2" data-tutor-about="Jak się uczysz, ile masz czasu, cele, priorytety i to, co wiem z twoich wyników.">Profil ucznia</h2>
         <Link to="/profil-ucznia" className="link" style={{ marginTop: 12 }}>
           Otwórz profil ucznia
           <ArrowRight size={16} aria-hidden="true" />
         </Link>
       </section>
 
-      <section style={{ display: "grid", gap: 4, paddingTop: 28, borderTop: "1px solid var(--line)", justifyItems: "start" }}>
-        <h2 className="h3">Układ pulpitu</h2>
-        <p className="muted small">Wybór i kolejność widgetów na pulpicie.</p>
+      <section style={{ display: "grid", gap: 4, paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)", justifyItems: "start" }}>
+        <h2 className="h2">Układ pulpitu</h2>
         <Link to="/uklad-pulpitu" className="link" style={{ marginTop: 12 }}>
           Otwórz układ pulpitu
           <ArrowRight size={16} aria-hidden="true" />

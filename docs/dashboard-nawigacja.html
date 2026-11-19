@@ -9,47 +9,50 @@
 <body>
 <main>
 <h1>Nawigacja i sekcje</h1>
-<p class="sub">Co leży na pulpicie, a co w sekcjach.</p>
-<p class="lead">Pulpit pokazuje to, czego uczeń używa najczęściej. Reszta jest w sekcjach dostępnych z paska nawigacji.</p>
+<p class="sub">Pięć pozycji menu i co leży w każdej sekcji.</p>
+<p class="lead">Pulpit pokazuje to, czego uczeń używa najczęściej. Pięć głównych sekcji jest w pasku u góry ekranu. Nauka nie ma własnych zakładek.</p>
 
 <h2>Układ przykładowy</h2>
 <figure>
-<svg viewBox="0 0 760 330" role="img" aria-label="Szkic układu pulpitu: pasek boczny i siatka widgetów">
+<svg viewBox="0 0 760 330" role="img" aria-label="Szkic pulpitu: górny pasek z pięcioma pozycjami menu i siatka widgetów">
   <rect class="svg-node" x="10" y="10" width="740" height="310" rx="6"/>
-  <rect class="svg-node" x="10" y="10" width="140" height="310" rx="6"/>
-  <text class="svg-t" x="26" y="38">Sedno</text>
-  <text class="svg-s" x="26" y="70">Pulpit</text>
-  <text class="svg-s" x="26" y="94">Nauka</text>
-  <text class="svg-s" x="26" y="118">Arkusze</text>
-  <text class="svg-s" x="26" y="142">Egzamin</text>
-  <text class="svg-s" x="26" y="166">Mapa umiejętności</text>
-  <text class="svg-s" x="26" y="190">Powtórki</text>
-  <text class="svg-s" x="26" y="214">Mapa wiedzy</text>
-  <text class="svg-s" x="26" y="250">Ustawienia</text>
-  <text class="svg-s" x="26" y="274">Profil</text>
+  <rect x="20" y="20" width="720" height="48" rx="24" style="fill:var(--surface);stroke:var(--line2)" stroke-width="1.5"/>
+  <g transform="translate(34 30) scale(.44)"><path class="p-cialo" d="M32 4c13.5 0 24 8.6 26.6 21.4 2.4 11.9-2 24-12.6 30.2C38.8 59.8 25.2 59.8 18 55.6 7.4 49.4 3 37.3 5.4 25.4 8 12.6 18.5 4 32 4Z"/><ellipse class="p-rys" cx="24" cy="30" rx="4" ry="5.4"/><ellipse class="p-rys" cx="40" cy="30" rx="4" ry="5.4"/><path class="p-kreska" style="stroke-width:3.2" d="M26.5 41c3.2 3 7.8 3 11 0"/></g>
+  <text class="svg-t" x="68" y="49">Sedno</text>
+  <rect class="svg-node-alt" x="140" y="30" width="62" height="28" rx="14"/>
+  <text class="svg-s" x="171" y="48" text-anchor="middle" style="fill:var(--text)">Pulpit</text>
+  <text class="svg-s" x="222" y="48">Nauka</text>
+  <text class="svg-s" x="278" y="48">Arkusze</text>
+  <text class="svg-s" x="344" y="48">Mapa umiejętności</text>
+  <text class="svg-s" x="470" y="48">Powtórki</text>
+  <text class="svg-s" x="610" y="48">Szukaj</text>
+  <text class="svg-s" x="668" y="48">?</text>
+  <circle class="svg-node" cx="712" cy="44" r="14"/>
+  <text class="svg-s" x="712" y="48" text-anchor="middle">O</text>
 
-  <rect class="svg-node-alt" x="170" y="26" width="360" height="110" rx="6"/><text class="svg-t" x="186" y="54">Dziś warto</text><text class="svg-s" x="186" y="76">rekomendacje z mapy umiejętności</text>
-  <rect class="svg-node" x="550" y="26" width="185" height="110" rx="6"/><text class="svg-t" x="566" y="54">Powtórki</text><text class="svg-s" x="566" y="76">zanikające umiejętności</text>
-  <rect class="svg-node" x="170" y="150" width="240" height="160" rx="6"/><text class="svg-t" x="186" y="178">Mapa umiejętności</text><text class="svg-s" x="186" y="200">3 najsłabsze i dlaczego</text>
-  <rect class="svg-node" x="430" y="150" width="145" height="75" rx="6"/><text class="svg-t" x="446" y="178">Kontynuuj</text>
-  <rect class="svg-node" x="590" y="150" width="145" height="75" rx="6"/><text class="svg-t" x="606" y="178">Wybierz temat</text>
-  <rect class="svg-node" x="430" y="235" width="145" height="75" rx="6"/><text class="svg-t" x="446" y="263">Do matury</text>
-  <rect class="svg-node" x="590" y="235" width="145" height="75" rx="6"/><text class="svg-t" x="606" y="263">Arkusze</text>
+  <rect class="svg-node-alt" x="20" y="86" width="420" height="110" rx="6"/><text class="svg-t" x="36" y="114">Dziś warto</text><text class="svg-s" x="36" y="136">karta Pestki: co teraz i dlaczego</text>
+  <rect class="svg-node" x="456" y="86" width="284" height="110" rx="6"/><text class="svg-t" x="472" y="114">Twój tydzień</text>
+  <g style="fill:var(--accent)"><circle cx="480" cy="150" r="8"/><circle cx="504" cy="150" r="8"/><circle cx="552" cy="150" r="8"/><circle cx="576" cy="150" r="8"/></g>
+  <g style="fill:none;stroke:var(--line2)" stroke-width="1.5"><circle cx="528" cy="150" r="7"/><circle cx="600" cy="150" r="7"/><circle cx="624" cy="150" r="7" stroke-dasharray="3 2"/></g>
+  <text class="svg-s" x="472" y="182">seria 2 dni</text>
+  <rect class="svg-node" x="20" y="212" width="230" height="98" rx="6"/><text class="svg-t" x="36" y="240">Mapa umiejętności</text><text class="svg-s" x="36" y="262">ogród czterech obszarów</text>
+  <rect class="svg-node" x="266" y="212" width="150" height="98" rx="6"/><text class="svg-t" x="282" y="240">Powtórki</text><text class="svg-s" x="282" y="262">4 na dziś</text>
+  <rect class="svg-node" x="432" y="212" width="150" height="98" rx="6"/><text class="svg-t" x="448" y="240">Do matury</text><text class="svg-s" x="448" y="262">dni i prognoza</text>
+  <rect class="svg-node" x="598" y="212" width="142" height="98" rx="6"/><text class="svg-t" x="614" y="240">Wyniki</text><text class="svg-s" x="614" y="262">linia z arkuszy</text>
 </svg>
-<figcaption>Szkic poglądowy. Układ jest dostosowywalny, a to tylko przykład domyślny.</figcaption>
+<figcaption>Szkic poglądowy. Kolejność i wybór widgetów uczeń zmienia w Ustawieniach („Układ pulpitu”).</figcaption>
 </figure>
 
 <h2>Co gdzie</h2>
 <div class="tablewrap"><table>
 <thead><tr><th>Sekcja</th><th>Zawartość</th></tr></thead>
 <tbody>
-<tr><td>Nauka</td><td>Wszystkie ścieżki umiejętności, siedem formatów, wolny wybór tematu</td></tr>
-<tr><td>Arkusze</td><td>Lista arkuszy, wybór przedmiotu, roku i terminu</td></tr>
-<tr><td>Egzamin</td><td>Tryb egzaminu, wyniki, feedback</td></tr>
-<tr><td>Mapa umiejętności</td><td>Pełna mapa, kody CKE jako drugi plan, historia</td></tr>
-<tr><td>Powtórki</td><td>Lista powtórek i błędów do przećwiczenia</td></tr>
-<tr><td>Mapa wiedzy</td><td>Notatnik na połączeniach</td></tr>
-<tr><td>Ustawienia, profil</td><td>Przedmioty, data matury, poziom feedbacku, układ pulpitu</td></tr>
+<tr><td>Pulpit</td><td>Propozycja dnia i widgety: tydzień, mapa, powtórki, do matury, wyniki z arkuszy</td></tr>
+<tr><td>Nauka</td><td>Propozycja dnia, sposoby nauki z jednym polecanym, wolny temat, niedokończone rundy. Jedna strona, bez zakładek</td></tr>
+<tr><td>Arkusze</td><td>Lista arkuszy według przedmiotu i poziomu, rozwiązywanie, tryb na czas jednym przyciskiem</td></tr>
+<tr><td>Mapa umiejętności</td><td>Umiejętności w obszarach ze stadium rośliny, panel z ostatnimi próbami</td></tr>
+<tr><td>Powtórki</td><td>Propozycja na dziś, błędy do przećwiczenia, umiejętności do odświeżenia, siedem dni</td></tr>
+<tr><td>Pestka, Do matury, Profil, Ustawienia</td><td>Poza głównym menu: rozmowa z Pestką z jej przywołania, reszta z profilu. Na telefonie w tym samym menu, pod pięcioma głównymi pozycjami</td></tr>
 </tbody></table></div>
 </main>
 <script src="nav.js" defer></script>

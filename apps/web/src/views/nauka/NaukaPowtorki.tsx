@@ -1,8 +1,10 @@
+import { StanPestki } from "../../components/StanPestki";
 import type { Poziom } from "../../arkusze/typy";
 import { SubjectIcon } from "../../components/icons";
 import { nazwaPoziomu } from "../../konto/przedmioty";
 import { poziomyNauki } from "../../nauka/stan";
 import s from "./NaukaPowtorki.module.css";
+import { Pigulki } from "../../components/Pigulki";
 
 const nazwaDaty = new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long", timeZone: "Europe/Warsaw" });
 export const procentNauki = new Intl.NumberFormat("pl-PL", { style: "percent" });
@@ -16,24 +18,24 @@ export function Angielski() {
   );
 }
 
+/** Poziom matury jako pigułki, jak w Arkuszach: ta sama kontrolka i to samo miejsce na Nauce, Powtórkach i mapie. */
 export function WyborPoziomuNauki({ poziom, ustawPoziom }: { poziom: Poziom; ustawPoziom: (poziom: Poziom) => void }) {
   return (
-    <label className={s.pole}>
-      <span className="small muted">Poziom matury</span>
-      <select value={poziom} onChange={(e) => ustawPoziom(e.target.value as Poziom)}>
-        {poziomyNauki.map((p) => <option key={p} value={p}>{nazwaPoziomu[p]}</option>)}
-      </select>
-    </label>
+    <div className={s.pole} role="group" aria-labelledby="poziom-matury">
+      <span id="poziom-matury" className="small muted">Poziom matury</span>
+      <Pigulki>
+        {poziomyNauki.map((p) => (
+          <button key={p} type="button" className="pigulka" aria-pressed={p === poziom} onClick={() => ustawPoziom(p)}>
+            {nazwaPoziomu[p]}
+          </button>
+        ))}
+      </Pigulki>
+    </div>
   );
 }
 
 export function BladNauki({ komunikat, ponow }: { komunikat: string; ponow: () => void }) {
-  return (
-    <div className={s.stan}>
-      <p role="alert" className={s.blad}>{komunikat}</p>
-      <button type="button" className="btn btn-ghost" onClick={ponow}>Spróbuj ponownie</button>
-    </div>
-  );
+  return <StanPestki emocja="zmartwienie" rola="alert" tekst={komunikat} akcja={{ etykieta: "Spróbuj ponownie", onClick: ponow }} />;
 }
 
 export function dataNauki(iso: string | null | undefined): string | null {

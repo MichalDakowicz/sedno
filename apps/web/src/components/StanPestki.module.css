@@ -1,0 +1,56 @@
+/* Twarz Pestki obok zdania i jednego działania. Bez karty: stan stoi w treści, jak reszta sekcji. */
+.stan {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+  animation: wejscie-stanu var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+.tresc {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-3);
+  min-width: 0;
+  padding-top: var(--s-1);
+}
+
+.tekst {
+  max-width: 52ch;
+  font-size: var(--t-md);
+  line-height: 1.5;
+}
+
+.stan[data-rozmiar="maly"] {
+  gap: var(--s-3);
+  align-items: center;
+}
+
+.stan[data-rozmiar="maly"] .tresc {
+  padding-top: 0;
+}
+
+.stan[data-rozmiar="maly"] .tekst {
+  font-size: var(--t-sm);
+  color: var(--muted);
+}
+
+.stan[data-rozmiar="duzy"] {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stan[data-rozmiar="duzy"] .tresc {
+  justify-items: center;
+}
+
+.stan[data-rozmiar="duzy"] .tekst {
+  font-size: var(--t-lg);
+}
+
+@keyframes wejscie-stanu {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}

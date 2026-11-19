@@ -11,8 +11,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px 16px;
-  padding: 14px 0;
+  gap: var(--s-3) var(--s-4);
+  padding: var(--s-3) 0;
   border-top: 1px solid var(--line);
 }
 
@@ -25,7 +25,7 @@
   flex: 0 0 190px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
   padding: 0;
   border: 0;
   background: none;
@@ -46,7 +46,7 @@
   display: grid;
   place-items: center;
   border: 1.5px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--r-xs);
   flex: none;
   color: var(--primary-fg);
 }
@@ -59,22 +59,11 @@
 .levels {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--s-2);
 }
 
+/* Poziom: ta sama pigułka i ten sam stan zaznaczenia co w Ustawieniach i przy poziomie matury. */
 .level {
-  padding: 6px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  background: var(--bg);
-  font: inherit;
-  font-size: calc(14px * var(--skala-tekstu, 1));
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.levelOn {
-  border-color: var(--fg);
-  background: var(--fg);
-  color: var(--surface);
+  composes: pigulka from global;
+  font-family: inherit;
 }

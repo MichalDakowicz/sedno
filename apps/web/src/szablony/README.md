@@ -28,8 +28,8 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 ### Nauka
 
 - [ ] [Napraw błąd](napraw-blad/README.md): praca z wstrzykniętymi błędami
-- [ ] [Krok po kroku](krok-po-kroku/README.md): dłuższa odpowiedź etapami z listą kontrolną
-- [ ] [Tutor sokratejski](sokratejski/README.md): rozmowa z pytaniami i mini-testem
+- [x] Krok po kroku: działa jako `/nauka/pisanie` (`views/nauka/KrokPoKroku.tsx`)
+- [x] Tutor sokratejski: działa jako `/nauka/sokratejski` (`views/nauka/Sokratejski.tsx`)
 - [ ] [Wizualizacje](wizualizacje/README.md): interaktywne modele pojęć
 
 ### Postęp
@@ -38,7 +38,7 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 
 ### Konto i narzędzia
 
-- [ ] [Analiza zdjęcia](zdjecie/README.md): rozwiązanie z kartki omówione przez Pestkę
+- [x] Analiza zdjęcia: działa jako `/nauka/zdjecie` (`views/nauka/Zdjecie.tsx`)
 
 ### Wspólne fundamenty (potrzebne kilku szablonom)
 

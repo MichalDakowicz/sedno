@@ -108,10 +108,10 @@ export function useAiReady(userId: string | null): boolean | undefined {
 export function aiErrorText(code: string): string {
   return (
     {
-      no_provider: "To konto nie ma jeszcze dostawcy AI dla tego poziomu. Dodaj go w profilu.",
-      not_signed_in: "Zaloguj się, żeby korzystać z AI.",
+      no_provider: "Pestka nie ma jeszcze połączenia dla tego poziomu. Dodaj dostawcę w profilu.",
+      not_signed_in: "Zaloguj się, żeby rozmawiać z Pestką.",
       rate_limited: "Za dużo zapytań naraz. Spróbuj za chwilę.",
-      provider_failed: "Dostawca AI nie odpowiedział poprawnie.",
+      provider_failed: "Dostawca modelu nie odpowiedział poprawnie.",
       bad_credential: "Zapisany klucz nie działa. Zapisz go ponownie w profilu.",
       bad_base_url: "Ten adres dostawcy jest niedozwolony.",
     }[code] ?? "Coś poszło nie tak."

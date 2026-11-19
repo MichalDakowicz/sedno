@@ -1,4 +1,6 @@
 import { useId } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import {
   kontrastWSystemie,
   ruchWSystemie,
@@ -9,6 +11,8 @@ import {
   type Tekst,
 } from "../konto/ustawienia";
 import s from "./Ustawienia.module.css";
+import { NaglowekStrony } from "../components/NaglowekStrony";
+import { Pigulki } from "../components/Pigulki";
 
 const MOTYWY: { id: Motyw; nazwa: string }[] = [
   { id: "system", nazwa: "Jak system" },
@@ -24,13 +28,13 @@ const TEKSTY: { id: Tekst; nazwa: string }[] = [
 
 function Wybor<T extends string>({ opis, opcje, wartosc, onChange }: { opis: string; opcje: { id: T; nazwa: string }[]; wartosc: T; onChange: (v: T) => void }) {
   return (
-    <div className={s.chipy} role="group" aria-label={opis}>
+    <Pigulki role="group" aria-label={opis}>
       {opcje.map((o) => (
-        <button key={o.id} type="button" className={`${s.chip} ${o.id === wartosc ? s.chipAktywny : ""}`} aria-pressed={o.id === wartosc} onClick={() => onChange(o.id)}>
+        <button key={o.id} type="button" className="pigulka" aria-pressed={o.id === wartosc} onClick={() => onChange(o.id)}>
           {o.nazwa}
         </button>
       ))}
-    </div>
+    </Pigulki>
   );
 }
 
@@ -55,16 +59,18 @@ export function Ustawienia() {
   const blad = useBladUstawien();
 
   return (
-    <main className="container" style={{ paddingTop: 32, paddingBottom: 120, display: "grid", gap: 40 }}>
-      <div style={{ display: "grid", gap: 12 }}>
-        <span className="label">Profil</span>
-        <h1 className="display">Ustawienia</h1>
-      </div>
+    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: 120, display: "grid", gap: "var(--s-6)" }}>
+      <NaglowekStrony etykieta="Profil" tytul="Ustawienia" lead="Wygląd, dostępność i to, jak odzywa się Pestka." />
 
       <section className={s.sekcja}>
         <h2 className="h2">Wygląd</h2>
         <Wybor opis="Motyw" opcje={MOTYWY} wartosc={u.motyw} onChange={(motyw) => zmienUstawienia({ motyw })} />
         <Wybor opis="Rozmiar tekstu" opcje={TEKSTY} wartosc={u.tekst} onChange={(tekst) => zmienUstawienia({ tekst })} />
+      </section>
+
+      <section className={s.sekcja}>
+        <h2 className="h2">Pulpit</h2>
+        <Link to="/uklad-pulpitu" className="link">Układ pulpitu <ArrowRight size={16} aria-hidden="true" /></Link>
       </section>
 
       <section className={s.sekcja}>

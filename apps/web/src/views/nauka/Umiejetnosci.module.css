@@ -1,88 +1,39 @@
 .strona {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 32px;
-  padding-top: 32px;
+  gap: var(--s-6);
+  padding-top: var(--s-6);
   padding-bottom: 112px;
 }
 
-.glowa,
 .grupy,
 .panel,
 .blok {
   display: grid;
-  gap: 16px;
+  gap: var(--s-4);
   min-width: 0;
   align-content: start;
-}
-
-.glowa {
-  gap: 12px;
-  justify-items: start;
-}
-
-.glowa p {
-  max-width: 56ch;
 }
 
 .filtry,
 .chipy {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--s-2);
   align-items: center;
 }
 
 .filtry {
-  gap: 16px 24px;
-  justify-content: space-between;
-}
-
-.filtry label {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  color: var(--muted);
-}
-
-.filtry select {
-  max-width: 100%;
-  min-height: 44px;
-  padding: 6px 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  color: var(--fg);
-  background: var(--surface);
-  font: inherit;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 8px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  color: var(--muted);
-  font-size: calc(14px * var(--skala-tekstu, 1));
-  font-weight: 500;
-}
-
-.chip:hover,
-.chip[aria-current] {
-  color: var(--fg);
-  background: var(--surface);
-}
-
-.chip[aria-current] {
-  border-color: var(--primary-text);
+  gap: var(--s-4) var(--s-5);
+  /* Poziom pod przedmiotami, po lewej: tak samo jak na Nauce i w Powtórkach. */
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .uklad {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 40px;
+  gap: var(--s-7);
 }
 
 .uklad[data-panel="true"] {
@@ -91,27 +42,12 @@
 }
 
 .grupy {
-  gap: 32px;
+  gap: var(--s-6);
 }
 
-.wiersze {
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--line);
-  list-style: none;
-}
-
-.wiersze > li {
-  border-bottom: 1px solid var(--line);
-}
-
+/* Wiersz mapy to wspólny .wiersz; tu tylko podświetlenie wybranej umiejętności z wcięciem na tło. */
 .wiersz {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(80px, 1fr) auto;
-  gap: 10px 16px;
-  align-items: center;
-  min-height: 56px;
-  padding: 12px 6px;
+  padding-inline: var(--s-1);
 }
 
 .wiersz:hover,
@@ -119,8 +55,7 @@
   background: color-mix(in srgb, var(--surface) 64%, transparent);
 }
 
-.wiersz[aria-current] .nazwa,
-.wiersz:hover .wskaznik {
+.wiersz[aria-current] .nazwa {
   color: var(--primary-text);
 }
 
@@ -132,20 +67,8 @@
   overflow-wrap: anywhere;
 }
 
-.kody {
-  font-weight: 400;
-  color: var(--subtle);
-}
-
-.wskaznik {
-  color: var(--subtle);
-}
-
 .opanowanie {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
+  font-size: var(--t-sm);
   font-variant-numeric: tabular-nums;
 }
 
@@ -170,9 +93,9 @@
 }
 
 .panel {
-  padding-left: 24px;
+  padding-left: var(--s-5);
   border-left: 1px solid var(--line);
-  gap: 24px;
+  gap: var(--s-5);
 }
 
 .panel h2 {
@@ -183,7 +106,7 @@
 .wroc {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
   justify-self: start;
   min-height: 44px;
   color: var(--muted);
@@ -196,9 +119,9 @@
 .dowod {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px 12px;
+  gap: var(--s-1) var(--s-3);
   align-items: start;
-  padding: 12px 0;
+  padding: var(--s-3) 0;
 }
 
 .dowod .nazwa a {
@@ -239,19 +162,63 @@
   }
 }
 
-@media (max-width: 460px) {
-  .wiersz {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
 
-  .wiersz .opanowanie,
-  .wiersz .brak {
-    grid-row: 2;
-    grid-column: 1 / -1;
-  }
 
-  .wskaznik {
-    grid-column: 2;
-    grid-row: 1;
-  }
+/* Panel: duża liczba opanowania z podpisem, pod nią kropki ostatnich prób. */
+.duza {
+  font-size: calc(48px * var(--skala-tekstu, 1));
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+.jednostka {
+  color: var(--subtle);
+  font-size: calc(28px * var(--skala-tekstu, 1));
+}
+
+.podpisLiczby {
+  display: block;
+  margin-top: var(--s-2);
+  font-size: var(--t-sm);
+  letter-spacing: 0;
+  color: var(--subtle);
+}
+
+.ostatnie {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.rozwijane > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.rozwijane > summary::-webkit-details-marker {
+  display: none;
+}
+
+.rozwijane > summary svg {
+  transition: transform var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+.rozwijane[open] > summary svg {
+  transform: rotate(90deg);
+}
+
+.ikona {
+  display: grid;
+  place-items: center;
+}
+
+/* Panel: rosnąca pestka obok dużej liczby opanowania. */
+.zKielkiem {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-4);
 }

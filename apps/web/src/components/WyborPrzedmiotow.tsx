@@ -41,7 +41,7 @@ export function WyborPrzedmiotow({ value, onChange }: { value: MojPrzedmiot[]; o
                 {p.poziomy.map((l) => {
                   const on = wybrane.includes(l);
                   return (
-                    <button key={l} type="button" aria-pressed={on} className={`${styles.level} ${on ? styles.levelOn : ""}`} onClick={() => poziom(p.id, l)}>
+                    <button key={l} type="button" aria-pressed={on} className={styles.level} onClick={() => poziom(p.id, l)}>
                       {nazwaPoziomu[l]}
                     </button>
                   );

@@ -1,14 +1,16 @@
 import { createContext, Fragment, useCallback, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Camera, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardCheck, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { adresZdjecia } from "./nauka/Zdjecie";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
-import { czegoZadanie, OPIS_FORMY, opisOceny, opisWypelnienia, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
-import { policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
+import { OPIS_FORMY, opisOceny, opisWypelnienia, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
+import { liczOdpowiedzi, policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
   adresObrazu,
   nazwaPrzedmiotu,
+  nazwaZadaniaCke,
   type Arkusz as ArkuszDane,
   type Blok,
   type Kroj,
@@ -35,12 +37,14 @@ import { OmowienieBledow, type Wejscie } from "../components/OmowienieBledow";
 import { FragmentNagrania } from "../components/FragmentNagrania";
 import { rozklejPestke } from "../components/rozklejPestke";
 import { useTutor } from "../components/TutorContext";
-import { doOmowienia } from "../arkusze/omowienie";
+import { doOmowienia, policzBledy, kontekstZadania } from "../arkusze/omowienie";
 import { useSession } from "../auth";
 import { useAiReady } from "../ai";
 import { uplynelo, zapisCzasu, zatrzymaj } from "../components/Zegar";
 import { ustawAktywnyZegar, useAktywnyZegar } from "../arkusze/zegarAktywny";
 import { dodajCzas, minuty, norma, odmierz, opisTempa, tempo, zacznijOdmierzac } from "../arkusze/czasZadan";
+import { PasekProgu } from "../components/wykresy";
+import { Liczba } from "../ruch";
 import styles from "./Arkusz.module.css";
 
 type Kontekst = {
@@ -77,6 +81,9 @@ const useCtx = () => useContext(Ctx)!;
 // Panel z materiałami do zadania (informatyka): dla którego zadania jest otwarty i jak go otworzyć.
 const MaterialyCtx = createContext<{ nr: number | null; otworz: (nr: number, przycisk: HTMLElement) => void }>({ nr: null, otworz: () => {} });
 const nrZadania = (nrPytania: string) => Number(nrPytania.split(".")[0]);
+// Forma liczebnika: [1, 2–4, 5 i więcej], np. ["pytanie", "pytania", "pytań"].
+const odmiana = (n: number, [jeden, kilka, wiele]: [string, string, string]) =>
+  n === 1 ? jeden : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? kilka : wiele;
 
 export function Arkusz() {
   const { id = "" } = useParams();
@@ -255,14 +262,16 @@ export function Arkusz() {
     }, 150);
   };
   // Po sprawdzeniu arkusza Pestka przylatuje do wyniku i pyta, czy poprawiamy błędy.
-  const zaproponujOmowienie = (ile: number) => {
+  const zaproponujOmowienie = ({ bledne, bezOdpowiedzi }: { bledne: number; bezOdpowiedzi: number }) => {
     window.clearTimeout(lot.current);
     lot.current = window.setTimeout(
       () =>
         showHints(`omow-${Date.now()}`, [
           {
             target: "wynik",
-            text: `Przejrzałam arkusz: ${ile === 1 ? "błąd jest w jednym zadaniu" : `błędy są w ${ile} zadaniach`}. Poprawimy?`,
+            text: bledne
+              ? `Przejrzałam arkusz: ${bledne} ${odmiana(bledne, ["błędna odpowiedź", "błędne odpowiedzi", "błędnych odpowiedzi"])}${bezOdpowiedzi ? `, a ${bezOdpowiedzi} ${odmiana(bezOdpowiedzi, ["pytanie", "pytania", "pytań"])} bez odpowiedzi` : ""}. Poprawimy?`
+              : `Przejrzałam arkusz: ${bezOdpowiedzi} ${odmiana(bezOdpowiedzi, ["pytanie zostało", "pytania zostały", "pytań zostało"])} bez odpowiedzi. Przejdziemy je razem?`,
             trzymaj: true,
             actions: [
               { label: "Tak, poprawmy", primary: true, onClick: lecDoBledu },
@@ -440,13 +449,13 @@ export function Arkusz() {
 
   if (laduje)
     return (
-      <main className={`container ${styles.page}`}>
+      <main className={`container czytanie ${styles.page}`}>
         <Ladowanie ksztalt="tekst" ile={7} etykieta="Wczytuję arkusz" />
       </main>
     );
   if (blad || !dane || !kontekst || !wynik) {
     return (
-      <main className={`container ${styles.page}`}>
+      <main className={`container czytanie ${styles.page}`}>
         <h1 className="h1">Nie ma takiego arkusza</h1>
         <Link to="/arkusze" className="link">
           Wróć do listy
@@ -464,8 +473,8 @@ export function Arkusz() {
     }));
     if (strony) idzNaStrone(strony[0], false);
     window.scrollTo({ top: 0, behavior: "smooth" });
-    const ile = doOmowienia(dane, postep).length;
-    if (ai && ile) zaproponujOmowienie(ile);
+    const bledy = policzBledy(dane, postep);
+    if (ai && doOmowienia(dane, postep).length) zaproponujOmowienie(bledy);
   };
   const odNowa = () => {
     zmien(() => pustyPostep);
@@ -487,7 +496,7 @@ export function Arkusz() {
   const listaOmowien = postep.sprawdzony ? doOmowienia(dane, postep) : [];
   const omawiane = omawiany !== null ? listaOmowien[omawiany] : undefined;
 
-  const odpowiedziane = [...kontekst.pytania.keys()].filter((nr) => postep.odpowiedzi[nr]?.trim()).length;
+  const odpowiedziane = liczOdpowiedzi(postep.odpowiedzi, kontekst.pytania.keys());
 
   const zadanieMaterialow = materialy ? dane.zadania.find((z) => z.nr === materialy.nr) : undefined;
   // Panel obok treści odsuwa arkusz od swojej krawędzi; na wąskim ekranie przykrywa go w całości.
@@ -500,10 +509,11 @@ export function Arkusz() {
     <Ctx.Provider value={kontekst}>
       <MaterialyCtx.Provider value={materialyCtx}>
       <div style={odsuniecie}>
-      <main className={`container ${styles.page}`}>
+      <main className={`container czytanie ${styles.page}`}>
         <Naglowek
           arkusz={dane}
           onNaCzas={dane.czas && !postep.czas && !postep.sprawdzony ? naCzas : undefined}
+          onCofnijNaCzas={postep.czas && !postep.sprawdzony ? () => ustawCzas(undefined) : undefined}
           zwiniety={!!strony && strona !== strony[0]}
           wStronach={
             mozliweStrony && (!strony || strona === strony[0])
@@ -537,12 +547,12 @@ export function Arkusz() {
             limitMin={dane.czas}
             arkusz={dane}
             postep={postep}
-            omow={{ ile: doOmowienia(dane, postep).length, ai, start: lecDoBledu }}
+            omow={{ ile: listaOmowien.length, wypracowanie: listaOmowien.some((d) => d.wypracowanie), ...policzBledy(dane, postep), ai, start: lecDoBledu }}
           />
         )}
 
         <SpisZadan />
-        {dane.przedmiot === "informatyka" && <CoOddajesz arkusz={dane} />}
+        {dane.przedmiot === "informatyka" && <CoOddajesz />}
 
         {dane.zadania
           .filter((z) => strona === undefined || stronyZadania(z).includes(strona))
@@ -585,7 +595,7 @@ export function Arkusz() {
             <>
               {dane.przedmiot === "informatyka" && <BrakujaceOdpowiedzi />}
               <p className="muted small">
-                Odpowiedzi: {odpowiedziane} z {kontekst.pytania.size}. Zapisują się na bieżąco w tej przeglądarce.
+                Odpowiedzi: {odpowiedziane} z {kontekst.pytania.size}
               </p>
               <button
                 type="button"
@@ -614,6 +624,7 @@ export function Arkusz() {
           onZapis={(z) => kontekst.ustawWarsztat(zadanieMaterialow.nr, z)}
           doWstawienia={zadanieMaterialow.pytania.filter((p) => p.typ === "otwarte" && !p.kod && !sprawdzone(p.nr)).map((p) => p.nr)}
           onWstaw={kontekst.ustaw}
+          kluczWidoczny={sprawdzone(`${zadanieMaterialow.nr}.`)}
           uklad={uklad}
           otwarty={materialy.otwarty}
           onSchowaj={() => setMaterialy((m) => m && { ...m, otwarty: false })}
@@ -718,17 +729,26 @@ function zapiszWStronach(w: boolean) {
   }
 }
 
-function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDane; onNaCzas?: () => void; zwiniety?: boolean; wStronach?: { wlaczone: boolean; onZmien: () => void } }) {
+function Naglowek({ arkusz, onNaCzas, onCofnijNaCzas, zwiniety, wStronach }: {
+  arkusz: ArkuszDane; onNaCzas?: () => void; onCofnijNaCzas?: () => void; zwiniety?: boolean; wStronach?: { wlaczone: boolean; onZmien: () => void };
+}) {
   const maSluchanie = arkusz.zadania.some((z) => z.sluchanie);
-  // Tryb na czas startuje dopiero po przeczytaniu, co obejmuje i jak działa zegar.
-  const [pytaONaCzas, setPytaONaCzas] = useState(false);
+  // „Na czas” startuje od razu; przez kilka sekund przycisk zostaje jako „Cofnij”, potem zegar ma własną pauzę i wyłączenie w pasku.
+  const [cofnij, setCofnij] = useState(false);
+  useEffect(() => {
+    if (!cofnij) return;
+    const t = window.setTimeout(() => setCofnij(false), 6000);
+    return () => window.clearTimeout(t);
+  }, [cofnij]);
   return (
     <header className={styles.head}>
       <Link to="/arkusze" className={`small muted ${styles.back}`}>
         <ArrowLeft size={16} aria-hidden="true" /> Arkusze
       </Link>
-      <span className="label">
-        {nazwaPrzedmiotu[arkusz.przedmiot] ?? arkusz.przedmiot} · {nazwaPoziomu[arkusz.poziom]} · formuła {arkusz.formula ?? "2023"} · {arkusz.symbol}
+      {/* Symbol CKE tylko w podpowiedzi; formuła tylko przy starszej maturze, gdzie zmienia sens wyniku. */}
+      <span className="label" title={arkusz.symbol}>
+        {nazwaPrzedmiotu[arkusz.przedmiot] ?? arkusz.przedmiot} · {nazwaPoziomu[arkusz.poziom]}
+        {arkusz.formula === "2015" && " · formuła 2015"}
       </span>
       {!zwiniety && (
       <h1 className="h1">
@@ -736,52 +756,35 @@ function Naglowek({ arkusz, onNaCzas, zwiniety, wStronach }: { arkusz: ArkuszDan
       </h1>
       )}
       {!zwiniety && <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>}
-      {!zwiniety && arkusz.przedmiot === "matematyka" && <p className="small muted">Brudnopis nie wpływa na wynik w zadaniach zamkniętych. Zapisuje się w postępie arkusza.</p>}
-      {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas || wStronach) && (
+      {!zwiniety && (arkusz.pdf?.arkusz || onNaCzas || (cofnij && onCofnijNaCzas) || wStronach) && (
         <div className={styles.pdfs}>
           {arkusz.pdf?.arkusz && (
-            <a className="btn btn-secondary btn-sm" href={arkusz.pdf?.arkusz} target="_blank" rel="noreferrer">
-              <FileText size={16} aria-hidden="true" /> Arkusz PDF
+            <a className="btn btn-ghost btn-sm" href={arkusz.pdf?.arkusz} target="_blank" rel="noreferrer" aria-label="Arkusz PDF na stronie CKE">
+              <FileText size={16} aria-hidden="true" /> PDF
             </a>
           )}
           {onNaCzas && (
-            <button type="button" className="btn btn-ghost btn-sm" aria-expanded={pytaONaCzas} aria-controls="na-czas" onClick={() => setPytaONaCzas(!pytaONaCzas)}>
-              <Timer size={16} aria-hidden="true" /> Rozwiąż na czas
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              aria-pressed={false}
+              onClick={() => { onNaCzas(); setCofnij(true); }}
+              data-tutor-about={`${arkusz.czas} minut, tyle co na maturze. Zegar nie blokuje odpowiedzi: po czasie możesz pisać dalej. Odezwę się w połowie czasu, 15 minut przed końcem i po czasie. „Sprawdź cały arkusz” zatrzymuje zegar.`}
+            >
+              <Timer size={16} aria-hidden="true" /> Na czas
+            </button>
+          )}
+          {!onNaCzas && cofnij && onCofnijNaCzas && (
+            <button type="button" className="btn btn-ghost btn-sm" aria-pressed={true} onClick={() => { onCofnijNaCzas(); setCofnij(false); }}>
+              <Timer size={16} aria-hidden="true" /> Zegar ruszył · Cofnij
             </button>
           )}
           {wStronach && (
             <button type="button" className="btn btn-ghost btn-sm" aria-pressed={wStronach.wlaczone} onClick={wStronach.onZmien}>
-              <BookOpen size={16} aria-hidden="true" /> {wStronach.wlaczone ? "Wszystko na jednej stronie" : "Podziel na strony jak w arkuszu"}
+              <BookOpen size={16} aria-hidden="true" /> Strony
             </button>
           )}
         </div>
-      )}
-      {!zwiniety && onNaCzas && pytaONaCzas && (
-        <div id="na-czas" className={styles.naCzas}>
-          <p>
-            Zegar odmierza {arkusz.czas} minut na cały arkusz, tyle co na maturze. Odpowiedzi zapisują się jak zawsze, a zegar i tak ich nie blokuje: po czasie możesz pisać dalej.
-          </p>
-          <ul className="small muted">
-            <li>Zegar możesz wstrzymać albo wyłączyć. Stan trzyma postęp arkusza, więc przeżywa odświeżenie strony i zapisuje się na koncie.</li>
-            <li>Pestka odezwie się trzy razy: w połowie czasu, na 15 minut przed końcem i po czasie.</li>
-            <li>„Sprawdź cały arkusz” zatrzymuje zegar, a wynik pokaże twój czas i tempo przy zadaniach.</li>
-          </ul>
-          <div className={styles.pdfs}>
-            <button type="button" className="btn btn-primary btn-sm" onClick={onNaCzas}>
-              <Timer size={16} aria-hidden="true" /> Start, {arkusz.czas} minut
-            </button>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPytaONaCzas(false)}>
-              Nie teraz
-            </button>
-          </div>
-        </div>
-      )}
-      {!zwiniety && wStronach && (
-        <p className="small muted">
-          {wStronach.wlaczone
-            ? "Strony to tylko sposób pokazania arkusza jak na wydruku CKE. Zadania, odpowiedzi, zegar i zapis są te same, co na jednej stronie."
-            : "Podział na strony to tylko sposób pokazania arkusza jak na wydruku CKE (strzałki w lewo i w prawo przewracają). Zadania, odpowiedzi, zegar i zapis są te same."}
-        </p>
       )}
       {maSluchanie && arkusz.nagranie && <Nagranie src={arkusz.nagranie} />}
       {!zwiniety && <p className="small muted">Źródło: Centralna Komisja Egzaminacyjna, cke.gov.pl.</p>}
@@ -804,19 +807,25 @@ function Podsumowanie({
   limitMin?: number;
   arkusz: ArkuszDane;
   postep: Postep;
-  omow: { ile: number; ai: boolean; start: () => void };
+  omow: { ile: number; wypracowanie: boolean; bledne: number; bezOdpowiedzi: number; pytan: number; ai: boolean; start: () => void };
 }) {
   const procent = wynik.mozliwe ? Math.round((wynik.zdobyte / wynik.mozliwe) * 100) : 0;
   return (
     <section className={styles.summary} aria-live="polite" data-tutor="wynik">
-      <span className="label">{wynik.wypowiedzi ? "Wynik bez wypowiedzi pisemnej" : "Wynik"}</span>
+      <span className="kicker"><ClipboardCheck size={14} strokeWidth={2.2} aria-hidden="true" />{wynik.wypowiedzi ? "Wynik bez wypowiedzi pisemnej" : "Wynik"}</span>
       <p className={styles.bigScore}>
-        {wynik.zdobyte} <span className="muted">/ {wynik.mozliwe} pkt</span> <span className={styles.percent}>{procent}%</span>
+        <Liczba wartosc={wynik.zdobyte} /> <span className="muted">/ {wynik.mozliwe} pkt</span> <span className={styles.percent}>{procent}%</span>
       </p>
+      <PasekProgu gruby wartosc={wynik.mozliwe ? wynik.zdobyte / wynik.mozliwe : 0}
+        prog={arkusz.poziom === "podstawowy" ? { wartosc: 0.3, etykieta: "próg 30%" } : undefined}
+        opis={`Wynik ${procent}%${arkusz.poziom === "podstawowy" ? `, próg zdania 30%, ${procent >= 30 ? "powyżej" : "poniżej"} progu` : ""}.`} />
       <p className="muted">
         {wynik.doOceny > 0
           ? `${wynik.doOceny} ${wynik.doOceny === 1 ? "odpowiedź otwarta czeka" : "odpowiedzi otwarte czekają"} na twoją ocenę. Porównaj z kluczem albo schematem oceniania przy pytaniu.`
+          : omow.bezOdpowiedzi
+          ? "Wpisane odpowiedzi są ocenione."
           : "Wszystkie odpowiedzi ocenione."}
+        {omow.bezOdpowiedzi > 0 && ` Bez odpowiedzi: ${omow.bezOdpowiedzi} z ${omow.pytan} ${odmiana(omow.pytan, ["pytania", "pytań", "pytań"])}.`}
         {wynik.wypowiedzi > 0 && ` Wypowiedź pisemna (${wynik.wypowiedzi} pkt) wymaga oceny według kryteriów, na razie bez punktów.`}
       </p>
       {czas && (
@@ -825,6 +834,7 @@ function Podsumowanie({
           {limitMin ? ` z ${limitMin} minut${uplynelo(czas) > limitMin * 60_000 ? ", po czasie" : ""}.` : "."}
         </p>
       )}
+      <StraconePunkty arkusz={arkusz} postep={postep} />
       <TempoZadan arkusz={arkusz} postep={postep} />
       {/* Klucz dopiero po sprawdzeniu: przed rozwiązaniem kusiłby podejrzeniem. */}
       {arkusz.pdf?.zasady && (
@@ -834,8 +844,9 @@ function Podsumowanie({
       )}
       {omow.ile > 0 &&
         (omow.ai ? (
-          <button type="button" className="btn btn-primary" onClick={omow.start}>
-            <MessagesSquare size={18} aria-hidden="true" /> Omów błędy z Pestką ({omow.ile})
+          <button type="button" className="btn btn-primary" onClick={omow.start} data-tutor-about={omow.bledne && omow.bezOdpowiedzi ? "Po błędach przejdziemy też zadania bez odpowiedzi." : undefined}>
+            <MessagesSquare size={18} aria-hidden="true" />
+            {omow.bledne ? `Omów błędy z Pestką (${omow.bledne})` : omow.wypracowanie ? "Omów wypracowanie z Pestką" : "Przejdź z Pestką zadania bez odpowiedzi"}
           </button>
         ) : (
           <p className="small muted">
@@ -846,6 +857,32 @@ function Podsumowanie({
         <RotateCcw size={16} aria-hidden="true" /> Rozwiąż od nowa
       </button>
     </section>
+  );
+}
+
+/** Gdzie uciekły punkty: zadania z największą stratą jako paski zdobytych punktów (części arkusza to jego zadania). */
+function StraconePunkty({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) {
+  const straty = arkusz.zadania
+    .map((z) => ({ z, w: policzPytania(z.pytania.filter((p) => p.typ !== "wypowiedz"), postep.odpowiedzi, postep.samoocena) }))
+    .filter(({ w }) => w.mozliwe > 0 && w.zdobyte < w.mozliwe && w.doOceny === 0)
+    .sort((a, b) => (b.w.mozliwe - b.w.zdobyte) - (a.w.mozliwe - a.w.zdobyte) || a.z.nr - b.z.nr)
+    .slice(0, 4);
+  if (!straty.length) return null;
+  return (
+    <div className={styles.straty}>
+      <span className="label">Najwięcej punktów uciekło</span>
+      <ul>
+        {straty.map(({ z, w }) => (
+          <li key={z.nr}>
+            <a href={`#zadanie-${z.nr}`}>Zadanie {z.nr}.</a>
+            <span className="muted">{w.zdobyte} z {w.mozliwe} pkt</span>
+            <span className={styles.tempoPasek}>
+              <PasekProgu wartosc={w.zdobyte / w.mozliwe} opis={`Zadanie ${z.nr}: ${w.zdobyte} z ${w.mozliwe} pkt.`} />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -861,24 +898,30 @@ function TempoZadan({ arkusz, postep }: { arkusz: ArkuszDane; postep: Postep }) 
     return t && t !== "w-normie" ? [{ z, ms, t, n: norma(arkusz, z)! }] : [];
   });
   return (
-    <div className={styles.tempo}>
+    <div className={styles.tempo} data-tutor-about="Czas liczę od poprzedniej czynności w arkuszu, bez chwil poza kartą. Norma to czas arkusza proporcjonalnie do punktów zadania.">
       <span className="label">Czas przy zadaniach</span>
       {wiersze.length ? (
         <ul>
-          {wiersze.slice(0, 5).map(({ z, ms, t, n }) => (
-            <li key={z.nr}>
-              <a href={`#zadanie-${z.nr}`}>Zadanie {z.nr}.</a>
-              <span>
-                {minuty(ms)} <span className="muted">(norma ok. {minuty(n)})</span>
-              </span>
-              <span className="muted">{opisTempa[t]}</span>
-            </li>
-          ))}
+          {wiersze.slice(0, 5).map(({ z, ms, t, n }) => {
+            const skala = Math.max(ms, n) * 1.15;
+            return (
+              <li key={z.nr}>
+                <a href={`#zadanie-${z.nr}`}>Zadanie {z.nr}.</a>
+                <span>
+                  {minuty(ms)} <span className="muted">(norma ok. {minuty(n)})</span>
+                </span>
+                <span className="muted">{opisTempa[t]}</span>
+                <span className={styles.tempoPasek}>
+                  <PasekProgu wartosc={ms / skala} cel={{ wartosc: n / skala, etykieta: "norma" }} ton={ms > n ? "ponad" : "akcent"}
+                    opis={`Zadanie ${z.nr}: ${minuty(ms)}, norma ok. ${minuty(n)}.`} />
+                </span>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <p className="muted">Tempo w normie przy wszystkich zadaniach, przy których był mierzony czas.</p>
       )}
-      <p className="small muted">Czas liczymy od poprzedniej czynności w arkuszu, bez chwil poza kartą. Norma to czas arkusza proporcjonalnie do punktów.</p>
     </div>
   );
 }
@@ -929,20 +972,22 @@ function SpisZadan() {
   const [otwarty, setOtwarty] = useState(false);
   const numery = useMemo(() => arkusz.zadania.map((z) => z.nr), [arkusz]);
   const aktualne = useAktualneZadanie(numery);
-  const maOdpowiedz = (nr: string) => !!postep.odpowiedzi[nr]?.trim();
+  const maOdpowiedz = (nr: string) => liczOdpowiedzi(postep.odpowiedzi, [nr]) > 0;
   const wiersze = arkusz.zadania.map((z) => {
     const pytania = z.pytania.filter((p) => p.typ !== "wypowiedz");
-    const ile = z.pytania.filter((p) => maOdpowiedz(p.nr)).length;
+    const ile = liczOdpowiedzi(postep.odpowiedzi, z.pytania.map((p) => p.nr));
     return { z, pytania, ile, wszystkich: z.pytania.length };
   });
-  const gotowych = wiersze.filter((w) => w.wszystkich > 0 && w.ile === w.wszystkich).length;
+  // Ta sama miara co w stopce arkusza i na pulpicie: pytania z odpowiedzią, nie całe zadania.
+  const nrPytan = arkusz.zadania.flatMap((z) => z.pytania.map((p) => p.nr));
+  const odpowiedziane = liczOdpowiedzi(postep.odpowiedzi, nrPytan);
   return (
     <nav className={styles.spis} aria-label="Spis zadań">
       <button type="button" className={styles.spisPrzycisk} aria-expanded={otwarty} aria-controls="spis-zadan" onClick={() => setOtwarty(!otwarty)}>
         <List size={16} aria-hidden="true" />
         <span>Spis zadań</span>
         <span className="small muted">
-          {gotowych} z {wiersze.length} z odpowiedzią
+          {odpowiedziane} z {nrPytan.length} odpowiedzi
         </span>
         <ChevronDown size={16} aria-hidden="true" className={otwarty ? styles.spisStrzalkaOtwarta : undefined} />
       </button>
@@ -989,7 +1034,16 @@ function SpisZadan() {
   );
 }
 
-// Przewracanie stron pod treścią strony, jak stopka wydruku: poprzednia, numery stron z PDF, następna.
+// Numery stron do pokazania: wszystkie, gdy jest ich mało, inaczej pierwsza, ostatnia i sąsiedzi bieżącej
+// (null to przerwa „…”), żeby rząd numerów nie łamał się na dwie linie.
+function oknoStron(ile: number, i: number): (number | null)[] {
+  if (ile <= 7) return Array.from({ length: ile }, (_, k) => k);
+  const wybrane = [...new Set([0, i - 1, i, i + 1, ile - 1])].filter((k) => k >= 0 && k < ile).sort((a, b) => a - b);
+  return wybrane.flatMap((k, j) => (j > 0 && k - wybrane[j - 1]! > 1 ? [null, k] : [k]));
+}
+
+// Przewracanie stron pod treścią strony, jak stopka wydruku: poprzednia, numery, następna. Numerujemy od 1
+// (strony arkusza w PDF zaczynają się od okładki, więc pierwsza z zadaniami ma tam numer 2 albo 3).
 function Strony({ strony, strona, onZmien }: { strony: number[]; strona: number; onZmien: (s: number) => void }) {
   const i = strony.indexOf(strona);
   return (
@@ -998,13 +1052,17 @@ function Strony({ strony, strona, onZmien }: { strony: number[]; strona: number;
         <ArrowLeft size={16} aria-hidden="true" /> Poprzednia
       </button>
       <ol className={styles.numery}>
-          {strony.map((s) => (
-            <li key={s}>
-              <button type="button" aria-current={s === strona ? "page" : undefined} aria-label={`Strona ${s}`} onClick={() => onZmien(s)}>
-                {s}
-              </button>
-            </li>
-          ))}
+          {oknoStron(strony.length, i).map((k, j) =>
+            k === null ? (
+              <li key={`przerwa-${j}`} aria-hidden="true" className={styles.przerwa}>…</li>
+            ) : (
+              <li key={strony[k]}>
+                <button type="button" aria-current={k === i ? "page" : undefined} aria-label={`Strona ${k + 1} z ${strony.length}`} onClick={() => onZmien(strony[k]!)}>
+                  {k + 1}
+                </button>
+              </li>
+            ),
+          )}
       </ol>
       <button type="button" className="btn btn-ghost btn-sm" disabled={i >= strony.length - 1} onClick={() => onZmien(strony[i + 1])}>
         Następna <ArrowRight size={16} aria-hidden="true" />
@@ -1040,12 +1098,17 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
   // Na pełnym ekranie brudnopisu całe zadanie; na stronie arkusza tylko bloki tej strony.
   const wszystkieBloki = (pisanie ? zadanie.bloki.filter((b) => !pisanie.ukryte.has(b)) : zadanie.bloki).filter((b) => !ukryteKodem.has(b));
   const bloki = wszystkieBloki.filter((b) => strona === undefined || (b.strona ?? zadanie.strona) === strona);
+  // Prawy przycisk na zadaniu: Pestka dostaje jego treść i odpowiedzi ucznia (klucz dopiero po sprawdzeniu).
+  const kontekst = useMemo(() => kontekstZadania(zadanie, postep, gotowe), [zadanie, postep, gotowe]);
 
   return (
     <section
       className={styles.task}
       id={pierwsza ? `zadanie-${zadanie.nr}` : undefined}
       data-tutor={pierwsza ? `zadanie-${zadanie.nr}` : undefined}
+      data-tutor-kontekst={kontekst}
+      data-tutor-klucz={`arkusz:${arkusz.id}:${zadanie.nr}`}
+      data-tutor-tytul={nazwaZadaniaCke(arkusz.id, String(zadanie.nr))}
     >
       {!pierwsza && <p className={`small muted ${styles.ciagDalszy}`}>Zadanie {zadanie.nr}. · ciąg dalszy</p>}
       {pierwsza && (
@@ -1141,6 +1204,12 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           }
           duzyRysunek={[...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie))}
         />
+      )}
+      {/* Rozwiązanie z kartki omawia Pestka; w trakcie pisania na czas pomocy nie ma, jak przy brudnopisie. */}
+      {ostatnia && arkusz.przedmiot === "matematyka" && !(postep.czas && !gotowe) && zadanie.pytania.some((p) => p.typ === "otwarte") && (
+        <Link to={adresZdjecia(arkusz.id, zadanie.nr)} className={`link small ${styles.zdjecieLink}`}>
+          <Camera size={15} aria-hidden="true" /> Zdjęcie rozwiązania z kartki
+        </Link>
       )}
       {ostatnia && arkusz.przedmiot === "informatyka" && zadanie.pytania.some((p) => p.typ === "otwarte" && !p.kod) && (
         <MaterialyWiersz
@@ -2320,7 +2389,7 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
       {p.typ === "otwarte" && pf.has(p.nr) && <PrawdaFalszKod pytanie={p} stwierdzenia={pf.get(p.nr)!} />}
       {p.typ === "otwarte" && dwie.has(p.nr) && <WyborKilku pytanie={p} wybor={dwie.get(p.nr)!} />}
       {p.typ === "otwarte" && tabele.has(p.nr) && <TabelaDopasowaniaWidok pytanie={p} tabela={tabele.get(p.nr)!} />}
-      {obliczenia.has(p.nr) && <p className="small muted">Rozwiązanie zapisz w brudnopisie. Po sprawdzeniu ocenisz je według schematu CKE.</p>}
+      {obliczenia.has(p.nr) && <p className="small muted">Rozwiązanie zapisz w brudnopisie.</p>}
       {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && !wTabeli.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
@@ -2338,7 +2407,7 @@ function WskazowkaAplikacji({ rodzaj }: { rodzaj: RodzajWskazowki | null }) {
   if (!rodzaj) return null;
   const w = WSKAZOWKI[rodzaj];
   return (
-    <p className={`small ${styles.wskazowka}`}>
+    <p className={`small ${styles.wskazowka}`} data-tutor-about={w.pestka}>
       <strong>{w.tytul}:</strong> {w.tekst}
     </p>
   );
@@ -2366,46 +2435,9 @@ function ZnacznikOdpowiedzi({ p }: { p: Pytanie }) {
   );
 }
 
-// Jak oddawanie wygląda tu, a jak na egzaminie: kod roboczy, odpowiedź i pliki to trzy różne rzeczy.
-function CoOddajesz({ arkusz }: { arkusz: ArkuszDane }) {
-  const [otwarty, setOtwarty] = useState(false);
-  const wg = arkusz.zadania.map((z) => ({ nr: z.nr, ...czegoZadanie(z) }));
-  const lista = (f: (x: (typeof wg)[number]) => boolean) => wg.filter(f).map((x) => x.nr).join(", ");
-  const wPliku = lista((x) => !!x.plikWynikow);
-  const zWykresem = lista((x) => x.wykres);
-  return (
-    <section className={styles.oddajesz} aria-label="Co oddajesz tutaj, a co na egzaminie">
-      <button type="button" className={styles.spisPrzycisk} aria-expanded={otwarty} aria-controls="co-oddajesz" onClick={() => setOtwarty(!otwarty)}>
-        <FileText size={16} aria-hidden="true" />
-        <span>Co oddajesz tutaj, a co na egzaminie</span>
-        <ChevronDown size={16} aria-hidden="true" className={otwarty ? styles.spisStrzalkaOtwarta : undefined} />
-      </button>
-      {otwarty && (
-        <div id="co-oddajesz" className={styles.oddajeszTresc}>
-          <div>
-            <h3 className="h4">Kod roboczy</h3>
-            <p className="small">
-              Programy, zapytania i obliczenia piszesz w panelu materiałów do zadania. Zapisują się w tej przeglądarce i nie są oceniane. Do odpowiedzi trafia tylko to, co sam wstawisz do pola pod poleceniem.
-            </p>
-          </div>
-          <div>
-            <h3 className="h4">Odpowiedź w Sedno</h3>
-            <p className="small">
-              Pola pod poleceniami, komórki tabel i luki w zdaniach. Tylko to liczy się do wyniku. Wpisany wynik porównujemy z kluczem CKE; algorytm, zapytanie i zestawienie pod wykres oceniasz sam po sprawdzeniu arkusza, z rozwiązaniem CKE przed oczami.
-            </p>
-          </div>
-          <div>
-            <h3 className="h4">Pliki i wykresy: poza Sedno</h3>
-            <p className="small">
-              Plik z wynikami, pliki z kodem, wykres i realizacja w arkuszu kalkulacyjnym albo bazie to rzeczy, które polecenia CKE każą oddać. Tu nie wysyłasz żadnych plików i Sedno ich nie sprawdza.
-              {wPliku && ` W tym arkuszu plik wyników dotyczy zadań: ${wPliku}.`}
-              {zWykresem && ` Wykres: zadania ${zWykresem}.`} Jak dokładnie przekazuje się pliki na egzaminie: do weryfikacji w informatorze CKE.
-            </p>
-          </div>
-        </div>
-      )}
-    </section>
-  );
+// Pliki, wykresy i realizacje z poleceń CKE oddaje się tylko na egzaminie: bez tej linii uczeń szukałby, gdzie je wysłać.
+function CoOddajesz() {
+  return <p className="small muted">Pliki i wykresy z poleceń CKE oddajesz tylko na egzaminie. Tu liczą się pola odpowiedzi.</p>;
 }
 
 // Przed sprawdzeniem: podpunkty bez pełnej odpowiedzi, każdy ze skokiem do pola.
@@ -2421,7 +2453,7 @@ function BrakujaceOdpowiedzi() {
   return (
     <div className={styles.braki} role="group" aria-label="Brakujące odpowiedzi">
       {braki.length === 0 ? (
-        <p className="small">Każdy podpunkt ma odpowiedź. Pamiętaj, że pliki i wykresy z poleceń CKE zostają poza Sedno.</p>
+        <p className="small">Każdy podpunkt ma odpowiedź.</p>
       ) : (
         <>
           <p className="small">
@@ -2583,11 +2615,63 @@ function tabeleDopasowania(z: Zadanie): Map<string, TabelaDopasowania> {
   return wynik;
 }
 
+// Litery jak suwak: klik wybiera, a podkładkę można też chwycić i przeciągnąć; po puszczeniu dociąga się sprężyście
+// do najbliższej litery. Podkładka jedzie transformem, a w trakcie ciągnięcia React nie przerysowuje niczego.
 function PrzelacznikLiter({ litery, wybrana, poprawna, gotowe, onWybor, etykieta }: { litery: string[]; wybrana?: string; poprawna?: string; gotowe: boolean; onWybor: (w: string) => void; etykieta: string }) {
   const { kontener, ramka } = usePodswietlenie(gotowe ? undefined : wybrana);
+  const podkladka = useRef<HTMLSpanElement>(null);
+  const ciag = useRef<{ id: number; x0: number; x: number; ruszony: boolean } | null>(null);
+  const [ciagnie, setCiagnie] = useState(false);
+  const blokujKlik = useRef(false);
+  const segmenty = () => [...(kontener.current?.querySelectorAll<HTMLElement>("[data-litera]") ?? [])];
+  const najblizsza = (x: number) => {
+    let naj: HTMLElement | undefined;
+    for (const el of segmenty()) if (!naj || Math.abs(el.offsetLeft + el.offsetWidth / 2 - x) < Math.abs(naj.offsetLeft + naj.offsetWidth / 2 - x)) naj = el;
+    return naj;
+  };
+  const pierwszy = segmenty()[0];
+  const rozmiar = ramka ?? (pierwszy ? { top: pierwszy.offsetTop, left: pierwszy.offsetLeft, width: pierwszy.offsetWidth, height: pierwszy.offsetHeight } : null);
+
+  function wcisniety(e: React.PointerEvent<HTMLDivElement>) {
+    const k = kontener.current;
+    if (gotowe || e.button !== 0 || !k || getComputedStyle(k).flexDirection === "column") return;
+    ciag.current = { id: e.pointerId, x0: e.clientX, x: e.clientX - k.getBoundingClientRect().left, ruszony: false };
+  }
+  function ruch(e: React.PointerEvent<HTMLDivElement>) {
+    const c = ciag.current;
+    const k = kontener.current;
+    if (!c || !k || e.pointerId !== c.id) return;
+    if (!c.ruszony) {
+      if (Math.abs(e.clientX - c.x0) < 6) return;
+      c.ruszony = true;
+      k.setPointerCapture(e.pointerId);
+      setCiagnie(true);
+    }
+    const r = k.getBoundingClientRect();
+    c.x = e.clientX - r.left;
+    const w = podkladka.current?.offsetWidth ?? 48;
+    const x = Math.min(Math.max(c.x - w / 2, 4), r.width - w - 4);
+    if (podkladka.current) podkladka.current.style.transform = `translateX(${x}px)`;
+  }
+  function puszczony(e: React.PointerEvent<HTMLDivElement>) {
+    const c = ciag.current;
+    ciag.current = null;
+    if (!c?.ruszony || e.pointerId !== c.id) return;
+    const cel = najblizsza(c.x);
+    blokujKlik.current = true;
+    setCiagnie(false);
+    if (!cel) return;
+    if (podkladka.current) podkladka.current.style.transform = `translateX(${cel.offsetLeft}px)`;
+    if (cel.dataset.litera && cel.dataset.litera !== wybrana) onWybor(cel.dataset.litera);
+  }
   return (
-    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={etykieta}>
-      {ramka && <span className={styles.thumb} style={ramka} aria-hidden="true" />}
+    <div ref={kontener} className={styles.slider} role="radiogroup" aria-label={etykieta} data-ciagnie={ciagnie || undefined}
+      onPointerDown={wcisniety} onPointerMove={ruch} onPointerUp={puszczony} onPointerCancel={() => { ciag.current = null; setCiagnie(false); }}
+      onClickCapture={(e) => { if (blokujKlik.current) { blokujKlik.current = false; e.preventDefault(); e.stopPropagation(); } }}>
+      {(ramka || ciagnie) && rozmiar && (
+        <span ref={podkladka} className={styles.thumb} aria-hidden="true"
+          style={{ top: rozmiar.top, width: rozmiar.width, height: rozmiar.height, transform: ciagnie ? undefined : `translateX(${rozmiar.left}px)` }} />
+      )}
       {litery.map((l) => (
         <button
           key={l}
@@ -3271,7 +3355,7 @@ function WypowiedzWidok({ pytanie: p, pisanie }: { pytanie: Wypowiedz; pisanie: 
       />
       {sprawdzone(p.nr) && (
         <p className={`small ${styles.note}`}>
-          Wypowiedź oceniasz na razie sam według kryteriów z polecenia (treść, spójność, zakres i poprawność środków językowych). Automatyczna ocena przyjdzie razem z AI.
+          Wypowiedź oceniasz według kryteriów z polecenia.
         </p>
       )}
     </div>

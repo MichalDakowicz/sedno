@@ -15,7 +15,7 @@ type Odczyt =
   | { status: "gotowa"; sesja: SesjaNauki };
 
 export function useSesjaRundy(id: string): [Odczyt, () => void] {
-  const zapis = useZapytanieNauki(UUID_SESJI.test(id) ? id : null, (signal) => naukaApi.sesja(id, signal));
+  const zapis = useZapytanieNauki(UUID_SESJI.test(id) ? id : null, (signal) => naukaApi.sesja(id, signal), { zPamieci: false });
   if (zapis.stan === "ladowanie") return [{ status: "laduje" }, zapis.ponow];
   if (zapis.stan === "blad") return [{ status: "blad" }, zapis.ponow];
   return [zapis.dane ? { status: "gotowa", sesja: zapis.dane } : { status: "brak" }, zapis.ponow];

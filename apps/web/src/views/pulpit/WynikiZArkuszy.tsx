@@ -3,6 +3,10 @@ import { ArrowRight, Target } from "lucide-react";
 import { przedmiot } from "../../konto/przedmioty";
 import type { Wynik } from "../../konto/wyniki";
 import type { ArkuszWpis } from "../../arkusze/typy";
+import { Linia, PasekProgu } from "../../components/wykresy";
+import { Liczba } from "../../ruch";
+import { StanPestki } from "../../components/StanPestki";
+import { glos, wybierz } from "../../pestka/glos";
 import type { KontekstPulpitu } from "./widgety";
 import { Kicker, procent } from "./wspolne";
 import styles from "../Dashboard.module.css";
@@ -13,25 +17,6 @@ const PROG = 30;
 function kiedyTemu(iso: string): string {
   const dni = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
   return dni <= 0 ? "dziś" : dni === 1 ? "wczoraj" : `${dni} dni temu`;
-}
-
-/** Linia wyników kolejnych arkuszy jednego przedmiotu, od najstarszego. */
-function Trend({ wyniki, podpis }: { wyniki: Wynik[]; podpis: string }) {
-  const pkt = wyniki.slice(0, 8).reverse().map(procent);
-  const w = 120;
-  const h = 40;
-  const x = (i: number) => (pkt.length === 1 ? w / 2 : (i / (pkt.length - 1)) * w);
-  const y = (v: number) => h - 3 - (v / 100) * (h - 6);
-  return (
-    <span className={styles.trendWrap}>
-      <svg className={styles.trend} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
-        <line x1="0" x2={w} y1={y(PROG)} y2={y(PROG)} className={styles.trendProg} />
-        <polyline points={pkt.map((v, i) => `${x(i)},${y(v)}`).join(" ")} className={styles.trendLinia} />
-        <circle cx={x(pkt.length - 1)} cy={y(pkt.at(-1)!)} r="3.5" className={styles.trendKropka} />
-      </svg>
-      <span className={styles.trendPodpis}>{podpis}</span>
-    </span>
-  );
 }
 
 const nazwaArkusza = (a: ArkuszWpis) => przedmiot(a.przedmiot)?.nazwa ?? a.przedmiot;
@@ -70,28 +55,26 @@ export function WynikiZArkuszy({ zakres: podsumowania, co, obok }: KontekstPulpi
       {srednia === null ? (
         <>
           <p className="h2">Jeszcze bez wyniku</p>
-          <p className="muted">Sprawdź pierwszy arkusz, a pokażę ci, gdzie jesteś i ile brakuje do progu.</p>
+          <StanPestki rozmiar="maly" tekst={wybierz(glos.puste.wyniki, 0)} akcja={{ etykieta: "Wybierz arkusz", do: "/arkusze" }} />
         </>
       ) : (
         <>
-          <div className={styles.wynikiGlowa}>
-            <p className={styles.stat}>
-              {srednia}
-              <span>%</span>
-              <span className={styles.statOpis}>średnio z {wszystkie.length} {wszystkie.length === 1 ? "arkusza" : "arkuszy"}</span>
-            </p>
-            {tegoSamego(wszystkie).length > 1 && <Trend wyniki={tegoSamego(wszystkie)} podpis={nazwaArkusza(wszystkie[0]!.arkusz).toLowerCase()} />}
-          </div>
-          <div className={styles.skala} role="img" aria-label={`Średnio ${srednia}%, próg zdania ${PROG}%`}>
-            <span className={styles.skalaPasek}>
-              <span style={{ width: `${Math.max(srednia, 1)}%` }} />
-              <span className={styles.skalaProg} style={{ left: `${PROG}%` }} />
-            </span>
-            <span className={styles.skalaOpis} style={{ left: `${PROG}%` }}>
-              próg {PROG}%
-            </span>
-          </div>
+          <p className={styles.stat}>
+            <Liczba wartosc={srednia} />
+            <span>%</span>
+            <span className={styles.statOpis}>średnio z {wszystkie.length} {wszystkie.length === 1 ? "arkusza" : "arkuszy"}</span>
+          </p>
           <p className={styles.wniosek}>{wniosek(tegoSamego(wszystkie))}</p>
+          {tegoSamego(wszystkie).length > 1 ? (
+            <Linia
+              punkty={tegoSamego(wszystkie).slice(0, 8).reverse().map((w) => procent(w) / 100)}
+              prog={PROG / 100}
+              podpisOstatniego={`${procent(wszystkie[0]!)}%`}
+              opis={`${wniosek(tegoSamego(wszystkie))} Ostatni wynik ${procent(wszystkie[0]!)}%, próg ${PROG}%.`}
+            />
+          ) : (
+            <PasekProgu wartosc={srednia / 100} prog={{ wartosc: PROG / 100, etykieta: `próg ${PROG}%` }} opis={`Średnio ${srednia}%, próg zdania ${PROG}%.`} />
+          )}
           <ul className={styles.ostatnie}>
             {wszystkie.slice(0, 2).map((w) => (
               <li key={w.arkusz.id + w.kiedy}>
