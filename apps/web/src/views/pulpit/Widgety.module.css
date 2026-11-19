@@ -231,7 +231,7 @@
 
 /* Siedem dni nie rozjeżdża się na całą szerokość pulpitu. */
 .dniTygodnia {
-  width: min(100%, 30rem);
+  width: 100%;
 }
 
 /* Twój tydzień: zdanie z liczbą dni, pasek celu z tylu części, ile dni w celu, kropki dni i jedno zdanie, co dalej.
@@ -239,7 +239,15 @@
 .tydzienBlok {
   display: grid;
   gap: var(--s-3);
-  width: min(100%, 32rem);
+  width: 100%;
+}
+
+.tydzienDol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-1) var(--s-4);
 }
 
 .tydzienGora {

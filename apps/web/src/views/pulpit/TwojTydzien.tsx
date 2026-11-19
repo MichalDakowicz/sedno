@@ -93,11 +93,6 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
     <section className={`${styles.section} wejscie`} aria-labelledby="tydzien-widget">
       <div className={styles.sectionHead}>
         <h2 id="tydzien-widget" className="h2">Twój tydzień</h2>
-        {p && (
-          <button type="button" className={`link ${w.przyciskLink}`} aria-expanded={edycja} onClick={() => ustawEdycje((e) => !e)}>
-            {edycja ? "Gotowe" : "Kiedy możesz się uczyć"}
-          </button>
-        )}
       </div>
 
       {czeka && <Ladowanie ile={4} wysokosc={[420, 470]} etykieta="Wczytuję tydzień" />}
@@ -140,7 +135,12 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
               };
             })} />
           </div>
-          {podsumowanie && <p className="small muted">{podsumowanie}</p>}
+          <p className={`small muted ${w.tydzienDol}`}>
+            {podsumowanie && <span>{podsumowanie}</span>}
+            <button type="button" className="link small" aria-expanded={edycja} onClick={() => ustawEdycje((e) => !e)}>
+              {edycja ? "Gotowe" : "Zmień dni nauki"}
+            </button>
+          </p>
           </div>
           {minuty && (
             <div className={w.minuty}>
