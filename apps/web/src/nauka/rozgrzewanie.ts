@@ -34,7 +34,7 @@ const TRASY: Record<string, (p: Poziom | null) => void> = {
   },
   "/nauka": (p) => {
     arkusze();
-    if (p) [zapytania.mapa(p), zapytania.polecenie(p), zapytania.otwarteRundy(), zapytania.powtorki(p)].forEach(rozgrzej);
+    if (p) [zapytania.mapa(p), zapytania.polecenie(p), zapytania.otwarteRundy(), zapytania.powtorki(p), zapytania.diagnoza(p)].forEach(rozgrzej);
   },
   "/arkusze": arkusze,
   "/umiejetnosci": (p) => {

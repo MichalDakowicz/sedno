@@ -1,5 +1,7 @@
 // Jedna propozycja dnia dla pulpitu, Nauki i Powtórek: wszystkie trzy miejsca pokazują to samo, z jednym czasem.
-// Kolejność: niedokończona runda albo arkusz (nowsze z nich) → powtórka na dziś → polecenie z nauka_polec → nowy arkusz.
+// Kolejność: niedokończona runda → diagnoza zakończona dziś (najsłabsza umiejętność) → niedokończony arkusz →
+// powtórka na dziś → obszar zadeklarowany jako słaby, dopóki dane go nie potwierdzą ani nie obalą → polecenie z
+// nauka_polec → nowy arkusz. Powód mówi o celu i czasie z quizu celów, gdy uczeń je podał.
 // Rundy są tylko z angielskiego; inne przedmioty dostają propozycję z arkuszy (konto/wyniki.ts).
 import type { ArkuszWpis, Poziom } from "../arkusze/typy";
 import { brakArkuszy, naPoziomie, nazwaPoziomu, przedmiot, type PrzedmiotId } from "../konto/przedmioty";
@@ -8,6 +10,9 @@ import { propozycja, useWynikiKonta, type Podsumowanie, type Propozycja } from "
 import { adresPowtorek, adresRundy, adresStartu } from "./adresy";
 import { nazwaFormatuNauki, type Powtorka } from "./api";
 import { useOtwarteRundy, usePoziomNauki, useZapytanie } from "./stan";
+import { celPrzedmiotu, minutyDziennie, useUczenie } from "../konto/profilUcznia";
+
+const dzienWarszawa = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Warsaw" });
 import { zapytania } from "./zapytania";
 
 // Każda rekomendacja z nauka_polec i nauka_powtorki ma w SQL stałe 5 minut na jedną krótką rundę.
@@ -126,15 +131,35 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
   const rundy = useOtwarteRundy(angielski);
   const powtorki = useZapytanie(angielski ? zapytania.powtorki(poziom) : null);
   const polecenie = usePolecenieDnia(poziom, angielski);
+  const diagnoza = useZapytanie(angielski ? zapytania.diagnoza(poziom) : null);
+  const mapa = useZapytanie(angielski ? zapytania.mapa(poziom) : null);
+  const uczenie = useUczenie();
+  const cel = celPrzedmiotu(uczenie, "angielski");
+  const minutyDnia = minutyDziennie(uczenie);
+  // Dopisek do powodu: cel i zadeklarowany czas (runda mieści się w minutach dziennie).
+  const zCelem = (minuty: number) => [
+    cel !== null ? `Do celu ${Math.round(cel * 100)}% liczy się każda runda.` : "",
+    minutyDnia ? `${minuty} min mieści się w twoich ${minutyDnia} min dziennie.` : "",
+  ].filter(Boolean).join(" ");
+  const runda = (tytul: string, powod: string, skill: string, format?: Parameters<typeof adresStartu>[2], repeat?: string): PropozycjaDnia => ({
+    rodzaj: "polecenie",
+    przedmiot: "angielski",
+    tytul,
+    powod: [powod, zCelem(MINUTY_RUNDY)].filter(Boolean).join(" "),
+    akcja: { do: adresStartu(poziom, skill, format, repeat), etykieta: "Zacznij rundę" },
+    minuty: MINUTY_RUNDY,
+    ikona: "runda",
+  });
 
   const zArk = co ? zArkuszy(co) : null;
   if (!angielski) return { stan: "gotowe", dzis: zArk };
-  if ([rundy.stan, powtorki.stan, polecenie.stan].includes("ladowanie")) return { stan: "ladowanie", dzis: null };
+  if ([rundy.stan, powtorki.stan, polecenie.stan, diagnoza.stan].includes("ladowanie")) return { stan: "ladowanie", dzis: null };
 
   // 1. Niedokończone: runda albo arkusz, nowsze z nich.
-  const runda = rundy.dane?.sesje[0];
+  const otwarta = rundy.dane?.sesje[0];
   const arkuszZaczety = co?.rodzaj === "dokoncz" ? co.zaczety : null;
-  if (runda && (!arkuszZaczety || runda.updated_at >= arkuszZaczety.kiedy)) {
+  if (otwarta && (!arkuszZaczety || otwarta.updated_at >= arkuszZaczety.kiedy)) {
+    const runda = otwarta;
     const nazwa = (runda.skill_id && rundy.dane?.nazwy.get(runda.skill_id)) || nazwaFormatuNauki[runda.format];
     return {
       stan: "gotowe",
@@ -149,6 +174,13 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
       },
     };
   }
+  // 1a. Diagnoza skończona dziś: najsłabsza umiejętność z jej wyniku, zanim wróci arkusz.
+  const sesjaDiagnozy = diagnoza.dane?.status === "gotowa" ? diagnoza.dane.session : null;
+  if (sesjaDiagnozy && dzienWarszawa.format(new Date(sesjaDiagnozy.updated_at)) === dzienWarszawa.format(new Date())) {
+    const najslabsza = [...(sesjaDiagnozy.result?.umiejetnosci ?? [])].filter((u) => u.opanowanie != null).sort((a, b) => a.opanowanie! - b.opanowanie!)[0];
+    if (najslabsza) return { stan: "gotowe", dzis: runda(najslabsza.name, `Na dziś wybrałam tę umiejętność, bo w diagnozie poszła najsłabiej (${najslabsza.poprawne} z ${najslabsza.wszystkich}).`, najslabsza.skill_id) };
+  }
+
   if (arkuszZaczety && zArk) return { stan: "gotowe", dzis: zArk };
 
   // 2. Powtórka na dziś.
@@ -170,6 +202,12 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
     };
   }
 
+  // 2a. Obszar zadeklarowany w quizie jako słaby: pierwszeństwo, dopóki jego umiejętności mają mało danych.
+  const niepewne = (mapa.dane?.skills ?? []).filter((u) => uczenie.slabe?.includes(u.area) && (u.score === null || u.confidence < 0.5) && u.formats.includes("szybka-runda"));
+  const zDeklaracji = [...niepewne].sort((a, b) => a.evidence_count - b.evidence_count)[0];
+  if (zDeklaracji)
+    return { stan: "gotowe", dzis: runda(zDeklaracji.name, `Na dziś wybrałam tę umiejętność, bo ten obszar wskazano jako słabszy, a ja mam za mało odpowiedzi, żeby to potwierdzić.`, zDeklaracji.skill_id) };
+
   // 3. Polecenie z mapy umiejętności.
   const p = polecenie.dane;
   if (p)
@@ -179,7 +217,7 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
         rodzaj: "polecenie",
         przedmiot: "angielski",
         tytul: p.nazwa,
-        powod: `Na dziś wybrałam to ćwiczenie. ${p.reason}`,
+        powod: [`Na dziś wybrałam to ćwiczenie. ${p.reason}`, zCelem(p.minutes > 0 ? p.minutes : MINUTY_RUNDY)].filter(Boolean).join(" "),
         akcja: { do: adresStartu(poziom, p.skill_id, p.format, p.repeat_id ?? undefined), etykieta: nazwaFormatuNauki[p.format] },
         minuty: p.minutes > 0 ? p.minutes : MINUTY_RUNDY,
         ikona: "runda",
