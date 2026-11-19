@@ -1,4 +1,6 @@
 import { useId } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import {
   kontrastWSystemie,
   ruchWSystemie,
@@ -63,6 +65,11 @@ export function Ustawienia() {
         <h2 className="h2">Wygląd</h2>
         <Wybor opis="Motyw" opcje={MOTYWY} wartosc={u.motyw} onChange={(motyw) => zmienUstawienia({ motyw })} />
         <Wybor opis="Rozmiar tekstu" opcje={TEKSTY} wartosc={u.tekst} onChange={(tekst) => zmienUstawienia({ tekst })} />
+      </section>
+
+      <section className={s.sekcja}>
+        <h2 className="h2">Pulpit</h2>
+        <Link to="/uklad-pulpitu" className="link">Układ pulpitu <ArrowRight size={16} aria-hidden="true" /></Link>
       </section>
 
       <section className={s.sekcja}>

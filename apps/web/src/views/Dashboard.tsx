@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Navigate, useParams } from "react-router-dom";
-import { ArrowRight, ChevronRight, LayoutGrid, LayoutList, Plus } from "lucide-react";
+import { ArrowRight, ChevronRight, LayoutGrid, Plus } from "lucide-react";
 import { isTourDone, useTutor, type Hint } from "../components/TutorContext";
 import { SubjectIcon } from "../components/icons";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
@@ -149,10 +149,6 @@ export function Dashboard() {
             {trwa(diagnoza) ? "Dokończ diagnozę" : "Sprawdźmy, od czego zacząć"} <ArrowRight size={14} aria-hidden="true" />
           </Link>
         )}
-        <Link to={aktywny ? `/uklad-pulpitu?przedmiot=${aktywny.id}` : "/uklad-pulpitu"} className={styles.ukladLink}>
-          <LayoutList size={14} aria-hidden="true" />
-          Układ pulpitu
-        </Link>
       </section>
 
       {profil && !moje.length && <BezPrzedmiotow />}
