@@ -44,3 +44,12 @@
 .przypis {
   margin: 0;
 }
+
+/* Lista egzaminów z dniami pod rozwinięciem: oś czasu wyżej mówi to samo obrazem. */
+.rozwijane > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--primary-text);
+  cursor: pointer;
+}

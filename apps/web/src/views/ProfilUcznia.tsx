@@ -10,6 +10,7 @@ import { useListaArkuszy } from "../arkusze/dane";
 import s from "./ProfilUcznia.module.css";
 import { NaglowekStrony } from "../components/NaglowekStrony";
 import { Pigulki } from "../components/Pigulki";
+import { Liczba } from "../ruch";
 
 function Wybor({ pytanie, opcje, wybrana, onZmiana }: { pytanie: string; opcje: Opcja[]; wybrana?: string; onZmiana: (id: string) => void }) {
   return (
@@ -54,6 +55,42 @@ export function CzasICel({ przedmioty }: { przedmioty: PrzedmiotId[] }) {
 const LIMIT_LICZNIKA = 100;
 
 const kiedy = (iso: string) => new Date(iso).toLocaleDateString("pl-PL", { day: "numeric", month: "short" }).replace(".", "");
+
+const PORY = [
+  { od: 5, do: 12, nazwa: "rano" },
+  { od: 12, do: 17, nazwa: "po południu" },
+  { od: 17, do: 22, nazwa: "wieczorem" },
+  { od: 22, do: 29, nazwa: "w nocy" },
+];
+const godzinaWarszawa = new Intl.DateTimeFormat("pl-PL", { hour: "numeric", hourCycle: "h23", timeZone: "Europe/Warsaw" });
+
+/** Wnioski jako kilka liczb: ile arkuszy, średni wynik i pora nauki (z dat zapisu postępu arkuszy). */
+function LiczbyUcznia({ wyniki }: { wyniki: NonNullable<ReturnType<typeof useWynikiKonta>> }) {
+  const lista = wyniki.podsumowania.flatMap((p) => p.wyniki);
+  if (!lista.length) return null;
+  const srednia = Math.round(lista.reduce((s, w) => s + (w.mozliwe ? w.zdobyte / w.mozliwe : 0), 0) / lista.length * 100);
+  const godziny = wyniki.wiersze.map((w) => Number(godzinaWarszawa.format(new Date(w.updated_at))));
+  const liczPory = PORY.map((p) => ({ ...p, ile: godziny.filter((g) => (g < 5 ? g + 24 : g) >= p.od && (g < 5 ? g + 24 : g) < p.do).length }));
+  const pora = godziny.length >= 3 ? liczPory.reduce((a, b) => (b.ile > a.ile ? b : a)) : null;
+  return (
+    <dl className={s.liczby}>
+      <div>
+        <dt>sprawdzone arkusze</dt>
+        <dd><Liczba wartosc={lista.length} /></dd>
+      </div>
+      <div>
+        <dt>średni wynik</dt>
+        <dd><Liczba wartosc={srednia} />%</dd>
+      </div>
+      {pora && pora.ile > 0 && (
+        <div>
+          <dt>najczęściej uczysz się</dt>
+          <dd className={s.slowo}>{pora.nazwa}</dd>
+        </div>
+      )}
+    </dl>
+  );
+}
 
 export function ProfilUcznia() {
   const profil = useProfil();
@@ -150,6 +187,7 @@ export function ProfilUcznia() {
         <h2 id="pu-wnioski" className="h2">
           Co wiemy z twoich wyników
         </h2>
+        {wyniki && <LiczbyUcznia wyniki={wyniki} />}
         {wnioski.stan === "laduje" ? (
           <p className="muted">Liczę wnioski z twoich arkuszy…</p>
         ) : wnioski.stan === "blad" || (listaBlad && listaBlad !== "brak-danych") ? (

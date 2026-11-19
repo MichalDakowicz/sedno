@@ -65,3 +65,38 @@
     overflow-x: auto;
   }
 }
+
+/* Stan Pestki dwiema liczbami; tabela zużycia pod rozwinięciem. */
+.liczby {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4) var(--s-6);
+  margin: 0;
+}
+
+.liczby div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--s-1);
+}
+
+.liczby dt {
+  font-size: var(--t-sm);
+  color: var(--subtle);
+}
+
+.liczby dd {
+  margin: 0;
+  font-size: calc(32px * var(--skala-tekstu, 1));
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.zuzycie > summary {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--primary-text);
+}

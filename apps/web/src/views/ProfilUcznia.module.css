@@ -56,3 +56,35 @@
     flex-direction: column;
   }
 }
+
+/* Wnioski jako kilka liczb z podpisem, bez tabeli. */
+.liczby {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+  gap: var(--s-4) var(--s-5);
+  margin: 0;
+}
+
+.liczby div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--s-1);
+}
+
+.liczby dt {
+  font-size: var(--t-sm);
+  color: var(--subtle);
+}
+
+.liczby dd {
+  margin: 0;
+  font-size: calc(40px * var(--skala-tekstu, 1));
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.liczby dd.slowo {
+  font-size: calc(28px * var(--skala-tekstu, 1));
+  line-height: 1.15;
+}

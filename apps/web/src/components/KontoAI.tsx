@@ -169,6 +169,19 @@ export function KontoAI() {
         <h2 className="h2" data-tutor-about="Sedno nie ma wspólnego klucza. Używam dostawców zapisanych na tym koncie.">AI na koncie</h2>
       </div>
 
+      {creds.length > 0 && usage.length > 0 && (
+        <dl className={styles.liczby}>
+          <div>
+            <dt>zapytań do Pestki</dt>
+            <dd>{usage.length}{usage.length >= 500 ? "+" : ""}</dd>
+          </div>
+          <div>
+            <dt>odpowiedzi bez błędu</dt>
+            <dd>{Math.round((usage.filter((u) => u.ok).length / usage.length) * 100)}%</dd>
+          </div>
+        </dl>
+      )}
+
       {creds.length > 0 && (
         <ul className={`wiersze ${styles.list}`}>
           {creds.map((c) => (
@@ -274,8 +287,10 @@ export function KontoAI() {
       )}
 
       {groups.size > 0 && (
+        <details className={styles.zuzycie}>
+        <summary>Zużycie według dostawcy i modelu</summary>
         <table className={styles.usage}>
-          <caption className="label">Zużycie (ostatnie 500 zapytań)</caption>
+          <caption className="visually-hidden">Zużycie (ostatnie 500 zapytań)</caption>
           <thead>
             <tr>
               <th>Dostawca · model · poziom</th>
@@ -297,6 +312,7 @@ export function KontoAI() {
             ))}
           </tbody>
         </table>
+        </details>
       )}
     </section>
   );
