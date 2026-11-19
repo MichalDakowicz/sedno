@@ -1,7 +1,7 @@
 .znak {
   display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
+  align-items: baseline;
+  gap: 0;
   font-size: var(--t-lg);
   font-weight: 700;
   letter-spacing: -0.04em;
@@ -30,4 +30,34 @@
 a:hover > .znak .pestka,
 a:focus-visible > .znak .pestka {
   transform: translateY(-2px) rotate(-6deg);
+}
+
+/* Litera „o” jako pierścień w kolorze napisu, z Pestką wciśniętą w środek. Rozmiar i linia jak zwykłe „o”,
+   tylko odrobinę większe, żeby Pestkę było widać. */
+.literaO {
+  display: inline-block;
+  width: 0.72em;
+  height: 0.72em;
+  margin-left: 0.03em;
+  transform: translateY(0.06em);
+  overflow: visible;
+}
+
+.pierscien {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 9;
+}
+
+.wnetrze {
+  fill: var(--primary);
+}
+
+.literaO {
+  transition: transform var(--ruch-wolny) var(--ruch-sprezyna);
+}
+
+a:hover > .znak .literaO,
+a:focus-visible > .znak .literaO {
+  transform: translateY(0.02em) rotate(-10deg);
 }
