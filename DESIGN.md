@@ -174,7 +174,7 @@ Zasady: pierwsza osoba w rodzaju żeńskim, krótkie zdania, do ucznia bez form 
 
 ### Kiełkująca pestka
 
-Umiejętność rośnie w czterech stadiach (`nauka/stadia.ts`, rysunek `components/Kielek.tsx`): pestka (poniżej 25% albo brak danych), kiełek, roślina z liśćmi, drzewko z owocem. Progi w jednym miejscu: `PROGI_STADIOW = { kielek: 0.25, roslina: 0.45, drzewko: 0.6 }`. Celowo nisko, bo opanowanie z samych rund zatrzymuje się dziś ok. 67%; po poprawce wzoru w bazie do przestrojenia. Gdzie: wiersze mapy, panel umiejętności (duża liczba opanowania, kropki ostatnich prób, „pamiętasz ok. X%”), rozbiór (stare stadium → nowe rośnie), widget mapy na pulpicie jako „ogród” czterech obszarów z jednym zdaniem.
+Umiejętność rośnie w czterech stadiach (`nauka/stadia.ts`, rysunek `components/Kielek.tsx`): pestka (poniżej 55% albo brak danych), kiełek, roślina z liśćmi, drzewko z owocem. Progi w jednym miejscu: `PROGI_STADIOW = { kielek: 0.55, roslina: 0.75, drzewko: 0.85 }`, strojone pod model bez sufitu (migracja 0020: start od 50%, bezbłędne rundy dają ok. 68 → 79 → 86 → 90%): kiełek po pierwszej dobrej rundzie, roślina po dwóch bezbłędnych, drzewko po trzech, czterech albo przy stałych ok. 90% dobrych odpowiedzi. Po kilku dniach bez ćwiczeń zanik zabiera drzewko. Gdzie: wiersze mapy, panel umiejętności (duża liczba opanowania, kropki ostatnich prób, „pamiętasz ok. X%”), rozbiór (stare stadium → nowe rośnie), widget mapy na pulpicie jako „ogród” czterech obszarów z jednym zdaniem.
 
 ### Znak
 
@@ -196,16 +196,17 @@ Co która strona pokazuje (pytanie → forma):
 | Strona | Sekcja | Pytanie ucznia | Forma |
 | --- | --- | --- | --- |
 | Pulpit | Karta dnia | Co mam zrobić teraz? | karta Pestki z powodem i jednym przyciskiem |
-| Pulpit | Twój tydzień | Czy uczę się regularnie? | 7 kropek dni i seria |
+| Pulpit | Twój tydzień | Czy uczę się regularnie? | 7 kropek dni i seria (dziennik aktywności w bazie), minuty nauki w ostatnich tygodniach jako linia z wnioskiem; bez dziennika w bazie dni z dat prób i bez minut |
 | Pulpit | Do matury | Ile mam czasu, czy zdam i ile brakuje do celu? | dni do egzaminu i prognoza: pasek z kreską progu 30% i celem z profilu ucznia |
-| Pulpit | Mapa w skrócie | Co umiem, a co nie? | „ogród”: cztery obszary w stadiach i jedno zdanie |
+| Pulpit | Mapa w skrócie | Co umiem, a co nie? | „ogród”: cztery obszary w stadiach i jedno zdanie (z historią opanowania także o zmianie w tygodniu) |
 | Pulpit | Powtórki | Ile mam do powtórzenia? | liczba na dziś |
 | Pulpit | Wyniki z arkuszy | Czy idzie mi coraz lepiej? | średnia i linia wyników z progiem |
 | Nauka | Propozycja i sposoby | Jak chcę się dziś uczyć? | karta dnia, lista sposobów z jednym polecanym |
 | Runda | Postęp | Ile jeszcze i jak mi idzie? | kropki zadań (zielona, czerwona, pusta) zamiast gołego paska |
 | Rozbiór | Wynik rundy | Co się zmieniło po tej rundzie? | kropki odpowiedzi, jedno zdanie Pestki, pasek opanowania przed → po, stadium |
 | Mapa | Lista umiejętności | W czym jestem mocny, a w czym słaby? | wiersze z paskiem i stadium Pestki, pogrupowane obszarami |
-| Mapa | Panel umiejętności | Skąd ta ocena i co dalej? | duża liczba opanowania ze stadium, kropki ostatnich prób, „Pamiętasz ok. X%”, jeden przycisk „Ćwicz”. Bez linii w czasie: baza nie trzyma historii opanowania, a z listy prób nie da się jej uczciwie odtworzyć |
+| Mapa | Panel umiejętności | Skąd ta ocena i co dalej? | duża liczba opanowania ze stadium, „Pamiętasz ok. X%”, linia opanowania w czasie z tytułem-wnioskiem (historia z bazy, oceny z co najmniej dwóch dni; inaczej linii nie ma), kropki ostatnich prób, jeden przycisk „Ćwicz” |
+| Diagnoza | Pierwsze wyniki | Od czego zacząć? | wynik i kropki odpowiedzi, zdanie Pestki, wiersze umiejętności ze stadium i paskiem (w kreskę, bo ocena z jednej, dwóch prób jest wstępna), karta dnia |
 | Powtórki | Na dziś i kolejka | Co i kiedy powtórzyć? | karta na dziś, 7 kratek dni z liczbą powtórek (błędy są gotowe od dziś), lista według umiejętności |
 | Arkusze | Lista | Które arkusze mam za sobą? | wynik jako pierścień z progiem |
 | Arkusz po sprawdzeniu | Wynik | Gdzie straciłem punkty i czas? | wynik i pasek z progiem 30% (poziom podstawowy), paski zadań z największą stratą punktów, czas względem normy |

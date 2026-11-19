@@ -21,15 +21,15 @@ Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (
 | `/przedmiot/:id` | Pulpit zawężony do przedmiotu: propozycja dnia, arkusze przedmiotu, widgety |
 | `/uklad-pulpitu` | Wybór i kolejność widgetów pulpitu, osobno dla każdego przedmiotu |
 | `/nauka` | Nauka (angielski): propozycja dnia, Wolny temat, sposoby nauki z polecanym, inne przedmioty, „Chcę coś innego” (poziom i umiejętność), niedokończone rundy |
-| `/nauka/runda`, `/nauka/runda/:id` | Szybka runda albo „Napraw błąd”: start z parametrów (`?poziom&umiejetnosc&format&powtorz`) i trwająca runda |
-| `/nauka/rozbior/:id` | Rozbiór zakończonej rundy: zmiana opanowania, zadania, następny krok |
+| `/nauka/runda`, `/nauka/runda/:id` | Szybka runda albo „Napraw błąd”: start z parametrów (`?poziom&umiejetnosc&format&powtorz`) i trwająca runda; w tym samym widoku sesja diagnozy (koniec prowadzi do `/nauka/diagnoza`) |
+| `/nauka/rozbior/:id` | Rozbiór zakończonej rundy: zmiana opanowania, zadania, następny krok; dla sesji diagnozy wynik na umiejętność (`views/nauka/WynikDiagnozy.tsx`) |
 | `/nauka/uczen-uczy` | Uczeń uczy AI: wyjaśnienie zasady Koledze, ocena sędziego |
 | `/nauka/zadania` | Zadania z matematyki i informatyki: typy zadań (`?przedmiot`), wariant z losowymi danymi i ocena kluczem (`?szablon`) |
 | `/nauka/zdjecie` | Zdjęcie rozwiązania z kartki: odczyt do poprawienia i uwaga Pestki; z arkusza `?arkusz&zadanie` |
 | `/nauka/sokratejski` | Rozmowa z pytaniami: do siedmiu pytań Pestki o umiejętność (`?umiejetnosc`), potem mini-test |
 | `/nauka/pisanie` | Pisanie krok po kroku: szkice na koncie, edytor etapu (`?szkic`), lista kontrolna i pytanie Pestki |
-| `/nauka/diagnoza` | Diagnoza na start: po jednej rundzie z każdego obszaru, potem pierwsze wyniki i propozycja dnia (`nauka/diagnoza.ts`, stan w przeglądarce) |
-| `/umiejetnosci` | Mapa umiejętności: opanowanie umiejętności, panel z próbami (`?umiejetnosc=`) |
+| `/nauka/diagnoza` | Diagnoza na start (`nauka/diagnoza.ts`): jedna krótka sesja (`nauka_diagnoza_start`, ok. 16 zadań), stan na koncie osobno dla poziomu, na końcu wynik na umiejętność i propozycja dnia. Bez tych funkcji w bazie dawna wersja: po jednej rundzie z każdego obszaru, stan w przeglądarce |
+| `/umiejetnosci` | Mapa umiejętności: opanowanie umiejętności, panel z linią opanowania w czasie i próbami (`?umiejetnosc=`) |
 | `/powtorki` | Powtórki: propozycja dnia, błędy do przećwiczenia, umiejętności do odświeżenia |
 | `/arkusze` | Lista arkuszy CKE: angielski według poziomu, matematyka (podstawowy), informatyka (rozszerzony); `?przedmiot&poziom` |
 | `/arkusze/:id` | Rozwiązywanie arkusza i sprawdzanie z kluczem CKE, omawianie błędów z Pestką |
@@ -46,11 +46,18 @@ Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (
 Wszystkie wywołania funkcji `nauka-ai` idą przez `src/nauka/ai.ts`: jedno typowane wywołanie na akcję i `komunikatPestki`, który zamienia kod błędu (`rate_limited`, `no_provider`, `provider_failed`, `bad_model_response`, `image_not_supported`, błędy wejścia) na krótki komunikat z informacją, czy ponowienie ma sens. Wspólny wygląd błędu i braku modelu: `components/BladPestki.tsx`. Widoki wołają funkcję tylko na wyraźne działanie ucznia (limit 30 wywołań modelu na minutę, 24 warianty, 12 ocen).
 
 - `views/nauka/Zadania.tsx`: katalog szablonów (`warianty-katalog`), wariant (`wariant-zadania`) i ocena (`ocen-rozwiazanie`). Id wariantu i próby to `crypto.randomUUID()`; id wariantu leży w `sessionStorage`, a ta sama odpowiedź po błędzie idzie z tym samym id próby. Pole odpowiedzi zależy od formy (liczba, tekst, lista, pola, SQL). Werdykt z kryteriami, status „Do weryfikacji” i reakcja Pestki z `PestkaRundy.tsx`. Działa bez modelu (ocena kluczem).
-- `views/pulpit/TwojTydzien.tsx`: widget „Twój tydzień”. Plan z `nauka_plan` (dni zmienia `nauka_plan_dni`), prognoza z pola `forecast` planu. Dni z nauką i seria liczone w przeglądarce z dat prób `nauka_dowody` (angielski) i `sheet_progress.updated_at` (każdy przedmiot), w strefie Europe/Warsaw.
+- `views/pulpit/TwojTydzien.tsx`: widget „Twój tydzień”. Plan z `nauka_plan` (dni zmienia `nauka_plan_dni`), prognoza z pola `forecast` planu. Dni z nauką, seria i minuty w ostatnich tygodniach z `nauka_aktywnosc`; bez tej funkcji w bazie dni i seria liczone w przeglądarce z dat prób `nauka_dowody` (angielski) i `sheet_progress.updated_at` (każdy przedmiot), w strefie Europe/Warsaw, a minut nie ma.
+- `components/BrudnopisEdytor.tsx` + `brudnopisPestkaApi.ts`: `omow-brudnopis` idzie zwykłym `fetch` z `stream: true`; `components/strumienTablicy.ts` czyta zdarzenia (`wskazowka`, `wynik`, `blad`), a dymek przy pytaniu pisze wskazówkę od pierwszych fragmentów. Dopiski i figury rysują się po `wynik`. Funkcja sprzed strumienia odpowiada zwykłym JSON-em i działa jak dawniej.
 - `views/nauka/Zdjecie.tsx`: zdjęcie zmniejszane na płótnie do JPEG ok. 900 KB (dłuższy bok do 1600 px), `odczytaj-zdjecie`, poprawiony odczyt do `omow-odczyt`. Zdjęcie nie jest zapisywane. Wejście z zadania otwartego w arkuszu matematyki (nie w trakcie pisania na czas).
 - `views/nauka/Sokratejski.tsx`: `sokratejski` z historią par, okno rozmowy w stylu `TutorChat.module.css`, zapis rozmowy w `sessionStorage`. Podsumowanie i propozycję mini-testu składa aplikacja.
 - `views/nauka/KrokPoKroku.tsx`: szkice w `writing_drafts` (zapis po pauzie z filtrem `revision`, konflikt wczytuje nowszą wersję), `krok-po-kroku` na przycisk, oddanie przez `nauka_oddaj_szkic`.
 - `components/Wyszukiwanie.tsx`: oprócz akcji, arkuszy i rozmów szuka umiejętności z mapy i sposobów nauki; pytanie do Pestki dostaje odpowiedź w oknie (ta sama rozmowa co w `/tutor`).
+
+## Nauka a wersja bazy
+
+Aplikacja może trafić na produkcję przed migracjami bazy. Odczyty nowych funkcji (`naukaApi.diagnoza`, `historia`, `aktywnosc` w `nauka/api.ts`) zwracają `null`, gdy funkcji nie ma (`brakFunkcji`: PostgREST `PGRST202`, Postgres `42883`). Widok wraca wtedy do dawnego zachowania (diagnoza w przeglądarce, dni z dat prób) albo nie pokazuje sekcji (linia opanowania, minuty, zmiana w tygodniu), bez komunikatu o błędzie. Historię i dziennik aktywności zamienia na wykresy `nauka/historia.ts` (punkty rzadkie: wartość z dnia bez punktu to poprzednia); przy danych z mniej niż dwóch dni sekcji nie ma.
+
+Sesja diagnozy ma `skill_id = null` i format `diagnoza`: umiejętność ma każde zadanie (`question.skill_id`). Lista niedokończonych rund ją pomija, a błędy z niej w Powtórkach i na mapie mają nazwę „Diagnoza z …” (`useSesjaDiagnozy`).
 
 ## Pestka (tutor AI)
 
