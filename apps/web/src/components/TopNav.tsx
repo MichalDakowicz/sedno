@@ -6,7 +6,7 @@ import { Plywak } from "./Plywak";
 import { resetTour, useTutor } from "./TutorContext";
 import { OTWORZ_SZUKAJ } from "./Wyszukiwanie";
 import styles from "./TopNav.module.css";
-import { mniejRuchu } from "../motyw";
+import { mniejRuchu } from "../ruch";
 
 const links = [
   { to: "/", label: "Pulpit", icon: LayoutGrid, end: true },

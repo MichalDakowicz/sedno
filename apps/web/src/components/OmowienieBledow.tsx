@@ -16,7 +16,7 @@ import { TutorAvatar } from "./TutorAvatar";
 import chat from "./TutorChat.module.css";
 import { WsparcieNota } from "./TutorChat";
 import styles from "./OmowienieBledow.module.css";
-import { mniejRuchu } from "../motyw";
+import { mniejRuchu } from "../ruch";
 
 export type Wiadomosc = { od: "tutor" | "uczen"; tekst: string };
 

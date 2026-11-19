@@ -3,13 +3,13 @@ import { useLocation } from "react-router-dom";
 import { X } from "lucide-react";
 import { TutorAvatar } from "./TutorAvatar";
 import { useTutor, type Hint } from "./TutorContext";
-import { mniejRuchu } from "../motyw";
+import { CZAS, mniejRuchu } from "../ruch";
 import styles from "./TutorGuide.module.css";
 
 const AV = 48;
 const GAP = 12;
 const MOVE_MS = 700;
-const PANEL_MS = 500; // jak długo panel wjeżdża (Panel.module.css)
+const PANEL_MS = CZAS.wolny; // jak długo panel wjeżdża (Panel.module.css, --ruch-wolny)
 const LOT_MS = 850; // czas lotu Pestki na drugą stronę
 const FADE_MS = 200;
 const SPOT_PAD = 8;

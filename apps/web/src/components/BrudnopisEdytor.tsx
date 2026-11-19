@@ -7,7 +7,8 @@ import type { AppState, BinaryFileData, DataURL, ExcalidrawImperativeAPI, Excali
 import type { ExcalidrawElement, FileId } from "@excalidraw/excalidraw/element/types";
 import "@excalidraw/excalidraw/index.css";
 import { Circle, Eraser, Hand, Maximize2, Minimize2, Minus, MousePointer2, MoveUpRight, Pencil, Redo2, Scan, Sparkles, Square, Trash2, Type, Undo2, X, ZoomIn, ZoomOut, type LucideIcon } from "lucide-react";
-import { mniejRuchu, useCiemny } from "../motyw";
+import { useCiemny } from "../motyw";
+import { mniejRuchu } from "../ruch";
 import { currentUserId, useSession } from "../auth";
 import { adresObrazu, type Obraz } from "../arkusze/typy";
 import { BrudnopisPestka, komunikatPestki } from "./BrudnopisPestka";

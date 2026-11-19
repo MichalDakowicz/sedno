@@ -85,6 +85,25 @@
   color: var(--fg);
 }
 
+/* Ruch: trzy czasy i dwie krzywe, nic dłuższego niż --ruch-wolny (wyjątek: skok Pestki). Zwykła krzywa do zmian stanu
+   (kolor, przejście treści), sprężysta do rzeczy, które coś „przenoszą” (wskaźnik zaznaczenia, kafel, pasek, licznik).
+   Ten sam ruch w JS: apps/web/src/ruch.ts. „Mniej ruchu” wyłącza wszystko w global.css. */
+:root {
+  --ruch-szybki: 150ms;
+  --ruch-zwykly: 250ms;
+  --ruch-wolny: 400ms;
+  --ruch-krzywa: cubic-bezier(0.2, 0, 0, 1);
+  /* Zapas dla przeglądarek bez linear(): lekkie przestrzelenie zamiast prawdziwego odbicia. */
+  --ruch-sprezyna: cubic-bezier(0.3, 1.35, 0.5, 1);
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    /* Sprężyna z tłumieniem 0,62: ok. 8% przestrzelenia i jedno łagodne wahnięcie. */
+    --ruch-sprezyna: linear(0, 0.047, 0.161, 0.31, 0.47, 0.623, 0.757, 0.868, 0.954, 1.015, 1.054, 1.076, 1.083, 1.081, 1.073, 1.061, 1.047, 1.034, 1.023, 1.013, 1.005, 1, 0.996, 0.994, 1);
+  }
+}
+
 /* Ciemny motyw: domyślnie za ustawieniem systemu, w Ustawieniach można go wymusić (data-motyw). Paleta jak w docs/style.css. Jedyne odstępstwo:
    pod ciemnym tekstem --primary-fg stoją jasne wersje --primary-strong i --success-strong
    (biały tekst nie miałby kontrastu). */

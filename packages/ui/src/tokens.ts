@@ -122,3 +122,13 @@ export const shadow = {
   float: "0 8px 32px rgba(15, 21, 29, 0.08)",
   raised: "0 12px 40px rgba(15, 21, 29, 0.16)",
 } as const;
+
+// Ruch (tokens.css --ruch-*): czasy w ms i sprężyna dla wartości liczonych w JS (apps/web/src/ruch.ts).
+export const motion = {
+  fast: 150,
+  normal: 250,
+  slow: 400,
+  easing: [0.2, 0, 0, 1],
+  /** Sprężyna: sztywność i tłumienie (masa 1). Daje ok. 8% przestrzelenia, jak --ruch-sprezyna. */
+  spring: { stiffness: 260, damping: 20 },
+} as const;
