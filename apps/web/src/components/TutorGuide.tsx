@@ -79,16 +79,24 @@ function zajete(x: number, y: number): boolean {
 
 const rogY = () => window.innerHeight - AV - edge();
 
-// Dom Pestki: litera „o” w logu na pasku. Stamtąd wylatuje do wskazówek i tam wraca; na spoczynku chowa się w niej.
+// Litera „o” w logu na pasku: z niej Pestka wylatuje do wskazówek i do niej wraca. Ta w rogu zostaje na miejscu.
 function dom(): DOMRect | null {
   const el = document.querySelector<SVGElement>("[data-pestka-dom]");
   const r = el?.getBoundingClientRect();
   return r && r.width > 0 && r.bottom > 0 ? r : null;
 }
 
+const srodekO = (o: DOMRect): Point => ({ x: o.left + o.width / 2 - AV / 2, y: o.top + o.height / 2 - AV / 2 });
+const WYLOT_MS = 460; // szarpanie w „o”, zanim Pestka się uwolni
+const POWROT_MS = 600; // wciskanie się z powrotem i krople
+
+/** Stan litery „o” w logu (Znak.module.css): szarpanie przed wylotem, pusta litera, wciskanie się z powrotem. */
+function stanLogo(stan: "wylot" | "poza" | "powrot" | null) {
+  if (stan) document.documentElement.dataset.pestka = stan;
+  else delete document.documentElement.dataset.pestka;
+}
+
 function restPoint(): Point {
-  const o = dom();
-  if (o) return { x: o.left + o.width / 2 - AV / 2, y: o.top + o.height / 2 - AV / 2 };
   const x = spoczynekLewy ? edge() : viewW() - AV - edge();
   let y = rogY();
   for (let i = 0; i < 4 && zajete(x, y); i++) y -= AV + 8;
@@ -230,16 +238,11 @@ export function TutorGuide() {
 
   const modeRef = useRef<Mode>("rest");
   const posRef = useRef<Point>(pos);
-  // Pierwsze miejsce to „o” logo, zanim ruszy pierwsza wskazówka: inaczej Pestka wlatywałaby z rogu ekranu.
-  // Dopóki paska z logo nie ma, przewodnik na spoczynku jest niewidoczny.
-  const [maDom, ustawMaDom] = useState(() => !!dom());
-  useLayoutEffect(() => {
-    if (!dom()) return;
-    const p = restPoint();
-    posRef.current = p;
-    setPos(p);
-    ustawMaDom(true);
-  }, []);
+  // Pestka, która mówi, przylatuje z „o” logo i tam wraca. W tym czasie w rogu stoi druga (kopia przycisku rozmowy).
+  const wylot = useRef<{ timer: number; cel: [Point, Mode, boolean] } | null>(null);
+  const powrot = useRef<number | null>(null);
+  const [wOku, ustawWOku] = useState(false);
+  useEffect(() => () => stanLogo(null), []);
   const focused = useRef<HTMLElement | null>(null);
   // Element, na którym Pestka siedzi: nowy cel to skok, ten sam (przewijanie) to tylko podążanie.
   const ostatniCel = useRef<HTMLElement | null>(null);
@@ -253,7 +256,7 @@ export function TutorGuide() {
   };
 
   // Przenosi Pestkę. Zmiana trybu albo nowy cel to skok; podążanie za przewijaną stroną dzieje się bez animacji.
-  const place = useCallback((p: Point, m: Mode, jump: boolean) => {
+  const przenies = useCallback((p: Point, m: Mode, jump: boolean) => {
     if (modeRef.current === m && near(posRef.current, p)) return;
     if (jump) {
       setMoving(true);
@@ -266,6 +269,60 @@ export function TutorGuide() {
     setMode(m);
     setPos(p);
   }, []);
+
+  const place = useCallback((p: Point, m: Mode, jump: boolean) => {
+    // Trwa szarpanie w „o”: ruszy po nim, do ostatniego celu.
+    if (wylot.current) {
+      wylot.current.cel = [p, m, jump];
+      return;
+    }
+    const o = dom();
+    // Wraca, a tu nowa wskazówka: zawraca od razu.
+    if (powrot.current !== null) {
+      if (m === "rest") return;
+      window.clearTimeout(powrot.current);
+      powrot.current = null;
+      stanLogo("poza");
+      ustawWOku(false);
+    } else if (o && !mniejRuchu() && modeRef.current === "rest" && m === "perch") {
+      // Wylot: Pestka szarpie się w „o”, pryskają krople, wyskakuje z litery i leci do celu, rosnąc po drodze.
+      stanLogo("wylot");
+      wylot.current = {
+        cel: [p, m, jump],
+        timer: window.setTimeout(() => {
+          // Blokada zostaje do startu lotu: inaczej przewijanie w tych dwóch klatkach przestawiłoby Pestkę bez animacji.
+          stanLogo("poza");
+          const start = srodekO(dom() ?? o);
+          posRef.current = start;
+          modeRef.current = "perch";
+          setMode("perch");
+          setPos(start);
+          ustawWOku(true);
+          // Timer zamiast klatek animacji: małe „o” musi się najpierw narysować, a klatki stoją w karcie w tle.
+          window.setTimeout(() => {
+            const [cp, cm] = wylot.current!.cel;
+            wylot.current = null;
+            ustawWOku(false);
+            przenies(cp, cm, true);
+          }, 40);
+        }, WYLOT_MS),
+      };
+      return;
+    } else if (o && !mniejRuchu() && modeRef.current === "perch" && m === "rest") {
+      // Powrót: leci do „o”, maleje, wciska się w literę z kroplami; Pestka w rogu stoi tam cały czas.
+      ustawWOku(true);
+      przenies(srodekO(o), "perch", true);
+      powrot.current = window.setTimeout(() => {
+        powrot.current = null;
+        stanLogo("powrot");
+        window.setTimeout(() => stanLogo(null), POWROT_MS);
+        ustawWOku(false);
+        przenies(p, "rest", false);
+      }, MOVE_MS);
+      return;
+    }
+    przenies(p, m, jump);
+  }, [przenies]);
 
   // Ustala, gdzie Pestka powinna być teraz. `jump` dla zmian wywołanych przez ucznia lub nową wskazówkę.
   const showSpot = useCallback((el: HTMLElement | null) => {
@@ -367,7 +424,6 @@ export function TutorGuide() {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         sync(false);
-        if (dom()) ustawMaDom(true);
       });
     };
     window.addEventListener("scroll", onChange, { passive: true });
@@ -551,8 +607,6 @@ export function TutorGuide() {
   // Pas pod Pestką na spoczynku w rogu telefonu: treść pod nią przygasa jak pod paskiem nawigacji, więc Pestka
   // nie siedzi na wierszu ani przycisku (strona ma pod spodem zapas, żeby koniec dało się wyprzewijać nad pas).
   const pasDoku = resting && waski() && Math.abs(pos.y - rogY()) < 1;
-  // Na spoczynku w „o” widać Pestkę z logo, a przewodnik jest schowany (zostaje tylko klikalne miejsce i kropka wskazówki).
-  const wDomu = resting && !moving && !!dom();
   const bubbleStyle: CSSProperties =
     layout.placement === "below" || layout.placement === "above" ? { left: layout.shift, width: layout.w } : { width: layout.w };
 
@@ -570,6 +624,13 @@ export function TutorGuide() {
   return (
     <>
       {pasDoku && <div className={styles.dok} aria-hidden="true" />}
+      {!resting && (
+        <div className={styles.guide} style={{ transform: `translate(${restPoint().x}px, ${restPoint().y}px)` }}>
+          <button type="button" className={styles.avatar} onClick={() => open()} aria-label="Porozmawiaj z Pestką" title="Porozmawiaj z Pestką">
+            <TutorAvatar size={AV} state="idle" />
+          </button>
+        </div>
+      )}
       {spot && !resting && (
         <div
           className={`${styles.spot} ${closing ? styles.spotClosing : ""}`}
@@ -579,8 +640,8 @@ export function TutorGuide() {
       )}
       <div
         ref={guideRef}
-        className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""} ${wDomu ? styles.wDomu : ""}`}
-        style={{ transform: `translate(${pos.x}px, ${pos.y}px)`, ...(!maDom && resting ? { opacity: 0 } : {}) }}
+        className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""} ${wOku ? styles.wOku : ""}`}
+        style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
       >
         <button
           key={`a${hop}`}
