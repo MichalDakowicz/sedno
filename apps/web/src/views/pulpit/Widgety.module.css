@@ -233,3 +233,45 @@
 .dniTygodnia {
   width: min(100%, 30rem);
 }
+
+/* Twój tydzień: zdanie z liczbą dni, pasek celu z tylu części, ile dni w celu, kropki dni i jedno zdanie, co dalej.
+   Wszystko w jednej wąskiej kolumnie, żeby nie rozjeżdżało się po szerokości pulpitu. */
+.tydzienBlok {
+  display: grid;
+  gap: var(--s-3);
+  width: min(100%, 32rem);
+}
+
+.tydzienGora {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2) var(--s-4);
+}
+
+.tydzienZdanie {
+  font-size: var(--t-lg);
+}
+
+.tydzienZdanie strong {
+  font-size: calc(32px * var(--skala-tekstu, 1));
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.celPasek {
+  display: flex;
+  gap: 4px;
+}
+
+.celPasek span {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+}
+
+.celPasek span[data-pelny] {
+  background: var(--primary);
+}

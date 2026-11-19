@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import { Ladowanie } from "../../components/Ladowanie";
 import { Kropki, Linia } from "../../components/wykresy";
 import { dniAktywne, minutyTygodni, wniosekMinut } from "../../nauka/historia";
-import { Liczba } from "../../ruch";
 import { TutorAvatar } from "../../components/TutorAvatar";
 import { usePostepyKonta } from "../../konto/wyniki";
 import { minutyDziennie, useUczenie } from "../../konto/profilUcznia";
@@ -113,19 +112,21 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
         <>
           {edycja && <DniNauki plan={p} poziom={poziom} zapisano={plan.ponow} />}
           {/* Co zrobić dziś, mówi karta „Dziś warto”. Tu tydzień względem celu: ile dni, seria, najbliższy dzień w planie. */}
-          <div className={w.tydzienGlowa}>
-            <p className={styles.stat}>
-              <Liczba wartosc={zNauka} />
-              <span className={styles.statJednostka}> / {celDni ?? 7}</span>
-              <span className={styles.statOpis}>{celDni ? "dni nauki do celu tygodnia" : `${zNauka === 1 ? "dzień" : "dni"} z nauką w tym tygodniu`}</span>
-            </p>
+          <div className={w.tydzienBlok}>
+          <div className={w.tydzienGora}>
+            <p className={w.tydzienZdanie}><strong>{zNauka}</strong> z {celDni ?? 7} dni nauki w tym tygodniu</p>
             {seria >= 2 && (
               <p className={w.seria}>
-                <TutorAvatar size={44} state={KAMIENIE_SERII.includes(seria) ? "swieto" : "radosc"} />
-                <span>Seria <strong>{seria}</strong> {odmianaDni(seria)} z rzędu</span>
+                <TutorAvatar size={32} state={KAMIENIE_SERII.includes(seria) ? "swieto" : "radosc"} />
+                <span>seria <strong>{seria}</strong> {odmianaDni(seria)}</span>
               </p>
             )}
           </div>
+          {celDni !== null && (
+            <div className={w.celPasek} role="img" aria-label={`${Math.min(zNauka, celDni)} z ${celDni} dni celu`}>
+              {Array.from({ length: celDni }, (_, i) => <span key={i} data-pelny={i < zNauka || undefined} />)}
+            </div>
+          )}
           <div className={w.dniTygodnia}>
           <Kropki rowno opis={`W tym tygodniu ${zNauka} z 7 dni z nauką, seria ${seria} ${odmianaDni(seria)}.`}
             kropki={tydzien.map((d, i) => {
@@ -139,7 +140,8 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
               };
             })} />
           </div>
-          {podsumowanie && <p className="muted">{podsumowanie}</p>}
+          {podsumowanie && <p className="small muted">{podsumowanie}</p>}
+          </div>
           {minuty && (
             <div className={w.minuty}>
               <span className="label">{wniosekMinut(minuty)}</span>
