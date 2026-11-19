@@ -11,7 +11,7 @@ npm run build
 
 ## Widoki
 
-Menu ma trzy pozycje: Pulpit, Nauka, Arkusze. Mapa umiejętności i Powtórki to zakładki w Nauce (`views/nauka/ZakladkiNauki.tsx`) pod własnymi adresami.
+Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (`components/TopNav.tsx`). Na telefonie menu ma do tego Pestkę, „Do matury”, Profil i Ustawienia. Od 1180 px w dół etykiety w pasku są bez ikon, żeby pięć pozycji i wyspa zegara zmieściły się od 961 px.
 
 | Ścieżka | Widok |
 | --- | --- |
@@ -25,8 +25,8 @@ Menu ma trzy pozycje: Pulpit, Nauka, Arkusze. Mapa umiejętności i Powtórki to
 | `/nauka/rozbior/:id` | Rozbiór zakończonej rundy: zmiana opanowania, zadania, następny krok |
 | `/nauka/uczen-uczy` | Uczeń uczy AI: wyjaśnienie zasady Koledze, ocena sędziego |
 | `/nauka/diagnoza` | Diagnoza na start: po jednej rundzie z każdego obszaru, potem pierwsze wyniki i propozycja dnia (`nauka/diagnoza.ts`, stan w przeglądarce) |
-| `/umiejetnosci` | Mapa umiejętności (zakładka Nauki): opanowanie umiejętności, panel z próbami (`?umiejetnosc=`) |
-| `/powtorki` | Powtórki (zakładka Nauki): propozycja dnia, błędy do przećwiczenia, umiejętności do odświeżenia |
+| `/umiejetnosci` | Mapa umiejętności: opanowanie umiejętności, panel z próbami (`?umiejetnosc=`) |
+| `/powtorki` | Powtórki: propozycja dnia, błędy do przećwiczenia, umiejętności do odświeżenia |
 | `/arkusze` | Lista arkuszy CKE: angielski według poziomu, matematyka (podstawowy), informatyka (rozszerzony); `?przedmiot&poziom` |
 | `/arkusze/:id` | Rozwiązywanie arkusza i sprawdzanie z kluczem CKE, omawianie błędów z Pestką |
 | `/tutor` | Pełny widok rozmowy z Pestką |

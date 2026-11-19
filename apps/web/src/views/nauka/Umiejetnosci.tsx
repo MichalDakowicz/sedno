@@ -11,7 +11,6 @@ import { naukaApi, type DowodNauki, type Umiejetnosc } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie } from "./Opanowanie";
-import { ZakladkiNauki } from "./ZakladkiNauki";
 
 import s from "./Umiejetnosci.module.css";
 
@@ -113,9 +112,7 @@ export function Umiejetnosci() {
 
   return (
     <main className={`container ${s.strona}`} data-panel={!!wybrana}>
-      <NaglowekStrony etykieta="Język angielski" tytul="Nauka" lead="Jak radzisz sobie z wymaganiami matury.">
-        <ZakladkiNauki />
-      </NaglowekStrony>
+      <NaglowekStrony etykieta="Język angielski" tytul="Mapa umiejętności" lead="Jak radzisz sobie z wymaganiami matury." />
       <div className={s.filtry}>
         <nav className="pigulki" aria-label="Przedmioty">
           {przedmioty.map((p) => (

@@ -124,7 +124,6 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 | Przełącznik | `.przelacznik` | włączony pomarańczowy |
 | Karta polecenia | `.karta` + `.kicker` | etykieta z ikoną, tytuł, powód, jeden przycisk |
 | Propozycja dnia | `components/KartaDnia.tsx` + `nauka/dzis.ts` | ta sama karta i ten sam wybór na pulpicie, w Nauce, w Powtórkach i na końcu diagnozy |
-| Zakładki działu | `views/nauka/ZakladkiNauki.tsx` | pigułki z `aria-current`: Ćwiczenia, Mapa umiejętności, Powtórki pod nagłówkiem Nauki |
 | Odpowiedzi A–F | kafle (`views/nauka/TrescRundy.tsx`, arkusz) | litera i tekst w jednym kaflu; po sprawdzeniu zielony i czerwony |
 | Rozwijana sekcja | ikona `ChevronRight` z obrotem | bez systemowych trójkątów |
 | Ładowanie | `components/Ladowanie` | szkielet w kształcie treści, bez skoku układu. Dane już raz pobrane pokazujemy od razu (pamięć w `nauka/pamiec.ts`). |

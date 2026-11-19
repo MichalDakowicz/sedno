@@ -15,7 +15,6 @@ import { coDzisBezRund, polecanySposob, useDzisAngielski, usePolecenieDnia, type
 import { useOtwarteRundy, usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { OPIS_OPANOWANIA } from "./Opanowanie";
 import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
-import { ZakladkiNauki } from "./ZakladkiNauki";
 import s from "./NaukaPowtorki.module.css";
 
 // Te same nazwy obszarów co na mapie umiejętności (Umiejetnosci.tsx).
@@ -110,9 +109,7 @@ export function Nauka() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <NaglowekStrony etykieta="Język angielski" tytul="Nauka" tytulRef={naglowek} lead="Krótkie rundy przed maturą.">
-        <ZakladkiNauki />
-      </NaglowekStrony>
+      <NaglowekStrony etykieta="Język angielski" tytul="Nauka" tytulRef={naglowek} lead="Krótkie rundy przed maturą." />
 
       <div className={s.para}>
         {dzis.stan === "ladowanie" ? (

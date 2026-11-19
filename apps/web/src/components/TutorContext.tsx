@@ -101,7 +101,7 @@ export const tourHints: Hint[] = [
   },
   {
     target: ["nav-links", "nav-menu"],
-    text: "Tu przechodzisz między pulpitem, nauką i arkuszami. Mapa umiejętności i powtórki są w Nauce.",
+    text: "Tu przechodzisz między pulpitem, nauką, arkuszami, mapą umiejętności i powtórkami.",
   },
   {
     target: "subjects",

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Menu, MessageCircle, Settings, UserRound, X } from "lucide-react";
+import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Map as MapaIkona, Menu, MessageCircle, RotateCcw, Settings, UserRound, X } from "lucide-react";
 import { logout } from "../auth";
 import { Plywak } from "./Plywak";
 import { resetTour, useTutor } from "./TutorContext";
@@ -12,13 +12,12 @@ const links = [
   { to: "/", label: "Pulpit", icon: LayoutGrid, end: true },
   { to: "/nauka", label: "Nauka", icon: GraduationCap },
   { to: "/arkusze", label: "Arkusze", icon: FileText },
+  { to: "/umiejetnosci", label: "Mapa umiejętności", icon: MapaIkona },
+  { to: "/powtorki", label: "Powtórki", icon: RotateCcw },
 ];
 
-// Mapa umiejętności i Powtórki to zakładki w Nauce: w menu podświetla się wtedy „Nauka”.
-const W_NAUCE = ["/nauka", "/umiejetnosci", "/powtorki"];
-
 const DODATKOWE = [
-  { to: "/tutor", label: "Rozmowa z Pestką", icon: MessageCircle },
+  { to: "/tutor", label: "Pestka", icon: MessageCircle },
   { to: "/do-matury", label: "Do matury", icon: CalendarDays },
   { to: "/profil", label: "Profil", icon: UserRound },
   { to: "/ustawienia", label: "Ustawienia", icon: Settings },
@@ -68,7 +67,7 @@ export function TopNav() {
   // Pulpit przedmiotu też należy do „Pulpitu”.
   const onDashboard = location.pathname === "/" || location.pathname.startsWith("/przedmiot/");
   const aktywny = (to: string, end?: boolean) =>
-    end ? onDashboard : to === "/nauka" ? W_NAUCE.some((p) => location.pathname === p || location.pathname.startsWith(`${p}/`)) : location.pathname === to || location.pathname.startsWith(`${to}/`);
+    end ? onDashboard : location.pathname === to || location.pathname.startsWith(`${to}/`);
   const { startTour } = useTutor();
 
   // Przewodnik zaczyna się na pulpicie ogólnym, więc z innej strony najpierw tam przechodzimy.

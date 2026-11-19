@@ -163,6 +163,13 @@
   color: var(--primary-text);
 }
 
+/* Pięć pozycji i wyspa zegara mieszczą się od 961 px dopiero bez ikon przy etykietach. */
+@media (max-width: 1180px) {
+  .link svg {
+    display: none;
+  }
+}
+
 @media (max-width: 960px) {
   .links,
   .profile {

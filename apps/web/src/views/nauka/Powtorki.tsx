@@ -4,7 +4,6 @@ import type { Poziom } from "../../arkusze/typy";
 import { KartaDnia } from "../../components/KartaDnia";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { useDzisAngielski } from "../../nauka/dzis";
-import { ZakladkiNauki } from "./ZakladkiNauki";
 import { Ladowanie } from "../../components/Ladowanie";
 import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
@@ -47,9 +46,7 @@ export function Powtorki() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <NaglowekStrony etykieta="Język angielski" tytul="Nauka" lead="Trudne zadania i dawno ćwiczone umiejętności.">
-        <ZakladkiNauki />
-      </NaglowekStrony>
+      <NaglowekStrony etykieta="Język angielski" tytul="Powtórki" lead="Trudne zadania i dawno ćwiczone umiejętności." />
 
       {dzien.stan === "ladowanie" ? <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie na dziś" /> : dzien.dzis && <KartaDnia dzis={dzien.dzis} />}
 
