@@ -89,15 +89,13 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
           <Kielek stadium={stadium(u.score)} rozmiar={88} animuj opis={`Stadium: ${NAZWA_STADIUM[stadium(u.score)]}`} />
           <p className={s.duza} data-tutor-about={OPIS_OPANOWANIA}>
             <Liczba wartosc={Math.round(u.score * 100)} /><span className={s.jednostka}>%</span>
+            {/* Pod liczbą jedno zdanie: ile do następnego stadium rośliny. Pamięć tylko, gdy już ucieka. */}
             <span className={s.podpisLiczby}>
-              opanowania z {u.evidence_count} {u.evidence_count === 1 ? "próby" : "prób"}
-              {u.retention !== null && <> · <span data-tutor-about="To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia.">pamiętasz ok. {Math.round(u.retention * 100)}%</span></>}
+              {doNastepnegoStadium(u.score) ?? "opanowane"}
+              {u.retention !== null && u.retention < 0.8 && <> · <span data-tutor-about="To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia.">czas na powtórkę</span></>}
             </span>
           </p>
           </div>
-        )}
-        {doNastepnegoStadium(u.score) && (
-          <p className={s.doStadium}>{doNastepnegoStadium(u.score)!.charAt(0).toUpperCase() + doNastepnegoStadium(u.score)!.slice(1)}</p>
         )}
         {linia && (
           <div className={s.ostatnie}>
@@ -140,7 +138,7 @@ function OstatnieProby({ proby }: { proby: DowodNauki[] }) {
   const dobre = ostatnie.filter((d) => d.score >= 1).length;
   return (
     <div className={s.ostatnie}>
-      <span className="label">Ostatnie {ostatnie.length === 1 ? "próba" : "próby"}: {dobre} z {ostatnie.length} dobrze</span>
+      <span className="label">Ostatnie {ostatnie.length === 1 ? "próba" : "próby"}</span>
       <Kropki rozmiar="male" opis={`Ostatnie ${ostatnie.length} prób: ${dobre} dobrze.`}
         kropki={ostatnie.map((d) => ({ stan: d.score >= 1 ? "dobrze" : d.score <= 0 ? "zle" : "pominiete", tytul: dataProby.format(new Date(d.happened_at)) }))} />
     </div>
