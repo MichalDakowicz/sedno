@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
-import { nazwaZadaniaCke, nazwaZadaniaRundy, type Poziom } from "../../arkusze/typy";
+import { type Poziom } from "../../arkusze/typy";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { przedmiot } from "../../konto/przedmioty";
 import { coDzisBezRund } from "../../nauka/dzis";
-import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/adresy";
+import { adresMapy, adresNauki, adresStartu } from "../../nauka/adresy";
 import { type DowodNauki, type Umiejetnosc } from "../../nauka/api";
 import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
@@ -19,7 +19,6 @@ import { Kielek } from "../../components/Kielek";
 import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
 import { NAZWA_STADIUM, stadium, doNastepnegoStadium } from "../../nauka/stadia";
-import { useSesjaDiagnozy } from "../../nauka/diagnoza";
 import { adresWizualizacji, modelDlaUmiejetnosci } from "../../nauka/wizualizacje";
 import { Gotowosc } from "../../components/Gotowosc";
 import { OBSZARY_NAUKI } from "../../nauka/gotowosc";
@@ -37,34 +36,10 @@ const OBSZARY = OBSZARY_NAUKI;
 
 const dataProby = new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeZone: "Europe/Warsaw" });
 
-function Dowod({ dowod: d, diagnoza }: { dowod: DowodNauki; diagnoza: string | null }) {
-  const numerZadania = d.question.split(".")[0];
-  const adres = d.session_id
-    ? adresRozbioru(d.session_id)
-    : d.sheet_id && `/arkusze/${encodeURIComponent(d.sheet_id)}#zadanie-${numerZadania}`;
-  const nazwa = d.session_id
-    ? nazwaZadaniaRundy(d.happened_at, d.question, d.session_id === diagnoza ? "Diagnoza" : undefined)
-    : nazwaZadaniaCke(d.sheet_id ?? "", d.question);
-  const wynik = d.score >= 1 ? "Dobrze" : d.score <= 0 ? "Błąd" : `${Math.round(d.score * 100)}%`;
-  return (
-    <li className={s.dowod}>
-      <span className={s.nazwa}>
-        {adres ? <Link to={adres}>{nazwa}</Link> : <span>{nazwa}</span>}
-        <span className="muted small">
-          <time dateTime={d.happened_at}>{dataProby.format(new Date(d.happened_at))}</time>
-          {!!d.hint_level && ` · użyte podpowiedzi: ${d.hint_level}`}
-        </span>
-      </span>
-      <span className={`small ${d.score >= 1 ? s.dobrze : d.score <= 0 ? s.zle : "muted"}`}>{wynik}</span>
-    </li>
-  );
-}
-
 function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejetnosc: Umiejetnosc }) {
   const naglowek = useRef<HTMLHeadingElement>(null);
   const proby = useZapytanie(zapytania.dowody(poziom, u.skill_id));
   const maBledyJezykowe = proby.dane?.some((d) => d.score < 1 && d.error_type === "jezyk-i-forma");
-  const diagnoza = useSesjaDiagnozy(poziom);
   // Historia opanowania (nauka_historia): bez funkcji w bazie albo przy ocenie z jednego dnia linii nie ma.
   const historia = useZapytanie(zapytania.historia(poziom));
   const punkty = historia.dane?.skills.find((h) => h.skill_id === u.skill_id)?.points;
@@ -116,14 +91,8 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
       <section className={s.blok} aria-labelledby="umiejetnosc-proby">
         {proby.stan === "ladowanie" && <Ladowanie ile={3} etykieta="Wczytuję próby" />}
         {proby.stan === "blad" && <Blad tekst="Nie udało się wczytać prób." ponow={proby.ponow} />}
-        {proby.stan === "gotowe" && (proby.dane?.length ? (
-          <details className={s.rozwijane}>
-            <summary id="umiejetnosc-proby"><ChevronRight size={16} aria-hidden="true" /> Wszystkie próby ({proby.dane.length})</summary>
-            <ul className="wiersze">
-              {proby.dane.map((d) => <Dowod key={`${d.source_id}:${d.session_id ?? d.sheet_id}:${d.question}`} dowod={d} diagnoza={diagnoza} />)}
-            </ul>
-          </details>
-        ) : <div id="umiejetnosc-proby"><StanPestki rozmiar="maly" tekst={wybierz(glos.puste.proby, 0)} /></div>)}
+        {/* Kropki „Ostatnie próby” wyżej wystarczą; pełnej listy prób tu nie wypisujemy. */}
+        {proby.stan === "gotowe" && !proby.dane?.length && <div id="umiejetnosc-proby"><StanPestki rozmiar="maly" tekst={wybierz(glos.puste.proby, 0)} /></div>}
         {maBledyJezykowe && <p className="small muted">W ostatnich próbach pojawiły się błędy językowe i dotyczące formy.</p>}
       </section>
     </aside>
