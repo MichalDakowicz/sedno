@@ -61,7 +61,7 @@ export const glos = {
   bledy: {
     siec: ["Nie mogę się połączyć. Sprawdź internet, a ja spróbuję jeszcze raz.", "Coś przerwało połączenie. Spróbujmy ponownie."],
     ogolny: ["Coś poszło nie tak po mojej stronie. Spróbujmy jeszcze raz."],
-    nieZnaleziono: ["Nie ma takiej strony. Może zgubił się adres?", "Tu nic nie ma. Wróćmy tam, gdzie coś na ciebie czeka."],
+    nieZnaleziono: ["Nie znam tego adresu. Może się zgubił?", "Tu nic nie ma. Wróćmy tam, gdzie coś na ciebie czeka."],
   },
   /** Przewodnik przy pierwszym wejściu na pulpit: trzy dymki. */
   przewodnik: {

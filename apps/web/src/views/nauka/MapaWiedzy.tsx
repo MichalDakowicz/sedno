@@ -117,8 +117,7 @@ function Widok({ przedmiot, mapa, odswiez }: { przedmiot: PrzedmiotId; mapa: Map
 
       {mapa.notatki.length === 0 ? (
         <section className={`${s.sekcja} ${m.bezLinii}`} aria-label="Pusta mapa">
-          <StanPestki tekst="Zapisz pierwszą notatkę: definicję, wzór albo regułę. Gdy będą co najmniej dwie, poszukam, co je łączy."
-            akcja={{ etykieta: "Nowa notatka", onClick: () => formularz.current?.focus() }} />
+          <StanPestki tekst="Zapisz pierwszą notatkę: definicję, wzór albo regułę. Gdy będą co najmniej dwie, poszukam, co je łączy." />
         </section>
       ) : (
         <section className={`${s.sekcja} ${m.bezLinii}`} aria-labelledby={`${id}-mapa`}>

@@ -73,3 +73,15 @@
 .owocKolor {
   fill: var(--primary-text);
 }
+
+/* Stadium „pestka” ma twarz jak znak Pestki, żeby nie wyglądało na pustą plamę. */
+.oko {
+  fill: #0f151d;
+}
+
+.usmiech {
+  fill: none;
+  stroke: #0f151d;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+}

@@ -1,4 +1,4 @@
-// Kiełkująca pestka: umiejętność jako roślina w czterech stadiach (nauka/stadia.ts). Rysunek w tokenach, ten sam
+// Kiełkująca pestka: umiejętność jako roślina w czterech stadiach, pierwsze z twarzą Pestki (nauka/stadia.ts). Rysunek w tokenach, ten sam
 // od 20 px w wierszu mapy do ok. 96 px w panelu. Roślina jest pomarańczowa jak Pestka: zieleń znaczy w Sednie „dobrze”.
 // animuj: nowe części rosną od ziemi (rozbiór, panel); w wierszach stoi bez ruchu.
 import type { Stadium } from "../nauka/stadia";
@@ -21,6 +21,9 @@ export function Kielek({ stadium, rozmiar = 32, animuj = false, opis }: {
         <g className={s.czesc}>
           <path className={s.nasiono} d="M24 21c7.4 0 12.6 5.6 12.6 11.8 0 5.4-5.4 9-12.6 9s-12.6-3.6-12.6-9C11.4 26.6 16.6 21 24 21Z" />
           <ellipse className={s.blask} cx="19.5" cy="27.5" rx="3.6" ry="2" transform="rotate(-25 19.5 27.5)" />
+          <ellipse className={s.oko} cx="20" cy="31.5" rx="1.5" ry="2.1" />
+          <ellipse className={s.oko} cx="28" cy="31.5" rx="1.5" ry="2.1" />
+          <path className={s.usmiech} d="M21.4 36c1.6 1.4 3.6 1.4 5.2 0" />
         </g>
       )}
       {poziom >= 1 && (
