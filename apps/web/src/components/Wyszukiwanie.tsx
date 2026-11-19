@@ -6,8 +6,8 @@ import { useListaArkuszy } from "../arkusze/dane";
 import { currentUserId, useProfil } from "../auth";
 import { nazwaPoziomu, przedmiot } from "../konto/przedmioty";
 import { adresMapy } from "../nauka/adresy";
-import { naukaApi } from "../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../nauka/stan";
+import { usePoziomNauki, useZapytanie } from "../nauka/stan";
+import { zapytania } from "../nauka/zapytania";
 import { Markdown } from "./Markdown";
 import { TutorAvatar } from "./TutorAvatar";
 import { useTutor } from "./TutorContext";
@@ -112,7 +112,7 @@ function Okno({ zamknij }: { zamknij: () => void }) {
   const navigate = useNavigate();
   const { rozmowy, otworzRozmowe, zapytajWNowej, aiGotowe, state, messages } = useTutor();
   const [poziom] = usePoziomNauki();
-  const mapa = useZapytanieNauki(`nauka:mapa:${poziom}`, (signal) => naukaApi.mapa(poziom, signal));
+  const mapa = useZapytanie(zapytania.mapa(poziom));
   // Pytanie zadane z okna: odpowiedź Pestki pokazujemy tu, a rozmowa zostaje w historii.
   const [zapytano, setZapytano] = useState<string | null>(null);
   const { dane: arkusze, laduje, blad } = useListaArkuszy();

@@ -293,6 +293,12 @@
   stroke-linecap: round;
 }
 
+.pierscienCel {
+  stroke: var(--primary-text);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
 .pierscienSrodek {
   position: relative;
   line-height: 1;

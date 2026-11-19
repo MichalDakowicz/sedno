@@ -22,3 +22,10 @@
     white-space: normal;
   }
 }
+
+/* Miejsce na wzór blokowy, zanim dociągnie się KaTeX (TekstMat.tsx). */
+.zastepczy {
+  display: block;
+  border-radius: var(--r-xs);
+  background: var(--shimmer);
+}

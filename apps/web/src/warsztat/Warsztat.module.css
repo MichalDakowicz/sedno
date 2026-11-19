@@ -59,7 +59,7 @@
   background: var(--surface);
   font: inherit;
   font-size: var(--t-sm);
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-family: var(--font-mono);
   color: var(--fg);
   cursor: pointer;
 }
@@ -105,6 +105,12 @@
   gap: var(--s-2) var(--s-4);
 }
 
+/* Wynik pod przyciskiem: etykieta i okno wyjścia jako jedna grupa. */
+.wynikProgramu {
+  display: grid;
+  gap: var(--s-1);
+}
+
 .wyjscie {
   margin: 0;
   max-height: 320px;
@@ -113,11 +119,11 @@
   border-radius: var(--r-sm);
   background: var(--dark);
   color: #f3efe9;
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: var(--t-xs);
   line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-word;
+  /* Jak kod: długie linie przewijają się w poziomie, nie łamią. */
+  white-space: pre;
 }
 
 .wyjscie :global(.muted) {
@@ -192,7 +198,9 @@ pre.blad {
   border-left: 3px solid var(--primary);
   background: var(--surface);
   color: var(--fg);
-  font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  line-height: 1.5;
   tab-size: 4;
   white-space: pre-wrap;
   word-break: break-word;
@@ -213,13 +221,13 @@ pre.blad {
 
 .schemat dt {
   font-weight: 600;
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-family: var(--font-mono);
 }
 
 .schemat dd {
   margin: 0;
   color: var(--muted);
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-family: var(--font-mono);
 }
 
 .tabelaWrap {
@@ -324,7 +332,7 @@ pre.blad {
 }
 
 .nazwyPlikow {
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-family: var(--font-mono);
   overflow-wrap: anywhere;
 }
 
@@ -468,7 +476,7 @@ pre.blad {
   border-bottom: 1px solid var(--line);
   font: inherit;
   font-size: var(--t-xs);
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-family: var(--font-mono);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }

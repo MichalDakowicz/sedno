@@ -61,6 +61,8 @@ function useZapytanie<T>(klucz: string, pobierz: () => PromiseLike<{ data: T | n
   return stan;
 }
 
+const listy = new Map<string, ArkuszWpis[]>();
+
 // Lista arkuszy rzadko się zmienia, więc w obrębie sesji pobieramy ją raz.
 let lista: Promise<{ data: ArkuszWpis[] | null; error: { message: string } | null }> | null = null;
 
@@ -72,13 +74,15 @@ function pobierzListe() {
       .order("position")
       .then(({ data, error }) => {
         if (error) lista = null;
+        else if (data?.length) listy.set("lista", data.map((r) => r.entry as ArkuszWpis));
         return { data: data ? data.map((r) => r.entry as ArkuszWpis) : null, error };
       }),
   );
   return lista;
 }
 
-const listy = new Map<string, ArkuszWpis[]>();
+/** Rozgrzewanie: lista arkuszy w tle, zanim uczeń wejdzie na Arkusze albo pulpit. */
+export const rozgrzejListeArkuszy = () => void pobierzListe();
 
 export const useListaArkuszy = () => useZapytanie<ArkuszWpis[]>("lista", pobierzListe, listy);
 
@@ -91,14 +95,33 @@ export function wyczyscArkusze() {
   arkusze.clear();
   listy.clear();
   lista = null;
+  arkuszeWLocie.clear();
 }
 
-export const useArkusz = (id: string) =>
-  useZapytanie<Arkusz>(`arkusz:${id}`, () =>
-    supabase
-      .from("sheets")
-      .select("data")
-      .eq("id", id)
-      .maybeSingle()
-      .then(({ data, error }) => ({ data: data ? zNakladka(data.data as Arkusz) : null, error })),
-  arkusze);
+// Pobieranie treści arkusza w locie: wspólne dla rozgrzewania (najechanie na kartę w liście) i widoku.
+const arkuszeWLocie = new Map<string, PromiseLike<{ data: Arkusz | null; error: { message: string } | null }>>();
+
+function pobierzArkusz(id: string) {
+  const trwa = arkuszeWLocie.get(id);
+  if (trwa) return trwa;
+  const obietnica = supabase
+    .from("sheets")
+    .select("data")
+    .eq("id", id)
+    .maybeSingle()
+    .then(({ data, error }) => {
+      arkuszeWLocie.delete(id);
+      const arkusz = data ? zNakladka(data.data as Arkusz) : null;
+      if (arkusz) arkusze.set(`arkusz:${id}`, arkusz);
+      return { data: arkusz, error };
+    });
+  arkuszeWLocie.set(id, obietnica);
+  return obietnica;
+}
+
+/** Rozgrzewanie: treść arkusza w tle, gdy uczeń najeżdża na jego kartę. */
+export function rozgrzejArkusz(id: string) {
+  if (!arkusze.has(`arkusz:${id}`)) void pobierzArkusz(id);
+}
+
+export const useArkusz = (id: string) => useZapytanie<Arkusz>(`arkusz:${id}`, () => pobierzArkusz(id), arkusze);

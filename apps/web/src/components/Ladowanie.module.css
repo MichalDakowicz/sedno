@@ -3,6 +3,26 @@
   min-height: 1px;
 }
 
+/* Wysokość zmierzona na docelowej treści (prop wysokosc): szkielet i treść po nim zajmują tyle samo. */
+.wrap[data-zmierzona] {
+  min-height: var(--wys-szkieletu);
+}
+
+/* Karta w szkielecie zmierzonym wypełnia całe zarezerwowane miejsce. */
+.wrap[data-zmierzona] .karta {
+  height: var(--wys-szkieletu);
+}
+
+@media (max-width: 639px) {
+  .wrap[data-zmierzona] {
+    min-height: var(--wys-szkieletu-tel);
+  }
+
+  .wrap[data-zmierzona] .karta {
+    height: var(--wys-szkieletu-tel);
+  }
+}
+
 /* Pestka nad szkieletem przy dłuższym czekaniu: leży na nim (absolute), więc nie przesuwa układu. */
 .pestka {
   position: absolute;

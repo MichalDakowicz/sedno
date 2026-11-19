@@ -19,6 +19,8 @@ import { adresDiagnozy } from "../nauka/adresy";
 import { usePoziomNauki } from "../nauka/stan";
 import { widget, type KontekstPulpitu } from "./pulpit/widgety";
 import { Wynikowy, procent, tytul } from "./pulpit/wspolne";
+import { GotowoscPrzedmiotow } from "./pulpit/GotowoscPrzedmiotow";
+import { useProfilOdczytany, useUczenie } from "../konto/profilUcznia";
 import styles from "./Dashboard.module.css";
 
 function SubjectBar({ moje: wpisy, active }: { moje: MojPrzedmiot[]; active?: string }) {
@@ -97,6 +99,8 @@ export function Dashboard() {
   const klucz = aktywny?.id ?? WSZYSTKIE;
   const uklad = useUklad(klucz);
   const diagnozaLokalna = useDiagnoza();
+  const uczenie = useUczenie();
+  const profilOdczytany = useProfilOdczytany();
   const [poziomNauki] = usePoziomNauki();
   const angielski = moje.some((m) => m.id === "angielski") && (!aktywny || aktywny.id === "angielski");
   const diagnoza = useTrybDiagnozy(poziomNauki, angielski);
@@ -151,7 +155,12 @@ export function Dashboard() {
           )}
         </h1>
         {/* Diagnoza na start (nauka/diagnoza.ts): zaproszenie, póki nie skończona ani pominięta; po przerwie „Dokończ”. */}
-        {zaproszenie && (
+        {/* Quiz celów, dopóki nie zrobiony ani pominięty; potem zaproszenie do diagnozy. */}
+        {!uczenie.quiz && profilOdczytany && moje.length > 0 ? (
+          <Link to="/cele" className="link">
+            Powiedz Pestce, ile chcesz mieć na maturze <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        ) : zaproszenie && (
           <Link to={adresDiagnozy(poziomNauki)} className="link">
             {zaproszenie === "dokoncz" ? "Dokończ diagnozę" : zaproszenie === "wyniki" ? "Zobacz pierwsze wyniki" : "Sprawdźmy, od czego zacząć"} <ArrowRight size={14} aria-hidden="true" />
           </Link>
@@ -173,46 +182,9 @@ export function Dashboard() {
         </section>
       )}
 
-      {dane && aktywny && zakres.map((s) => <ArkuszePrzedmiotu key={s.przedmiot.poziom} podsumowanie={s} zPoziomem={zakres.length > 1} wejscie={wejscie} />)}
+      {dane && moje.length > 0 && <GotowoscPrzedmiotow zakres={zakres} />}
 
-      {dane && !aktywny && moje.length > 0 && (
-        <section className={`${styles.section} ${wejscie}`} aria-labelledby="subjects-title">
-          <div className={styles.sectionHead}>
-            <h2 id="subjects-title" className="h2">
-              Twoje przedmioty
-            </h2>
-          </div>
-          <ul className={`wiersze ${styles.listaWynikow}`}>
-            {dane.podsumowania.map((s) => {
-              const pr = przedmiot(s.przedmiot.id)!;
-              return (
-                <li key={`${pr.id}-${s.przedmiot.poziom}`}>
-                  <Link to={`/przedmiot/${pr.id}`} className="wiersz">
-                    <span className="wiersz-ikona"><SubjectIcon subject={pr} size="lg" /></span>
-                    <span className="wiersz-tresc">
-                      <span className="h3">{pr.nazwa}</span>
-                      <span className="wiersz-opis">
-                        poziom {nazwaPoziomu[s.przedmiot.poziom]} · {s.arkusze.length ? `${s.wyniki.length} z ${s.arkusze.length} arkuszy sprawdzonych` : "arkuszy jeszcze nie ma"}
-                      </span>
-                    </span>
-                    <span className="wiersz-wartosc">
-                      {s.srednia !== null ? (
-                        <span className="wiersz-pasek">
-                          <Wynikowy value={s.srednia} />
-                          <span>{s.srednia}%</span>
-                        </span>
-                      ) : (
-                        <span className="muted">bez wyniku</span>
-                      )}
-                    </span>
-                    <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
+      {dane && aktywny && zakres.map((s) => <ArkuszePrzedmiotu key={s.przedmiot.poziom} podsumowanie={s} zPoziomem={zakres.length > 1} wejscie={wejscie} />)}
 
       {dane && reszta.map((w) => <w.Komponent key={w.id} {...kontekst} />)}
 

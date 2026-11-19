@@ -82,12 +82,6 @@
   width: 100%;
 }
 
-.opanowanieWybranej {
-  display: grid;
-  justify-items: start;
-  gap: var(--s-1);
-}
-
 .akcje {
   display: flex;
   align-items: center;
@@ -122,10 +116,6 @@
   padding: var(--s-3) 0;
   border-bottom: 1px solid var(--line);
   color: inherit;
-}
-
-.wierszBezIkony {
-  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .wierszRundy {
@@ -197,10 +187,6 @@ a.wiersz:hover .wierszBoczny {
   color: var(--danger);
 }
 
-.polePoziom {
-  max-width: 320px;
-}
-
 .retencja {
   display: flex;
   align-items: center;
@@ -254,10 +240,6 @@ a.wiersz:hover .wierszBoczny {
     grid-template-columns: auto minmax(0, 1fr);
   }
 
-  .wierszBezIkony {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .wierszWznow .wierszBoczny,
   .wierszBezIkony .wierszBoczny {
     justify-items: start;
@@ -266,10 +248,6 @@ a.wiersz:hover .wierszBoczny {
 
   .wierszWznow .wierszBoczny {
     grid-column: 2;
-  }
-
-  .wierszBezIkony .wierszBoczny {
-    grid-column: 1;
   }
 }
 
@@ -292,10 +270,103 @@ a.wiersz:hover .wierszBoczny {
   color: var(--success-strong);
 }
 
-/* Polecenie dla wybranej umiejętności: pod kartą dnia, więc bez karty (jedna karta na ekran). */
-.polecenieBlok {
+/* Poziom z profilu jednym zdaniem; pigułki dopiero po „inny poziom”. */
+.poziomKrotko {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.innyPoziom {
+  min-height: 44px;
+  padding: 0 var(--s-2);
+  border: 0;
+  background: none;
+  color: var(--primary-text);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+/* Nauka: karta z jedną rundą, pod nią trzy równorzędne drogi w kolumnach rozdzielonych linią. */
+.karta {
+  max-width: 760px;
+}
+
+.wyborOgrod {
+  display: grid;
+  gap: var(--s-4);
+  width: 100%;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+
+.drogi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.droga {
+  min-width: 0;
+  padding: var(--s-5) var(--s-5) var(--s-5) 0;
+}
+
+.droga + .droga {
+  padding-left: var(--s-5);
+  border-left: 1px solid var(--line);
+}
+
+.drogaLink {
   display: grid;
   justify-items: start;
-  gap: var(--s-3);
-  min-width: 0;
+  gap: var(--s-2);
+  color: var(--fg);
+}
+
+.drogaLink:hover .h3 {
+  color: var(--primary-text);
+}
+
+.droga .formularz {
+  padding: 0;
+  gap: var(--s-2);
+}
+
+.wiecej > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.wiecej > summary::-webkit-details-marker {
+  display: none;
+}
+
+.wiecej > summary svg {
+  transition: transform var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+.wiecej[open] > summary svg {
+  transform: rotate(90deg);
+}
+
+@media (max-width: 760px) {
+  .droga,
+  .droga + .droga {
+    padding: var(--s-4) 0;
+    border-left: 0;
+  }
+
+  .droga + .droga {
+    border-top: 1px solid var(--line);
+  }
 }

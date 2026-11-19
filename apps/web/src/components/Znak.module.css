@@ -16,12 +16,12 @@
 
 /* Ciemne oczy na pomarańczu w obu motywach: Pestka wygląda tak samo, zmienia się tylko tło. */
 .oko {
-  fill: #0f151d;
+  fill: var(--pestka-oczy);
 }
 
 .usmiech {
   fill: none;
-  stroke: #0f151d;
+  stroke: var(--pestka-oczy);
   stroke-width: 3.2;
   stroke-linecap: round;
 }

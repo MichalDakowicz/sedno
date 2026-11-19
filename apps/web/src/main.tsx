@@ -34,6 +34,7 @@ import { Umiejetnosci } from "./views/nauka/Umiejetnosci";
 import { MapaWiedzy } from "./views/nauka/MapaWiedzy";
 import { Wizualizacje } from "./views/nauka/Wizualizacje";
 import { NieMaStrony } from "./views/NieMaStrony";
+import { StronaQuizu } from "./views/QuizCelow";
 
 // Ustawienia stosują się od startu, nie dopiero na ich stronie.
 uruchomUstawienia();
@@ -73,6 +74,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="ustawienia" element={<Ustawienia />} />
           <Route path="do-matury" element={<DoMatury />} />
           <Route path="uklad-pulpitu" element={<UkladPulpitu />} />
+          <Route path="cele" element={<StronaQuizu />} />
           <Route path="*" element={<NieMaStrony />} />
         </Route>
       </Routes>

@@ -428,6 +428,10 @@
     "title": "Ekran główny"
    },
    {
+    "id": "dash-zakladki",
+    "title": "Pięć zakładek, pięć pytań"
+   },
+   {
     "id": "dashboard-nawigacja",
     "title": "Nawigacja i sekcje"
    },
@@ -461,7 +465,7 @@
   "id": "widgety",
   "title": "Widgety pulpitu",
   "group": "Aplikacja",
-  "desc": "Dziś warto, mapa, powtórki, arkusze, układ, stany i konto demo.",
+  "desc": "Dziś warto, gotowość i ogród, powtórki, arkusze, układ, stany i konto demo.",
   "pages": [
    {
     "id": "dashboard-widgety",
@@ -473,7 +477,7 @@
    },
    {
     "id": "dash-mapa",
-    "title": "Widget mapy umiejętności"
+    "title": "Gotowość i ogród"
    },
    {
     "id": "dash-powtorki",

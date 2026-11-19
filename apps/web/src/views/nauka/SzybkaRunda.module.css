@@ -287,15 +287,6 @@
 
 .ocena[data-correct="true"] svg { color: var(--success-strong); }
 .ocena[data-correct="false"] svg { color: var(--danger); }
-
-.mapaRozbioru {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(155px, 100%), 1fr));
-  column-gap: var(--s-5);
-  row-gap: var(--s-3);
-  margin: 0;
-}
-.mapaRozbioru dd { margin: 3px 0 0; font-size: var(--t-lg); }
 .wierszeRozbioru { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
 .wierszeRozbioru > li { border-bottom: 1px solid var(--line); }
 .proba { padding-block: 16px; }
@@ -322,27 +313,6 @@
 .wierszProby > svg:last-child { transition: transform var(--ruch-zwykly) var(--ruch-krzywa); }
 .rozwijane[open] > .wierszProby > svg:last-child { transform: rotate(90deg); }
 .ocena[data-pominiete] svg { color: var(--subtle); }
-
-.pasekOpanowania {
-  position: relative;
-  display: block;
-  height: 10px;
-  overflow: hidden;
-  border-radius: var(--r-pill);
-  background: var(--line);
-}
-.pasekPrzed,
-.pasekPo {
-  position: absolute;
-  inset-block: 0;
-  left: 0;
-  border-radius: var(--r-pill);
-}
-.pasekPrzed { background: var(--primary-mid); opacity: 0.5; }
-.pasekPo {
-  background: var(--primary-strong);
-  transition: width var(--ruch-wolny) var(--ruch-krzywa);
-}
 .zmiana { font-size: var(--t-sm); color: var(--muted); }
 .zmiana[data-plus="true"] { color: var(--success); }
 

@@ -73,7 +73,37 @@ export type Uczenie = {
   priorytety?: Priorytet[];
   /** Id wniosków, które uczeń usunął: nie pokazujemy ich ponownie. */
   usuniete?: string[];
+  /** Cel w procentach z quizu celów (10–100); ma pierwszeństwo przed dawnym wyborem z CELE. */
+  celProcent?: Partial<Record<PrzedmiotId, number>>;
+  /** Obszary (id grządek ogrodu: „słuchanie”, „czytanie”, „środki językowe”, „pisanie”), w których uczeń czuje się mocny i słaby. */
+  mocne?: string[];
+  slabe?: string[];
+  /** Dni nauki w tygodniu (1–7). */
+  dni?: number;
+  /** Quiz celów: zrobiony albo pominięty (data ISO); bez tego pulpit zaprasza do quizu. */
+  quiz?: { stan: "zrobiony" | "pominiety"; kiedy: string };
 };
+
+/** Obszary matury z angielskiego: te same id i nazwy w ogrodzie, w quizie celów i w kontekście Pestki. */
+export const OBSZARY_ANGIELSKIEGO: Opcja[] = [
+  { id: "słuchanie", nazwa: "Słuchanie" },
+  { id: "czytanie", nazwa: "Czytanie" },
+  { id: "środki językowe", nazwa: "Środki językowe" },
+  { id: "pisanie", nazwa: "Pisanie" },
+];
+
+/** Cel z przedmiotu jako ułamek (0–1): procent z quizu, a bez niego dawny wybór z CELE; null bez celu. */
+export function celPrzedmiotu(u: Uczenie, id: PrzedmiotId): number | null {
+  const procent = u.celProcent?.[id];
+  if (typeof procent === "number") return procent / 100;
+  return celJakoUlamek(u.cele?.[id]);
+}
+
+/** Zadeklarowane minuty nauki dziennie (null bez odpowiedzi; „Więcej” liczymy jako 60). */
+export function minutyDziennie(u: Uczenie): number | null {
+  if (!u.czas) return null;
+  return u.czas === "wiecej" ? 60 : Number(u.czas);
+}
 
 export const MAX_PRIORYTETOW = 15;
 export const MAX_DLUGOSC = 120;
@@ -108,6 +138,24 @@ function poprawne(v: unknown): Uczenie {
       .map((p) => ({ id: p.id.slice(0, 40), tekst: p.tekst.slice(0, MAX_DLUGOSC), zrodlo: p.zrodlo, kiedy: p.kiedy.slice(0, 40) }));
     if (lista.length) w.priorytety = lista;
   }
+  if (o.celProcent && typeof o.celProcent === "object") {
+    const cele: Partial<Record<PrzedmiotId, number>> = {};
+    for (const p of PRZEDMIOTY) {
+      const c = (o.celProcent as Record<string, unknown>)[p.id];
+      if (typeof c === "number" && c >= 10 && c <= 100) cele[p.id] = Math.round(c);
+    }
+    if (Object.keys(cele).length) w.celProcent = cele;
+  }
+  for (const k of ["mocne", "slabe"] as const) {
+    const lista = o[k];
+    if (Array.isArray(lista)) {
+      const obszary = lista.filter((x): x is string => wOpcjach(OBSZARY_ANGIELSKIEGO, x));
+      if (obszary.length) w[k] = [...new Set(obszary)];
+    }
+  }
+  if (typeof o.dni === "number" && o.dni >= 1 && o.dni <= 7) w.dni = Math.round(o.dni);
+  const q = o.quiz as Uczenie["quiz"] | undefined;
+  if (q && (q.stan === "zrobiony" || q.stan === "pominiety") && typeof q.kiedy === "string") w.quiz = { stan: q.stan, kiedy: q.kiedy.slice(0, 40) };
   if (Array.isArray(o.usuniete)) {
     const u = o.usuniete
       .filter((x): x is string => typeof x === "string")
@@ -186,15 +234,19 @@ export function przytnijUsuniete(istniejace: Set<string>) {
 
 const nazwa = (lista: Opcja[], id?: string) => lista.find((o) => o.id === id)?.nazwa;
 
-/** Preferencje ucznia do kontekstu rozmowy z Pestką: priorytety, czas dziennie i cele. Pusty tekst, gdy nic nie ma. */
+/** Preferencje ucznia do kontekstu rozmowy z Pestką: priorytety, czas, cele, mocne i słabe strony. Pusty tekst, gdy nic nie ma. */
 export function opisProfilu(): string {
   const u = uczenie();
   const czesci: string[] = [];
   if (u.priorytety?.length) czesci.push(`- priorytety: ${u.priorytety.map((p) => `„${p.tekst}”`).join("; ")}`);
   const czas = nazwa(CZAS, u.czas);
-  if (czas) czesci.push(`- czas na naukę dziennie: ${czas.toLowerCase()}`);
+  if (czas) czesci.push(`- czas na naukę dziennie: ${czas.toLowerCase()}${u.dni ? `, ${u.dni} dni w tygodniu` : ""}`);
+  const nazwyObszarow = (lista?: string[]) => (lista ?? []).map((id) => nazwa(OBSZARY_ANGIELSKIEGO, id)?.toLowerCase()).filter(Boolean).join(", ");
+  if (u.mocne?.length) czesci.push(`- angielski, czuje się mocno: ${nazwyObszarow(u.mocne)}`);
+  if (u.slabe?.length) czesci.push(`- angielski, czuje się słabo: ${nazwyObszarow(u.slabe)}`);
   const cele = PRZEDMIOTY.flatMap((p) => {
-    const c = nazwa(CELE, u.cele?.[p.id]);
+    const procent = u.celProcent?.[p.id];
+    const c = procent ? `${procent}%` : nazwa(CELE, u.cele?.[p.id]);
     return c ? [`${p.nazwa.toLowerCase()}: ${c}`] : [];
   });
   if (cele.length) czesci.push(`- cele: ${cele.join(", ")}`);

@@ -8,13 +8,14 @@ import { bezEmoji, trudnaSprawa } from "../pestka";
 import { useUstawienia } from "../konto/ustawienia";
 import { poziomAI, promptOmowienia, zrobPrzyklad, type DoOmowienia, type Przyklad } from "../arkusze/omowienie";
 import type { Postep } from "../arkusze/postep";
-import type { Arkusz } from "../arkusze/typy";
+import { nazwaZadaniaCke, type Arkusz } from "../arkusze/typy";
 import { werdykt } from "../arkusze/sprawdz";
 import { FragmentNagrania } from "./FragmentNagrania";
 import { Markdown } from "./Markdown";
 import { TutorAvatar } from "./TutorAvatar";
 import chat from "./TutorChat.module.css";
 import { WsparcieNota } from "./TutorChat";
+import { ZapiszWMapie } from "./ZapiszWMapie";
 import styles from "./OmowienieBledow.module.css";
 import { mniejRuchu } from "../ruch";
 
@@ -260,6 +261,10 @@ export function OmowienieBledow({
       <div key={i}>
         <Markdown className={chat.tutorText}>{m.tekst}</Markdown>
         {poprzednia?.od === "uczen" && trudnaSprawa(poprzednia.tekst) && <WsparcieNota />}
+        {!(mysli && i === rozmowa.length - 1) && (
+          <ZapiszWMapie przedmiot={arkusz.przedmiot ?? "angielski"} tekst={m.tekst} tytul={`${nazwaZadaniaCke(arkusz.id, String(nr))}: wyjaśnienie`}
+            zrodlo={{ source: "sheet", source_ref: `${arkusz.id}#${nr}` }} />
+        )}
       </div>
     ) : (
       <p key={i} className={chat.studentText}>

@@ -13,8 +13,9 @@ import { TutorAvatar } from "../../components/TutorAvatar";
 import { useKontekstPestki, useTutor } from "../../components/TutorContext";
 import { adresStartu } from "../../nauka/adresy";
 import { czyPrzerwane, naukaAi, type WpisRozmowy } from "../../nauka/ai";
-import { naukaApi, nazwaFormatuNauki, type Umiejetnosc } from "../../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { nazwaFormatuNauki, type Umiejetnosc } from "../../nauka/api";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
 import { odczytajRunde, zapiszRunde } from "./sesjaRundy";
 import c from "../../components/TutorChat.module.css";
 import s from "./SzybkaRunda.module.css";
@@ -27,7 +28,7 @@ export function Sokratejski() {
   const [params] = useSearchParams();
   const session = useSession();
   const { aiGotowe } = useTutor();
-  const mapa = useZapytanieNauki(`nauka:mapa:${poziom}`, (signal) => naukaApi.mapa(poziom, signal));
+  const mapa = useZapytanie(zapytania.mapa(poziom));
   const id = params.get("umiejetnosc");
   const wybrana = mapa.dane?.skills.find((u) => u.skill_id === id);
 

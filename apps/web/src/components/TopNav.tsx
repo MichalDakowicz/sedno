@@ -8,6 +8,7 @@ import { resetTour, useTutor } from "./TutorContext";
 import { OTWORZ_SZUKAJ } from "./Wyszukiwanie";
 import styles from "./TopNav.module.css";
 import { mniejRuchu } from "../ruch";
+import { rozgrzewajLink } from "../nauka/rozgrzewanie";
 
 const links = [
   { to: "/", label: "Pulpit", icon: LayoutGrid, end: true },
@@ -144,7 +145,7 @@ export function TopNav() {
           <ul>
             {links.map(({ to, label, icon: Icon, end }) => (
               <li key={to}>
-                <NavLink to={to} end={end} className={aktywny(to, end) ? styles.mobileActive : ""} aria-current={aktywny(to, end) ? "page" : undefined}>
+                <NavLink to={to} end={end} className={aktywny(to, end) ? styles.mobileActive : ""} aria-current={aktywny(to, end) ? "page" : undefined} {...rozgrzewajLink(to)}>
                   <Icon size={18} strokeWidth={2} aria-hidden="true" />
                   {label}
                 </NavLink>

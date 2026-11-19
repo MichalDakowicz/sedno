@@ -82,8 +82,21 @@
   }
 }
 
+/* Na telefonie rozmowa zaczyna się od razu pod tytułem: bez dużej twarzy i listy przedmiotów (Pestka zna je z profilu). */
 @media (max-width: 640px) {
+  .page {
+    gap: var(--s-4);
+    padding-top: var(--s-4);
+  }
+
+  .avatar,
+  .context {
+    display: none;
+  }
+
   .chat {
+    height: calc(100dvh - 220px);
+    min-height: 420px;
     border-radius: var(--r-md);
   }
 }

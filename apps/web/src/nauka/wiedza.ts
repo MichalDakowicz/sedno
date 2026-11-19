@@ -4,14 +4,26 @@
 import type { PrzedmiotId } from "../konto/przedmioty";
 import { supabase } from "../supabase";
 
-export type Notatka = { id: string; subject: PrzedmiotId; title: string; body: string; updated_at: string };
+/**
+ * Skąd notatka (sprawdza baza): ręczna, z arkusza (`<id arkusza>#<zadanie>`), z rundy nauki (id sesji)
+ * albo z rozmowy z Pestką (id rozmowy). Odwołanie służy do powrotu do źródła; dostęp sprawdza jego API.
+ */
+export type ZrodloNotatki = { source: "manual"; source_ref: null } | { source: "sheet" | "session" | "chat"; source_ref: string };
+export type Notatka = {
+  id: string; subject: PrzedmiotId; title: string; body: string; updated_at: string;
+  /** Umiejętność z ogrodu (tylko angielski, jak w bazie). */
+  skill_id: string | null;
+} & ZrodloNotatki;
 export type Polaczenie = { subject: PrzedmiotId; first_id: string; second_id: string; label: string; origin: "manual" | "pestka"; status: "proposed" | "accepted" };
 export type MapaWiedzy = { notatki: Notatka[]; polaczenia: Polaczenie[] };
 
 export const LIMIT_TYTULU = 120;
 export const LIMIT_TRESCI = 8000;
+export const LIMIT_ETYKIETY = 160;
 /** Ile notatek Pestka łączy naraz (serwer: od 2 do 8). */
 export const NOTATEK_DO_POLACZEN = 8;
+
+const KOLUMNY = "id, subject, title, body, updated_at, skill_id, source, source_ref";
 
 export class BladWiedzy extends Error {}
 
@@ -23,7 +35,7 @@ function blad(e: { code?: string; message?: string } | null, domyslny: string): 
 
 export async function pobierzMape(przedmiot: PrzedmiotId, signal?: AbortSignal): Promise<MapaWiedzy> {
   const [n, p] = await Promise.all([
-    supabase.from("knowledge_nodes").select("id, subject, title, body, updated_at").eq("subject", przedmiot)
+    supabase.from("knowledge_nodes").select(KOLUMNY).eq("subject", przedmiot)
       .order("updated_at", { ascending: false }).abortSignal(signal ?? new AbortController().signal),
     supabase.from("knowledge_edges").select("subject, first_id, second_id, label, origin, status").eq("subject", przedmiot)
       .abortSignal(signal ?? new AbortController().signal),
@@ -33,10 +45,17 @@ export async function pobierzMape(przedmiot: PrzedmiotId, signal?: AbortSignal):
   return { notatki: (n.data ?? []) as Notatka[], polaczenia: (p.data ?? []) as Polaczenie[] };
 }
 
-export async function dodajNotatke(przedmiot: PrzedmiotId, title: string, body: string): Promise<Notatka> {
+export async function dodajNotatke(
+  przedmiot: PrzedmiotId, title: string, body: string,
+  dodatki: { zrodlo?: ZrodloNotatki; skill_id?: string | null } = {},
+): Promise<Notatka> {
   const { data, error } = await supabase.from("knowledge_nodes")
-    .insert({ subject: przedmiot, title: title.trim().slice(0, LIMIT_TYTULU), body: body.trim().slice(0, LIMIT_TRESCI) })
-    .select("id, subject, title, body, updated_at").single();
+    .insert({
+      subject: przedmiot, title: title.trim().slice(0, LIMIT_TYTULU), body: body.trim().slice(0, LIMIT_TRESCI),
+      ...(dodatki.zrodlo?.source !== "manual" && dodatki.zrodlo ? dodatki.zrodlo : {}),
+      ...(przedmiot === "angielski" && dodatki.skill_id ? { skill_id: dodatki.skill_id } : {}),
+    })
+    .select(KOLUMNY).single();
   if (error || !data) blad(error, "Nie udało się zapisać notatki.");
   return data as Notatka;
 }
@@ -51,6 +70,22 @@ export async function zmienNotatke(id: string, title: string, body: string): Pro
 export async function usunNotatke(id: string): Promise<void> {
   const { error } = await supabase.from("knowledge_nodes").delete().eq("id", id);
   if (error) blad(error, "Nie udało się usunąć notatki.");
+}
+
+/** Przypięcie notatki do umiejętności z ogrodu albo odpięcie (null). Baza przyjmuje je tylko dla angielskiego. */
+export async function przypnijDoUmiejetnosci(id: string, skill_id: string | null): Promise<void> {
+  const { error } = await supabase.from("knowledge_nodes").update({ skill_id }).eq("id", id);
+  if (error) blad(error, "Nie udało się przypiąć notatki.");
+}
+
+/** Ręczne połączenie dwóch notatek. Krawędź jest nieskierowana: baza trzyma ją z mniejszym id na pierwszym miejscu. */
+export async function polaczNotatki(przedmiot: PrzedmiotId, a: string, b: string, label: string): Promise<void> {
+  if (a === b) return;
+  const [first_id, second_id] = a < b ? [a, b] : [b, a];
+  const { error } = await supabase.from("knowledge_edges").insert({ subject: przedmiot, first_id, second_id, label: label.trim().slice(0, LIMIT_ETYKIETY) });
+  if (error?.code === "23505") throw new BladWiedzy("Te notatki są już połączone.");
+  if (error?.message === "knowledge_edge_limit") throw new BladWiedzy("Masz już 1000 połączeń. Usuń kilka, zanim dodasz nowe.");
+  if (error) blad(error, "Nie udało się połączyć notatek.");
 }
 
 const filtr = (p: Pick<Polaczenie, "subject" | "first_id" | "second_id">) => ({ subject: p.subject, first_id: p.first_id, second_id: p.second_id });

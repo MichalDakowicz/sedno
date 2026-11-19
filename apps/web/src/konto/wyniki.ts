@@ -30,7 +30,31 @@ export type Propozycja =
   | { rodzaj: "wszystko"; przedmiot: MojPrzedmiot; ostatni: Wynik | null };
 
 // Ostatnio pobrane wiersze konta: powrót na pulpit pokazuje je od razu, a świeże dochodzą w tle.
+// Pobieranie w locie jest wspólne (rozgrzewanie z menu, pulpit, „Twój tydzień”), więc do bazy idzie raz.
 let zapamietane: { user: string; wiersze: Wiersz[] } | null = null;
+let wLocie: { user: string; obietnica: Promise<Wiersz[] | null> } | null = null;
+
+function pobierzWiersze(user: string): Promise<Wiersz[] | null> {
+  if (wLocie?.user === user) return wLocie.obietnica;
+  const obietnica: Promise<Wiersz[] | null> = Promise.resolve(
+    supabase.from("sheet_progress").select("sheet_id, data, updated_at").eq("user_id", user),
+  ).then(({ data, error }) => {
+    if (wLocie?.obietnica === obietnica) wLocie = null;
+    // Błąd odświeżenia nie zabiera danych z pamięci.
+    if (error) return zapamietane?.user === user ? zapamietane.wiersze : [];
+    const nowe = (data ?? []) as Wiersz[];
+    zapamietane = { user, wiersze: nowe };
+    return nowe;
+  });
+  wLocie = { user, obietnica };
+  return obietnica;
+}
+
+/** Rozgrzewanie: wiersze konta w tle, jeśli nie ma ich jeszcze w pamięci. */
+export function rozgrzejPostepyKonta() {
+  const user = currentUserId();
+  if (user && zapamietane?.user !== user) void pobierzWiersze(user);
+}
 
 export function usePostepyKonta(): Wiersz[] | null {
   const [wiersze, setWiersze] = useState<Wiersz[] | null>(() => {
@@ -41,17 +65,9 @@ export function usePostepyKonta(): Wiersz[] | null {
     const user = currentUserId();
     if (!user) return;
     let live = true;
-    supabase
-      .from("sheet_progress")
-      .select("sheet_id, data, updated_at")
-      .eq("user_id", user)
-      .then(({ data, error }) => {
-        // Błąd odświeżenia nie zabiera danych z pamięci.
-        if (error && zapamietane?.user === user) return;
-        const nowe = (data ?? []) as Wiersz[];
-        zapamietane = { user, wiersze: nowe };
-        if (live) setWiersze(nowe);
-      });
+    void pobierzWiersze(user).then((nowe) => {
+      if (live && nowe) setWiersze(nowe);
+    });
     return () => {
       live = false;
     };

@@ -108,37 +108,102 @@
 }
 
 /* Ogród Pestki: cztery grządki (obszary matury) na jednej linii ziemi, w każdej rośliny jej umiejętności. */
-.ogrod {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
-  gap: var(--s-4) var(--s-5);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.grzadka {
-  display: grid;
-  justify-items: start;
-  gap: var(--s-2);
-  padding-bottom: var(--s-2);
-  border-bottom: 1px solid var(--line);
-  color: var(--muted);
-}
-
-.grzadka:hover {
-  color: var(--primary-text);
-}
-
-.rosliny {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--s-1);
-}
-
 /* Minuty nauki w ostatnich tygodniach („Twój tydzień”): wniosek nad linią. */
 .minuty {
   display: grid;
   gap: var(--s-2);
+}
+
+/* Gotowość do matury: wiersz przedmiotu z pierścieniem i zdaniem, pod angielskim ogród w miniaturze. */
+.gotowoscLista > li {
+  display: grid;
+  gap: var(--s-3);
+  padding-block: var(--s-4);
+}
+
+.gotowoscLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  min-height: 56px;
+  color: var(--fg);
+}
+
+.gotowoscLink:hover .h3,
+.gotowoscLink:hover p:first-of-type {
+  color: var(--primary-text);
+}
+
+.gotowoscZastepczy {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  min-width: 0;
+  min-height: 56px;
+}
+
+/* Zanim dojdzie mapa angielskiego: wiersz ma już wysokość małej gotowości, a pod nim miejsce na ogród w miniaturze
+   (wysokości zmierzone na gotowej treści), więc lista nie skacze. */
+.gotowoscZastepczyAng {
+  min-height: 61px;
+}
+
+.ogrodZastepczy {
+  display: block;
+  height: 78px;
+}
+
+.linkPowtorekZastepczy {
+  display: block;
+  height: 27px;
+}
+
+@media (max-width: 639px) {
+  .gotowoscZastepczyAng {
+    min-height: 110px;
+  }
+
+  .ogrodZastepczy {
+    height: 215px;
+  }
+}
+
+.gotowoscTekst {
+  display: grid;
+  gap: var(--s-1);
+}
+
+.gotowoscStrzalka {
+  flex: none;
+  color: var(--subtle);
+}
+
+.poziomWiersza {
+  font-size: var(--t-sm);
+  font-weight: 400;
+  color: var(--subtle);
+}
+
+.linkPowtorek {
+  justify-self: start;
+}
+
+/* Dni nauki: pełne nazwy na szerokim ekranie, skróty na telefonie. */
+.dzienKrotki {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .dzienPelny {
+    display: none;
+  }
+
+  .dzienKrotki {
+    display: inline;
+  }
+}
+
+.deklaracja {
+  flex-basis: 100%;
 }

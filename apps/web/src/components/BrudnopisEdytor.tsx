@@ -20,7 +20,7 @@ import {
 } from "./brudnopisPestkaRysunek";
 import { wczytajCzcionkiWzorow } from "./brudnopisPestkaWzory";
 import { TutorAvatar } from "./TutorAvatar";
-import { useProwadzeniePestki, type ZapisProwadzenia } from "./useProwadzeniePestki";
+import { useProwadzeniePestki, type ProwadzenieNaZywo, type ZapisProwadzenia } from "./useProwadzeniePestki";
 import styles from "./Brudnopis.module.css";
 
 export const ID_RYSUNKU = "rysunek-bazowy";
@@ -487,9 +487,47 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     setPestka((s) => (s?.faza === "pisze" ? { ...s, faza: "mysli" } : s));
   }
 
-  function pokazProwadzenie(dane: OdpowiedzPestki, zapis: ZapisProwadzenia) {
-    dopiszDoHistorii({ pytanie: "", prowadzenie: true, dane });
-    return pokazNaTablicy(dane, zapis);
+  // Prowadzenie na żywo korzysta ze strumienia jak pytanie: figury i dopiski rysują się, gdy przychodzą, ale tylko
+  // dopóki tablica się nie zmieniła (zapis.aktualny). Wynik zatwierdza zapis jednym krokiem cofania; przy „czekam”,
+  // nieaktualnej odpowiedzi albo błędzie narysowane na żywo znika. Funkcja bez strumienia nie woła zdarzeń,
+  // więc wtedy wszystko rysuje się z wyniku jak dawniej.
+  function pokazProwadzenie(zapis: ZapisProwadzenia): ProwadzenieNaZywo {
+    const a = api.current;
+    let naZywo: ReturnType<typeof zapisNaZywo> | null = null;
+    let kolejka: Promise<unknown> = Promise.resolve();
+    const dokladaj = (p: PozycjaZapisu) => {
+      if (!a) return;
+      kolejka = kolejka.then(() => {
+        if (zapis.aktualny()) return rysujNaZywo(a, p, zapis.signal, () => (naZywo ??= zapisNaZywo(a, czyBazowy)));
+      }).catch(() => {});
+    };
+    const sprzatnij = () => {
+      if (a && naZywo && api.current === a) usunNaZywo(a, naZywo.elementy);
+      naZywo = null;
+    };
+    return {
+      zdarzenia: { ksztalt: (ksztalt) => dokladaj({ ksztalt }), dopisek: (dopisek) => dokladaj({ dopisek }) },
+      async porzuc() {
+        await kolejka;
+        if (!naZywo) return;
+        sprzatnij();
+        setPestka((s) => (s?.faza === "pisze" || s?.faza === "mysli" ? null : s));
+      },
+      async pokaz(dane) {
+        await kolejka;
+        if (!zapis.aktualny()) {
+          sprzatnij();
+          return false;
+        }
+        dopiszDoHistorii({ pytanie: "", prowadzenie: true, dane });
+        const zywy = naZywo as ReturnType<typeof zapisNaZywo> | null;
+        const gotowe = zywy?.dokoncz(dane);
+        if (zywy && !gotowe) sprzatnij();
+        const ok = await pokazNaTablicy(dane, zapis, false, zywy && gotowe ? { elementy: zywy.elementy, ...gotowe } : undefined);
+        if (!ok) sprzatnij();
+        return ok;
+      },
+    };
   }
 
   // Pestka pisze w wolnym miejscu przy pracy ucznia, nigdy nie przesuwając jego widoku. Najpierw przechodzi

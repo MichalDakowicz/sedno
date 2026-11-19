@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { TutorAvatar } from "./TutorAvatar";
 import { TutorChat } from "./TutorChat";
@@ -30,6 +30,22 @@ export function gdziePatrzy(sciezka: string, temat: string | null) {
 export function TutorDock() {
   const { isOpen, close, state, tematRozmowy } = useTutor();
   const { pathname } = useLocation();
+  const panel = useRef<HTMLElement>(null);
+
+  // Otwarty panel dostaje fokus (sam panel, nie pole: na telefonie nie wyskakuje klawiatura), a po zamknięciu
+  // fokus wraca tam, skąd uczeń otworzył rozmowę.
+  useEffect(() => {
+    if (!isOpen) return;
+    const wczesniej = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    panel.current?.focus({ preventScroll: true });
+    return () => {
+      // Twarz Pestki wraca na ekran dopiero po zamknięciu panelu, więc fokus ustawiamy w następnej klatce.
+      requestAnimationFrame(() => {
+        const cel = wczesniej?.isConnected && wczesniej.offsetParent ? wczesniej : document.querySelector<HTMLElement>("[data-pestka=przewodnik]");
+        cel?.focus({ preventScroll: true });
+      });
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -43,7 +59,7 @@ export function TutorDock() {
       {isOpen && (
         <>
           <div className={styles.scrim} onClick={close} aria-hidden="true" />
-          <aside className={styles.panel} aria-label="Pestka">
+          <aside ref={panel} className={styles.panel} aria-label="Pestka" tabIndex={-1}>
             <header className={styles.header}>
               <TutorAvatar size={40} state={state} />
               <div className={styles.headerText}>

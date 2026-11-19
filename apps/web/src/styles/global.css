@@ -366,6 +366,60 @@ textarea {
   cursor: default;
 }
 
+/* Rozwinięta lista w stylu aplikacji (zaokrąglenia, cień, zaznaczenie jak pigułka) tam, gdzie przeglądarka pozwala
+   stylować select (appearance: base-select); klawiatura i czytniki zostają natywne. Na dotyku systemowa lista. */
+@supports (appearance: base-select) {
+  @media (hover: hover) and (pointer: fine) {
+    .select,
+    .select::picker(select) {
+      appearance: base-select;
+    }
+
+    .select::picker-icon {
+      display: none;
+    }
+
+    .select::picker(select) {
+      margin-top: var(--s-1);
+      padding: var(--s-1);
+      border: 1px solid var(--line);
+      border-radius: var(--r-sm);
+      background: var(--surface);
+      box-shadow: var(--shadow-raised);
+    }
+
+    .select option {
+      padding: var(--s-2) var(--s-3);
+      border-radius: var(--r-xs);
+      cursor: pointer;
+    }
+
+    .select option::checkmark {
+      display: none;
+    }
+
+    .select option:hover,
+    .select option:focus-visible {
+      background: var(--bg);
+      outline: none;
+    }
+
+    .select option:checked {
+      background: var(--primary-soft);
+      color: var(--primary-text);
+    }
+
+    .select optgroup {
+      padding-top: var(--s-2);
+      font-size: var(--t-xs);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--subtle);
+    }
+  }
+}
+
 /* Pigułki wyboru (poziom matury, przedmiot, motyw): jeden wygląd zaznaczenia w całej aplikacji. */
 .pigulki {
   position: relative;
@@ -621,6 +675,9 @@ a.wiersz:hover .wiersz-akcja {
   position: absolute;
   width: 1px;
   height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
@@ -644,15 +701,19 @@ a.wiersz:hover .wiersz-akcja {
   scroll-behavior: auto !important;
 }
 
-/* Treść, która dochodzi po wczytaniu danych, wchodzi łagodnie zamiast wskakiwać. */
+/* Treść, która dochodzi po wczytaniu danych, pojawia się samym kryciem (bez przesunięcia), tylko przy pierwszym
+   wejściu na stronę w sesji (ruch.tsx: data-strona-znana). */
 .wejscie {
   animation: wejscie var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+:root[data-strona-znana] .wejscie {
+  animation: none;
 }
 
 @keyframes wejscie {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
 }
 

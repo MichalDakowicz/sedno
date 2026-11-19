@@ -9,7 +9,7 @@
   border-radius: var(--r-sm);
   background: var(--surface);
   box-shadow: inset 0 0 0 1px var(--line);
-  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: var(--t-sm);
   overflow-wrap: anywhere;
 }
@@ -75,7 +75,7 @@
   border-radius: var(--r-sm);
   background: var(--surface);
   color: var(--fg);
-  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: var(--t-sm);
   line-height: 1.5;
   resize: vertical;

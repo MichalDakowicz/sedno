@@ -37,6 +37,7 @@ export const glos = {
   },
   /** Jedno zdanie po rundzie, w rozbiorze. */
   rozbior: {
+    koniecPowtorek: ["To, co uciekało, wróciło na miejsce. Zobacz, jak wygląda ogród.", "Powtórki za tobą. Rośliny w ogrodzie to pokażą."],
     bezbledna: ["Bezbłędna runda. Tak się buduje pewność.", "Wszystko dobrze. Ta umiejętność idzie w górę."],
     dobra: ["Dobra runda. Zostało kilka rzeczy do dopracowania.", "Większość dobrze. Zerknij na to, co nie wyszło."],
     slaba: ["Ta umiejętność potrzebuje jeszcze kilku rund. Zacznij od zadań z błędem.", "Trudna runda. Przejrzyj błędy, a następna pójdzie lepiej."],
@@ -61,13 +62,24 @@ export const glos = {
   bledy: {
     siec: ["Nie mogę się połączyć. Sprawdź internet, a ja spróbuję jeszcze raz.", "Coś przerwało połączenie. Spróbujmy ponownie."],
     ogolny: ["Coś poszło nie tak po mojej stronie. Spróbujmy jeszcze raz."],
-    nieZnaleziono: ["Nie ma takiej strony. Może zgubił się adres?", "Tu nic nie ma. Wróćmy tam, gdzie coś na ciebie czeka."],
+    nieZnaleziono: ["Nie znam tego adresu. Może się zgubił?", "Tu nic nie ma. Wróćmy tam, gdzie coś na ciebie czeka."],
   },
   /** Przewodnik przy pierwszym wejściu na pulpit: trzy dymki. */
   przewodnik: {
     powitanie: "Cześć, jestem Pestka. Będę obok przez całą naukę do matury.",
     dzis: "To wybrałam na dziś. Krótko i tam, gdzie najwięcej zyskasz.",
     wolanie: "Gdy coś będzie niejasne, kliknij mnie. Siedzę w rogu ekranu.",
+  },
+  /** Quiz celów (views/QuizCelow.tsx): jedno pytanie Pestki na ekran. */
+  quiz: {
+    wstep: "Kilka szybkich pytań, a dobiorę naukę pod ciebie. Każde możesz pominąć.",
+    przedmioty: "Które przedmioty zdajesz na maturze?",
+    cel: "Ile chcesz mieć z tego przedmiotu?",
+    mocne: "W czym z angielskiego czujesz się mocno?",
+    slabe: "A co sprawia najwięcej kłopotu?",
+    czas: "Ile czasu dziennie dasz radę na naukę?",
+    dni: "Ile dni w tygodniu?",
+    koniec: "Mam to. Tak to widzę:",
   },
   rozmowa: {
     powitanie: "Cześć, jestem Pestka. Wklej zadanie albo napisz, z czym masz kłopot, a przejdziemy przez to razem.",
