@@ -143,6 +143,14 @@
   min-height: 56px;
 }
 
+/* Ikona przedmiotu zajmuje tyle miejsca co pierścień (56 px), więc nazwy stoją w jednej kolumnie. */
+.gotowoscZastepczy > :first-child {
+  flex: none;
+  width: 56px;
+  display: grid;
+  place-items: center;
+}
+
 /* Zanim dojdzie mapa angielskiego: wiersz ma już wysokość małej gotowości, a pod nim miejsce na ogród w miniaturze
    (wysokości zmierzone na gotowej treści), więc lista nie skacze. */
 .gotowoscZastepczyAng {

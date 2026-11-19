@@ -188,14 +188,10 @@ export function Nauka() {
           )}
         </article>
       ) : bezRund && akcjaBezRund ? (
-        <article className={s.karta} aria-labelledby="nauka-polecenie">
-          <span className="kicker"><TutorAvatar size={22} /> Polecam</span>
-          <h2 id="nauka-polecenie" className="h1">{przedmiot(wybranyPrzedmiot)!.nazwa}</h2>
-          <p className="muted">{bezRund.tekst}</p>
-          <div className={s.akcje}>
-            <Link to={akcjaBezRund.do} className={`btn btn-primary ${s.przycisk}`}>{akcjaBezRund.etykieta}</Link>
-          </div>
-        </article>
+        // Przedmioty bez rund dostają tę samą kartę co angielski i pulpit, żeby zakładki nie różniły się wyglądem.
+        <div className={s.dzis}>
+          <KartaDnia dzis={{ rodzaj: "polecenie", przedmiot: wybranyPrzedmiot, tytul: akcjaBezRund.etykieta, powod: bezRund.tekst, akcja: { do: akcjaBezRund.do, etykieta: "Zacznij" }, minuty: null, ikona: akcjaBezRund.do === "/tutor" ? "rozmowa" : "runda" }} />
+        </div>
       ) : null}
 
       <ul className={s.drogi} aria-label="Inne drogi">
