@@ -174,3 +174,64 @@
   min-height: 44px;
   white-space: nowrap;
 }
+
+/* Liczba na dziś, jedno zdanie o kolejnych dniach i jeden przycisk. */
+.glowa {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-4);
+}
+
+.grupy {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grupy > li + li {
+  border-top: 1px solid var(--line);
+}
+
+.grupa > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.grupa > summary::-webkit-details-marker {
+  display: none;
+}
+
+.grupa .grupaGlowa {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 56px;
+}
+
+.strzalka {
+  flex: none;
+  color: var(--subtle);
+  transition: transform var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+.grupa[open] .strzalka {
+  transform: rotate(90deg);
+}
+
+.ile {
+  margin-left: auto;
+  min-width: 2em;
+  padding: 0 var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.grupa[open] {
+  padding-bottom: var(--s-4);
+}

@@ -6,8 +6,8 @@ import { nazwaPoziomu, nazwaZadaniaCke } from "../../arkusze/typy";
 import { useSession } from "../../auth";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
-import { adresMapy, adresNauki, adresPowtorek, adresRundy, adresStartu } from "../../nauka/adresy";
-import { naukaApi, nazwaFormatuNauki, type MapaNauki, type OdpowiedzNauki, type SesjaNauki } from "../../nauka/api";
+import { adresMapy, adresNauki, adresRundy, adresStartu } from "../../nauka/adresy";
+import { nazwaFormatuNauki, type OdpowiedzNauki, type SesjaNauki } from "../../nauka/api";
 import { nazwaOdpowiedzi, useSesjaRundy } from "./sesjaRundy";
 import { PestkaMowi } from "./PestkaRundy";
 import { glos, wybierz } from "../../pestka/glos";
@@ -17,6 +17,11 @@ import { WynikDiagnozy } from "./WynikDiagnozy";
 import { Kropki, PasekProgu } from "../../components/wykresy";
 import { Kielek } from "../../components/Kielek";
 import { NAZWA_STADIUM, stadium, wyzszeStadium } from "../../nauka/stadia";
+import { useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
+import { nastepnaWKolejce, zdejmijZKolejki } from "../../nauka/kolejka";
+import { policzGotowosc } from "../../nauka/gotowosc";
+import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
 import s from "./SzybkaRunda.module.css";
 
 const procent = new Intl.NumberFormat("pl-PL", { style: "percent", maximumFractionDigits: 0 });
@@ -154,8 +159,7 @@ function RozbiorDiagnozy({ sesja }: { sesja: SesjaZWynikiem }) {
         {zadania && <ul className={s.wierszeRozbioru}>{sesja.answers.map((a) => <ProbaRozbioru key={a.position} odpowiedz={a} />)}</ul>}
       </details>
       <div className={s.akcje}>
-        <Link className="btn btn-primary" to={adresMapy(level)}>Mapa umiejętności <ArrowRight size={17} aria-hidden="true" /></Link>
-        <Link className="btn btn-ghost" to={adresPowtorek(level)}>Zobacz powtórki</Link>
+        <Link className="btn btn-primary" to={adresMapy(level)}>Zobacz ogród umiejętności <ArrowRight size={17} aria-hidden="true" /></Link>
       </div>
     </main>
   );
@@ -165,18 +169,16 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaZWynikiem }) {
   const { level, skill_id, format } = sesja;
   const result = { ...sesja.result, opanowanie_przed: sesja.result.opanowanie_przed ?? null, opanowanie_po: sesja.result.opanowanie_po ?? null };
   const skill = skill_id ?? undefined;
-  const [mapa, setMapa] = useState<MapaNauki | null>(null);
+  // Mapa ze wspólnej pamięci (po rundzie świeża, bo odpowiedzi ją unieważniają); ocena rundy działa i bez niej.
+  const mapa = useZapytanie(zapytania.mapa(level)).dane;
   const naglowek = useRef<HTMLHeadingElement>(null);
   const [zadania, setZadania] = useState(false);
+  const uczenie = useUczenie();
+  // Kolejka „Powtórz wszystkie”: następna powtórka jest jedyną główną akcją, dopóki kolejka się nie skończy.
+  const [kolejka] = useState(nastepnaWKolejce);
   useEffect(() => { naglowek.current?.focus(); }, []);
-  useEffect(() => {
-    const kontroler = new AbortController();
-    void naukaApi.mapa(level, kontroler.signal).then(
-      (mapa) => { if (!kontroler.signal.aborted) setMapa(mapa); },
-      () => {}, // Ocena rundy jest dostępna także bez etykiety z mapy.
-    );
-    return () => kontroler.abort();
-  }, [level]);
+  const gotowosc = mapa ? policzGotowosc(mapa.skills) : null;
+  const cel = celPrzedmiotu(uczenie, "angielski");
   const umiejetnosc = mapa?.skills.find((m) => m.skill_id === skill_id);
   const nazwa = umiejetnosc?.name;
   const dalej = result.nastepny_krok;
@@ -221,10 +223,23 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaZWynikiem }) {
           {nazwa ? `${nazwa} · ` : ""}przed rundą {opanowanie(result.opanowanie_przed)}, po rundzie {opanowanie(result.opanowanie_po)}
           {inneNaMapie && <span data-tutor-about="Na mapie opanowanie powoli maleje, gdy długo nie ćwiczysz, a rozbiór pokazuje stan zaraz po rundzie."> · na mapie {opanowanie(naMapie)}</span>}
         </p>
-        <div><Link to={adresMapy(level, skill)} className="link">Zobacz umiejętność na mapie</Link></div>
+        {gotowosc && (
+          <p className="small">
+            Gotowość z angielskiego: {procent.format(gotowosc.wartosc)}{cel !== null && (gotowosc.wartosc >= cel ? ", cel osiągnięty." : `, do celu ${Math.round(cel * 100)}% brakuje ${Math.round((cel - gotowosc.wartosc) * 100)} pkt proc.`)}
+          </p>
+        )}
+        <div><Link to={adresMapy(level, skill)} className="link">Zobacz roślinę w ogrodzie</Link></div>
       </section>
       {/* W trakcie diagnozy następnym krokiem jest kolejny obszar, nie polecenie z mapy. */}
-      {dalejWDiagnozie ? (
+      {kolejka ? (
+        <section className={s.nastepnyKrok} aria-labelledby="dalej-po-rundzie">
+          <span className="kicker"><TutorAvatar size={22} /> Dalej</span>
+          <h2 id="dalej-po-rundzie" className="h2">Następna powtórka · {kolejka.numer} z {kolejka.razem}</h2>
+          <div className={s.akcje}>
+            <Link className="btn btn-primary" to={kolejka.adres} onClick={zdejmijZKolejki}>Następna powtórka <ArrowRight size={17} aria-hidden="true" /></Link>
+          </div>
+        </section>
+      ) : dalejWDiagnozie ? (
         <div className={s.akcje}>
           <Link className="btn btn-primary" to="/nauka/diagnoza">Dalej w diagnozie <ArrowRight size={17} aria-hidden="true" /></Link>
         </div>
@@ -237,7 +252,6 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaZWynikiem }) {
             <Link className="btn btn-primary" to={adresStartu(level, dalej.skill_id, dalej.format, dalej.repeat_id ?? undefined)}>
               {nazwaFormatuNauki[dalej.format]} · {dalej.minutes} min <ArrowRight size={17} aria-hidden="true" />
             </Link>
-            <Link className="btn btn-ghost" to={adresPowtorek(level)}>Zobacz powtórki</Link>
           </div>
         </section>
       )}
