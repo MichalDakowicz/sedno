@@ -13,7 +13,7 @@ import { zacznijKolejke } from "../../nauka/kolejka";
 import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
 import { useProfil } from "../../auth";
-import { Pigulki } from "../../components/Pigulki";
+import { klasaPrzedmiotu, PasekPrzedmiotow } from "../../components/PasekPrzedmiotow";
 import { SubjectIcon } from "../../components/icons";
 import { przedmiot, type PrzedmiotId } from "../../konto/przedmioty";
 import { maMapeZArkuszy, szablonMapy, useMapaZArkuszy } from "../../nauka/mapaPrzedmiotow";
@@ -149,13 +149,13 @@ export function Powtorki() {
     <main className={`container ${s.strona}`}>
       <NaglowekStrony etykieta={przedmiot(wybrany)?.nazwa ?? "Język angielski"} tytul="Powtórki" />
       {moje.length > 1 && (
-        <Pigulki aria-label="Przedmiot">
+        <PasekPrzedmiotow etykieta="Przedmiot" zalezy={wybrany}>
           {moje.map((p) => (
-            <Link key={p} to={`/powtorki?przedmiot=${p}`} className="pigulka" aria-pressed={p === wybrany}>
+            <Link key={p} to={`/powtorki?przedmiot=${p}`} className={klasaPrzedmiotu(p === wybrany)} data-aktywny={p === wybrany} aria-current={p === wybrany ? "page" : undefined}>
               <SubjectIcon subject={przedmiot(p)!} size="sm" /> {przedmiot(p)!.nazwa}
             </Link>
           ))}
-        </Pigulki>
+        </PasekPrzedmiotow>
       )}
       {wybrany === "angielski" ? <PowtorkiAngielski /> : maMapeZArkuszy(wybrany) && <PowtorkiZArkuszy przedmiot={wybrany} poziom={poziom} />}
     </main>

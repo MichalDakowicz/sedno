@@ -6,7 +6,7 @@ import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { przedmiot, type PrzedmiotId } from "../../konto/przedmioty";
 import { useProfil } from "../../auth";
-import { Pigulki } from "../../components/Pigulki";
+import { klasaPrzedmiotu, PasekPrzedmiotow } from "../../components/PasekPrzedmiotow";
 import { SubjectIcon } from "../../components/icons";
 import { maMapeZArkuszy } from "../../nauka/mapaPrzedmiotow";
 import { adresMapyPrzedmiotu, MapaPrzedmiotu } from "./MapaPrzedmiotu";
@@ -161,13 +161,13 @@ export function Umiejetnosci() {
       <NaglowekStrony etykieta={przedmiot(wybranyPrzedmiot)?.nazwa ?? "Język angielski"} tytul="Mapa umiejętności" />
       {/* Każdy przedmiot z profilu ma mapę: angielski z rund, pozostałe z działów i sprawdzonych arkuszy. */}
       {moje.length > 1 && (
-        <Pigulki aria-label="Przedmiot">
+        <PasekPrzedmiotow etykieta="Przedmiot" zalezy={wybranyPrzedmiot}>
           {moje.map((p) => (
-            <Link key={p} to={p === "angielski" ? adresMapy(poziom) : adresMapyPrzedmiotu(p)} className="pigulka" aria-pressed={p === wybranyPrzedmiot}>
+            <Link key={p} to={p === "angielski" ? adresMapy(poziom) : adresMapyPrzedmiotu(p)} className={klasaPrzedmiotu(p === wybranyPrzedmiot)} data-aktywny={p === wybranyPrzedmiot} aria-current={p === wybranyPrzedmiot ? "page" : undefined}>
               <SubjectIcon subject={przedmiot(p)!} size="sm" /> {przedmiot(p)!.nazwa}
             </Link>
           ))}
-        </Pigulki>
+        </PasekPrzedmiotow>
       )}
       {angielski && <div className={s.filtry}><WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} /></div>}
       {!angielski && maMapeZArkuszy(wybranyPrzedmiot) && <MapaPrzedmiotu przedmiot={wybranyPrzedmiot} poziom={poziomPrzedmiotu} id={parametry.get("umiejetnosc")} />}
