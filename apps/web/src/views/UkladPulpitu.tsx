@@ -196,14 +196,14 @@ export function UkladPulpitu() {
   if (czekaNaProfil)
     return (
       <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: "var(--zapas-pestki)", display: "grid", gap: "var(--s-6)" }}>
-        <NaglowekStrony etykieta="Profil" tytul="Układ pulpitu" lead="Wybór i kolejność widgetów na pulpicie." />
+        <NaglowekStrony wstecz={{ do: "/profil", nazwa: "Profil" }} tytul="Układ pulpitu" lead="Wybór i kolejność widgetów na pulpicie." />
         <Ladowanie ksztalt="wiersze" ile={3} etykieta="Wczytuję twoje przedmioty" />
       </main>
     );
 
   return (
     <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: "var(--zapas-pestki)", display: "grid", gap: "var(--s-6)" }}>
-      <NaglowekStrony etykieta="Profil" tytul="Układ pulpitu" lead="Wybór i kolejność widgetów na pulpicie." />
+      <NaglowekStrony wstecz={{ do: "/profil", nazwa: "Profil" }} tytul="Układ pulpitu" lead="Wybór i kolejność widgetów na pulpicie." />
 
       <section className={s.sekcja}>
         <span className="label">Pulpit</span>

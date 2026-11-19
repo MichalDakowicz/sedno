@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArrowRight, LogOut, Map as MapIcon } from "lucide-react";
+import { ArrowRight, ChevronRight, LogOut, Map as MapIcon } from "lucide-react";
 import { logout, saveSubjects, useProfil, useSession } from "../auth";
 import { resetTour } from "../components/TutorContext";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
@@ -54,21 +54,21 @@ export function Profile() {
         )}
       </section>
 
-      <section style={{ display: "grid", gap: 4, paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)", justifyItems: "start" }}>
-        <h2 className="h2">Ustawienia</h2>
-        <Link to="/ustawienia" className="link" style={{ marginTop: 12 }}>
-          Otwórz ustawienia
-          <ArrowRight size={16} aria-hidden="true" />
-        </Link>
-      </section>
-
-      <section style={{ display: "grid", gap: 4, paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)", justifyItems: "start" }}>
-        <h2 className="h2">Układ pulpitu</h2>
-        <Link to="/uklad-pulpitu" className="link" style={{ marginTop: 12 }}>
-          Otwórz układ pulpitu
-          <ArrowRight size={16} aria-hidden="true" />
-        </Link>
-      </section>
+      {/* Ustawienia i układ pulpitu to po prostu dwa wiersze-linki, bez osobnych nagłówków i „Otwórz…”. */}
+      <ul className="wiersze" aria-label="Ustawienia">
+        <li>
+          <Link to="/ustawienia" className="wiersz">
+            <span className="wiersz-tresc"><span className="h3">Ustawienia</span><span className="wiersz-opis">Wygląd, dostępność, głos Pestki</span></span>
+            <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
+          </Link>
+        </li>
+        <li>
+          <Link to="/uklad-pulpitu" className="wiersz">
+            <span className="wiersz-tresc"><span className="h3">Układ pulpitu</span><span className="wiersz-opis">Co widać na pulpicie i w jakiej kolejności</span></span>
+            <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
+          </Link>
+        </li>
+      </ul>
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <button
