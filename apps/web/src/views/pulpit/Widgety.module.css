@@ -211,6 +211,8 @@
   }
 }
 
-.deklaracja {
-  flex-basis: 100%;
+.tydzienLiczby {
+  display: grid;
+  gap: var(--s-2);
+  min-width: 0;
 }

@@ -3,8 +3,6 @@
 // go nie ma (przed migracją 0022), dni i serię liczymy jak dawniej z dat prób nauka_dowody (angielski, do 100 ostatnich
 // na umiejętność) i zapisów postępu arkuszy (sheet_progress.updated_at, każdy przedmiot), a minut nie pokazujemy.
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
 import { Ladowanie } from "../../components/Ladowanie";
 import { Kropki, Linia } from "../../components/wykresy";
 import { dniAktywne, minutyTygodni, wniosekMinut } from "../../nauka/historia";
@@ -12,8 +10,7 @@ import { Liczba } from "../../ruch";
 import { TutorAvatar } from "../../components/TutorAvatar";
 import { usePostepyKonta } from "../../konto/wyniki";
 import { minutyDziennie, useUczenie } from "../../konto/profilUcznia";
-import { adresStartu } from "../../nauka/adresy";
-import { naukaApi, nazwaFormatuNauki, type PlanNauki } from "../../nauka/api";
+import { naukaApi, type PlanNauki } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
 import type { KontekstPulpitu } from "./widgety";
@@ -24,7 +21,6 @@ const DNI = ["Pn", "Wt", "Śr", "Cz", "Pt", "So", "Nd"];
 const DNI_PELNE = ["poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota", "niedziela"];
 const wielka = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 const dzienWarszawa = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Warsaw" });
-const nazwaDnia = new Intl.DateTimeFormat("pl-PL", { weekday: "long", timeZone: "UTC" });
 
 /** Data YYYY-MM-DD w strefie Europe/Warsaw, w której baza liczy plan. */
 const dzien = (d: Date | string) => dzienWarszawa.format(typeof d === "string" ? new Date(d) : d);
@@ -87,7 +83,6 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
     uczenie.dni ? `Twój cel: ${uczenie.dni} ${uczenie.dni === 1 ? "dzień" : "dni"} nauki w tygodniu${zNauka >= uczenie.dni ? ", zrobione." : `, zostało ${uczenie.dni - zNauka} ${uczenie.dni - zNauka === 1 ? "dzień" : "dni"}.`}` : "",
     minuty && minutyPlan && uczenie.dni ? `${minuty.teraz} z ${minutyPlan * uczenie.dni} zaplanowanych minut.` : "",
   ].filter(Boolean).join(" ");
-  const nastepne = (p?.activities ?? []).filter((a) => a.date >= dzis).slice(0, 3);
 
   return (
     <section className={`${styles.section} wejscie`} aria-labelledby="tydzien-widget">
@@ -111,13 +106,16 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
       {p && !czeka && (
         <>
           {edycja && <DniNauki plan={p} poziom={poziom} zapisano={plan.ponow} />}
+          {/* Co zrobić dziś, mówi karta „Dziś warto”; tu tylko tydzień: dni z nauką i cel. */}
           <div className={w.tydzienGlowa}>
+          <div className={w.tydzienLiczby}>
           <p className={styles.stat}>
             <Liczba wartosc={zNauka} />
             <span className={styles.statJednostka}> / 7</span>
             <span className={styles.statOpis}>{zNauka === 1 ? "dzień" : "dni"} z nauką w tym tygodniu{seria >= 2 ? ` · seria ${seria} ${odmianaDni(seria)} z rzędu` : ""}</span>
           </p>
-          {deklaracja && <p className={`small muted ${w.deklaracja}`}>{deklaracja}</p>}
+          {deklaracja && <p className="small muted">{deklaracja}</p>}
+          </div>
           {seria >= 2 && <TutorAvatar size={48} state={KAMIENIE_SERII.includes(seria) ? "swieto" : "radosc"} className={w.pestkaSerii} />}
           </div>
           <Kropki rowno opis={`W tym tygodniu ${zNauka} z 7 dni z nauką, seria ${seria} ${odmianaDni(seria)}.`}
@@ -144,35 +142,12 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
               <button type="button" className="btn btn-ghost btn-sm" onClick={proby.ponow}>Spróbuj ponownie</button>
             </div>
           )}
-          {nastepne.length > 0 ? (
-            <ul className="wiersze">
-              {nastepne.map((a, i) => (
-                <li key={`${a.date}-${i}`}>
-                  <Link to={adresStartu(p.level, a.skill_id, a.format)} className="wiersz">
-                    <span className="wiersz-tresc">
-                      <span className="h3">{a.name}</span>
-                      <span className="wiersz-opis">{opisDnia(a.date, dzis)} · {nazwaFormatuNauki[a.format]} · {a.minutes} min</span>
-                    </span>
-                    <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="muted small">W tym tygodniu nie ma już dni nauki w planie.</p>
-          )}
         </>
       )}
     </section>
   );
 }
 
-function opisDnia(data: string, dzis: string) {
-  if (data === dzis) return "Dziś";
-  if (data === przesun(dzis, 1)) return "Jutro";
-  const nazwa = nazwaDnia.format(new Date(`${data}T12:00:00Z`));
-  return nazwa.charAt(0).toUpperCase() + nazwa.slice(1);
-}
 
 function DniNauki({ plan, poziom, zapisano }: { plan: PlanNauki; poziom: PlanNauki["level"]; zapisano: () => void }) {
   const [dni, ustawDni] = useState(plan.weekdays);
