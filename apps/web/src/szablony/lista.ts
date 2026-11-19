@@ -31,14 +31,6 @@ export const SZABLONY: Szablon[] = [
     wejscie: "Nauka",
   },
   {
-    slug: "sokratejski",
-    tytul: "Tutor sokratejski",
-    opis: "Pestka prowadzi pytaniami zamiast wykładu i kończy mini-testem.",
-    grupa: "Nauka",
-    dalej: ["rozbior", "mapa-wiedzy"],
-    wejscie: "Nauka; rozmowa z Pestką",
-  },
-  {
     slug: "wizualizacje",
     tytul: "Wizualizacje",
     opis: "Interaktywny model do pojęcia: wykres z suwakiem, algorytm krok po kroku.",
@@ -69,6 +61,7 @@ export const WDROZONE: Record<string, { to: string; tytul: string; opis: string 
   rozbior: { to: "/nauka", tytul: "Rozbiór po rundzie", opis: "Po zakończeniu rundy zobacz wynik i zmianę opanowania." },
   umiejetnosci: { to: "/umiejetnosci", tytul: "Mapa umiejętności", opis: "Sprawdź opanowanie i przejrzyj dowody." },
   "zdjecie": { to: "/nauka/zdjecie", tytul: "Zdjęcie z kartki", opis: "Pestka czyta rozwiązanie z kartki i wskazuje krok do sprawdzenia." },
+  "sokratejski": { to: "/nauka/sokratejski", tytul: "Rozmowa z pytaniami", opis: "Pestka pyta o jedną umiejętność, na końcu mini-test." },
   powtorki: { to: "/powtorki", tytul: "Powtórki", opis: "Wróć do błędu albo umiejętności, która zanika." },
 };
 

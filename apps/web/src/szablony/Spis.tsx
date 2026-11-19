@@ -19,7 +19,7 @@ const ETAPY: { nazwa: string; opis: string; szablony: string[]; prawdziwe?: { to
   {
     nazwa: "Ćwiczenie",
     opis: "Jeden z formatów albo arkusz.",
-    szablony: ["napraw-blad", "krok-po-kroku", "sokratejski", "wizualizacje"],
+    szablony: ["napraw-blad", "krok-po-kroku", "wizualizacje"],
     prawdziwe: [WDROZONE["szybka-runda"]!, WDROZONE["uczen-uczy"]!, { to: "/arkusze", tytul: "Arkusze CKE" }],
   },
   { nazwa: "Wynik", opis: "Co poszło i co dalej.", szablony: [], prawdziwe: [WDROZONE.rozbior!] },

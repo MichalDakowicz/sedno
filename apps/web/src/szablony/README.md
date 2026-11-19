@@ -29,7 +29,7 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 
 - [ ] [Napraw błąd](napraw-blad/README.md): praca z wstrzykniętymi błędami
 - [ ] [Krok po kroku](krok-po-kroku/README.md): dłuższa odpowiedź etapami z listą kontrolną
-- [ ] [Tutor sokratejski](sokratejski/README.md): rozmowa z pytaniami i mini-testem
+- [x] Tutor sokratejski: działa jako `/nauka/sokratejski` (`views/nauka/Sokratejski.tsx`)
 - [ ] [Wizualizacje](wizualizacje/README.md): interaktywne modele pojęć
 
 ### Postęp
