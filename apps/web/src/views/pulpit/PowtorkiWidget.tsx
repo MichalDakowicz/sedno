@@ -7,6 +7,8 @@ import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { procentNauki } from "../nauka/NaukaPowtorki";
 import { etykietaZrodla, kluczPowtorki, odmianaPowtorek, powtorkiNaDni, unikalnePowtorki } from "./czasPowtorek";
 import { Liczba } from "../../ruch";
+import { StanPestki } from "../../components/StanPestki";
+import { glos, wybierz } from "../../pestka/glos";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
 import w from "./Widgety.module.css";
@@ -62,8 +64,7 @@ export function PowtorkiWidget({ zakres, aktywny }: KontekstPulpitu) {
         </>
       ) : (
         <>
-          <p className="muted">Nie ma teraz powtórek. Kolejne propozycje pojawią się po sprawdzeniu zadań maturalnych lub zakończeniu ćwiczeń.</p>
-          <div><Link to={adresNauki(poziom)} className="link">Przejdź do nauki</Link></div>
+          <StanPestki emocja="radosc" rozmiar="maly" tekst={wybierz(glos.puste.powtorki, 1)} akcja={{ etykieta: "Przejdź do nauki", do: adresNauki(poziom) }} />
         </>
       ))}
     </section>

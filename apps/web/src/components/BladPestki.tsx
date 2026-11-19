@@ -2,18 +2,16 @@
 // i link do profilu, gdy bez zmiany konfiguracji nic się nie zmieni. BrakPestki: konto bez podpiętego modelu.
 import { Link } from "react-router-dom";
 import { komunikatPestki } from "../nauka/ai";
+import { StanPestki } from "./StanPestki";
 import s from "./BladPestki.module.css";
 
 export function BladPestki({ blad, ponow, etykieta = "Spróbuj ponownie" }: { blad: unknown; ponow?: () => void; etykieta?: string }) {
   const k = komunikatPestki(blad);
   return (
-    <div className={s.blad}>
-      <p role="alert">{k.tekst}</p>
-      <div className={s.akcje}>
-        {k.ponow && ponow && <button type="button" className="btn btn-ghost btn-sm" onClick={ponow}>{etykieta}</button>}
-        {k.konfiguracja && <Link to="/profil#ai" className="link small">Ustaw model w profilu</Link>}
-      </div>
-    </div>
+    <StanPestki emocja="zmartwienie" rozmiar="maly" rola="alert" tekst={k.tekst}
+      akcja={k.ponow && ponow ? { etykieta, onClick: ponow } : undefined}>
+      {k.konfiguracja && <Link to="/profil#ai" className="link small">Ustaw model w profilu</Link>}
+    </StanPestki>
   );
 }
 

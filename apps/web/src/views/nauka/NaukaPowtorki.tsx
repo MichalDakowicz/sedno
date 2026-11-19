@@ -1,3 +1,4 @@
+import { StanPestki } from "../../components/StanPestki";
 import type { Poziom } from "../../arkusze/typy";
 import { SubjectIcon } from "../../components/icons";
 import { nazwaPoziomu } from "../../konto/przedmioty";
@@ -34,12 +35,7 @@ export function WyborPoziomuNauki({ poziom, ustawPoziom }: { poziom: Poziom; ust
 }
 
 export function BladNauki({ komunikat, ponow }: { komunikat: string; ponow: () => void }) {
-  return (
-    <div className={s.stan}>
-      <p role="alert" className={s.blad}>{komunikat}</p>
-      <button type="button" className="btn btn-ghost" onClick={ponow}>Spróbuj ponownie</button>
-    </div>
-  );
+  return <StanPestki emocja="zmartwienie" rola="alert" tekst={komunikat} akcja={{ etykieta: "Spróbuj ponownie", onClick: ponow }} />;
 }
 
 export function dataNauki(iso: string | null | undefined): string | null {

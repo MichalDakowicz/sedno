@@ -5,6 +5,8 @@ import type { Wynik } from "../../konto/wyniki";
 import type { ArkuszWpis } from "../../arkusze/typy";
 import { Linia, PasekProgu } from "../../components/wykresy";
 import { Liczba } from "../../ruch";
+import { StanPestki } from "../../components/StanPestki";
+import { glos, wybierz } from "../../pestka/glos";
 import type { KontekstPulpitu } from "./widgety";
 import { Kicker, procent } from "./wspolne";
 import styles from "../Dashboard.module.css";
@@ -53,7 +55,7 @@ export function WynikiZArkuszy({ zakres: podsumowania, co, obok }: KontekstPulpi
       {srednia === null ? (
         <>
           <p className="h2">Jeszcze bez wyniku</p>
-          <p className="muted">Sprawdź pierwszy arkusz, a pokażę ci, gdzie jesteś i ile brakuje do progu.</p>
+          <StanPestki rozmiar="maly" tekst={wybierz(glos.puste.wyniki, 0)} akcja={{ etykieta: "Wybierz arkusz", do: "/arkusze" }} />
         </>
       ) : (
         <>

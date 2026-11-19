@@ -11,6 +11,8 @@ import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
 import { etykietaZrodla, kluczPowtorki, odmianaPowtorek, powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
 import { PasDni } from "../../components/wykresy";
+import { StanPestki } from "../../components/StanPestki";
+import { glos, wybierz } from "../../pestka/glos";
 import s from "./Powtorki.module.css";
 
 type Powtorka = Awaited<ReturnType<typeof naukaApi.powtorki>>["queue"][number];
@@ -62,10 +64,7 @@ export function Powtorki() {
       {powtorki.stan === "gotowe" && !wszystkie.length && (
         <section className={s.sekcja} aria-labelledby="powtorki-puste">
           <h2 className="h2" id="powtorki-puste">Nie ma teraz powtórek</h2>
-          <p className="muted">Kolejne propozycje pojawią się po sprawdzeniu zadań maturalnych lub zakończeniu ćwiczeń.</p>
-          <div className={s.akcje}>
-            <Link to={adresNauki(poziom)} className={`btn btn-secondary ${s.przycisk}`}>Przejdź do nauki</Link>
-          </div>
+          <StanPestki emocja="radosc" tekst={wybierz(glos.puste.powtorki, 0)} akcja={{ etykieta: "Przejdź do nauki", do: adresNauki(poziom) }} />
         </section>
       )}
 

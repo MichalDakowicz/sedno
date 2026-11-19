@@ -14,6 +14,8 @@ import { Opanowanie, OPIS_OPANOWANIA } from "./Opanowanie";
 import { Kropki } from "../../components/wykresy";
 import { Liczba } from "../../ruch";
 import { Kielek } from "../../components/Kielek";
+import { StanPestki } from "../../components/StanPestki";
+import { glos, wybierz } from "../../pestka/glos";
 import { NAZWA_STADIUM, stadium } from "../../nauka/stadia";
 
 import s from "./Umiejetnosci.module.css";
@@ -95,7 +97,7 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
               {proby.dane.map((d) => <Dowod key={`${d.source_id}:${d.session_id ?? d.sheet_id}:${d.question}`} dowod={d} />)}
             </ul>
           </details>
-        ) : <p className="muted" id="umiejetnosc-proby">Sprawdź zadania w arkuszu albo ukończ rundę, żeby zobaczyć tu pierwsze próby.</p>)}
+        ) : <div id="umiejetnosc-proby"><StanPestki rozmiar="maly" tekst={wybierz(glos.puste.proby, 0)} /></div>)}
         {maBledyJezykowe && <p className="small muted">W ostatnich próbach pojawiły się błędy językowe i dotyczące formy.</p>}
       </section>
     </aside>
