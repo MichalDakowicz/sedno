@@ -1,9 +1,8 @@
-/* Grządki obok siebie na jednej linii ziemi (obwódka dolna bez przerw między kolumnami). */
+/* Pełny ogród: grządka na obszar, jedna pod drugą; nazwa obszaru w stałej kolumnie, rośliny w rzędzie na linii ziemi.
+   Miniatura (data-maly): grządki obok siebie. */
 .ogrod {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
-  align-items: end;
-  row-gap: var(--s-6);
+  gap: var(--s-5);
 }
 
 .ogrod[data-maly] {
@@ -13,15 +12,49 @@
 
 .grzadka {
   display: grid;
-  align-content: end;
-  gap: var(--s-3);
+  grid-template-columns: 14rem minmax(0, 1fr);
+  align-items: end;
+  gap: var(--s-4);
   min-width: 0;
-  height: 100%;
+  padding-bottom: var(--s-2);
   border-bottom: 2px solid var(--line);
 }
 
+.ogrod[data-maly] {
+  align-items: end;
+}
+
+.ogrod[data-maly] .grzadka {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: end;
+  gap: var(--s-3);
+  height: 100%;
+  padding-bottom: 0;
+}
+
+.obszar {
+  display: grid;
+  gap: var(--s-2);
+  padding: 0 var(--s-4) var(--s-3) var(--s-2);
+}
+
+.obszar .nazwaGrzadki {
+  padding: 0;
+}
+
+.stanObszaru {
+  font-size: var(--t-sm);
+  color: var(--muted);
+}
+
+.stanObszaru strong {
+  font-size: var(--t-lg);
+  font-weight: 500;
+  color: var(--fg);
+}
+
 .nazwaGrzadki {
-  padding-inline: var(--s-2);
+  padding: 0 var(--s-2) var(--s-3);
   font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -49,7 +82,7 @@
   justify-items: center;
   align-content: end;
   gap: var(--s-1);
-  width: 96px;
+  width: 9rem;
   min-height: 44px;
   padding: var(--s-2) var(--s-1);
   border: 0;
@@ -139,13 +172,9 @@
 }
 
 .nazwa {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
   font-size: var(--t-sm);
   line-height: 1.3;
-  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .procent {

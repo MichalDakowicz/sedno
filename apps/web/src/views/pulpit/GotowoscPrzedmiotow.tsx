@@ -1,18 +1,16 @@
 // Gotowość do matury na pulpicie: jeden wiersz na przedmiot z małym pierścieniem gotowości i jednym zdaniem.
-// Angielski liczy gotowość z mapy umiejętności (nauka/gotowosc.ts) i ma pod spodem ogród w miniaturze; inne
+// Angielski liczy gotowość z mapy umiejętności (nauka/gotowosc.ts) (ogród jest na mapie); inne
 // przedmioty pokazują średnią z arkuszy (bez arkuszy: jedno zdanie). Wiersz prowadzi do mapy przedmiotu, a przedmiot
 // bez mapy do jego arkuszy. Pod wierszami jeden link do powtórek na dziś, gdy jakieś czekają.
 import { Link } from "react-router-dom";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { Gotowosc } from "../../components/Gotowosc";
-import { Ogrod } from "../../components/Ogrod";
 import { SubjectIcon } from "../../components/icons";
 import { Pierscien } from "../../components/wykresy";
 import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
 import { nazwaPoziomu, przedmiot } from "../../konto/przedmioty";
 import type { Podsumowanie } from "../../konto/wyniki";
 import { adresMapy, adresPowtorek } from "../../nauka/adresy";
-import { usePolecenieDnia } from "../../nauka/dzis";
 import { useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
 import { odmianaPowtorek, unikalnePowtorki } from "./czasPowtorek";
@@ -24,7 +22,6 @@ function WierszAngielskiego({ s }: { s: Podsumowanie }) {
   const u = useUczenie();
   const mapa = useZapytanie(zapytania.mapa(poziom));
   const plan = useZapytanie(zapytania.plan(poziom));
-  const polecenie = usePolecenieDnia(poziom);
   const pr = przedmiot("angielski")!;
   const umiejetnosci = mapa.dane?.skills ?? [];
   const naglowek = <>{pr.nazwa} <span className={w.poziomWiersza}>poziom {nazwaPoziomu[poziom]}</span></>;
@@ -39,11 +36,6 @@ function WierszAngielskiego({ s }: { s: Podsumowanie }) {
         )}
         <ChevronRight size={20} aria-hidden="true" className={w.gotowoscStrzalka} />
       </Link>
-      {mapa.stan === "ladowanie" && <span className={w.ogrodZastepczy} aria-hidden="true" />}
-      {umiejetnosci.length > 0 && (
-        <Ogrod maly umiejetnosci={umiejetnosci} poziom={poziom} adres={(x) => adresMapy(poziom, x.skill_id)}
-          tuDzis={polecenie.dane?.skill_id ?? null} etykieta={`Ogród umiejętności z angielskiego, poziom ${nazwaPoziomu[poziom]}`} />
-      )}
     </li>
   );
 }
