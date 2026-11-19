@@ -314,7 +314,7 @@ function WolnyTemat({ przedmiotId, poziom, umiejetnosci, ikona, nazwa }: { przed
       const umiejetnosc = umiejetnosci.find((u) => u.skill_id === dopasowanie?.umiejetnosc);
       const kontekst = umiejetnosc ? ` Umiejętność: ${umiejetnosc.name}.` : "";
       const wstep = przedmiotId === "angielski" ? `angielski (poziom ${nazwaPoziomu[poziom]})` : przedmiot(przedmiotId)!.nazwa.toLowerCase();
-      zapytajWNowej(`Chcę poćwiczyć ${wstep}.${kontekst} Temat: ${tekst}`);
+      zapytajWNowej(`Chcę poćwiczyć temat z matury (${wstep}).${kontekst} Temat: ${tekst}`);
       navigate("/tutor");
     } finally {
       trwajace.current = null;
