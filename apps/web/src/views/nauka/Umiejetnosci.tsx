@@ -10,7 +10,9 @@ import { adresMapy, adresNauki, adresRozbioru } from "../../nauka/adresy";
 import { naukaApi, type DowodNauki, type Umiejetnosc } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { WyborPoziomuNauki } from "./NaukaPowtorki";
-import { Opanowanie } from "./Opanowanie";
+import { Opanowanie, OPIS_OPANOWANIA } from "./Opanowanie";
+import { Kropki } from "../../components/wykresy";
+import { Liczba } from "../../ruch";
 
 import s from "./Umiejetnosci.module.css";
 
@@ -62,22 +64,51 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
       <div className={s.blok}>
         <h2 id="umiejetnosc-tytul" className="h2" tabIndex={-1} ref={naglowek}>{u.name}</h2>
         <p>{u.description}</p>
-        <Opanowanie {...u} />
-        <p className="muted small">Próby uwzględnione w ocenie: {u.evidence_count}</p>
+      </div>
+      <div className={s.blok}>
+        {u.score === null ? (
+          <p className="muted">Za mało odpowiedzi, żebym oceniła tę umiejętność. Jedna runda wystarczy.</p>
+        ) : (
+          <p className={s.duza} data-tutor-about={OPIS_OPANOWANIA}>
+            <Liczba wartosc={Math.round(u.score * 100)} /><span className={s.jednostka}>%</span>
+            <span className={s.podpisLiczby}>
+              opanowania z {u.evidence_count} {u.evidence_count === 1 ? "próby" : "prób"}
+              {u.retention !== null && <> · <span data-tutor-about="To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia.">pamiętasz ok. {Math.round(u.retention * 100)}%</span></>}
+            </span>
+          </p>
+        )}
+        {proby.stan === "gotowe" && !!proby.dane?.length && <OstatnieProby proby={proby.dane} />}
       </div>
       <Link to={adresNauki(poziom, u.skill_id)} className={`btn btn-primary ${s.przycisk}`}>Ćwicz <ArrowRight size={16} aria-hidden="true" /></Link>
       <section className={s.blok} aria-labelledby="umiejetnosc-proby">
-        <h3 id="umiejetnosc-proby" className="h3">Ostatnie próby</h3>
         {proby.stan === "ladowanie" && <Ladowanie ile={3} etykieta="Wczytuję próby" />}
         {proby.stan === "blad" && <Blad tekst="Nie udało się wczytać prób." ponow={proby.ponow} />}
         {proby.stan === "gotowe" && (proby.dane?.length ? (
-          <ul className="wiersze">
-            {proby.dane.map((d) => <Dowod key={`${d.source_id}:${d.session_id ?? d.sheet_id}:${d.question}`} dowod={d} />)}
-          </ul>
-        ) : <p className="muted">Sprawdź zadania w arkuszu albo ukończ rundę, żeby zobaczyć tu pierwsze próby.</p>)}
+          <details className={s.rozwijane}>
+            <summary id="umiejetnosc-proby"><ChevronRight size={16} aria-hidden="true" /> Wszystkie próby ({proby.dane.length})</summary>
+            <ul className="wiersze">
+              {proby.dane.map((d) => <Dowod key={`${d.source_id}:${d.session_id ?? d.sheet_id}:${d.question}`} dowod={d} />)}
+            </ul>
+          </details>
+        ) : <p className="muted" id="umiejetnosc-proby">Sprawdź zadania w arkuszu albo ukończ rundę, żeby zobaczyć tu pierwsze próby.</p>)}
         {maBledyJezykowe && <p className="small muted">W ostatnich próbach pojawiły się błędy językowe i dotyczące formy.</p>}
       </section>
     </aside>
+  );
+}
+
+const OSTATNIE = 10;
+
+/** Ostatnie próby od najstarszej do najnowszej: kropka zielona dobrze, czerwona źle, z kreską częściowo. */
+function OstatnieProby({ proby }: { proby: DowodNauki[] }) {
+  const ostatnie = [...proby].sort((a, b) => a.happened_at.localeCompare(b.happened_at)).slice(-OSTATNIE);
+  const dobre = ostatnie.filter((d) => d.score >= 1).length;
+  return (
+    <div className={s.ostatnie}>
+      <span className="label">Ostatnie {ostatnie.length === 1 ? "próba" : "próby"}: {dobre} z {ostatnie.length} dobrze</span>
+      <Kropki rozmiar="male" opis={`Ostatnie ${ostatnie.length} prób: ${dobre} dobrze.`}
+        kropki={ostatnie.map((d) => ({ stan: d.score >= 1 ? "dobrze" : d.score <= 0 ? "zle" : "pominiete", tytul: dataProby.format(new Date(d.happened_at)) }))} />
+    </div>
   );
 }
 

@@ -163,3 +163,50 @@
 }
 
 
+
+/* Panel: duża liczba opanowania z podpisem, pod nią kropki ostatnich prób. */
+.duza {
+  font-size: calc(48px * var(--skala-tekstu, 1));
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+.jednostka {
+  color: var(--subtle);
+  font-size: calc(28px * var(--skala-tekstu, 1));
+}
+
+.podpisLiczby {
+  display: block;
+  margin-top: var(--s-2);
+  font-size: var(--t-sm);
+  letter-spacing: 0;
+  color: var(--subtle);
+}
+
+.ostatnie {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.rozwijane > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.rozwijane > summary::-webkit-details-marker {
+  display: none;
+}
+
+.rozwijane > summary svg {
+  transition: transform var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+.rozwijane[open] > summary svg {
+  transform: rotate(90deg);
+}

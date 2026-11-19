@@ -9,7 +9,8 @@ import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/a
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
 import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
-import { etykietaZrodla, kluczPowtorki, unikalnePowtorki } from "../pulpit/czasPowtorek";
+import { etykietaZrodla, kluczPowtorki, odmianaPowtorek, powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
+import { PasDni } from "../../components/wykresy";
 import s from "./Powtorki.module.css";
 
 type Powtorka = Awaited<ReturnType<typeof naukaApi.powtorki>>["queue"][number];
@@ -69,6 +70,8 @@ export function Powtorki() {
       )}
 
 
+
+      {powtorki.stan === "gotowe" && wszystkie.length > 0 && <SiedemDni kolejka={wszystkie} />}
 
       {bledy.length > 0 && (
         <section className={s.sekcja} aria-labelledby="bledy-powtorki">
@@ -183,4 +186,25 @@ function ZrodloPowtorki({ powtorka }: { powtorka: Powtorka }) {
     return <Link className="link" to={adresRozbioru(blad.session_id)}>{etykieta}</Link>;
   }
   return null;
+}
+
+const pelnaNazwaDnia = new Intl.DateTimeFormat("pl-PL", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+
+/** Kiedy co powtórzyć: liczba na dziś jako wniosek, pod nią siedem dni z liczbą powtórek. */
+function SiedemDni({ kolejka }: { kolejka: Powtorka[] }) {
+  const dni = powtorkiNaDni(kolejka);
+  const dzis = dni[0]!.liczba;
+  const wTygodniu = dni.reduce((s, d) => s + d.liczba, 0);
+  const opis = dni.map((d) => `${d.podpis}: ${d.liczba}`).join(", ");
+  return (
+    <section className={s.sekcja} aria-labelledby="powtorki-tydzien">
+      <h2 className="h2" id="powtorki-tydzien">
+        {dzis ? `Na dziś ${dzis} ${odmianaPowtorek(dzis)}` : "Dziś nic nie czeka"}
+      </h2>
+      <PasDni
+        opis={`Powtórki w najbliższych siedmiu dniach, razem ${wTygodniu}: ${opis}.`}
+        dni={dni.map((d, i) => ({ klucz: d.data, podpis: d.podpis, liczba: d.liczba, dzis: i === 0, tytul: pelnaNazwaDnia.format(new Date(`${d.data}T12:00:00Z`)) }))}
+      />
+    </section>
+  );
 }
