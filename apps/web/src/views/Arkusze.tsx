@@ -51,8 +51,6 @@ export function Arkusze() {
   const [przedmiot, setPrzedmiot] = useState<Przedmiot>(() => zAdresu ?? PRZEDMIOTY.find((p) => poziomKonta(p.id))?.id ?? "angielski");
   const [wybranyPoziom, setPoziom] = useState<Poziom>(() => poziomZAdresu ?? poziomKonta(przedmiot) ?? "podstawowy");
   const opis = PRZEDMIOTY.find((p) => p.id === przedmiot)!;
-  // Poziom z profilu (albo z adresu); pigułki poziomów dopiero po „inny poziom”.
-  const [innyPoziom, ustawInnyPoziom] = useState(false);
   const zPrzedmiotu = dane?.filter((a) => (a.przedmiot ?? "angielski") === przedmiot);
   // Poziomy, dla których są arkusze (matematyka na razie tylko podstawowa).
   const poziomy = POZIOMY.filter((p) => !zPrzedmiotu || zPrzedmiotu.some((a) => a.poziom === p));
@@ -85,13 +83,7 @@ export function Arkusze() {
         ))}
       </nav>
 
-      {poziomy.length > 1 && !innyPoziom && (
-        <p className={`small muted ${styles.poziomKrotko}`}>
-          Poziom {NAZWY[poziom].toLowerCase()}
-          <button type="button" className={styles.innyPoziom} aria-expanded={false} onClick={() => ustawInnyPoziom(true)}>inny poziom</button>
-        </p>
-      )}
-      {poziomy.length > 1 && innyPoziom && (
+      {poziomy.length > 1 && (
         <nav className={styles.levels} aria-label="Poziom">
           <Plywak wyglad="pigulka" />
           {poziomy.map((p) => (

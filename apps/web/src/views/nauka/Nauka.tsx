@@ -162,7 +162,7 @@ export function Nauka() {
                 <Link to={adresStartu(poziom, umiejetnosc.skill_id, format, powtorz)} className={`btn btn-primary ${s.przycisk}`} data-tutor-about={dane?.reason}>
                   {powtorz ? <><RotateCcw size={18} aria-hidden="true" /> Powtórz zadanie</> : <><Timer size={18} aria-hidden="true" /> Zacznij rundę · {minuty} min</>}
                 </Link>
-                <button type="button" className="link" aria-expanded={zmiana} aria-controls="wybor-umiejetnosci" onClick={() => ustawZmiane((z) => !z)}>
+                <button type="button" className="btn btn-ghost" aria-expanded={zmiana} aria-controls="wybor-umiejetnosci" onClick={() => ustawZmiane((z) => !z)}>
                   {zmiana ? "Gotowe" : "Zmień umiejętność"}
                 </button>
               </div>
@@ -204,8 +204,8 @@ export function Nauka() {
         ))}
       </ul>
 
-      <details className={`${s.sekcja} ${s.wiecej}`}>
-        <summary><ChevronRight size={18} aria-hidden="true" /> <span className="h3">Więcej sposobów</span></summary>
+      <section className={s.sekcja} aria-labelledby="wiecej-sposobow">
+        <h2 className="h2" id="wiecej-sposobow">Więcej sposobów</h2>
         <ul className={`wiersze ${s.sposoby}`}>
           {wiecej.map((x) => (
             <li key={x.id}>
@@ -220,7 +220,7 @@ export function Nauka() {
             </li>
           ))}
         </ul>
-      </details>
+      </section>
 
       {angielski && ostatnie.stan === "gotowe" && sesje.length > 0 && (
         <section className={s.sekcja} aria-labelledby="ostatnio">

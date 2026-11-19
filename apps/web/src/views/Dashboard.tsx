@@ -158,7 +158,7 @@ export function Dashboard() {
         {/* Quiz celów, dopóki nie zrobiony ani pominięty; potem zaproszenie do diagnozy. */}
         {!uczenie.quiz && profilOdczytany && moje.length > 0 ? (
           <Link to="/cele" className="link">
-            Powiedz Pestce, ile chcesz mieć na maturze <ArrowRight size={14} aria-hidden="true" />
+            Ustaw swój cel na maturę <ArrowRight size={14} aria-hidden="true" />
           </Link>
         ) : zaproszenie && (
           <Link to={adresDiagnozy(poziomNauki)} className="link">
@@ -172,17 +172,17 @@ export function Dashboard() {
       {!dane && <Ladowanie ksztalt="pulpit" ile={3} etykieta="Wczytuję twoje arkusze i wyniki" />}
 
       {dane && co && (
-        <section className={`${styles.top} ${obok ? "" : styles.topSam} ${wejscie}`}>
+        <section className={`${styles.top} ${obok || moje.length > 0 ? "" : styles.topSam} ${wejscie}`}>
           <Dzis {...kontekst} />
-          {obok && (
+          {obok ? (
             <div className={styles.side}>
               <obok.Komponent {...kontekst} obok />
             </div>
-          )}
+          ) : moje.length > 0 && <GotowoscPrzedmiotow zakres={zakres} />}
         </section>
       )}
 
-      {dane && moje.length > 0 && <GotowoscPrzedmiotow zakres={zakres} />}
+      {dane && moje.length > 0 && (obok || !co) && <GotowoscPrzedmiotow zakres={zakres} />}
 
       {dane && aktywny && zakres.map((s) => <ArkuszePrzedmiotu key={s.przedmiot.poziom} podsumowanie={s} zPoziomem={zakres.length > 1} wejscie={wejscie} />)}
 

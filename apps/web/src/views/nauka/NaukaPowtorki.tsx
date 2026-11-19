@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { StanPestki } from "../../components/StanPestki";
 import type { Poziom } from "../../arkusze/typy";
 import { SubjectIcon } from "../../components/icons";
@@ -19,19 +18,8 @@ export function Angielski() {
   );
 }
 
-/**
- * Poziom matury: zwykle ten z profilu, więc widać tylko jego nazwę i mały przycisk „inny poziom”; pigułki
- * pojawiają się dopiero po jego kliknięciu (Nauka, Powtórki, mapa).
- */
+/** Poziom matury: pigułki zawsze widoczne, domyślnie zaznaczony poziom z profilu (Nauka, Powtórki, mapa). */
 export function WyborPoziomuNauki({ poziom, ustawPoziom }: { poziom: Poziom; ustawPoziom: (poziom: Poziom) => void }) {
-  const [otwarty, ustawOtwarty] = useState(false);
-  if (!otwarty)
-    return (
-      <p className={`small muted ${s.poziomKrotko}`}>
-        Poziom {nazwaPoziomu[poziom]}
-        <button type="button" className={s.innyPoziom} aria-expanded={false} onClick={() => ustawOtwarty(true)}>inny poziom</button>
-      </p>
-    );
   return (
     <div className={s.pole} role="group" aria-labelledby="poziom-matury">
       <span id="poziom-matury" className="small muted">Poziom matury</span>
