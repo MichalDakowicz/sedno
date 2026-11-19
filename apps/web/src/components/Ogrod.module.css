@@ -3,6 +3,7 @@
 .ogrod {
   display: grid;
   gap: var(--s-5);
+  container-type: inline-size;
 }
 
 .ogrod[data-maly] {
@@ -185,4 +186,18 @@
 
 .roslina[data-brak] + .podpis .procent {
   font-size: var(--t-xs);
+}
+
+/* Wąsko (np. obok otwartego panelu umiejętności): nazwa i stan obszaru nad roślinami, nie obok nich. */
+@container (max-width: 760px) {
+  .ogrod:not([data-maly]) .grzadka {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: var(--s-3);
+  }
+
+  .ogrod:not([data-maly]) .obszar {
+    max-width: 20rem;
+    padding-bottom: 0;
+  }
 }

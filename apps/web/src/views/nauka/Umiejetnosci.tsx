@@ -18,7 +18,7 @@ import { Liczba } from "../../ruch";
 import { Kielek } from "../../components/Kielek";
 import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
-import { NAZWA_STADIUM, stadium } from "../../nauka/stadia";
+import { NAZWA_STADIUM, stadium, doNastepnegoStadium } from "../../nauka/stadia";
 import { useSesjaDiagnozy } from "../../nauka/diagnoza";
 import { adresWizualizacji, modelDlaUmiejetnosci } from "../../nauka/wizualizacje";
 import { Gotowosc } from "../../components/Gotowosc";
@@ -95,6 +95,9 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
             </span>
           </p>
           </div>
+        )}
+        {doNastepnegoStadium(u.score) && (
+          <p className={s.doStadium}>{doNastepnegoStadium(u.score)!.charAt(0).toUpperCase() + doNastepnegoStadium(u.score)!.slice(1)}</p>
         )}
         {linia && (
           <div className={s.ostatnie}>

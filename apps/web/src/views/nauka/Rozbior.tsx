@@ -16,7 +16,7 @@ import { TrescRundy } from "./TrescRundy";
 import { WynikDiagnozy } from "./WynikDiagnozy";
 import { Kropki, PasekProgu } from "../../components/wykresy";
 import { Kielek } from "../../components/Kielek";
-import { NAZWA_STADIUM, stadium, wyzszeStadium } from "../../nauka/stadia";
+import { NAZWA_STADIUM, stadium, wyzszeStadium, doNastepnegoStadium } from "../../nauka/stadia";
 import { useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
 import { koniecKolejki, nastepnaWKolejce, porzucKolejke, zdejmijZKolejki } from "../../nauka/kolejka";
@@ -115,6 +115,7 @@ function StadiumRundy({ przed, po }: { przed: number | null; po: number | null }
       <Kielek stadium={b} rozmiar={64} animuj={urosla} />
       <p className="small muted">
         {urosla ? `Urosła na mapie: ${NAZWA_STADIUM[a]} → ${NAZWA_STADIUM[b]}.` : `Na mapie: ${NAZWA_STADIUM[b]}.`}
+        {doNastepnegoStadium(po) && ` ${doNastepnegoStadium(po)!.charAt(0).toUpperCase()}${doNastepnegoStadium(po)!.slice(1)}`}
       </p>
     </div>
   );
