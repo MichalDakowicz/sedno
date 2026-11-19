@@ -625,6 +625,8 @@ export function TutorGuide() {
   // Pas pod Pestką na spoczynku w rogu telefonu: treść pod nią przygasa jak pod paskiem nawigacji, więc Pestka
   // nie siedzi na wierszu ani przycisku (strona ma pod spodem zapas, żeby koniec dało się wyprzewijać nad pas).
   const pasDoku = resting && waski() && Math.abs(pos.y - rogY()) < 1;
+  // W „o” (szarpanie, powrót, wciskanie) dymek i reflektor czekają: pokażą się dopiero przy celu, a nie na pasku.
+  const wDrodze = faza === "szarpie" || faza === "wciska" || wOku;
   const bubbleStyle: CSSProperties =
     layout.placement === "below" || layout.placement === "above" ? { left: layout.shift, width: layout.w } : { width: layout.w };
 
@@ -656,7 +658,7 @@ export function TutorGuide() {
           </button>
         </div>
       )}
-      {spot && !resting && (
+      {spot && !resting && !wDrodze && (
         <div
           className={`${styles.spot} ${closing ? styles.spotClosing : ""}`}
           style={{ left: spot.x - SPOT_PAD, top: spot.y - SPOT_PAD, width: spot.w + SPOT_PAD * 2, height: spot.h + SPOT_PAD * 2 }}
@@ -681,7 +683,7 @@ export function TutorGuide() {
           {pending && <span className={styles.badge} aria-hidden="true" />}
         </button>
 
-        {!resting && (summon || hint) && (
+        {!resting && !wDrodze && (summon || hint) && (
           <div
             key={`b${hop}`}
             ref={bubbleRef}
