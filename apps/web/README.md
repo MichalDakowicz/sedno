@@ -28,6 +28,8 @@ Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (
 | `/nauka/zdjecie` | Zdjęcie rozwiązania z kartki: odczyt do poprawienia i uwaga Pestki; z arkusza `?arkusz&zadanie` |
 | `/nauka/sokratejski` | Rozmowa z pytaniami: do siedmiu pytań Pestki o umiejętność (`?umiejetnosc`), potem mini-test |
 | `/nauka/pisanie` | Pisanie krok po kroku: szkice na koncie, edytor etapu (`?szkic`), lista kontrolna i pytanie Pestki |
+| `/nauka/mapa-wiedzy` | Mapa wiedzy (`?przedmiot`): notatki ucznia, graf połączeń (od 640 px), propozycje Pestki do przyjęcia albo odrzucenia |
+| `/nauka/wizualizacje` | Modele do zobaczenia (`?model=parabola\|wyszukiwanie-binarne\|tekst-parafraza`): katalog z `wizualizacje`, stan z `wizualizacja` |
 | `/nauka/diagnoza` | Diagnoza na start (`nauka/diagnoza.ts`): jedna krótka sesja (`nauka_diagnoza_start`, ok. 16 zadań), stan na koncie osobno dla poziomu, na końcu wynik na umiejętność i propozycja dnia. Bez tych funkcji w bazie dawna wersja: po jednej rundzie z każdego obszaru, stan w przeglądarce |
 | `/umiejetnosci` | Mapa umiejętności: opanowanie umiejętności, panel z linią opanowania w czasie i próbami (`?umiejetnosc=`) |
 | `/powtorki` | Powtórki: propozycja dnia, błędy do przećwiczenia, umiejętności do odświeżenia |
@@ -38,7 +40,7 @@ Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (
 | `/profil` | Przedmioty, AI na koncie, wejścia do ustawień, profilu ucznia i układu pulpitu |
 | `/profil-ucznia` | Jak się uczysz, czas i cel, priorytety, wnioski z wyników |
 | `/ustawienia` | Motyw, rozmiar tekstu, dostępność, zachowanie Pestki |
-| `/szablony`, `/szablony/:slug` | Prototypy z `src/szablony/` (tylko w trybie deweloperskim na pulpicie); opis w `src/szablony/README.md` |
+| `/szablony`, `/szablony/:slug` | Prototypy z `src/szablony/` (został „Napraw błąd”); opis w `src/szablony/README.md` |
 | `*` | Nie ma takiej strony (`views/NieMaStrony.tsx`): zmartwiona Pestka, adres i „Wróć na pulpit” |
 
 ## Nauka z Pestką (funkcja `nauka-ai`)
@@ -47,7 +49,9 @@ Wszystkie wywołania funkcji `nauka-ai` idą przez `src/nauka/ai.ts`: jedno typo
 
 - `views/nauka/Zadania.tsx`: katalog szablonów (`warianty-katalog`), wariant (`wariant-zadania`) i ocena (`ocen-rozwiazanie`). Id wariantu i próby to `crypto.randomUUID()`; id wariantu leży w `sessionStorage`, a ta sama odpowiedź po błędzie idzie z tym samym id próby. Pole odpowiedzi zależy od formy (liczba, tekst, lista, pola, SQL). Werdykt z kryteriami, status „Do weryfikacji” i reakcja Pestki z `PestkaRundy.tsx`. Działa bez modelu (ocena kluczem).
 - `views/pulpit/TwojTydzien.tsx`: widget „Twój tydzień”. Plan z `nauka_plan` (dni zmienia `nauka_plan_dni`), prognoza z pola `forecast` planu. Dni z nauką, seria i minuty w ostatnich tygodniach z `nauka_aktywnosc`; bez tej funkcji w bazie dni i seria liczone w przeglądarce z dat prób `nauka_dowody` (angielski) i `sheet_progress.updated_at` (każdy przedmiot), w strefie Europe/Warsaw, a minut nie ma.
-- `components/BrudnopisEdytor.tsx` + `brudnopisPestkaApi.ts`: `omow-brudnopis` idzie zwykłym `fetch` z `stream: true`; `components/strumienTablicy.ts` czyta zdarzenia (`wskazowka`, `wynik`, `blad`), a dymek przy pytaniu pisze wskazówkę od pierwszych fragmentów. Dopiski i figury rysują się po `wynik`. Funkcja sprzed strumienia odpowiada zwykłym JSON-em i działa jak dawniej.
+- `components/BrudnopisEdytor.tsx` + `brudnopisPestkaApi.ts`: `omow-brudnopis` idzie zwykłym `fetch` z `stream: true`; `components/strumienTablicy.ts` czyta zdarzenia (`wskazowka`, `ksztalt`, `dopisek`, `wynik`, `blad`), a dymek przy pytaniu pisze wskazówkę od pierwszych fragmentów. Figury i dopiski rysują się, gdy przychodzą (`zapisNaZywo` w `brudnopisPestkaRysunek.ts`: miejsce raz, przy pierwszym elemencie, potem kolejne pod spodem; na tablicę bez kroku cofania). `wynik` zatwierdza całość jednym krokiem cofania i dokłada ramkę błędu i bryłę; gdy figury albo dopiski w wyniku różnią się od strumienia, zapis na żywo znika i rysuje się ten z wyniku. Prowadzenie na żywo (bez pytania) rysuje dalej po `wynik`. Funkcja sprzed strumienia odpowiada zwykłym JSON-em i działa jak dawniej.
+- `views/nauka/Wizualizacje.tsx` + `nauka/wizualizacje.ts`: katalog modeli (`wizualizacje`, tylko znane aplikacji) i stan (`wizualizacja`, bez modelu językowego), suwaki pytają serwer po 180 ms pauzy, a na ekranie zostaje ostatni dobry stan. Gdzie model pasuje (typ zadania, umiejętność, przedmiot) i dokąd po nim: `nauka/wizualizacje.ts`.
+- `views/nauka/MapaWiedzy.tsx` + `nauka/wiedza.ts`: `knowledge_nodes` i `knowledge_edges` klientem Supabase (RLS), każda zmiana idzie do bazy i lista odświeża się z niej; propozycje przez `mapa-wiedzy-polaczenia` z ośmioma najświeższymi notatkami przedmiotu.
 - `views/nauka/Zdjecie.tsx`: zdjęcie zmniejszane na płótnie do JPEG ok. 900 KB (dłuższy bok do 1600 px), `odczytaj-zdjecie`, poprawiony odczyt do `omow-odczyt`. Zdjęcie nie jest zapisywane. Wejście z zadania otwartego w arkuszu matematyki (nie w trakcie pisania na czas).
 - `views/nauka/Sokratejski.tsx`: `sokratejski` z historią par, okno rozmowy w stylu `TutorChat.module.css`, zapis rozmowy w `sessionStorage`. Podsumowanie i propozycję mini-testu składa aplikacja.
 - `views/nauka/KrokPoKroku.tsx`: szkice w `writing_drafts` (zapis po pauzie z filtrem `revision`, konflikt wczytuje nowszą wersję), `krok-po-kroku` na przycisk, oddanie przez `nauka_oddaj_szkic`.
@@ -65,7 +69,8 @@ Pestka jest na każdym koncie i nie ma stałego miejsca w treści (`TutorGuide.t
 
 - **Spoczynek:** gdy nie ma nic do powiedzenia, siedzi w prawym dolnym rogu ekranu, w całości widoczna. Kropka oznacza czekającą wskazówkę; kliknięcie przewija do niej.
 - **Wskazówki:** strona wywołuje `showHints(klucz, wskazówki)`. Pestka skacze do elementu z `data-tutor="…"`, siada na jego rogu, podświetla go i pokazuje dymek. Zwykła wskazówka nie przewija strony: Pestka czeka na spoczynku, aż element wjedzie w ekran. Dymek staje po tej stronie, gdzie mieści się na ekranie i nie zasłania elementu, o którym mówi.
-- **Spoczynek:** na przyciskach, polach i paskach narzędzi Pestka nie siada (podnosi się nad nie); na telefonie strona ma zapas na końcu, żeby ostatnie przyciski dało się przewinąć nad nią.
+- **Spoczynek:** na przyciskach, polach i paskach narzędzi Pestka nie siada (podnosi się nad nie); strona ma zapas na końcu (`--zapas-pestki`), żeby ostatnie przyciski dało się przewinąć nad nią.
+- **Telefon (poniżej 640 px):** na spoczynku w rogu ma pod sobą pas z zanikaniem (`.dok`) i omija tylko elementy przypięte (`fixed`, `sticky`). Wskazówka i przywołanie dokują się przy dolnej albo górnej krawędzi (`wybierzDok`: strona, gdzie dymek nie zasłania celu ani jego karty, wiersza czy sekcji; poprzednia zostaje, dopóki nie zasłania). Dymek w doku ma limit wysokości i przewija się w środku; strzałka zwija go (Pestka wraca na spoczynek z kropką, kliknięcie rozwija).
 - **W rundzie nauki:** Pestka stoi w treści przy werdykcie i przy podsumowaniu rozbioru (`views/nauka/PestkaRundy.tsx`), z gotowymi tekstami z kilku list, więc nie zasłania opcji ani przycisków i nie zabiera fokusu.
 - **Kontekst:** strona zgłasza, na co patrzy uczeń (`useKontekstPestki`), a zadanie w arkuszu niesie go w `data-tutor-kontekst` (prawy przycisk). Otwarcie rozmowy przy innym zadaniu zaczyna nową rozmowę o nim; przed sprawdzeniem bez klucza odpowiedzi.
 - **Przewijanie i zmiany treści:** podąża za elementem. Gdy element wyjedzie z ekranu albo zniknie (przejście na inną stronę, przełączenie karty), wraca na spoczynek, a przy powrocie elementu skacze do niego z powrotem. Zmiany w treści strony wykrywa `MutationObserver`.

@@ -30,11 +30,11 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 - [ ] [Napraw błąd](napraw-blad/README.md): praca z wstrzykniętymi błędami
 - [x] Krok po kroku: działa jako `/nauka/pisanie` (`views/nauka/KrokPoKroku.tsx`)
 - [x] Tutor sokratejski: działa jako `/nauka/sokratejski` (`views/nauka/Sokratejski.tsx`)
-- [ ] [Wizualizacje](wizualizacje/README.md): interaktywne modele pojęć
+- [x] Wizualizacje: działa jako `/nauka/wizualizacje` (`views/nauka/Wizualizacje.tsx`)
 
 ### Postęp
 
-- [ ] [Mapa wiedzy](mapa-wiedzy/README.md): prywatny graf notatek
+- [x] Mapa wiedzy: działa jako `/nauka/mapa-wiedzy` (`views/nauka/MapaWiedzy.tsx`)
 
 ### Konto i narzędzia
 
