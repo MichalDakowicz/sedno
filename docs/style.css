@@ -12,6 +12,7 @@
   --r-xs:6px;--r-sm:12px;--r-md:20px;--r-lg:28px;--r-pill:999px;
   --s-1:4px;--s-2:8px;--s-3:12px;--s-4:16px;--s-5:24px;--s-6:32px;--s-7:48px;--s-8:64px;
   --side:300px;
+  --pestka-rys:#0f151d;--pestka-policzek:#ffc8b7;--pestka-blask:#fff;
   --font:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   color-scheme:light;
@@ -124,6 +125,18 @@ figcaption{color:var(--muted);font-size:.85rem;margin-top:14px;padding-top:12px;
 .svg-s{fill:var(--muted);font:12px var(--font)}
 .svg-track{fill:var(--line)}
 .svg-mark{stroke:var(--accent);stroke-width:2}
+
+/* Pestka i kiełkująca pestka jak w TutorAvatar.tsx i Kielek.tsx. Rysy twarzy są ciemne na pomarańczu w obu motywach. */
+.p-cialo{fill:var(--accent)}
+.p-rys{fill:var(--pestka-rys)}
+.p-kreska{fill:none;stroke:var(--pestka-rys);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.p-policzek{fill:var(--pestka-policzek);opacity:.7}
+.p-blask{fill:var(--pestka-blask);opacity:.22}
+.k-ziemia{fill:var(--line)}
+.k-nasiono,.k-lisc,.k-korona{fill:var(--accent)}
+.k-lisc2,.k-owoc{fill:var(--accent-fg)}
+.k-lodyga{fill:none;stroke:var(--accent-fg);stroke-width:2.4;stroke-linecap:round}
+.k-blask{fill:var(--surface);opacity:.45}
 
 .bars{display:grid;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:4px 20px;margin:16px 0}
 .bar-row{display:grid;grid-template-columns:minmax(110px,260px) 1fr 48px;gap:16px;align-items:center;font-size:.92rem;padding:12px 0;border-bottom:1px solid var(--line)}
