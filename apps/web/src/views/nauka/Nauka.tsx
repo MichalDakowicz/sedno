@@ -9,7 +9,7 @@ import { Ladowanie } from "../../components/Ladowanie";
 import { useTutor } from "../../components/TutorContext";
 import { SubjectIcon } from "../../components/icons";
 import { nazwaPoziomu, przedmiot, type PrzedmiotId } from "../../konto/przedmioty";
-import { Pigulki } from "../../components/Pigulki";
+import { klasaPrzedmiotu, PasekPrzedmiotow } from "../../components/PasekPrzedmiotow";
 import { Ogrod } from "../../components/Ogrod";
 import { adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki, type Umiejetnosc } from "../../nauka/api";
@@ -134,16 +134,16 @@ export function Nauka() {
       <NaglowekStrony tytul="Nauka" tytulRef={naglowek} />
 
       {moje.length > 1 && (
-        <Pigulki aria-label="Przedmiot">
+        <PasekPrzedmiotow etykieta="Przedmiot" zalezy={wybranyPrzedmiot}>
           {moje.map((id) => {
             const p = przedmiot(id)!;
             return (
-              <button key={id} type="button" className="pigulka" aria-pressed={id === wybranyPrzedmiot} onClick={() => ustawPrzedmiot(id)}>
+              <button key={id} type="button" className={klasaPrzedmiotu(id === wybranyPrzedmiot)} data-aktywny={id === wybranyPrzedmiot} aria-pressed={id === wybranyPrzedmiot} onClick={() => ustawPrzedmiot(id)}>
                 <SubjectIcon subject={p} size="sm" /> {p.nazwa}
               </button>
             );
           })}
-        </Pigulki>
+        </PasekPrzedmiotow>
       )}
 
       {angielski && !wybrana && !zmiana && dzien.stan === "ladowanie" ? (

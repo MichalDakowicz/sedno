@@ -11,7 +11,6 @@ import { dniDo, egzaminyUcznia, najblizszy, odmianaDni } from "../konto/terminy"
 import { useUstawienia } from "../konto/ustawienia";
 import { propozycja, useWynikiKonta, type Podsumowanie } from "../konto/wyniki";
 import { WSZYSTKIE, useUklad } from "../konto/ukladPulpitu";
-import { Plywak } from "../components/Plywak";
 import { Ladowanie } from "../components/Ladowanie";
 import { Dzis } from "./pulpit/Dzis";
 import { useDiagnoza, useTrybDiagnozy, zaproszenieDoDiagnozy } from "../nauka/diagnoza";
@@ -22,19 +21,19 @@ import { Wynikowy, procent, tytul } from "./pulpit/wspolne";
 import { GotowoscPrzedmiotow } from "./pulpit/GotowoscPrzedmiotow";
 import { useProfilOdczytany, useUczenie } from "../konto/profilUcznia";
 import styles from "./Dashboard.module.css";
+import { klasyPaska as pasek, PasekPrzedmiotow } from "../components/PasekPrzedmiotow";
 
 function SubjectBar({ moje: wpisy, active }: { moje: MojPrzedmiot[]; active?: string }) {
   const moje = zgrupuj(wpisy);
   return (
-    <nav
-      className={styles.subjectBar}
-      aria-label="Przedmioty"
+    <PasekPrzedmiotow
+      etykieta="Przedmioty"
+      zalezy={`${active ?? "wszystkie"}-${moje.length}`}
       data-tutor="subjects"
       data-tutor-about="Tu wybierasz przedmiot. „Wszystkie” to pulpit ogólny, a przedmiot zawęża pulpit tylko do jego danych."
     >
-      <Plywak zalezy={`${active ?? "wszystkie"}-${moje.length}`} />
-      <NavLink to="/" end data-aktywny={!active} className={({ isActive }) => `${styles.chip} ${isActive ? styles.chipActive : ""}`}>
-        <span className={styles.chipIcon}>
+      <NavLink to="/" end data-aktywny={!active} className={({ isActive }) => `${pasek.chip} ${isActive ? pasek.chipActive : ""}`}>
+        <span className={pasek.chipIcon}>
           <LayoutGrid size={14} aria-hidden="true" />
         </span>
         Wszystkie
@@ -42,17 +41,17 @@ function SubjectBar({ moje: wpisy, active }: { moje: MojPrzedmiot[]; active?: st
       {moje.map((m) => {
         const p = przedmiot(m.id)!;
         return (
-          <NavLink key={m.id} to={`/przedmiot/${m.id}`} data-aktywny={active === m.id} className={`${styles.chip} ${active === m.id ? styles.chipActive : ""}`}>
+          <NavLink key={m.id} to={`/przedmiot/${m.id}`} data-aktywny={active === m.id} className={`${pasek.chip} ${active === m.id ? pasek.chipActive : ""}`}>
             <SubjectIcon subject={p} size="sm" />
             {p.nazwa}
           </NavLink>
         );
       })}
-      <Link to="/profil#przedmioty" className={`${styles.chip} ${styles.chipAdd}`}>
+      <Link to="/profil#przedmioty" className={`${pasek.chip} ${pasek.chipAdd}`}>
         <Plus size={16} aria-hidden="true" />
         {moje.length ? "Zmień przedmioty" : "Dodaj przedmiot"}
       </Link>
-    </nav>
+    </PasekPrzedmiotow>
   );
 }
 
