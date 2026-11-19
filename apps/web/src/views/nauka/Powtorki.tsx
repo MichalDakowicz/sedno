@@ -7,7 +7,8 @@ import { useDzisAngielski } from "../../nauka/dzis";
 import { Ladowanie } from "../../components/Ladowanie";
 import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
 import { useSesjaDiagnozy } from "../../nauka/diagnoza";
 import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
 import { etykietaZrodla, kluczPowtorki, odmianaPowtorek, powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
@@ -39,7 +40,7 @@ function etykietaCwiczenia(p: Powtorka) {
 
 export function Powtorki() {
   const [poziom, ustawPoziom] = usePoziomNauki();
-  const powtorki = useZapytanieNauki(`nauka:powtorki:${poziom}`, (signal) => naukaApi.powtorki(poziom, signal));
+  const powtorki = useZapytanie(zapytania.powtorki(poziom));
   // Karta na górze to propozycja dnia, ta sama co na pulpicie i w Nauce; powtórka z karty nie wraca na liście.
   const dzien = useDzisAngielski(poziom);
   const naKarcie = dzien.dzis?.powtorka;

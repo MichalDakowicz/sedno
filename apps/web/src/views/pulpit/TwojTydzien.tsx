@@ -13,7 +13,8 @@ import { TutorAvatar } from "../../components/TutorAvatar";
 import { usePostepyKonta } from "../../konto/wyniki";
 import { adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type PlanNauki } from "../../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { usePoziomNauki, useZapytanieNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
 import w from "./Widgety.module.css";
@@ -50,8 +51,8 @@ const KAMIENIE_SERII = [3, 7, 14, 30, 50, 100];
 export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
   const [poziom] = usePoziomNauki();
   const angielski = (!aktywny || aktywny === "angielski") && zakres.some((s) => s.przedmiot.id === "angielski");
-  const plan = useZapytanieNauki(angielski ? `nauka:plan:${poziom}` : null, (signal) => naukaApi.plan(poziom, signal));
-  const aktywnosc = useZapytanieNauki(angielski ? "nauka:aktywnosc" : null, (signal) => naukaApi.aktywnosc(28, signal));
+  const plan = useZapytanie(angielski ? zapytania.plan(poziom) : null);
+  const aktywnosc = useZapytanie(angielski ? zapytania.aktywnosc() : null);
   // Dawne liczenie z dat prób tylko wtedy, gdy baza nie ma dziennika (albo nie odpowiedziała).
   const zDowodow = angielski && (aktywnosc.stan === "blad" || (aktywnosc.stan === "gotowe" && !aktywnosc.dane));
   const proby = useZapytanieNauki(zDowodow ? `nauka:dni:${poziom}` : null, async (signal) => {

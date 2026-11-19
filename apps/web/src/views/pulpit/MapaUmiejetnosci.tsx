@@ -7,10 +7,11 @@ import { Kielek } from "../../components/Kielek";
 import { Ladowanie } from "../../components/Ladowanie";
 import { nazwaPoziomu } from "../../konto/przedmioty";
 import { adresMapy, adresNauki } from "../../nauka/adresy";
-import { naukaApi, type Umiejetnosc } from "../../nauka/api";
+import { type Umiejetnosc } from "../../nauka/api";
 import { zmianaWTygodniu } from "../../nauka/historia";
 import { KOLEJNOSC_STADIOW, NAZWA_STADIUM, stadium } from "../../nauka/stadia";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
 import mapaStyl from "../nauka/Umiejetnosci.module.css";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
@@ -47,8 +48,8 @@ function tydzien(zmiana: number | null) {
 export function MapaUmiejetnosci({ zakres, aktywny }: KontekstPulpitu) {
   const [poziom] = usePoziomNauki();
   const angielski = (!aktywny || aktywny === "angielski") && zakres.some((s) => s.przedmiot.id === "angielski");
-  const mapa = useZapytanieNauki(angielski ? `mapa:${poziom}` : null, (signal) => naukaApi.mapa(poziom, signal));
-  const historia = useZapytanieNauki(angielski ? `nauka:historia:${poziom}` : null, (signal) => naukaApi.historia(poziom, 90, signal));
+  const mapa = useZapytanie(angielski ? zapytania.mapa(poziom) : null);
+  const historia = useZapytanie(angielski ? zapytania.historia(poziom) : null);
   if (!angielski) return null;
   const zmiana = historia.dane ? zmianaWTygodniu(historia.dane, historia.dane.to ?? dzienWarszawa.format(new Date())) : null;
 

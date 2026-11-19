@@ -20,7 +20,7 @@ export function Kontynuuj({ zakres, aktywny }: KontekstPulpitu) {
 // Osobny komponent, żeby poza angielskim nie pobierać rund.
 function OtwarteRundy() {
   const [poziom] = usePoziomNauki();
-  const rundy = useOtwarteRundy(poziom);
+  const rundy = useOtwarteRundy();
   const sesje = rundy.dane?.sesje ?? [];
   const kilkaPoziomow = new Set(sesje.map((s) => s.level)).size > 1;
   return (

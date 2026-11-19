@@ -7,8 +7,8 @@ import { PasekProgu } from "../../components/wykresy";
 import { CELE, celJakoUlamek, useUczenie } from "../../konto/profilUcznia";
 import { przedmiot } from "../../konto/przedmioty";
 import { dniDo, egzaminyUcznia, najblizszy, nazwaEgzaminu, odmianaDni, opisDaty } from "../../konto/terminy";
-import { naukaApi } from "../../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
 import { Liczba } from "../../ruch";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
@@ -62,7 +62,7 @@ export function DoMatury({ zakres, aktywny, maPrzedmioty }: KontekstPulpitu) {
 export function PrognozaAngielskiego() {
   const u = useUczenie();
   const [poziom] = usePoziomNauki();
-  const plan = useZapytanieNauki(`nauka:plan:${poziom}`, (signal) => naukaApi.plan(poziom, signal));
+  const plan = useZapytanie(zapytania.plan(poziom));
   const prognoza = plan.dane?.forecast.score ?? null;
   const celAng = celJakoUlamek(u.cele?.angielski);
   if (plan.stan !== "gotowe") return null;

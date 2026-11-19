@@ -13,7 +13,8 @@ import { nazwaPoziomu, przedmiot } from "../../konto/przedmioty";
 import { adresMapy, adresRundy, adresStartu } from "../../nauka/adresy";
 import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki, type Umiejetnosc } from "../../nauka/api";
 import { coDzisBezRund, polecanySposob, useDzisAngielski, usePolecenieDnia, type Sposob } from "../../nauka/dzis";
-import { useOtwarteRundy, usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { useOtwarteRundy, usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
 import { adresWizualizacji } from "../../nauka/wizualizacje";
 import { OPIS_OPANOWANIA } from "./Opanowanie";
 import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
@@ -32,18 +33,15 @@ export function Nauka() {
   const [params, ustawParams] = useSearchParams();
   const profil = useProfil();
   const { aiGotowe } = useTutor();
-  const mapa = useZapytanieNauki(`nauka:mapa:${poziom}`, (signal) => naukaApi.mapa(poziom, signal));
+  const mapa = useZapytanie(zapytania.mapa(poziom));
   const umiejetnosci = mapa.dane?.skills ?? [];
   const wybrana = umiejetnosci.find((u) => u.skill_id === params.get("umiejetnosc"));
   // Polecenie dla umiejętności wybranej w „Chcę coś innego”; propozycję dnia liczy nauka/dzis.ts.
-  const polecenie = useZapytanieNauki(
-    mapa.stan === "gotowe" && wybrana ? `nauka:polec:${poziom}:${wybrana.skill_id}` : null,
-    (signal) => naukaApi.polec(poziom, wybrana?.skill_id, signal),
-  );
+  const polecenie = useZapytanie(mapa.stan === "gotowe" && wybrana ? zapytania.polecenieUmiejetnosci(poziom, wybrana.skill_id) : null);
   const polecenieDnia = usePolecenieDnia(poziom);
   const dzis = useDzisAngielski(poziom);
   const podsumowanie = dzis.podsumowanie;
-  const ostatnie = useOtwarteRundy(poziom);
+  const ostatnie = useOtwarteRundy();
   const { hash } = useLocation();
   const naglowek = useRef<HTMLHeadingElement>(null);
   const naglowekPolecenia = useRef<HTMLHeadingElement>(null);

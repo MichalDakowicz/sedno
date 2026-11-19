@@ -7,8 +7,9 @@ import { Ladowanie } from "../../components/Ladowanie";
 import { przedmiot } from "../../konto/przedmioty";
 import { coDzisBezRund } from "../../nauka/dzis";
 import { adresMapy, adresNauki, adresRozbioru } from "../../nauka/adresy";
-import { naukaApi, type DowodNauki, type Umiejetnosc } from "../../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { type DowodNauki, type Umiejetnosc } from "../../nauka/api";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
 import { WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie, OPIS_OPANOWANIA } from "./Opanowanie";
 import { Kropki, Linia } from "../../components/wykresy";
@@ -20,7 +21,6 @@ import { glos, wybierz } from "../../pestka/glos";
 import { NAZWA_STADIUM, stadium } from "../../nauka/stadia";
 import { useSesjaDiagnozy } from "../../nauka/diagnoza";
 import { adresWizualizacji, modelDlaUmiejetnosci } from "../../nauka/wizualizacje";
-
 import s from "./Umiejetnosci.module.css";
 
 // Dawny przełącznik kodów wymagań CKE zapisywał się w przeglądarce; sprzątamy po nim.
@@ -60,11 +60,11 @@ function Dowod({ dowod: d, diagnoza }: { dowod: DowodNauki; diagnoza: string | n
 
 function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejetnosc: Umiejetnosc }) {
   const naglowek = useRef<HTMLHeadingElement>(null);
-  const proby = useZapytanieNauki(`dowody:${poziom}:${u.skill_id}`, (signal) => naukaApi.dowody(u.skill_id, poziom, signal));
+  const proby = useZapytanie(zapytania.dowody(poziom, u.skill_id));
   const maBledyJezykowe = proby.dane?.some((d) => d.score < 1 && d.error_type === "jezyk-i-forma");
   const diagnoza = useSesjaDiagnozy(poziom);
   // Historia opanowania (nauka_historia): bez funkcji w bazie albo przy ocenie z jednego dnia linii nie ma.
-  const historia = useZapytanieNauki(`nauka:historia:${poziom}`, (signal) => naukaApi.historia(poziom, 90, signal));
+  const historia = useZapytanie(zapytania.historia(poziom));
   const punkty = historia.dane?.skills.find((h) => h.skill_id === u.skill_id)?.points;
   const linia = u.score !== null && punkty && historia.dane ? liniaOpanowania(punkty, historia.dane.to) : null;
 
@@ -154,7 +154,7 @@ export function Umiejetnosci() {
   const wybranyPrzedmiot = przedmiot(parametry.get("przedmiot") ?? "angielski")?.id ?? "angielski";
   const angielski = wybranyPrzedmiot === "angielski";
   const innyPrzedmiot = angielski ? null : coDzisBezRund[wybranyPrzedmiot] ?? { akcja: { do: adresMapy(poziom), etykieta: "Mapa angielskiego" } };
-  const mapa = useZapytanieNauki(angielski ? `mapa:${poziom}` : null, (signal) => naukaApi.mapa(poziom, signal));
+  const mapa = useZapytanie(angielski ? zapytania.mapa(poziom) : null);
   const umiejetnosci = mapa.dane?.skills;
   const id = parametry.get("umiejetnosc");
   const wybrana = umiejetnosci?.find((u) => u.skill_id === id);

@@ -14,7 +14,8 @@ import { adresMapy, adresRundy, adresStartu } from "../../nauka/adresy";
 import { BladRpcNauki, naukaApi, type StanDiagnozyBazy } from "../../nauka/api";
 import { krokiDiagnozy, useDiagnoza, useTrybDiagnozy, zmienDiagnoze } from "../../nauka/diagnoza";
 import { useDzisAngielski } from "../../nauka/dzis";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
 import { BladNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie } from "./Opanowanie";
 import { odczytajRunde, UUID_SESJI, zapiszRunde } from "./sesjaRundy";
@@ -174,7 +175,7 @@ function DiagnozaWBazie({ poziom, ustawPoziom, stan, ponow }: {
 /** Dawna diagnoza: po jednej szybkiej rundzie z każdego obszaru, stan w przeglądarce. */
 function DiagnozaWPrzegladarce({ poziom, ustawPoziom }: { poziom: Poziom; ustawPoziom: (p: Poziom) => void }) {
   const stan = useDiagnoza();
-  const mapa = useZapytanieNauki(`nauka:mapa:${poziom}`, (signal) => naukaApi.mapa(poziom, signal));
+  const mapa = useZapytanie(zapytania.mapa(poziom));
   const kroki = mapa.dane ? krokiDiagnozy(mapa.dane.skills, stan) : [];
   const nastepny = kroki.find((k) => !k.zrobiony);
   const gotowe = stan.od !== null && kroki.length > 0 && !nastepny;

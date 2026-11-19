@@ -5,8 +5,9 @@
 import { useSyncExternalStore } from "react";
 import type { Poziom } from "../arkusze/typy";
 import { currentUserId } from "../auth";
-import { naukaApi, type StanDiagnozyBazy, type Umiejetnosc } from "./api";
-import { useZapytanieNauki } from "./stan";
+import { type StanDiagnozyBazy, type Umiejetnosc } from "./api";
+import { useZapytanie } from "./stan";
+import { zapytania } from "./zapytania";
 
 export const OBSZARY = [
   { id: "słuchanie", nazwa: "Rozumienie ze słuchu" },
@@ -24,10 +25,9 @@ export type TrybDiagnozy =
   | { tryb: "przegladarka" }
   | { tryb: "baza"; stan: StanDiagnozyBazy; ponow: () => void };
 
-export const kluczDiagnozy = (poziom: Poziom) => `nauka:diagnoza:${poziom}`;
 
 export function useTrybDiagnozy(poziom: Poziom, wlaczone = true): TrybDiagnozy {
-  const z = useZapytanieNauki(wlaczone ? kluczDiagnozy(poziom) : null, (signal) => naukaApi.diagnoza(poziom, signal));
+  const z = useZapytanie(wlaczone ? zapytania.diagnoza(poziom) : null);
   if (z.stan === "pominiete") return { tryb: "pominiete" };
   if (z.stan === "ladowanie") return { tryb: "ladowanie" };
   if (z.stan === "blad") return { tryb: "blad", blad: z.blad ?? "", ponow: z.ponow };

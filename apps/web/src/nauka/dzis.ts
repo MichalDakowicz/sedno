@@ -6,8 +6,9 @@ import { brakArkuszy, naPoziomie, nazwaPoziomu, przedmiot, type PrzedmiotId } fr
 import { useProfil } from "../auth";
 import { propozycja, useWynikiKonta, type Podsumowanie, type Propozycja } from "../konto/wyniki";
 import { adresPowtorek, adresRundy, adresStartu } from "./adresy";
-import { naukaApi, nazwaFormatuNauki, type Powtorka } from "./api";
-import { useOtwarteRundy, usePoziomNauki, useZapytanieNauki } from "./stan";
+import { nazwaFormatuNauki, type Powtorka } from "./api";
+import { useOtwarteRundy, usePoziomNauki, useZapytanie } from "./stan";
+import { zapytania } from "./zapytania";
 
 // Każda rekomendacja z nauka_polec i nauka_powtorki ma w SQL stałe 5 minut na jedną krótką rundę.
 export const MINUTY_RUNDY = 5;
@@ -101,11 +102,7 @@ export function zArkuszy(co: Propozycja): PropozycjaDnia {
 
 /** Polecenie z mapy umiejętności (nauka_polec) z nazwą umiejętności; wspólne dla karty dnia i sposobów nauki w Nauce. */
 export function usePolecenieDnia(poziom: Poziom, wlaczone = true) {
-  return useZapytanieNauki(wlaczone ? `dzis-${poziom}` : null, async (signal) => {
-    const [propozycja, katalog] = await Promise.all([naukaApi.polec(poziom, undefined, signal), naukaApi.katalog(poziom, signal)]);
-    const umiejetnosc = katalog.skills.find((u) => u.id === propozycja?.skill_id);
-    return propozycja && umiejetnosc ? { ...propozycja, nazwa: umiejetnosc.name } : null;
-  });
+  return useZapytanie(wlaczone ? zapytania.polecenie(poziom) : null);
 }
 
 export type Sposob = "szybka-runda" | "napraw-blad" | "arkusze" | "uczen-uczy" | "rozmowa" | "zdjecie" | "sokratejski" | "pisanie" | "wizualizacje" | "mapa-wiedzy";
@@ -126,8 +123,8 @@ export function polecanySposob(maWynikArkusza: boolean, formatPolecenia: string 
  */
 export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean }): { stan: "ladowanie" | "gotowe"; dzis: PropozycjaDnia | null } {
   const [poziom] = usePoziomNauki();
-  const rundy = useOtwarteRundy(poziom, angielski);
-  const powtorki = useZapytanieNauki(angielski ? `nauka:powtorki:${poziom}` : null, (signal) => naukaApi.powtorki(poziom, signal));
+  const rundy = useOtwarteRundy(angielski);
+  const powtorki = useZapytanie(angielski ? zapytania.powtorki(poziom) : null);
   const polecenie = usePolecenieDnia(poziom, angielski);
 
   const zArk = co ? zArkuszy(co) : null;
