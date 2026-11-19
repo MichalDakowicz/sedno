@@ -571,7 +571,7 @@ export function TutorGuide() {
             style={bubbleStyle}
             role="status"
           >
-            {dok && hint && !summon && (
+            {dok && hint && !summon && !isTour && (
               <button type="button" className={`${styles.close} ${styles.zwin}`} onClick={() => setZwiniety(true)} aria-label="Zwiń dymek Pestki" title="Zwiń">
                 <ChevronDown size={18} />
               </button>
