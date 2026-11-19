@@ -19,6 +19,7 @@
   background: var(--bg);
   box-shadow: var(--shadow-float);
   overflow: hidden;
+  outline: none;
   animation: slide-in var(--ruch-zwykly) var(--ruch-krzywa);
 }
 

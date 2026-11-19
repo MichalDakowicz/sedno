@@ -41,9 +41,17 @@ export function TutorChat() {
   const powod = zajeta ? "Pestka jeszcze odpowiada" : undefined;
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Pierwsze otwarcie (dok, strona, powrót z listy rozmów) staje od razu na końcu rozmowy; płynnie tylko nowe wiadomości.
+  const przewiniete = useRef(false);
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, state]);
+    const el = listRef.current;
+    if (!el) {
+      przewiniete.current = false;
+      return;
+    }
+    el.scrollTo({ top: el.scrollHeight, behavior: przewiniete.current ? "smooth" : "auto" });
+    przewiniete.current = true;
+  }, [messages, state, lista]);
 
   function submit(e: FormEvent) {
     e.preventDefault();
