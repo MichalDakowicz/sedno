@@ -69,7 +69,7 @@
 }
 
 .chipAdd {
-  padding-left: 16px;
+  padding-left: var(--s-4);
   border-style: dashed;
 }
 

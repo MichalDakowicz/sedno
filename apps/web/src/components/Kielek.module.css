@@ -76,12 +76,12 @@
 
 /* Stadium „pestka” ma twarz jak znak Pestki, żeby nie wyglądało na pustą plamę. */
 .oko {
-  fill: #0f151d;
+  fill: var(--pestka-oczy);
 }
 
 .usmiech {
   fill: none;
-  stroke: #0f151d;
+  stroke: var(--pestka-oczy);
   stroke-width: 1.3;
   stroke-linecap: round;
 }

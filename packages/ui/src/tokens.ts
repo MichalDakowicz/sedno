@@ -11,7 +11,7 @@ export const color = {
   grid: "rgba(15, 21, 29, 0.045)",
   primary: "#ff7448",
   primaryHover: "#f2643a",
-  primaryText: "#c2410c",
+  primaryText: "#b83d0b",
   primaryForeground: "#ffffff",
   primaryStrong: "#f2643a",
   primaryStrongHover: "#e2532a",

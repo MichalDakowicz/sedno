@@ -20,7 +20,7 @@ Tylko zmienne CSS, nigdy wartości wpisane na sztywno (także w SVG: `var(--fg)`
 | Linie | `--line` | `#ece4df` | separatory sekcji i wierszy, obwódki pól |
 | Akcent | `--primary` | `#ff7448` | obwódki zaznaczenia, paski postępu, ikony |
 | Akcent pod białym tekstem | `--primary-strong` | `#f2643a` | przycisk główny (tekst min. 19 px, 700) |
-| Akcent jako tekst | `--primary-text` | `#c2410c` | drobny pomarańczowy tekst, linki-akcje, kicker |
+| Akcent jako tekst | `--primary-text` | `#b83d0b` | drobny pomarańczowy tekst, linki-akcje, kicker |
 | Tło akcentu | `--primary-soft` | `#ffe6dc` | zaznaczona pigułka, delikatne wyróżnienie |
 | Drugi kolor | `--secondary` / `--secondary-fg` | `#d3e1ff` / `#1b2a4a` | przycisk poboczny, dymek ucznia w rozmowie |
 | Dobrze | `--success`, `--success-strong` | `#1f9d63`, `#17804f` | poprawna odpowiedź |
