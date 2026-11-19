@@ -71,7 +71,7 @@ export function Ogrod({ umiejetnosci, poziom, adres, onWybierz, onZapowiedz, wyb
   return (
     <div className={s.ogrod} data-maly={maly || undefined} role="group" aria-label={etykieta}>
       {grzadki.map((g) => (
-        <section key={g.id} className={s.grzadka} aria-label={g.nazwa}>
+        <section key={g.id} className={s.grzadka} aria-label={g.nazwa} style={{ ["--ile" as string]: g.lista.length }}>
           {maly ? <h3 className={s.nazwaGrzadki}>{g.nazwa}</h3> : (() => {
             const o = opanowanieObszaru(g.lista);
             const zostalo = o !== null && cel !== null ? Math.round((cel - o) * 100) : null;
