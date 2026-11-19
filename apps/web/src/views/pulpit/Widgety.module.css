@@ -216,3 +216,20 @@
   gap: var(--s-2);
   min-width: 0;
 }
+
+.seria {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--muted);
+}
+
+.seria strong {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+/* Siedem dni nie rozjeżdża się na całą szerokość pulpitu. */
+.dniTygodnia {
+  width: min(100%, 30rem);
+}

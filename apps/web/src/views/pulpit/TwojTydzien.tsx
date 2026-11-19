@@ -79,9 +79,15 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
   const p = plan.dane;
   // Porównanie z deklaracją z quizu celów: dni w tygodniu i minuty dziennie.
   const minutyPlan = minutyDziennie(uczenie);
-  const deklaracja = [
-    uczenie.dni ? `Twój cel: ${uczenie.dni} ${uczenie.dni === 1 ? "dzień" : "dni"} nauki w tygodniu${zNauka >= uczenie.dni ? ", zrobione." : `, zostało ${uczenie.dni - zNauka} ${uczenie.dni - zNauka === 1 ? "dzień" : "dni"}.`}` : "",
-    minuty && minutyPlan && uczenie.dni ? `${minuty.teraz} z ${minutyPlan * uczenie.dni} zaplanowanych minut.` : "",
+  const celDni = uczenie.dni ?? null;
+  const zostalo = celDni !== null ? celDni - zNauka : null;
+  const iDzis = tydzien.indexOf(dzis);
+  const dzisWPlanie = !!p && iDzis >= 0 && p.weekdays.includes(iDzis + 1) && !dni.has(dzis);
+  const najblizszy = p ? tydzien.findIndex((d, i) => d > dzis && p.weekdays.includes(i + 1)) : -1;
+  const podsumowanie = [
+    zostalo === null ? "" : zostalo <= 0 ? "Cel tygodnia zrobiony." : `Do celu ${zostalo === 1 ? "został 1 dzień" : `zostały ${zostalo} dni`}.`,
+    zostalo !== null && zostalo > 0 ? (dzisWPlanie ? "Dziś jest dzień nauki w twoim planie." : najblizszy >= 0 ? `Najbliższy dzień w planie: ${DNI_PELNE[najblizszy]}.` : "") : "",
+    minuty ? `W tym tygodniu ${minuty.teraz} min nauki${minutyPlan && celDni ? ` z ${minutyPlan * celDni} zaplanowanych` : ""}.` : "",
   ].filter(Boolean).join(" ");
 
   return (
@@ -106,18 +112,21 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
       {p && !czeka && (
         <>
           {edycja && <DniNauki plan={p} poziom={poziom} zapisano={plan.ponow} />}
-          {/* Co zrobić dziś, mówi karta „Dziś warto”; tu tylko tydzień: dni z nauką i cel. */}
+          {/* Co zrobić dziś, mówi karta „Dziś warto”. Tu tydzień względem celu: ile dni, seria, najbliższy dzień w planie. */}
           <div className={w.tydzienGlowa}>
-          <div className={w.tydzienLiczby}>
-          <p className={styles.stat}>
-            <Liczba wartosc={zNauka} />
-            <span className={styles.statJednostka}> / 7</span>
-            <span className={styles.statOpis}>{zNauka === 1 ? "dzień" : "dni"} z nauką w tym tygodniu{seria >= 2 ? ` · seria ${seria} ${odmianaDni(seria)} z rzędu` : ""}</span>
-          </p>
-          {deklaracja && <p className="small muted">{deklaracja}</p>}
+            <p className={styles.stat}>
+              <Liczba wartosc={zNauka} />
+              <span className={styles.statJednostka}> / {celDni ?? 7}</span>
+              <span className={styles.statOpis}>{celDni ? "dni nauki do celu tygodnia" : `${zNauka === 1 ? "dzień" : "dni"} z nauką w tym tygodniu`}</span>
+            </p>
+            {seria >= 2 && (
+              <p className={w.seria}>
+                <TutorAvatar size={44} state={KAMIENIE_SERII.includes(seria) ? "swieto" : "radosc"} />
+                <span>Seria <strong>{seria}</strong> {odmianaDni(seria)} z rzędu</span>
+              </p>
+            )}
           </div>
-          {seria >= 2 && <TutorAvatar size={48} state={KAMIENIE_SERII.includes(seria) ? "swieto" : "radosc"} className={w.pestkaSerii} />}
-          </div>
+          <div className={w.dniTygodnia}>
           <Kropki rowno opis={`W tym tygodniu ${zNauka} z 7 dni z nauką, seria ${seria} ${odmianaDni(seria)}.`}
             kropki={tydzien.map((d, i) => {
               const nauka = dni.has(d);
@@ -129,6 +138,8 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
                 tytul: `${DNI_PELNE[i]}: ${nauka ? "nauka" : zaplanowany ? "dzień nauki w planie" : "bez nauki"}`,
               };
             })} />
+          </div>
+          {podsumowanie && <p className="muted">{podsumowanie}</p>}
           {minuty && (
             <div className={w.minuty}>
               <span className="label">{wniosekMinut(minuty)}</span>
