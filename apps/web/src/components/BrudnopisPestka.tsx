@@ -51,50 +51,66 @@ const dlugoscDymka = (d: DymekPestki) =>
   (d.tekst?.length ?? 0) + (d.odczyt?.length ?? 0) + (d.uwaga?.length ?? 0) + (d.blad ? 90 : 0) + (d.ponow || d.pokaz || d.zetrzyj ? 60 : 0);
 
 type DokDymka = "gora" | "dol";
+type Rozmiar = { w: number; h: number; dok: boolean };
+type Miejsce = { strona: string; odDolu: string; przesuniecie: number | null; miejsce: number; dok?: DokDymka };
 
-// Dymek staje po tej stronie Pestki, gdzie nie zasłoni pracy ucznia ani rysunku zadania: z prawej albo z lewej.
-// Gdy obok brak miejsca (telefon), dokuje się przy górnej albo dolnej krawędzi płótna na całą szerokość, z limitem
-// wysokości, zamiast wisieć na środku rysunku. Wysokość szacujemy z długości tekstu.
-function miejsceDymka(stan: StanWidoku, x: number, y: number, elementy: readonly ExcalidrawElement[], znaki: number): {
-  strona: string; odDolu: string; miejsce: number; dok?: DokDymka;
-} {
+// Dymek staje tam, gdzie najmniej zasłania pracę ucznia i rysunek zadania. Kandydaci: z prawej i z lewej Pestki,
+// przesunięci w pionie wzdłuż niej (dymek zawsze jej dotyka), oraz dok przy górnej albo dolnej krawędzi płótna na całą
+// szerokość. Wysokość bierzemy z pomiaru dymka (wzory i przyciski robią go wyższym niż sam tekst), a przed pierwszym
+// pomiarem szacujemy ją z długości tekstu.
+function miejsceDymka(stan: StanWidoku, x: number, y: number, elementy: readonly ExcalidrawElement[], znaki: number, rozmiar: Rozmiar | null): Miejsce {
   const z = stan.zoom.value;
   const przeszkody = elementy.map((e) => {
     const [x1, y1, x2, y2] = getCommonBounds([e]);
     return { x: (x1 + stan.scrollX) * z, y: (y1 + stan.scrollY) * z, w: (x2 - x1) * z, h: (y2 - y1) * z };
   });
+  type Prostokat = { x: number; y: number; w: number; h: number };
+  const zakrywa = (d: Prostokat, lista: Prostokat[]) => lista.reduce((suma, p) =>
+    suma + Math.max(0, Math.min(d.x + d.w, p.x + p.w) - Math.max(d.x, p.x)) * Math.max(0, Math.min(d.y + d.h, p.y + p.h) - Math.max(d.y, p.y)), 0);
+  const poza = (d: Prostokat) => (d.y < 0 || d.y + d.h > stan.height ? d.w * d.h : 0);
+  const szacuj = (w: number) => 40 + Math.ceil((znaki * 8) / Math.max(120, w - 40)) * 22;
+
   const zPrawej = stan.width - x - AWATAR - ODSTEP_DYMKA - MARGINES;
   const zLewej = x - ODSTEP_DYMKA - MARGINES;
   const szeroko = stan.width - 2 * ODSTEP_DYMKA;
+
+  // Dok: Pestka też jest przeszkodą, bo zostaje przy pracy ucznia.
+  const hDok = Math.min(stan.height * 0.4, rozmiar?.dok ? rozmiar.h : szacuj(szeroko));
+  const zPestka = [...przeszkody, { x, y, w: AWATAR, h: AWATAR }];
+  const doki = (["dol", "gora"] as const).map((dok) => {
+    const gora = dok === "dol" ? stan.height - ODSTEP_DYMKA - hDok : ODSTEP_DYMKA;
+    return { dok, kolizja: zakrywa({ x: ODSTEP_DYMKA, y: gora, w: szeroko, h: hDok }, zPestka) };
+  });
+  // Przy remisie dalej od Pestki: ona zostaje przy pracy ucznia, dymek po drugiej stronie płótna.
+  const dok = [...doki].sort((p, q) => p.kolizja - q.kolizja || (y < stan.height / 2 ? (p.dok === "dol" ? -1 : 1) : (p.dok === "gora" ? -1 : 1)))[0]!;
+  const doDoku = (): Miejsce => ({ strona: "", odDolu: "", przesuniecie: null, miejsce: szeroko, dok: dok.dok });
+
   const boki = [
     { strona: "", miejsce: zPrawej, lewo: () => x + AWATAR + ODSTEP_DYMKA },
     { strona: styles.dymekZLewej, miejsce: zLewej, lewo: (w: number) => x - ODSTEP_DYMKA - w },
   ].filter((o) => o.miejsce >= 200);
-  if (!boki.length) {
-    const h = Math.min(stan.height * 0.4, 40 + Math.ceil((znaki * 8) / Math.max(120, szeroko - 40)) * 22);
-    const pestka = { x, y, w: AWATAR, h: AWATAR };
-    const kolizja = (gora: number) => [...przeszkody, pestka].reduce((suma, p) => suma +
-      Math.max(0, Math.min(ODSTEP_DYMKA + szeroko, p.x + p.w) - Math.max(ODSTEP_DYMKA, p.x)) * Math.max(0, Math.min(gora + h, p.y + p.h) - Math.max(gora, p.y)), 0);
-    const dol = kolizja(stan.height - ODSTEP_DYMKA - h);
-    const gora = kolizja(ODSTEP_DYMKA);
-    // Przy remisie dalej od Pestki: ona zostaje przy pracy ucznia, dymek po drugiej stronie płótna.
-    const naDole = dol < gora || (dol === gora && y < stan.height / 2);
-    return { strona: "", odDolu: "", miejsce: szeroko, dok: naDole ? "dol" : "gora" };
-  }
-  let najlepsza = { strona: "", odDolu: "", miejsce: zPrawej, kolizja: Infinity };
+  if (!boki.length) return doDoku();
+
+  let najlepsza: Miejsce & { kolizja: number } = { strona: "", odDolu: "", przesuniecie: -4, miejsce: zPrawej, kolizja: Infinity };
   for (const o of boki) {
     const w = Math.min(300, o.miejsce);
-    const h = 40 + Math.ceil((znaki * 8) / Math.max(120, w - 40)) * 22;
-    for (const odDolu of y > stan.height / 2 ? [true, false] : [false, true]) {
-      const gora = odDolu ? y + AWATAR + 4 - h : y - 4;
-      const dymek = { x: o.lewo(w), y: gora, w, h };
-      const kolizja = przeszkody.reduce((suma, p) => suma +
-        Math.max(0, Math.min(dymek.x + w, p.x + p.w) - Math.max(dymek.x, p.x)) * Math.max(0, Math.min(dymek.y + h, p.y + p.h) - Math.max(dymek.y, p.y)), 0)
-        + (gora < 0 || gora + h > stan.height ? w * h : 0);
-      if (kolizja < najlepsza.kolizja) najlepsza = { strona: o.strona, odDolu: odDolu ? styles.dymekOdDolu : "", miejsce: o.miejsce, kolizja };
+    const h = rozmiar && !rozmiar.dok ? rozmiar.h : szacuj(w);
+    // Od „górą równo z Pestką” do „dołem równo z Pestką”, w kilku krokach.
+    const od = -4;
+    const doo = AWATAR + 4 - h;
+    for (let i = 0; i <= 8; i++) {
+      const przesuniecie = Math.round(od + ((doo - od) * i) / 8);
+      const d = { x: o.lewo(w), y: y + przesuniecie, w, h };
+      // Drobna kara za odejście od wyrównania do góry rozstrzyga remisy na korzyść zwykłego ułożenia.
+      const kolizja = zakrywa(d, przeszkody) + poza(d) + Math.abs(przesuniecie - od) * 0.01;
+      if (kolizja < najlepsza.kolizja)
+        najlepsza = { strona: o.strona, odDolu: i === 8 ? styles.dymekOdDolu : "", przesuniecie, miejsce: o.miejsce, kolizja };
     }
   }
-  return najlepsza;
+  // Obok Pestki wszędzie coś zasłania, a przy krawędzi wyraźnie mniej: dymek idzie do doku.
+  if (najlepsza.kolizja >= 1 && dok.kolizja < najlepsza.kolizja / 2) return doDoku();
+  const { kolizja: _, ...miejsce } = najlepsza;
+  return miejsce;
 }
 
 /** Pestka na tablicy: awatar przy pracy ucznia, pole pytania albo dymek obok niej. Położenie w scenie, więc idzie z widokiem. */
@@ -121,16 +137,32 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
   }, [faza]);
   const stan = api.current?.getAppState();
   const { x, y } = stan ? polozenie(stan, punkt) : { x: MARGINES, y: MARGINES };
-  const { strona, odDolu, miejsce, dok } = stan
-    ? miejsceDymka(stan, x, y, api.current?.getSceneElements() ?? [], dymek ? dlugoscDymka(dymek) : 40)
-    : { strona: "", odDolu: "", miejsce: 300, dok: undefined };
+  // Zmierzona wielkość dymka (pole albo odpowiedź) wraca do wyboru miejsca przy następnym renderze.
+  const dymekRef = useRef<HTMLElement | null>(null);
+  const [rozmiar, setRozmiar] = useState<Rozmiar | null>(null);
+  const { strona, odDolu, przesuniecie, miejsce, dok } = stan
+    ? miejsceDymka(stan, x, y, api.current?.getSceneElements() ?? [], dymek ? dlugoscDymka(dymek) : 40, rozmiar)
+    : { strona: "", odDolu: "", przesuniecie: null, miejsce: 300, dok: undefined };
+  const wDoku = !!dok;
+  useLayoutEffect(() => {
+    const el = dymekRef.current;
+    if (!el) return;
+    const zmierz = () => {
+      const r = el.getBoundingClientRect();
+      setRozmiar((p) => (p && p.dok === wDoku && Math.abs(p.h - r.height) < 4 && Math.abs(p.w - r.width) < 4 ? p : { w: r.width, h: r.height, dok: wDoku }));
+    };
+    zmierz();
+    const ro = new ResizeObserver(zmierz);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [faza, wDoku, !!dymek]);
   // Zwinięty dymek w doku pokazuje dwie pierwsze linie; nowa odpowiedź rozwija go z powrotem.
   const [zwiniety, setZwiniety] = useState(false);
   useEffect(() => setZwiniety(false), [dymek?.blad, dymek?.odczyt, dymek?.pokaz]);
   const klasaDymka = dok
     ? [styles.pestkaDymek, styles.dymekDok, dok === "dol" && styles.dymekDokDol, zwiniety && styles.dymekZwiniety].filter(Boolean).join(" ")
     : [styles.pestkaDymek, strona, odDolu].join(" ");
-  const stylDymka = dok ? undefined : { ["--miejsce" as string]: miejsce + "px" };
+  const stylDymka = dok ? undefined : { ["--miejsce" as string]: miejsce + "px", ...(przesuniecie !== null ? { top: przesuniecie + "px", bottom: "auto" } : {}) };
   const naEscape = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
       e.stopPropagation();
@@ -170,7 +202,7 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
   const pisanaWskazowka = (faza === "mysli" || faza === "pisze") && !!dymek?.tekst;
   const stanAwatara = pisanaWskazowka || faza === "pisze" ? "talking" : faza === "mysli" ? "thinking" : "idle";
   const pole_ = faza === "pole" && (
-    <form className={klasaDymka} style={stylDymka} onSubmit={wyslij}>
+    <form ref={(el) => void (dymekRef.current = el)} className={klasaDymka} style={stylDymka} onSubmit={wyslij}>
       <label htmlFor={idPola} className="visually-hidden">Pytanie do Pestki</label>
       <input
         id={idPola}
@@ -187,6 +219,7 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
   );
   const dymek_ = (faza === "dymek" || pisanaWskazowka) && dymek && (
     <div
+      ref={(el) => void (dymekRef.current = el)}
       className={klasaDymka}
       style={stylDymka}
       // Tekst w trakcie pisania nie trafia do czytnika po każdym słowie: ogłasza go dopiero gotowy dymek.
