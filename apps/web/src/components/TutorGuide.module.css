@@ -70,7 +70,7 @@
   padding-right: calc(var(--s-5) + 36px);
 }
 
-.zwin {
+.close.zwin {
   right: 44px;
 }
 

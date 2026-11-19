@@ -89,7 +89,7 @@ function restPoint(): Point {
 // Dok na telefonie: Pestka w rogu (dolnym albo górnym, pod paskiem), dymek obok niej na resztę szerokości.
 function dokPoint(d: Dok): Point {
   const x = spoczynekLewy ? edge() : viewW() - AV - edge();
-  return d === "dol" ? restPoint() : { x, y: band().top + 4 };
+  return d === "dol" ? restPoint() : { x, y: band().top + 14 };
 }
 
 // Czy element widać w pasie pod nawigacją: wskazówka na telefonie czeka na spoczynku, aż element wjedzie.
@@ -329,6 +329,17 @@ export function TutorGuide() {
     if (el && !passive && !(waski() ? widac(el) : perchPoint(el))) el.scrollIntoView({ block: "center", behavior: "smooth" });
     sync(true);
   }, [hint, summon]);
+
+  // Zwinięcie i rozwinięcie dymka: skok na spoczynek albo z powrotem do doku (pierwszy render ustawia efekt wyżej).
+  const pierwszeZwiniecie = useRef(true);
+  useEffect(() => {
+    if (pierwszeZwiniecie.current) {
+      pierwszeZwiniecie.current = false;
+      return;
+    }
+    sync(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zwiniety]);
 
   // Przewijanie i zmiana rozmiaru: Pestka podąża za elementem albo wraca na spoczynek, gdy element zniknie.
   useEffect(() => {
