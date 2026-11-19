@@ -122,3 +122,20 @@ function PowtorkiZArkuszy({ przedmiot: p, poziom }: { przedmiot: PrzedmiotId; po
     </>
   );
 }
+
+/** Kolejka powtórek angielskiego na dziś: ile ich jest i start całej kolejki (plan dnia w Nauce i na pulpicie). */
+export function useKolejkaPowtorek(poziom: Poziom, wlaczone = true) {
+  const navigate = useNavigate();
+  const powtorki = useZapytanie(wlaczone ? zapytania.powtorki(poziom) : null);
+  const wszystkie = unikalnePowtorki([...(powtorki.dane?.today ? [powtorki.dane.today] : []), ...(powtorki.dane?.queue ?? [])]);
+  const naDzis = powtorkiNaDni(wszystkie)[0]?.liczba ?? 0;
+  const doZrobienia = wszystkie.slice(0, naDzis || wszystkie.length);
+  return {
+    stan: powtorki.stan,
+    ile: doZrobienia.length,
+    zacznij: () => {
+      const pierwszy = zacznijKolejke(doZrobienia.map((x) => adresCwiczenia(poziom, x)));
+      if (pierwszy) navigate(pierwszy);
+    },
+  };
+}

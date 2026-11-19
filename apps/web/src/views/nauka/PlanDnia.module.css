@@ -1,0 +1,33 @@
+.plan {
+  display: grid;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+/* Na pulpicie pod kartą: mała etykieta zamiast nagłówka sekcji. */
+.maly {
+  display: grid;
+  gap: var(--s-2);
+  width: 100%;
+  min-width: 0;
+}
+
+.ikona {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+
+/* Wiersz-przycisk (start kolejki powtórek) wygląda jak wiersz-link. */
+.przycisk {
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}

@@ -18,7 +18,8 @@ import { adresDiagnozy } from "../nauka/adresy";
 import { usePoziomNauki } from "../nauka/stan";
 import { widget, type KontekstPulpitu } from "./pulpit/widgety";
 import { Wynikowy, procent, tytul } from "./pulpit/wspolne";
-import { GotowoscPrzedmiotow, PowtorkiNaDzis } from "./pulpit/GotowoscPrzedmiotow";
+import { GotowoscPrzedmiotow } from "./pulpit/GotowoscPrzedmiotow";
+import { PlanDnia } from "./nauka/PlanDnia";
 import { useProfilOdczytany, useUczenie } from "../konto/profilUcznia";
 import styles from "./Dashboard.module.css";
 import { klasyPaska as pasek, PasekPrzedmiotow } from "../components/PasekPrzedmiotow";
@@ -176,10 +177,10 @@ export function Dashboard() {
 
       {dane && co && (
         <section className={`${styles.top} ${obok || moje.length > 0 ? "" : styles.topSam} ${wejscie}`}>
-          {/* Powtórki pod kartą dnia: razem odpowiadają na „co mam teraz zrobić”. */}
+          {/* Pod kartą dnia „Potem”: kolejne kroki z tego samego planu co w Nauce (runda, powtórki, polecenie). */}
           <div className={styles.kolumnaDnia}>
             <Dzis {...kontekst} />
-            {zakres.some((z) => z.przedmiot.id === "angielski") && <PowtorkiNaDzis poziom={zakres.find((z) => z.przedmiot.id === "angielski")!.przedmiot.poziom} />}
+            {zakres.some((z) => z.przedmiot.id === "angielski") && <PlanDnia maly poziom={zakres.find((z) => z.przedmiot.id === "angielski")!.przedmiot.poziom} />}
           </div>
           {obok ? (
             <div className={styles.side}>

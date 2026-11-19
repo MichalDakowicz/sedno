@@ -8,17 +8,18 @@ import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
 import { useTutor } from "../../components/TutorContext";
 import { SubjectIcon } from "../../components/icons";
-import { nazwaPoziomu, przedmiot, type PrzedmiotId } from "../../konto/przedmioty";
+import { przedmiot, type PrzedmiotId } from "../../konto/przedmioty";
 import { klasaPrzedmiotu, PasekPrzedmiotow } from "../../components/PasekPrzedmiotow";
 import { Ogrod } from "../../components/Ogrod";
-import { adresRundy, adresStartu } from "../../nauka/adresy";
-import { naukaApi, nazwaFormatuNauki, type OtwartaSesjaNauki } from "../../nauka/api";
+import { adresStartu } from "../../nauka/adresy";
+import { nazwaFormatuNauki } from "../../nauka/api";
 import { coDzisBezRund, MINUTY_RUNDY, useDzisAngielski, usePolecenieDnia } from "../../nauka/dzis";
 import { KartaDnia } from "../../components/KartaDnia";
 import { SekcjaPowtorek } from "./Powtorki";
-import { useOtwarteRundy, usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { PlanDnia } from "./PlanDnia";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
-import { BladNauki, dataNauki, formatRundy, WyborPoziomuNauki } from "./NaukaPowtorki";
+import { BladNauki, formatRundy, WyborPoziomuNauki } from "./NaukaPowtorki";
 import s from "./NaukaPowtorki.module.css";
 import { MAPA_WIEDZY_WLACZONA } from "../../nauka/wiedza";
 
@@ -52,19 +53,11 @@ export function Nauka() {
   const polecenieDnia = usePolecenieDnia(poziom, angielski);
   // Bez własnego wyboru Nauka pokazuje tę samą propozycję co pulpit, żeby dwie karty nie mówiły czegoś innego.
   const dzien = useDzisAngielski(poziom);
-  const ostatnie = useOtwarteRundy(angielski);
-  const { hash } = useLocation();
   const naglowek = useRef<HTMLHeadingElement>(null);
   const naglowekPolecenia = useRef<HTMLHeadingElement>(null);
-  const naglowekOstatnio = useRef<HTMLHeadingElement>(null);
-  const [usuwane, ustawUsuwane] = useState<string | null>(null);
-  const [bladUsuwania, ustawBladUsuwania] = useState("");
   const [zmiana, ustawZmiane] = useState(false);
   // Fokus przenosimy tylko po wejściu z parametrem (np. z mapy), nie przy zwykłym otwarciu strony.
   const fokusPolecenia = useRef(params.get("umiejetnosc") !== null);
-  const fokusOstatnio = useRef(hash === "#ostatnio");
-  const sesje = (ostatnie.dane?.sesje ?? []).slice(0, 3);
-  const kilkaPoziomow = new Set(sesje.map((sesja) => sesja.level)).size > 1;
 
   const umiejetnosc = wybrana ?? umiejetnosci.find((u) => u.skill_id === polecenieDnia.dane?.skill_id) ?? umiejetnosci[0];
   const dane = wybrana ? polecenie.dane : polecenieDnia.dane;
@@ -78,27 +71,6 @@ export function Nauka() {
     fokusPolecenia.current = false;
     (naglowekPolecenia.current ?? naglowek.current)?.focus();
   }, [czekaNaPolecenie]);
-
-  useEffect(() => {
-    if (!fokusOstatnio.current || ostatnie.stan === "ladowanie") return;
-    fokusOstatnio.current = false;
-    naglowekOstatnio.current?.scrollIntoView();
-    naglowekOstatnio.current?.focus();
-  }, [ostatnie.stan]);
-
-  async function odrzuc(sesja: OtwartaSesjaNauki) {
-    ustawUsuwane(sesja.id);
-    ustawBladUsuwania("");
-    try {
-      await naukaApi.usun(sesja.id);
-      ostatnie.ponow();
-      naglowekOstatnio.current?.focus();
-    } catch (e) {
-      ustawBladUsuwania(e instanceof Error ? e.message : "Nie udało się usunąć rundy.");
-    } finally {
-      ustawUsuwane(null);
-    }
-  }
 
   function ustawUmiejetnosc(id: string) {
     ustawParams((aktualne) => {
@@ -169,7 +141,7 @@ export function Nauka() {
             <>
               <h2 id="nauka-polecenie" className="h1" tabIndex={-1} ref={naglowekPolecenia}>{umiejetnosc.name}</h2>
               <p className="muted">
-                {powtorz ? "Powtórka błędnego zadania" : `${nazwaFormatuNauki[format]} · 5 zadań · ok. ${minuty} min`}
+                {powtorz ? "Powtórka błędnego zadania" : `${nazwaFormatuNauki[format]} · ok. ${minuty} min`}
               </p>
               {dane?.reason && !wybrana && !powtorz && <p>{dane.reason}</p>}
               <div className={s.akcje}>
@@ -198,43 +170,10 @@ export function Nauka() {
         </div>
       ) : null}
 
-      {/* Powtórki zaraz pod kartą dnia: to też odpowiedź na „co teraz ćwiczyć” (dawniej osobna zakładka). */}
-      <SekcjaPowtorek przedmiot={wybranyPrzedmiot} poziom={(profil?.subjects.find((p) => p.id === wybranyPrzedmiot)?.poziom ?? null) as Poziom | null} />
+      {/* Pod kartą jeden plan: angielski „Potem” (zaczęta runda, powtórki, polecenie), inne przedmioty zadania do poprawy z arkuszy. */}
+      {angielski ? <PlanDnia poziom={poziom} /> : <SekcjaPowtorek przedmiot={wybranyPrzedmiot} poziom={(profil?.subjects.find((p) => p.id === wybranyPrzedmiot)?.poziom ?? null) as Poziom | null} />}
 
 
-      {angielski && ostatnie.stan === "gotowe" && sesje.length > 0 && (
-        <section className={s.sekcja} aria-labelledby="ostatnio">
-          <h2 className="h2" id="ostatnio" tabIndex={-1} ref={naglowekOstatnio}>Dokończ</h2>
-          <ul className={s.wiersze}>
-            {sesje.map((sesja) => {
-              const nazwa = sesja.skill_id ? ostatnie.dane?.nazwy.get(sesja.skill_id) : undefined;
-              const nazwaFormatu = nazwaFormatuNauki[sesja.format];
-              return (
-                <li key={sesja.id} className={s.wierszRundy}>
-                  <WierszFormat
-                    to={adresRundy(sesja.id)}
-                    nazwa={nazwa ?? nazwaFormatu}
-                    opis={[nazwa && nazwaFormatu, kilkaPoziomow && nazwaPoziomu[sesja.level], dataNauki(sesja.updated_at)].filter(Boolean).join(" · ")}
-                    ikona={<Timer size={18} aria-hidden="true" />}
-                    akcja="Wznów"
-                  />
-                  <button
-                    type="button"
-                    className={`link ${s.usun}`}
-                    disabled={usuwane !== null}
-                    onClick={() => void odrzuc(sesja)}
-                    aria-label={`Usuń rundę: ${nazwa ?? nazwaFormatu}`}
-                  >
-                    {usuwane === sesja.id ? "Usuwanie…" : "Usuń"}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          {bladUsuwania && <p role="alert" className={s.blad}>{bladUsuwania}</p>}
-        </section>
-      )}
-      {angielski && ostatnie.stan === "blad" && <BladNauki komunikat="Nie udało się wczytać niedokończonych rund." ponow={ostatnie.ponow} />}
 
       <section className={s.sekcja} aria-labelledby="inne-sposoby">
         <h2 className="h2" id="inne-sposoby">Inne sposoby</h2>
@@ -257,19 +196,4 @@ export function Nauka() {
   );
 }
 
-function WierszFormat({ to, nazwa, opis, ikona, akcja }: { to: string; nazwa: string; opis: string; ikona: ReactNode; akcja?: string }) {
-  const wiersz = (
-    <Link to={to} className={akcja ? `${s.wiersz} ${s.wierszWznow}` : s.wiersz}>
-      <span className={s.ikona}>{ikona}</span>
-      <span className={s.wierszGlowny}>
-        <span className="h3">{nazwa}</span>
-        <span className="muted small">{opis}</span>
-      </span>
-      <span className={s.wierszBoczny}>
-        {akcja ? <span className="link">{akcja}</span> : <ChevronRight size={18} aria-hidden="true" />}
-      </span>
-    </Link>
-  );
-  return akcja ? wiersz : <li>{wiersz}</li>;
-}
 

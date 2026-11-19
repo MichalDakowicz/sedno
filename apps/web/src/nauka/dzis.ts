@@ -133,16 +133,20 @@ export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean
     cel !== null ? `Do celu ${Math.round(cel * 100)}% liczy się każda runda.` : "",
     minutyDnia ? `${minuty} min mieści się w twoich ${minutyDnia} min dziennie.` : "",
   ].filter(Boolean).join(" ");
-  const runda = (tytul: string, powod: string, skill: string, format?: Parameters<typeof adresStartu>[2], repeat?: string): PropozycjaDnia => ({
+  // Zaczęta runda tej samej umiejętności: karta ją wznawia, zamiast zaczynać drugą obok (i dublować „Dokończ” w planie).
+  const runda = (tytul: string, powod: string, skill: string, format?: Parameters<typeof adresStartu>[2], repeat?: string): PropozycjaDnia => {
+    const zaczeta = repeat ? undefined : rundy.dane?.sesje.find((x) => x.skill_id === skill && x.level === poziom);
+    return {
     rodzaj: "polecenie",
     przedmiot: "angielski",
     tytul,
     powod: [powod, zCelem(MINUTY_RUNDY)].filter(Boolean).join(" "),
-    akcja: { do: adresStartu(poziom, skill, format, repeat), etykieta: "Zacznij rundę" },
+    akcja: zaczeta ? { do: adresRundy(zaczeta.id), etykieta: "Wznów rundę" } : { do: adresStartu(poziom, skill, format, repeat), etykieta: "Zacznij rundę" },
     skill_id: skill,
     minuty: MINUTY_RUNDY,
     ikona: "runda",
-  });
+    };
+  };
 
   const zArk = co ? zArkuszy(co) : null;
   if (!angielski) return { stan: "gotowe", dzis: zArk };
