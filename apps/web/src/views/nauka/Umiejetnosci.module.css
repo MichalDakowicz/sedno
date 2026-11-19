@@ -181,8 +181,9 @@
   display: block;
   margin-top: var(--s-2);
   font-size: var(--t-sm);
+  font-weight: 500;
   letter-spacing: 0;
-  color: var(--subtle);
+  color: var(--primary-text);
 }
 
 .ostatnie {
@@ -239,8 +240,3 @@
   }
 }
 
-/* Ile brakuje do następnego stadium rośliny: osobna linia, bo to odpowiedź na „czemu nie urosła”. */
-.doStadium {
-  font-weight: 500;
-  color: var(--primary-text);
-}
