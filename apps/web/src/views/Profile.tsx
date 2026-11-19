@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, LogOut, Map as MapIcon } from "lucide-react";
 import { logout, saveSubjects, useProfil, useSession } from "../auth";
-import { KontoAI } from "../components/KontoAI";
 import { resetTour } from "../components/TutorContext";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
 import { zgrupuj, type MojPrzedmiot } from "../konto/przedmioty";
@@ -54,8 +53,6 @@ export function Profile() {
           </p>
         )}
       </section>
-
-      <KontoAI />
 
       <section style={{ display: "grid", gap: 4, paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)", justifyItems: "start" }}>
         <h2 className="h2">Ustawienia</h2>

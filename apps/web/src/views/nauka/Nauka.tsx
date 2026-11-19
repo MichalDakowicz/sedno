@@ -113,7 +113,7 @@ export function Nauka() {
   }
 
   const bezRund = coDzisBezRund[wybranyPrzedmiot];
-  const akcjaBezRund = bezRund && (bezRund.akcja.do === "/tutor" && aiGotowe === false ? { do: "/profil#ai", etykieta: "Połącz Pestkę w profilu" } : bezRund.akcja);
+  const akcjaBezRund = bezRund?.akcja;
   const maArkusze = wybranyPrzedmiot !== "polski";
 
   // Trzy równorzędne drogi obok głównej akcji.
@@ -327,7 +327,7 @@ function WolnyTemat({ przedmiotId, poziom, umiejetnosci, ikona, nazwa }: { przed
       <span className={s.ikona}>{ikona}</span>
       <h2 className="h3" id="wolny-temat">{nazwa}</h2>
       {tutor.aiGotowe === false ? (
-        <Link to="/profil#ai" className="link">Połącz Pestkę w profilu, żeby ją zapytać</Link>
+        <p className="small muted">Pestka jest chwilowo niedostępna. Spróbuj za chwilę.</p>
       ) : (
         <>
           <label className={s.pole}>

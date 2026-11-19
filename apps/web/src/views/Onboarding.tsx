@@ -113,9 +113,8 @@ export function Onboarding() {
           ) : (
             <section className={styles.step}>
               <TutorAvatar size={64} />
-              <h1 className="h1">Odpowiem naprawdę po połączeniu w profilu</h1>
-              <p className="lead">Każde konto podpina własnego dostawcę AI. Bez niego arkusze sprawdzają się bez mojego komentarza.</p>
-              <PodlaczAI onGo={() => void markOnboarded()} />
+              <h1 className="h1">Na razie odpoczywam</h1>
+              <PodlaczAI />
               <button type="button" className={styles.later} onClick={() => void zakoncz(angielski ? "/nauka/diagnoza" : "/")}>
                 {angielski ? "Na razie bez Pestki: diagnoza" : "Na razie bez Pestki"}
               </button>

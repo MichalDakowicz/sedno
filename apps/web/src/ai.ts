@@ -108,11 +108,11 @@ export function useAiReady(userId: string | null): boolean | undefined {
 export function aiErrorText(code: string): string {
   return (
     {
-      no_provider: "Pestka nie ma jeszcze połączenia dla tego poziomu. Dodaj dostawcę w profilu.",
+      no_provider: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
       not_signed_in: "Zaloguj się, żeby rozmawiać z Pestką.",
       rate_limited: "Za dużo zapytań naraz. Spróbuj za chwilę.",
       provider_failed: "Dostawca modelu nie odpowiedział poprawnie.",
-      bad_credential: "Zapisany klucz nie działa. Zapisz go ponownie w profilu.",
+      bad_credential: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
       bad_base_url: "Ten adres dostawcy jest niedozwolony.",
     }[code] ?? "Coś poszło nie tak."
   );

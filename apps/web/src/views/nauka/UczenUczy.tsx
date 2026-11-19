@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 import { ChevronRight, Send } from "lucide-react";
-import { Link } from "react-router-dom";
 import { AiError, aiErrorText } from "../../ai";
 import { supabase } from "../../supabase";
 import styles from "./UczenUczy.module.css";
@@ -42,7 +41,7 @@ async function wywolaj<T>(body: Zadanie, signal: AbortSignal): Promise<T> {
 function komunikat(blad: unknown): string {
   if (!(blad instanceof AiError)) return "Wystąpił błąd. Spróbuj ponownie.";
   if (blad.code === "network_error") return "Nie udało się połączyć z Sednem. Spróbuj ponownie.";
-  if (blad.code === "no_provider") return "Połącz w profilu dostawcę dla zadań ważnych, żeby Sędzia mógł sprawdzić odpowiedź.";
+  if (blad.code === "no_provider") return "Sędzia jest chwilowo niedostępny. Spróbuj za chwilę.";
   if (blad.code === "bad_model_response") return "Ocena Sędziego nie dotarła w poprawnej formie. Spróbuj ponownie.";
   return aiErrorText(blad.code);
 }
@@ -158,7 +157,6 @@ function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void 
               {blad && (
                 <div className={styles.blad} role="alert">
                   <p>{blad.tekst}</p>
-                  {blad.konfiguracja && <Link to="/profil#ai" className={styles.link}>Ustaw dostawcę w profilu</Link>}
                 </div>
               )}
               <div className={styles.akcje}>

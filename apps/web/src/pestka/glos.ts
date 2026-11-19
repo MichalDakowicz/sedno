@@ -83,7 +83,7 @@ export const glos = {
   },
   rozmowa: {
     powitanie: "Cześć, jestem Pestka. Wklej zadanie albo napisz, z czym masz kłopot, a przejdziemy przez to razem.",
-    bezPolaczenia: "Żeby odpowiadać, muszę być połączona z twoim kontem. Zrobisz to w profilu.",
+    bezPolaczenia: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
     przywolanie: "Jestem. W czym ci pomóc?",
     widze: "Widzę: {n}. Zapytasz mnie o nie?",
     coDzis: "To wybrałam na dziś. Krótko i w twoim najsłabszym miejscu.",

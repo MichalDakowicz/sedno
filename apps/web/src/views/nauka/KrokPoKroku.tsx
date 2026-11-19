@@ -355,7 +355,6 @@ function Edytor({ id }: { id: string }) {
           )}
         </div>
         {bladOddania && <p role="alert" className={s.blad}>{bladOddania}</p>}
-        {aiGotowe === false && <Link to="/profil#ai" className="link small">Połącz Pestkę w profilu, żeby sprawdzała etapy</Link>}
         {bladPestki !== null && <BladPestki blad={bladPestki} ponow={() => void sprawdz()} />}
       </section>
 

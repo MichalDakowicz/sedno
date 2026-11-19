@@ -1,5 +1,4 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type RefObject } from "react";
-import { Link } from "react-router-dom";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { getCommonBounds, sceneCoordsToViewportCoords } from "@excalidraw/excalidraw";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
@@ -16,12 +15,11 @@ export function komunikatPestki(kod: string) {
   if (kod === "empty_board") return "Dodaj coś na płótnie albo wpisz pytanie.";
   if (kod === "board_loading") return "Brudnopis się wczytuje. Spróbuj za chwilę.";
   if (kod === "bad_snapshot" || kod === "bad_image" || kod === "too_large") return "Nie udało się przygotować obrazu szkicu. Spróbuj ponownie.";
-  if (kod === "image_not_supported") return "Model dla ważnych zadań nie przyjmuje obrazów. Wybierz w profilu model z obsługą zdjęć.";
+  if (kod === "image_not_supported") return "Pestka nie może teraz przeczytać tablicy. Wpisz pytanie słowami.";
   if (kod === "bad_model_response") return "Przesłałam nieczytelną odpowiedź. Zapytaj mnie o jeden konkretny krok.";
   return aiErrorText(kod);
 }
 
-const DO_PROFILU = new Set(["no_provider", "bad_credential", "image_not_supported", "provider_failed"]);
 const BEZ_PONOWIENIA = new Set(["no_provider", "bad_credential", "image_not_supported", "not_signed_in", "bad_base_url"]);
 
 export type FazaPestki = "pole" | "mysli" | "pisze" | "dymek" | "kiwa";
@@ -204,13 +202,12 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
       {dymek.tekst && <p><TekstMat tekst={wzoryDoWyswietlenia(dymek.tekst)} /></p>}
       {dymek.blad && <p>{komunikatPestki(dymek.blad)}</p>}
       {dymek.uwaga && <p className="small muted">{dymek.uwaga}</p>}
-      {(dymek.ponow || dymek.pokaz || dymek.zetrzyj || (dymek.blad && DO_PROFILU.has(dymek.blad))) && (
+      {(dymek.ponow || dymek.pokaz || dymek.zetrzyj) && (
         <div className={styles.dymekAkcje}>
           {dymek.pokaz && <button type="button" className="btn btn-secondary btn-sm" onClick={dymek.pokaz}>Pokaż</button>}
           {dymek.ponow && dymek.blad && !BEZ_PONOWIENIA.has(dymek.blad) && (
             <button type="button" className="btn btn-secondary btn-sm" onClick={dymek.ponow}>Spróbuj ponownie</button>
           )}
-          {dymek.blad && DO_PROFILU.has(dymek.blad) && <Link className="link small" to="/profil">Sprawdź połączenie Pestki w profilu</Link>}
           {dymek.zetrzyj && <button type="button" className="btn btn-ghost btn-sm" onClick={dymek.zetrzyj}>Zetrzyj</button>}
         </div>
       )}
