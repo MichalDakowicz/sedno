@@ -118,7 +118,7 @@
 .gotowoscLista > li {
   display: grid;
   gap: var(--s-3);
-  padding-block: var(--s-4);
+  padding-block: var(--s-3);
 }
 
 .gotowoscLink {
