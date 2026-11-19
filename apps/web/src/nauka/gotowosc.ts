@@ -1,7 +1,6 @@
 // Gotowość do matury z przedmiotu: jedna liczba z mapy umiejętności i jedno zdanie-wniosek.
 // Liczba to średnia opanowania umiejętności ważona ich punktami na maturze (exam_points; bez punktów waga 1).
-// Umiejętność bez oceny (za mało prób) liczy się jako 0: gotowość mówi, ile matury uczeń już pewnie ma, a nie
-// ile umie w tym, co ćwiczył. Wynik jest wstępny, dopóki oceniona jest mniej niż połowa wagi albo prób jest mniej niż 20.
+// Umiejętność bez oceny (za mało prób) nie wchodzi do średniej: brak danych to nie zero. Wynik jest wstępny, dopóki oceniona jest mniej niż połowa wagi albo prób jest mniej niż 20.
 import type { Umiejetnosc } from "./api";
 
 export const OBSZARY_NAUKI = [
@@ -28,9 +27,10 @@ const waga = (u: Umiejetnosc) => (u.exam_points > 0 ? u.exam_points : 1);
 export function policzGotowosc(umiejetnosci: Umiejetnosc[]): Gotowosc | null {
   if (!umiejetnosci.length) return null;
   const suma = umiejetnosci.reduce((s, u) => s + waga(u), 0);
-  const wartosc = umiejetnosci.reduce((s, u) => s + waga(u) * (u.score ?? 0), 0) / suma;
+  
   const ocenione = umiejetnosci.filter((u) => u.score !== null);
   const wagaOcenionych = ocenione.reduce((s, u) => s + waga(u), 0);
+  const wartosc = wagaOcenionych ? ocenione.reduce((s, u) => s + waga(u) * u.score!, 0) / wagaOcenionych : 0;
   const prob = umiejetnosci.reduce((s, u) => s + u.evidence_count, 0);
   const obszary = OBSZARY_NAUKI.map((o) => {
     const lista = umiejetnosci.filter((u) => u.area === o.id);

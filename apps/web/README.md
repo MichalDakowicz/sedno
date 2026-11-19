@@ -54,7 +54,7 @@ Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (
 
 ## Gotowość, ogród i cele
 
-- `src/nauka/gotowosc.ts`: gotowość z przedmiotu = średnie opanowanie umiejętności ważone `exam_points` (bez punktów waga 1), nieocenione liczą się jako 0; wstępna, gdy oceniona jest mniej niż połowa wagi albo prób jest mniej niż 20. `wniosekGotowosci` daje zdanie (najmocniejszy obszar, najwięcej do zyskania, ile brakuje do celu).
+- `src/nauka/gotowosc.ts`: gotowość z przedmiotu = średnie opanowanie umiejętności ważone `exam_points` (bez punktów waga 1), nieocenione nie wchodzą do średniej; wstępna, gdy oceniona jest mniej niż połowa wagi albo prób jest mniej niż 20. `wniosekGotowosci` daje zdanie (najmocniejszy obszar, najwięcej do zyskania, ile brakuje do celu).
 - `src/components/Ogrod.tsx`: rośliny w grządkach `OBSZARY_NAUKI`; stadia z ostatniej wizyty w `localStorage` (`sedno.ogrod.<konto>.<poziom>`), roślina rośnie tylko przy wyższym stadium. `adres` (link do panelu) albo `onWybierz` (wybór w Nauce), `onZapowiedz` (rozgrzanie).
 - Cele w `profiles.learning` przez `src/konto/profilUcznia.ts` (kopia w `localStorage`): `celProcent`, `mocne`, `slabe`, `dni`, `czas`, `quiz`. `celPrzedmiotu(u, id)` (procent z quizu, a bez niego dawny wybór z `CELE`) i `minutyDziennie(u)` czytają gotowość, karta dnia (`nauka/dzis.ts`), „Twój tydzień”, wynik arkusza i rozbiór; `opisProfilu()` przekazuje cele, mocne i słabe strony Pestce w rozmowie. Tablica (`omow-brudnopis`) ich nie dostaje, bo funkcja serwera nie ma na to pola.
 - `nauka/dzis.ts`: po diagnozie zakończonej dziś karta dnia proponuje najsłabszą umiejętność z diagnozy; obszar zadeklarowany jako słaby ma pierwszeństwo przed poleceniem z mapy, dopóki jego umiejętności mają mało danych.
