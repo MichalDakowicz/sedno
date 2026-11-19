@@ -27,7 +27,7 @@ export function Gotowosc({ umiejetnosci, cel, prognoza, maly = false, naglowek, 
   const wniosek = wniosekGotowosci(g, cel);
   // W wierszu na pulpicie jedna krótka linia zamiast tytułu z dopiskami i pełnego zdania.
   const brakuje = cel !== null ? Math.round((cel - g.wartosc) * 100) : null;
-  const krotko = [g.wstepna && "wstępnie", brakuje !== null && (brakuje > 0 ? `do celu ${brakuje} pkt proc.` : "cel osiągnięty")].filter(Boolean).join(" · ");
+  const krotko = [g.wstepna && "wstępnie", brakuje !== null && (brakuje > 0 ? `do celu brakuje ${brakuje}%` : "cel osiągnięty")].filter(Boolean).join(" · ");
   // Bez żadnej ocenionej umiejętności 0% wyglądałoby jak zmierzony wynik: mówimy wprost, że jeszcze nie wiemy.
   if (umiejetnosci.every((u) => u.score === null)) {
     return (

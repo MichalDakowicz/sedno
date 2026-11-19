@@ -77,7 +77,7 @@ export function PrognozaAngielskiego() {
       <div className={styles.prognoza} data-tutor-about="Prognozę liczę z arkuszy z angielskiego z ostatnich 180 dni: średnia z zadań sprawdzanych kluczem, ważona punktami umiejętności na maturze. Krótkie rundy jej nie zmieniają.">
         <p>
           Angielski z arkuszy: <strong>{Math.round(prognoza * 100)}%</strong>
-          {celAng !== null && (prognoza >= celAng ? ", cel osiągnięty." : `, do celu ${Math.round((celAng - prognoza) * 100)} pkt proc.`)}
+          {celAng !== null && (prognoza >= celAng ? ", cel osiągnięty." : `, do celu brakuje ${Math.round((celAng - prognoza) * 100)}%`)}
         </p>
         <PasekProgu
           wartosc={prognoza}

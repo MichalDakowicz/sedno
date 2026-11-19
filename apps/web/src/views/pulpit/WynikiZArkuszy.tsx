@@ -37,7 +37,7 @@ function wniosek(seria: Wynik[]): string {
       : `${nazwa}: pierwszy wynik. Kolejny arkusz pokaże, czy idzie w górę.`;
   const roznica = procent(ostatni) - procent(poprzedni);
   if (Math.abs(roznica) < 3) return `${nazwa}: ostatni arkusz na podobnym poziomie co poprzedni.`;
-  return roznica > 0 ? `${nazwa}: o ${roznica} pkt proc. lepiej niż w poprzednim arkuszu.` : `${nazwa}: o ${-roznica} pkt proc. słabiej niż w poprzednim arkuszu.`;
+  return roznica > 0 ? `${nazwa}: o ${roznica}% lepiej niż w poprzednim arkuszu.` : `${nazwa}: o ${-roznica}% słabiej niż w poprzednim arkuszu.`;
 }
 
 export function WynikiZArkuszy({ zakres: podsumowania, co, obok }: KontekstPulpitu) {

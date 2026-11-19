@@ -177,7 +177,7 @@ export function QuizCelow({ wOnboardingu = false, onKoniec }: { wOnboardingu?: b
   );
 }
 
-/** Cel w procentach: suwak co 5 pkt proc. z kreską progu 30% i luźnymi znacznikami co 10 pkt. */
+/** Cel w procentach: suwak co 5% z kreską progu 30% i luźnymi znacznikami co 10 pkt. */
 function SuwakCelu({ przedmiotId, u }: { przedmiotId: PrzedmiotId; u: Uczenie }) {
   const aktualny = Math.round((celPrzedmiotu(u, przedmiotId) ?? 0.6) * 100);
   const ustaw = (v: number) => zmienUczenie((x) => ({ ...x, celProcent: { ...x.celProcent, [przedmiotId]: v } }));

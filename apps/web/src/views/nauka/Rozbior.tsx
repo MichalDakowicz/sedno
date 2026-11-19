@@ -67,7 +67,7 @@ function tytulZmiany(przed: number | null, po: number | null, zmiana: number | n
   if (po == null) return "Za mało odpowiedzi, żeby ocenić opanowanie";
   if (przed == null) return `Pierwsza ocena: ${procent.format(po)}`;
   if (!zmiana) return "Opanowanie bez zmian";
-  return zmiana > 0 ? `Opanowanie w górę o ${zmiana} pkt proc.` : `Opanowanie w dół o ${-zmiana} pkt proc.`;
+  return zmiana > 0 ? `Opanowanie w górę o ${zmiana}%` : `Opanowanie w dół o ${-zmiana}%`;
 }
 
 const nazwyBledow: Record<string, string> = { "jezyk-i-forma": "Błędy językowe i dotyczące formy" };
@@ -238,7 +238,7 @@ function RozbiorGotowy({ sesja }: { sesja: SesjaZWynikiem }) {
         </p>
         {gotowosc && (
           <p className="small">
-            Gotowość z angielskiego: {procent.format(gotowosc.wartosc)}{cel !== null && (gotowosc.wartosc >= cel ? ", cel osiągnięty." : `, do celu ${Math.round(cel * 100)}% brakuje ${Math.round((cel - gotowosc.wartosc) * 100)} pkt proc.`)}
+            Gotowość z angielskiego: {procent.format(gotowosc.wartosc)}{cel !== null && (gotowosc.wartosc >= cel ? ", cel osiągnięty." : `, do celu ${Math.round(cel * 100)}% brakuje ${Math.round((cel - gotowosc.wartosc) * 100)}%`)}
           </p>
         )}
         <div><Link to={adresMapy(level, skill)} className="link">Zobacz roślinę w ogrodzie</Link></div>

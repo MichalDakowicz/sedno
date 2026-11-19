@@ -36,7 +36,7 @@ function wniosek(umiejetnosci: Umiejetnosc[]) {
     const najblizsza = umiejetnosci.filter((u) => u.score !== null).sort((a, b) => b.score! - a.score!)[0];
     if (!najblizsza) return "Na razie same pestki. Pierwsza runda zasadzi pierwszy kiełek.";
     const brakuje = Math.max(1, Math.ceil((PROGI_STADIOW.kielek - najblizsza.score!) * 100));
-    return `Najbliżej kiełka: ${najblizsza.name.toLowerCase()} (${Math.round(najblizsza.score! * 100)}%). Brakuje ${brakuje} pkt proc., to jedna, dwie dobre rundy.`;
+    return `Najbliżej kiełka: ${najblizsza.name.toLowerCase()} (${Math.round(najblizsza.score! * 100)}%). Brakuje ${brakuje}%, to jedna, dwie dobre rundy.`;
   }
   const reszta = pestki.length ? ` ${pestki.map((g) => g.nazwa).join(", ")}: jeszcze same pestki.` : "";
   return `Najlepiej rośnie ${najlepszy.nazwa.toLowerCase()}.${reszta}`;
@@ -47,7 +47,7 @@ const dzienWarszawa = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Warsa
 /** Dopowiedzenie z historii: średnia zmiana opanowania w tygodniu; bez historii w bazie nic. */
 function tydzien(zmiana: number | null) {
   if (zmiana === null) return "";
-  return ` W tym tygodniu opanowanie ${zmiana > 0 ? "wzrosło" : "spadło"} średnio o ${Math.abs(zmiana)} pkt proc.`;
+  return ` W tym tygodniu opanowanie ${zmiana > 0 ? "wzrosło" : "spadło"} średnio o ${Math.abs(zmiana)}%`;
 }
 
 export function MapaUmiejetnosci({ zakres, aktywny }: KontekstPulpitu) {

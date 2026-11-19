@@ -58,11 +58,11 @@ export function okresTemu(dni: number): string {
   return `${Math.floor(dni / 30)} miesiące temu`;
 }
 
-/** Tytuł-wniosek linii opanowania: „O 12 pkt proc. więcej niż 3 tygodnie temu”. */
+/** Tytuł-wniosek linii opanowania: „O 12% więcej niż 3 tygodnie temu”. */
 export function wniosekLinii({ zmiana, dni }: LiniaOpanowania): string {
   const kiedy = okresTemu(dni);
   if (zmiana === 0) return `Tyle samo co ${kiedy}`;
-  return `O ${Math.abs(zmiana)} pkt proc. ${zmiana > 0 ? "więcej" : "mniej"} niż ${kiedy}`;
+  return `O ${Math.abs(zmiana)}% ${zmiana > 0 ? "więcej" : "mniej"} niż ${kiedy}`;
 }
 
 /**

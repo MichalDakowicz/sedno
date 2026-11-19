@@ -148,7 +148,7 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 - Po polsku, krótkimi zdaniami. Do ucznia bez form męskich i żeńskich („wyjaśnij”, nie „wyjaśniłeś”). Pestka mówi o sobie w rodzaju żeńskim.
 - **Bez akapitów tłumaczących interfejs.** Dla zdania, które wyjaśnia, jak coś działa: usuń (domyślnie), przenieś do Pestki (`data-tutor-about` na elemencie) albo zostaw jedną krótką linię, gdy jej brak grozi błędem lub utratą danych. Noty o źródle (CKE) zostają.
 - Jedna nazwa na jedną rzecz, wszędzie: „Matura maj 2026 · zadanie 1.3”, „Szybka runda z 18 listopada · zadanie 5” (`arkusze/typy.ts`).
-- Bez żargonu („retencja”, kody wymagań) w widoku ucznia; liczby w różnych miejscach muszą się zgadzać.
+- Bez żargonu („retencja”, kody wymagań, „pkt proc.”: różnicę procentów piszemy „brakuje 20%”) w widoku ucznia; liczby w różnych miejscach muszą się zgadzać.
 - W interfejsie „Pestka”, nie „tutor” ani „AI” (wyjątek: konfiguracja dostawcy w profilu). Bez emoji.
 
 ## Pestka
@@ -208,9 +208,9 @@ Co która strona pokazuje (pytanie → forma):
 | Pulpit | Karta dnia | Co mam zrobić teraz? | karta Pestki z powodem i jednym przyciskiem |
 | Pulpit | Twój tydzień | Czy uczę się regularnie? | zdanie „N z M dni nauki w tym tygodniu” (M to cel z quizu celów, bez celu 7) z paskiem celu z M części, seria z Pestką obok, 7 kropek dni na całą szerokość, jedno zdanie: ile zostało do celu i który dzień jest najbliższy w planie, a pod nim „Zmień dni nauki”; minuty jako linia z wnioskiem. Bez listy planu (co dziś, mówi karta dnia) |
 | Pulpit | Do matury | Ile mam czasu, czy zdam i ile brakuje do celu? | dni do egzaminu i prognoza: pasek z kreską progu 30% i celem z profilu ucznia |
-| Pulpit | Gotowość do matury | Jak mi idzie z każdego przedmiotu? | wiersz na przedmiot: mały pierścień gotowości z celem i zdanie, pod angielskim ogród w miniaturze. Kolejne kroki („Potem”, ten sam plan co w Nauce) stoją pod kartą dnia, nie tutaj |
+| Pulpit | Gotowość do matury | Jak mi idzie z każdego przedmiotu? | wiersz na przedmiot: mały pierścień gotowości z celem i zdanie, pod angielskim ogród w miniaturze; każdy wiersz prowadzi do mapy przedmiotu (bez arkuszy: „Działy do przerobienia na mapie.”). Kolejne kroki („Potem”, ten sam plan co w Nauce) stoją pod kartą dnia, nie tutaj |
 | Pulpit | Wyniki z arkuszy (widget do włączenia) | Czy idzie mi coraz lepiej? | średnia i linia wyników z progiem |
-| Nauka | Co teraz | Czego chcę się teraz uczyć? | jeden plan od góry: pasek przedmiotów; karta „Dziś warto” (jedyny przycisk główny; zaczętą rundę tej samej umiejętności wznawia) z „Wybierz inną umiejętność”; „Potem” (`views/nauka/PlanDnia.tsx`): najwyżej 3 kolejne kroki w jednym stylu wierszy, bez powtarzania karty: „Dokończ: <umiejętność>”, „Powtórz to, co ucieka” (start kolejki), „Nowa runda: <umiejętność>”; inne przedmioty zamiast „Potem” zadania do poprawy z arkuszy; „Inne sposoby” jako jedna lista wierszy z jednym zdaniem „kiedy”. Bez osobnych „Do powtórki” i „Dokończ” (`/powtorki` przekierowuje do Nauki) |
+| Nauka | Co teraz | Czego chcę się teraz uczyć? | jeden plan od góry: pasek przedmiotów; karta „Dziś warto” (jedyny przycisk główny; zaczętą rundę tej samej umiejętności wznawia) z „Wybierz inną umiejętność”; „Potem” (`views/nauka/PlanDnia.tsx`): najwyżej 3 kolejne kroki w jednym stylu wierszy, bez powtarzania karty: „Dokończ: <umiejętność>”, „Powtórz to, co ucieka” (start kolejki), „Nowa runda: <umiejętność>”; inne przedmioty zamiast „Potem” sekcja „Do poprawy” z zadaniami z błędem z arkuszy, tylko gdy takie są; „Inne sposoby” jako jedna lista wierszy z jednym zdaniem „kiedy”. Bez osobnych „Do powtórki” i „Dokończ” (`/powtorki` przekierowuje do Nauki) |
 | Runda | Nagłówek | Co teraz ćwiczę? | tytułem nazwa umiejętności z karty, pod nim rodzaj ćwiczenia, przedmiot i poziom; zegar liczy od wejścia (od założenia tylko w trakcie rundy) |
 | Runda | Postęp | Ile jeszcze i jak mi idzie? | kropki zadań (zielona, czerwona, pusta) zamiast gołego paska |
 | Rozbiór | Wynik rundy | Co się zmieniło po tej rundzie? | kropki odpowiedzi, jedno zdanie Pestki, pasek opanowania przed → po, stadium |

@@ -78,10 +78,11 @@ const zadan = (n: number) => (n === 1 ? "zadanie" : n % 10 >= 2 && n % 10 <= 4 &
  *  z zadań z błędem w sprawdzonych arkuszach. Kiedyś osobna zakładka; adres /powtorki prowadzi tutaj. */
 export function SekcjaPowtorek({ przedmiot: p, poziom }: { przedmiot: PrzedmiotId; poziom: Poziom | null }) {
   if (p !== "angielski" && !maMapeZArkuszy(p)) return null;
+  if (p !== "angielski") return <PowtorkiZArkuszy przedmiot={p} poziom={poziom} />;
   return (
     <section className={s.sekcja} aria-labelledby="powtorki">
       <h2 className="h2" id="powtorki" tabIndex={-1}>Do powtórki</h2>
-      {p === "angielski" ? <PowtorkiAngielski /> : <PowtorkiZArkuszy przedmiot={p} poziom={poziom} />}
+      <PowtorkiAngielski />
     </section>
   );
 }
@@ -97,12 +98,12 @@ function PowtorkiZArkuszy({ przedmiot: p, poziom }: { przedmiot: PrzedmiotId; po
   const bledy = mapa.dane?.bledy ?? [];
   const dzialy = new Map(szablonMapy(p).map((u) => [u.skill_id, u.name]));
   const maArkusze = p !== "polski";
-  if (mapa.stan === "ladowanie" || mapa.stan === "pominiete") return <Ladowanie ile={3} etykieta="Wczytuję powtórki" />;
-  if (!bledy.length)
-    return <StanPestki rozmiar="maly" emocja="radosc" tekst={maArkusze ? "Zadania z błędem ze sprawdzonych arkuszy trafią tutaj." : "Arkuszy z polskiego jeszcze nie ma, więc nie ma czego powtarzać."} />;
+  // Bez zadań z błędem sekcji nie ma: pusty stan pod kartą dnia tylko dokładał szumu.
+  if (!maArkusze || !bledy.length) return null;
   return (
-    <>
-      <p className={s.liczba}><strong>{bledy.length}</strong> {zadan(bledy.length)} do poprawy</p>
+    <section className={s.sekcja} aria-labelledby="powtorki">
+      <h2 className="h2" id="powtorki" tabIndex={-1}>Do poprawy</h2>
+      <p className={s.liczba}><strong>{bledy.length}</strong> {zadan(bledy.length)} z błędem w arkuszach</p>
       <section aria-label="Zadania do poprawy">
         <ul className={`wiersze ${s.wiersze}`}>
           {bledy.slice(0, 3).map((b) => (
@@ -119,7 +120,7 @@ function PowtorkiZArkuszy({ przedmiot: p, poziom }: { przedmiot: PrzedmiotId; po
           ))}
         </ul>
       </section>
-    </>
+    </section>
   );
 }
 
