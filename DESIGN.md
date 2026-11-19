@@ -237,7 +237,7 @@ Wszystko łączy się w jedną pętlę z Pestką: quiz celów → diagnoza → o
 
 Słowa dla ucznia, wszędzie te same:
 
-- **Gotowość** mówi o przedmiocie (pierścień na pulpicie i mapie). Liczy ją `nauka/gotowosc.ts`: średnie opanowanie umiejętności ważone punktami na maturze (`exam_points`), umiejętności bez oceny liczą się jako zero; wstępna, gdy oceniona jest mniej niż połowa wagi albo prób jest mniej niż 20.
+- **Gotowość** mówi o przedmiocie (pierścień na pulpicie i mapie). Liczy ją `nauka/gotowosc.ts`: średnie opanowanie umiejętności ważone punktami na maturze (`exam_points`), umiejętności bez oceny nie wchodzą do średniej; wstępna, gdy oceniona jest mniej niż połowa wagi albo prób jest mniej niż 20.
 - **Opanowanie** mówi o jednej umiejętności i wyznacza stadium rośliny.
 - **Obszary** to grządki ogrodu: słuchanie, czytanie, środki językowe, pisanie (`OBSZARY_NAUKI`, `OBSZARY_ANGIELSKIEGO`), te same w quizie celów i w kontekście Pestki.
 - **Cel** w procentach z quizu celów (`celPrzedmiotu` w `konto/profilUcznia.ts`): kreska na pierścieniu i na pasku wyniku, „do celu brakuje…” w zdaniach, powód karty dnia, porównanie w „Twoim tygodniu”.
