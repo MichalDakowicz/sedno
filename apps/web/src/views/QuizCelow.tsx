@@ -163,7 +163,12 @@ export function QuizCelow({ wOnboardingu = false, onKoniec }: { wOnboardingu?: b
           </button>
         )}
         {biezacy.id !== "koniec" && biezacy.id !== "przedmioty" && (
-          <button type="button" className="btn btn-secondary btn-sm" onClick={dalej}>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => {
+            // „Dalej” przy suwaku zapisuje też widoczną wartość, gdy uczeń jej nie ruszył.
+            const id = biezacy.przedmiot;
+            if (id && u.celProcent?.[id] === undefined) zmienUczenie((x) => ({ ...x, celProcent: { ...x.celProcent, [id]: Math.round((celPrzedmiotu(x, id) ?? 0.6) * 100) } }));
+            dalej();
+          }}>
             {biezacy.przedmiot || biezacy.id === "mocne" || biezacy.id === "slabe" ? "Dalej" : "Pomiń pytanie"} <ArrowRight size={16} aria-hidden="true" />
           </button>
         )}
