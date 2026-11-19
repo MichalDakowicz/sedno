@@ -30,8 +30,8 @@ export function Pierscien({ wartosc, prog, cel, wstepna = false, rozmiar = 72, o
             <circle cx="18" cy="18" r={R} fill="none" stroke="#fff" strokeWidth="4" pathLength={100} strokeDasharray="1.6 1.1" />
           </mask>
         )}
-        <circle className={s.pierscienLuk} cx="18" cy="18" r={R} pathLength={100} mask={wstepna ? `url(#${maska})` : undefined}
-          strokeDasharray={`${weszlo ? Math.max(v * 100, 0.01) : 0} 100`} transform="rotate(-90 18 18)" />
+        {wartosc > 0 && <circle className={s.pierscienLuk} cx="18" cy="18" r={R} pathLength={100} mask={wstepna ? `url(#${maska})` : undefined}
+          strokeDasharray={`${weszlo ? Math.max(v * 100, 0.01) : 0} 100`} transform="rotate(-90 18 18)" />}
         {prog !== undefined && <line className={s.pierscienProg} x1="18" y1="0" x2="18" y2="4.5" transform={`rotate(${ogranicz(prog) * 360} 18 18)`} />}
         {cel != null && <line className={s.pierscienCel} x1="18" y1="-1" x2="18" y2="5.5" transform={`rotate(${ogranicz(cel) * 360} 18 18)`} />}
       </svg>
