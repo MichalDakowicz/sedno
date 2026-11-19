@@ -128,6 +128,11 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 | Rozwijana sekcja | ikona `ChevronRight` z obrotem | bez systemowych trójkątów |
 | Ładowanie | `components/Ladowanie` | szkielet w kształcie treści, bez skoku układu. Dane już raz pobrane pokazujemy od razu (pamięć w `nauka/pamiec.ts`). |
 | Błąd Pestki | `components/BladPestki.tsx` | komunikat z `nauka/ai.ts`, „Spróbuj ponownie”, gdy ma sens, link do profilu przy braku modelu; `BrakPestki` dla konta bez AI zamiast pustej strony |
+| Wykresy | `components/wykresy/` | `PasekProgu`: wartość względem progu i celu, opcjonalnie przed → po. `Linia`: zmiana w czasie, podpisany ostatni punkt, próg. `Kropki`: dni tygodnia, zadania rundy, ostatnie próby (pełna akcent, zielona ✓ dobrze, czerwona ✕ źle, kreska pominięte, pusta, przerywana zaplanowane). `OsCzasu`: dziś → przerywana przerwa z liczbą dni → egzaminy z datami. `PasDni`: 7 kratek dni z liczbą. `Pierscien`: wynik z kreską progu. Wszystkie: inline SVG w tokenach, `role="img"` i `aria-label` z wnioskiem, wartość dochodzi sprężyną, bez ruchu przy „Mniej ruchu”. |
+| Stan z Pestką | `components/StanPestki.tsx` | twarz w emocji, jedno zdanie z `pestka/glos.ts`, najwyżej jedno działanie. Puste stany, `BladPestki` / `BladNauki`, strona 404 (`views/NieMaStrony.tsx`); `Ladowanie` po 1 s pokazuje myślącą Pestkę ze zdaniem. Strony nie składają własnych pustych stanów. |
+| Stadium umiejętności | `components/Kielek.tsx` + `nauka/stadia.ts` | pestka, kiełek, roślina z liśćmi, drzewko z owocem; 20–96 px; odcienie akcentu, nie zieleń. `animuj` tylko tam, gdzie stadium się zmienia (rozbiór, panel). |
+| Znak | `components/Znak.tsx` | Pestka i napis „Sedno” w pasku i na logowaniu. Favicon `public/pestka.svg`, ikony PNG z `scripts/ikony.mjs`. Bez własnych wersji rysunku. |
+| Liczba | `<Liczba>` / `useLiczba()` z `ruch.tsx` | duża liczba dochodzi do wartości; czytnik ekranu dostaje od razu wartość końcową |
 | Ikony | `lucide-react` | 16–18 px w tekście, jedna grubość kreski |
 
 ## Tekst w interfejsie
@@ -144,6 +149,36 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 - Polecenia i komentarze aplikacji idą jej głosem, w pierwszej osobie, z powodem („Na dziś wybrałam…, bo…”).
 - Reaguje na to, co robi uczeń (dobra i zła odpowiedź, seria, koniec rundy), gotowymi kwestiami, które działają bez modelu. Przywołana wie, na co uczeń patrzy.
 - Kolory i kształt z tokenów; animacje szanują „Mniej ruchu”.
+- W interfejsie „Pestka”, nigdy „tutor” ani „AI”. Podpis w panelu rozmowy mówi, na co patrzy: „przy mapie umiejętności”, „przy: <zadanie>”.
+- **Karty z twarzą.** Propozycja dnia (`KartaDnia`: „Dziś warto”, „Polecam” w Nauce, „Dalej” w rozbiorze) pokazuje twarz Pestki i mówi w pierwszej osobie z powodem.
+- **Na tablicy** (brudnopis matematyki): twarz Pestki to przycisk w pasku narzędzi, pole pytania obok niej. Myśli na tablicy, pisze dopiski znak po znaku (pierwiastki i ułamki odręcznie), podpowiedź w dymku przy sobie. Prowadzenie na żywo: kiwnięcie przy dobrym kroku, dymek i czerwony obrys przy błędzie, nic w trakcie czekania. Nie przesuwa widoku ucznia; jedna odpowiedź = jeden krok cofania; „Zetrzyj dopiski Pestki”.
+
+### Emocje
+
+Ten sam rysunek (`components/TutorAvatar.tsx`: oczy, policzki, usta), inna twarz. Konfetti i „z” w tokenach.
+
+| Stan | Kiedy |
+| --- | --- |
+| `idle`, `thinking`, `talking` | zwykła rozmowa; `thinking` także w `Ladowanie` po 1 s |
+| `radosc` | dobra odpowiedź |
+| `duma` | runda z postępem, kolejne bezbłędne rundy |
+| `zmartwienie` | 2+ złe odpowiedzi z rzędu; też błędy i 404 |
+| `sen` | 3 min bez ruchu ucznia (jeden timeout w `TutorProvider`); budzi wskaźnik, klawiatura, przewijanie |
+| `swieto` | pierwsza bezbłędna runda, kamienie milowe serii 3/7/14/30/50/100 dni w „Twój tydzień” |
+
+### Głos
+
+Wszystkie gotowe kwestie są w `pestka/glos.ts`, pogrupowane według sytuacji: `powitanie` (pora dnia), `dobrze`, `seria`, `blad.*`, `rozbior.*`, `seriaDni`, `przerwa`, `sen`, `puste.*`, `ladowanie`, `bledy.*`, `rozmowa.*`. `wybierz(lista, n, liczba?)` bierze kolejną kwestię (bez powtórek co chwilę, `{n}` → liczba), `powitanie()` według godziny. Nowe zdanie dopisz tam, nie w widoku.
+
+Zasady: pierwsza osoba w rodzaju żeńskim, krótkie zdania, do ucznia bez form męskich i żeńskich, pytanie zamiast wykładu, nigdy gotowa odpowiedź, nigdy ocena ucznia, bez emoji. Karta charakteru: `docs/pestka-karta.html`.
+
+### Kiełkująca pestka
+
+Umiejętność rośnie w czterech stadiach (`nauka/stadia.ts`, rysunek `components/Kielek.tsx`): pestka (poniżej 25% albo brak danych), kiełek, roślina z liśćmi, drzewko z owocem. Progi w jednym miejscu: `PROGI_STADIOW = { kielek: 0.25, roslina: 0.45, drzewko: 0.6 }`. Celowo nisko, bo opanowanie z samych rund zatrzymuje się dziś ok. 67%; po poprawce wzoru w bazie do przestrojenia. Gdzie: wiersze mapy, panel umiejętności (duża liczba opanowania, kropki ostatnich prób, „pamiętasz ok. X%”), rozbiór (stare stadium → nowe rośnie), widget mapy na pulpicie jako „ogród” czterech obszarów z jednym zdaniem.
+
+### Znak
+
+Pestka obok napisu „Sedno” (`components/Znak.tsx`) w pasku i na logowaniu; w małym rozmiarze bez blasku i policzków. Favicon `public/pestka.svg`; ikony PNG, maskowalna i apple-touch generuje `apps/web/scripts/ikony.mjs` z tego samego rysunku; `public/manifest.webmanifest`. Oczy ciemne na pomarańczu w obu motywach.
 
 ## Treść sekcji, wykresy i infografiki
 
@@ -161,30 +196,54 @@ Co która strona pokazuje (pytanie → forma):
 | Strona | Sekcja | Pytanie ucznia | Forma |
 | --- | --- | --- | --- |
 | Pulpit | Karta dnia | Co mam zrobić teraz? | karta Pestki z powodem i jednym przyciskiem |
-| Pulpit | Twój tydzień | Czy uczę się regularnie? | 7 kropek dni, seria, minuty w tygodniu |
-| Pulpit | Prognoza | Czy zdam i ile mi brakuje do celu? | pasek na przedmiot z kreską progu 30% i kreską celu |
-| Pulpit | Mapa w skrócie | Co umiem, a co nie? | cztery obszary jako paski albo „ogród” Pestki |
-| Pulpit | Powtórki | Ile mam do powtórzenia? | liczba na dziś i rząd kratek na 7 dni |
-| Pulpit | Wyniki z arkuszy | Czy idzie mi coraz lepiej? | linia wyników z progiem |
+| Pulpit | Twój tydzień | Czy uczę się regularnie? | 7 kropek dni i seria |
+| Pulpit | Do matury | Ile mam czasu, czy zdam i ile brakuje do celu? | dni do egzaminu i prognoza: pasek z kreską progu 30% i celem z profilu ucznia |
+| Pulpit | Mapa w skrócie | Co umiem, a co nie? | „ogród”: cztery obszary w stadiach i jedno zdanie |
+| Pulpit | Powtórki | Ile mam do powtórzenia? | liczba na dziś |
+| Pulpit | Wyniki z arkuszy | Czy idzie mi coraz lepiej? | średnia i linia wyników z progiem |
 | Nauka | Propozycja i sposoby | Jak chcę się dziś uczyć? | karta dnia, lista sposobów z jednym polecanym |
 | Runda | Postęp | Ile jeszcze i jak mi idzie? | kropki zadań (zielona, czerwona, pusta) zamiast gołego paska |
-| Rozbiór | Wynik rundy | Co się zmieniło po tej rundzie? | pasek opanowania przed → po, kropki odpowiedzi, jedno zdanie Pestki |
+| Rozbiór | Wynik rundy | Co się zmieniło po tej rundzie? | kropki odpowiedzi, jedno zdanie Pestki, pasek opanowania przed → po, stadium |
 | Mapa | Lista umiejętności | W czym jestem mocny, a w czym słaby? | wiersze z paskiem i stadium Pestki, pogrupowane obszarami |
-| Mapa | Panel umiejętności | Skąd ta ocena i co dalej? | linia opanowania w czasie, kropki ostatnich prób, „Pamiętasz ok. X%”, jeden przycisk „Ćwicz” |
-| Powtórki | Na dziś i kolejka | Co i kiedy powtórzyć? | karta na dziś, oś 7 dni z liczbą powtórek, lista według umiejętności |
-| Arkusze | Lista | Które arkusze mam za sobą? | karty lat z wynikiem jako pierścień albo pasek |
-| Arkusz po sprawdzeniu | Wynik | Gdzie straciłem punkty i czas? | wynik z progiem, paski punktów według części arkusza, czas zadania względem normy |
-| Do matury | Odliczanie | Ile mam czasu i na co? | oś czasu egzaminów, dni do pierwszego, prognoza z celem |
-| Profil ucznia | Wnioski | Co Sedno o mnie wie? | kilka liczb z podpisem (tempo, pora, mocna strona), bez tabel |
+| Mapa | Panel umiejętności | Skąd ta ocena i co dalej? | duża liczba opanowania ze stadium, kropki ostatnich prób, „Pamiętasz ok. X%”, jeden przycisk „Ćwicz”. Bez linii w czasie: baza nie trzyma historii opanowania, a z listy prób nie da się jej uczciwie odtworzyć |
+| Powtórki | Na dziś i kolejka | Co i kiedy powtórzyć? | karta na dziś, 7 kratek dni z liczbą powtórek (błędy są gotowe od dziś), lista według umiejętności |
+| Arkusze | Lista | Które arkusze mam za sobą? | wynik jako pierścień z progiem |
+| Arkusz po sprawdzeniu | Wynik | Gdzie straciłem punkty i czas? | wynik i pasek z progiem 30% (poziom podstawowy), paski zadań z największą stratą punktów, czas względem normy |
+| Do matury | Odliczanie | Ile mam czasu i na co? | oś czasu egzaminów (dziś → dni przerwy → egzaminy z datami), prognoza z celem |
+| Profil ucznia | Wnioski | Co Sedno o mnie wie? | duże liczby z podpisem (sprawdzone arkusze, średnia, pora dnia), bez tabel |
 | Profil | AI na koncie | Czy Pestka działa i ile używam? | stan i dwie liczby; tabela zużycia pod rozwinięciem |
 
 ## Ruch
 
-Krótko i spokojnie: 150–300 ms, `ease`. Wejście strony nie powtarza się, gdy dane są z pamięci. Każda animacja ma wersję bez ruchu (`prefers-reduced-motion` i ustawienie „Mniej ruchu”).
+Krótko, spokojnie i nigdy kosztem działania. Tokeny w `tokens.css` (`--ruch-*`) i `tokens.ts` (`motion`); w JS wszystko przez `apps/web/src/ruch.tsx`. Innych czasów i krzywych nie wpisujemy.
+
+| Token | Wartość | Do czego |
+| --- | --- | --- |
+| `--ruch-szybki` | 150 ms | wciśnięcie, zmiana koloru, drobny stan |
+| `--ruch-zwykly` | 250 ms | wejście elementu, przesunięcie zaznaczenia |
+| `--ruch-wolny` | 400 ms | najdłuższy ruch: wartość wykresu, wzrost rośliny |
+| `--ruch-krzywa` | `cubic-bezier(0.2, 0, 0, 1)` | zwykła zmiana stanu |
+| `--ruch-sprezyna` | `linear()` sprężyny (tłumienie 0,62, ok. 8% przestrzelenia); zapas `cubic-bezier(0.3, 1.35, 0.5, 1)` | to, co „ląduje”: zaznaczenie, gałka, kafel po werdykcie |
+
+- Do ok. 400 ms. Jedyny wyjątek: skok Pestki (0,7 s).
+- Tylko `transform` i `opacity`, gdzie się da.
+- Kliknięcie działa od razu. Ruch nigdy nie opóźnia działania.
+- Każdy ruch ma wersję bez ruchu. Decyduje jedno miejsce, `mniejRuchu()`: ustawienie „Mniej ruchu” (`data-mniej-ruchu` na `<html>`), a bez niego `prefers-reduced-motion`; w React `useMniejRuchu()`. `global.css` wyłącza wtedy wszystkie animacje i przejścia.
+- Bez stale działających timerów i `requestAnimationFrame`. `sprezyna()` liczy tłumioną sprężynę na rAF w stałych krokach 1/120 s i staje w spoczynku; `krzywa()` to `--ruch-krzywa` w JS; `useLiczba()` / `<Liczba>` liczą do wartości.
+- Wykresy ruszają, gdy wjadą w ekran (jeden `IntersectionObserver`, rozłączany po pierwszym razie).
+- Wejście strony nie powtarza się, gdy dane są z pamięci.
+
+Wzorce:
+
+- **Wciśnięcie:** przyciski, pigułki i kafle odpowiedzi zmniejszają się (0,96 / 0,98) i wracają sprężyną.
+- **Zaznaczenie:** gałka przełącznika i zaznaczenie pigułek oraz menu (`Plywak`) przesuwają się sprężyną.
+- **Werdykt w rundzie:** układ pytania zostaje, kafle zmieniają stan w miejscu (dobry podskakuje, zły drży), werdykt i Pestka wsuwają się pod spodem; następne pytanie wjeżdża.
+- **Rozwinięcie:** `details` animuje wysokość przez `::details-content`, gdzie przeglądarka to umie.
+- **Przeciąganie:** w układzie pulpitu (`views/UkladPulpitu.tsx`) widget idzie za wskaźnikiem, sąsiedzi przesuwają się (FLIP), po puszczeniu dociąga z prędkością rzutu. Suwak liter w arkuszu da się przeciągnąć i dociąga do najbliższej litery.
 
 ## Stany każdego ekranu
 
-Ładowanie (szkielet), pusty (jedno zdanie i jeden przycisk, który to zmienia), błąd (co się stało i „Spróbuj ponownie”), fokus klawiatury widoczny (`:focus-visible`), brak ramki na fokusie ustawianym programowo.
+Ładowanie (szkielet, po 1 s myśląca Pestka), pusty (`StanPestki`: jedno zdanie i jeden przycisk, który to zmienia), błąd (`StanPestki` przez `BladPestki` / `BladNauki`: co się stało i „Spróbuj ponownie”), fokus klawiatury widoczny (`:focus-visible`), brak ramki na fokusie ustawianym programowo.
 
 ## Lista kontrolna przed oddaniem ekranu
 
