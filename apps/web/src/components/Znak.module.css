@@ -1,8 +1,8 @@
 .znak {
   display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  font-size: var(--t-lg);
+  align-items: baseline;
+  gap: 0;
+  font-size: calc(22px * var(--skala-tekstu, 1));
   font-weight: 700;
   letter-spacing: -0.04em;
   white-space: nowrap;
@@ -30,4 +30,61 @@
 a:hover > .znak .pestka,
 a:focus-visible > .znak .pestka {
   transform: translateY(-2px) rotate(-6deg);
+}
+
+/* Litera „o” jako pierścień w kolorze napisu, z Pestką wciśniętą w środek. Rozmiar i linia jak zwykłe „o”,
+   tylko odrobinę większe, żeby Pestkę było widać. */
+.literaO {
+  display: inline-block;
+  width: 0.72em;
+  height: 0.72em;
+  margin-left: 0.03em;
+  transform: translateY(0.06em);
+  overflow: visible;
+}
+
+.pierscien {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 9;
+}
+
+.wnetrze {
+  fill: var(--primary);
+}
+
+.literaO {
+  transition: transform var(--ruch-wolny) var(--ruch-sprezyna);
+}
+
+a:hover > .znak .literaO,
+a:focus-visible > .znak .literaO {
+  transform: translateY(0.02em) rotate(-10deg);
+}
+
+/* Wylot i powrót Pestki (TutorGuide ustawia <html data-pestka>): pusta litera, gdy Pestka mówi, i podskok przy powrocie. */
+.szarpie {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+:global(html[data-pestka="poza"]) .szarpie {
+  opacity: 0;
+}
+
+:global(html[data-pestka="powrot"]) .szarpie {
+  animation: wcisk 0.5s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+@keyframes wcisk {
+  0% { transform: translateY(-10px) scale(0.8, 1.25); }
+  45% { transform: translateY(2px) scale(1.18, 0.82); }
+  75% { transform: scale(0.96, 1.05); }
+  100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-mniej-ruchu="nie"]) .szarpie {
+    animation: none;
+  }
 }

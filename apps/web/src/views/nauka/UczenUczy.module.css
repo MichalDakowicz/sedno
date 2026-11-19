@@ -184,3 +184,29 @@
     padding-inline: var(--s-4);
   }
 }
+
+/* Kolega w rozmowie: kółko z literą obok dymka, jak Pestka w czacie, żeby było widać, kto mówi. */
+.awatarKolegi {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--secondary);
+  color: var(--secondary-fg);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
+.pestkaPatrzy {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.znak {
+  display: grid;
+  place-items: center;
+  align-self: center;
+}

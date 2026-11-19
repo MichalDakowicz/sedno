@@ -1,22 +1,20 @@
-import { Link, useNavigate } from "react-router-dom";
-import { ChevronRight, RotateCcw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { RotateCcw } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
-import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/adresy";
+import { adresNauki, adresStartu } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
 import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
-import { useSesjaDiagnozy } from "../../nauka/diagnoza";
-import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
-import { etykietaZrodla, kluczPowtorki, powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
+import { BladNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
+import { powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
 import { zacznijKolejke } from "../../nauka/kolejka";
 import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
 import s from "./Powtorki.module.css";
 
 type Powtorka = Awaited<ReturnType<typeof naukaApi.powtorki>>["queue"][number];
-const odOstatniego = new Intl.RelativeTimeFormat("pl-PL");
 
 // Kolejka z serwera ma błędy jednej umiejętności obok siebie, od najnowszego. Grupa zachowuje tę kolejność.
 function grupujBledy(kolejka: Powtorka[]) {
@@ -28,12 +26,6 @@ function grupujBledy(kolejka: Powtorka[]) {
 function adresCwiczenia(poziom: Poziom, p: Powtorka) {
   const powtorz = p.mistake?.repeat_id;
   return adresStartu(poziom, p.skill_id, powtorz ? "szybka-runda" : formatRundy(p.format), powtorz ?? undefined);
-}
-
-function etykietaCwiczenia(p: Powtorka) {
-  if (p.mistake?.repeat_id) return "Powtórz zadanie";
-  if (p.mistake) return "Powtórz podobne";
-  return "Zacznij rundę";
 }
 
 export function Powtorki() {
@@ -84,8 +76,8 @@ export function Powtorki() {
       )}
 
       {grupy.length > 0 && (
-        <section className={s.sekcja} aria-label="Powtórki według umiejętności">
-          <ul className={s.grupy}>
+        <section aria-label="Powtórki według umiejętności">
+          <ul className={`wiersze ${s.wiersze}`}>
             {grupy.map((grupa) => <GrupaPowtorek key={grupa[0]!.skill_id} poziom={poziom} zadania={grupa} />)}
           </ul>
         </section>
@@ -94,44 +86,32 @@ export function Powtorki() {
   );
 }
 
-/** Umiejętność z liczbą powtórek, zwinięta; po rozwinięciu zadania z linkiem do źródła i jedną akcją każde. */
+const zadan = (n: number) => (n === 1 ? "zadanie" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "zadania" : "zadań");
+
+/** Jedna umiejętność, jeden wiersz: co czeka (błędne zadania albo zanikająca pamięć) i od razu przycisk powtórki.
+ *  Przycisk startuje kolejkę powtórek tej umiejętności, tak jak „Powtórz wszystkie” dla całej listy. */
 function GrupaPowtorek({ poziom, zadania }: { poziom: Poziom; zadania: Powtorka[] }) {
+  const navigate = useNavigate();
   const [pierwsze] = zadania;
   if (!pierwsze) return null;
+  const bledy = zadania.filter((p) => p.mistake).length;
+  const opis = [bledy > 0 && `${bledy} ${zadan(bledy)} z błędem`, bledy < zadania.length && "wylatuje z pamięci"].filter(Boolean).join(", ");
+  function powtorz() {
+    const adres = zacznijKolejke(zadania.map((p) => adresCwiczenia(poziom, p)));
+    if (adres) navigate(adres);
+  }
   return (
-    <li>
-      <details className={s.grupa}>
-        <summary className={s.grupaGlowa}>
-          <ChevronRight size={18} aria-hidden="true" className={s.strzalka} />
-          <span className="h3">{pierwsze.name}</span>
-          <span className={s.ile}>{zadania.length}</span>
-        </summary>
-        <ul className={`wiersze ${s.wiersze}`}>
-          {zadania.map((p) => <WierszPowtorki key={kluczPowtorki(p)} poziom={poziom} powtorka={p} />)}
-        </ul>
-        <Link className={`link small ${s.mapa}`} to={adresMapy(poziom, pierwsze.skill_id)}>Zobacz na mapie</Link>
-      </details>
-    </li>
-  );
-}
-
-function WierszPowtorki({ poziom, powtorka }: { poziom: Poziom; powtorka: Powtorka }) {
-  return (
-    <li className="wiersz">
+    <li className={`wiersz ${s.grupa}`}>
       <div className="wiersz-tresc">
-        <h3 className="h3">{powtorka.name}</h3>
-        <OstatnieCwiczenie powtorka={powtorka} bezPamieci />
-        <div className={`small ${s.akcje}`}>
-          <ZrodloPowtorki powtorka={powtorka} />
-          <Link className="link" to={adresMapy(poziom, powtorka.skill_id)}>Zobacz na mapie</Link>
-        </div>
+        <h3 className="h3">{pierwsze.name}</h3>
+        <p className="wiersz-opis">{opis}</p>
       </div>
-      <div className="wiersz-wartosc">{powtorka.retention !== null && <Pamiec retencja={powtorka.retention} />}</div>
+      <div className="wiersz-wartosc">{pierwsze.retention !== null && <Pamiec retencja={pierwsze.retention} />}</div>
       <div className="wiersz-akcja">
-        <Link to={adresCwiczenia(poziom, powtorka)} className={`link small ${s.cwicz}`}>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={powtorz}>
           <RotateCcw size={15} aria-hidden="true" />
-          {etykietaCwiczenia(powtorka)}
-        </Link>
+          Powtórz
+        </button>
       </div>
     </li>
   );
@@ -151,38 +131,3 @@ function Pamiec({ retencja }: { retencja: number }) {
     </span>
   );
 }
-
-function OstatnieCwiczenie({ powtorka, bezPamieci }: { powtorka: Powtorka; bezPamieci?: boolean }) {
-  const ostatnio = dataNauki(powtorka.last_practiced_at);
-  const retencja = bezPamieci ? null : powtorka.retention;
-  if (!ostatnio && retencja === null) return null;
-  const dni = powtorka.last_practiced_at ? Math.floor((Date.now() - Date.parse(powtorka.last_practiced_at)) / 86_400_000) : 0;
-  return (
-    <div className={`small muted ${s.wierszGlowny}`}>
-      {ostatnio && powtorka.last_practiced_at && (
-        <time dateTime={powtorka.last_practiced_at} title={ostatnio}>
-          {dni < 1 ? "Ćwiczone w ciągu ostatniej doby" : `Ostatnie ćwiczenie ${odOstatniego.format(-dni, "day")}`}
-        </time>
-      )}
-      {retencja !== null && <Pamiec retencja={retencja} />}
-    </div>
-  );
-}
-
-function ZrodloPowtorki({ powtorka }: { powtorka: Powtorka }) {
-  const [poziom] = usePoziomNauki();
-  const diagnoza = useSesjaDiagnozy(poziom);
-  const blad = powtorka.mistake;
-  if (!blad) return null;
-  if (blad.sheet_id) {
-    const numer = blad.question?.match(/^\d+/)?.[0];
-    const etykieta = etykietaZrodla(blad);
-    return <Link className="link" to={`/arkusze/${encodeURIComponent(blad.sheet_id)}${numer ? `#zadanie-${numer}` : ""}`}>{etykieta}</Link>;
-  }
-  if (blad.session_id) {
-    const etykieta = etykietaZrodla(blad, diagnoza);
-    return <Link className="link" to={adresRozbioru(blad.session_id)}>{etykieta}</Link>;
-  }
-  return null;
-}
-

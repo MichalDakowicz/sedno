@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Camera, ChevronRight, CircleHelp, Eye, FileText, PenLine, GraduationCap, MessagesSquare, Network, RotateCcw, Timer } from "lucide-react";
+import { Camera, ChevronRight, CircleHelp, FileText, PenLine, GraduationCap, MessagesSquare, Network, RotateCcw, Timer } from "lucide-react";
 import { TutorAvatar } from "../../components/TutorAvatar";
 import type { Poziom } from "../../arkusze/typy";
 import { useProfil } from "../../auth";
@@ -17,7 +17,6 @@ import { coDzisBezRund, MINUTY_RUNDY, useDzisAngielski, usePolecenieDnia, type S
 import { KartaDnia } from "../../components/KartaDnia";
 import { useOtwarteRundy, usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
-import { adresWizualizacji } from "../../nauka/wizualizacje";
 import { BladNauki, dataNauki, formatRundy, WyborPoziomuNauki } from "./NaukaPowtorki";
 import s from "./NaukaPowtorki.module.css";
 import { MAPA_WIEDZY_WLACZONA } from "../../nauka/wiedza";
@@ -127,7 +126,6 @@ export function Nauka() {
     ...(angielski && aiGotowe !== false ? [{ id: "sokratejski" as const, to: `/nauka/sokratejski?poziom=${poziom}${umiejetnosc ? `&umiejetnosc=${umiejetnosc.skill_id}` : ""}`, nazwa: "Rozmowa z pytaniami", kiedy: "Chcesz zrozumieć, nie tylko trafić.", ikona: <CircleHelp size={18} aria-hidden="true" /> }] : []),
     ...(wybranyPrzedmiot === "matematyka" || wybranyPrzedmiot === "informatyka" ? [{ id: "zdjecie" as const, to: "/nauka/zdjecie", nazwa: "Zdjęcie z kartki", kiedy: "Rozwiązujesz na papierze i chcesz omówienia.", ikona: <Camera size={18} aria-hidden="true" /> }] : []),
     { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Naucz Kolegę", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
-    ...(wybranyPrzedmiot !== "polski" ? [{ id: "wizualizacje" as const, to: adresWizualizacji(wybranyPrzedmiot === "matematyka" ? "parabola" : wybranyPrzedmiot === "informatyka" ? "wyszukiwanie-binarne" : "tekst-parafraza"), nazwa: "Zobacz na modelu", kiedy: "Chcesz zobaczyć, jak to działa, zanim zaczniesz ćwiczyć.", ikona: <Eye size={18} aria-hidden="true" /> }] : []),
     ...(MAPA_WIEDZY_WLACZONA ? [{ id: "mapa-wiedzy" as const, to: `/nauka/mapa-wiedzy?przedmiot=${wybranyPrzedmiot}`, nazwa: "Mapa wiedzy", kiedy: "Zbierasz pojęcia i chcesz zobaczyć, co je łączy.", ikona: <Network size={18} aria-hidden="true" /> }] : []),
   ];
 
