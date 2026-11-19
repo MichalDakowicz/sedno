@@ -13,7 +13,6 @@ import { propozycja, useWynikiKonta, type Podsumowanie } from "../konto/wyniki";
 import { WSZYSTKIE, useUklad } from "../konto/ukladPulpitu";
 import { Plywak } from "../components/Plywak";
 import { Ladowanie } from "../components/Ladowanie";
-import { Wejscia } from "../szablony/Wejscia";
 import { Dzis } from "./pulpit/Dzis";
 import { useDiagnoza, useTrybDiagnozy, zaproszenieDoDiagnozy } from "../nauka/diagnoza";
 import { adresDiagnozy } from "../nauka/adresy";
@@ -217,8 +216,6 @@ export function Dashboard() {
 
       {dane && reszta.map((w) => <w.Komponent key={w.id} {...kontekst} />)}
 
-      {/* Prototypy z src/szablony są dla nas, nie dla ucznia ani jury: tylko w trybie deweloperskim. */}
-      {dane && import.meta.env.DEV && <Wejscia tytul="W przygotowaniu" slugi={["mapa-wiedzy"]} />}
     </main>
   );
 }

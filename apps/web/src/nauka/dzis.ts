@@ -108,7 +108,7 @@ export function usePolecenieDnia(poziom: Poziom, wlaczone = true) {
   });
 }
 
-export type Sposob = "szybka-runda" | "napraw-blad" | "arkusze" | "uczen-uczy" | "rozmowa" | "zdjecie" | "sokratejski" | "pisanie";
+export type Sposob = "szybka-runda" | "napraw-blad" | "arkusze" | "uczen-uczy" | "rozmowa" | "zdjecie" | "sokratejski" | "pisanie" | "wizualizacje" | "mapa-wiedzy";
 
 /**
  * Sposób nauki, który Pestka poleca temu uczniowi: arkusz, gdy nie ma jeszcze wyniku z angielskiego (pokaże poziom),

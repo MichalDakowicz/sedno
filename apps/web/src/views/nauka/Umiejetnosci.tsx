@@ -19,6 +19,7 @@ import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
 import { NAZWA_STADIUM, stadium } from "../../nauka/stadia";
 import { useSesjaDiagnozy } from "../../nauka/diagnoza";
+import { adresWizualizacji, modelDlaUmiejetnosci } from "../../nauka/wizualizacje";
 
 import s from "./Umiejetnosci.module.css";
 
@@ -103,6 +104,9 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
         {proby.stan === "gotowe" && !!proby.dane?.length && <OstatnieProby proby={proby.dane} />}
       </div>
       <Link to={adresNauki(poziom, u.skill_id)} className={`btn btn-primary ${s.przycisk}`}>Ćwicz <ArrowRight size={16} aria-hidden="true" /></Link>
+      {modelDlaUmiejetnosci(u.skill_id) && (
+        <Link to={adresWizualizacji(modelDlaUmiejetnosci(u.skill_id)!)} className="link small">Zobacz na modelu <ArrowRight size={15} aria-hidden="true" /></Link>
+      )}
       <section className={s.blok} aria-labelledby="umiejetnosc-proby">
         {proby.stan === "ladowanie" && <Ladowanie ile={3} etykieta="Wczytuję próby" />}
         {proby.stan === "blad" && <Blad tekst="Nie udało się wczytać prób." ponow={proby.ponow} />}
