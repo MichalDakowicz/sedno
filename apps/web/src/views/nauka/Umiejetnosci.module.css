@@ -238,3 +238,9 @@
     gap: var(--s-6);
   }
 }
+
+/* Ile brakuje do następnego stadium rośliny: osobna linia, bo to odpowiedź na „czemu nie urosła”. */
+.doStadium {
+  font-weight: 500;
+  color: var(--primary-text);
+}

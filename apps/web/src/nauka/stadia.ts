@@ -25,3 +25,15 @@ export function stadium(opanowanie: number | null | undefined): Stadium {
 }
 
 export const wyzszeStadium = (a: Stadium, b: Stadium) => KOLEJNOSC_STADIOW.indexOf(b) > KOLEJNOSC_STADIOW.indexOf(a);
+
+const DOPELNIACZ: Record<Exclude<Stadium, "pestka">, string> = { kielek: "kiełka", roslina: "rośliny", drzewko: "drzewka" };
+
+/** Ile brakuje do następnego stadium, np. „do kiełka brakuje 6 pkt proc.”; null przy drzewku albo bez oceny. */
+export function doNastepnegoStadium(opanowanie: number | null | undefined): string | null {
+  if (opanowanie == null) return null;
+  const st = stadium(opanowanie);
+  if (st === "drzewko") return null;
+  const nastepne = KOLEJNOSC_STADIOW[KOLEJNOSC_STADIOW.indexOf(st) + 1] as Exclude<Stadium, "pestka">;
+  const brakuje = Math.max(1, Math.ceil((PROGI_STADIOW[nastepne] - opanowanie) * 100));
+  return `do ${DOPELNIACZ[nastepne]} brakuje ${brakuje} pkt proc.`;
+}
