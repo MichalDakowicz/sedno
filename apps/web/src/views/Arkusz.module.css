@@ -1897,3 +1897,9 @@
 .brakiLista button span {
   color: var(--muted);
 }
+
+/* Wejście do zdjęcia rozwiązania pod brudnopisem zadania z matematyki. */
+.zdjecieLink {
+  justify-self: start;
+  margin-top: var(--s-2);
+}

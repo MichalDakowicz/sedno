@@ -54,14 +54,6 @@ export const SZABLONY: Szablon[] = [
     dalej: ["sokratejski"],
     wejscie: "Pulpit: „Wybierz temat”",
   },
-  {
-    slug: "zdjecie",
-    tytul: "Analiza zdjęcia",
-    opis: "Zdjęcie rozwiązania z kartki, które Pestka czyta i omawia.",
-    grupa: "Konto i narzędzia",
-    dalej: ["rozbior"],
-    wejscie: "Arkusz: zadanie otwarte; rozmowa z Pestką",
-  },
 ];
 
 export const GRUPY: Grupa[] = ["Nauka", "Postęp", "Konto i narzędzia"];
@@ -76,6 +68,7 @@ export const WDROZONE: Record<string, { to: string; tytul: string; opis: string 
   "szybka-runda": { to: "/nauka/runda", tytul: "Szybka runda", opis: "Krótka runda jednej umiejętności." },
   rozbior: { to: "/nauka", tytul: "Rozbiór po rundzie", opis: "Po zakończeniu rundy zobacz wynik i zmianę opanowania." },
   umiejetnosci: { to: "/umiejetnosci", tytul: "Mapa umiejętności", opis: "Sprawdź opanowanie i przejrzyj dowody." },
+  "zdjecie": { to: "/nauka/zdjecie", tytul: "Zdjęcie z kartki", opis: "Pestka czyta rozwiązanie z kartki i wskazuje krok do sprawdzenia." },
   powtorki: { to: "/powtorki", tytul: "Powtórki", opis: "Wróć do błędu albo umiejętności, która zanika." },
 };
 

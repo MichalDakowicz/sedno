@@ -38,7 +38,7 @@ Szczegółowe zadania są w `README.md` każdego szablonu.
 
 ### Konto i narzędzia
 
-- [ ] [Analiza zdjęcia](zdjecie/README.md): rozwiązanie z kartki omówione przez Pestkę
+- [x] Analiza zdjęcia: działa jako `/nauka/zdjecie` (`views/nauka/Zdjecie.tsx`)
 
 ### Wspólne fundamenty (potrzebne kilku szablonom)
 

@@ -5,7 +5,6 @@ import { KrokPoKroku } from "./krok-po-kroku/KrokPoKroku";
 import { Sokratejski } from "./sokratejski/Sokratejski";
 import { Wizualizacje } from "./wizualizacje/Wizualizacje";
 import { MapaWiedzy } from "./mapa-wiedzy/MapaWiedzy";
-import { Zdjecie } from "./zdjecie/Zdjecie";
 import { WDROZONE } from "./lista";
 
 export { Spis } from "./Spis";
@@ -16,7 +15,6 @@ const WIDOKI: Record<string, ComponentType> = {
   sokratejski: Sokratejski,
   wizualizacje: Wizualizacje,
   "mapa-wiedzy": MapaWiedzy,
-  zdjecie: Zdjecie,
 };
 
 export function SzablonWidok() {

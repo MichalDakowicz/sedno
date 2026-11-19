@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowRight, ChevronRight, FileText, GraduationCap, MessagesSquare, Sparkles, Timer, Wrench } from "lucide-react";
+import { ArrowRight, Camera, ChevronRight, FileText, GraduationCap, MessagesSquare, Sparkles, Timer, Wrench } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
 import { useProfil } from "../../auth";
 import { KartaDnia } from "../../components/KartaDnia";
@@ -104,6 +104,7 @@ export function Nauka() {
     ...(doSposobow || mapa.stan === "ladowanie" ? [{ id: "szybka-runda" as const, to: doSposobow ? adresStartu(poziom, doSposobow.skill_id) : "#cos-innego", nazwa: "Szybka runda", kiedy: "Masz 5 minut.", ikona: <Timer size={18} aria-hidden="true" /> }] : []),
     ...(doNaprawy || mapa.stan === "ladowanie" ? [{ id: "napraw-blad" as const, to: doNaprawy ? adresStartu(poziom, doNaprawy.skill_id, "napraw-blad") : "#cos-innego", nazwa: "Napraw błąd", kiedy: "Mylisz formy i chcesz wiedzieć dlaczego.", ikona: <Wrench size={18} aria-hidden="true" /> }] : []),
     { id: "arkusze", to: "/arkusze?przedmiot=angielski", nazwa: "Arkusze CKE", kiedy: "Przed maturą próbną albo gdy masz dwie godziny.", ikona: <FileText size={18} aria-hidden="true" /> },
+    { id: "zdjecie", to: "/nauka/zdjecie", nazwa: "Zdjęcie z kartki", kiedy: "Rozwiązujesz na papierze i chcesz omówienia.", ikona: <Camera size={18} aria-hidden="true" /> },
     { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Uczeń uczy AI", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
     // Wiersz stoi też w trakcie sprawdzania AI (undefined), żeby lista nie urosła o wiersz po chwili.
     ...(aiGotowe !== false ? [{ id: "rozmowa" as const, to: "/tutor", nazwa: "Rozmowa z Pestką", kiedy: "Coś jest niejasne i potrzebne jest wyjaśnienie.", ikona: <MessagesSquare size={18} aria-hidden="true" /> }] : []),

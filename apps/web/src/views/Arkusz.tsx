@@ -1,6 +1,7 @@
 import { createContext, Fragment, useCallback, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardCheck, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Camera, Check, ChevronDown, ChevronLeft, ChevronRight, ClipboardCheck, FileText, Headphones, List, MessagesSquare, Pencil, RotateCcw, Timer, X } from "lucide-react";
+import { adresZdjecia } from "./nauka/Zdjecie";
 import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
 import { OPIS_FORMY, opisOceny, opisWypelnienia, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
@@ -1164,6 +1165,12 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           }
           duzyRysunek={[...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie))}
         />
+      )}
+      {/* Rozwiązanie z kartki omawia Pestka; w trakcie pisania na czas pomocy nie ma, jak przy brudnopisie. */}
+      {ostatnia && arkusz.przedmiot === "matematyka" && !(postep.czas && !gotowe) && zadanie.pytania.some((p) => p.typ === "otwarte") && (
+        <Link to={adresZdjecia(arkusz.id, zadanie.nr)} className={`link small ${styles.zdjecieLink}`}>
+          <Camera size={15} aria-hidden="true" /> Zdjęcie rozwiązania z kartki
+        </Link>
       )}
       {ostatnia && arkusz.przedmiot === "informatyka" && zadanie.pytania.some((p) => p.typ === "otwarte" && !p.kod) && (
         <MaterialyWiersz
