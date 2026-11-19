@@ -189,14 +189,14 @@ function PytanieRundy({
   );
 }
 
-type Reakcja = { seria: number; zleZRzedu: number; dolozone: boolean };
+type Reakcja = { seria: number; zleZRzedu: number; dolozone: boolean; diagnoza: boolean };
 
 function tekstReakcji(o: OdpowiedzNauki, r: Reakcja, wyjasnienie: boolean): string {
   const n = o.position;
   const pominiete = !o.correct && !o.answer.trim();
   const glowny = o.correct
     ? r.seria >= 3 ? wybierz(glos.seria, n).replace("{n}", String(r.seria)) : wybierz(glos.dobrze, n)
-    : r.zleZRzedu >= 3 ? wybierz(glos.blad.zwolnij, n)
+    : r.zleZRzedu >= 3 ? wybierz(r.diagnoza ? glos.blad.zwolnijDiagnoza : glos.blad.zwolnij, n)
       : pominiete ? wybierz(glos.blad.pominiete, n)
         : wybierz(wyjasnienie ? glos.blad.zle : glos.blad.bezWyjasnienia, n);
   return r.dolozone ? `${glowny} ${wybierz(glos.blad.dokladam, n)}` : glowny;
@@ -389,7 +389,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
       )}
       {ocena ? (
         <OcenaRundy key={ocena.position} odpowiedz={ocena} sesja={sesja.id} skonczona={!!sesja.result} koniec={koniec}
-          reakcja={{ seria: sesja.streak, zleZRzedu, dolozone: dolozone === ocena.position }}
+          reakcja={{ seria: sesja.streak, zleZRzedu, dolozone: dolozone === ocena.position, diagnoza }}
           dalej={() => { zachowaj(null); setUstalFokus(true); setOcenaPoz(null); }} />
       ) : pytanie ? (
         <PytanieRundy key={pytanie.position} pytanie={pytanie} tekst={wPytaniu?.tekst ?? ""}

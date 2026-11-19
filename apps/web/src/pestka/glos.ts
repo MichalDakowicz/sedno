@@ -28,6 +28,8 @@ export const glos = {
     bezWyjasnienia: ["Tym razem nie. Zerknij na wyjaśnienie.", "To nie ta. Wyjaśnienie jest pod spodem."],
     pominiete: ["Pominięte. Poprawną odpowiedź widać na zielono.", "Bez odpowiedzi. Zerknij, która była dobra."],
     zwolnij: ["Zwolnijmy. Przy następnym weź podpowiedź, jeśli utkniesz.", "Trzy z rzędu nie wyszły. Zwolnijmy i czytajmy uważniej."],
+    /** Trzy złe z rzędu w diagnozie: tam nie ma podpowiedzi, a błędy pokazują, od czego zacząć. */
+    zwolnijDiagnoza: ["Trzy z rzędu nie wyszły. Nic nie szkodzi: tak szukam, od czego zacząć.", "Te są trudniejsze. Spokojnie, diagnoza ma pokazać właśnie to."],
     dokladam: ["Dokładam jedno zadanie, żeby to utrwalić.", "Jeszcze jedno zadanie na utrwalenie."],
     czesciowo: ["Część się zgadza. Zerknij, gdzie brakuje punktu.", "Blisko. Jedno kryterium jeszcze nie wyszło."],
     sprobuj: ["Tym razem nie. Spróbuj jeszcze raz albo weź następne.", "To nie to. Sprawdź obliczenia i spróbuj ponownie."],
