@@ -230,6 +230,16 @@ export function TutorGuide() {
 
   const modeRef = useRef<Mode>("rest");
   const posRef = useRef<Point>(pos);
+  // Pierwsze miejsce to „o” logo, zanim ruszy pierwsza wskazówka: inaczej Pestka wlatywałaby z rogu ekranu.
+  // Dopóki paska z logo nie ma, przewodnik na spoczynku jest niewidoczny.
+  const [maDom, ustawMaDom] = useState(() => !!dom());
+  useLayoutEffect(() => {
+    if (!dom()) return;
+    const p = restPoint();
+    posRef.current = p;
+    setPos(p);
+    ustawMaDom(true);
+  }, []);
   const focused = useRef<HTMLElement | null>(null);
   // Element, na którym Pestka siedzi: nowy cel to skok, ten sam (przewijanie) to tylko podążanie.
   const ostatniCel = useRef<HTMLElement | null>(null);
@@ -355,7 +365,10 @@ export function TutorGuide() {
     let frame = 0;
     const onChange = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => sync(false));
+      frame = requestAnimationFrame(() => {
+        sync(false);
+        if (dom()) ustawMaDom(true);
+      });
     };
     window.addEventListener("scroll", onChange, { passive: true });
     window.addEventListener("resize", onChange);
@@ -567,7 +580,7 @@ export function TutorGuide() {
       <div
         ref={guideRef}
         className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""} ${wDomu ? styles.wDomu : ""}`}
-        style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+        style={{ transform: `translate(${pos.x}px, ${pos.y}px)`, ...(!maDom && resting ? { opacity: 0 } : {}) }}
       >
         <button
           key={`a${hop}`}

@@ -137,7 +137,7 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
           </div>
           <p className={`small muted ${w.tydzienDol}`}>
             {podsumowanie && <span>{podsumowanie}</span>}
-            <button type="button" className="link small" aria-expanded={edycja} onClick={() => ustawEdycje((e) => !e)}>
+            <button type="button" className={`link small ${w.przyciskLink}`} aria-expanded={edycja} onClick={() => ustawEdycje((e) => !e)}>
               {edycja ? "Gotowe" : "Zmień dni nauki"}
             </button>
           </p>
