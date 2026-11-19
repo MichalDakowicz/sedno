@@ -9,7 +9,9 @@ import s from "./Gotowosc.module.css";
 
 const OPIS = "Gotowość to średnie opanowanie umiejętności z mapy, ważone punktami, które dają na maturze. Umiejętności bez oceny liczą się jako zero, więc wynik rośnie dopiero, gdy sprawdzisz całą maturę. Przy niewielu próbach pokazuję ją w kreskę, bo to wstępna ocena.";
 
-export function Gotowosc({ umiejetnosci, cel, prognoza, maly = false, naglowek, children }: {
+export function Gotowosc({ umiejetnosci, cel, prognoza, maly = false, naglowek, bezDanych, children }: {
+  /** Zdanie, gdy żadna umiejętność nie ma wyniku (inne dla przedmiotów liczonych z arkuszy). */
+  bezDanych?: string;
   umiejetnosci: Umiejetnosc[];
   cel: number | null;
   prognoza?: number | null;
@@ -33,7 +35,7 @@ export function Gotowosc({ umiejetnosci, cel, prognoza, maly = false, naglowek, 
         <Pierscien wartosc={0} wstepna srodek="?" rozmiar={maly ? 56 : 132} opis="Gotowość: za mało danych." />
         <div className={s.tresc}>
           <p className={s.tytul}>{naglowek ?? "Gotowość"}</p>
-          <p className={s.wniosek}>{maly ? "jeszcze bez wyniku" : "Za mało odpowiedzi, żeby ją policzyć. Pierwsza runda da pierwszy wynik."}</p>
+          <p className={s.wniosek}>{maly ? "jeszcze bez wyniku" : (bezDanych ?? "Za mało odpowiedzi, żeby ją policzyć. Pierwsza runda da pierwszy wynik.")}</p>
           {children}
         </div>
       </div>

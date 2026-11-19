@@ -271,6 +271,17 @@ textarea {
   border-color: var(--primary);
 }
 
+/* Przycisk w stylu linku: bez tła i ramek przeglądarki, z tą samą kreską pod spodem. */
+button.link {
+  padding: 0 0 2px;
+  border-width: 0 0 1px;
+  border-style: solid;
+  background: none;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
 /* Element, który właśnie komentuje tutor. */
 /* Pierścień jest osobną warstwą z własnym zaokrągleniem, więc nie zmienia kształtu samego elementu. */
 .tutor-focus {

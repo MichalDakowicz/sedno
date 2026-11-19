@@ -240,3 +240,10 @@
   }
 }
 
+
+/* Akcje w panelu działu: główna i rozmowa z Pestką obok siebie. */
+.akcje {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}

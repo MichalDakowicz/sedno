@@ -1518,9 +1518,14 @@
 
 /* Zadanie omawiane teraz z Pestką. */
 .task[data-omawiane="true"] {
+  /* Ten sam odstęp ramki od treści z każdej strony, a ramka przylega do zadania: bez kreski działu w środku.
+     Ujemny margines boczny zostawia tekst w tej samej kolumnie co reszta arkusza. */
+  padding: var(--s-5);
+  margin-inline: calc(var(--s-5) * -1);
+  border-top-color: transparent;
   outline: 2px solid var(--primary);
-  outline-offset: 12px;
-  border-radius: var(--r-md);
+  outline-offset: 0;
+  border-radius: var(--r-lg);
   transition: outline-color var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
