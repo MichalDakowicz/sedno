@@ -14,6 +14,14 @@
     var(--shadow-float);
 }
 
+/* Zaznaczona pigułka wyboru (.pigulka[aria-pressed]) jako jeden przesuwany wskaźnik. */
+.plywak.pigulka {
+  background: var(--primary-soft);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
 .ukryty {
   display: none;
 }
@@ -42,7 +50,9 @@
 
 .plywak ~ [data-aktywny="true"],
 .plywak ~ * [data-aktywny="true"],
-.plywak ~ [aria-pressed="true"] {
+.plywak ~ [aria-pressed="true"],
+.plywak ~ [aria-current="page"],
+.plywak ~ [aria-checked="true"] {
   background: transparent !important;
   border-color: transparent !important;
   box-shadow: none !important;

@@ -10,6 +10,7 @@ import { Ladowanie } from "../components/Ladowanie";
 import { WIDGETY, widget } from "./pulpit/widgety";
 import { NaglowekStrony } from "../components/NaglowekStrony";
 import s from "./UkladPulpitu.module.css";
+import { Pigulki } from "../components/Pigulki";
 
 const UKLADY: { id: Uklad; nazwa: string }[] = [
   { id: "nauka", nazwa: "Nauka" },
@@ -156,7 +157,7 @@ export function UkladPulpitu() {
 
       <section className={s.sekcja}>
         <span className="label">Pulpit</span>
-        <div className="pigulki" role="group" aria-label="Przedmiot, którego pulpit układasz">
+        <Pigulki role="group" aria-label="Przedmiot, którego pulpit układasz">
           {[{ id: WSZYSTKIE, nazwa: "Wszystkie" }, ...moje.map((m) => ({ id: m.id as string, nazwa: przedmiot(m.id)!.nazwa }))].map((o) => (
             <button
               key={o.id}
@@ -168,13 +169,13 @@ export function UkladPulpitu() {
               {o.nazwa}
             </button>
           ))}
-        </div>
+        </Pigulki>
         <p className="muted small">Pulpit: {nazwaPrzedmiotu}.</p>
       </section>
 
       <section className={s.sekcja}>
         <span className="label">Układ</span>
-        <div className="pigulki" role="group" aria-label="Gotowe układy">
+        <Pigulki role="group" aria-label="Gotowe układy">
           {UKLADY.map((u) => (
             <button
               key={u.id}
@@ -188,7 +189,7 @@ export function UkladPulpitu() {
               {u.nazwa}
             </button>
           ))}
-        </div>
+        </Pigulki>
       </section>
 
       <section className={s.sekcja}>

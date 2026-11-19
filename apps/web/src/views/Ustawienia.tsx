@@ -12,6 +12,7 @@ import {
 } from "../konto/ustawienia";
 import s from "./Ustawienia.module.css";
 import { NaglowekStrony } from "../components/NaglowekStrony";
+import { Pigulki } from "../components/Pigulki";
 
 const MOTYWY: { id: Motyw; nazwa: string }[] = [
   { id: "system", nazwa: "Jak system" },
@@ -27,13 +28,13 @@ const TEKSTY: { id: Tekst; nazwa: string }[] = [
 
 function Wybor<T extends string>({ opis, opcje, wartosc, onChange }: { opis: string; opcje: { id: T; nazwa: string }[]; wartosc: T; onChange: (v: T) => void }) {
   return (
-    <div className="pigulki" role="group" aria-label={opis}>
+    <Pigulki role="group" aria-label={opis}>
       {opcje.map((o) => (
         <button key={o.id} type="button" className="pigulka" aria-pressed={o.id === wartosc} onClick={() => onChange(o.id)}>
           {o.nazwa}
         </button>
       ))}
-    </div>
+    </Pigulki>
   );
 }
 

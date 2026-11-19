@@ -20,6 +20,7 @@ import { PestkaMowi, tekstyPestki, wybierz } from "./PestkaRundy";
 import { odczytajRunde, UUID_SESJI, zapiszRunde } from "./sesjaRundy";
 import s from "./SzybkaRunda.module.css";
 import z from "./Zadania.module.css";
+import { Pigulki } from "../../components/Pigulki";
 
 export const PRZEDMIOTY_ZADAN = ["matematyka", "informatyka"] as const;
 type PrzedmiotZadan = typeof PRZEDMIOTY_ZADAN[number];
@@ -75,14 +76,14 @@ export function Zadania() {
   return (
     <main className={`container ${s.strona}`}>
       <NaglowekStrony wstecz={{ do: "/nauka", nazwa: "Nauka" }} tytul="Zadania" lead="Nowe dane w każdym zadaniu, wynik od razu.">
-        <div className="pigulki" role="group" aria-label="Przedmiot">
+        <Pigulki role="group" aria-label="Przedmiot">
           {PRZEDMIOTY_ZADAN.map((p) => (
             <button key={p} type="button" className="pigulka" aria-pressed={p === przedmiot} onClick={() => wybierzPrzedmiot(p)}>
               <SubjectIcon subject={daneP(p)!} size="sm" />
               {daneP(p)!.nazwa}
             </button>
           ))}
-        </div>
+        </Pigulki>
       </NaglowekStrony>
       <section className={`${s.sekcja} ${z.bezLinii}`} aria-labelledby="typy-zadan">
         <h2 className="h2" id="typy-zadan">Typy zadań</h2>

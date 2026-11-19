@@ -118,7 +118,7 @@ Zanim napiszesz własny styl, użyj istniejącego. Ten sam element wygląda tak 
 | Przycisk główny | `.btn .btn-primary` | **jeden na ekran**. To, co uczeń ma zrobić teraz. |
 | Przycisk poboczny | `.btn .btn-ghost`, `.btn-secondary` | krótka etykieta (1–2 słowa), ten sam styl dla całej grupy. Przycisk-przełącznik (`aria-pressed`, np. „Strony” w arkuszu) włączony wygląda jak zaznaczona pigułka. |
 | Link-akcja | `.link` | akcje poboczne w osobnym rzędzie pod przyciskiem głównym, ze strzałką. Metadane nie wyglądają jak link. |
-| Wybór jednej z kilku | `.pigulki` / `.pigulka` | jeden stan zaznaczenia w całej aplikacji. Poziom matury zawsze jako pigułki pod nagłówkiem. |
+| Wybór jednej z kilku | `components/Pigulki.tsx` (`.pigulki` / `.pigulka`) | jeden stan zaznaczenia w całej aplikacji; zaznaczenie przesuwa się między pigułkami jak w pasku menu (`Plywak`). Wybór kilku naraz to zwykłe `.pigulki` bez przesuwania. Poziom matury zawsze jako pigułki pod nagłówkiem. |
 | Lista rozwijana | `.select` | tylko gdy opcji jest za dużo na pigułki |
 | Pole | `.input` | |
 | Przełącznik | `.przelacznik` | włączony pomarańczowy |

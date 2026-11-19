@@ -3,6 +3,7 @@ import { SubjectIcon } from "../../components/icons";
 import { nazwaPoziomu } from "../../konto/przedmioty";
 import { poziomyNauki } from "../../nauka/stan";
 import s from "./NaukaPowtorki.module.css";
+import { Pigulki } from "../../components/Pigulki";
 
 const nazwaDaty = new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long", timeZone: "Europe/Warsaw" });
 export const procentNauki = new Intl.NumberFormat("pl-PL", { style: "percent" });
@@ -21,13 +22,13 @@ export function WyborPoziomuNauki({ poziom, ustawPoziom }: { poziom: Poziom; ust
   return (
     <div className={s.pole} role="group" aria-labelledby="poziom-matury">
       <span id="poziom-matury" className="small muted">Poziom matury</span>
-      <div className="pigulki">
+      <Pigulki>
         {poziomyNauki.map((p) => (
           <button key={p} type="button" className="pigulka" aria-pressed={p === poziom} onClick={() => ustawPoziom(p)}>
             {nazwaPoziomu[p]}
           </button>
         ))}
-      </div>
+      </Pigulki>
     </div>
   );
 }

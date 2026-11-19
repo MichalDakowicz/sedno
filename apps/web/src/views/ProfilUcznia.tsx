@@ -9,18 +9,19 @@ import { useWynikiKonta } from "../konto/wyniki";
 import { useListaArkuszy } from "../arkusze/dane";
 import s from "./ProfilUcznia.module.css";
 import { NaglowekStrony } from "../components/NaglowekStrony";
+import { Pigulki } from "../components/Pigulki";
 
 function Wybor({ pytanie, opcje, wybrana, onZmiana }: { pytanie: string; opcje: Opcja[]; wybrana?: string; onZmiana: (id: string) => void }) {
   return (
     <div className={s.pytanie} role="group" aria-label={pytanie} data-tutor-about="Wybraną odpowiedź wyczyścisz, klikając ją jeszcze raz.">
       <span>{pytanie}</span>
-      <div className="pigulki">
+      <Pigulki>
         {opcje.map((o) => (
           <button key={o.id} type="button" aria-pressed={o.id === wybrana} className="pigulka" onClick={() => onZmiana(o.id)}>
             {o.nazwa}
           </button>
         ))}
-      </div>
+      </Pigulki>
     </div>
   );
 }

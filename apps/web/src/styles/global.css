@@ -341,6 +341,7 @@ textarea {
 
 /* Pigułki wyboru (poziom matury, przedmiot, motyw): jeden wygląd zaznaczenia w całej aplikacji. */
 .pigulki {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: var(--s-2);
