@@ -303,3 +303,80 @@
 .wOku .avatar > :first-child {
   transform: scale(0.3) !important;
 }
+
+/* Wyrywanie się z „o”: mała, wciśnięta w literę Pestka szarpie się na boki, rozciąga w górę i zgniata. */
+.szarpie .avatar {
+  filter: none;
+}
+
+.szarpie .avatar > :first-child {
+  animation: szarpanie 0.65s ease-in-out both !important;
+}
+
+@keyframes szarpanie {
+  0% { transform: scale(0.32); }
+  15% { transform: translateX(-4px) rotate(-14deg) scale(0.4, 0.3); }
+  30% { transform: translateX(4px) rotate(14deg) scale(0.44, 0.32); }
+  45% { transform: translateX(-5px) rotate(-16deg) scale(0.38, 0.42); }
+  60% { transform: translateX(5px) rotate(12deg) scale(0.48, 0.3); }
+  78% { transform: translateY(-4px) scale(0.34, 0.56); }
+  100% { transform: translateY(-10px) scale(0.42, 0.72); }
+}
+
+/* „Pyk” po wyrwaniu: rozpłaszcza się i odbija w locie. */
+.wyskok .avatar > :first-child {
+  animation: wyskok 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) both !important;
+}
+
+@keyframes wyskok {
+  0% { transform: scale(0.42, 0.75); }
+  35% { transform: scale(1.25, 0.78); }
+  65% { transform: scale(0.9, 1.12); }
+  100% { transform: none; }
+}
+
+/* Wciskanie się z powrotem w literę. */
+.wciska .avatar {
+  filter: none;
+}
+
+.wciska .avatar > :first-child {
+  animation: wciskanie 0.45s ease-in both !important;
+}
+
+@keyframes wciskanie {
+  0% { transform: translateY(-6px) scale(0.3, 0.42); }
+  40% { transform: translateY(2px) scale(0.42, 0.24); }
+  70% { transform: scale(0.26, 0.36); }
+  100% { transform: scale(0.3); }
+}
+
+/* Krople: pomarańczowe kulki pryskają z „o” na boki i opadają. */
+.krople {
+  position: fixed;
+  z-index: 46;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.krople span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: var(--primary);
+  animation: kropla 0.75s cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+}
+
+@keyframes kropla {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  55% { opacity: 1; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.9); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx) * 1.25), calc(-50% + var(--dy) + 26px)) scale(0.45); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-mniej-ruchu="nie"]) .krople {
+    display: none;
+  }
+}

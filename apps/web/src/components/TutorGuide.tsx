@@ -87,8 +87,12 @@ function dom(): DOMRect | null {
 }
 
 const srodekO = (o: DOMRect): Point => ({ x: o.left + o.width / 2 - AV / 2, y: o.top + o.height / 2 - AV / 2 });
-const WYLOT_MS = 460; // szarpanie w „o”, zanim Pestka się uwolni
-const POWROT_MS = 600; // wciskanie się z powrotem i krople
+const WYLOT_MS = 650; // szarpanie w „o”, zanim Pestka się wyrwie
+const WYSKOK_MS = 450; // „pyk” po wyrwaniu: rozpłaszczenie i odbicie
+const WCISK_MS = 450; // wciskanie się z powrotem w literę
+const KROPLE_MS = 750;
+// Krople przy wyrwaniu i wciśnięciu: kierunek lotu w pikselach i średnica. Opadają jeszcze trochę pod koniec.
+const KROPLE: [number, number, number][] = [[-34, -26, 8], [-44, 2, 6], [-26, 22, 7], [32, -30, 8], [46, -2, 6], [28, 20, 7], [-8, -42, 6], [12, -40, 7], [0, 30, 5]];
 
 /** Stan litery „o” w logu (Znak.module.css): szarpanie przed wylotem, pusta litera, wciskanie się z powrotem. */
 function stanLogo(stan: "wylot" | "poza" | "powrot" | null) {
@@ -242,6 +246,13 @@ export function TutorGuide() {
   const wylot = useRef<{ timer: number; cel: [Point, Mode, boolean] } | null>(null);
   const powrot = useRef<number | null>(null);
   const [wOku, ustawWOku] = useState(false);
+  const [faza, ustawFaze] = useState<"szarpie" | "wyskok" | "wciska" | null>(null);
+  const [krople, ustawKrople] = useState<{ x: number; y: number; id: number } | null>(null);
+  const pryskaj = (p: Point) => {
+    const id = Date.now();
+    ustawKrople({ x: p.x + AV / 2, y: p.y + AV / 2, id });
+    window.setTimeout(() => ustawKrople((k) => (k?.id === id ? null : k)), KROPLE_MS);
+  };
   useEffect(() => () => stanLogo(null), []);
   const focused = useRef<HTMLElement | null>(null);
   // Element, na którym Pestka siedzi: nowy cel to skok, ten sam (przewijanie) to tylko podążanie.
@@ -284,40 +295,47 @@ export function TutorGuide() {
       powrot.current = null;
       stanLogo("poza");
       ustawWOku(false);
+      ustawFaze(null);
     } else if (o && !mniejRuchu() && modeRef.current === "rest" && m === "perch") {
-      // Wylot: Pestka szarpie się w „o”, pryskają krople, wyskakuje z litery i leci do celu, rosnąc po drodze.
-      stanLogo("wylot");
+      // Wylot: Pestka siedzi w „o” (litera w logu pustoszeje) i szarpie się, żeby się uwolnić; potem wyrywa się
+      // z kroplami i „pyk”, i leci do celu. Ostatni cel z tego czasu wygrywa.
+      stanLogo("poza");
+      const start = srodekO(o);
+      posRef.current = start;
+      modeRef.current = "perch";
+      setMode("perch");
+      setPos(start);
+      ustawFaze("szarpie");
       wylot.current = {
         cel: [p, m, jump],
         timer: window.setTimeout(() => {
-          // Blokada zostaje do startu lotu: inaczej przewijanie w tych dwóch klatkach przestawiłoby Pestkę bez animacji.
-          stanLogo("poza");
-          const start = srodekO(dom() ?? o);
-          posRef.current = start;
-          modeRef.current = "perch";
-          setMode("perch");
-          setPos(start);
-          ustawWOku(true);
-          // Timer zamiast klatek animacji: małe „o” musi się najpierw narysować, a klatki stoją w karcie w tle.
-          window.setTimeout(() => {
-            const [cp, cm] = wylot.current!.cel;
-            wylot.current = null;
-            ustawWOku(false);
-            przenies(cp, cm, true);
-          }, 40);
+          const [cp, cm] = wylot.current!.cel;
+          wylot.current = null;
+          pryskaj(start);
+          ustawFaze("wyskok");
+          window.setTimeout(() => ustawFaze((f) => (f === "wyskok" ? null : f)), WYSKOK_MS);
+          przenies(cp, cm, true);
         }, WYLOT_MS),
       };
       return;
     } else if (o && !mniejRuchu() && modeRef.current === "perch" && m === "rest") {
-      // Powrót: leci do „o”, maleje, wciska się w literę z kroplami; Pestka w rogu stoi tam cały czas.
+      // Powrót: leci do „o” i maleje, wciska się w literę z kroplami, litera podskakuje. Pestka w rogu stała cały czas.
+      const cel = srodekO(o);
       ustawWOku(true);
-      przenies(srodekO(o), "perch", true);
+      przenies(cel, "perch", true);
       powrot.current = window.setTimeout(() => {
-        powrot.current = null;
-        stanLogo("powrot");
-        window.setTimeout(() => stanLogo(null), POWROT_MS);
         ustawWOku(false);
-        przenies(p, "rest", false);
+        ustawFaze("wciska");
+        pryskaj(cel);
+        powrot.current = window.setTimeout(() => {
+          powrot.current = null;
+          ustawFaze(null);
+          stanLogo("powrot");
+          window.setTimeout(() => {
+            if (document.documentElement.dataset.pestka === "powrot") stanLogo(null);
+          }, 600);
+          przenies(p, "rest", false);
+        }, WCISK_MS);
       }, MOVE_MS);
       return;
     }
@@ -624,6 +642,13 @@ export function TutorGuide() {
   return (
     <>
       {pasDoku && <div className={styles.dok} aria-hidden="true" />}
+      {krople && (
+        <div key={krople.id} className={styles.krople} style={{ left: krople.x, top: krople.y }} aria-hidden="true">
+          {KROPLE.map(([dx, dy, r], i) => (
+            <span key={i} style={{ width: r, height: r, ["--dx" as string]: dx + "px", ["--dy" as string]: dy + "px" }} />
+          ))}
+        </div>
+      )}
       {!resting && (
         <div className={styles.guide} style={{ transform: `translate(${restPoint().x}px, ${restPoint().y}px)` }}>
           <button type="button" className={styles.avatar} onClick={() => open()} aria-label="Porozmawiaj z Pestką" title="Porozmawiaj z Pestką">
@@ -640,7 +665,7 @@ export function TutorGuide() {
       )}
       <div
         ref={guideRef}
-        className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""} ${wOku ? styles.wOku : ""}`}
+        className={`${styles.guide} ${moving ? styles.moving : ""} ${resting ? styles.resting : ""} ${wOku ? styles.wOku : ""} ${faza ? styles[faza] : ""}`}
         style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
       >
         <button

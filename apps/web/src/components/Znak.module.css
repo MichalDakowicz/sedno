@@ -62,14 +62,10 @@ a:focus-visible > .znak .literaO {
   transform: translateY(0.02em) rotate(-10deg);
 }
 
-/* Wylot i powrót Pestki (TutorGuide ustawia <html data-pestka>): szarpanie, pusta litera, wciskanie się z kroplami. */
+/* Wylot i powrót Pestki (TutorGuide ustawia <html data-pestka>): pusta litera, gdy Pestka mówi, i podskok przy powrocie. */
 .szarpie {
   transform-box: fill-box;
   transform-origin: 50% 50%;
-}
-
-:global(html[data-pestka="wylot"]) .szarpie {
-  animation: szarp 0.46s ease-in-out;
 }
 
 :global(html[data-pestka="poza"]) .szarpie {
@@ -80,16 +76,6 @@ a:focus-visible > .znak .literaO {
   animation: wcisk 0.5s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
 
-@keyframes szarp {
-  0% { transform: none; }
-  15% { transform: translateX(-4px) rotate(-8deg) scale(1.04, 0.94); }
-  30% { transform: translateX(4px) rotate(8deg) scale(1.06, 0.92); }
-  45% { transform: translateX(-5px) rotate(-10deg) scale(1.02, 1); }
-  60% { transform: translateX(5px) rotate(10deg) scale(1.08, 0.9); }
-  80% { transform: translateY(-3px) scale(0.94, 1.12); }
-  100% { transform: translateY(-8px) scale(0.86, 1.2); }
-}
-
 @keyframes wcisk {
   0% { transform: translateY(-10px) scale(0.8, 1.25); }
   45% { transform: translateY(2px) scale(1.18, 0.82); }
@@ -97,26 +83,8 @@ a:focus-visible > .znak .literaO {
   100% { transform: none; }
 }
 
-.kropla {
-  fill: var(--primary);
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
-}
-
-:global(html[data-pestka="poza"]) .kropla,
-:global(html[data-pestka="powrot"]) .kropla {
-  animation: kropla 0.55s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-
-@keyframes kropla {
-  0% { opacity: 1; transform: translate(0, 0) scale(1); }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.4); }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  :root:not([data-mniej-ruchu="nie"]) .szarpie,
-  :root:not([data-mniej-ruchu="nie"]) .kropla {
+  :root:not([data-mniej-ruchu="nie"]) .szarpie {
     animation: none;
   }
 }
