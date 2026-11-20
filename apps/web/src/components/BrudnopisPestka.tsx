@@ -20,7 +20,7 @@ export function komunikatPestki(kod: string) {
   return aiErrorText(kod);
 }
 
-const BEZ_PONOWIENIA = new Set(["no_provider", "bad_credential", "image_not_supported", "not_signed_in", "bad_base_url"]);
+const BEZ_PONOWIENIA = new Set(["no_provider", "bad_credential", "image_not_supported", "not_signed_in", "bad_base_url", "daily_limit"]);
 
 export type FazaPestki = "pole" | "mysli" | "pisze" | "dymek" | "kiwa";
 export type DymekPestki = {

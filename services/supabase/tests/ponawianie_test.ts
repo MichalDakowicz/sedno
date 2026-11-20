@@ -43,6 +43,13 @@ Deno.test("Błąd sieci (TypeError) też jest ponawiany", async () => {
   assert.equal((await chatRetry(route, req, { ...opts, fetchImpl: f })).text, "cześć");
 });
 
+Deno.test("TypeError z naszego parsowania nie jest ponawiany", async () => {
+  const zlyKsztalt = () => Response.json({ choices: [{ message: { content: "x", tool_calls: [null] } }] });
+  const { f, wywolania } = fake(zlyKsztalt, ok);
+  await assert.rejects(chatRetry(route, req, { ...opts, fetchImpl: f }), TypeError);
+  assert.equal(wywolania.length, 1);
+});
+
 Deno.test("Błąd 400 nie jest ponawiany", async () => {
   const { f, wywolania } = fake(() => blad(400), ok);
   await assert.rejects(chatRetry(route, req, { ...opts, fetchImpl: f, fallback: async () => lekka }), (e) => e instanceof LlmError && e.status === 400);

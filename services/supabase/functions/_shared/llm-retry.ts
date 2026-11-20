@@ -14,12 +14,12 @@ export interface RetryOptions<R extends Route = Route> {
 export type Answered<R> = ChatResult & { route: R };
 export type RetryEvent<R> = Exclude<StreamEvent, { type: "done" }> | { type: "done"; result: ChatResult; route: R };
 
-const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
+const RETRY_STATUS = new Set([0, 429, 500, 502, 503, 504]);
 
-// Ponawiamy tylko prawdziwe odpowiedzi HTTP dostawcy i błędy sieci; błędy zrobione przez nasz kod kosztowałyby kolejną generację.
+// Ponawiamy tylko prawdziwe odpowiedzi HTTP dostawcy i błędy sieci (status 0, patrz llm.ts); błędy zrobione przez nasz kod kosztowałyby kolejną generację.
 function retryable(e: unknown, signal?: AbortSignal): boolean {
   if (signal?.aborted) return false;
-  return e instanceof TypeError || (e instanceof LlmError && e.upstream && RETRY_STATUS.has(e.status));
+  return e instanceof LlmError && e.upstream && RETRY_STATUS.has(e.status);
 }
 
 function wait(ms: number, signal?: AbortSignal): Promise<void> {

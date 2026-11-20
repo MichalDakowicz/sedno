@@ -11,9 +11,9 @@ export class BladPestki extends Error {
   }
 }
 
-// Chwilowy błąd modelu ponawiamy raz sami, zanim uczeń zobaczy komunikat. Akcje z zapisem (ocena) mają id próby,
+// Zły kształt odpowiedzi modelu ponawiamy raz sami (provider_failed serwer ponowił już sam, z zapasową trasą), zanim uczeń zobaczy komunikat. Akcje z zapisem (ocena) mają id próby,
 // więc drugie wywołanie nie tworzy duplikatu.
-const CHWILOWE = new Set(["provider_failed", "bad_model_response"]);
+const CHWILOWE = new Set(["bad_model_response"]);
 
 async function wywolaj<T>(body: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
   try {

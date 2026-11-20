@@ -62,7 +62,8 @@ export async function limitDzienny(user: string, route: AiRoute): Promise<Respon
   if (route.provider !== SEDNO) return null;
   const since = new Date(Date.now() - 24 * 3600_000).toISOString();
   const { count, error } = await admin.from("ai_usage").select("id", { count: "exact", head: true })
-    .eq("user_id", user).eq("provider", SEDNO).gte("created_at", since);
+    .eq("user_id", user).eq("provider", SEDNO).gte("created_at", since)
+    .or("status.is.null,status.neq.499"); // przerwane przez ucznia (499) nie zjada limitu
   if (error) return reply(500, { error: "server_error" });
   return (count ?? 0) >= dziennyLimit() ? reply(429, { error: "daily_limit" }) : null;
 }

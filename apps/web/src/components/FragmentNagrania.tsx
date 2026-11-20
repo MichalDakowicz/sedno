@@ -50,12 +50,13 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
       setStan("gra");
     };
     const naBlad = () => {
+      if (zatrzymajMoj.current !== stop) return; // stara próba nie rusza nowej
       stop();
       setBlad(true);
     };
     // Gdy strona CKE nie odpowiada, przeglądarka potrafi czekać bez końca: po 10 s mówimy to wprost,
     // ale nie przerywamy, bo nagranie może ruszyć chwilę później (wtedy „playing” zdejmuje komunikat).
-    const limit = window.setTimeout(() => setBlad(true), 10_000);
+    const limit = window.setTimeout(() => zatrzymajMoj.current === stop && setBlad(true), 10_000);
     const naCzas = () => {
       setPostep(Math.min(1, Math.max(0, (a.currentTime - fragment.od) / Math.max(1, fragment.do - fragment.od))));
       if (a.currentTime >= fragment.do) stop();
@@ -69,7 +70,8 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
     setPostep(0);
     setBlad(false);
     setStan("laduje");
-    void a.play().catch(naBlad);
+    // pause()/load() odrzucają oczekujące play() z AbortError: to nie błąd CKE.
+    void a.play().catch((e) => e?.name !== "AbortError" && naBlad());
   }
 
   return (

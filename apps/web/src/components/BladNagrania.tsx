@@ -19,6 +19,11 @@ export function useBladNagrania(audio: RefObject<HTMLAudioElement | null>) {
     const czekaj = () => {
       if (!limit && !a.paused && a.readyState < 3) limit = window.setTimeout(() => setBlad(true), LIMIT_MS);
     };
+    // Dane płyną, ale wciąż za mało do grania: liczymy od nowa, żeby późniejsze zawieszenie też dało komunikat.
+    const naPostep = () => {
+      wyczysc();
+      czekaj();
+    };
     const naGra = () => {
       wyczysc();
       setBlad(false);
@@ -29,7 +34,7 @@ export function useBladNagrania(audio: RefObject<HTMLAudioElement | null>) {
     };
     const zdarzenia: [string, () => void][] = [
       ["play", czekaj], ["waiting", czekaj],
-      ["progress", wyczysc], ["timeupdate", wyczysc], ["canplay", wyczysc], ["loadeddata", wyczysc], ["pause", wyczysc], ["ended", wyczysc],
+      ["progress", naPostep], ["loadeddata", naPostep], ["timeupdate", wyczysc], ["canplay", wyczysc], ["pause", wyczysc], ["ended", wyczysc],
       ["playing", naGra],
       ["error", naBlad],
     ];
