@@ -11,9 +11,9 @@ export class BladPestki extends Error {
   }
 }
 
-// Chwilowy błąd modelu ponawiamy raz sami, zanim uczeń zobaczy komunikat. Akcje z zapisem (ocena) mają id próby,
+// Zły kształt odpowiedzi modelu ponawiamy raz sami (provider_failed serwer ponowił już sam, z zapasową trasą), zanim uczeń zobaczy komunikat. Akcje z zapisem (ocena) mają id próby,
 // więc drugie wywołanie nie tworzy duplikatu.
-const CHWILOWE = new Set(["provider_failed", "bad_model_response"]);
+const CHWILOWE = new Set(["bad_model_response"]);
 
 async function wywolaj<T>(body: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
   try {
@@ -55,6 +55,7 @@ export type Komunikat = {
 const KOMUNIKATY: Record<string, Omit<Komunikat, "tekst"> & { tekst: string }> = {
   network_error: { tekst: "Nie udało się połączyć z Pestką. Sprawdź internet i spróbuj ponownie.", ponow: true, konfiguracja: false },
   rate_limited: { tekst: "Za dużo zapytań naraz. Odczekaj minutę i spróbuj ponownie.", ponow: true, konfiguracja: false },
+  daily_limit: { tekst: "Na dziś wykorzystano limit rozmów z Pestką. Wróć jutro.", ponow: false, konfiguracja: false },
   no_provider: { tekst: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.", ponow: true, konfiguracja: false },
   bad_credential: { tekst: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.", ponow: true, konfiguracja: false },
   provider_failed: { tekst: "Model nie odpowiedział. Spróbuj ponownie za chwilę.", ponow: true, konfiguracja: false },

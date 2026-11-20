@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import type { CzescNagrania } from "../arkusze/typy";
+import { KomunikatBladuNagrania } from "./BladNagrania";
 import styles from "./FragmentNagrania.module.css";
 
 // Jeden odtwarzacz na całą stronę: nowy fragment zatrzymuje poprzedni.
@@ -31,6 +32,8 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
     wspolny ??= new Audio();
     const a = wspolny;
     if (a.src !== src) a.src = src;
+    // Po błędzie ten sam adres nie przeładuje się sam, a play() padałoby od razu.
+    if (a.error || a.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) a.load();
     const stop = () => {
       a.pause();
       a.removeEventListener("timeupdate", naCzas);
@@ -43,14 +46,17 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
     };
     const naStart = () => {
       window.clearTimeout(limit);
+      setBlad(false);
       setStan("gra");
     };
     const naBlad = () => {
+      if (zatrzymajMoj.current !== stop) return; // stara próba nie rusza nowej
       stop();
       setBlad(true);
     };
-    // Gdy strona CKE nie odpowiada, przeglądarka potrafi czekać bez końca: po 15 s mówimy to wprost.
-    const limit = window.setTimeout(naBlad, 15_000);
+    // Gdy strona CKE nie odpowiada, przeglądarka potrafi czekać bez końca: po 10 s mówimy to wprost,
+    // ale nie przerywamy, bo nagranie może ruszyć chwilę później (wtedy „playing” zdejmuje komunikat).
+    const limit = window.setTimeout(() => zatrzymajMoj.current === stop && setBlad(true), 10_000);
     const naCzas = () => {
       setPostep(Math.min(1, Math.max(0, (a.currentTime - fragment.od) / Math.max(1, fragment.do - fragment.od))));
       if (a.currentTime >= fragment.do) stop();
@@ -64,7 +70,8 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
     setPostep(0);
     setBlad(false);
     setStan("laduje");
-    void a.play().catch(naBlad);
+    // pause()/load() odrzucają oczekujące play() z AbortError: to nie błąd CKE.
+    void a.play().catch((e) => e?.name !== "AbortError" && naBlad());
   }
 
   return (
@@ -77,7 +84,7 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
           {sekundy(fragment.od)}–{sekundy(fragment.do)}
         </span>
       </button>
-      {blad && <p className="small muted">Strona CKE nie oddała nagrania. Spróbuj za chwilę.</p>}
+      <KomunikatBladuNagrania blad={blad} ponow={() => { zatrzymajMoj.current?.(); wspolny?.load(); przelacz(); }} />
       {(stan === "gra" || postep > 0) && (
         <span className={styles.pasek} role="progressbar" aria-label="Odtworzona część fragmentu" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(postep * 100)}>
           <span style={{ width: `${postep * 100}%` }} />

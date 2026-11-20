@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Check, ChevronRight, Play, Square, X } from "lucide-react";
 import { useArkusz } from "../../arkusze/dane";
 import { adresObrazu, type Blok, type PytanieZamkniete, type Zadanie } from "../../arkusze/typy";
+import { AudioCke } from "../../components/BladNagrania";
 import { FragmentNagrania } from "../../components/FragmentNagrania";
 import { Ladowanie } from "../../components/Ladowanie";
 import { TekstMat, WzorMat } from "../../components/TekstMat";
@@ -79,10 +80,13 @@ function TekstCke({ tekst, pytanie }: { tekst: string; pytanie: string }) {
 // a ogólne „dopasuj / wybierz” zastępuje jedno zdanie o tym konkretnym pytaniu.
 const PAPIER = /\b(Wpisz|Wpisuj|Zakreśl|Zaznacz)\b|kratk|do tabeli/i;
 const WYBOR = /wybierz właściwą|dopasuj|dobierz|Wykonaj zadania/i;
-const zdania = (t: string) => t.match(/[^.!?]+(?:[.!?]+(?=\s|$)|$)/g)?.map((z) => z.trim()).filter(Boolean) ?? [t];
+// Dzieli tylko na granicach zdań i niczego nie gubi: „(4.1.–4.4.).” zostaje w swoim zdaniu.
+const zdania = (t: string) => t.split(/(?<=[.!?])\s+(?=[A-ZĄĆĘŁŃÓŚŹŻ(„"])/).map((z) => z.trim()).filter((z) => /[\p{L}\p{N}]/u.test(z));
 const bezPapieru = (t: string) => zdania(t).filter((z) => !PAPIER.test(z) && !WYBOR.test(z)).join(" ");
 // Akapit z poleceniem do części zadania, np. „Przeczytaj zdania 5.1.–5.3. Dopasuj…”.
-const czyPolecenie = (b: Blok) => b.typ === "akapit" && /^Przeczytaj\b/.test(b.tekst) && PAPIER.test(b.tekst);
+const NUMER_PYTANIA = /\d+\.\d+\./;
+const czyPolecenie = (b: Blok) =>
+  b.typ === "akapit" && (b.polecenie === true || (/^Przeczytaj\b/.test(b.tekst) && (PAPIER.test(b.tekst) || NUMER_PYTANIA.test(b.tekst))));
 // Nagłówek tekstu, np. „Tekst 2. (do zadań 2.2. i 2.3.)”, zaczyna nowy kawałek zadania.
 const NAGLOWEK_TEKSTU = /^Tekst\s+[A-Z0-9]+\.?\s*(\(do zada[nń][^)]*\))?\s*$/;
 const czyNaglowekTekstu = (b: Blok) => (b.typ === "akapit" || b.typ === "naglowek") && NAGLOWEK_TEKSTU.test(b.tekst.trim());
@@ -90,7 +94,9 @@ const czyNaglowekTekstu = (b: Blok) => (b.typ === "akapit" || b.typ === "naglowe
 const PASUJACY: Record<string, string> = { nagłówek: "pasujący", tekst: "pasujący", zdanie: "pasujące", osobę: "pasującą", odpowiedź: "pasującą" };
 
 function wlasnePolecenie(zadanie: Zadanie, nr: string, pf: boolean, opcjePytania: boolean): string {
-  const t = [...zadanie.polecenie, ...zadanie.bloki.filter(czyPolecenie).map((b) => ("tekst" in b ? b.tekst : ""))].join(" ");
+  // Tylko polecenia kawałków tego pytania: „Uzupełnij luki 5.4.–5.7.” nie ma wpływać na 5.1.
+  const polecenia = kawalkiPytania(zadanie, nr).map((k) => k[0]!).filter(czyPolecenie).map((b) => ("tekst" in b ? b.tekst : ""));
+  const t = [...zadanie.polecenie, ...polecenia].join(" ");
   const zrodlo = /nagrani|usłyszysz/i.test(t) ? "nagrania" : "tekstu";
   if (pf) return `Zdecyduj, czy zdanie ${nr} jest zgodne z treścią ${zrodlo}.`;
   if (opcjePytania) return `Wybierz odpowiedź zgodną z treścią ${zrodlo}.`;
@@ -110,17 +116,20 @@ function pytaniaBloku(b: Blok): string[] {
 }
 
 /** Bloki zadania potrzebne do jednego pytania: bez tekstów i poleceń, które dotyczą tylko innych pytań. */
-function blokiPytania(zadanie: Zadanie, nr: string, bezOpcji: boolean): Blok[] {
+function kawalkiPytania(zadanie: Zadanie, nr: string): Blok[][] {
   const kawalki: Blok[][] = [[]];
   for (const b of zadanie.bloki) {
     if (czyNaglowekTekstu(b) || czyPolecenie(b)) kawalki.push([]);
     kawalki.at(-1)!.push(b);
   }
-  return kawalki
-    .filter((k) => {
-      const pytania = k.flatMap(pytaniaBloku);
-      return !pytania.length || pytania.includes(nr);
-    })
+  return kawalki.filter((k) => {
+    const pytania = k.flatMap(pytaniaBloku);
+    return k.length > 0 && (!pytania.length || pytania.includes(nr));
+  });
+}
+
+function blokiPytania(zadanie: Zadanie, nr: string, bezOpcji: boolean): Blok[] {
+  return kawalkiPytania(zadanie, nr)
     .flat()
     .filter((b) => !czyPolecenie(b) && !(bezOpcji && b.typ === "opcje"));
 }
@@ -241,9 +250,9 @@ function CkeOdczyt({ prompt, pole, poOcenie, tylkoOpcje, onGotowe, ponow }: {
             {fragment || fragmentZadania ? (
               <details className={s.rozwijane}>
                 <summary><ChevronRight size={16} aria-hidden="true" /> Pełne nagranie z arkusza</summary>
-                <audio className={s.audio} controls preload="none" src={nagranie} aria-label="Pełne nagranie CKE" />
+                <AudioCke className={s.audio} src={nagranie} etykieta="Pełne nagranie CKE" />
               </details>
-            ) : <audio className={s.audio} controls preload="none" src={nagranie} aria-label="Nagranie CKE" />}
+            ) : <AudioCke className={s.audio} src={nagranie} etykieta="Nagranie CKE" />}
           </>
         )}
         <div className={s.kontekstCke} lang="en">

@@ -27,7 +27,8 @@ async function handle(req: Request): Promise<Response> {
   if ("error" in parsed) return reply(parsed.status, { error: parsed.error });
   const body = parsed.data;
   const provider = body.provider;
-  if (typeof provider !== "string" || !PROVIDER.test(provider)) return reply(400, { error: "bad_provider" });
+  // "sedno" to nazwa domyślnej trasy serwera w ai_usage i limicie dziennym; konto nie może jej zająć.
+  if (typeof provider !== "string" || !PROVIDER.test(provider) || provider === "sedno") return reply(400, { error: "bad_provider" });
 
   let secret: CryptoKey;
   try {

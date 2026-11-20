@@ -1,7 +1,9 @@
 import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
-import { logAiUsage, resolveAi } from "../_shared/ai-route.ts";
+import { limitDzienny, logAiUsage, resolveAi, zapasowa } from "../_shared/ai-route.ts";
+import { ograniczTokeny, SEDNO } from "../_shared/ai-default.ts";
 import { readJsonObject } from "../_shared/http.ts";
-import { chat, chatStream, type ImagePart, LlmError, type Message } from "../_shared/llm.ts";
+import { type ImagePart, LlmError, type Message } from "../_shared/llm.ts";
+import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
 import { ETAPY, POZIOMY, publiczneScenariusze, SCENARIUSZE, STATUSY, UMIEJETNOSCI } from "./formaty.ts";
 import { listaWariantow, ocenRozwiazanie, utworzWariant } from "./ocenianie.ts";
 import { BladApi, MAX_BODY, obiekt, type Obiekt, obrazWiadomosci, tekst, UUID, wybierz, type Zapytaj } from "./protokol.ts";
@@ -61,6 +63,8 @@ async function trasa(user: string, tier: "wazne" | "lekkie") {
     const body = await route.json() as { error: string };
     throw new BladApi(route.status, body.error);
   }
+  const limited = await limitDzienny(user, route);
+  if (limited) throw new BladApi(limited.status, ((await limited.json()) as { error: string }).error);
   return route;
 }
 
@@ -79,7 +83,7 @@ function zapytania(user: string, sygnal: AbortSignal): Zapytaj {
     const started = Date.now();
     let wynik;
     try {
-      wynik = await chat(route.p, { messages, maxTokens: limit, reasoningEffort: route.reasoningEffort, signal: sygnal }, pobierzOdpowiedz);
+      wynik = await chatRetry(route, { messages, maxTokens: route.provider === SEDNO ? ograniczTokeny(limit) : limit, signal: sygnal }, { fallback: zapasowa(user, tier, route), fetchImpl: pobierzOdpowiedz });
     } catch (e) {
       await logAiUsage({ ...base, ok: false, status: e instanceof LlmError ? e.status : 0, duration_ms: Date.now() - started });
       if (obraz && e instanceof LlmError &&
@@ -89,7 +93,7 @@ function zapytania(user: string, sygnal: AbortSignal): Zapytaj {
       throw new BladApi(424, "provider_failed");
     }
     await logAiUsage({
-      ...base, ok: true, status: 200, duration_ms: Date.now() - started,
+      ...base, provider: wynik.route.provider, model: wynik.route.model, ok: true, status: 200, duration_ms: Date.now() - started,
       prompt_tokens: wynik.usage?.promptTokens, completion_tokens: wynik.usage?.completionTokens,
     });
     return zModelu(wynik.text);
@@ -426,14 +430,15 @@ async function strumienBrudnopisu(body: Obiekt, user: string, przerwanie: AbortS
         const indeksy = { ksztalty: 0, dopiski: 0 };
         let tekstModelu = "";
         let usage;
-        const zdarzenia = chatStream(route.p, {
-          messages: wiadomosci(z.instrukcja, z.dane, z.obraz), maxTokens: z.limit,
-          reasoningEffort: route.reasoningEffort, signal: sygnal,
-        }, pobierzOdpowiedz);
+        let uzyta = route;
+        const zdarzenia = streamRetry(route, {
+          messages: wiadomosci(z.instrukcja, z.dane, z.obraz), maxTokens: route.provider === SEDNO ? ograniczTokeny(z.limit) : z.limit, signal: sygnal,
+        }, { fallback: zapasowa(user, "wazne", route), fetchImpl: pobierzOdpowiedz });
         for await (const ev of zdarzenia) {
           if (ev.type === "done") {
             tekstModelu = ev.result.text;
             usage = ev.result.usage;
+            uzyta = ev.route;
           }
           if (ev.type !== "text") continue;
           for (const zd of czytnik.dopisz(ev.delta)) {
@@ -449,7 +454,7 @@ async function strumienBrudnopisu(body: Obiekt, user: string, przerwanie: AbortS
             }
           }
         }
-        await loguj({ ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
+        await loguj({ provider: uzyta.provider, model: uzyta.model, ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
         wyslij({ type: "wynik", dane: wynikBrudnopisu(zModelu(tekstModelu), z) });
       } catch (e) {
         const status = przerwanie.aborted ? 499 : e instanceof LlmError ? e.status : e instanceof BladApi ? e.status : 0;

@@ -10,20 +10,20 @@ _Set 2026-11-20 · status: active_
 ## Done when
 
 ### Works
-- [ ] An account without `ai_credential` gets a route from server secrets: tier `wazne` → sol model, `lekkie` → luna model; an account's own key still wins; without server secrets the reply is a clean `not_configured`, not a crash · proof: Deno tests with a fake provider, staging call without a key
-- [ ] A 500 / 429 / network error from the provider gets one server-side retry, then the other tier's model; in a stream only before the first chunk; in both `ai` and `nauka-ai` · proof: Deno tests
-- [ ] Junk in 2024 task 4.3 („Przeczytaj tekst. ).”) and glued sub-question instructions in 2023 task 5.1 are fixed at the source; re-import and `kontrola` pass; sheets uploaded to staging · proof: JSON diff, staging view
-- [ ] When a quick round is shortened after a streak (e.g. „4 z 6” → „5 z 5”), Pestka says „Cztery dobre z rzędu. Kończymy rundę wcześniej.” · proof: tester on staging
-- [ ] A recording in a round that errors or gets no data for ~10 s shows the same notice as the sheet player („Strona CKE nie oddała nagrania. Spróbuj za chwilę.”) with „Wczytaj jeszcze raz” · proof: tester with a blocked recording URL
+- [x] An account without `ai_credential` gets a route from server secrets: tier `wazne` → sol model, `lekkie` → luna model; an account's own key still wins; without server secrets the reply is a clean `not_configured`, not a crash · proof: Deno tests (24/24, `czyTrasaSerwera`, `domyslnaTrasa`); staging `{status:true}` → `ready:true` for the test account; live default route waits for the key
+- [x] A 500 / 429 / network error from the provider gets one server-side retry, then the other tier's model; in a stream only before the first chunk; in both `ai` and `nauka-ai` · proof: Deno tests (upstream flag, stream before/after first chunk), audit 2
+- [x] Junk in 2024 task 4.3 („Przeczytaj tekst. ).”) and glued sub-question instructions in 2023 task 5.1 are fixed at the source; re-import and `kontrola` pass; sheets uploaded to staging · proof: cause was in the app (`zdania` in TrescRundy), DB data clean, no re-upload needed; script over 39 English sheets; tester saw no junk in round instructions
+- [ ] When a quick round is shortened after a streak (e.g. „4 z 6” → „5 z 5”), Pestka says „Cztery dobre z rzędu. Kończymy rundę wcześniej.” · proof: tester on staging — NOT reached live (no 4-streak after a mistake); code path reviewed in both audits
+- [x] A recording in a round that errors or gets no data for ~10 s shows the same notice as the sheet player („Strona CKE nie oddała nagrania. Spróbuj za chwilę.”) with „Wczytaj jeszcze raz” · proof: tester, unreachable src → notice in role=status in ~15 s; real recording 20 s without notice
 
 ### Looks
-- [ ] New notices follow DESIGN.md (no cards, existing text styles) at 375 and 1280 px, light and dark · proof: tester screenshots
+- [x] New notices follow DESIGN.md (no cards, existing text styles) at 375 and 1280 px, light and dark · proof: tester 375 light/dark, 1280 light: plain text + link button, no card
 
 ### Feels
-- [ ] Notices are announced (`role="status"`), the reload button is reachable by keyboard · proof: tester, code review
+- [x] Notices are announced (`role="status"`), the reload button is reachable by keyboard · proof: tester DOM check, region mounted before text
 
 ### Holds up
-- [ ] No key in logs or error bodies; retry does not duplicate saved grades; Opus audit has no blocker or major findings · proof: audit report
+- [x] No key in logs or error bodies; retry does not duplicate saved grades; Opus audit has no blocker or major findings · proof: audit 1 (3 major) and audit 2 (1 major) fixed in rounds 1–2; detail hidden for provider sedno
 
 ### Shipped
 - [ ] `npm run typecheck`, `npm run build`, `deno test services/supabase/tests` green; branch + PR; tested on staging; Brief and `NASTEPNE.md` updated; production only on the user's yes · proof: check output, PR link
@@ -32,4 +32,5 @@ _Set 2026-11-20 · status: active_
 - OpenAI key as a server secret (blocks: live proof of the default route, not the code)
 
 ## Changes
+- 2026-11-20: parser bar met in the app instead of the importer (root cause); token ceiling default 4096 because the scratchpad needs 3400
 - 2026-11-20: goal set (approved by the user)
