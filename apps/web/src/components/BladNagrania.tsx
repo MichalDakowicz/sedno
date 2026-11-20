@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 const LIMIT_MS = 10_000;
 
 // Nagrania idą wprost z cke.gov.pl. Zawieszony serwer nie wywołuje „error”, więc oprócz niego liczymy
-// 10 s od startu (albo od zawieszenia w trakcie), po których nie dotarły dane.
+// 10 s od startu (albo od przerwy w trakcie), po których nie dotarły dane. „stalled” pomijamy: zdarza
+// się też przy zdrowym odtwarzaniu.
 export function useBladNagrania(audio: RefObject<HTMLAudioElement | null>) {
   const [blad, setBlad] = useState(false);
 
@@ -16,15 +17,20 @@ export function useBladNagrania(audio: RefObject<HTMLAudioElement | null>) {
       limit = 0;
     };
     const czekaj = () => {
-      if (!limit && !a.paused) limit = window.setTimeout(() => setBlad(true), LIMIT_MS);
+      if (!limit && !a.paused && a.readyState < 3) limit = window.setTimeout(() => setBlad(true), LIMIT_MS);
+    };
+    const naGra = () => {
+      wyczysc();
+      setBlad(false);
     };
     const naBlad = () => {
       wyczysc();
       setBlad(true);
     };
     const zdarzenia: [string, () => void][] = [
-      ["play", czekaj], ["waiting", czekaj], ["stalled", czekaj],
-      ["canplay", wyczysc], ["playing", wyczysc], ["loadeddata", wyczysc], ["pause", wyczysc], ["ended", wyczysc],
+      ["play", czekaj], ["waiting", czekaj],
+      ["progress", wyczysc], ["timeupdate", wyczysc], ["canplay", wyczysc], ["loadeddata", wyczysc], ["pause", wyczysc], ["ended", wyczysc],
+      ["playing", naGra],
       ["error", naBlad],
     ];
     zdarzenia.forEach(([z, f]) => a.addEventListener(z, f));
@@ -41,12 +47,17 @@ export function useBladNagrania(audio: RefObject<HTMLAudioElement | null>) {
   return { blad, setBlad, ponow };
 }
 
-export function KomunikatBladuNagrania({ ponow }: { ponow: () => void }) {
+// Pusty obszar status zostaje w drzewie cały czas, bo czytniki ekranu nie zapowiadają elementu wstawionego już z tekstem.
+export function KomunikatBladuNagrania({ blad, ponow }: { blad: boolean; ponow: () => void }) {
   return (
-    <p className="small muted" role="status">
-      Strona CKE nie oddała nagrania. Spróbuj za chwilę.{" "}
-      <button type="button" className="link small" onClick={ponow}>Wczytaj jeszcze raz</button>
-    </p>
+    <div role="status">
+      {blad && (
+        <p className="small muted">
+          Strona CKE nie oddała nagrania. Spróbuj za chwilę.{" "}
+          <button type="button" className="link small" onClick={ponow}>Wczytaj jeszcze raz</button>
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -57,7 +68,7 @@ export function AudioCke({ src, className, etykieta }: { src: string; className?
   return (
     <>
       <audio ref={audio} className={className} controls preload="none" src={src} aria-label={etykieta} />
-      {blad && <KomunikatBladuNagrania ponow={ponow} />}
+      <KomunikatBladuNagrania blad={blad} ponow={ponow} />
     </>
   );
 }
