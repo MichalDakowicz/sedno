@@ -1,5 +1,5 @@
-// Klient bramki AI. Aplikacja nie ma własnego klucza: zapytanie idzie przez dostawcę z konta
-// użytkownika, a konto wybiera dostawcę osobno dla zadań ważnych i lekkich.
+// Klient bramki AI. Zapytanie idzie przez dostawcę z konta użytkownika, a gdy konto go nie ma, przez domyślną trasę serwera.
+// Klucze zostają po stronie serwera; konto wybiera dostawcę osobno dla zadań ważnych i lekkich.
 import { useEffect, useState } from "react";
 import { functionsUrl, supabase } from "./supabase";
 
@@ -28,40 +28,16 @@ async function headers(): Promise<Record<string, string>> {
 const body = (r: AiRequest, stream: boolean) =>
   JSON.stringify({ tier: r.tier, messages: r.messages, task: r.task, provider: r.provider, max_tokens: r.maxTokens, temperature: r.temperature, stream });
 
-// Chwilowa awaria jednego modelu (np. błąd 500 u dostawcy) nie zatrzymuje Pestki: drugi poziom ma zwykle inny model.
-// Gdy zapasowy też zawiedzie, uczeń widzi pierwotny błąd.
-const drugiPoziom = (t: Tier): Tier => (t === "wazne" ? "lekkie" : "wazne");
-const warto = (r: AiRequest, e: unknown) => !r.provider && e instanceof AiError && e.code === "provider_failed";
-
+// Ponowienia i zapasowy poziom robi serwer, więc klient pyta raz.
 export async function askAi(r: AiRequest): Promise<AiAnswer> {
-  try {
-    return await askAiRaz(r);
-  } catch (e) {
-    if (!warto(r, e)) throw e;
-    return askAiRaz({ ...r, tier: drugiPoziom(r.tier) }).catch(() => Promise.reject(e));
-  }
-}
-
-/** Odpowiedź kawałkami; onText dostaje kolejne fragmenty tekstu. */
-export async function streamAi(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal): Promise<AiAnswer> {
-  let cos = false;
-  try {
-    return await streamAiRaz(r, (d) => ((cos = true), onText(d)), signal);
-  } catch (e) {
-    // Po pierwszym fragmencie nie zaczynamy od nowa: uczeń widziałby sklejone dwie odpowiedzi.
-    if (cos || signal?.aborted || !warto(r, e)) throw e;
-    return streamAiRaz({ ...r, tier: drugiPoziom(r.tier) }, onText, signal).catch(() => Promise.reject(e));
-  }
-}
-
-async function askAiRaz(r: AiRequest): Promise<AiAnswer> {
   const res = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: body(r, false) });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new AiError(data.error ?? "server_error", res.status);
   return data as AiAnswer;
 }
 
-async function streamAiRaz(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal): Promise<AiAnswer> {
+/** Odpowiedź kawałkami; onText dostaje kolejne fragmenty tekstu. */
+export async function streamAi(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal): Promise<AiAnswer> {
   const res = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: body(r, true), signal });
   if (!res.ok || !res.body) {
     const data = await res.json().catch(() => ({}));
@@ -103,16 +79,35 @@ export async function aiKey(payload: { action: "save"; provider: string; base_ur
 let ready: { user: string; value: boolean } | null = null;
 const readyListeners = new Set<() => void>();
 
-export async function refreshAiReady(): Promise<void> {
-  const { data } = await supabase.auth.getSession();
-  const user = data.session?.user.id;
-  if (!user) return;
-  const value = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: JSON.stringify({ status: true }) })
-    .then((res) => res.json())
-    .then((d) => d?.ready === true)
-    .catch(() => false);
-  ready = { user, value };
-  readyListeners.forEach((l) => l());
+// Tylko jawne { ready: false } z serwera znaczy „niegotowa”; błąd sieci albo serwera zostawia undefined, żeby spróbować ponownie.
+async function zapytajOGotowosc(): Promise<boolean | undefined> {
+  try {
+    const res = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: JSON.stringify({ status: true }) });
+    const d = await res.json().catch(() => null);
+    return res.ok && typeof d?.ready === "boolean" ? d.ready : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Jedno zapytanie naraz, niezależnie od liczby zamontowanych widoków.
+let sprawdzanie: Promise<void> | null = null;
+
+export function refreshAiReady(): Promise<void> {
+  sprawdzanie ??= (async () => {
+    const { data } = await supabase.auth.getSession();
+    const user = data.session?.user.id;
+    if (!user) return;
+    let value = await zapytajOGotowosc();
+    if (value === undefined) {
+      await new Promise((r) => setTimeout(r, 4000));
+      value = await zapytajOGotowosc();
+    }
+    if (value === undefined) return;
+    ready = { user, value };
+    readyListeners.forEach((l) => l());
+  })().catch(() => {}).finally(() => (sprawdzanie = null));
+  return sprawdzanie;
 }
 
 /** undefined w trakcie sprawdzania. */
@@ -135,6 +130,7 @@ export function aiErrorText(code: string): string {
       no_provider: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
       not_signed_in: "Zaloguj się, żeby rozmawiać z Pestką.",
       rate_limited: "Za dużo zapytań naraz. Spróbuj za chwilę.",
+      daily_limit: "Na dziś wykorzystano limit rozmów z Pestką. Wróć jutro.",
       provider_failed: "Pestka nie odpowiedziała. Spróbuj ponownie za chwilę.",
       bad_credential: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
       bad_base_url: "Ten adres dostawcy jest niedozwolony.",
