@@ -2,7 +2,7 @@
 
 _Updated 2026-11-20_
 
-**State.** Goal 3 („Poprawki od kolegi”, `goal.md`) is active: 8/9 bars met. PR #88 merged into `main` (92bde38) at the user's yes; functions reach production via autodeploy, the Firebase frontend is not redeployed yet. Staging (`dev`) runs the same code.
+**State.** Goal 3 („Poprawki od kolegi”, `goal.md`) is active: 8/9 bars met. PR #88 merged into `main` (92bde38) at the user's yes; functions reach production via autodeploy, the Firebase frontend was redeployed from `main` (8604a54) the same day; production serves `index-DXfhvoBr.js`. Signed-in production smoke test not done. Staging (`dev`) runs the same code.
 
 **What shipped on the branch.** Server default AI route for accounts without their own key (`SEDNO_AI_KEY`, `SEDNO_AI_MODEL_WAZNE`, `SEDNO_AI_MODEL_LEKKIE`, optional `SEDNO_AI_BASE_URL`, `SEDNO_AI_EFFORT_*`; limits `SEDNO_AI_LIMIT_DZIENNY` 200 / 24 h and `SEDNO_AI_MAX_TOKENS` 4096), readiness via `POST /ai {status:true}`, server-side retry of real upstream errors (client retries removed), clean round instructions (`zdania` / `czyPolecenie` in TrescRundy; DB data was clean), Pestka line for a shortened round, CKE recording notice in every player.
 
@@ -18,7 +18,7 @@ _Updated 2026-11-20_
 
 **Claimed but unfinished (Brief).** „ai dla każdego konta” (c56ae715…) stays claimed until the key is set. „staging dla kolegi” (97e050f2…) is the user's, unclaimed.
 
-**Next.** Redeploy the Firebase frontend from `main` when the user asks (`firebase deploy --only hosting`). Then `NASTEPNE.md` section 00: 375 px overflow in rounds, Pestka dock answers with empty English examples on staging (qwen3:8b — model or rendering?), two-column interleave in 2023 podstawowy task 5 text A (parser).
+**Next.** After the user sets the server key: check a fresh account without a key on staging, then production. Then `NASTEPNE.md` section 00: 375 px overflow in rounds, Pestka dock answers with empty English examples on staging (qwen3:8b — model or rendering?), two-column interleave in 2023 podstawowy task 5 text A (parser).
 
 **Housekeeping.**
 - `npm run dev:staging` runs in terminal tab „dev staging” on port 5174 (5173 was taken), from `C:\sedno` on `main`.
