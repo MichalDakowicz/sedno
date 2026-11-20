@@ -21,7 +21,7 @@ const dodatnia = (raw: string | undefined, domyslnie: number) => (Number(raw) >=
 
 /** Klucz serwera nie jest darmowym modelem ogólnego użytku: sufit długości odpowiedzi, także gdy klient go nie podał. */
 export const ograniczTokeny = (requested: number | undefined, env: Env = denoEnv) => {
-  const max = dodatnia(env("SEDNO_AI_MAX_TOKENS"), 2048);
+  const max = dodatnia(env("SEDNO_AI_MAX_TOKENS"), 4096);
   return Math.min(requested ?? max, max);
 };
 

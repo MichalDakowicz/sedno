@@ -101,13 +101,13 @@ Deno.test("Jeden skonfigurowany model wystarcza obu poziomom (z jego rozumowanie
   assert.equal(domyslnaTrasa("lekkie", env({ SEDNO_AI_KEY: "k", SEDNO_AI_MODEL_WAZNE: "sol" }))!.p.model, "sol");
 });
 
-Deno.test("Sufit tokenów trasy serwera: domyślnie 2048, z env, śmieci też", () => {
+Deno.test("Sufit tokenów trasy serwera: domyślnie 4096, z env, śmieci też", () => {
   const env = (m: Record<string, string>) => (n: string) => m[n];
-  assert.equal(ograniczTokeny(undefined, env({})), 2048);
-  assert.equal(ograniczTokeny(8192, env({})), 2048);
+  assert.equal(ograniczTokeny(undefined, env({})), 4096);
+  assert.equal(ograniczTokeny(8192, env({})), 4096);
   assert.equal(ograniczTokeny(500, env({})), 500);
   assert.equal(ograniczTokeny(8192, env({ SEDNO_AI_MAX_TOKENS: "1000" })), 1000);
-  assert.equal(ograniczTokeny(undefined, env({ SEDNO_AI_MAX_TOKENS: "zle" })), 2048);
+  assert.equal(ograniczTokeny(undefined, env({ SEDNO_AI_MAX_TOKENS: "zle" })), 4096);
 });
 
 Deno.test("Własny klucz zawsze wygrywa: trasa serwera tylko dla konta bez żadnego klucza", () => {
