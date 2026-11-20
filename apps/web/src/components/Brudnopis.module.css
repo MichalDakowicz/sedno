@@ -37,12 +37,6 @@
   border-bottom: 1px solid var(--line);
 }
 
-.loading {
-  display: grid;
-  place-items: center;
-  height: clamp(420px, 75vh, 760px);
-}
-
 /* Pasek podzielony na dwie strony płótna; ujemny margines wystawia paski poza szerokość płótna. */
 .workspace {
   position: relative;
@@ -206,6 +200,8 @@
   gap: var(--s-2);
   width: max-content;
   max-width: min(300px, var(--miejsce, 300px));
+  max-height: min(60vh, 28rem);
+  overflow-y: auto;
   padding: var(--s-3) var(--s-4);
   border-radius: var(--r-md);
   border-top-left-radius: var(--r-xs);
@@ -240,16 +236,48 @@
   border-top-left-radius: var(--r-md);
 }
 
-.dymekPod {
-  top: calc(100% + 8px);
-  width: var(--miejsce);
+/* Dok przy krawędzi płótna (wąski ekran, obok Pestki brak miejsca): cała szerokość, limit wysokości z przewijaniem,
+   strzałka zwija do dwóch linii. Warstwa nad płótnem, ale tylko sam dymek łapie kliknięcia. */
+.dokTablicy {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.dymekDok {
+  top: var(--s-2);
+  left: var(--s-2);
+  right: var(--s-2);
+  width: auto;
   max-width: none;
+  max-height: 40%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border-top-left-radius: var(--r-md);
 }
 
-.dymekPod.dymekOdDolu {
+.dymekDokDol {
   top: auto;
-  bottom: calc(100% + 8px);
+  bottom: var(--s-2);
+}
+
+.dymekDok p:first-of-type {
+  padding-right: calc(var(--s-5) + 36px);
+}
+
+.dymekZwiniety {
+  max-height: calc(2lh + 2 * var(--s-3));
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 60%, transparent);
+}
+
+.dymekZwin {
+  right: calc(var(--s-1) + 36px);
+}
+
+.dymekDok .pestkaPole {
+  width: 100%;
 }
 
 @keyframes dymek-wejscie {
@@ -288,10 +316,6 @@
 .pestkaPole {
   width: min(300px, var(--miejsce, 300px));
   max-width: 100%;
-}
-
-.dymekPod .pestkaPole {
-  width: 100%;
 }
 
 /* Twarz Pestki w pasku: otwarte pole pytania zaznacza delikatne tło, nie pełny akcent pod pomarańczową twarzą. */
@@ -491,6 +515,13 @@
   .sep,
   .grow {
     display: none;
+  }
+
+  /* Pod kciuk: 44 px to najmniejszy wygodny cel dotyku. */
+  .tool,
+  .swatch {
+    width: 44px;
+    height: 44px;
   }
 
   .pestkaPanel {

@@ -6,8 +6,8 @@ import { useListaArkuszy } from "../arkusze/dane";
 import { currentUserId, useProfil } from "../auth";
 import { nazwaPoziomu, przedmiot } from "../konto/przedmioty";
 import { adresMapy } from "../nauka/adresy";
-import { naukaApi } from "../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../nauka/stan";
+import { usePoziomNauki, useZapytanie } from "../nauka/stan";
+import { zapytania } from "../nauka/zapytania";
 import { Markdown } from "./Markdown";
 import { TutorAvatar } from "./TutorAvatar";
 import { useTutor } from "./TutorContext";
@@ -36,7 +36,7 @@ const DEFINICJE_AKCJI = [
   { id: "akcja:uklad-pulpitu", tytul: "Układ pulpitu", opis: "Widgety na pulpicie", klucze: "uklad pulpit widgety kolejnosc egzamin", sciezka: "/uklad-pulpitu" },
   { id: "akcja:do-matury", tytul: "Do matury", opis: "Odliczanie do egzaminów", klucze: "matura odliczanie dni egzamin termin", sciezka: "/do-matury" },
   { id: "akcja:mapa", tytul: "Mapa umiejętności", opis: "Opanowanie umiejętności", klucze: "mapa umiejetnosci opanowanie postep", sciezka: "/umiejetnosci" },
-  { id: "akcja:powtorki", tytul: "Powtórki", opis: "Błędy i zanikające umiejętności", klucze: "powtorki bledy powtorka", sciezka: "/powtorki" },
+  { id: "akcja:powtorki", tytul: "Powtórki", opis: "Błędy i zanikające umiejętności", klucze: "powtorki bledy powtorka", sciezka: "/nauka#powtorki" },
 ];
 // Sposoby nauki z Nauki: te same nazwy co na liście „Sposoby nauki”.
 const SPOSOBY: Wynik[] = [
@@ -112,7 +112,7 @@ function Okno({ zamknij }: { zamknij: () => void }) {
   const navigate = useNavigate();
   const { rozmowy, otworzRozmowe, zapytajWNowej, aiGotowe, state, messages } = useTutor();
   const [poziom] = usePoziomNauki();
-  const mapa = useZapytanieNauki(`nauka:mapa:${poziom}`, (signal) => naukaApi.mapa(poziom, signal));
+  const mapa = useZapytanie(zapytania.mapa(poziom));
   // Pytanie zadane z okna: odpowiedź Pestki pokazujemy tu, a rozmowa zostaje w historii.
   const [zapytano, setZapytano] = useState<string | null>(null);
   const { dane: arkusze, laduje, blad } = useListaArkuszy();
@@ -194,7 +194,7 @@ function Okno({ zamknij }: { zamknij: () => void }) {
 
   // Pestka: gotowa, zajęta (odpowiada), bez AI (odsyłamy do profilu) albo jeszcze sprawdzamy (ukryta).
   const pestka: "gotowa" | "zajeta" | "brak-ai" | null = !szukane || aiGotowe === undefined ? null : aiGotowe === false ? "brak-ai" : state !== "idle" ? "zajeta" : "gotowa";
-  const pozycjaPestki: Pozycja | null = pestka === "gotowa" ? "pestka" : pestka === "brak-ai" ? "ai" : null;
+  const pozycjaPestki: Pozycja | null = pestka === "gotowa" ? "pestka" : null;
 
   // Odpowiedź Pestki wpada do rozmowy, w której padło pytanie, więc w trakcie niej nie przełączamy rozmów.
   const zajetaPestka = state !== "idle";
@@ -227,7 +227,7 @@ function Okno({ zamknij }: { zamknij: () => void }) {
       setZapytano(pytanie);
       return;
     } else if (p === "ai") {
-      navigate("/profil#ai");
+      return;
     } else {
       zapamietajOstatnie(wlasciciel, p.id);
       if (p.rozmowaId) otworzRozmowe(p.rozmowaId);

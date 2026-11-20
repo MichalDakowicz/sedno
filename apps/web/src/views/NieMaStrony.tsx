@@ -7,7 +7,7 @@ import { glos, wybierz } from "../pestka/glos";
 export function NieMaStrony() {
   const { pathname } = useLocation();
   return (
-    <main className="container czytanie" style={{ display: "grid", gap: "var(--s-7)", paddingTop: "var(--s-6)", paddingBottom: 160 }}>
+    <main className="container czytanie" style={{ display: "grid", gap: "var(--s-7)", paddingTop: "var(--s-6)", paddingBottom: "var(--zapas-pestki)" }}>
       <NaglowekStrony etykieta="Błąd 404" tytul="Nie ma takiej strony" />
       <StanPestki rozmiar="duzy" emocja="zmartwienie" tekst={wybierz(glos.bledy.nieZnaleziono, pathname.length)}
         akcja={{ etykieta: "Wróć na pulpit", do: "/" }}>

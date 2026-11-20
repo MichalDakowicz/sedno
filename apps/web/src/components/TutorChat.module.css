@@ -9,6 +9,8 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  /* Przewijanie rozmowy nie przechodzi na stronę pod panelem. */
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: var(--s-5);

@@ -3,7 +3,7 @@
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s-6);
   padding-top: var(--s-6);
-  padding-bottom: 112px;
+  padding-bottom: var(--zapas-pestki);
 }
 
 .grupy,
@@ -181,8 +181,9 @@
   display: block;
   margin-top: var(--s-2);
   font-size: var(--t-sm);
+  font-weight: 500;
   letter-spacing: 0;
-  color: var(--subtle);
+  color: var(--primary-text);
 }
 
 .ostatnie {
@@ -221,4 +222,28 @@
   display: flex;
   align-items: flex-end;
   gap: var(--s-4);
+}
+
+/* Ogród na szerokim ekranie, lista wierszy na telefonie (ta sama treść, jedno naraz). */
+.lista {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .ogrod {
+    display: none;
+  }
+
+  .lista {
+    display: grid;
+    gap: var(--s-6);
+  }
+}
+
+
+/* Akcje w panelu działu: główna i rozmowa z Pestką obok siebie. */
+.akcje {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
-import { useListaArkuszy } from "../arkusze/dane";
+import { rozgrzejArkusz, useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
 import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
 import { useProfil } from "../auth";
@@ -10,34 +10,33 @@ import { NaglowekStrony } from "../components/NaglowekStrony";
 import { Ladowanie } from "../components/Ladowanie";
 import { Pierscien } from "../components/wykresy";
 import { Plywak } from "../components/Plywak";
+import { usePostepyKonta } from "../konto/wyniki";
+import { liczOdpowiedzi } from "../arkusze/sprawdz";
 import styles from "./Arkusze.module.css";
 
-const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string; lead: string }[] = [
+const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string }[] = [
   {
     id: "angielski",
     nazwa: "Angielski",
     opis: "Język angielski · matura od 2015",
-    lead: "Arkusze maturalne CKE do rozwiązania w przeglądarce.",
   },
   {
     id: "matematyka",
     nazwa: "Matematyka",
     opis: "Matematyka · poziom podstawowy · matura od 2023",
-    lead: "Arkusze maturalne CKE z brudnopisem przy każdym zadaniu.",
   },
   {
     id: "informatyka",
     nazwa: "Informatyka",
     opis: "Informatyka · poziom rozszerzony · matura od 2023",
-    lead: "Arkusze maturalne CKE z plikami danych, Pythonem i SQL.",
   },
 ];
 const POZIOMY: Poziom[] = ["podstawowy", "rozszerzony", "dwujezyczny"];
 const NAZWY: Record<Poziom, string> = { podstawowy: "Podstawowy", rozszerzony: "Rozszerzony", dwujezyczny: "Dwujęzyczny" };
 
 const FORMULY = [
-  { id: "2023", nazwa: "Formuła 2023", opis: "Obecna matura." },
-  { id: "2015", nazwa: "Formuła 2015", opis: "Starsza matura, dobra do ćwiczeń." },
+  { id: "2023", nazwa: "Formuła 2023" },
+  { id: "2015", nazwa: "Formuła 2015" },
 ];
 
 export function Arkusze() {
@@ -62,7 +61,7 @@ export function Arkusze() {
 
   return (
     <main className={`container ${styles.page}`}>
-      <NaglowekStrony etykieta={opis.opis} tytul="Arkusze" lead={opis.lead} />
+      <NaglowekStrony etykieta={opis.opis} tytul="Arkusze" />
 
       <nav className={styles.levels} aria-label="Przedmiot">
         <Plywak wyglad="pigulka" />
@@ -94,14 +93,14 @@ export function Arkusze() {
         </nav>
       )}
 
-      {(brakPoziomu || bezArkuszy.length > 0) && (
+      {brakPoziomu && (
         <div className={styles.braki}>
-          {brakPoziomu && <p className="muted">{brakArkuszy(przedmiot, brakPoziomu, poziomy)}</p>}
-          {[...new Set(bezArkuszy)].map((id) => (
-            <p key={id} className="muted">{brakArkuszy(id, null, [])}</p>
-          ))}
+          <p className="muted">{brakArkuszy(przedmiot, brakPoziomu, poziomy)}</p>
         </div>
       )}
+
+      {/* Wznowienie dotyczy wybranego przedmiotu, żeby nad arkuszami informatyki nie stał arkusz z angielskiego. */}
+      {zPrzedmiotu && <KontynuujArkusz lista={zPrzedmiotu} />}
 
       {laduje && <Ladowanie ksztalt="wiersze" ile={5} etykieta="Wczytuję listę arkuszy" />}
       {blad && <BrakDanych blad={blad} />}
@@ -114,7 +113,6 @@ export function Arkusze() {
             <section key={f.id} className={`${styles.group} wejscie`}>
               <header className={styles.groupHead}>
                 <h2 className="h3">{f.nazwa}</h2>
-                <p className="small muted">{f.opis}</p>
                 <p className="small muted">{opisGrupy(arkusze).join(" · ")}</p>
               </header>
               <ul className={styles.list}>
@@ -125,9 +123,41 @@ export function Arkusze() {
             </section>
           );
         })}
+
+      {/* Przedmioty z profilu bez arkuszy nie mają zakładki: informacja o nich stoi pod listą, a nie nad arkuszami innego przedmiotu. */}
+      {bezArkuszy.length > 0 && (
+        <div className={styles.braki}>
+          {[...new Set(bezArkuszy)].map((id) => (
+            <p key={id} className="muted">{brakArkuszy(id, null, [])}</p>
+          ))}
+        </div>
+      )}
     </main>
   );
 }
+
+/** Arkusz w trakcie (ostatnio ruszany, z odpowiedziami, niesprawdzony): jeden wiersz na górze listy. */
+function KontynuujArkusz({ lista }: { lista: ArkuszWpis[] }) {
+  const wiersze = usePostepyKonta();
+  const wgId = new Map(lista.map((a) => [a.id, a]));
+  const zaczety = [...(wiersze ?? [])]
+    .filter((w) => !w.data.wynik && wgId.has(w.sheet_id) && liczOdpowiedzi(w.data.odpowiedzi) > 0)
+    .sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0];
+  if (!zaczety) return null;
+  const a = wgId.get(zaczety.sheet_id)!;
+  return (
+    <Link to={`/arkusze/${a.id}`} className={`wiersz ${styles.kontynuuj}`}>
+      <span className="wiersz-tresc">
+        <span className="kicker">Kontynuuj</span>
+        <span className="h3">{nazwaArkusza(a)}</span>
+        <span className="wiersz-opis">{liczOdpowiedzi(zaczety.data.odpowiedzi)} z {a.pytan} odpowiedzi</span>
+      </span>
+      <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
+    </Link>
+  );
+}
+
+const nazwaArkusza = (a: ArkuszWpis) => `${a.przedmiot === "matematyka" ? "Matematyka" : a.przedmiot === "informatyka" ? "Informatyka" : "Angielski"} · matura ${a.sesja} ${a.rok}`;
 
 function Karta({ arkusz: a }: { arkusz: ArkuszWpis }) {
   const postep = wczytajPostep(a.id);
@@ -135,7 +165,7 @@ function Karta({ arkusz: a }: { arkusz: ArkuszWpis }) {
   const proc = postep.wynik && postep.wynik.mozliwe > 0 ? Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100) : null;
   return (
     <li>
-      <Link to={`/arkusze/${a.id}`} className={styles.card} title={a.symbol}>
+      <Link to={`/arkusze/${a.id}`} className={styles.card} title={a.symbol} onPointerEnter={() => rozgrzejArkusz(a.id)} onFocus={() => rozgrzejArkusz(a.id)} onTouchStart={() => rozgrzejArkusz(a.id)}>
         <span className="kicker">{a.sesja}</span>
         <span className={styles.year}>{a.rok}</span>
         <span className={styles.status}>

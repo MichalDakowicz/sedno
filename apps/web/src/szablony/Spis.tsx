@@ -19,11 +19,11 @@ const ETAPY: { nazwa: string; opis: string; szablony: string[]; prawdziwe?: { to
   {
     nazwa: "Ćwiczenie",
     opis: "Jeden z formatów albo arkusz.",
-    szablony: ["napraw-blad", "wizualizacje"],
-    prawdziwe: [WDROZONE["szybka-runda"]!, WDROZONE["uczen-uczy"]!, { to: "/arkusze", tytul: "Arkusze CKE" }],
+    szablony: ["napraw-blad"],
+    prawdziwe: [WDROZONE["szybka-runda"]!, WDROZONE["uczen-uczy"]!, WDROZONE.wizualizacje!, { to: "/arkusze", tytul: "Arkusze CKE" }],
   },
   { nazwa: "Wynik", opis: "Co poszło i co dalej.", szablony: [], prawdziwe: [WDROZONE.rozbior!] },
-  { nazwa: "Postęp", opis: "Mapa się aktualizuje.", szablony: ["mapa-wiedzy"], prawdziwe: [WDROZONE.umiejetnosci!] },
+  { nazwa: "Postęp", opis: "Mapa się aktualizuje.", szablony: [], prawdziwe: [WDROZONE.umiejetnosci!, WDROZONE["mapa-wiedzy"]!] },
   { nazwa: "Powrót", opis: "Zanikające wraca do nauki.", szablony: [], prawdziwe: [WDROZONE.powtorki!] },
 ];
 

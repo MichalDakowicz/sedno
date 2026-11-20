@@ -2,7 +2,7 @@
   display: grid;
   gap: var(--s-6);
   padding-top: var(--s-6);
-  padding-bottom: 120px;
+  padding-bottom: var(--zapas-pestki);
 }
 
 .sekcja {
@@ -62,11 +62,9 @@
   overflow-wrap: anywhere;
 }
 
-/* Grupa błędów jednej umiejętności: nagłówek raz, zadania jako wiersze rozdzielone cienką linią. */
-.grupa {
-  display: grid;
-  gap: var(--s-1);
-  padding: var(--s-4) 0;
+/* Umiejętność w Powtórkach to zwykły .wiersz: opis pod nazwą, pamięć w stałej kolumnie, „Powtórz” na końcu. */
+.grupa :global(.wiersz-opis) {
+  margin: 0;
 }
 
 .grupaGlowa {
@@ -97,35 +95,35 @@
   border-left: 2px solid var(--line);
 }
 
-.zadanieOpis {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
+/* Pamięć w siatce .wiersz-pasek (tor | procent): podpis w pierwszym rzędzie przez obie kolumny,
+   więc zaczyna się na krawędzi toru, a procent stoi w tej samej kolumnie co na mapie. */
 .retencja {
-  display: grid;
-  gap: 2px;
-  width: 100%;
-  max-width: 12rem;
+  row-gap: 2px;
+  width: min(100%, 12rem);
+  font-size: var(--t-sm);
+  font-variant-numeric: tabular-nums;
 }
 
-.retencja progress {
-  inline-size: 100%;
-  block-size: 6px;
-  max-width: 100%;
-  border: 0;
-  border-radius: var(--r-pill);
+.retencjaPodpis {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.retencjaTor {
+  display: block;
+  min-width: 0;
+  height: 6px;
   overflow: hidden;
-  accent-color: var(--primary);
-}
-
-.retencja progress::-webkit-progress-bar {
   border-radius: var(--r-pill);
   background: var(--line);
 }
 
-.retencja progress::-webkit-progress-value {
-  background: var(--primary-mid);
+.retencjaTor > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
 }
 
 @media (max-width: 480px) {
@@ -148,24 +146,84 @@
   }
 }
 
-/* Akcje poboczne pod głównym przyciskiem: osobny rząd, odstęp jak między wierszami. */
-.poboczne {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s-2) var(--s-5);
-}
-
-.poboczne a {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-1);
-}
-
 .cwicz {
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
   min-height: 44px;
   white-space: nowrap;
+}
+
+/* Liczba na dziś, jedno zdanie o kolejnych dniach i jeden przycisk. */
+.glowa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3) var(--s-5);
+}
+
+/* Liczba ważniejsza od podpisu: ile na dziś dużym stopniem, reszta tekstem. */
+.liczba {
+  font-size: var(--t-lg);
+}
+
+.liczba strong {
+  font-size: calc(32px * var(--skala-tekstu, 1));
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.grupy {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grupy > li + li {
+  border-top: 1px solid var(--line);
+}
+
+.grupa > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.grupa > summary::-webkit-details-marker {
+  display: none;
+}
+
+.grupa .grupaGlowa {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 56px;
+}
+
+.strzalka {
+  flex: none;
+  color: var(--subtle);
+  transition: transform var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+.grupa[open] .strzalka {
+  transform: rotate(90deg);
+}
+
+.ile {
+  margin-left: auto;
+  min-width: 2em;
+  padding: 0 var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.grupa[open] {
+  padding-bottom: var(--s-4);
 }

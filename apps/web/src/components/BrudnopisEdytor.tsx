@@ -14,10 +14,13 @@ import { currentUserId, useSession } from "../auth";
 import { adresObrazu, type Obraz } from "../arkusze/typy";
 import { HistoriaPestki, PestkaNaTablicy, type DymekPestki, type FazaPestki, type WpisHistorii } from "./BrudnopisPestka";
 import { omowTablice, type OdpowiedzPestki, type Punkt } from "./brudnopisPestkaApi";
-import { BLAD, ostatniaKreska, pokazZapisPestki, przygotujZapisPestki, zapiszDopiskiPestki, zetrzyjDopiskiPestki } from "./brudnopisPestkaRysunek";
+import {
+  BLAD, dolozNaZywo, ostatniaKreska, pokazZapisPestki, przygotujZapisPestki, usunNaZywo, zapisNaZywo, zapiszDopiskiPestki, zetrzyjDopiskiPestki,
+  type PozycjaZapisu,
+} from "./brudnopisPestkaRysunek";
 import { wczytajCzcionkiWzorow } from "./brudnopisPestkaWzory";
 import { TutorAvatar } from "./TutorAvatar";
-import { useProwadzeniePestki, type ZapisProwadzenia } from "./useProwadzeniePestki";
+import { useProwadzeniePestki, type ProwadzenieNaZywo, type ZapisProwadzenia } from "./useProwadzeniePestki";
 import styles from "./Brudnopis.module.css";
 
 export const ID_RYSUNKU = "rysunek-bazowy";
@@ -384,7 +387,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   }
 
   const zamknijPestke = () => {
-    const wPestce = Boolean(document.activeElement?.closest(`.${styles.pestkaNaTablicy}`));
+    const wPestce = Boolean(document.activeElement?.closest(`.${styles.pestkaNaTablicy}, .${styles.dokTablicy}`));
     setPestka(null);
     if (typeof prowadzenie.stan === "object") prowadzenie.zatrzymaj();
     // Fokus wraca do przycisku tylko, gdy był w polu Pestki; bez przewijania strony.
@@ -415,15 +418,38 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     zapytanie.current = c;
     const punkt = punktPrzyKresce();
     // Pole pytania znika, więc fokus wraca do twarzy Pestki w pasku, a nie na początek strony.
-    if (document.activeElement?.closest("." + styles.pestkaNaTablicy)) przyciskPestki.current?.focus({ preventScroll: true });
+    if (document.activeElement?.closest(`.${styles.pestkaNaTablicy}, .${styles.dokTablicy}`)) przyciskPestki.current?.focus({ preventScroll: true });
     setPestka({ faza: "mysli", punkt, skok: 0 });
+    // Wskazówka pisze się w dymku od pierwszych słów modelu, a figury i dopiski rysują się, gdy przychodzą (po kolei,
+    // jedna kolejka). Wynik tylko zatwierdza zapis jednym krokiem cofania i dokłada resztę (ramka błędu, bryła).
+    let naZywo: ReturnType<typeof zapisNaZywo> | null = null;
+    let kolejka: Promise<unknown> = Promise.resolve();
+    const dokladaj = (p: PozycjaZapisu) => {
+      kolejka = kolejka.then(() => rysujNaZywo(a, p, c.signal, () => (naZywo ??= zapisNaZywo(a, czyBazowy)))).catch(() => {});
+    };
+    const sprzatnij = () => {
+      if (naZywo && api.current === a) usunNaZywo(a, naZywo.elementy);
+    };
     try {
-      const dane = await omowTablice(a, konto, poleceniePestki, pytanie, c.signal);
-      if (c.signal.aborted) return;
+      const dane = await omowTablice(a, konto, poleceniePestki, pytanie, c.signal, undefined, {
+        wskazowka: (tekst) => {
+          if (!c.signal.aborted) setPestka((p) => (p?.faza === "mysli" || p?.faza === "pisze" ? { ...p, dymek: { tekst } } : p));
+        },
+        ksztalt: (ksztalt) => dokladaj({ ksztalt }),
+        dopisek: (dopisek) => dokladaj({ dopisek }),
+      });
+      await kolejka;
+      if (c.signal.aborted) return sprzatnij();
       zapytanie.current = null;
       dopiszDoHistorii({ pytanie, dane });
-      await pokazNaTablicy(dane);
+      const zywy = naZywo as ReturnType<typeof zapisNaZywo> | null;
+      const gotowe = zywy?.dokoncz(dane);
+      // Wynik inny niż strumień (np. serwer przyciął zapis): rysunek z wyniku zastępuje zapis na żywo.
+      if (zywy && !gotowe) sprzatnij();
+      await pokazNaTablicy(dane, undefined, false, zywy && gotowe ? { elementy: zywy.elementy, ...gotowe } : undefined);
     } catch (e) {
+      await kolejka;
+      sprzatnij();
       if (c.signal.aborted) return;
       const kod = e instanceof AiError ? e.code : "server_error";
       dopiszDoHistorii({ pytanie, blad: kod });
@@ -433,14 +459,82 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     }
   }
 
-  function pokazProwadzenie(dane: OdpowiedzPestki, zapis: ZapisProwadzenia) {
-    dopiszDoHistorii({ pytanie: "", prowadzenie: true, dane });
-    return pokazNaTablicy(dane, zapis);
+  // Jedna figura albo dopisek ze strumienia: miejsce (raz, przy pierwszym), pismo na nakładce, potem na tablicę bez
+  // kroku cofania. Pestka idzie za pismem i wraca do myślenia, dopóki nie przyjdzie wynik.
+  async function rysujNaZywo(a: ExcalidrawImperativeAPI, p: PozycjaZapisu, signal: AbortSignal, zapis: () => ReturnType<typeof zapisNaZywo>) {
+    const aktywna = () => !signal.aborted && api.current === a && currentUserId() === konto;
+    if (!aktywna()) return;
+    const pismo = "dopisek" in p ? `Pestka\n${p.dopisek.tekst}` : "Pestka";
+    await Promise.all([
+      wczytajCzcionkiWzorow(pismo),
+      "dopisek" in p && p.dopisek.typ === "kod" ? document.fonts.load("17px Cascadia", pismo).catch(() => []) : [],
+    ]);
+    if (!aktywna()) return;
+    const nowe = zapis().dodaj(p);
+    const nakladka = nakladkaPestki.current;
+    const z = a.getAppState().zoom.value;
+    const przed = (e: ExcalidrawElement): Punkt => [e.x - 48 / z, e.y - 6 / z];
+    if (nowe.length && nakladka && !mniejRuchu()) {
+      const pierwszy = nowe.find((e) => !(e.type === "text" && e.text === "Pestka")) ?? nowe[0]!;
+      setPestka((s) => (s ? { ...s, faza: "pisze", punkt: przed(pierwszy), skok: s.skok + 1 } : s));
+      await pokazZapisPestki(nakladka, a, nowe, signal, (e) => {
+        if (e.type === "text" && e.text === "Pestka") return;
+        setPestka((s) => (s ? { ...s, faza: "pisze", punkt: przed(e), skok: s.skok + 1 } : s));
+      });
+    }
+    if (!aktywna()) return;
+    dolozNaZywo(a, nowe);
+    setPestka((s) => (s?.faza === "pisze" ? { ...s, faza: "mysli" } : s));
+  }
+
+  // Prowadzenie na żywo korzysta ze strumienia jak pytanie: figury i dopiski rysują się, gdy przychodzą, ale tylko
+  // dopóki tablica się nie zmieniła (zapis.aktualny). Wynik zatwierdza zapis jednym krokiem cofania; przy „czekam”,
+  // nieaktualnej odpowiedzi albo błędzie narysowane na żywo znika. Funkcja bez strumienia nie woła zdarzeń,
+  // więc wtedy wszystko rysuje się z wyniku jak dawniej.
+  function pokazProwadzenie(zapis: ZapisProwadzenia): ProwadzenieNaZywo {
+    const a = api.current;
+    let naZywo: ReturnType<typeof zapisNaZywo> | null = null;
+    let kolejka: Promise<unknown> = Promise.resolve();
+    const dokladaj = (p: PozycjaZapisu) => {
+      if (!a) return;
+      kolejka = kolejka.then(() => {
+        if (zapis.aktualny()) return rysujNaZywo(a, p, zapis.signal, () => (naZywo ??= zapisNaZywo(a, czyBazowy)));
+      }).catch(() => {});
+    };
+    const sprzatnij = () => {
+      if (a && naZywo && api.current === a) usunNaZywo(a, naZywo.elementy);
+      naZywo = null;
+    };
+    return {
+      zdarzenia: { ksztalt: (ksztalt) => dokladaj({ ksztalt }), dopisek: (dopisek) => dokladaj({ dopisek }) },
+      async porzuc() {
+        await kolejka;
+        if (!naZywo) return;
+        sprzatnij();
+        setPestka((s) => (s?.faza === "pisze" || s?.faza === "mysli" ? null : s));
+      },
+      async pokaz(dane) {
+        await kolejka;
+        if (!zapis.aktualny()) {
+          sprzatnij();
+          return false;
+        }
+        dopiszDoHistorii({ pytanie: "", prowadzenie: true, dane });
+        const zywy = naZywo as ReturnType<typeof zapisNaZywo> | null;
+        const gotowe = zywy?.dokoncz(dane);
+        if (zywy && !gotowe) sprzatnij();
+        const ok = await pokazNaTablicy(dane, zapis, false, zywy && gotowe ? { elementy: zywy.elementy, ...gotowe } : undefined);
+        if (!ok) sprzatnij();
+        return ok;
+      },
+    };
   }
 
   // Pestka pisze w wolnym miejscu przy pracy ucznia, nigdy nie przesuwając jego widoku. Najpierw przechodzi
   // tam, gdzie zacznie pisać, potem idzie za pismem i na końcu odsuwa się na bok z dymkiem.
-  async function pokazNaTablicy(dane: OdpowiedzPestki, zapis?: ZapisProwadzenia, bezDymka = false) {
+  // naZywo: zapis narysowany już ze strumienia (elementy na tablicy bez kroku cofania) i reszta do dołożenia.
+  async function pokazNaTablicy(dane: OdpowiedzPestki, zapis?: ZapisProwadzenia, bezDymka = false,
+    naZywo?: { elementy: ExcalidrawElement[]; reszta: ExcalidrawElement[]; pozaWidokiem: boolean }) {
     const tablica = api.current;
     const nakladka = nakladkaPestki.current;
     if (!tablica || !konto || currentUserId() !== konto || pisaniePestki.current || zapis?.signal.aborted) return false;
@@ -457,7 +551,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
         dane.dopiski.some((d) => d.typ === "kod") ? document.fonts.load("17px Cascadia", pismo).catch(() => []) : [],
       ]);
       if (!aktywna()) return false;
-      const { elementy: nowe, pozaWidokiem } = przygotujZapisPestki(tablica, dane, czyBazowy);
+      const { elementy: nowe, pozaWidokiem } = naZywo ? { elementy: naZywo.reszta, pozaWidokiem: naZywo.pozaWidokiem } : przygotujZapisPestki(tablica, dane, czyBazowy);
       const z = tablica.getAppState().zoom.value;
       const przed = (e: ExcalidrawElement): Punkt => [e.x - 48 / z, e.y - 6 / z];
       const pierwszy = nowe.find((e) => e.customData?.pestka && e.strokeColor !== BLAD) ?? nowe[0];
@@ -472,8 +566,9 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
         });
       }
       if (!aktywna()) return false;
-      if (nowe.length) zapiszDopiskiPestki(tablica, nowe);
-      const dopisane = nowe.filter((e) => e.strokeColor !== BLAD);
+      // Także bez nowych elementów, gdy jest zapis na żywo: to zatwierdzenie robi z całej odpowiedzi jeden krok cofania.
+      if (nowe.length || naZywo?.elementy.length) zapiszDopiskiPestki(tablica, nowe);
+      const dopisane = [...(naZywo?.elementy ?? []), ...nowe].filter((e) => e.strokeColor !== BLAD);
       const [, y1, x2] = dopisane.length ? getCommonBounds(dopisane) : [0, 0, 0, 0];
       const obok: Punkt = dopisane.length && !pozaWidokiem ? [x2 + 10 / z, y1] : punktPrzyKresce();
       const pokaz = pozaWidokiem && dopisane.length
@@ -829,7 +924,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
           onPointerDownCapture={(e) => {
             flushSync(() => api.current?.refresh());
             // Uczeń wraca do pisania: dymek Pestki znika, żeby niczego nie zasłaniać.
-            const wPestce = (e.target as Element).closest("." + styles.pestkaNaTablicy);
+            const wPestce = (e.target as Element).closest(`.${styles.pestkaNaTablicy}, .${styles.dokTablicy}`);
             if (!wPestce && pestka && pestka.faza !== "mysli" && pestka.faza !== "pisze") zamknijPestke();
           }}
         >

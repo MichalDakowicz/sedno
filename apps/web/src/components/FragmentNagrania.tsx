@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import type { CzescNagrania } from "../arkusze/typy";
+import { KomunikatBladuNagrania } from "./BladNagrania";
 import styles from "./FragmentNagrania.module.css";
 
 // Jeden odtwarzacz na całą stronę: nowy fragment zatrzymuje poprzedni.
@@ -14,7 +15,10 @@ const sekundy = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60
 
 /** podpis: numer pytania przed przyciskiem (np. w karcie omawiania, gdzie fragmentów jest kilka). */
 export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragment: CzescNagrania; podpis?: string }) {
-  const [gra, setGra] = useState(false);
+  // „Zatrzymaj” dopiero, gdy dźwięk naprawdę idzie; wcześniej plik z CKE może się jeszcze wczytywać.
+  const [stan, setStan] = useState<"stoi" | "laduje" | "gra">("stoi");
+  const [blad, setBlad] = useState(false);
+  const gra = stan !== "stoi";
   // Ile fragmentu już zagrało (0–1): pasek pod przyciskiem pokazuje, że nagranie idzie i ile zostało.
   const [postep, setPostep] = useState(0);
   const zatrzymajMoj = useRef<(() => void) | null>(null);
@@ -31,21 +35,37 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
     const stop = () => {
       a.pause();
       a.removeEventListener("timeupdate", naCzas);
+      a.removeEventListener("playing", naStart);
+      a.removeEventListener("error", naBlad);
+      window.clearTimeout(limit);
       if (zatrzymajGrajacy === stop) zatrzymajGrajacy = null;
       zatrzymajMoj.current = null;
-      setGra(false);
+      setStan("stoi");
     };
+    const naStart = () => {
+      window.clearTimeout(limit);
+      setStan("gra");
+    };
+    const naBlad = () => {
+      stop();
+      setBlad(true);
+    };
+    // Gdy strona CKE nie odpowiada, przeglądarka potrafi czekać bez końca: po 10 s mówimy to wprost.
+    const limit = window.setTimeout(naBlad, 10_000);
     const naCzas = () => {
       setPostep(Math.min(1, Math.max(0, (a.currentTime - fragment.od) / Math.max(1, fragment.do - fragment.od))));
       if (a.currentTime >= fragment.do) stop();
     };
     a.addEventListener("timeupdate", naCzas);
+    a.addEventListener("playing", naStart);
+    a.addEventListener("error", naBlad);
     a.currentTime = fragment.od;
     zatrzymajGrajacy = stop;
     zatrzymajMoj.current = stop;
     setPostep(0);
-    setGra(true);
-    void a.play().catch(stop);
+    setBlad(false);
+    setStan("laduje");
+    void a.play().catch(naBlad);
   }
 
   return (
@@ -53,12 +73,13 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
       <button type="button" className="btn btn-ghost btn-sm" onClick={przelacz} aria-pressed={gra}>
         {gra ? <Pause size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />}
         {podpis && <strong>{podpis}</strong>}
-        {gra ? "Zatrzymaj" : podpis ? "Posłuchaj" : "Posłuchaj fragmentu"}
+        {stan === "gra" ? "Zatrzymaj" : stan === "laduje" ? "Wczytuję…" : podpis ? "Posłuchaj" : "Posłuchaj fragmentu"}
         <span className={styles.czas}>
           {sekundy(fragment.od)}–{sekundy(fragment.do)}
         </span>
       </button>
-      {(gra || postep > 0) && (
+      {blad && <KomunikatBladuNagrania ponow={() => { wspolny?.load(); przelacz(); }} />}
+      {(stan === "gra" || postep > 0) && (
         <span className={styles.pasek} role="progressbar" aria-label="Odtworzona część fragmentu" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(postep * 100)}>
           <span style={{ width: `${postep * 100}%` }} />
         </span>

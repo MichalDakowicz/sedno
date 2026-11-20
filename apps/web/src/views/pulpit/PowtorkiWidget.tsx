@@ -2,8 +2,9 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { Ladowanie } from "../../components/Ladowanie";
 import { adresNauki, adresPowtorek } from "../../nauka/adresy";
-import { naukaApi } from "../../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
+import { useSesjaDiagnozy } from "../../nauka/diagnoza";
 import { procentNauki } from "../nauka/NaukaPowtorki";
 import { etykietaZrodla, kluczPowtorki, odmianaPowtorek, powtorkiNaDni, unikalnePowtorki } from "./czasPowtorek";
 import { Liczba } from "../../ruch";
@@ -18,7 +19,8 @@ const POKAZANE = 3;
 export function PowtorkiWidget({ zakres, aktywny }: KontekstPulpitu) {
   const [poziom] = usePoziomNauki();
   const angielski = (!aktywny || aktywny === "angielski") && zakres.some((s) => s.przedmiot.id === "angielski");
-  const powtorki = useZapytanieNauki(angielski ? `nauka:powtorki:${poziom}` : null, (signal) => naukaApi.powtorki(poziom, signal));
+  const powtorki = useZapytanie(angielski ? zapytania.powtorki(poziom) : null);
+  const diagnoza = useSesjaDiagnozy(poziom, angielski);
   if (!angielski) return null;
 
   const kolejka = unikalnePowtorki(powtorki.dane ? [...(powtorki.dane.today ? [powtorki.dane.today] : []), ...powtorki.dane.queue] : []);
@@ -44,7 +46,7 @@ export function PowtorkiWidget({ zakres, aktywny }: KontekstPulpitu) {
                   <span className="wiersz-tresc">
                     <span className="h3">{p.name}</span>
                     {p.mistake && (
-                      <span className="wiersz-opis">{etykietaZrodla(p.mistake)}</span>
+                      <span className="wiersz-opis">{etykietaZrodla(p.mistake, diagnoza)}</span>
                     )}
                     <span className="wiersz-opis">
                       {p.mistake ? "Wróć do zadania, które sprawiło trudność." : "Czas przypomnieć sobie tę umiejętność."}

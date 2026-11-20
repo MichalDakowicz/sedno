@@ -22,7 +22,6 @@ const tekstBloku = (b: Blok) => ("tekst" in b ? b.tekst : "");
 export const ZAPIS_W_PLIKU = /(?:zapisz|zapisać)[^.]{0,80}\bw pliku\b|\bpliku\s+(?:tekstowym\s+)?wyniki\d*(?:_\d+)?\.txt/i;
 const WYKRES = /\b(?:utwórz|sporządź|narysuj)\b[^.]{0,60}\bwykres/i;
 const PROGRAM = /\bnapisz program|\bprogram(?:u|y|ów)?\b[^.]{0,40}\b(?:znajdzie|da|wyznaczy|wypisze)|\bprogram\(-y\)/i;
-const NARZEDZIA = /dostępnych narzędzi informatycznych/i;
 
 export function nazwaPlikuWynikow(tekst: string): string | undefined {
   return tekst.match(/\b(wyniki\d*(?:_\d+)?\.txt)/i)?.[1];
@@ -38,17 +37,6 @@ export function wskazowkaPodAkapitem(b: Blok): RodzajWskazowki | null {
   if (ZAPIS_W_PLIKU.test(t)) return PROGRAM.test(t) ? "plikProgram" : "plik";
   if (PROGRAM.test(t) && !/zapisz w pseudokodzie/i.test(t)) return "program";
   return null;
-}
-
-/** Co zadanie każe oddać na egzaminie. */
-export function czegoZadanie(z: Zadanie) {
-  const teksty = z.bloki.map(tekstBloku).join(" ");
-  return {
-    plikWynikow: ZAPIS_W_PLIKU.test(teksty) ? (nazwaPlikuWynikow(teksty) ?? true) : false,
-    wykres: WYKRES.test(teksty),
-    program: !!z.program || PROGRAM.test(teksty),
-    realizacja: NARZEDZIA.test(teksty),
-  };
 }
 
 // Tekst polecenia podpunktu: akapity między poprzednim pytaniem (albo nagłówkiem) a jego znacznikiem.
@@ -113,50 +101,33 @@ export function stanOdpowiedzi(z: Zadanie, p: Pytanie, odpowiedzi: Record<string
   return { forma, ile, z: wszystkich, pelna: ile >= wszystkich, pusta: ile === 0, sprawdza };
 }
 
-export const OPIS_FORMY: Record<Forma, { miejsce: string; format: string }> = {
-  komorki: { miejsce: "Puste komórki tabeli powyżej", format: "wpisz wartość w każdą komórkę" },
-  pf: { miejsce: "Przełączniki P / F w tabeli powyżej", format: "wybierz P albo F w każdym wierszu" },
-  luki: { miejsce: "Luki w zdaniu powyżej", format: "wpisz odpowiedź w każdą lukę" },
-  wynik: { miejsce: "Pole tekstowe poniżej", format: "wynik tekstem, kilka wierszy jeśli trzeba; numeru zadania nie dopisujesz" },
-  kod: { miejsce: "Pole na kod poniżej", format: "algorytm w pseudokodzie albo kod programu" },
-  sql: { miejsce: "Pole na kod poniżej", format: "zapytanie SQL" },
-  wykres: { miejsce: "Pole tekstowe poniżej", format: "zestawienie, na którym oparty jest wykres (wiersze z wartościami); sam wykres zostaje poza Sedno" },
-  inne: { miejsce: "Pole poniżej", format: "krótka odpowiedź" },
-};
-
-/** Co liczy się jako wypełnione. */
-export function opisWypelnienia(s: StanOdpowiedzi): string {
-  if (s.z > 1) return `Odpowiedź w spisie liczy się od pierwszej wpisanej części; pełna, gdy uzupełnisz wszystkie (${s.z}).`;
-  return "Liczy się jako wypełnione, gdy pole nie jest puste.";
-}
-
 /** Kto ocenia po sprawdzeniu arkusza. */
 export function opisOceny(s: StanOdpowiedzi): string {
   if (s.sprawdza) return "Sedno porówna z kluczem CKE.";
-  if (s.forma === "kod" || s.forma === "sql") return "Kodu Sedno nie sprawdza: po sprawdzeniu porównasz go z rozwiązaniem CKE i ocenisz sam.";
-  if (s.forma === "wykres") return "Wykresu Sedno nie ocenia: po sprawdzeniu porównasz zestawienie z kluczem CKE i ocenisz sam.";
-  return "Brak klucza do porównania: po sprawdzeniu ocenisz sam według rozwiązania CKE.";
+  if (s.forma === "kod" || s.forma === "sql") return "Kodu Sedno nie sprawdza: po sprawdzeniu porównasz go z rozwiązaniem CKE i ocenisz samodzielnie.";
+  if (s.forma === "wykres") return "Wykresu Sedno nie ocenia: po sprawdzeniu porównasz zestawienie z kluczem CKE i ocenisz samodzielnie.";
+  return "Brak klucza do porównania: po sprawdzeniu ocenisz samodzielnie według rozwiązania CKE.";
 }
 
-// tekst: jedna linia, bez której uczeń nie wie, gdzie wpisać odpowiedź; pestka: reszta, którą Pestka mówi na żądanie.
+// tytul: krótki znacznik przy poleceniu, które każe oddać plik albo wykres; tekst i pestka mówi Pestka na żądanie.
 export const WSKAZOWKI: Record<RodzajWskazowki, { tytul: string; tekst: string; pestka: string }> = {
   plik: {
-    tytul: "W Sedno",
+    tytul: "Plik wyników tylko na egzaminie",
     tekst: "Wpisz każdą odpowiedź w pole pod poleceniem, bez pliku wyników.",
     pestka: "Wpisany wynik porównuję z kluczem CKE, numeru zadania nie dopisujesz. Na egzaminie plik wyników trzeba oddać.",
   },
   plikProgram: {
-    tytul: "W Sedno",
+    tytul: "Plik wyników tylko na egzaminie · program uruchomisz w materiałach",
     tekst: "Program uruchom w panelu materiałów, a każdą odpowiedź wpisz w pole pod poleceniem.",
     pestka: "Kod jest roboczy i nie jest oceniany, pliku wyników nie tworzysz. Na egzaminie oddajesz plik wyników i pliki z kodem.",
   },
   wykres: {
-    tytul: "W Sedno",
+    tytul: "Wykres tylko na egzaminie · tu wpisz zestawienie",
     tekst: "Zamiast wykresu wpisz w pole zestawienie, z którego by powstał.",
     pestka: "Po sprawdzeniu porównasz zestawienie z kluczem CKE. Na egzaminie wykres trzeba oddać w pliku.",
   },
   program: {
-    tytul: "W Sedno",
+    tytul: "Program uruchomisz w materiałach",
     tekst: "Program uruchom w panelu materiałów, a wynik wpisz w pole pod poleceniem.",
     pestka: "Kod jest roboczy i nie jest oceniany. Na egzaminie oddajesz też plik z kodem.",
   },

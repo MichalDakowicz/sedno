@@ -1,0 +1,186 @@
+/* Wizualizacje: model na liniach, bez kart. Kafle fragmentów jak kafle odpowiedzi w rundzie. */
+.bezLinii {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.wzor {
+  font-size: var(--t-md);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.obszar {
+  min-height: 160px;
+}
+
+.suwaki {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.suwak {
+  display: grid;
+  grid-template-columns: 2ch minmax(0, 1fr) 5ch;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 44px;
+}
+
+.suwakNazwa {
+  font-size: var(--t-md);
+  font-style: italic;
+  color: var(--muted);
+}
+
+.suwak input[type="range"] {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--primary-strong);
+  cursor: pointer;
+}
+
+.suwakWartosc {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.reset {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  justify-self: start;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+/* Tablica wyszukiwania: komórki w jednym rzędzie, który zawija się na telefonie. Odrzucona część przygasa,
+   porównywana komórka ma obwódkę akcentu, trafiona zielone tło. */
+.tablica {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.komorka {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-width: 48px;
+  padding: var(--s-2) var(--s-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  transition: opacity var(--ruch-zwykly) var(--ruch-krzywa), border-color var(--ruch-szybki) var(--ruch-krzywa), transform var(--ruch-zwykly) var(--ruch-sprezyna);
+}
+
+.komorka[data-poza] {
+  opacity: 0.35;
+}
+
+.komorka[data-srodek] {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+  transform: translateY(-3px);
+}
+
+.komorka[data-trafione] {
+  border-color: var(--success);
+  box-shadow: inset 0 0 0 1px var(--success);
+  background: color-mix(in srgb, var(--success) 12%, var(--surface));
+}
+
+.komorkaWartosc {
+  font-size: var(--t-md);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.komorkaIndeks {
+  font-size: var(--t-xs);
+  color: var(--subtle);
+}
+
+.opisKroku {
+  max-width: 60ch;
+}
+
+.krokowanie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.parafraza {
+  max-width: 60ch;
+  font-size: var(--t-md);
+  font-style: italic;
+}
+
+.fragmenty {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.fragment {
+  min-height: 48px;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa), background-color var(--ruch-szybki) var(--ruch-krzywa), transform var(--ruch-wolny) var(--ruch-sprezyna);
+}
+
+.fragment:hover {
+  border-color: var(--primary);
+}
+
+.fragment:active {
+  transform: scale(0.98);
+  transition-duration: var(--ruch-szybki);
+}
+
+.fragment[aria-pressed="true"] {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.fragment[data-ocena="dobrze"] {
+  border-color: var(--success);
+  box-shadow: inset 0 0 0 1px var(--success);
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+}
+
+.fragment[data-ocena="zle"] {
+  border-color: var(--danger);
+  box-shadow: inset 0 0 0 1px var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+}
+
+.werdykt {
+  max-width: 60ch;
+}
+
+.werdykt:focus {
+  outline: none;
+}
+
+.werdykt[data-ocena="dobrze"] strong {
+  color: var(--success-strong);
+}
+
+.werdykt[data-ocena="zle"] strong {
+  color: var(--danger);
+}

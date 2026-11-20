@@ -59,8 +59,8 @@ export function Ustawienia() {
   const blad = useBladUstawien();
 
   return (
-    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: 120, display: "grid", gap: "var(--s-6)" }}>
-      <NaglowekStrony etykieta="Profil" tytul="Ustawienia" lead="Wygląd, dostępność i to, jak odzywa się Pestka." />
+    <main className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: "var(--zapas-pestki)", display: "grid", gap: "var(--s-6)" }}>
+      <NaglowekStrony wstecz={{ do: "/profil", nazwa: "Profil" }} tytul="Ustawienia" lead="Wygląd, dostępność i to, jak odzywa się Pestka." />
 
       <section className={s.sekcja}>
         <h2 className="h2">Wygląd</h2>

@@ -179,3 +179,8 @@
   display: inline-flex;
   flex: none;
 }
+
+.blad {
+  color: var(--muted);
+  font-size: var(--t-sm);
+}

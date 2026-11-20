@@ -3,74 +3,7 @@
   grid-template-columns: minmax(0, 1fr);
   gap: var(--s-7);
   padding-top: var(--s-2);
-  padding-bottom: 96px;
-}
-
-/* Pasek przedmiotów */
-
-.subjectBar {
-  position: relative;
-  display: flex;
-  gap: var(--s-2);
-  width: fit-content;
-  max-width: calc(100% + 16px);
-  overflow-x: auto;
-  /* miejsce na cień aktywnego przycisku, żeby nie był ucięty */
-  margin: calc(-1 * var(--s-2)) calc(-1 * var(--s-2)) 0;
-  padding: var(--s-2);
-  scrollbar-width: none;
-}
-
-.subjectBar::-webkit-scrollbar {
-  display: none;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-3);
-  flex-shrink: 0;
-  min-height: 48px;
-  padding: 6px 18px 6px 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  background: transparent;
-  font-size: var(--t-sm);
-  font-weight: 500;
-  color: var(--muted);
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    color var(--ruch-szybki) var(--ruch-krzywa),
-    background-color var(--ruch-szybki) var(--ruch-krzywa),
-    border-color var(--ruch-szybki) var(--ruch-krzywa);
-}
-
-.chip:hover {
-  color: var(--fg);
-  background: var(--surface);
-}
-
-.chipActive {
-  color: var(--fg);
-  background: var(--surface);
-  border-color: transparent;
-  box-shadow: var(--shadow-float);
-}
-
-.chipIcon {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--fg);
-  color: var(--bg);
-}
-
-.chipAdd {
-  padding-left: 16px;
-  border-style: dashed;
+  padding-bottom: var(--zapas-pestki);
 }
 
 /* Powitanie */
@@ -205,12 +138,15 @@
 }
 
 .stat {
+  color: var(--fg);
   font-size: calc(48px * var(--skala-tekstu, 1));
   line-height: 1;
   letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
 }
 
-.stat > span {
+/* Tylko jednostka jest mniejsza i szara; liczba (także z <Liczba>, która renderuje własne spany) ma pełny stopień. */
+.stat > .statJednostka {
   color: var(--subtle);
   font-size: calc(28px * var(--skala-tekstu, 1));
 }
@@ -235,14 +171,6 @@
   color: var(--fg);
 }
 
-.wynikiGlowa {
-  width: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--s-4);
-}
-
 .stat > .statOpis {
   display: block;
   margin-top: var(--s-2);
@@ -251,81 +179,11 @@
   color: var(--subtle);
 }
 
-.trendWrap {
-  display: grid;
-  justify-items: end;
-  gap: var(--s-1);
-}
-
-.trendPodpis {
-  font-size: var(--t-xs);
-  color: var(--subtle);
-}
-
-.trend {
-  width: 120px;
-  height: 40px;
-  flex: none;
-  overflow: visible;
-}
-
-.trendLinia {
-  fill: none;
-  stroke: var(--primary-text);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.trendKropka {
-  fill: var(--primary-text);
-}
-
-.trendProg {
-  stroke: var(--line);
-  stroke-width: 1;
-  stroke-dasharray: 3 3;
-}
-
 .skala {
   position: relative;
   width: 100%;
   padding-bottom: var(--s-5);
   margin-top: var(--s-2);
-}
-
-.skalaPasek {
-  position: relative;
-  display: block;
-  height: 8px;
-  border-radius: var(--r-pill);
-  background: var(--line);
-}
-
-.skalaPasek > span:first-child {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--primary);
-}
-
-.skalaProg {
-  position: absolute;
-  top: -4px;
-  width: 2px;
-  height: 16px;
-  margin-left: -1px;
-  border-radius: 1px;
-  background: var(--fg);
-}
-
-.skalaOpis {
-  position: absolute;
-  bottom: 0;
-  transform: translateX(-50%);
-  font-size: var(--t-xs);
-  color: var(--subtle);
-  white-space: nowrap;
 }
 
 .wniosek {
@@ -392,7 +250,6 @@
     padding: var(--s-2) 0 0;
   }
 }
-
 
 /* Pusty stan sekcji: jedno zdanie i jeden przycisk, który to zmienia. */
 .pusty {

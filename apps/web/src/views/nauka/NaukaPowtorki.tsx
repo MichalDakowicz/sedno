@@ -18,7 +18,7 @@ export function Angielski() {
   );
 }
 
-/** Poziom matury jako pigułki, jak w Arkuszach: ta sama kontrolka i to samo miejsce na Nauce, Powtórkach i mapie. */
+/** Poziom matury: pigułki zawsze widoczne, domyślnie zaznaczony poziom z profilu (Nauka, Powtórki, mapa). */
 export function WyborPoziomuNauki({ poziom, ustawPoziom }: { poziom: Poziom; ustawPoziom: (poziom: Poziom) => void }) {
   return (
     <div className={s.pole} role="group" aria-labelledby="poziom-matury">

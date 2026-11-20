@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useProfil } from "../auth";
+import { PRZEDMIOTY, type PrzedmiotId } from "../konto/przedmioty";
+import { ZapiszWMapie } from "./ZapiszWMapie";
 import { TutorAvatar } from "./TutorAvatar";
 import { Markdown } from "./Markdown";
 import { useTutor } from "./TutorContext";
 import styles from "./TutorChat.module.css";
+import { MAPA_WIEDZY_WLACZONA } from "../nauka/wiedza";
 
 const kiedy = (iso: string) => {
   const dni = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
@@ -19,8 +23,17 @@ export function WsparcieNota() {
   );
 }
 
+// Przedmiot notatki z rozmowy: ten, przy którym uczeń jest (adres strony), inaczej pierwszy z profilu.
+function usePrzedmiotRozmowy(): PrzedmiotId | null {
+  const { pathname, search } = useLocation();
+  const profil = useProfil();
+  const zAdresu = PRZEDMIOTY.find((p) => `${pathname}${search}`.includes(p.id))?.id;
+  return zAdresu ?? profil?.subjects?.[0]?.id ?? null;
+}
+
 export function TutorChat() {
-  const { messages, state, send, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, aiGotowe } = useTutor();
+  const { messages, state, send, ponow, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, aiGotowe } = useTutor();
+  const przedmiotNotatki = usePrzedmiotRozmowy();
   const [draft, setDraft] = useState("");
   const [lista, setLista] = useState(false);
   const wczesniejsze = rozmowy.filter((r) => r.id !== biezacaRozmowa);
@@ -29,9 +42,17 @@ export function TutorChat() {
   const powod = zajeta ? "Pestka jeszcze odpowiada" : undefined;
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Pierwsze otwarcie (dok, strona, powrót z listy rozmów) staje od razu na końcu rozmowy; płynnie tylko nowe wiadomości.
+  const przewiniete = useRef(false);
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, state]);
+    const el = listRef.current;
+    if (!el) {
+      przewiniete.current = false;
+      return;
+    }
+    el.scrollTo({ top: el.scrollHeight, behavior: przewiniete.current ? "smooth" : "auto" });
+    przewiniete.current = true;
+  }, [messages, state, lista]);
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -82,7 +103,7 @@ export function TutorChat() {
         </ul>
       ) : (
       <div className={styles.list} ref={listRef} aria-live="polite">
-        {messages.map((m) =>
+        {messages.map((m, i) =>
           m.from === "tutor" ? (
             <div key={m.id} className={styles.tutorRow}>
               <TutorAvatar size={28} />
@@ -94,8 +115,7 @@ export function TutorChat() {
                       <>Cofnięto zapis: {p.tekst}.</>
                     ) : (
                       <>
-                        Zapisałam w profilu: {p.tekst}. <Link to="/profil-ucznia">Zobacz profil</Link>
-                        {" · "}
+                        Dodałam do <Link to="/profil-ucznia">twoich priorytetów</Link>: {p.tekst}.{" "}
                         <button type="button" className={styles.cofnij} onClick={() => cofnijPriorytet(m.id, p.id)}>
                           Cofnij
                         </button>
@@ -103,7 +123,16 @@ export function TutorChat() {
                     )}
                   </p>
                 ))}
+                {m.blad && i === messages.length - 1 && state === "idle" && (
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={ponow}>
+                    Spróbuj ponownie
+                  </button>
+                )}
                 {m.wsparcie && <WsparcieNota />}
+                {/* Notatka tylko z odpowiedzi na pytanie ucznia, skończonej (nie z powitania ani w trakcie pisania). */}
+                {MAPA_WIEDZY_WLACZONA && przedmiotNotatki && aiGotowe !== false && i > 0 && m.text.length > 60 && !(i === messages.length - 1 && state !== "idle") && (
+                  <ZapiszWMapie kompakt przedmiot={przedmiotNotatki} tekst={m.text} zrodlo={{ source: "chat", source_ref: biezacaRozmowa }} />
+                )}
                 {m.pelna && (
                   <p className={styles.zapisano}>
                     Lista priorytetów jest pełna. <Link to="/profil-ucznia">Usuń któryś w profilu</Link>
@@ -134,7 +163,7 @@ export function TutorChat() {
         {/* Bez AI Pestka jest obok (przewodnik, dymki), ale rozmawiać nie może: zamiast podpowiedzi pytań link do profilu. */}
         {aiGotowe === false ? (
           <p className="small muted">
-            Rozmowa z Pestką potrzebuje AI na koncie. <Link to="/profil#ai" className="link">Połącz Pestkę w profilu</Link>
+            Pestka jest chwilowo niedostępna. Spróbuj za chwilę.
           </p>
         ) : (
         <div className={styles.suggestions}>

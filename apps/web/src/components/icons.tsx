@@ -1,18 +1,12 @@
 import {
   BookOpen,
   CodeXml,
-  Footprints,
-  GraduationCap,
   Languages,
-  MessagesSquare,
   Sigma,
-  Wrench,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
 import type { Ton } from "../konto/przedmioty";
 
-export type Format = "Napraw błąd" | "Szybkie rundy" | "Naucz Kolegę" | "Krok po kroku" | "Tutor";
 import styles from "./icons.module.css";
 
 const subjectIcons: Record<string, LucideIcon> = {
@@ -20,14 +14,6 @@ const subjectIcons: Record<string, LucideIcon> = {
   matematyka: Sigma,
   angielski: Languages,
   informatyka: CodeXml,
-};
-
-export const formatIcons: Record<Format, LucideIcon> = {
-  "Napraw błąd": Wrench,
-  "Szybkie rundy": Zap,
-  "Naucz Kolegę": GraduationCap,
-  "Krok po kroku": Footprints,
-  Tutor: MessagesSquare,
 };
 
 type SubjectIconProps = { subject: { id: string; tone: Ton }; size?: "sm" | "md" | "lg" };

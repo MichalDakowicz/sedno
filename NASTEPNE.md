@@ -1,8 +1,24 @@
 # Następne kroki i pomysły
 
-Stan na 2 listopada 2026, koniec pierwszej sesji planowania; sekcja 0 z 16 listopada. Termin zgłoszenia do konkursu: **29 listopada 2026**.
+Stan na 2 listopada 2026, koniec pierwszej sesji planowania; sekcja 0 z 16 listopada, sekcja 0a z 19 listopada. Termin zgłoszenia do konkursu: **29 listopada 2026**.
 
 Dokumentacja wizualna (GitHub Pages z `docs/`): 139 stron w 16 rozdziałach. Poniżej to, co zostało.
+
+## 0a. Gałąź `pestka-z-twarza` (PR 74, stan na 19 listopada 2026)
+
+Zrobione po stronie aplikacji: ogród i gotowość, quiz celów, nowy układ pięciu zakładek, rozgrzewanie danych, uproszczony arkusz; potem czytelność arkusza (wzory przed załadowaniem KaTeX, bloki kodu, tabele do wypełnienia, nagłówki podpunktów, warsztat Python/SQL), karta powtórki w Nauce („Powtórz zadanie”), onboarding w czterech krokach, prowadzenie Pestki na tablicy ze strumienia, notatki w mapie wiedzy ze źródłem (rozmowa, omówienie błędu), przypinanie do umiejętności i ręczne łączenie, szkielety o zmierzonej wysokości, dok Pestki na telefonie, kontrast `--primary-text`, porządki w martwym kodzie, dokumenty w `docs/`.
+
+Niesprawdzone w przeglądarce (wymaga modelu albo zapisu na koncie): prowadzenie na żywo ze strumienia na tablicy, zapis notatki z rozmowy i z omówienia błędu, przypięcie i ręczne połączenie notatek, ostatni krok onboardingu po zapisie przedmiotów.
+
+### Wymaga serwera (`services/`, przez staging `sedno-dev`)
+
+- **Cele w kontekście Pestki na tablicy.** `omow-brudnopis` nie dostaje celu ani obszarów z quizu celów; trzeba je dodać do kontekstu funkcji.
+- **Prognoza dla przedmiotów poza angielskim.** `nauka_plan` liczy prognozę tylko z mapy angielskiego; matematyka, informatyka i polski pokazują średnią z arkuszy.
+- **Tematy zadań w arkuszach.** Dane arkuszy nie mają tematu zadania, więc nie da się przypiąć modeli z Wizualizacji ani umiejętności do zadań CKE.
+- **Śmieci z parsera w treści zadań CKE**, np. „Przeczytaj tekst. ). Uwaga…”, „4. spośród podanych opcji…”: poprawić import i wgrać arkusze ponownie.
+- **Stan prowadzenia w strumieniu tablicy.** Strumień nie wysyła `stanProwadzenia` przed wskazówką, więc przy prowadzeniu na żywo wskazówka czeka na wynik (nie wiadomo, czy to krok, błąd, czy „czekam”). Osobne zdarzenie `{"type":"stan"}` na początku pozwoliłoby pisać ją od pierwszych słów.
+- **Mapa wiedzy:** przypinanie notatek do umiejętności poza angielskim (ograniczenie `skill_id` w `knowledge_nodes` i brak taksonomii); odwołania do notatek w rozmowie z Pestką (kontekst funkcji czatu). Notatki z rundy (`source = session`) baza już przyjmuje, w aplikacji jeszcze ich nie zapisujemy.
+- **„Odłóż” w Powtórkach** (`docs/dash-powtorki.html`): odłożenie powtórki musi zmienić termin w bazie.
 
 ## 0. Najbliższe kroki (stan na 16 listopada 2026)
 

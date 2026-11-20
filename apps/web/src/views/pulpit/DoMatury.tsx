@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useProfil } from "../../auth";
 import { PasekProgu } from "../../components/wykresy";
-import { CELE, celJakoUlamek, useUczenie } from "../../konto/profilUcznia";
+import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
 import { przedmiot } from "../../konto/przedmioty";
 import { dniDo, egzaminyUcznia, najblizszy, nazwaEgzaminu, odmianaDni, opisDaty } from "../../konto/terminy";
-import { naukaApi } from "../../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
 import { Liczba } from "../../ruch";
 import type { KontekstPulpitu } from "./widgety";
 import styles from "../Dashboard.module.css";
@@ -24,7 +24,8 @@ export function DoMatury({ zakres, aktywny, maPrzedmioty }: KontekstPulpitu) {
   if (!wszystkie.length) return null;
   const e = najblizszy(wszystkie);
   const dni = e ? dniDo(e.data) : 0;
-  const cel = e && CELE.find((c) => c.id === u.cele?.[e.przedmiotId]);
+  const ulamek = e ? celPrzedmiotu(u, e.przedmiotId) : null;
+  const cel = ulamek !== null ? { nazwa: `${Math.round(ulamek * 100)}%` } : null;
   return (
     <section className={`${styles.section} wejscie`} aria-labelledby="matura-title">
       <div className={styles.sectionHead}>
@@ -40,7 +41,7 @@ export function DoMatury({ zakres, aktywny, maPrzedmioty }: KontekstPulpitu) {
       ) : (
         <p className={styles.stat}>
           <Liczba wartosc={dni} />
-          <span> {odmianaDni(dni)}</span>
+          <span className={styles.statJednostka}> {odmianaDni(dni)}</span>
           <span className={styles.statOpis}>
             {e.znana ? `${nazwaEgzaminu(e)}, ${opisDaty(e.data)}` : `${nazwaEgzaminu(e)}, termin poda CKE`}
           </span>
@@ -50,8 +51,8 @@ export function DoMatury({ zakres, aktywny, maPrzedmioty }: KontekstPulpitu) {
       {!e ? null : cel ? (
         !angielski && <p className="muted small">Cel z przedmiotu {przedmiot(e.przedmiotId)?.nazwa.toLowerCase()}: {cel.nazwa}</p>
       ) : (
-        <Link to="/profil-ucznia" className="link" style={{ justifySelf: "start" }}>
-          Ustaw cel w profilu
+        <Link to="/cele" className="link" style={{ justifySelf: "start" }}>
+          Ustaw cel z Pestką
         </Link>
       )}
     </section>
@@ -62,9 +63,9 @@ export function DoMatury({ zakres, aktywny, maPrzedmioty }: KontekstPulpitu) {
 export function PrognozaAngielskiego() {
   const u = useUczenie();
   const [poziom] = usePoziomNauki();
-  const plan = useZapytanieNauki(`nauka:plan:${poziom}`, (signal) => naukaApi.plan(poziom, signal));
+  const plan = useZapytanie(zapytania.plan(poziom));
   const prognoza = plan.dane?.forecast.score ?? null;
-  const celAng = celJakoUlamek(u.cele?.angielski);
+  const celAng = celPrzedmiotu(u, "angielski");
   if (plan.stan !== "gotowe") return null;
   return (
     prognoza === null ? (
@@ -76,7 +77,7 @@ export function PrognozaAngielskiego() {
       <div className={styles.prognoza} data-tutor-about="Prognozę liczę z arkuszy z angielskiego z ostatnich 180 dni: średnia z zadań sprawdzanych kluczem, ważona punktami umiejętności na maturze. Krótkie rundy jej nie zmieniają.">
         <p>
           Angielski z arkuszy: <strong>{Math.round(prognoza * 100)}%</strong>
-          {celAng !== null && (prognoza >= celAng ? ", cel osiągnięty." : `, do celu ${Math.round((celAng - prognoza) * 100)} pkt proc.`)}
+          {celAng !== null && (prognoza >= celAng ? ", cel osiągnięty." : `, do celu brakuje ${Math.round((celAng - prognoza) * 100)}%`)}
         </p>
         <PasekProgu
           wartosc={prognoza}

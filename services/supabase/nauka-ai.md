@@ -18,6 +18,8 @@
 
 `poziom` to `podstawowy`, `rozszerzony` lub `dwujezyczny`. Etapy pisania to `plan`, `wstep`, `rozwiniecie`, `zakonczenie`, `przeglad`. Status kryterium to `dobrze`, `do-poprawy`, `do-zrobienia` lub `niepewne`. Wyniki odczytu, tutora i Sędziego służą do omówienia. Punkty i dowody opanowania powstają w sesjach ocenianych kluczem.
 
+Każde zapytanie do modelu zawiera zasadę zwracania się do ucznia neutralnie płciowo (tryb rozkazujący, czas teraźniejszy lub przyszły, formy bezosobowe; nigdy „zrobiłeś”, „opisałbyś”). Gotowe teksty Kolegi też nie mają form zależnych od płci ucznia.
+
 Sędzia dostaje scenariusz wraz z regułą i wypowiedziami ucznia. Wypowiedź Kolegi jest dobierana w kodzie z gotowych reakcji na klasyfikację Sędziego. Tekst dostawcy zawierający klasyfikację pozostaje po stronie serwera.
 
 Odczyt zdjęcia obsługuje JPEG, PNG i WebP do 1 MiB po dekodowaniu. Wysyła obraz jako `image_url` z adresem `data:` do dostawcy konta ustawionego dla poziomu `wazne`. Ten model musi obsługiwać wejście obrazowe przez OpenAI-compatible Chat Completions. Zdjęcie pozostaje w żądaniu, a poprawiony odczyt jest osobnym żądaniem. Przy sugestii połączeń dostawca otrzymuje tytuły i pierwsze 900 znaków każdej wskazanej notatki. Teksty zwracane przez dostawcę należy wyświetlać jako tekst.
@@ -29,6 +31,18 @@ Analiza brudnopisu używa dostawcy dla zadań `wazne`. Każdy sugerowany kształ
 Dopisek ma postać `{typ,tekst}`. Typ to `obliczenia`, `tekst` lub `kod`. Treść to prosty zapis do 480 znaków i 12 wierszy, z zachowanymi wcięciami. Po akceptacji Pestka zapisuje znaki i kreśli figury po kolei. Aplikacja zapisuje całą propozycję jako jedną edytowalną zmianę i uwzględnia preferencję mniejszego ruchu. Kod jest przykładem do czytania. `pominietoElementy` sygnalizuje odrzucone figury lub dopiski i pozostawia dostępną wskazówkę.
 
 Po włączeniu prowadzenia klient wysyła `omow-brudnopis` z obrazem i `prowadzenie:{zmiana,poprzedniaWskazowka?,zapisUcznia?}`. `zmiana` to prostokąt nowych lub zmienionych elementów ucznia wyrażony jako `[[lewo,góra],[prawo,dół]]` w zakresie 0–1 względem obrazu. Klient przekazuje też do 500 znaków z nowych pól tekstowych tablicy. Odpowiedź zawiera `stanProwadzenia` równy `czekam`, `krok` lub `blad`. Dla błędu może zawierać `ramkaBledu` w tym samym układzie. Klient wstawia wskazówkę, ramkę i ewentualny rysunek po pauzie w pisaniu. Pomija odpowiedź, gdy w międzyczasie zmieniła się praca ucznia, i wyłącza prowadzenie po zamknięciu tablicy.
+
+### Strumień dla tablicy
+
+`omow-brudnopis` z polem `stream: true` (także przy prowadzeniu) odpowiada `text/event-stream`. Bez tego pola odpowiedź jest jak dotąd jednym JSON-em. Błędy wejścia, limitu (`rate_limited`) i dostawcy konta (`no_provider` itd.) wracają przed strumieniem zwykłym JSON-em `{error}` z kodem HTTP. Potem każde zdarzenie to linia `data: {json}` zakończona pustą linią:
+
+- `{"type":"start"}` – zaraz po przyjęciu żądania;
+- `{"type":"wskazowka","delta":"…"}` – kolejny fragment wskazówki, w kolejności (sklejone dają tekst pisany przez model);
+- `{"type":"ksztalt","ksztalt":{typ,punkty}}` i `{"type":"dopisek","dopisek":{typ,tekst}}` – element gotowy do narysowania, już sprawdzony i w tych samych limitach co w pełnym wyniku;
+- `{"type":"wynik","dane":{…}}` – ostatnie zdarzenie, `dane` to dokładnie ta sama odpowiedź co bez strumienia; wiąże dla wskazówki, bryły, ramki błędu i `stanProwadzenia`;
+- `{"type":"blad","error":"…","status":424}` – zamiast wyniku, gdy dostawca zawiódł (`provider_failed`) albo odpowiedź modelu nie przeszła walidacji (`bad_model_response`).
+
+W trybie strumienia model dostaje polecenie pisania pól w kolejności `stanProwadzenia, wskazowka, ksztalty, bryla, dopiski, ramkaBledu, odczyt`, żeby wskazówka i figury przyszły jak najwcześniej. Klient woła funkcję zwykłym `fetch` (nie `functions.invoke`, który czeka na całość) z nagłówkami `Authorization` i `apikey` i czyta strumień jak w `streamAi` bramki `ai`. Fragmenty wskazówki mogą się różnić od ostatecznej, przyciętej wersji w `wynik`.
 
 `bryla` ma pola `typ`, `wymiary` (trzy długości albo `null`) i `oznaczenia` (napisy przy krawędziach i odcinkach pomocniczych). Obsługiwane są sześcian, prostopadłościan, graniastosłup o podstawie trójkąta prostokątnego, ostrosłup o podstawie prostokątnej z wierzchołkiem nad środkiem podstawy, walec, stożek i kula. Uczeń może obrócić bryłę w podglądzie. Na tablicę trafia wybrany rzut z liniami przerywanymi dla niewidocznych krawędzi i odcinków pomocniczych. Niepoprawny element zostaje pominięty lub zastąpiony domyślną wartością, co sygnalizuje `pominietoElementy`.
 

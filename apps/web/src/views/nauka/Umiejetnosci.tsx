@@ -1,62 +1,53 @@
 import { useEffect, useRef } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
-import { nazwaZadaniaCke, nazwaZadaniaRundy, type Poziom } from "../../arkusze/typy";
+import { type Poziom } from "../../arkusze/typy";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { Ladowanie } from "../../components/Ladowanie";
-import { przedmiot } from "../../konto/przedmioty";
-import { coDzisBezRund } from "../../nauka/dzis";
-import { adresMapy, adresNauki, adresRozbioru } from "../../nauka/adresy";
-import { naukaApi, type DowodNauki, type Umiejetnosc } from "../../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
+import { przedmiot, type PrzedmiotId } from "../../konto/przedmioty";
+import { useProfil } from "../../auth";
+import { klasaPrzedmiotu, PasekPrzedmiotow } from "../../components/PasekPrzedmiotow";
+import { SubjectIcon } from "../../components/icons";
+import { maMapeZArkuszy } from "../../nauka/mapaPrzedmiotow";
+import { adresMapyPrzedmiotu, MapaPrzedmiotu } from "./MapaPrzedmiotu";
+import { adresMapy, adresNauki, adresStartu } from "../../nauka/adresy";
+import { type DowodNauki, type Umiejetnosc } from "../../nauka/api";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
 import { WyborPoziomuNauki } from "./NaukaPowtorki";
 import { Opanowanie, OPIS_OPANOWANIA } from "./Opanowanie";
-import { Kropki } from "../../components/wykresy";
+import { Kropki, Linia } from "../../components/wykresy";
+import { liniaOpanowania, wniosekLinii } from "../../nauka/historia";
 import { Liczba } from "../../ruch";
 import { Kielek } from "../../components/Kielek";
 import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
-import { NAZWA_STADIUM, stadium } from "../../nauka/stadia";
-
+import { NAZWA_STADIUM, stadium, doNastepnegoStadium } from "../../nauka/stadia";
+import { adresWizualizacji, modelDlaUmiejetnosci } from "../../nauka/wizualizacje";
+import { Gotowosc } from "../../components/Gotowosc";
+import { OBSZARY_NAUKI } from "../../nauka/gotowosc";
+import { Ogrod } from "../../components/Ogrod";
+import { rozgrzej } from "../../nauka/rozgrzewanie";
+import { celPrzedmiotu, useUczenie } from "../../konto/profilUcznia";
+import { MINUTY_RUNDY, useDzisAngielski } from "../../nauka/dzis";
 import s from "./Umiejetnosci.module.css";
+import { MAPA_WIEDZY_WLACZONA } from "../../nauka/wiedza";
 
 // Dawny przełącznik kodów wymagań CKE zapisywał się w przeglądarce; sprzątamy po nim.
 try { localStorage.removeItem("sedno.mapa.kody"); } catch { /* bez dostępu do pamięci nie ma czego sprzątać */ }
 
-const OBSZARY = [
-  { id: "słuchanie", nazwa: "Rozumienie ze słuchu" },
-  { id: "czytanie", nazwa: "Rozumienie tekstów pisanych" },
-  { id: "środki językowe", nazwa: "Środki językowe" },
-  { id: "pisanie", nazwa: "Wypowiedź pisemna" },
-];
+const OBSZARY = OBSZARY_NAUKI;
 
 const dataProby = new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeZone: "Europe/Warsaw" });
 
-function Dowod({ dowod: d }: { dowod: DowodNauki }) {
-  const numerZadania = d.question.split(".")[0];
-  const adres = d.session_id
-    ? adresRozbioru(d.session_id)
-    : d.sheet_id && `/arkusze/${encodeURIComponent(d.sheet_id)}#zadanie-${numerZadania}`;
-  const nazwa = d.session_id ? nazwaZadaniaRundy(d.happened_at, d.question) : nazwaZadaniaCke(d.sheet_id ?? "", d.question);
-  const wynik = d.score >= 1 ? "Dobrze" : d.score <= 0 ? "Błąd" : `${Math.round(d.score * 100)}%`;
-  return (
-    <li className={s.dowod}>
-      <span className={s.nazwa}>
-        {adres ? <Link to={adres}>{nazwa}</Link> : <span>{nazwa}</span>}
-        <span className="muted small">
-          <time dateTime={d.happened_at}>{dataProby.format(new Date(d.happened_at))}</time>
-          {!!d.hint_level && ` · użyte podpowiedzi: ${d.hint_level}`}
-        </span>
-      </span>
-      <span className={`small ${d.score >= 1 ? s.dobrze : d.score <= 0 ? s.zle : "muted"}`}>{wynik}</span>
-    </li>
-  );
-}
-
 function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejetnosc: Umiejetnosc }) {
   const naglowek = useRef<HTMLHeadingElement>(null);
-  const proby = useZapytanieNauki(`dowody:${poziom}:${u.skill_id}`, (signal) => naukaApi.dowody(u.skill_id, poziom, signal));
+  const proby = useZapytanie(zapytania.dowody(poziom, u.skill_id));
   const maBledyJezykowe = proby.dane?.some((d) => d.score < 1 && d.error_type === "jezyk-i-forma");
+  // Historia opanowania (nauka_historia): bez funkcji w bazie albo przy ocenie z jednego dnia linii nie ma.
+  const historia = useZapytanie(zapytania.historia(poziom));
+  const punkty = historia.dane?.skills.find((h) => h.skill_id === u.skill_id)?.points;
+  const linia = u.score !== null && punkty && historia.dane ? liniaOpanowania(punkty, historia.dane.to) : null;
 
   useEffect(() => {
     naglowek.current?.focus();
@@ -77,27 +68,35 @@ function PanelUmiejetnosci({ poziom, umiejetnosc: u }: { poziom: Poziom; umiejet
           <Kielek stadium={stadium(u.score)} rozmiar={88} animuj opis={`Stadium: ${NAZWA_STADIUM[stadium(u.score)]}`} />
           <p className={s.duza} data-tutor-about={OPIS_OPANOWANIA}>
             <Liczba wartosc={Math.round(u.score * 100)} /><span className={s.jednostka}>%</span>
+            {/* Pod liczbą jedno zdanie: ile do następnego stadium rośliny. Pamięć tylko, gdy już ucieka. */}
             <span className={s.podpisLiczby}>
-              opanowania z {u.evidence_count} {u.evidence_count === 1 ? "próby" : "prób"}
-              {u.retention !== null && <> · <span data-tutor-about="To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia.">pamiętasz ok. {Math.round(u.retention * 100)}%</span></>}
+              {doNastepnegoStadium(u.score) ?? "opanowane"}
+              {u.retention !== null && u.retention < 0.8 && <> · <span data-tutor-about="To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia.">czas na powtórkę</span></>}
             </span>
           </p>
           </div>
         )}
+        {linia && (
+          <div className={s.ostatnie}>
+            <span className="label">{wniosekLinii(linia)}</span>
+            <Linia punkty={linia.wartosci} podpisOstatniego={`${Math.round(linia.wartosci.at(-1)! * 100)}%`}
+              opis={`${wniosekLinii(linia)}. Opanowanie teraz ${Math.round(linia.wartosci.at(-1)! * 100)}%.`} />
+          </div>
+        )}
         {proby.stan === "gotowe" && !!proby.dane?.length && <OstatnieProby proby={proby.dane} />}
       </div>
-      <Link to={adresNauki(poziom, u.skill_id)} className={`btn btn-primary ${s.przycisk}`}>Ćwicz <ArrowRight size={16} aria-hidden="true" /></Link>
+      <Link to={adresStartu(poziom, u.skill_id, u.formats.includes("szybka-runda") || !u.formats.length ? "szybka-runda" : u.formats[0])} className={`btn btn-primary ${s.przycisk}`}>
+        Zacznij rundę · {MINUTY_RUNDY} min <ArrowRight size={16} aria-hidden="true" />
+      </Link>
+      {modelDlaUmiejetnosci(u.skill_id) && (
+        <Link to={adresWizualizacji(modelDlaUmiejetnosci(u.skill_id)!)} className="link small">Zobacz na modelu <ArrowRight size={15} aria-hidden="true" /></Link>
+      )}
+      {MAPA_WIEDZY_WLACZONA && <Link to={`/nauka/mapa-wiedzy?przedmiot=angielski&umiejetnosc=${u.skill_id}`} className="link small">Notatki o tej umiejętności <ArrowRight size={15} aria-hidden="true" /></Link>}
       <section className={s.blok} aria-labelledby="umiejetnosc-proby">
         {proby.stan === "ladowanie" && <Ladowanie ile={3} etykieta="Wczytuję próby" />}
         {proby.stan === "blad" && <Blad tekst="Nie udało się wczytać prób." ponow={proby.ponow} />}
-        {proby.stan === "gotowe" && (proby.dane?.length ? (
-          <details className={s.rozwijane}>
-            <summary id="umiejetnosc-proby"><ChevronRight size={16} aria-hidden="true" /> Wszystkie próby ({proby.dane.length})</summary>
-            <ul className="wiersze">
-              {proby.dane.map((d) => <Dowod key={`${d.source_id}:${d.session_id ?? d.sheet_id}:${d.question}`} dowod={d} />)}
-            </ul>
-          </details>
-        ) : <div id="umiejetnosc-proby"><StanPestki rozmiar="maly" tekst={wybierz(glos.puste.proby, 0)} /></div>)}
+        {/* Kropki „Ostatnie próby” wyżej wystarczą; pełnej listy prób tu nie wypisujemy. */}
+        {proby.stan === "gotowe" && !proby.dane?.length && <div id="umiejetnosc-proby"><StanPestki rozmiar="maly" tekst={wybierz(glos.puste.proby, 0)} /></div>}
         {maBledyJezykowe && <p className="small muted">W ostatnich próbach pojawiły się błędy językowe i dotyczące formy.</p>}
       </section>
     </aside>
@@ -112,7 +111,7 @@ function OstatnieProby({ proby }: { proby: DowodNauki[] }) {
   const dobre = ostatnie.filter((d) => d.score >= 1).length;
   return (
     <div className={s.ostatnie}>
-      <span className="label">Ostatnie {ostatnie.length === 1 ? "próba" : "próby"}: {dobre} z {ostatnie.length} dobrze</span>
+      <span className="label">Ostatnie {ostatnie.length === 1 ? "próba" : "próby"}</span>
       <Kropki rozmiar="male" opis={`Ostatnie ${ostatnie.length} prób: ${dobre} dobrze.`}
         kropki={ostatnie.map((d) => ({ stan: d.score >= 1 ? "dobrze" : d.score <= 0 ? "zle" : "pominiete", tytul: dataProby.format(new Date(d.happened_at)) }))} />
     </div>
@@ -131,10 +130,18 @@ function Blad({ tekst, ponow }: { tekst: string; ponow: () => void }) {
 export function Umiejetnosci() {
   const [parametry] = useSearchParams();
   const [poziom, ustawPoziom] = usePoziomNauki();
-  const wybranyPrzedmiot = przedmiot(parametry.get("przedmiot") ?? "angielski")?.id ?? "angielski";
+  const profil = useProfil();
+  const moje = [...new Set((profil?.subjects ?? []).map((p) => p.id))] as PrzedmiotId[];
+  const zAdresu = przedmiot(parametry.get("przedmiot") ?? "")?.id;
+  const wybranyPrzedmiot: PrzedmiotId = zAdresu ?? (moje.includes("angielski") || !moje.length ? "angielski" : moje[0]!);
   const angielski = wybranyPrzedmiot === "angielski";
-  const innyPrzedmiot = angielski ? null : coDzisBezRund[wybranyPrzedmiot] ?? { akcja: { do: adresMapy(poziom), etykieta: "Mapa angielskiego" } };
-  const mapa = useZapytanieNauki(angielski ? `mapa:${poziom}` : null, (signal) => naukaApi.mapa(poziom, signal));
+  // Pozostałe przedmioty: poziom z profilu (mapa liczy arkusze tego poziomu).
+  const poziomPrzedmiotu = (profil?.subjects.find((p) => p.id === wybranyPrzedmiot)?.poziom ?? null) as Poziom | null;
+  const mapa = useZapytanie(angielski ? zapytania.mapa(poziom) : null);
+  const plan = useZapytanie(angielski ? zapytania.plan(poziom) : null);
+  // „Tu dziś” to ta sama propozycja co na pulpicie i w Nauce, nie osobne polecenie mapy.
+  const dzis = useDzisAngielski(poziom).dzis;
+  const uczenie = useUczenie();
   const umiejetnosci = mapa.dane?.skills;
   const id = parametry.get("umiejetnosc");
   const wybrana = umiejetnosci?.find((u) => u.skill_id === id);
@@ -142,35 +149,45 @@ export function Umiejetnosci() {
   useEffect(() => {
     if (wybrana) ostatniPanel.current = wybrana.skill_id;
     else if (ostatniPanel.current && !id && mapa.stan === "gotowe") {
-      document.getElementById(`umiejetnosc-${ostatniPanel.current}`)?.focus();
+      // Fokus wraca na roślinę w ogrodzie albo na wiersz listy (telefon), zależnie od tego, co widać.
+      const roslina = document.getElementById(`roslina-${ostatniPanel.current}`);
+      (roslina?.offsetParent ? roslina : document.getElementById(`umiejetnosc-${ostatniPanel.current}`))?.focus();
       ostatniPanel.current = null;
     }
   }, [wybrana, id, mapa.stan]);
 
   return (
     <main className={`container ${s.strona}`} data-panel={!!wybrana}>
-      <NaglowekStrony etykieta="Język angielski" tytul="Mapa umiejętności" lead="Jak radzisz sobie z wymaganiami matury." />
-      {/* Mapę ma tylko angielski, więc nie ma pigułek przedmiotów prowadzących do pustej strony. Stary link
-          z ?przedmiot= dostaje jedno zdanie i to, co w tym przedmiocie da się zrobić zamiast mapy. */}
-      {angielski && <div className={s.filtry}><WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} /></div>}
-      {!angielski && innyPrzedmiot && (
-        <div className={s.blok}>
-          <p className="muted">Mapa umiejętności jest na razie tylko dla angielskiego.</p>
-          <Link to={innyPrzedmiot.akcja.do} className={`btn btn-secondary ${s.przycisk}`}>{innyPrzedmiot.akcja.etykieta}</Link>
-        </div>
+      <NaglowekStrony etykieta={przedmiot(wybranyPrzedmiot)?.nazwa ?? "Język angielski"} tytul="Mapa umiejętności" />
+      {/* Każdy przedmiot z profilu ma mapę: angielski z rund, pozostałe z działów i sprawdzonych arkuszy. */}
+      {moje.length > 1 && (
+        <PasekPrzedmiotow etykieta="Przedmiot" zalezy={wybranyPrzedmiot}>
+          {moje.map((p) => (
+            <Link key={p} to={p === "angielski" ? adresMapy(poziom) : adresMapyPrzedmiotu(p)} className={klasaPrzedmiotu(p === wybranyPrzedmiot)} data-aktywny={p === wybranyPrzedmiot} aria-current={p === wybranyPrzedmiot ? "page" : undefined}>
+              <SubjectIcon subject={przedmiot(p)!} size="sm" /> {przedmiot(p)!.nazwa}
+            </Link>
+          ))}
+        </PasekPrzedmiotow>
       )}
-      {mapa.stan === "ladowanie" && <Ladowanie etykieta="Wczytuję mapę umiejętności" />}
+      {angielski && <div className={s.filtry}><WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} /></div>}
+      {!angielski && maMapeZArkuszy(wybranyPrzedmiot) && <MapaPrzedmiotu przedmiot={wybranyPrzedmiot} poziom={poziomPrzedmiotu} id={parametry.get("umiejetnosc")} />}
+      {mapa.stan === "ladowanie" && <Ladowanie wysokosc={[514, 1440]} etykieta="Wczytuję mapę umiejętności" />}
       {mapa.stan === "blad" && <Blad tekst="Nie udało się wczytać mapy umiejętności." ponow={mapa.ponow} />}
       {angielski && umiejetnosci && (
         <div className={s.uklad} data-panel={!!wybrana}>
           <div className={s.grupy}>
             {id && !wybrana && <p role="status">Tej umiejętności nie ma w mapie.</p>}
-            {umiejetnosci.every((u) => u.score === null) && (
-              <div className={s.blok}>
-                <p className="muted">Procenty pojawią się po pierwszej rundzie.</p>
-                <Link to={adresNauki(poziom)} className={`btn btn-secondary btn-sm ${s.przycisk}`}>Zacznij szybką rundę</Link>
-              </div>
-            )}
+            <Gotowosc umiejetnosci={umiejetnosci} cel={celPrzedmiotu(uczenie, "angielski")} prognoza={plan.dane?.forecast.score}>
+              {umiejetnosci.every((u) => u.score === null) && (
+                <Link to={adresNauki(poziom)} className={`btn btn-primary ${s.przycisk}`}>Zacznij pierwszą rundę</Link>
+              )}
+            </Gotowosc>
+            <div className={s.ogrod}>
+              <Ogrod cel={celPrzedmiotu(uczenie, "angielski")} umiejetnosci={umiejetnosci} poziom={poziom} adres={(u) => adresMapy(poziom, u.skill_id)} wybrana={id}
+                onZapowiedz={(u) => rozgrzej(zapytania.dowody(poziom, u.skill_id))}
+                tuDzis={dzis?.skill_id ?? null} etykieta={`Ogród umiejętności, poziom ${poziom}`} />
+            </div>
+            <div className={s.lista}>
             {OBSZARY.map(({ id: obszar, nazwa }, i) => {
               const wObszarze = umiejetnosci.filter((u) => u.area === obszar);
               return wObszarze.length > 0 && (
@@ -191,6 +208,7 @@ export function Umiejetnosci() {
                 </section>
               );
             })}
+            </div>
           </div>
           {wybrana && <PanelUmiejetnosci poziom={poziom} umiejetnosc={wybrana} />}
         </div>

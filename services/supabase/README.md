@@ -15,6 +15,17 @@ Backend Sedno: samodzielnie hostowany Supabase na serwerze domowym, publicznie p
 
 Kontrakt integracji z aplikacją opisuje [Backend nauki](nauka.md).
 
+Migracje nauki od 0020:
+
+| Migracja | Co robi |
+| --- | --- |
+| `0020_opanowanie_bez_sufitu` | Opanowanie jako średnia krocząca poprawności zamiast Elo (sufit ok. 67% przy samych rundach znika, powtórki wariantu liczą się z malejącą wagą). |
+| `0021_rotacja_rund` | Rotacja zadań w szybkiej rundzie (niewidziane, błędne, najdawniej widziane, losowo wśród równych), ćwiczenia autorskie dopełniają pulę CKE poniżej 16, limit 10 otwartych rund na poziom. |
+| `0022_historia_nauki` | Dzienne migawki opanowania, dziennik dni z arkuszem (trigger na `sheet_progress`), RPC `nauka_historia` i `nauka_aktywnosc`. |
+| `0023_krotka_diagnoza` | Sesja `diagnoza` (1–3 zadania z kilku umiejętności, umiejętność na zadaniu), stan diagnozy w bazie, RPC `nauka_diagnoza`, `nauka_diagnoza_start`, `nauka_diagnoza_oznacz`; koniec sesji zapisuje migawkę opanowania. |
+
+Testy funkcji (`tests/*_test.ts`): `deno test services/supabase/tests`.
+
 ## Schemat
 
 | Tabela | Do czego | Dostęp z aplikacji |
@@ -46,6 +57,8 @@ const { text } = await askAi({ tier: "lekkie", task: "podpowiedz", messages: [{ 
 ## Serwer
 
 Projekt `~/supabase-hosting/projects/sedno` (port API 8007, podsieć Dockera `172.16.77.0/24`). Ustawienia Sedno w `docker-compose.sedno.yml` i `.env` (Google OAuth, `LLM_KEY_SECRET`, `LLM_PRIVATE_ORIGINS`). Proxy do Ollamy: `~/sedno-ollama` (nginx na `172.16.77.1:11435` i `172.16.78.1:11435`, widoczny tylko z sieci Dockera `sedno` i `sedno-dev`). Staging: projekt `~/supabase-hosting/projects/sedno-dev` (port 8008, podsieć `172.16.78.0/24`, `docker-compose.sedno-dev.yml`).
+
+Domyślna trasa Pestki dla kont bez własnego klucza (ustawienia w `.env` / `docker-compose.sedno.yml` projektu, obok `LLM_KEY_SECRET`): `SEDNO_AI_KEY` (klucz dostawcy), `SEDNO_AI_BASE_URL` (adres zgodny z OpenAI; bez niego `https://api.openai.com/v1`), `SEDNO_AI_MODEL_WAZNE` (model do zadań ważnych), `SEDNO_AI_MODEL_LEKKIE` (model do zadań lekkich), opcjonalnie `SEDNO_AI_EFFORT_WAZNE` i `SEDNO_AI_EFFORT_LEKKIE` (`reasoning_effort`). Bez klucza albo modelu danego poziomu konto bez własnego dostawcy dostaje `no_provider`. Własny klucz konta ma zawsze pierwszeństwo. W `ai_usage` dostawca wpisuje się jako `sedno`. Błędy modelu (429, 5xx, błąd sieci) bramka ponawia raz, potem próbuje modelu drugiego poziomu.
 
 Google OAuth: projekt Google Cloud `sedno-514016`, klient „Sedno web”, redirect `https://sedno-api.dakowicz.xyz/auth/v1/callback`. Aplikacja jest w trybie testowym: logować się mogą tylko konta dodane jako test users.
 

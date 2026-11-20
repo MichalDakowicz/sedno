@@ -8,15 +8,17 @@ import { bezEmoji, trudnaSprawa } from "../pestka";
 import { useUstawienia } from "../konto/ustawienia";
 import { poziomAI, promptOmowienia, zrobPrzyklad, type DoOmowienia, type Przyklad } from "../arkusze/omowienie";
 import type { Postep } from "../arkusze/postep";
-import type { Arkusz } from "../arkusze/typy";
+import { nazwaZadaniaCke, type Arkusz } from "../arkusze/typy";
 import { werdykt } from "../arkusze/sprawdz";
 import { FragmentNagrania } from "./FragmentNagrania";
 import { Markdown } from "./Markdown";
 import { TutorAvatar } from "./TutorAvatar";
 import chat from "./TutorChat.module.css";
 import { WsparcieNota } from "./TutorChat";
+import { ZapiszWMapie } from "./ZapiszWMapie";
 import styles from "./OmowienieBledow.module.css";
 import { mniejRuchu } from "../ruch";
+import { MAPA_WIEDZY_WLACZONA } from "../nauka/wiedza";
 
 export type Wiadomosc = { od: "tutor" | "uczen"; tekst: string };
 
@@ -97,6 +99,8 @@ export function OmowienieBledow({
   const [rozmowa, setRozmowa] = useState<Wiadomosc[]>(zapisana ?? []);
   const { pestkaKrotko: krotko } = useUstawienia();
   const [mysli, setMysli] = useState(false);
+  // Błąd modelu stoi obok rozmowy, nie w niej: nie trafia do zapisu ani do kolejnego zapytania.
+  const [blad, setBlad] = useState<{ tekst: string; historia: Wiadomosc[] } | null>(null);
   const [przyklad, setPrzyklad] = useState<StanPrzykladu | null>(null);
   const [szkic, setSzkic] = useState("");
   const listaRef = useRef<HTMLDivElement>(null);
@@ -201,6 +205,7 @@ export function OmowienieBledow({
   async function zapytaj(historia: Wiadomosc[]) {
     // Wiadomość ucznia widać od razu, a nie dopiero z pierwszym kawałkiem odpowiedzi Pestki.
     setRozmowa(historia);
+    setBlad(null);
     setMysli(true);
     const wiadomosci: AiMessage[] = [
       { role: "system", content: promptOmowienia(arkusz, d, postep, krotko) },
@@ -216,7 +221,8 @@ export function OmowienieBledow({
       });
       if (!tekst.trim()) pisz("Zamyśliłam się i nic nie napisałam. Napisz coś, a spróbuję jeszcze raz.");
     } catch (e) {
-      pisz(aiErrorText(e instanceof AiError ? e.code : "server_error"));
+      setRozmowa(historia);
+      setBlad({ tekst: aiErrorText(e instanceof AiError ? e.code : "server_error"), historia });
     }
     setMysli(false);
     // Karta urosła o odpowiedź: dociągnij widok, żeby pole odpowiedzi nie uciekło pod ekran.
@@ -260,6 +266,10 @@ export function OmowienieBledow({
       <div key={i}>
         <Markdown className={chat.tutorText}>{m.tekst}</Markdown>
         {poprzednia?.od === "uczen" && trudnaSprawa(poprzednia.tekst) && <WsparcieNota />}
+        {MAPA_WIEDZY_WLACZONA && !(mysli && i === rozmowa.length - 1) && (
+          <ZapiszWMapie przedmiot={arkusz.przedmiot ?? "angielski"} tekst={m.tekst} tytul={`${nazwaZadaniaCke(arkusz.id, String(nr))}: wyjaśnienie`}
+            zrodlo={{ source: "sheet", source_ref: `${arkusz.id}#${nr}` }} />
+        )}
       </div>
     ) : (
       <p key={i} className={chat.studentText}>
@@ -327,6 +337,12 @@ export function OmowienieBledow({
           </div>
         )}
         {przyklad && rozmowa.slice(przyklad.po).map((m, i) => wiadomosc(m, przyklad.po + i))}
+        {blad && !mysli && (
+          <p className={styles.blad} role="alert">
+            {blad.tekst}{" "}
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => void zapytaj(blad.historia)}>Spróbuj ponownie</button>
+          </p>
+        )}
         {mysli && (rozmowa.at(-1)?.od !== "tutor" || !rozmowa.at(-1)?.tekst) && (
           <span className={chat.typing} aria-label="Pestka pisze">
             <i />

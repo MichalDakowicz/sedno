@@ -2,7 +2,7 @@
   display: grid;
   gap: var(--s-7);
   padding-top: var(--s-6);
-  padding-bottom: 120px;
+  padding-bottom: var(--zapas-pestki);
 }
 
 /* Sekcje rozdziela linia, nie karta. */
@@ -15,7 +15,12 @@
 
 .pytanie {
   display: grid;
-  gap: var(--s-3);
+  gap: var(--s-2);
+}
+
+/* Pytanie bliżej swoich odpowiedzi niż następnego pytania. */
+.pytanie + .pytanie {
+  margin-top: var(--s-3);
 }
 
 /* Priorytety i wnioski: wspólny .wiersz, „Usuń” w kolumnie akcji. */

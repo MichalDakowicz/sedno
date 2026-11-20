@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Headphones, Pause, Play, RotateCcw, X } from "lucide-react";
+import { KomunikatBladuNagrania, useBladNagrania } from "./BladNagrania";
 import styles from "./Nagranie.module.css";
 
 const czas = (s: number) => (Number.isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}` : "–:––");
@@ -13,7 +14,7 @@ export function Nagranie({ src }: { src: string }) {
   const [przypiety, setPrzypiety] = useState(false);
   const [pozycja, setPozycja] = useState(0);
   const [dlugosc, setDlugosc] = useState(NaN);
-  const [blad, setBlad] = useState(false);
+  const { blad, setBlad, ponow } = useBladNagrania(audio);
 
   useEffect(() => {
     const a = audio.current;
@@ -29,20 +30,17 @@ export function Nagranie({ src }: { src: string }) {
       setGra(false);
       setPrzypiety(false);
     };
-    const naBlad = () => setBlad(true);
     a.addEventListener("timeupdate", naCzas);
     a.addEventListener("loadedmetadata", naDlugosc);
     a.addEventListener("play", naStart);
     a.addEventListener("pause", naPauze);
     a.addEventListener("ended", naKoniec);
-    a.addEventListener("error", naBlad);
     return () => {
       a.removeEventListener("timeupdate", naCzas);
       a.removeEventListener("loadedmetadata", naDlugosc);
       a.removeEventListener("play", naStart);
       a.removeEventListener("pause", naPauze);
       a.removeEventListener("ended", naKoniec);
-      a.removeEventListener("error", naBlad);
     };
   }, []);
 
@@ -96,7 +94,7 @@ export function Nagranie({ src }: { src: string }) {
         )}
         <audio ref={audio} src={src} preload="metadata" />
       </div>
-      {blad && <p className="small muted">Nie udało się wczytać nagrania ze strony CKE.</p>}
+      {blad && <KomunikatBladuNagrania ponow={ponow} />}
     </div>
   );
 }

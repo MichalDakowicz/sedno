@@ -293,6 +293,12 @@
   stroke-linecap: round;
 }
 
+.pierscienCel {
+  stroke: var(--primary-text);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
 .pierscienSrodek {
   position: relative;
   line-height: 1;
@@ -493,4 +499,60 @@
 .pasDni li[data-dzis] .kratkaPodpis {
   color: var(--fg);
   font-weight: 600;
+}
+
+/* Funkcja: model z osiami (Wizualizacje). Szerokość ograniczona, żeby podpisy w jednostkach viewBox nie rosły ponad
+   drobny tekst na dużym ekranie. */
+.funkcja {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  overflow: visible;
+}
+
+.siatka {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.os {
+  stroke: var(--muted);
+  stroke-width: 1.2;
+}
+
+.podpisOsi {
+  fill: var(--subtle);
+  font-size: calc(var(--t-xs) * 0.8);
+  font-variant-numeric: tabular-nums;
+}
+
+.krzywa {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.punktFunkcji {
+  fill: var(--primary);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.podpisPunktu {
+  fill: var(--fg);
+  font-size: calc(var(--t-xs) * 0.95);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Podpisy na siatce z obwódką w kolorze tła, żeby krzywa i osie nie przecinały cyfr. */
+.podpisOsi,
+.podpisPunktu {
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }

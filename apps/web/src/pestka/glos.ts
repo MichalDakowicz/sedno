@@ -23,11 +23,15 @@ export const glos = {
   dobrze: ["Dobrze.", "Zgadza się.", "Tak, to ta.", "Trafione.", "Dokładnie tak."],
   /** Kilka dobrych z rzędu. */
   seria: ["Dobrze. To już {n} z rzędu.", "{n} dobre z rzędu.", "Zgadza się. {n} z rzędu, tak trzymaj."],
+  /** Cztery dobre z rzędu skracają rundę: zastępuje zwykłą kwestię o serii, żeby nie padły dwa zdania o serii. */
+  skrocona: ["Cztery dobre z rzędu. Kończymy rundę wcześniej."],
   blad: {
     zle: ["Tym razem nie. Wyjaśnić?", "To nie ta. Wyjaśnić, dlaczego?", "Nie tym razem. Mogę pokazać, gdzie jest haczyk."],
     bezWyjasnienia: ["Tym razem nie. Zerknij na wyjaśnienie.", "To nie ta. Wyjaśnienie jest pod spodem."],
     pominiete: ["Pominięte. Poprawną odpowiedź widać na zielono.", "Bez odpowiedzi. Zerknij, która była dobra."],
     zwolnij: ["Zwolnijmy. Przy następnym weź podpowiedź, jeśli utkniesz.", "Trzy z rzędu nie wyszły. Zwolnijmy i czytajmy uważniej."],
+    /** Trzy złe z rzędu w diagnozie: tam nie ma podpowiedzi, a błędy pokazują, od czego zacząć. */
+    zwolnijDiagnoza: ["Trzy z rzędu nie wyszły. Nic nie szkodzi: tak szukam, od czego zacząć.", "Te są trudniejsze. Spokojnie, diagnoza ma pokazać właśnie to."],
     dokladam: ["Dokładam jedno zadanie, żeby to utrwalić.", "Jeszcze jedno zadanie na utrwalenie."],
     czesciowo: ["Część się zgadza. Zerknij, gdzie brakuje punktu.", "Blisko. Jedno kryterium jeszcze nie wyszło."],
     sprobuj: ["Tym razem nie. Spróbuj jeszcze raz albo weź następne.", "To nie to. Sprawdź obliczenia i spróbuj ponownie."],
@@ -35,10 +39,13 @@ export const glos = {
   },
   /** Jedno zdanie po rundzie, w rozbiorze. */
   rozbior: {
+    koniecPowtorek: ["To, co uciekało, wróciło na miejsce. Zobacz, jak wygląda ogród.", "Powtórki za tobą. Rośliny w ogrodzie to pokażą."],
     bezbledna: ["Bezbłędna runda. Tak się buduje pewność.", "Wszystko dobrze. Ta umiejętność idzie w górę."],
     dobra: ["Dobra runda. Zostało kilka rzeczy do dopracowania.", "Większość dobrze. Zerknij na to, co nie wyszło."],
     slaba: ["Ta umiejętność potrzebuje jeszcze kilku rund. Zacznij od zadań z błędem.", "Trudna runda. Przejrzyj błędy, a następna pójdzie lepiej."],
   },
+  /** Jedno zdanie pod wynikiem diagnozy na start. */
+  diagnoza: ["Mam pierwszy obraz. Od najsłabszych umiejętności zaczniemy plan.", "Już wiem, od czego zacząć. Najpierw to, co poszło najsłabiej."],
   /** Seria dni z nauką na pulpicie. */
   seriaDni: {
     kamien: ["{n} dni z rzędu. Świętuję razem z tobą.", "Seria {n} dni. To już nawyk."],
@@ -57,11 +64,28 @@ export const glos = {
   bledy: {
     siec: ["Nie mogę się połączyć. Sprawdź internet, a ja spróbuję jeszcze raz.", "Coś przerwało połączenie. Spróbujmy ponownie."],
     ogolny: ["Coś poszło nie tak po mojej stronie. Spróbujmy jeszcze raz."],
-    nieZnaleziono: ["Nie ma takiej strony. Może zgubił się adres?", "Tu nic nie ma. Wróćmy tam, gdzie coś na ciebie czeka."],
+    nieZnaleziono: ["Nie znam tego adresu. Może się zgubił?", "Tu nic nie ma. Wróćmy tam, gdzie coś na ciebie czeka."],
+  },
+  /** Przewodnik przy pierwszym wejściu na pulpit: trzy dymki. */
+  przewodnik: {
+    powitanie: "Cześć, jestem Pestka. Będę obok przez całą naukę do matury.",
+    dzis: "To wybrałam na dziś. Krótko i tam, gdzie najwięcej zyskasz.",
+    wolanie: "Gdy coś będzie niejasne, kliknij mnie. Siedzę w rogu ekranu.",
+  },
+  /** Quiz celów (views/QuizCelow.tsx): jedno pytanie Pestki na ekran. */
+  quiz: {
+    wstep: "Kilka szybkich pytań, a dobiorę naukę pod ciebie. Każde możesz pominąć.",
+    przedmioty: "Które przedmioty zdajesz na maturze?",
+    cel: "Ile chcesz mieć z tego przedmiotu?",
+    mocne: "W czym z angielskiego czujesz się mocno?",
+    slabe: "A co sprawia najwięcej kłopotu?",
+    czas: "Ile czasu dziennie dasz radę na naukę?",
+    dni: "Ile dni w tygodniu?",
+    koniec: "Mam to. Tak to widzę:",
   },
   rozmowa: {
     powitanie: "Cześć, jestem Pestka. Wklej zadanie albo napisz, z czym masz kłopot, a przejdziemy przez to razem.",
-    bezPolaczenia: "Żeby odpowiadać, muszę być połączona z twoim kontem. Zrobisz to w profilu.",
+    bezPolaczenia: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
     przywolanie: "Jestem. W czym ci pomóc?",
     widze: "Widzę: {n}. Zapytasz mnie o nie?",
     coDzis: "To wybrałam na dziś. Krótko i w twoim najsłabszym miejscu.",

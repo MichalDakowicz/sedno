@@ -1,22 +1,22 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { RotateCcw } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
-import { KartaDnia } from "../../components/KartaDnia";
-import { NaglowekStrony } from "../../components/NaglowekStrony";
-import { useDzisAngielski } from "../../nauka/dzis";
 import { Ladowanie } from "../../components/Ladowanie";
-import { adresMapy, adresNauki, adresRozbioru, adresStartu } from "../../nauka/adresy";
+import { adresStartu } from "../../nauka/adresy";
 import { naukaApi } from "../../nauka/api";
-import { usePoziomNauki, useZapytanieNauki } from "../../nauka/stan";
-import { BladNauki, dataNauki, formatRundy, procentNauki, WyborPoziomuNauki } from "./NaukaPowtorki";
-import { etykietaZrodla, kluczPowtorki, odmianaPowtorek, powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
-import { PasDni } from "../../components/wykresy";
+import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
+import { zapytania } from "../../nauka/zapytania";
+import { BladNauki, formatRundy } from "./NaukaPowtorki";
+import { powtorkiNaDni, unikalnePowtorki } from "../pulpit/czasPowtorek";
+import { zacznijKolejke } from "../../nauka/kolejka";
 import { StanPestki } from "../../components/StanPestki";
 import { glos, wybierz } from "../../pestka/glos";
+import { type PrzedmiotId } from "../../konto/przedmioty";
+import { maMapeZArkuszy, szablonMapy, useMapaZArkuszy } from "../../nauka/mapaPrzedmiotow";
+import { adresBledu, nazwaBledu } from "./MapaPrzedmiotu";
 import s from "./Powtorki.module.css";
 
 type Powtorka = Awaited<ReturnType<typeof naukaApi.powtorki>>["queue"][number];
-const odOstatniego = new Intl.RelativeTimeFormat("pl-PL");
 
 // Kolejka z serwera ma błędy jednej umiejętności obok siebie, od najnowszego. Grupa zachowuje tę kolejność.
 function grupujBledy(kolejka: Powtorka[]) {
@@ -30,180 +30,113 @@ function adresCwiczenia(poziom: Poziom, p: Powtorka) {
   return adresStartu(poziom, p.skill_id, powtorz ? "szybka-runda" : formatRundy(p.format), powtorz ?? undefined);
 }
 
-function etykietaCwiczenia(p: Powtorka) {
-  if (p.mistake?.repeat_id) return "Powtórz zadanie";
-  if (p.mistake) return "Ćwicz podobne";
-  return "Zacznij rundę";
-}
-
-export function Powtorki() {
-  const [poziom, ustawPoziom] = usePoziomNauki();
-  const powtorki = useZapytanieNauki(`nauka:powtorki:${poziom}`, (signal) => naukaApi.powtorki(poziom, signal));
-  // Karta na górze to propozycja dnia, ta sama co na pulpicie i w Nauce; powtórka z karty nie wraca na liście.
-  const dzien = useDzisAngielski(poziom);
-  const naKarcie = dzien.dzis?.powtorka;
+function PowtorkiAngielski() {
+  const [poziom] = usePoziomNauki();
+  const navigate = useNavigate();
+  const powtorki = useZapytanie(zapytania.powtorki(poziom));
   const wszystkie = unikalnePowtorki([...(powtorki.dane?.today ? [powtorki.dane.today] : []), ...(powtorki.dane?.queue ?? [])]);
-  const pozostale = wszystkie.filter((p) => !naKarcie || kluczPowtorki(p) !== kluczPowtorki(naKarcie));
-  const zanikajace = pozostale.filter((p) => !p.mistake);
-  const bledy = grupujBledy(pozostale.filter((p) => p.mistake));
+  const dni = powtorkiNaDni(wszystkie);
+  const naDzis = dni[0]?.liczba ?? 0;
+  const jutro = dni[1]?.liczba ?? 0;
+  const wTygodniu = dni.slice(1).reduce((suma, d) => suma + d.liczba, 0);
+  // Błędy przed zanikającymi umiejętnościami, w grupach po umiejętności (kolejność z serwera).
+  const grupy = grupujBledy([...wszystkie.filter((x) => x.mistake), ...wszystkie.filter((x) => !x.mistake)]);
+  const doZrobienia = wszystkie.slice(0, naDzis || wszystkie.length);
 
-  return (
-    <main className={`container ${s.strona}`}>
-      <NaglowekStrony etykieta="Język angielski" tytul="Powtórki" lead="Trudne zadania i dawno ćwiczone umiejętności." />
-
-      {dzien.stan === "ladowanie" ? <Ladowanie ksztalt="blok" etykieta="Dobieram ćwiczenie na dziś" /> : dzien.dzis && <KartaDnia dzis={dzien.dzis} />}
-
-      <div className={s.sekcja}>
-        <div className={s.polePoziom}>
-          <WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} />
-        </div>
-      </div>
-
-      {(powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") && <Ladowanie ksztalt="pulpit" ile={2} etykieta="Wczytuję powtórki" />}
-      {powtorki.stan === "blad" && <BladNauki komunikat="Nie udało się wczytać powtórek." ponow={powtorki.ponow} />}
-      {powtorki.stan === "gotowe" && !wszystkie.length && (
-        <section className={s.sekcja} aria-labelledby="powtorki-puste">
-          <h2 className="h2" id="powtorki-puste">Nie ma teraz powtórek</h2>
-          <StanPestki emocja="radosc" tekst={wybierz(glos.puste.powtorki, 0)} akcja={{ etykieta: "Przejdź do nauki", do: adresNauki(poziom) }} />
-        </section>
-      )}
-
-
-
-      {powtorki.stan === "gotowe" && wszystkie.length > 0 && <SiedemDni kolejka={wszystkie} />}
-
-      {bledy.length > 0 && (
-        <section className={s.sekcja} aria-labelledby="bledy-powtorki">
-          <h2 className="h2" id="bledy-powtorki">Błędy do przećwiczenia</h2>
-          <ul className={`wiersze ${s.wiersze}`}>
-            {bledy.map((grupa) => <GrupaBledow key={grupa[0].skill_id} poziom={poziom} zadania={grupa} />)}
-          </ul>
-        </section>
-      )}
-
-      {zanikajace.length > 0 && (
-        <section className={s.sekcja} aria-labelledby="zanikajace-umiejetnosci">
-          <h2 className="h2" id="zanikajace-umiejetnosci">Do odświeżenia</h2>
-          <ul className={`wiersze ${s.wiersze}`}>
-            {zanikajace.map((p) => <WierszPowtorki key={kluczPowtorki(p)} poziom={poziom} powtorka={p} />)}
-          </ul>
-        </section>
-      )}
-    </main>
-  );
-}
-
-function GrupaBledow({ poziom, zadania }: { poziom: Poziom; zadania: Powtorka[] }) {
-  const [pierwsze] = zadania;
-  return (
-    <li className={s.grupa}>
-      <div className={s.grupaGlowa}>
-        <h3 className="h3">{pierwsze.name}</h3>
-        <OstatnieCwiczenie powtorka={pierwsze} />
-        <Link className={`link small ${s.mapa}`} to={adresMapy(poziom, pierwsze.skill_id)}>Zobacz na mapie</Link>
-      </div>
-      <ul className={s.zadania}>
-        {zadania.map((p) => (
-          <li key={kluczPowtorki(p)} className={s.zadanie}>
-            <div className={`small ${s.zadanieOpis}`}>
-              {p.mistake?.sheet_id || p.mistake?.session_id ? <ZrodloPowtorki powtorka={p} /> : "Zadanie do powtórzenia"}
-            </div>
-            <Link to={adresCwiczenia(poziom, p)} className={`link small ${s.cwicz}`}>
-              <RotateCcw size={15} aria-hidden="true" />
-              {etykietaCwiczenia(p)}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </li>
-  );
-}
-
-function WierszPowtorki({ poziom, powtorka }: { poziom: Poziom; powtorka: Powtorka }) {
-  return (
-    <li className="wiersz">
-      <div className="wiersz-tresc">
-        <h3 className="h3">{powtorka.name}</h3>
-        <OstatnieCwiczenie powtorka={powtorka} bezPamieci />
-        <div className={`small ${s.akcje}`}>
-          <ZrodloPowtorki powtorka={powtorka} />
-          <Link className="link" to={adresMapy(poziom, powtorka.skill_id)}>Zobacz na mapie</Link>
-        </div>
-      </div>
-      <div className="wiersz-wartosc">{powtorka.retention !== null && <Pamiec retencja={powtorka.retention} />}</div>
-      <div className="wiersz-akcja">
-        <Link to={adresCwiczenia(poziom, powtorka)} className={`link small ${s.cwicz}`}>
-          <RotateCcw size={15} aria-hidden="true" />
-          {etykietaCwiczenia(powtorka)}
-        </Link>
-      </div>
-    </li>
-  );
-}
-
-const OPIS_PAMIECI = "To mój szacunek, ile z tej umiejętności zostało ci w pamięci. Maleje z czasem od ostatniego ćwiczenia, a powtórka go odświeża.";
-
-function Pamiec({ retencja }: { retencja: number }) {
-  return (
-    <span className={s.retencja} data-tutor-about={OPIS_PAMIECI}>
-      <span className="muted" aria-hidden="true">Pamiętasz ok.</span>
-      <span className="wiersz-pasek">
-        <progress aria-label={`Pamiętasz ok. ${procentNauki.format(retencja)}`} value={retencja} max={1} />
-        <span aria-hidden="true">{procentNauki.format(retencja)}</span>
-      </span>
-    </span>
-  );
-}
-
-function OstatnieCwiczenie({ powtorka, bezPamieci }: { powtorka: Powtorka; bezPamieci?: boolean }) {
-  const ostatnio = dataNauki(powtorka.last_practiced_at);
-  const retencja = bezPamieci ? null : powtorka.retention;
-  if (!ostatnio && retencja === null) return null;
-  const dni = powtorka.last_practiced_at ? Math.floor((Date.now() - Date.parse(powtorka.last_practiced_at)) / 86_400_000) : 0;
-  return (
-    <div className={`small muted ${s.wierszGlowny}`}>
-      {ostatnio && powtorka.last_practiced_at && (
-        <time dateTime={powtorka.last_practiced_at} title={ostatnio}>
-          {dni < 1 ? "Ćwiczone w ciągu ostatniej doby" : `Ostatnie ćwiczenie ${odOstatniego.format(-dni, "day")}`}
-        </time>
-      )}
-      {retencja !== null && <Pamiec retencja={retencja} />}
-    </div>
-  );
-}
-
-function ZrodloPowtorki({ powtorka }: { powtorka: Powtorka }) {
-  const blad = powtorka.mistake;
-  if (!blad) return null;
-  if (blad.sheet_id) {
-    const numer = blad.question?.match(/^\d+/)?.[0];
-    const etykieta = etykietaZrodla(blad);
-    return <Link className="link" to={`/arkusze/${encodeURIComponent(blad.sheet_id)}${numer ? `#zadanie-${numer}` : ""}`}>{etykieta}</Link>;
+  function powtorzWszystkie() {
+    const pierwszy = zacznijKolejke(doZrobienia.map((x) => adresCwiczenia(poziom, x)));
+    if (pierwszy) navigate(pierwszy);
   }
-  if (blad.session_id) {
-    const etykieta = etykietaZrodla(blad);
-    return <Link className="link" to={adresRozbioru(blad.session_id)}>{etykieta}</Link>;
-  }
-  return null;
+
+  if (powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") return <Ladowanie ile={3} etykieta="Wczytuję powtórki" />;
+  if (powtorki.stan === "blad") return <BladNauki komunikat="Nie udało się wczytać powtórek." ponow={powtorki.ponow} />;
+  if (!wszystkie.length) return <StanPestki rozmiar="maly" emocja="radosc" tekst={wybierz(glos.puste.powtorki, 0)} />;
+  return (
+    <>
+      <div className={s.glowa}>
+        <p className={s.liczba}>
+          {naDzis ? <><strong>{naDzis}</strong> na dziś</> : "Dziś nic nie ucieka"}
+          {(jutro > 0 || wTygodniu > 0) && <span className="muted"> · {[jutro > 0 && `jutro ${jutro}`, wTygodniu > 0 && `w tym tygodniu ${wTygodniu}`].filter(Boolean).join(", ")}</span>}
+        </p>
+        {/* Przycisk poboczny: główny w Nauce to karta dnia nad tą sekcją. */}
+        <button type="button" className={`btn btn-secondary ${s.przycisk}`} onClick={powtorzWszystkie}>
+          <RotateCcw size={18} aria-hidden="true" />
+          {doZrobienia.length > 1 ? `Powtórz wszystkie · ${doZrobienia.length}` : "Powtórz"}
+        </button>
+      </div>
+      {/* Bez listy umiejętności: jeden wiersz z liczbą i jednym działaniem. Którą umiejętność powtórzyć osobno, widać w ogrodzie. */}
+      {grupy.length > 1 && <p className="small muted">{grupy.map((g) => g[0]!.name).slice(0, 3).join(", ")}{grupy.length > 3 ? ` i ${grupy.length - 3} ${grupy.length - 3 === 1 ? "inna" : "inne"}` : ""}</p>}
+    </>
+  );
 }
 
-const pelnaNazwaDnia = new Intl.DateTimeFormat("pl-PL", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+const zadan = (n: number) => (n === 1 ? "zadanie" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "zadania" : "zadań");
 
-/** Kiedy co powtórzyć: liczba na dziś jako wniosek, pod nią siedem dni z liczbą powtórek. */
-function SiedemDni({ kolejka }: { kolejka: Powtorka[] }) {
-  const dni = powtorkiNaDni(kolejka);
-  const dzis = dni[0]!.liczba;
-  const wTygodniu = dni.reduce((s, d) => s + d.liczba, 0);
-  const opis = dni.map((d) => `${d.podpis}: ${d.liczba}`).join(", ");
+
+
+/** Sekcja „Do powtórki” w Nauce: angielski z rund (błędy i zanikające umiejętności), pozostałe przedmioty
+ *  z zadań z błędem w sprawdzonych arkuszach. Kiedyś osobna zakładka; adres /powtorki prowadzi tutaj. */
+export function SekcjaPowtorek({ przedmiot: p, poziom }: { przedmiot: PrzedmiotId; poziom: Poziom | null }) {
+  if (p !== "angielski" && !maMapeZArkuszy(p)) return null;
+  if (p !== "angielski") return <PowtorkiZArkuszy przedmiot={p} poziom={poziom} />;
   return (
-    <section className={s.sekcja} aria-labelledby="powtorki-tydzien">
-      <h2 className="h2" id="powtorki-tydzien">
-        {dzis ? `Na dziś ${dzis} ${odmianaPowtorek(dzis)}` : "Dziś nic nie czeka"}
-      </h2>
-      <PasDni
-        opis={`Powtórki w najbliższych siedmiu dniach, razem ${wTygodniu}: ${opis}.`}
-        dni={dni.map((d, i) => ({ klucz: d.data, podpis: d.podpis, liczba: d.liczba, dzis: i === 0, tytul: pelnaNazwaDnia.format(new Date(`${d.data}T12:00:00Z`)) }))}
-      />
+    <section className={s.sekcja} aria-labelledby="powtorki">
+      <h2 className="h2" id="powtorki" tabIndex={-1}>Do powtórki</h2>
+      <PowtorkiAngielski />
     </section>
   );
+}
+
+/** Stary adres zakładki: Nauka z wybranym przedmiotem, przewinięta do sekcji „Do powtórki”. */
+export function Powtorki() {
+  const [params] = useSearchParams();
+  return <Navigate replace to={`/nauka?${params.toString()}#powtorki`} />;
+}
+
+function PowtorkiZArkuszy({ przedmiot: p, poziom }: { przedmiot: PrzedmiotId; poziom: Poziom | null }) {
+  const mapa = useMapaZArkuszy(p, poziom);
+  const bledy = mapa.dane?.bledy ?? [];
+  const dzialy = new Map(szablonMapy(p).map((u) => [u.skill_id, u.name]));
+  const maArkusze = p !== "polski";
+  // Bez zadań z błędem sekcji nie ma: pusty stan pod kartą dnia tylko dokładał szumu.
+  if (!maArkusze || !bledy.length) return null;
+  return (
+    <section className={s.sekcja} aria-labelledby="powtorki">
+      <h2 className="h2" id="powtorki" tabIndex={-1}>Do poprawy</h2>
+      <p className={s.liczba}><strong>{bledy.length}</strong> {zadan(bledy.length)} z błędem w arkuszach</p>
+      <section aria-label="Zadania do poprawy">
+        <ul className={`wiersze ${s.wiersze}`}>
+          {bledy.slice(0, 3).map((b) => (
+            <li key={`${b.arkusz.id}:${b.zadanie}`} className={`wiersz ${s.grupa}`}>
+              <div className="wiersz-tresc">
+                <h3 className="h3">{nazwaBledu(b)}</h3>
+                <p className="wiersz-opis">{[b.dzial && dzialy.get(b.dzial), `${b.zdobyte} z ${b.mozliwe} pkt`].filter(Boolean).join(" · ")}</p>
+              </div>
+              <div className="wiersz-wartosc" />
+              <div className="wiersz-akcja">
+                <Link to={adresBledu(b)} className="btn btn-ghost btn-sm"><RotateCcw size={15} aria-hidden="true" /> Popraw</Link>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </section>
+  );
+}
+
+/** Kolejka powtórek angielskiego na dziś: ile ich jest i start całej kolejki (plan dnia w Nauce i na pulpicie). */
+export function useKolejkaPowtorek(poziom: Poziom, wlaczone = true) {
+  const navigate = useNavigate();
+  const powtorki = useZapytanie(wlaczone ? zapytania.powtorki(poziom) : null);
+  const wszystkie = unikalnePowtorki([...(powtorki.dane?.today ? [powtorki.dane.today] : []), ...(powtorki.dane?.queue ?? [])]);
+  const naDzis = powtorkiNaDni(wszystkie)[0]?.liczba ?? 0;
+  const doZrobienia = wszystkie.slice(0, naDzis || wszystkie.length);
+  return {
+    stan: powtorki.stan,
+    ile: doZrobienia.length,
+    zacznij: () => {
+      const pierwszy = zacznijKolejke(doZrobienia.map((x) => adresCwiczenia(poziom, x)));
+      if (pierwszy) navigate(pierwszy);
+    },
+  };
 }

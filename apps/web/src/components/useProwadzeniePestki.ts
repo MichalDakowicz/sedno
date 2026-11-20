@@ -5,19 +5,29 @@ import type { ExcalidrawElement, NonDeleted } from "@excalidraw/excalidraw/eleme
 import { AiError } from "../ai";
 import { currentUserId } from "../auth";
 import { bezZapisowPestki, omowTablice, type OdpowiedzPestki } from "./brudnopisPestkaApi";
+import type { ZdarzeniaTablicy } from "./strumienTablicy";
 
 const PAUZA_PO_PISANIU = 2800;
 const ODSTEP_ANALIZ = 14_000;
 
 type Element = NonDeleted<ExcalidrawElement>;
 export type ZapisProwadzenia = { signal: AbortSignal; aktualny: () => boolean; zmienione: readonly Element[] };
+/**
+ * Jedna analiza od strony tablicy: figury i dopiski ze strumienia rysują się od razu (`zdarzenia`), wynik je
+ * zatwierdza albo dokłada resztę (`pokaz`), a `porzuc` ściera to, co zdążyło się narysować (czekam, nieaktualne, błąd).
+ * Wskazówka nie pisze się na żywo: czy to krok, błąd czy „czekam”, wiadomo dopiero z wyniku.
+ */
+export type ProwadzenieNaZywo = {
+  zdarzenia: ZdarzeniaTablicy;
+  pokaz: (dane: OdpowiedzPestki) => Promise<boolean>;
+  porzuc: () => Promise<void>;
+};
 type Stan = "wylaczone" | "czeka" | "czyta" | { blad: string };
 type Sesja = {
   konto: string;
   polecenie: string;
   timer: number | null;
   kontroler: AbortController | null;
-  zapisuje: boolean;
   sprawdzone: Map<string, number>;
   ostatniWidok?: number;
   blokada?: boolean;
@@ -32,7 +42,7 @@ export function useProwadzeniePestki({
   plik: string;
   polecenie?: string;
   czyBazowy: (id: string) => boolean;
-  pokaz: (dane: OdpowiedzPestki, zapis: ZapisProwadzenia) => Promise<boolean>;
+  pokaz: (zapis: ZapisProwadzenia) => ProwadzenieNaZywo;
 }) {
   const [stan, setStan] = useState<Stan>("wylaczone");
   const sesja = useRef<Sesja | null>(null);
@@ -86,7 +96,9 @@ export function useProwadzeniePestki({
     s.blokada = blokada;
     if (s.timer !== null) window.clearTimeout(s.timer);
     s.timer = null;
-    if (s.zapisuje) s.kontroler?.abort();
+    // Uczeń pisze dalej: odpowiedź o poprzednim stanie tablicy byłaby nieaktualna, więc przerywamy strumień
+    // (i rysowanie z niego); nowa analiza ruszy po pauzie.
+    s.kontroler?.abort();
     planuj();
   }
 
@@ -102,18 +114,19 @@ export function useProwadzeniePestki({
     setStan("czyta");
     const aktywna = () => sesja.current === s && api.current === a && currentUserId() === s.konto && !kontroler.signal.aborted;
     const aktualny = () => aktywna() && !zajeta(a) && hashElementsVersion(praca(a)) === wersja;
+    const zywy = wpisz.current({ signal: kontroler.signal, aktualny, zmienione });
     try {
       const odpowiedz = await omowTablice(a, s.konto, s.polecenie, "", kontroler.signal, {
         zmienione, poprzedniaWskazowka: s.wskazowka,
-      });
-      if (!aktualny()) return;
+      }, zywy.zdarzenia);
+      if (!aktualny()) return await zywy.porzuc();
       s.sprawdzone = new Map(elementy.map((e) => [e.id, e.versionNonce]));
-      if (odpowiedz.stanProwadzenia === "czekam" || (odpowiedz.wskazowka === s.wskazowka && !odpowiedz.obszarBledu)) return;
-      s.zapisuje = true;
-      if (await wpisz.current(odpowiedz, { signal: kontroler.signal, aktualny, zmienione })) {
+      if (odpowiedz.stanProwadzenia === "czekam" || (odpowiedz.wskazowka === s.wskazowka && !odpowiedz.obszarBledu)) return await zywy.porzuc();
+      if (await zywy.pokaz(odpowiedz)) {
         s.wskazowka = odpowiedz.wskazowka;
       }
     } catch (e) {
+      await zywy.porzuc();
       if (aktywna()) {
         zakoncz(s);
         setStan({ blad: e instanceof AiError ? e.code : "server_error" });
@@ -121,7 +134,6 @@ export function useProwadzeniePestki({
     } finally {
       if (sesja.current === s) {
         s.kontroler = null;
-        s.zapisuje = false;
         setStan("czeka");
         planuj();
       }
@@ -132,7 +144,7 @@ export function useProwadzeniePestki({
     const a = api.current;
     if (!a || a.getAppState().isLoading || !konto || !polecenie || currentUserId() !== konto || sesja.current) return false;
     sesja.current = {
-      konto, polecenie, timer: null, kontroler: null, zapisuje: false,
+      konto, polecenie, timer: null, kontroler: null,
       sprawdzone: new Map(),
     };
     setStan("czeka");

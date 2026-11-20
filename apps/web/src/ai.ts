@@ -28,15 +28,40 @@ async function headers(): Promise<Record<string, string>> {
 const body = (r: AiRequest, stream: boolean) =>
   JSON.stringify({ tier: r.tier, messages: r.messages, task: r.task, provider: r.provider, max_tokens: r.maxTokens, temperature: r.temperature, stream });
 
+// Chwilowa awaria jednego modelu (np. błąd 500 u dostawcy) nie zatrzymuje Pestki: drugi poziom ma zwykle inny model.
+// Gdy zapasowy też zawiedzie, uczeń widzi pierwotny błąd.
+const drugiPoziom = (t: Tier): Tier => (t === "wazne" ? "lekkie" : "wazne");
+const warto = (r: AiRequest, e: unknown) => !r.provider && e instanceof AiError && e.code === "provider_failed";
+
 export async function askAi(r: AiRequest): Promise<AiAnswer> {
+  try {
+    return await askAiRaz(r);
+  } catch (e) {
+    if (!warto(r, e)) throw e;
+    return askAiRaz({ ...r, tier: drugiPoziom(r.tier) }).catch(() => Promise.reject(e));
+  }
+}
+
+/** Odpowiedź kawałkami; onText dostaje kolejne fragmenty tekstu. */
+export async function streamAi(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal): Promise<AiAnswer> {
+  let cos = false;
+  try {
+    return await streamAiRaz(r, (d) => ((cos = true), onText(d)), signal);
+  } catch (e) {
+    // Po pierwszym fragmencie nie zaczynamy od nowa: uczeń widziałby sklejone dwie odpowiedzi.
+    if (cos || signal?.aborted || !warto(r, e)) throw e;
+    return streamAiRaz({ ...r, tier: drugiPoziom(r.tier) }, onText, signal).catch(() => Promise.reject(e));
+  }
+}
+
+async function askAiRaz(r: AiRequest): Promise<AiAnswer> {
   const res = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: body(r, false) });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new AiError(data.error ?? "server_error", res.status);
   return data as AiAnswer;
 }
 
-/** Odpowiedź kawałkami; onText dostaje kolejne fragmenty tekstu. */
-export async function streamAi(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal): Promise<AiAnswer> {
+async function streamAiRaz(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal): Promise<AiAnswer> {
   const res = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: body(r, true), signal });
   if (!res.ok || !res.body) {
     const data = await res.json().catch(() => ({}));
@@ -74,8 +99,7 @@ export async function aiKey(payload: { action: "save"; provider: string; base_ur
   return (await res.json().catch(() => ({ error: "server_error" }))) as Record<string, unknown>;
 }
 
-// Czy konto ma podpięte AI. Pestka pojawia się w aplikacji dopiero wtedy.
-// Gotowe = ustawiony dostawca dla zadań lekkich albo dokładnie jeden dostawca (bramka wybierze go sama).
+// Czy Pestka jest dostępna dla konta (własny dostawca albo domyślna trasa serwera). Pestka pojawia się w aplikacji dopiero wtedy.
 let ready: { user: string; value: boolean } | null = null;
 const readyListeners = new Set<() => void>();
 
@@ -83,11 +107,11 @@ export async function refreshAiReady(): Promise<void> {
   const { data } = await supabase.auth.getSession();
   const user = data.session?.user.id;
   if (!user) return;
-  const [creds, route] = await Promise.all([
-    supabase.from("ai_credential").select("provider").limit(2),
-    supabase.from("ai_routing").select("tier").eq("tier", "lekkie").maybeSingle(),
-  ]);
-  ready = { user, value: !!route.data || creds.data?.length === 1 };
+  const value = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: JSON.stringify({ status: true }) })
+    .then((res) => res.json())
+    .then((d) => d?.ready === true)
+    .catch(() => false);
+  ready = { user, value };
   readyListeners.forEach((l) => l());
 }
 
@@ -108,11 +132,11 @@ export function useAiReady(userId: string | null): boolean | undefined {
 export function aiErrorText(code: string): string {
   return (
     {
-      no_provider: "Pestka nie ma jeszcze połączenia dla tego poziomu. Dodaj dostawcę w profilu.",
+      no_provider: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
       not_signed_in: "Zaloguj się, żeby rozmawiać z Pestką.",
       rate_limited: "Za dużo zapytań naraz. Spróbuj za chwilę.",
-      provider_failed: "Dostawca modelu nie odpowiedział poprawnie.",
-      bad_credential: "Zapisany klucz nie działa. Zapisz go ponownie w profilu.",
+      provider_failed: "Pestka nie odpowiedziała. Spróbuj ponownie za chwilę.",
+      bad_credential: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
       bad_base_url: "Ten adres dostawcy jest niedozwolony.",
     }[code] ?? "Coś poszło nie tak."
   );

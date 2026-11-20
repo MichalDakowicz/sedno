@@ -13,8 +13,13 @@ function adres(sciezka: string, poziom?: Poziom, skill?: string, format?: Format
 
 export const adresNauki = (poziom?: Poziom, skill?: string) => adres("/nauka", poziom, skill);
 export const adresMapy = (poziom?: Poziom, skill?: string) => adres("/umiejetnosci", poziom, skill);
-export const adresPowtorek = (poziom?: Poziom) => adres("/powtorki", poziom);
+/** Powtórki to sekcja „Do powtórki” w Nauce (angielski), dawniej osobna zakładka. */
+export const adresPowtorek = (poziom?: Poziom) => {
+  const nauka = adres("/nauka", poziom);
+  return `${nauka}${nauka.includes("?") ? "&" : "?"}przedmiot=angielski#powtorki`;
+};
 export const adresStartu = (poziom: Poziom, skill: string, format?: FormatNauki, repeatId?: string) =>
   adres("/nauka/runda", poziom, skill, format, repeatId);
 export const adresRundy = (id: string) => `/nauka/runda/${encodeURIComponent(id)}`;
 export const adresRozbioru = (id: string) => `/nauka/rozbior/${encodeURIComponent(id)}`;
+export const adresDiagnozy = (poziom?: Poziom) => adres("/nauka/diagnoza", poziom);

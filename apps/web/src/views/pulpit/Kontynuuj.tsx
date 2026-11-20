@@ -20,7 +20,7 @@ export function Kontynuuj({ zakres, aktywny }: KontekstPulpitu) {
 // Osobny komponent, żeby poza angielskim nie pobierać rund.
 function OtwarteRundy() {
   const [poziom] = usePoziomNauki();
-  const rundy = useOtwarteRundy(poziom);
+  const rundy = useOtwarteRundy();
   const sesje = rundy.dane?.sesje ?? [];
   const kilkaPoziomow = new Set(sesje.map((s) => s.level)).size > 1;
   return (
@@ -39,7 +39,7 @@ function OtwarteRundy() {
         <>
           <ul className={`wiersze ${w.zAkcja}`}>
             {sesje.slice(0, POKAZANE).map((sesja) => {
-              const nazwa = rundy.dane?.nazwy.get(sesja.skill_id);
+              const nazwa = sesja.skill_id ? rundy.dane?.nazwy.get(sesja.skill_id) : undefined;
               const format = nazwaFormatuNauki[sesja.format];
               const opis = [nazwa && format, kilkaPoziomow && nazwaPoziomu[sesja.level], dataNauki(sesja.updated_at)].filter(Boolean).join(" · ");
               return (

@@ -1,103 +1,19 @@
-// Pierwsze wejście na konto: Pestka przedstawia się, uczeń wybiera przedmioty maturalne, Pestka
-// pokazuje na zadaniu z jednego z nich, jak uczy, i mówi, gdzie ją spotkać. Z AI na koncie pokaz
-// idzie przez model; bez niego Pestka odpowiada przygotowanymi zdaniami i na końcu tłumaczy,
-// jak podpiąć AI. Przechodzi się go raz na konto.
-import { useEffect, useRef, useState, type FormEvent } from "react";
+// Pierwsze wejście na konto: powitanie Pestki, przedmioty i poziomy, quiz celów, a na końcu
+// diagnoza (z angielskim) albo pulpit. Bez AI na koncie ostatni krok mówi, jak podpiąć dostawcę.
+// Przechodzi się go raz na konto.
+import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Hand, MessageCircle, MousePointerClick, Timer } from "lucide-react";
-import { TutorAvatar, type AvatarState } from "../components/TutorAvatar";
+import { TutorAvatar } from "../components/TutorAvatar";
 import { resetTour } from "../components/TutorContext";
 import { PodlaczAI } from "../components/PodlaczAI";
-import { Markdown } from "../components/Markdown";
 import { WyborPrzedmiotow } from "../components/WyborPrzedmiotow";
-import { SubjectIcon } from "../components/icons";
 import { markOnboarded, saveSubjects, useProfil, useSession, imieZNazwy } from "../auth";
-import { streamAi, useAiReady } from "../ai";
-import { bezEmoji, powtarzaTutora, rozmowa } from "../pestka";
-import { CzasICel, PytaniaOSposobie } from "./ProfilUcznia";
-import { przedmiot, zgrupuj, type MojPrzedmiot, type PrzedmiotId } from "../konto/przedmioty";
+import { useAiReady } from "../ai";
+import { QuizCelow } from "./QuizCelow";
+import type { MojPrzedmiot } from "../konto/przedmioty";
 import styles from "./Onboarding.module.css";
 
-type Litera = "A" | "B" | "C" | "D";
-type Wpis = { od: "tutor" | "uczen"; tekst: string; przygotowane?: boolean; powtorzenie?: boolean };
-
-type Pokazowe = {
-  opis: string;
-  umiejetnosc: string;
-  polecenie: string;
-  opcje: Record<Litera, string>;
-  poprawna: Litera;
-  reakcja: Record<Litera, string>;
-  druga: string;
-};
-
-const KONIEC_POKAZU = "Dobrze, to wystarczy na pokaz. Przejdźmy dalej.";
-
-// Własne zadania pokazowe (nie z arkuszy CKE): zamknięte, z typowymi pułapkami w dystraktorach.
-const ZADANIA: Record<PrzedmiotId, Pokazowe> = {
-  matematyka: {
-    opis: "Matematyka · zadanie zamknięte",
-    umiejetnosc: "działania na potęgach",
-    polecenie: "Liczba $\\dfrac{2^{10}\\cdot 2^{-4}}{2^{3}}$ jest równa:",
-    opcje: { A: "$2^{3}$", B: "$2^{9}$", C: "$2^{-3}$", D: "$2^{17}$" },
-    poprawna: "A",
-    reakcja: {
-      A: "Zgadza się. Zanim pójdziemy dalej: dlaczego przy dzieleniu przez $2^{3}$ **odejmujesz** trójkę, a nie dzielisz wykładników?",
-      B: "Blisko. Spójrz na ostatni krok: co dzieje się z wykładnikiem, gdy **dzielisz** przez $2^{3}$, a nie mnożysz?",
-      C: "Skąd minus? Zacznij od licznika: jak zapiszesz $2^{10}\\cdot 2^{-4}$ jako jedną potęgę?",
-      D: "Popatrz na znak przy czwórce w $2^{-4}$. Co robi minus w wykładniku, gdy mnożysz potęgi o tej samej podstawie?",
-    },
-    druga:
-      "Właśnie tak: przy mnożeniu potęg o tej samej podstawie **dodajesz** wykładniki, przy dzieleniu **odejmujesz**: $$2^{10-4-3}=2^{3}$$ Tak pracujemy: ja pytam, ty dochodzisz do odpowiedzi.",
-  },
-  angielski: {
-    opis: "Angielski · środki językowe · zadanie zamknięte",
-    umiejetnosc: "czasy przeszłe (past perfect)",
-    polecenie: "Choose the correct option: *By the time we arrived, the film ___.*",
-    opcje: { A: "already started", B: "had already started", C: "has already started", D: "was already starting" },
-    poprawna: "B",
-    reakcja: {
-      A: "Zastanów się nad *by the time*: co wydarzyło się **wcześniej**, wasz przyjazd czy początek filmu? Jak angielski pokazuje, że coś stało się przed inną przeszłą czynnością?",
-      B: "Zgadza się. Co w zdaniu podpowiedziało ci, że potrzebny jest *past perfect*?",
-      C: "*Has started* łączy przeszłość z teraźniejszością. A tu cała historia jest już w przeszłości: co to zmienia?",
-      D: "*Past continuous* opisuje coś w trakcie. Czy film „był w trakcie zaczynania się”, czy zaczął się, zanim dotarliście?",
-    },
-    druga:
-      "Dokładnie: *by the time* z czasem przeszłym to sygnał, że druga czynność skończyła się **wcześniej**, więc *past perfect*. Tak pracujemy: ja pytam, ty dochodzisz do odpowiedzi.",
-  },
-  informatyka: {
-    opis: "Informatyka · algorytmy · zadanie zamknięte",
-    umiejetnosc: "liczba wykonań pętli zagnieżdżonych",
-    polecenie: "Ile razy wykona się przypisanie $x \leftarrow x + 1$?\n\n**dla** $i = 1, 2, \dots, n$ **wykonuj**\n\n  **dla** $j = i, i+1, \dots, n$ **wykonuj** $x \leftarrow x + 1$",
-    opcje: { A: "$\dfrac{n(n+1)}{2}$", B: "$n^{2}$", C: "$\dfrac{n(n-1)}{2}$", D: "$2n$" },
-    poprawna: "A",
-    reakcja: {
-      A: "Zgadza się. Sprawdź się na małym przykładzie: ile wykonań wyjdzie dla $n = 3$ i czy pasuje to do wzoru?",
-      B: "$n^{2}$ wyszłoby, gdyby $j$ zawsze zaczynało od 1. Od czego zaczyna się wewnętrzna pętla, gdy $i = n$? Ile razy się wtedy wykona?",
-      C: "Blisko. Policz dla $n = 1$: ile razy wykona się przypisanie, a ile daje twój wzór?",
-      D: "Wewnętrzna pętla nie wykonuje się stałą liczbę razy. Ile obrotów robi dla $i = 1$, a ile dla $i = n$?",
-    },
-    druga:
-      "Właśnie: wewnętrzna pętla robi kolejno $n, n-1, \dots, 1$ obrotów, a ich suma to $\frac{n(n+1)}{2}$ Tak pracujemy: ja pytam, ty dochodzisz do odpowiedzi.",
-  },
-  polski: {
-    opis: "Polski · środki stylistyczne · zadanie zamknięte",
-    umiejetnosc: "rozpoznawanie środków stylistycznych",
-    polecenie: "W wersie *„Litwo! Ojczyzno moja! ty jesteś jak zdrowie”* (A. Mickiewicz, „Pan Tadeusz”) zastosowano przede wszystkim:",
-    opcje: { A: "apostrofę i porównanie", B: "metaforę i epitet", C: "anaforę i wyliczenie", D: "pytanie retoryczne i hiperbolę" },
-    poprawna: "A",
-    reakcja: {
-      A: "Tak. Skąd wiesz, że to **porównanie**, a nie metafora?",
-      B: "Metafora mówi, że coś **jest** czymś innym. A tu pada słowo „jak”: co ono zmienia?",
-      C: "Anafora to powtórzenie na początku kolejnych wersów. Czy coś się tu powtarza? Spójrz raczej, **do kogo** mówi poeta.",
-      D: "Czy w tym wersie pada jakieś pytanie? Zwróć uwagę na wykrzyknienia i na to, do kogo zwraca się podmiot.",
-    },
-    druga:
-      "Właśnie: „jak” zamienia przenośnię w **porównanie**, a zwrot wprost do Litwy to **apostrofa**. Tak pracujemy: ja pytam, ty dochodzisz do odpowiedzi.",
-  },
-};
-
-const KROKI = ["Cześć", "Przedmioty", "Pokaz", "Jak się uczysz", "Gdzie mnie spotkasz", "Start"];
+const KROKI = ["Cześć", "Przedmioty", "Cele", "Start"];
 
 export function Onboarding() {
   const session = useSession();
@@ -113,6 +29,7 @@ export function Onboarding() {
 
   const imie = imieZNazwy(profil?.display_name);
   const przedmioty = wybor ?? profil?.subjects ?? [];
+  const angielski = przedmioty.some((p) => p.id === "angielski");
 
   async function zakoncz(dokad: string) {
     await markOnboarded();
@@ -150,7 +67,7 @@ export function Onboarding() {
             <h1 className="display">
               Cześć{imie ? `, ${imie}` : ""}! <span className="accent">Jestem Pestka.</span>
             </h1>
-            <p className="lead">Będę uczyć się z tobą w Sedno. Nie podaję gotowych odpowiedzi: zadaję pytania, aż dojdziesz do rozwiązania. Tak zostaje w głowie dłużej.</p>
+            <p className="lead">Nie podaję gotowych odpowiedzi: pytam, aż dojdziesz do rozwiązania.</p>
             <button type="button" className="btn btn-primary" onClick={() => setKrok(1)}>
               Zaczynamy
             </button>
@@ -161,7 +78,6 @@ export function Onboarding() {
           <section className={styles.step}>
             <TutorAvatar size={64} />
             <h1 className="h1">Co zdajesz na maturze?</h1>
-            <p className="lead">Wybierz przedmioty i poziomy. Pulpit, arkusze i moje propozycje dopasują się do nich. Zmienisz je później w profilu.</p>
             <WyborPrzedmiotow value={przedmioty} onChange={setWybor} />
             <button type="button" className="btn btn-primary" disabled={!przedmioty.length || zapis} onClick={() => void zapiszPrzedmioty()}>
               Dalej
@@ -169,67 +85,20 @@ export function Onboarding() {
           </section>
         )}
 
-        {krok === 2 && przedmioty[0] && <Pokaz ai={ai} przedmioty={przedmioty} onDalej={() => setKrok(3)} />}
+        {krok === 2 && <QuizCelow wOnboardingu onKoniec={() => setKrok(3)} />}
 
-        {krok === 3 && (
-          <section className={styles.step}>
-            <TutorAvatar size={64} />
-            <h1 className="h1">Jak się uczysz?</h1>
-            <p className="lead">Kilka krótkich pytań, żebym lepiej dopasowała propozycje. Każde możesz pominąć, a odpowiedzi zmienisz później w profilu.</p>
-            <div className={styles.profil}>
-              <PytaniaOSposobie />
-              <CzasICel przedmioty={zgrupuj(przedmioty).map((m) => m.id)} />
-            </div>
-            <button type="button" className="btn btn-primary" onClick={() => setKrok(4)}>
-              Dalej
-            </button>
-            <button type="button" className={styles.later} onClick={() => setKrok(4)}>
-              Pomiń
-            </button>
-          </section>
-        )}
-
-        {krok === 4 && (
-          <section className={styles.step}>
-            <TutorAvatar size={64} />
-            <h1 className="h1">Gdzie mnie spotkasz</h1>
-            <ul className={styles.where}>
-              <li>
-                <MessageCircle size={20} aria-hidden="true" />
-                <span>Siedzę w rogu ekranu. Kliknij mnie, żeby porozmawiać o tym, co właśnie ćwiczysz.</span>
-              </li>
-              <li>
-                <Hand size={20} aria-hidden="true" />
-                <span>Przychodzę do przycisku, który polecam, i mówię dlaczego. Ty decydujesz, czy klikasz.</span>
-              </li>
-              <li>
-                <MousePointerClick size={20} aria-hidden="true" />
-                <span>Prawy przycisk myszy w dowolnym miejscu (na telefonie przytrzymaj palec) przywołuje mnie tam, gdzie jesteś.</span>
-              </li>
-              <li>
-                <Timer size={20} aria-hidden="true" />
-                <span>W trybie egzaminu milczę. Odezwę się dopiero przy sprawdzaniu.</span>
-              </li>
-            </ul>
-            <button type="button" className="btn btn-primary" onClick={() => setKrok(5)}>
-              Dalej
-            </button>
-          </section>
-        )}
-
-        {krok === 5 &&
+        {krok === 3 &&
           (ai ? (
             <section className={styles.step}>
               <TutorAvatar size={64} state="talking" />
-              <h1 className="h1">Wszystko gotowe</h1>
+              <h1 className="h1">{angielski ? "Sprawdźmy, od czego zacząć" : "Wszystko gotowe"}</h1>
               <p className="lead">
-                Twoje konto ma podpięte AI, więc odpowiadam naprawdę.{" "}
-                {przedmioty.some((p) => p.id === "angielski") ? "Kilka krótkich rund pokaże mi, od czego zacząć." : "Na pulpicie oprowadzę cię po aplikacji."}
+                {angielski ? "Kilka krótkich zadań pokaże mi, co już umiesz." : "Na pulpicie czeka pierwsza propozycja."} Gdy zechcesz pogadać, kliknij mnie w rogu ekranu.
               </p>
-              {przedmioty.some((p) => p.id === "angielski") ? (
+              {angielski ? (
                 <>
                   <button type="button" className="btn btn-primary" onClick={() => void zakoncz("/nauka/diagnoza")}>
-                    Sprawdźmy, od czego zacząć
+                    Zacznij diagnozę
                   </button>
                   <button type="button" className={styles.later} onClick={() => void zakoncz("/")}>
                     Przejdź do pulpitu
@@ -244,207 +113,14 @@ export function Onboarding() {
           ) : (
             <section className={styles.step}>
               <TutorAvatar size={64} />
-              <h1 className="h1">Odpowiem naprawdę po połączeniu w profilu</h1>
-              <p className="lead">
-                Sedno nie ma wspólnego klucza do AI: każde konto podpina własnego dostawcę. Dopóki tego nie zrobisz, nie będzie mnie w aplikacji, a arkusze
-                sprawdzają się bez mojego komentarza.
-              </p>
-              <PodlaczAI onGo={() => void markOnboarded()} />
-              <button type="button" className={styles.later} onClick={() => void zakoncz("/")}>
-                Na razie bez Pestki
+              <h1 className="h1">Na razie odpoczywam</h1>
+              <PodlaczAI />
+              <button type="button" className={styles.later} onClick={() => void zakoncz(angielski ? "/nauka/diagnoza" : "/")}>
+                {angielski ? "Na razie bez Pestki: diagnoza" : "Na razie bez Pestki"}
               </button>
             </section>
           ))}
       </main>
     </div>
-  );
-}
-
-function Pokaz({ ai, przedmioty: wpisyKonta, onDalej }: { ai: boolean; przedmioty: MojPrzedmiot[]; onDalej: () => void }) {
-  const przedmioty = zgrupuj(wpisyKonta);
-  const [ktory, setKtory] = useState<PrzedmiotId>(przedmioty[0]!.id);
-  const zadanie = ZADANIA[ktory];
-  const [wybor, setWybor] = useState<Litera | null>(null);
-  const [wpisy, setWpisy] = useState<Wpis[]>([]);
-  const [stan, setStan] = useState<AvatarState>("idle");
-  const [szkic, setSzkic] = useState("");
-  const listaRef = useRef<HTMLDivElement>(null);
-  const tury = wpisy.filter((w) => w.od === "uczen").length;
-
-  useEffect(() => {
-    listaRef.current?.scrollTo({ top: listaRef.current.scrollHeight, behavior: "smooth" });
-  }, [wpisy]);
-
-  function zmienPrzedmiot(id: PrzedmiotId) {
-    if (stan === "thinking") return;
-    setKtory(id);
-    setWybor(null);
-    setWpisy([]);
-    setSzkic("");
-  }
-
-  const tekstZadania = () =>
-    `${zadanie.opis}. ${zadanie.polecenie}\n${(Object.keys(zadanie.opcje) as Litera[]).map((l) => `${l}. ${zadanie.opcje[l]}`).join("\n")}\nPoprawna odpowiedź: ${zadanie.poprawna}.`;
-
-  // Z AI odpowiada model; bez niego (albo gdy model zawiedzie) przygotowane zdanie, wyraźnie oznaczone.
-  async function odpowiedz(historia: Wpis[], zapas: string) {
-    setStan("thinking");
-    if (ai) {
-      let tekst = "";
-      let pierwszy = true;
-      try {
-        await streamAi(
-          {
-            tier: "lekkie",
-            task: "onboarding-pokaz",
-            messages: rozmowa({ przedmiot: przedmiot(ktory)!.nazwa.toLowerCase(), umiejetnosc: zadanie.umiejetnosc, zadanie: tekstZadania() }, historia),
-          },
-          (d) => {
-            tekst += d;
-            const dodaj = pierwszy;
-            pierwszy = false;
-            setStan("talking");
-            const widoczny = bezEmoji(tekst);
-            setWpisy((w) => (dodaj ? [...w, { od: "tutor", tekst: widoczny }] : w.map((x, i) => (i === w.length - 1 ? { ...x, tekst: widoczny } : x))));
-          },
-        );
-        if (tekst.trim()) {
-          // Model potrafi zadać to samo pytanie po poprawnej odpowiedzi: wtedy zamiast powtórki pokazujemy przygotowane zdanie.
-          if (powtarzaTutora(bezEmoji(tekst), historia)) {
-            const zastepcza = powtarzaTutora(zapas, historia) ? KONIEC_POKAZU : zapas;
-            setWpisy((w) => w.map((x, i) => (i === w.length - 1 ? { od: "tutor", tekst: zastepcza, powtorzenie: true } : x)));
-          }
-          return setStan("idle");
-        }
-      } catch {
-        // model nie odpowiedział: niżej przygotowana odpowiedź
-      }
-      if (!pierwszy) return setStan("idle");
-    }
-    await new Promise((r) => setTimeout(r, 700));
-    setStan("talking");
-    setWpisy((w) => [...w, { od: "tutor", tekst: zapas, przygotowane: true }]);
-    setTimeout(() => setStan("idle"), 1500);
-  }
-
-  function wybierz(l: Litera) {
-    if (wybor) return;
-    setWybor(l);
-    const historia: Wpis[] = [{ od: "uczen", tekst: `Wybieram ${l}: ${zadanie.opcje[l]}` }];
-    setWpisy(historia);
-    void odpowiedz(historia, zadanie.reakcja[l]);
-  }
-
-  function wyslij(e: FormEvent) {
-    e.preventDefault();
-    const tekst = szkic.trim();
-    if (!tekst || stan === "thinking") return;
-    setSzkic("");
-    const historia: Wpis[] = [...wpisy, { od: "uczen", tekst }];
-    setWpisy(historia);
-    void odpowiedz(historia, zadanie.druga);
-  }
-
-  return (
-    <section className={styles.step}>
-      <span className="label">Pokaz · {ai ? "odpowiada Pestka z twojego konta" : "bez połączenia: odpowiedzi przygotowane"}</span>
-      <h1 className="h1">Rozwiąż, a ja zareaguję</h1>
-
-      {przedmioty.length > 1 && (
-        <div className={styles.subjects} role="tablist" aria-label="Przedmiot pokazu">
-          {przedmioty.map((m) => {
-            const p = przedmiot(m.id)!;
-            return (
-              <button key={m.id} type="button" role="tab" aria-selected={ktory === m.id} className={`${styles.subjectTab} ${ktory === m.id ? styles.subjectOn : ""}`} onClick={() => zmienPrzedmiot(m.id)}>
-                <SubjectIcon subject={p} size="sm" />
-                {p.nazwa}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      <div className={styles.task}>
-        <p className="small muted">{zadanie.opis}</p>
-        <Markdown className={styles.question}>{zadanie.polecenie}</Markdown>
-        <div className={styles.options} role="radiogroup" aria-label="Odpowiedzi">
-          {(Object.keys(zadanie.opcje) as Litera[]).map((l) => (
-            <button
-              key={l}
-              type="button"
-              role="radio"
-              aria-checked={wybor === l}
-              // Po błędnym wyborze nie zdradzamy poprawnej: od tego jest Pestka.
-              className={[styles.option, wybor === l ? (l === zadanie.poprawna ? styles.right : styles.wrong) : ""].join(" ")}
-              onClick={() => wybierz(l)}
-              disabled={!!wybor}
-            >
-              <span className={styles.letter}>{l}</span>
-              <Markdown>{zadanie.opcje[l]}</Markdown>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {wpisy.length > 0 && (
-        <div className={styles.chat} ref={listaRef} aria-live="polite">
-          {wpisy.map((w, i) =>
-            w.od === "tutor" ? (
-              <div key={i} className={styles.tutorRow}>
-                <TutorAvatar size={32} state={i === wpisy.length - 1 ? stan : "idle"} />
-                <div>
-                  <Markdown className={styles.tutorText}>{w.tekst}</Markdown>
-                  {w.przygotowane && <p className={styles.note}>Odpowiedź przygotowana na pokaz. Po połączeniu w profilu odpowiem naprawdę.</p>}
-                  {w.powtorzenie && <p className={styles.note}>Model powtórzył poprzednią odpowiedź, więc pokazuję przygotowaną.</p>}
-                </div>
-              </div>
-            ) : (
-              <p key={i} className={styles.studentText}>
-                {w.tekst.replace(/\$/g, "")}
-              </p>
-            ),
-          )}
-          {stan === "thinking" && (
-            <div className={styles.tutorRow}>
-              <TutorAvatar size={32} state="thinking" />
-              <span className={styles.typing} aria-label="Pestka pisze">
-                <i />
-                <i />
-                <i />
-              </span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {wybor && tury < 3 && (
-        <form className={styles.reply} onSubmit={wyslij}>
-          <label htmlFor="pokaz-odp" className="visually-hidden">
-            Odpowiedz Pestce
-          </label>
-          <input id="pokaz-odp" className="input" placeholder="Odpowiedz własnymi słowami…" value={szkic} onChange={(e) => setSzkic(e.target.value)} autoComplete="off" />
-          <button type="submit" className="btn btn-secondary" disabled={!szkic.trim() || stan === "thinking"}>
-            Wyślij
-          </button>
-        </form>
-      )}
-
-      {wybor && tury < 3 && (
-        <p className={styles.note}>
-          Możesz napisać jeszcze {3 - tury} {3 - tury === 1 ? "odpowiedź" : "odpowiedzi"} albo przejść dalej.
-        </p>
-      )}
-
-      {tury >= 2 && stan === "idle" && (
-        <button type="button" className="btn btn-primary" onClick={onDalej}>
-          Dalej
-        </button>
-      )}
-      {tury < 2 && (
-        <button type="button" className={styles.later} onClick={onDalej}>
-          Pomiń pokaz
-        </button>
-      )}
-    </section>
   );
 }

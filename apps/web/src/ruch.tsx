@@ -95,7 +95,7 @@ export function krzywa(t: number) {
  */
 export function useLiczba(cel: number, { od = 0, czas = CZAS.wolny }: { od?: number; czas?: number } = {}) {
   const bezRuchu = useMniejRuchu();
-  const [wartosc, ustaw] = useState(() => (bezRuchu ? cel : od));
+  const [wartosc, ustaw] = useState(() => (bezRuchu || bezWejscia() ? cel : od));
   const biezaca = useRef(wartosc);
   useEffect(() => {
     if (bezRuchu || !Number.isFinite(cel)) {
@@ -129,3 +129,18 @@ export function Liczba({ wartosc, format = (v) => String(Math.round(v)), od }: {
     </>
   );
 }
+
+// Strony już raz obejrzane w tej sesji: przy powrocie wykresy, liczby i sekcje stoją od razu na wartości,
+// bez ponownego wjazdu. AppLayout oznacza stronę (data-strona-znana na <html>) przed renderem treści.
+const obejrzane = new Set<string>();
+
+export function oznaczStrone(sciezka: string) {
+  const znana = obejrzane.has(sciezka);
+  if (znana) document.documentElement.dataset.stronaZnana = "";
+  else delete document.documentElement.dataset.stronaZnana;
+}
+
+export const zapamietajStrone = (sciezka: string) => void obejrzane.add(sciezka);
+
+/** Czy wejście ma się odegrać: nie przy „Mniej ruchu” i nie na stronie już obejrzanej. */
+export const bezWejscia = () => mniejRuchu() || "stronaZnana" in document.documentElement.dataset;

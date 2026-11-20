@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Map as MapaIkona, Menu, MessageCircle, RotateCcw, Settings, UserRound, X } from "lucide-react";
+import { CalendarDays, CircleHelp, Search, FileText, GraduationCap, LayoutGrid, Map as MapaIkona, Menu, MessageCircle, Settings, UserRound, X } from "lucide-react";
 import { logout } from "../auth";
 import { Znak } from "./Znak";
 import { Plywak } from "./Plywak";
@@ -8,13 +8,13 @@ import { resetTour, useTutor } from "./TutorContext";
 import { OTWORZ_SZUKAJ } from "./Wyszukiwanie";
 import styles from "./TopNav.module.css";
 import { mniejRuchu } from "../ruch";
+import { rozgrzewajLink } from "../nauka/rozgrzewanie";
 
 const links = [
   { to: "/", label: "Pulpit", icon: LayoutGrid, end: true },
   { to: "/nauka", label: "Nauka", icon: GraduationCap },
   { to: "/arkusze", label: "Arkusze", icon: FileText },
   { to: "/umiejetnosci", label: "Mapa umiejętności", icon: MapaIkona },
-  { to: "/powtorki", label: "Powtórki", icon: RotateCcw },
 ];
 
 const DODATKOWE = [
@@ -144,7 +144,7 @@ export function TopNav() {
           <ul>
             {links.map(({ to, label, icon: Icon, end }) => (
               <li key={to}>
-                <NavLink to={to} end={end} className={aktywny(to, end) ? styles.mobileActive : ""} aria-current={aktywny(to, end) ? "page" : undefined}>
+                <NavLink to={to} end={end} className={aktywny(to, end) ? styles.mobileActive : ""} aria-current={aktywny(to, end) ? "page" : undefined} {...rozgrzewajLink(to)}>
                   <Icon size={18} strokeWidth={2} aria-hidden="true" />
                   {label}
                 </NavLink>

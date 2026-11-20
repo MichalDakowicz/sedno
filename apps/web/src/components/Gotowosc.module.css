@@ -1,0 +1,65 @@
+.gotowosc {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  min-width: 0;
+}
+
+.gotowosc[data-maly] {
+  gap: var(--s-4);
+}
+
+.tresc {
+  display: grid;
+  flex: 1;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.tytul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-1) var(--s-3);
+  font-size: var(--t-lg);
+  font-weight: 500;
+}
+
+.gotowosc:not([data-maly]) .tytul {
+  font-size: calc(28px * var(--skala-tekstu, 1));
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.meta {
+  font-size: var(--t-sm);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--subtle);
+}
+
+.wniosek {
+  max-width: 60ch;
+  color: var(--muted);
+}
+
+.gotowosc[data-maly] .wniosek {
+  font-size: var(--t-sm);
+}
+
+@media (max-width: 480px) {
+  .gotowosc:not([data-maly]) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Droga do celu pod zdaniem: pasek z podpisanym progiem i celem. */
+.droga {
+  width: min(100%, 32rem);
+  margin-top: var(--s-2);
+}
+
+.gotowosc[data-maly] .tytul {
+  column-gap: 0.3em;
+}

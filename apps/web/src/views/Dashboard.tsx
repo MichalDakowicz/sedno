@@ -11,27 +11,30 @@ import { dniDo, egzaminyUcznia, najblizszy, odmianaDni } from "../konto/terminy"
 import { useUstawienia } from "../konto/ustawienia";
 import { propozycja, useWynikiKonta, type Podsumowanie } from "../konto/wyniki";
 import { WSZYSTKIE, useUklad } from "../konto/ukladPulpitu";
-import { Plywak } from "../components/Plywak";
 import { Ladowanie } from "../components/Ladowanie";
-import { Wejscia } from "../szablony/Wejscia";
 import { Dzis } from "./pulpit/Dzis";
-import { trwa, useDiagnoza } from "../nauka/diagnoza";
+import { useDiagnoza, useTrybDiagnozy, zaproszenieDoDiagnozy } from "../nauka/diagnoza";
+import { adresDiagnozy } from "../nauka/adresy";
+import { usePoziomNauki } from "../nauka/stan";
 import { widget, type KontekstPulpitu } from "./pulpit/widgety";
 import { Wynikowy, procent, tytul } from "./pulpit/wspolne";
+import { GotowoscPrzedmiotow } from "./pulpit/GotowoscPrzedmiotow";
+import { PlanDnia } from "./nauka/PlanDnia";
+import { useProfilOdczytany, useUczenie } from "../konto/profilUcznia";
 import styles from "./Dashboard.module.css";
+import { klasyPaska as pasek, PasekPrzedmiotow } from "../components/PasekPrzedmiotow";
 
 function SubjectBar({ moje: wpisy, active }: { moje: MojPrzedmiot[]; active?: string }) {
   const moje = zgrupuj(wpisy);
   return (
-    <nav
-      className={styles.subjectBar}
-      aria-label="Przedmioty"
+    <PasekPrzedmiotow
+      etykieta="Przedmioty"
+      zalezy={`${active ?? "wszystkie"}-${moje.length}`}
       data-tutor="subjects"
       data-tutor-about="Tu wybierasz przedmiot. „Wszystkie” to pulpit ogólny, a przedmiot zawęża pulpit tylko do jego danych."
     >
-      <Plywak zalezy={`${active ?? "wszystkie"}-${moje.length}`} />
-      <NavLink to="/" end data-aktywny={!active} className={({ isActive }) => `${styles.chip} ${isActive ? styles.chipActive : ""}`}>
-        <span className={styles.chipIcon}>
+      <NavLink to="/" end data-aktywny={!active} className={({ isActive }) => `${pasek.chip} ${isActive ? pasek.chipActive : ""}`}>
+        <span className={pasek.chipIcon}>
           <LayoutGrid size={14} aria-hidden="true" />
         </span>
         Wszystkie
@@ -39,17 +42,17 @@ function SubjectBar({ moje: wpisy, active }: { moje: MojPrzedmiot[]; active?: st
       {moje.map((m) => {
         const p = przedmiot(m.id)!;
         return (
-          <NavLink key={m.id} to={`/przedmiot/${m.id}`} data-aktywny={active === m.id} className={`${styles.chip} ${active === m.id ? styles.chipActive : ""}`}>
+          <NavLink key={m.id} to={`/przedmiot/${m.id}`} data-aktywny={active === m.id} className={`${pasek.chip} ${active === m.id ? pasek.chipActive : ""}`}>
             <SubjectIcon subject={p} size="sm" />
             {p.nazwa}
           </NavLink>
         );
       })}
-      <Link to="/profil#przedmioty" className={`${styles.chip} ${styles.chipAdd}`}>
+      <Link to="/profil#przedmioty" className={`${pasek.chip} ${pasek.chipAdd}`}>
         <Plus size={16} aria-hidden="true" />
         {moje.length ? "Zmień przedmioty" : "Dodaj przedmiot"}
       </Link>
-    </nav>
+    </PasekPrzedmiotow>
   );
 }
 
@@ -95,7 +98,15 @@ export function Dashboard() {
   const { pestkaSama } = useUstawienia();
   const klucz = aktywny?.id ?? WSZYSTKIE;
   const uklad = useUklad(klucz);
-  const diagnoza = useDiagnoza();
+  const diagnozaLokalna = useDiagnoza();
+  const uczenie = useUczenie();
+  const profilOdczytany = useProfilOdczytany();
+  const [poziomNauki] = usePoziomNauki();
+  const angielski = moje.some((m) => m.id === "angielski") && (!aktywny || aktywny.id === "angielski");
+  const diagnoza = useTrybDiagnozy(poziomNauki, angielski);
+  const zaproszenie = angielski
+    ? zaproszenieDoDiagnozy(diagnoza.tryb === "baza" ? diagnoza.stan : diagnoza.tryb === "przegladarka" ? null : undefined, diagnozaLokalna)
+    : null;
 
   const zakres = dane ? (aktywny ? dane.podsumowania.filter((p) => p.przedmiot.id === aktywny.id) : dane.podsumowania) : [];
   const propozycje = dane ? zakres.map((p) => propozycja(p, dane.wiersze)) : [];
@@ -144,9 +155,18 @@ export function Dashboard() {
           )}
         </h1>
         {/* Diagnoza na start (nauka/diagnoza.ts): zaproszenie, póki nie skończona ani pominięta; po przerwie „Dokończ”. */}
-        {moje.some((m) => m.id === "angielski") && (!aktywny || aktywny.id === "angielski") && !diagnoza.koniec && !diagnoza.pominieta && (
-          <Link to="/nauka/diagnoza" className="link">
-            {trwa(diagnoza) ? "Dokończ diagnozę" : "Sprawdźmy, od czego zacząć"} <ArrowRight size={14} aria-hidden="true" />
+        {/* Quiz celów, dopóki nie zrobiony ani pominięty; potem zaproszenie do diagnozy. */}
+        {!uczenie.quiz && profilOdczytany && moje.length > 0 ? (
+          <Link to="/cele" className="link">
+            Ustaw swój cel na maturę <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        ) : !zaproszenie && profilOdczytany && moje.length > 0 ? (
+          <Link to="/profil-ucznia" className="link">
+            Twoje cele i plan <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        ) : zaproszenie && (
+          <Link to={adresDiagnozy(poziomNauki)} className="link">
+            {zaproszenie === "dokoncz" ? "Dokończ diagnozę" : zaproszenie === "wyniki" ? "Zobacz pierwsze wyniki" : "Sprawdźmy, od czego zacząć"} <ArrowRight size={14} aria-hidden="true" />
           </Link>
         )}
       </section>
@@ -156,61 +176,25 @@ export function Dashboard() {
       {!dane && <Ladowanie ksztalt="pulpit" ile={3} etykieta="Wczytuję twoje arkusze i wyniki" />}
 
       {dane && co && (
-        <section className={`${styles.top} ${obok ? "" : styles.topSam} ${wejscie}`}>
+        <section className={`${styles.top} ${obok || moje.length > 0 ? "" : styles.topSam} ${wejscie}`}>
           <Dzis {...kontekst} />
-          {obok && (
+          {obok ? (
             <div className={styles.side}>
               <obok.Komponent {...kontekst} obok />
             </div>
-          )}
+          ) : moje.length > 0 && <GotowoscPrzedmiotow zakres={zakres} />}
         </section>
       )}
+
+      {/* „Potem” pod kartą i gotowością, na całą szerokość: w lewej kolumnie wydłużał ją i rozbijał równowagę z prawą. */}
+      {dane && zakres.some((z) => z.przedmiot.id === "angielski") && <PlanDnia poziom={zakres.find((z) => z.przedmiot.id === "angielski")!.przedmiot.poziom} />}
+
+      {dane && moje.length > 0 && (obok || !co) && <GotowoscPrzedmiotow zakres={zakres} />}
 
       {dane && aktywny && zakres.map((s) => <ArkuszePrzedmiotu key={s.przedmiot.poziom} podsumowanie={s} zPoziomem={zakres.length > 1} wejscie={wejscie} />)}
 
-      {dane && !aktywny && moje.length > 0 && (
-        <section className={`${styles.section} ${wejscie}`} aria-labelledby="subjects-title">
-          <div className={styles.sectionHead}>
-            <h2 id="subjects-title" className="h2">
-              Twoje przedmioty
-            </h2>
-          </div>
-          <ul className={`wiersze ${styles.listaWynikow}`}>
-            {dane.podsumowania.map((s) => {
-              const pr = przedmiot(s.przedmiot.id)!;
-              return (
-                <li key={`${pr.id}-${s.przedmiot.poziom}`}>
-                  <Link to={`/przedmiot/${pr.id}`} className="wiersz">
-                    <span className="wiersz-ikona"><SubjectIcon subject={pr} size="lg" /></span>
-                    <span className="wiersz-tresc">
-                      <span className="h3">{pr.nazwa}</span>
-                      <span className="wiersz-opis">
-                        poziom {nazwaPoziomu[s.przedmiot.poziom]} · {s.arkusze.length ? `${s.wyniki.length} z ${s.arkusze.length} arkuszy sprawdzonych` : "arkuszy jeszcze nie ma"}
-                      </span>
-                    </span>
-                    <span className="wiersz-wartosc">
-                      {s.srednia !== null ? (
-                        <span className="wiersz-pasek">
-                          <Wynikowy value={s.srednia} />
-                          <span>{s.srednia}%</span>
-                        </span>
-                      ) : (
-                        <span className="muted">bez wyniku</span>
-                      )}
-                    </span>
-                    <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
-
       {dane && reszta.map((w) => <w.Komponent key={w.id} {...kontekst} />)}
 
-      {/* Prototypy z src/szablony są dla nas, nie dla ucznia ani jury: tylko w trybie deweloperskim. */}
-      {dane && import.meta.env.DEV && <Wejscia tytul="W przygotowaniu" slugi={["mapa-wiedzy"]} />}
     </main>
   );
 }

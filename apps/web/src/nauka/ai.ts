@@ -11,7 +11,22 @@ export class BladPestki extends Error {
   }
 }
 
+// Chwilowy błąd modelu ponawiamy raz sami, zanim uczeń zobaczy komunikat. Akcje z zapisem (ocena) mają id próby,
+// więc drugie wywołanie nie tworzy duplikatu.
+const CHWILOWE = new Set(["provider_failed", "bad_model_response"]);
+
 async function wywolaj<T>(body: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
+  try {
+    return await wywolajRaz<T>(body, signal);
+  } catch (e) {
+    if (!(e instanceof BladPestki) || !CHWILOWE.has(e.kod) || signal?.aborted) throw e;
+    await new Promise((r) => setTimeout(r, 1500));
+    if (signal?.aborted) throw new DOMException("Przerwane", "AbortError");
+    return wywolajRaz<T>(body, signal);
+  }
+}
+
+async function wywolajRaz<T>(body: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
   const { data, error } = await supabase.functions.invoke<T>("nauka-ai", { body, signal, timeout: 65_000 });
   if (error instanceof FunctionsHttpError) {
     const odpowiedz = error.context as Response;
@@ -40,11 +55,11 @@ export type Komunikat = {
 const KOMUNIKATY: Record<string, Omit<Komunikat, "tekst"> & { tekst: string }> = {
   network_error: { tekst: "Nie udało się połączyć z Pestką. Sprawdź internet i spróbuj ponownie.", ponow: true, konfiguracja: false },
   rate_limited: { tekst: "Za dużo zapytań naraz. Odczekaj minutę i spróbuj ponownie.", ponow: true, konfiguracja: false },
-  no_provider: { tekst: "Pestka nie ma jeszcze modelu na tym koncie.", ponow: false, konfiguracja: true },
-  bad_credential: { tekst: "Zapisany klucz modelu nie działa. Zapisz go ponownie w profilu.", ponow: false, konfiguracja: true },
+  no_provider: { tekst: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.", ponow: true, konfiguracja: false },
+  bad_credential: { tekst: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.", ponow: true, konfiguracja: false },
   provider_failed: { tekst: "Model nie odpowiedział. Spróbuj ponownie za chwilę.", ponow: true, konfiguracja: false },
   bad_model_response: { tekst: "Odpowiedź Pestki przyszła niepełna. Spróbuj ponownie.", ponow: true, konfiguracja: false },
-  image_not_supported: { tekst: "Model na tym koncie nie czyta zdjęć. Wybierz w profilu model z obsługą obrazów.", ponow: false, konfiguracja: true },
+  image_not_supported: { tekst: "Pestka nie może teraz przeczytać zdjęcia. Opisz zadanie słowami.", ponow: false, konfiguracja: true },
   bad_image: { tekst: "Tego zdjęcia nie da się wysłać. Wybierz plik JPG, PNG albo WebP.", ponow: false, konfiguracja: false },
   not_signed_in: { tekst: "Zaloguj się ponownie, aby kontynuować.", ponow: false, konfiguracja: false },
   grading_in_progress: { tekst: "Ta odpowiedź jest właśnie sprawdzana. Spróbuj ponownie za chwilę.", ponow: true, konfiguracja: false },

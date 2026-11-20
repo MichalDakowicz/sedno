@@ -3,10 +3,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useProfil } from "../auth";
-import { CELE, CZAS, MAX_DLUGOSC, MAX_PRIORYTETOW, PYTANIA, dodajPriorytet, przytnijUsuniete, useBladProfilu, useProfilOdczytany, usunPriorytet, usunWniosek, ustawCel, ustawOdpowiedz, useUczenie, useWnioski, type Opcja } from "../konto/profilUcznia";
-import { PRZEDMIOTY, zgrupuj, type PrzedmiotId } from "../konto/przedmioty";
+import { MAX_DLUGOSC, MAX_PRIORYTETOW, PYTANIA, dodajPriorytet, przytnijUsuniete, useBladProfilu, useProfilOdczytany, usunPriorytet, usunWniosek, ustawOdpowiedz, useUczenie, useWnioski, type Opcja } from "../konto/profilUcznia";
+import { zgrupuj } from "../konto/przedmioty";
 import { useWynikiKonta } from "../konto/wyniki";
 import { useListaArkuszy } from "../arkusze/dane";
+import { podsumowanieCelow } from "./QuizCelow";
 import s from "./ProfilUcznia.module.css";
 import { NaglowekStrony } from "../components/NaglowekStrony";
 import { Pigulki } from "../components/Pigulki";
@@ -39,18 +40,6 @@ export function PytaniaOSposobie() {
   );
 }
 
-/** Czas dziennie i cel z każdego przedmiotu konta: w profilu i w onboardingu. */
-export function CzasICel({ przedmioty }: { przedmioty: PrzedmiotId[] }) {
-  const u = useUczenie();
-  return (
-    <>
-      <Wybor pytanie="Ile czasu dziennie?" opcje={CZAS} wybrana={u.czas} onZmiana={(id) => ustawOdpowiedz("czas", id)} />
-      {przedmioty.map((id) => (
-        <Wybor key={id} pytanie={`Cel z przedmiotu: ${PRZEDMIOTY.find((p) => p.id === id)!.nazwa.toLowerCase()}`} opcje={CELE} wybrana={u.cele?.[id]} onZmiana={(c) => ustawCel(id, c)} />
-      ))}
-    </>
-  );
-}
 
 const LIMIT_LICZNIKA = 100;
 
@@ -125,7 +114,7 @@ export function ProfilUcznia() {
 
   return (
     <main className={`container ${s.strona}`}>
-      <NaglowekStrony etykieta="Profil" tytul="Profil ucznia" lead="Jak się uczysz i do czego dążysz. Każda odpowiedź jest dobrowolna." />
+      <NaglowekStrony wstecz={{ do: "/profil", nazwa: "Profil" }} tytul="Profil ucznia" />
 
       <section className={s.sekcja} aria-labelledby="pu-jak">
         <h2 id="pu-jak" className="h2">
@@ -138,7 +127,8 @@ export function ProfilUcznia() {
         <h2 id="pu-czas" className="h2">
           Czas i cel
         </h2>
-        <CzasICel przedmioty={zgrupuj(moje).map((m) => m.id)} />
+        <p className="muted">{podsumowanieCelow(u, zgrupuj(moje).map((m) => m.id))}</p>
+        <Link to="/cele" className="btn btn-secondary" style={{ justifySelf: "start" }}>Quiz celów z Pestką</Link>
       </section>
 
       <section className={s.sekcja} aria-labelledby="pu-priorytety">

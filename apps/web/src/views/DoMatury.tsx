@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useProfil } from "../auth";
-import { CELE, useUczenie } from "../konto/profilUcznia";
+import { celPrzedmiotu, useUczenie } from "../konto/profilUcznia";
 import { przedmiot, zgrupuj } from "../konto/przedmioty";
 import { dniDo, egzaminyUcznia, minal, najblizszy, nazwaEgzaminu, odmianaDni, opisDaty } from "../konto/terminy";
 import s from "./DoMatury.module.css";
@@ -106,7 +106,8 @@ export function DoMatury() {
           </h2>
           <ul className="wiersze">
             {przedmioty.map((m) => {
-              const cel = CELE.find((c) => c.id === u.cele?.[m.id]);
+              const ulamek = celPrzedmiotu(u, m.id);
+              const cel = ulamek !== null ? { nazwa: `${Math.round(ulamek * 100)}%` } : null;
               return (
                 <li key={m.id} className="wiersz">
                   <span className="wiersz-tresc h3">{przedmiot(m.id)!.nazwa}</span>
@@ -114,8 +115,8 @@ export function DoMatury() {
                     <span className={`wiersz-wartosc ${s.cel}`}>{cel.nazwa}</span>
                   ) : (
                     <span className="wiersz-wartosc">
-                      <Link to="/profil-ucznia" className="link" style={{ justifySelf: "start" }}>
-                        Ustaw cel w profilu
+                      <Link to="/cele" className="link" style={{ justifySelf: "start" }}>
+                        Ustaw cel z Pestką
                       </Link>
                     </span>
                   )}
