@@ -47,7 +47,7 @@ export function Nagranie({ src }: { src: string }) {
   const przelacz = () => {
     const a = audio.current;
     if (!a) return;
-    if (a.paused) void a.play().catch(() => setBlad(true));
+    if (a.paused) void a.play().catch((e: unknown) => { if ((e as Error).name !== "AbortError") setBlad(true); });
     else a.pause();
   };
   const cofnij = () => {
@@ -94,7 +94,7 @@ export function Nagranie({ src }: { src: string }) {
         )}
         <audio ref={audio} src={src} preload="metadata" />
       </div>
-      {blad && <KomunikatBladuNagrania ponow={ponow} />}
+      <KomunikatBladuNagrania blad={blad} ponow={ponow} />
     </div>
   );
 }

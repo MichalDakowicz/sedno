@@ -4,18 +4,22 @@ import { chat, chatStream, type ChatRequest, type ChatResult, LlmError, type Pro
 
 type Route = { p: Provider; reasoningEffort?: string };
 type Request = Omit<ChatRequest, "reasoningEffort">;
-export interface RetryOptions {
+export interface RetryOptions<R extends Route = Route> {
   /** Trasa drugiego poziomu; wywoływana dopiero, gdy ponowienie nie pomogło. */
-  fallback?: () => Promise<Route | undefined>;
+  fallback?: () => Promise<R | undefined>;
   fetchImpl?: typeof fetch;
   delayMs?: number;
 }
+/** Wynik razem z trasą, która naprawdę odpowiedziała (może być zapasowa). */
+export type Answered<R> = ChatResult & { route: R };
+export type RetryEvent<R> = Exclude<StreamEvent, { type: "done" }> | { type: "done"; result: ChatResult; route: R };
 
 const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
 
+// Ponawiamy tylko prawdziwe odpowiedzi HTTP dostawcy i błędy sieci; błędy zrobione przez nasz kod kosztowałyby kolejną generację.
 function retryable(e: unknown, signal?: AbortSignal): boolean {
   if (signal?.aborted) return false;
-  return e instanceof TypeError || (e instanceof LlmError && RETRY_STATUS.has(e.status));
+  return e instanceof TypeError || (e instanceof LlmError && e.upstream && RETRY_STATUS.has(e.status));
 }
 
 function wait(ms: number, signal?: AbortSignal): Promise<void> {
@@ -27,8 +31,8 @@ function wait(ms: number, signal?: AbortSignal): Promise<void> {
 
 const sameModel = (a: Route, b: Route) => a.p.model === b.p.model && a.p.baseUrl === b.p.baseUrl;
 
-export async function chatRetry(route: Route, req: Request, o: RetryOptions = {}): Promise<ChatResult> {
-  const run = (r: Route) => chat(r.p, { ...req, reasoningEffort: r.reasoningEffort }, o.fetchImpl);
+export async function chatRetry<R extends Route>(route: R, req: Request, o: RetryOptions<R> = {}): Promise<Answered<R>> {
+  const run = async (r: R) => ({ ...(await chat(r.p, { ...req, reasoningEffort: r.reasoningEffort }, o.fetchImpl)), route: r });
   let err: unknown;
   for (let i = 0; i < 2; i++) {
     try {
@@ -51,12 +55,13 @@ export async function chatRetry(route: Route, req: Request, o: RetryOptions = {}
 }
 
 /** Jak chatStream, ale ponawia tylko, dopóki nic nie poszło do odbiorcy. */
-export async function* streamRetry(route: Route, req: Request, o: RetryOptions = {}): AsyncGenerator<StreamEvent> {
+export async function* streamRetry<R extends Route>(route: R, req: Request, o: RetryOptions<R> = {}): AsyncGenerator<RetryEvent<R>> {
   let started = false;
-  const run = async function* (r: Route) {
+  const run = async function* (r: R): AsyncGenerator<RetryEvent<R>> {
     for await (const ev of chatStream(r.p, { ...req, reasoningEffort: r.reasoningEffort }, o.fetchImpl)) {
-      started = true;
-      yield ev;
+      // Rozumowanie nic nie pokazuje odbiorcy, więc po samym nim wciąż można ponowić.
+      if (ev.type !== "reasoning") started = true;
+      yield ev.type === "done" ? { ...ev, route: r } : ev;
     }
   };
   let err: unknown;

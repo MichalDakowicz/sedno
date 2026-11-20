@@ -94,7 +94,9 @@ const czyNaglowekTekstu = (b: Blok) => (b.typ === "akapit" || b.typ === "naglowe
 const PASUJACY: Record<string, string> = { nagłówek: "pasujący", tekst: "pasujący", zdanie: "pasujące", osobę: "pasującą", odpowiedź: "pasującą" };
 
 function wlasnePolecenie(zadanie: Zadanie, nr: string, pf: boolean, opcjePytania: boolean): string {
-  const t = [...zadanie.polecenie, ...zadanie.bloki.filter(czyPolecenie).map((b) => ("tekst" in b ? b.tekst : ""))].join(" ");
+  // Tylko polecenia kawałków tego pytania: „Uzupełnij luki 5.4.–5.7.” nie ma wpływać na 5.1.
+  const polecenia = kawalkiPytania(zadanie, nr).map((k) => k[0]!).filter(czyPolecenie).map((b) => ("tekst" in b ? b.tekst : ""));
+  const t = [...zadanie.polecenie, ...polecenia].join(" ");
   const zrodlo = /nagrani|usłyszysz/i.test(t) ? "nagrania" : "tekstu";
   if (pf) return `Zdecyduj, czy zdanie ${nr} jest zgodne z treścią ${zrodlo}.`;
   if (opcjePytania) return `Wybierz odpowiedź zgodną z treścią ${zrodlo}.`;
@@ -114,17 +116,20 @@ function pytaniaBloku(b: Blok): string[] {
 }
 
 /** Bloki zadania potrzebne do jednego pytania: bez tekstów i poleceń, które dotyczą tylko innych pytań. */
-function blokiPytania(zadanie: Zadanie, nr: string, bezOpcji: boolean): Blok[] {
+function kawalkiPytania(zadanie: Zadanie, nr: string): Blok[][] {
   const kawalki: Blok[][] = [[]];
   for (const b of zadanie.bloki) {
     if (czyNaglowekTekstu(b) || czyPolecenie(b)) kawalki.push([]);
     kawalki.at(-1)!.push(b);
   }
-  return kawalki
-    .filter((k) => {
-      const pytania = k.flatMap(pytaniaBloku);
-      return !pytania.length || pytania.includes(nr);
-    })
+  return kawalki.filter((k) => {
+    const pytania = k.flatMap(pytaniaBloku);
+    return k.length > 0 && (!pytania.length || pytania.includes(nr));
+  });
+}
+
+function blokiPytania(zadanie: Zadanie, nr: string, bezOpcji: boolean): Blok[] {
+  return kawalkiPytania(zadanie, nr)
     .flat()
     .filter((b) => !czyPolecenie(b) && !(bezOpcji && b.typ === "opcje"));
 }
