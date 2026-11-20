@@ -58,6 +58,8 @@ const { text } = await askAi({ tier: "lekkie", task: "podpowiedz", messages: [{ 
 
 Projekt `~/supabase-hosting/projects/sedno` (port API 8007, podsieć Dockera `172.16.77.0/24`). Ustawienia Sedno w `docker-compose.sedno.yml` i `.env` (Google OAuth, `LLM_KEY_SECRET`, `LLM_PRIVATE_ORIGINS`). Proxy do Ollamy: `~/sedno-ollama` (nginx na `172.16.77.1:11435` i `172.16.78.1:11435`, widoczny tylko z sieci Dockera `sedno` i `sedno-dev`). Staging: projekt `~/supabase-hosting/projects/sedno-dev` (port 8008, podsieć `172.16.78.0/24`, `docker-compose.sedno-dev.yml`).
 
+Domyślna trasa Pestki dla kont bez własnego klucza (ustawienia w `.env` / `docker-compose.sedno.yml` projektu, obok `LLM_KEY_SECRET`): `SEDNO_AI_KEY` (klucz dostawcy), `SEDNO_AI_BASE_URL` (adres zgodny z OpenAI; bez niego `https://api.openai.com/v1`), `SEDNO_AI_MODEL_WAZNE` (model do zadań ważnych), `SEDNO_AI_MODEL_LEKKIE` (model do zadań lekkich), opcjonalnie `SEDNO_AI_EFFORT_WAZNE` i `SEDNO_AI_EFFORT_LEKKIE` (`reasoning_effort`). Bez klucza albo modelu danego poziomu konto bez własnego dostawcy dostaje `no_provider`. Własny klucz konta ma zawsze pierwszeństwo. W `ai_usage` dostawca wpisuje się jako `sedno`. Błędy modelu (429, 5xx, błąd sieci) bramka ponawia raz, potem próbuje modelu drugiego poziomu.
+
 Google OAuth: projekt Google Cloud `sedno-514016`, klient „Sedno web”, redirect `https://sedno-api.dakowicz.xyz/auth/v1/callback`. Aplikacja jest w trybie testowym: logować się mogą tylko konta dodane jako test users.
 
 ## Wgrywanie

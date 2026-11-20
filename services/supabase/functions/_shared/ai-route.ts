@@ -1,5 +1,6 @@
 import { decryptKey, importSecret, rowId } from "./crypto.ts";
 import { admin, checkUrl, reply } from "./konto.ts";
+import { domyslnaTrasa } from "./ai-default.ts";
 import type { Provider } from "./llm.ts";
 
 export type AiRoute = { provider: string; model: string; reasoningEffort?: string; p: Provider };
@@ -20,7 +21,11 @@ export async function resolveAi(user: string, tier: string, override: string | u
   const { data: creds, error } = await query.limit(2);
   if (error) return reply(500, { error: "server_error" });
   // Bez ustawionego routingu wystarczy, że konto ma dokładnie jednego dostawcę.
-  if (!creds?.length || (!provider && creds.length > 1)) return reply(409, { error: "no_provider", tier });
+  if (!creds?.length || (!provider && creds.length > 1)) {
+    // Konto bez własnego dostawcy dostaje trasę serwera, o ile nie wskazało dostawcy wprost.
+    const domyslna = override ? null : domyslnaTrasa(tier);
+    return domyslna ?? reply(409, { error: "no_provider", tier });
+  }
   const c = creds[0]!;
 
   let secret: CryptoKey;
@@ -38,6 +43,12 @@ export async function resolveAi(user: string, tier: string, override: string | u
     return reply(400, { error: "bad_credential" });
   }
 }
+
+/** Trasa drugiego poziomu dla ponowień; undefined, gdy jej nie ma. */
+export const zapasowa = (user: string, tier: string, override?: string) => async (): Promise<AiRoute | undefined> => {
+  const r = await resolveAi(user, tier === "wazne" ? "lekkie" : "wazne", override);
+  return r instanceof Response ? undefined : r;
+};
 
 export async function logAiUsage(row: Record<string, unknown>) {
   await admin.from("ai_usage").insert(row);

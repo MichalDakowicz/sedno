@@ -1,7 +1,8 @@
 import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
-import { logAiUsage, resolveAi } from "../_shared/ai-route.ts";
+import { logAiUsage, resolveAi, zapasowa } from "../_shared/ai-route.ts";
 import { readJsonObject } from "../_shared/http.ts";
-import { chat, chatStream, type ImagePart, LlmError, type Message } from "../_shared/llm.ts";
+import { type ImagePart, LlmError, type Message } from "../_shared/llm.ts";
+import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
 import { ETAPY, POZIOMY, publiczneScenariusze, SCENARIUSZE, STATUSY, UMIEJETNOSCI } from "./formaty.ts";
 import { listaWariantow, ocenRozwiazanie, utworzWariant } from "./ocenianie.ts";
 import { BladApi, MAX_BODY, obiekt, type Obiekt, obrazWiadomosci, tekst, UUID, wybierz, type Zapytaj } from "./protokol.ts";
@@ -79,7 +80,7 @@ function zapytania(user: string, sygnal: AbortSignal): Zapytaj {
     const started = Date.now();
     let wynik;
     try {
-      wynik = await chat(route.p, { messages, maxTokens: limit, reasoningEffort: route.reasoningEffort, signal: sygnal }, pobierzOdpowiedz);
+      wynik = await chatRetry(route, { messages, maxTokens: limit, signal: sygnal }, { fallback: zapasowa(user, tier), fetchImpl: pobierzOdpowiedz });
     } catch (e) {
       await logAiUsage({ ...base, ok: false, status: e instanceof LlmError ? e.status : 0, duration_ms: Date.now() - started });
       if (obraz && e instanceof LlmError &&
@@ -426,10 +427,9 @@ async function strumienBrudnopisu(body: Obiekt, user: string, przerwanie: AbortS
         const indeksy = { ksztalty: 0, dopiski: 0 };
         let tekstModelu = "";
         let usage;
-        const zdarzenia = chatStream(route.p, {
-          messages: wiadomosci(z.instrukcja, z.dane, z.obraz), maxTokens: z.limit,
-          reasoningEffort: route.reasoningEffort, signal: sygnal,
-        }, pobierzOdpowiedz);
+        const zdarzenia = streamRetry(route, {
+          messages: wiadomosci(z.instrukcja, z.dane, z.obraz), maxTokens: z.limit, signal: sygnal,
+        }, { fallback: zapasowa(user, "wazne"), fetchImpl: pobierzOdpowiedz });
         for await (const ev of zdarzenia) {
           if (ev.type === "done") {
             tekstModelu = ev.result.text;

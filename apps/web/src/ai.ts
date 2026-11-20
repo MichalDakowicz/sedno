@@ -99,8 +99,7 @@ export async function aiKey(payload: { action: "save"; provider: string; base_ur
   return (await res.json().catch(() => ({ error: "server_error" }))) as Record<string, unknown>;
 }
 
-// Czy konto ma podpięte AI. Pestka pojawia się w aplikacji dopiero wtedy.
-// Gotowe = ustawiony dostawca dla zadań lekkich albo dokładnie jeden dostawca (bramka wybierze go sama).
+// Czy Pestka jest dostępna dla konta (własny dostawca albo domyślna trasa serwera). Pestka pojawia się w aplikacji dopiero wtedy.
 let ready: { user: string; value: boolean } | null = null;
 const readyListeners = new Set<() => void>();
 
@@ -108,11 +107,11 @@ export async function refreshAiReady(): Promise<void> {
   const { data } = await supabase.auth.getSession();
   const user = data.session?.user.id;
   if (!user) return;
-  const [creds, route] = await Promise.all([
-    supabase.from("ai_credential").select("provider").limit(2),
-    supabase.from("ai_routing").select("tier").eq("tier", "lekkie").maybeSingle(),
-  ]);
-  ready = { user, value: !!route.data || creds.data?.length === 1 };
+  const value = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: JSON.stringify({ status: true }) })
+    .then((res) => res.json())
+    .then((d) => d?.ready === true)
+    .catch(() => false);
+  ready = { user, value };
   readyListeners.forEach((l) => l());
 }
 
