@@ -55,6 +55,7 @@ export type Komunikat = {
 const KOMUNIKATY: Record<string, Omit<Komunikat, "tekst"> & { tekst: string }> = {
   network_error: { tekst: "Nie udało się połączyć z Pestką. Sprawdź internet i spróbuj ponownie.", ponow: true, konfiguracja: false },
   rate_limited: { tekst: "Za dużo zapytań naraz. Odczekaj minutę i spróbuj ponownie.", ponow: true, konfiguracja: false },
+  daily_limit: { tekst: "Na dziś wykorzystano limit rozmów z Pestką. Wróć jutro.", ponow: false, konfiguracja: false },
   no_provider: { tekst: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.", ponow: true, konfiguracja: false },
   bad_credential: { tekst: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.", ponow: true, konfiguracja: false },
   provider_failed: { tekst: "Model nie odpowiedział. Spróbuj ponownie za chwilę.", ponow: true, konfiguracja: false },

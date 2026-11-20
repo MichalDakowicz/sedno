@@ -66,11 +66,14 @@ export type StreamEvent = { type: "text" | "reasoning"; delta: string } | { type
 export class LlmError extends Error {
   readonly status: number;
   readonly detail: string;
+  /** Prawdziwa odpowiedź HTTP dostawcy; pozostałe błędy (pusta odpowiedź, urwany strumień) tworzy kod sam. */
+  readonly upstream: boolean;
 
-  constructor(status: number, detail: string) {
+  constructor(status: number, detail: string, upstream = false) {
     super(`provider answered ${status}`);
     this.status = status;
     this.detail = detail;
+    this.upstream = upstream;
   }
 }
 
@@ -118,12 +121,12 @@ async function failure(res: Response, key: string): Promise<LlmError> {
   } catch {
     // not JSON: keep the text
   }
-  return providerError(res.status, error, key);
+  return providerError(res.status, error, key, true);
 }
 
-function providerError(status: number, error: unknown, key: string): LlmError {
+function providerError(status: number, error: unknown, key: string, upstream = false): LlmError {
   const message = typeof error === "object" && error !== null && "message" in error ? error.message : error;
-  return new LlmError(status, String(message).replaceAll(key, "[key]").slice(0, 200));
+  return new LlmError(status, String(message).replaceAll(key, "[key]").slice(0, 200), upstream);
 }
 
 function toolCall(id: string, name: string, raw: string, extra?: unknown): ToolCall {

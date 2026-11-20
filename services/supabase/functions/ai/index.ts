@@ -4,10 +4,11 @@
 //
 // POST { tier: "wazne" | "lekkie", messages, task?, provider?, stream?, max_tokens?, temperature? }
 // stream=false → { text, provider, model, usage }
-// POST { status: true } → { ready: boolean }: czy Pestka jest dostępna dla konta.
+// POST { status: true } → { ready: boolean }: czy Pestka jest dostępna dla konta (oba poziomy).
 // stream=true  → text/event-stream: data: {"type":"text","delta":...} ... data: {"type":"done",...}
 
-import { logAiUsage, resolveAi, zapasowa } from "../_shared/ai-route.ts";
+import { limitDzienny, logAiUsage, resolveAi, zapasowa } from "../_shared/ai-route.ts";
+import { ograniczTokeny, SEDNO } from "../_shared/ai-default.ts";
 import { readJsonObject } from "../_shared/http.ts";
 import { LlmError, type Message } from "../_shared/llm.ts";
 import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
@@ -39,7 +40,16 @@ async function handle(req: Request): Promise<Response> {
   const body = parsed.data;
 
   // Tanie sprawdzenie, czy Pestka jest dostępna dla konta; nie zużywa limitu i niczego nie ujawnia.
-  if (body.status === true) return reply(200, { ready: !((await resolveAi(user, "lekkie", undefined)) instanceof Response) });
+  if (body.status === true) {
+    const ok = await takeToken(user, "ai-status", 20, 60);
+    if (ok === null) return reply(500, { error: "server_error" });
+    if (!ok) return reply(429, { error: "rate_limited" });
+    const trasy = await Promise.all([resolveAi(user, "lekkie", undefined), resolveAi(user, "wazne", undefined)]);
+    // Błąd serwera to nie „niegotowa”: aplikacja ma wtedy zapytać jeszcze raz, a nie chować Pestki.
+    const awaria = trasy.find((r) => r instanceof Response && r.status >= 500);
+    if (awaria) return awaria as Response;
+    return reply(200, { ready: trasy.every((r) => !(r instanceof Response)) });
+  }
 
   const allowed = await takeToken(user, "ai", 30, 60);
   if (allowed === null) return reply(500, { error: "server_error" });
@@ -51,13 +61,18 @@ async function handle(req: Request): Promise<Response> {
   if (!messages) return reply(400, { error: "bad_messages" });
   const task = typeof body.task === "string" ? body.task.slice(0, 60) : null;
   const override = typeof body.provider === "string" ? body.provider : undefined;
-  const maxTokens = typeof body.max_tokens === "number" ? Math.min(Math.max(1, body.max_tokens), 8192) : undefined;
+  const requested = typeof body.max_tokens === "number" ? Math.min(Math.max(1, body.max_tokens), 8192) : undefined;
   const temperature = typeof body.temperature === "number" ? body.temperature : undefined;
 
   const route = await resolveAi(user, tier, override);
   if (route instanceof Response) return route;
+  const limited = await limitDzienny(user, route);
+  if (limited) return limited;
+  const maxTokens = route.provider === SEDNO ? ograniczTokeny(requested) : requested;
+  // Komunikat dostawcy może zawierać fragment klucza serwera albo dane organizacji.
+  const detailOf = (e: unknown) => (e instanceof LlmError && route.provider !== SEDNO ? e.detail : undefined);
 
-  const fallback = zapasowa(user, tier, override);
+  const fallback = zapasowa(user, tier, route, override);
   const started = Date.now();
   const base = { user_id: user, tier, task, provider: route.provider, model: route.model };
 
@@ -65,14 +80,15 @@ async function handle(req: Request): Promise<Response> {
     try {
       const signal = AbortSignal.any([req.signal, AbortSignal.timeout(120_000)]);
       const out = await chatRetry(route, { messages, maxTokens, temperature, signal }, { fallback });
-      await logAiUsage({ ...base, ok: true, status: 200, prompt_tokens: out.usage?.promptTokens, completion_tokens: out.usage?.completionTokens, duration_ms: Date.now() - started });
-      return reply(200, { text: out.text, provider: route.provider, model: route.model, usage: out.usage });
+      const { provider, model } = out.route;
+      await logAiUsage({ ...base, provider, model, ok: true, status: 200, prompt_tokens: out.usage?.promptTokens, completion_tokens: out.usage?.completionTokens, duration_ms: Date.now() - started });
+      return reply(200, { text: out.text, provider, model, usage: out.usage });
     } catch (e) {
       const status = req.signal.aborted ? 499 : e instanceof LlmError ? e.status : 0;
       await logAiUsage({ ...base, ok: false, status, duration_ms: Date.now() - started });
       // 424, nie 502: Cloudflare przed serwerem podmienia odpowiedzi 502 na własną stronę HTML bez CORS,
       // więc aplikacja nie widziała ani kodu, ani powodu błędu dostawcy.
-      return reply(424, { error: "provider_failed", status, detail: e instanceof LlmError ? e.detail : undefined });
+      return reply(424, { error: "provider_failed", status, detail: detailOf(e) });
     }
   }
 
@@ -102,9 +118,10 @@ async function handle(req: Request): Promise<Response> {
           }
           if (ev.type !== "done") continue;
           const { usage } = ev.result;
-          await finish({ ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
+          const { provider, model } = ev.route;
+          await finish({ provider, model, ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
           if (cancel.signal.aborted) return;
-          send({ type: "done", provider: route.provider, model: route.model, usage });
+          send({ type: "done", provider, model, usage });
           break;
         }
       } catch (e) {
@@ -112,7 +129,7 @@ async function handle(req: Request): Promise<Response> {
         const status = req.signal.aborted ? 499 : e instanceof LlmError ? e.status : 0;
         await finish({ ok: false, status });
         if (cancel.signal.aborted) return;
-        send({ type: "error", status, detail: e instanceof LlmError ? e.detail : undefined });
+        send({ type: "error", status, detail: detailOf(e) });
       }
       ctrl.close();
     },
