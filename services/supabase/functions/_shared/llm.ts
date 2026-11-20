@@ -78,6 +78,16 @@ export class LlmError extends Error {
 }
 
 type Fetch = typeof fetch;
+
+/** fetch i czytanie ciała rzucają TypeError przy błędzie sieci; zamieniamy go na jawny LlmError, żeby TypeError z naszego kodu nie wyglądał jak sieć. */
+const siec = (e: unknown) => (e instanceof TypeError ? new LlmError(0, "network error", true) : e);
+async function pobierz(f: Fetch, url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await f(url, init);
+  } catch (e) {
+    throw siec(e);
+  }
+}
 const DEFAULT_TIMEOUT_MS = 120_000;
 
 // OpenAI's newer models reject max_tokens and want max_completion_tokens. Other OpenAI-compatible
@@ -151,15 +161,17 @@ function reasoningOf(message: { reasoning?: unknown; reasoning_content?: unknown
 
 /** One complete answer. Throws LlmError when the provider refuses. */
 export async function chat(p: Provider, req: ChatRequest, fetchImpl: Fetch = fetch): Promise<ChatResult> {
-  const res = await fetchImpl(`${p.baseUrl}/chat/completions`, requestInit(p, req, false));
+  const res = await pobierz(fetchImpl, `${p.baseUrl}/chat/completions`, requestInit(p, req, false));
   if (!res.ok) throw await failure(res, p.key);
-  const data = await res.json();
+  const data = await res.json().catch((e) => {
+    throw siec(e);
+  });
   if (data?.error) throw providerError(502, data.error, p.key);
   const choice = data?.choices?.[0];
   const message = choice?.message;
   const text = typeof message?.content === "string" ? message.content : "";
   const reasoning = reasoningOf(message);
-  const toolCalls = (message?.tool_calls ?? []).map((c: WireToolCall) => toolCall(c.id, c.function?.name ?? "", c.function?.arguments ?? "", c.extra_content));
+  const toolCalls = (Array.isArray(message?.tool_calls) ? message.tool_calls : []).map((c: WireToolCall) => toolCall(c.id, c.function?.name ?? "", c.function?.arguments ?? "", c.extra_content));
   if (!text.trim() && !reasoning.trim() && !toolCalls.length) throw new LlmError(502, "empty answer");
   return {
     text,
@@ -172,7 +184,7 @@ export async function chat(p: Provider, req: ChatRequest, fetchImpl: Fetch = fet
 
 /** The answer as it is written; ends with a "done" event holding the whole result. */
 export async function* chatStream(p: Provider, req: ChatRequest, fetchImpl: Fetch = fetch): AsyncGenerator<StreamEvent> {
-  const res = await fetchImpl(`${p.baseUrl}/chat/completions`, requestInit(p, req, true));
+  const res = await pobierz(fetchImpl, `${p.baseUrl}/chat/completions`, requestInit(p, req, true));
   if (!res.ok) throw await failure(res, p.key);
   if (!res.body) throw new LlmError(502, "empty stream");
 
@@ -186,13 +198,17 @@ export async function* chatStream(p: Provider, req: ChatRequest, fetchImpl: Fetc
   const decoder = new TextDecoder();
   let pending = "";
   const lines = async function* () {
-    for await (const chunk of res.body as unknown as AsyncIterable<Uint8Array>) {
-      pending += decoder.decode(chunk, { stream: true });
-      let nl: number;
-      while ((nl = pending.indexOf("\n")) >= 0) {
-        yield pending.slice(0, nl).trim();
-        pending = pending.slice(nl + 1);
+    try {
+      for await (const chunk of res.body as unknown as AsyncIterable<Uint8Array>) {
+        pending += decoder.decode(chunk, { stream: true });
+        let nl: number;
+        while ((nl = pending.indexOf("\n")) >= 0) {
+          yield pending.slice(0, nl).trim();
+          pending = pending.slice(nl + 1);
+        }
       }
+    } catch (e) {
+      throw siec(e);
     }
     pending += decoder.decode();
     if (pending.trim()) yield pending.trim();

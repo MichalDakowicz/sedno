@@ -91,12 +91,18 @@ async function zapytajOGotowosc(): Promise<boolean | undefined> {
 }
 
 // Jedno zapytanie naraz, niezależnie od liczby zamontowanych widoków.
-let sprawdzanie: Promise<void> | null = null;
+let sprawdzanie: { user: string | undefined; p: Promise<void> } | null = null;
+let potem = false;
 
-export function refreshAiReady(): Promise<void> {
-  sprawdzanie ??= (async () => {
-    const { data } = await supabase.auth.getSession();
-    const user = data.session?.user.id;
+export async function refreshAiReady(): Promise<void> {
+  const { data } = await supabase.auth.getSession();
+  const user = data.session?.user.id;
+  // Prośba w trakcie sprawdzania (np. po zapisie klucza) może dotyczyć nowszego stanu: po zakończeniu idziemy jeszcze raz.
+  if (sprawdzanie && sprawdzanie.user === user) {
+    potem = true;
+    return sprawdzanie.p;
+  }
+  const p = (async () => {
     if (!user) return;
     let value = await zapytajOGotowosc();
     if (value === undefined) {
@@ -106,8 +112,15 @@ export function refreshAiReady(): Promise<void> {
     if (value === undefined) return;
     ready = { user, value };
     readyListeners.forEach((l) => l());
-  })().catch(() => {}).finally(() => (sprawdzanie = null));
-  return sprawdzanie;
+  })().catch(() => {}).finally(() => {
+    if (sprawdzanie?.p === p) sprawdzanie = null;
+  });
+  sprawdzanie = { user, p };
+  await p;
+  if (potem) {
+    potem = false;
+    await refreshAiReady();
+  }
 }
 
 /** undefined w trakcie sprawdzania. */
