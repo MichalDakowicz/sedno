@@ -192,13 +192,14 @@ function PytanieRundy({
   );
 }
 
-type Reakcja = { seria: number; zleZRzedu: number; dolozone: boolean; diagnoza: boolean };
+type Reakcja = { seria: number; zleZRzedu: number; dolozone: boolean; skrocona: boolean; diagnoza: boolean };
 
 function tekstReakcji(o: OdpowiedzNauki, r: Reakcja, wyjasnienie: boolean): string {
   const n = o.position;
   const pominiete = !o.correct && !o.answer.trim();
   const glowny = o.correct
-    ? r.seria >= 3 ? wybierz(glos.seria, n).replace("{n}", String(r.seria)) : wybierz(glos.dobrze, n)
+    ? r.skrocona ? wybierz(glos.skrocona, n)
+    : r.seria >= 3 ? wybierz(glos.seria, n).replace("{n}", String(r.seria)) : wybierz(glos.dobrze, n)
     : r.zleZRzedu >= 3 ? wybierz(r.diagnoza ? glos.blad.zwolnijDiagnoza : glos.blad.zwolnij, n)
       : pominiete ? wybierz(glos.blad.pominiete, n)
         : wybierz(wyjasnienie ? glos.blad.zle : glos.blad.bezWyjasnienia, n);
@@ -289,6 +290,8 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
   const mapaRundy = useZapytanie(zapytania.mapa(start.level));
   // Runda wydłuża się po błędzie: Pestka mówi o tym przy werdykcie, zamiast zmieniać licznik bez słowa.
   const [dolozone, setDolozone] = useState<number | null>(null);
+  // Cztery dobre z rzędu skracają rundę: też mówimy o tym przy werdykcie.
+  const [skrocona, setSkrocona] = useState<number | null>(null);
   const zapisuje = useRef(false);
   const aktualna = useRef(false);
   const pytanie = sesja.question;
@@ -319,6 +322,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
   function pokazOcene(zapis: SesjaNauki, pozycja: number) {
     if (!aktualna.current) return;
     setDolozone(zapis.limit > sesja.limit ? pozycja : null);
+    setSkrocona(zapis.limit < sesja.limit ? pozycja : null);
     setSesja(zapis);
     setOcenaPoz(pozycja);
   }
@@ -401,7 +405,7 @@ function OtwartaRunda({ start, user, ponow }: { start: SesjaNauki; user: string;
       )}
       {ocena ? (
         <OcenaRundy key={ocena.position} odpowiedz={ocena} sesja={sesja.id} skonczona={!!sesja.result} koniec={koniec}
-          reakcja={{ seria: sesja.streak, zleZRzedu, dolozone: dolozone === ocena.position, diagnoza }}
+          reakcja={{ seria: sesja.streak, zleZRzedu, dolozone: dolozone === ocena.position, skrocona: skrocona === ocena.position, diagnoza }}
           dalej={() => { zachowaj(null); setUstalFokus(true); setOcenaPoz(null); }} />
       ) : pytanie ? (
         <PytanieRundy key={pytanie.position} pytanie={pytanie} tekst={wPytaniu?.tekst ?? ""}
