@@ -13,7 +13,8 @@ Zrobione: domyślna trasa AI serwera dla kont bez własnego klucza (limit 200 ro
 - **Runda na 375 px wychodzi poza ekran** (opcje i odtwarzacz do x≈400). Było przed tą gałęzią.
 - **Pestka w docku** na stagingu (qwen3:8b) dała odpowiedź z pustymi angielskimi przykładami („Struktura: .”), choć to samo pytanie wprost przez API ma przykłady. Do sprawdzenia, czy to model, czy wyświetlanie.
 - **Parser:** w angielskim podstawowym 2023 zad. 5, tekst A, zdania z dwóch kolumn są poprzeplatane.
-- **Limit dzienny** liczy wiersze `ai_usage` po zakończeniu, więc równoległe zapytania mogą go trochę przekroczyć.
+- **Limit dzienny** liczy wiersze `ai_usage` po zakończeniu, więc równoległe zapytania mogą go trochę przekroczyć. Liczy też przerwane strumienie (prowadzenie w brudnopisie co 14 s zużywa 200 w około 45 minut); dokładniej: liczyć przerwania dopiero po pierwszym fragmencie.
+- Drobne z audytu: przy starcie aplikacji `refreshAiReady` robi jedno zbędne drugie zapytanie o gotowość; strumień w `llm.ts` nie ma osłony `Array.isArray` dla `tool_calls`.
 - Komunikat o zawieszonym nagraniu pojawia się dopiero po „Odtwórz”, nie przy samym wczytywaniu metadanych.
 
 ## 0a. Gałąź `pestka-z-twarza` (PR 74, stan na 19 listopada 2026)
