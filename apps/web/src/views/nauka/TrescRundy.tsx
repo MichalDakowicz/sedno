@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Check, ChevronRight, Play, Square, X } from "lucide-react";
 import { useArkusz } from "../../arkusze/dane";
 import { adresObrazu, type Blok, type PytanieZamkniete, type Zadanie } from "../../arkusze/typy";
+import { AudioCke } from "../../components/BladNagrania";
 import { FragmentNagrania } from "../../components/FragmentNagrania";
 import { Ladowanie } from "../../components/Ladowanie";
 import { TekstMat, WzorMat } from "../../components/TekstMat";
@@ -79,10 +80,13 @@ function TekstCke({ tekst, pytanie }: { tekst: string; pytanie: string }) {
 // a ogólne „dopasuj / wybierz” zastępuje jedno zdanie o tym konkretnym pytaniu.
 const PAPIER = /\b(Wpisz|Wpisuj|Zakreśl|Zaznacz)\b|kratk|do tabeli/i;
 const WYBOR = /wybierz właściwą|dopasuj|dobierz|Wykonaj zadania/i;
-const zdania = (t: string) => t.match(/[^.!?]+(?:[.!?]+(?=\s|$)|$)/g)?.map((z) => z.trim()).filter(Boolean) ?? [t];
+// Dzieli tylko na granicach zdań i niczego nie gubi: „(4.1.–4.4.).” zostaje w swoim zdaniu.
+const zdania = (t: string) => t.split(/(?<=[.!?])\s+(?=[A-ZĄĆĘŁŃÓŚŹŻ(„"])/).map((z) => z.trim()).filter((z) => /[\p{L}\p{N}]/u.test(z));
 const bezPapieru = (t: string) => zdania(t).filter((z) => !PAPIER.test(z) && !WYBOR.test(z)).join(" ");
 // Akapit z poleceniem do części zadania, np. „Przeczytaj zdania 5.1.–5.3. Dopasuj…”.
-const czyPolecenie = (b: Blok) => b.typ === "akapit" && /^Przeczytaj\b/.test(b.tekst) && PAPIER.test(b.tekst);
+const NUMER_PYTANIA = /\d+\.\d+\./;
+const czyPolecenie = (b: Blok) =>
+  b.typ === "akapit" && (b.polecenie === true || (/^Przeczytaj\b/.test(b.tekst) && (PAPIER.test(b.tekst) || NUMER_PYTANIA.test(b.tekst))));
 // Nagłówek tekstu, np. „Tekst 2. (do zadań 2.2. i 2.3.)”, zaczyna nowy kawałek zadania.
 const NAGLOWEK_TEKSTU = /^Tekst\s+[A-Z0-9]+\.?\s*(\(do zada[nń][^)]*\))?\s*$/;
 const czyNaglowekTekstu = (b: Blok) => (b.typ === "akapit" || b.typ === "naglowek") && NAGLOWEK_TEKSTU.test(b.tekst.trim());
@@ -241,9 +245,9 @@ function CkeOdczyt({ prompt, pole, poOcenie, tylkoOpcje, onGotowe, ponow }: {
             {fragment || fragmentZadania ? (
               <details className={s.rozwijane}>
                 <summary><ChevronRight size={16} aria-hidden="true" /> Pełne nagranie z arkusza</summary>
-                <audio className={s.audio} controls preload="none" src={nagranie} aria-label="Pełne nagranie CKE" />
+                <AudioCke className={s.audio} src={nagranie} etykieta="Pełne nagranie CKE" />
               </details>
-            ) : <audio className={s.audio} controls preload="none" src={nagranie} aria-label="Nagranie CKE" />}
+            ) : <AudioCke className={s.audio} src={nagranie} etykieta="Nagranie CKE" />}
           </>
         )}
         <div className={s.kontekstCke} lang="en">

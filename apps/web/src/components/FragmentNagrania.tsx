@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import type { CzescNagrania } from "../arkusze/typy";
+import { KomunikatBladuNagrania } from "./BladNagrania";
 import styles from "./FragmentNagrania.module.css";
 
 // Jeden odtwarzacz na całą stronę: nowy fragment zatrzymuje poprzedni.
@@ -49,8 +50,8 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
       stop();
       setBlad(true);
     };
-    // Gdy strona CKE nie odpowiada, przeglądarka potrafi czekać bez końca: po 15 s mówimy to wprost.
-    const limit = window.setTimeout(naBlad, 15_000);
+    // Gdy strona CKE nie odpowiada, przeglądarka potrafi czekać bez końca: po 10 s mówimy to wprost.
+    const limit = window.setTimeout(naBlad, 10_000);
     const naCzas = () => {
       setPostep(Math.min(1, Math.max(0, (a.currentTime - fragment.od) / Math.max(1, fragment.do - fragment.od))));
       if (a.currentTime >= fragment.do) stop();
@@ -77,7 +78,7 @@ export function FragmentNagrania({ src, fragment, podpis }: { src: string; fragm
           {sekundy(fragment.od)}–{sekundy(fragment.do)}
         </span>
       </button>
-      {blad && <p className="small muted">Strona CKE nie oddała nagrania. Spróbuj za chwilę.</p>}
+      {blad && <KomunikatBladuNagrania ponow={() => { wspolny?.load(); przelacz(); }} />}
       {(stan === "gra" || postep > 0) && (
         <span className={styles.pasek} role="progressbar" aria-label="Odtworzona część fragmentu" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(postep * 100)}>
           <span style={{ width: `${postep * 100}%` }} />

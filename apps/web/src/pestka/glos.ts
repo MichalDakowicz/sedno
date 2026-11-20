@@ -23,6 +23,8 @@ export const glos = {
   dobrze: ["Dobrze.", "Zgadza się.", "Tak, to ta.", "Trafione.", "Dokładnie tak."],
   /** Kilka dobrych z rzędu. */
   seria: ["Dobrze. To już {n} z rzędu.", "{n} dobre z rzędu.", "Zgadza się. {n} z rzędu, tak trzymaj."],
+  /** Cztery dobre z rzędu skracają rundę: zastępuje zwykłą kwestię o serii, żeby nie padły dwa zdania o serii. */
+  skrocona: ["Cztery dobre z rzędu. Kończymy rundę wcześniej."],
   blad: {
     zle: ["Tym razem nie. Wyjaśnić?", "To nie ta. Wyjaśnić, dlaczego?", "Nie tym razem. Mogę pokazać, gdzie jest haczyk."],
     bezWyjasnienia: ["Tym razem nie. Zerknij na wyjaśnienie.", "To nie ta. Wyjaśnienie jest pod spodem."],
