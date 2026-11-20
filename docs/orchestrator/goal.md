@@ -26,7 +26,7 @@ _Set 2026-11-20 · status: active_
 - [x] No key in logs or error bodies; retry does not duplicate saved grades; Opus audit has no blocker or major findings · proof: audit 1 (3 major) and audit 2 (1 major) fixed in rounds 1–2; detail hidden for provider sedno
 
 ### Shipped
-- [ ] `npm run typecheck`, `npm run build`, `deno test services/supabase/tests` green; branch + PR; tested on staging; Brief and `NASTEPNE.md` updated; production only on the user's yes · proof: check output, PR link
+- [x] `npm run typecheck`, `npm run build`, `deno test services/supabase/tests` green; branch + PR; tested on staging; Brief and `NASTEPNE.md` updated; production only on the user's yes · proof: 24/24 Deno, typecheck, build; PR #88 merged at the user's yes (92bde38)
 
 ## Blocked on
 - OpenAI key as a server secret (blocks: live proof of the default route, not the code)
