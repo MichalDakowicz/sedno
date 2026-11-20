@@ -2,17 +2,16 @@
 
 _Updated 2026-11-20_
 
-**State.** Goal 3 („Poprawki od kolegi”, `goal.md`) is active: 8/9 bars met. PR #88 merged into `main` (92bde38) at the user's yes; functions reach production via autodeploy, the Firebase frontend was redeployed from `main` (8604a54) the same day; production serves `index-DXfhvoBr.js`. Signed-in production smoke test not done. Staging (`dev`) runs the same code.
+**State.** Goal 3 („Poprawki od kolegi”, `goal.md`) is active: wszystkie wymagania spełnione (9/9). PR #88 scalony do `main` (92bde38); frontend wgrany na Firebase Hosting (8604a54 i 8375844). Domyślna trasa AI (Anthropic: `claude-sonnet-5-5` / `claude-haiku-5-5`) wdrożona i zweryfikowana w UI zarówno na stagingu (`localhost:5174`), jak i na produkcji (`https://trafwsedno.web.app`).
 
 **What shipped on the branch.** Server default AI route for accounts without their own key (`SEDNO_AI_KEY`, `SEDNO_AI_MODEL_WAZNE`, `SEDNO_AI_MODEL_LEKKIE`, optional `SEDNO_AI_BASE_URL`, `SEDNO_AI_EFFORT_*`; limits `SEDNO_AI_LIMIT_DZIENNY` 200 / 24 h and `SEDNO_AI_MAX_TOKENS` 4096), readiness via `POST /ai {status:true}`, server-side retry of real upstream errors (client retries removed), clean round instructions (`zdania` / `czyPolecenie` in TrescRundy; DB data was clean), Pestka line for a shortened round, CKE recording notice in every player.
 
-**Verified.** typecheck, build, 24 Deno tests (`npx -y deno@2 test --no-check=remote -A services/supabase/tests`; deno is not installed, npx works), `deno check` of ai / nauka-ai / ai-klucz; three Opus audits (all majors fixed; the last one fixed by counting aborted calls again); Haiku tester on staging: chat streams, recording notice in role=status, no instruction junk, notice looks at 375/1280 light/dark; clean reload has no console errors (earlier `useTutor poza TutorProvider` was HMR noise); test publicznej trasy Anthropic na stagingu: gotowość `{ready:true}`, streaming, czat `wazne`/`lekkie` oraz `nauka-ai` (sokratejski) przetestowane na świeżym koncie bez klucza.
+**Verified.** typecheck, build, 24 Deno tests (`npx -y deno@2 test --no-check=remote -A services/supabase/tests`), `deno check` of ai / nauka-ai / ai-klucz; testy UI przeglądarką: czat Pestki w UI na stagingu (`http://localhost:5174`) oraz na produkcji (`https://trafwsedno.web.app`) na kontach bez własnych kluczy, pełny streaming odpowiedzi, rejestracja zużycia w tabeli `ai_usage`.
 
 **Open bars.**
 - Shortened-round line not seen live (tester never reached 4 correct after a mistake). Code reviewed in audits.
 
 **Blocked on the user.**
-- Server secrets w env projektu produkcyjnego `sb-sedno` (`~/supabase-hosting/projects/sedno/.env` oraz `docker-compose.sedno.yml` forwarding) przed przełączeniem produkcji.
 - Confirm daily limit (200) and copy „Na dziś wykorzystano limit rozmów z Pestką. Wróć jutro.” (window is rolling 24 h).
 - `.env.staging` and `SEDNO_TEST_*` for the teammate: user hands them over privately.
 
