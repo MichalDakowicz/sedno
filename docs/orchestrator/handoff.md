@@ -6,17 +6,17 @@ _Updated 2026-11-20_
 
 **What shipped on the branch.** Server default AI route for accounts without their own key (`SEDNO_AI_KEY`, `SEDNO_AI_MODEL_WAZNE`, `SEDNO_AI_MODEL_LEKKIE`, optional `SEDNO_AI_BASE_URL`, `SEDNO_AI_EFFORT_*`; limits `SEDNO_AI_LIMIT_DZIENNY` 200 / 24 h and `SEDNO_AI_MAX_TOKENS` 4096), readiness via `POST /ai {status:true}`, server-side retry of real upstream errors (client retries removed), clean round instructions (`zdania` / `czyPolecenie` in TrescRundy; DB data was clean), Pestka line for a shortened round, CKE recording notice in every player.
 
-**Verified.** typecheck, build, 24 Deno tests (`npx -y deno@2 test --no-check=remote -A services/supabase/tests`; deno is not installed, npx works), `deno check` of ai / nauka-ai / ai-klucz; three Opus audits (all majors fixed; the last one fixed by counting aborted calls again); Haiku tester on staging: chat streams, recording notice in role=status, no instruction junk, notice looks at 375/1280 light/dark; clean reload has no console errors (earlier `useTutor poza TutorProvider` was HMR noise).
+**Verified.** typecheck, build, 24 Deno tests (`npx -y deno@2 test --no-check=remote -A services/supabase/tests`; deno is not installed, npx works), `deno check` of ai / nauka-ai / ai-klucz; three Opus audits (all majors fixed; the last one fixed by counting aborted calls again); Haiku tester on staging: chat streams, recording notice in role=status, no instruction junk, notice looks at 375/1280 light/dark; clean reload has no console errors (earlier `useTutor poza TutorProvider` was HMR noise); test publicznej trasy Anthropic na stagingu: gotowość `{ready:true}`, streaming, czat `wazne`/`lekkie` oraz `nauka-ai` (sokratejski) przetestowane na świeżym koncie bez klucza.
 
 **Open bars.**
 - Shortened-round line not seen live (tester never reached 4 correct after a mistake). Code reviewed in audits.
 
 **Blocked on the user.**
-- Server secrets above in the env of `sb-sedno` / `sb-sedno-dev` (infra, user's call). Then check a fresh account without a key.
+- Server secrets w env projektu produkcyjnego `sb-sedno` (`~/supabase-hosting/projects/sedno/.env` oraz `docker-compose.sedno.yml` forwarding) przed przełączeniem produkcji.
 - Confirm daily limit (200) and copy „Na dziś wykorzystano limit rozmów z Pestką. Wróć jutro.” (window is rolling 24 h).
 - `.env.staging` and `SEDNO_TEST_*` for the teammate: user hands them over privately.
 
-**Claimed but unfinished (Brief).** „ai dla każdego konta” (c56ae715…) stays claimed until the key is set. „staging dla kolegi” (97e050f2…) is the user's, unclaimed.
+**Claimed but unfinished (Brief).** „ai dla każdego konta” (c56ae715…) – gotowe do zamknięcia po decyzji o produkcji. „staging dla kolegi” (97e050f2…) is the user's, unclaimed.
 
 **Next.** After the user sets the server key: check a fresh account without a key on staging, then production. Then `NASTEPNE.md` section 00: 375 px overflow in rounds, Pestka dock answers with empty English examples on staging (qwen3:8b — model or rendering?), two-column interleave in 2023 podstawowy task 5 text A (parser).
 
