@@ -4,6 +4,18 @@ Stan na 2 listopada 2026, koniec pierwszej sesji planowania; sekcja 0 z 16 listo
 
 Dokumentacja wizualna (GitHub Pages z `docs/`): 139 stron w 16 rozdziałach. Poniżej to, co zostało.
 
+## 00. Poprawki od kolegi (gałąź `poprawki-od-kolegi`, 20 listopada 2026)
+
+Zrobione: domyślna trasa AI serwera dla kont bez własnego klucza (limit 200 rozmów na 24 h i sufit 4096 tokenów na kluczu serwera), ponawianie błędów dostawcy na serwerze, czyste polecenia w rundach („Przeczytaj tekst. ).”), wyjaśnienie skróconej rundy, komunikat o niedziałającym nagraniu CKE we wszystkich odtwarzaczach.
+
+- **Klucz serwera.** Wpisać `SEDNO_AI_KEY`, `SEDNO_AI_MODEL_WAZNE` (sol), `SEDNO_AI_MODEL_LEKKIE` (luna) w env projektu na serwerze (staging i produkcja), potem sprawdzić nowe konto bez klucza. Do decyzji: limit dzienny i tekst „Wróć jutro” (okno to ostatnie 24 h).
+- **Skrócona runda** sprawdzona tylko w kodzie: tester nie trafił serii 4 dobrych po błędzie.
+- **Runda na 375 px wychodzi poza ekran** (opcje i odtwarzacz do x≈400). Było przed tą gałęzią.
+- **Pestka w docku** na stagingu (qwen3:8b) dała odpowiedź z pustymi angielskimi przykładami („Struktura: .”), choć to samo pytanie wprost przez API ma przykłady. Do sprawdzenia, czy to model, czy wyświetlanie.
+- **Parser:** w angielskim podstawowym 2023 zad. 5, tekst A, zdania z dwóch kolumn są poprzeplatane.
+- **Limit dzienny** liczy wiersze `ai_usage` po zakończeniu, więc równoległe zapytania mogą go trochę przekroczyć.
+- Komunikat o zawieszonym nagraniu pojawia się dopiero po „Odtwórz”, nie przy samym wczytywaniu metadanych.
+
 ## 0a. Gałąź `pestka-z-twarza` (PR 74, stan na 19 listopada 2026)
 
 Zrobione po stronie aplikacji: ogród i gotowość, quiz celów, nowy układ pięciu zakładek, rozgrzewanie danych, uproszczony arkusz; potem czytelność arkusza (wzory przed załadowaniem KaTeX, bloki kodu, tabele do wypełnienia, nagłówki podpunktów, warsztat Python/SQL), karta powtórki w Nauce („Powtórz zadanie”), onboarding w czterech krokach, prowadzenie Pestki na tablicy ze strumienia, notatki w mapie wiedzy ze źródłem (rozmowa, omówienie błędu), przypinanie do umiejętności i ręczne łączenie, szkielety o zmierzonej wysokości, dok Pestki na telefonie, kontrast `--primary-text`, porządki w martwym kodzie, dokumenty w `docs/`.
@@ -15,7 +27,6 @@ Niesprawdzone w przeglądarce (wymaga modelu albo zapisu na koncie): prowadzenie
 - **Cele w kontekście Pestki na tablicy.** `omow-brudnopis` nie dostaje celu ani obszarów z quizu celów; trzeba je dodać do kontekstu funkcji.
 - **Prognoza dla przedmiotów poza angielskim.** `nauka_plan` liczy prognozę tylko z mapy angielskiego; matematyka, informatyka i polski pokazują średnią z arkuszy.
 - **Tematy zadań w arkuszach.** Dane arkuszy nie mają tematu zadania, więc nie da się przypiąć modeli z Wizualizacji ani umiejętności do zadań CKE.
-- **Śmieci z parsera w treści zadań CKE**, np. „Przeczytaj tekst. ). Uwaga…”, „4. spośród podanych opcji…”: poprawić import i wgrać arkusze ponownie.
 - **Stan prowadzenia w strumieniu tablicy.** Strumień nie wysyła `stanProwadzenia` przed wskazówką, więc przy prowadzeniu na żywo wskazówka czeka na wynik (nie wiadomo, czy to krok, błąd, czy „czekam”). Osobne zdarzenie `{"type":"stan"}` na początku pozwoliłoby pisać ją od pierwszych słów.
 - **Mapa wiedzy:** przypinanie notatek do umiejętności poza angielskim (ograniczenie `skill_id` w `knowledge_nodes` i brak taksonomii); odwołania do notatek w rozmowie z Pestką (kontekst funkcji czatu). Notatki z rundy (`source = session`) baza już przyjmuje, w aplikacji jeszcze ich nie zapisujemy.
 - **„Odłóż” w Powtórkach** (`docs/dash-powtorki.html`): odłożenie powtórki musi zmienić termin w bazie.
