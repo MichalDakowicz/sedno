@@ -132,12 +132,12 @@ async function sokratejski(body: Obiekt, zapytaj: Zapytaj) {
   const skill = klucz(body.umiejetnosc, UMIEJETNOSCI);
   const poziom = wybierz(body.poziom, POZIOMY);
   const historia = historiaDialogu(body.historia);
-  if (!skill || !poziom || historia.length % 2 !== 0) throw new BladApi(400, "bad_input");
+  if (!skill || skill.startsWith("sluchanie-") || !poziom || historia.length % 2 !== 0) throw new BladApi(400, "bad_input");
   if (historia.length === 14) return { pytanie: null, zakoncz: true };
   const dane = { umiejetnosc: UMIEJETNOSCI[skill], poziom, historia };
   const wynik = await zapytaj(
     "nauka-sokratejski", "lekkie",
-    ZASADY_TUTORA + ' Zadaj kolejne pytanie otwarte dotyczące wybranej umiejętności i odpowiedzi ucznia. Jeśli nie ma rozmowy, zadaj pierwsze pytanie. Zwróć {"pytanie": "treść"}.',
+    ZASADY_TUTORA + ' Zadaj kolejne pytanie otwarte dotyczące wybranej umiejętności i odpowiedzi ucznia. Jeśli nie ma rozmowy, zadaj pierwsze pytanie. To rozmowa tekstowa bez odtwarzacza audio. Nie proś o słuchanie ani o sięganie po materiały poza rozmową. Jeśli pytanie wymaga tekstu lub dialogu, przytocz cały potrzebny fragment w pytaniu. Zwróć {"pytanie": "treść"}.',
     dane,
   );
   return { pytanie: wymagajWyniku(tekst(wynik.pytanie, 500)), zakoncz: false };
