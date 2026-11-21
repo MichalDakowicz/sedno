@@ -288,11 +288,12 @@ export function Arkusz() {
     );
   };
   const [params, setParams] = useSearchParams();
-  // ?omow=1 (np. z pulpitu) od razu otwiera omawianie błędów sprawdzonego arkusza.
+  // ?omow=1 (np. z pulpitu) od razu otwiera omawianie błędów sprawdzonego arkusza. Czekamy, aż postęp
+  // (pobierany z konta) pokaże sprawdzony arkusz; wcześniejsze czyszczenie adresu gubiło omówienie.
   useEffect(() => {
-    if (!params.has("omow") || !dane || !ai) return;
-    if (postep.sprawdzony) zacznijOmawianie();
-    setParams({}, { replace: true });
+    if (!params.has("omow") || !dane || !ai || !postep.sprawdzony) return;
+    zacznijOmawianie();
+    setParams((p) => { const n = new URLSearchParams(p); n.delete("omow"); return n; }, { replace: true });
   }, [params, dane, ai, postep.sprawdzony]);
   // W trybie na czas długa cisza to też praca nad arkuszem, nie przerwa.
   const ciszaTezLiczy = !!postep.czas?.start;
