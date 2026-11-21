@@ -22,6 +22,8 @@ export type Opcje<T> = {
   doWire: (t: T) => Wire;
   /** Po każdej zmianie stanu (start, zmiana, konto, inna karta). */
   naZmiane?: (t: T) => void;
+  /** Co zostaje na tym urządzeniu po wylogowaniu (np. wygląd), reszta wraca do domyślnych. */
+  poWylogowaniu?: (t: T) => T;
 };
 
 export type Magazyn<T> = {
@@ -261,8 +263,14 @@ export function utworzMagazyn<T>(o: Opcje<T>): Magazyn<T> {
         window.setTimeout(() => void zKonta(id), 0);
       } else if (zdarzenie === "SIGNED_OUT") {
         // Następna osoba na tym komputerze zaczyna od domyślnych.
+        const przed = t;
         idKonta = null;
         wyczysc();
+        if (o.poWylogowaniu) {
+          const zostaje = o.poWylogowaniu(przed);
+          zapiszLokalnie({ ...o.doWire(zostaje), zapisano: 0 }, null);
+          ustaw(zostaje, 0);
+        }
       }
     });
   }
