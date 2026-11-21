@@ -101,6 +101,7 @@ function zapytania(user: string, sygnal: AbortSignal): Zapytaj {
 }
 
 const ZASADY_TUTORA = "Prowadzisz ucznia spokojnie, prostym polskim językiem, jednym pytaniem naraz. Nie podawaj rozwiązania, reguły ani gotowego fragmentu pracy. Jeśli uczeń pisze o trudnej sytuacji osobistej, zatrzymaj ćwiczenie i zachęć do porozmawiania z zaufaną dorosłą osobą.";
+const NAGLOWEK_PRZYKLADU = "Przykład:\n";
 
 async function dopasujTemat(body: Obiekt, zapytaj: Zapytaj) {
   const temat = tekst(body.temat, 280);
@@ -132,15 +133,25 @@ async function sokratejski(body: Obiekt, zapytaj: Zapytaj) {
   const skill = klucz(body.umiejetnosc, UMIEJETNOSCI);
   const poziom = wybierz(body.poziom, POZIOMY);
   const historia = historiaDialogu(body.historia);
-  if (!skill || !poziom || historia.length % 2 !== 0) throw new BladApi(400, "bad_input");
+  if (!skill || skill.startsWith("sluchanie-") || !poziom || historia.length % 2 !== 0) throw new BladApi(400, "bad_input");
   if (historia.length === 14) return { pytanie: null, zakoncz: true };
+  const maPrzyklad = historia.some((w) => w.od === "pestka" && w.tekst.startsWith(NAGLOWEK_PRZYKLADU));
+  const zasadyPrzykladu = maPrzyklad
+    ? "Nawiąż do materiału, który już pojawił się w rozmowie. Jeśli wprowadzasz nowy materiał, umieść go w polu przyklad. W przeciwnym razie zwróć tam null."
+    : "W osobnym polu przyklad umieść krótki tekst, dialog lub zdanie po angielsku, odpowiednie dla umiejętności i poziomu. Zadaj pytanie na podstawie tego przykładu.";
   const dane = { umiejetnosc: UMIEJETNOSCI[skill], poziom, historia };
   const wynik = await zapytaj(
     "nauka-sokratejski", "lekkie",
-    ZASADY_TUTORA + ' Zadaj kolejne pytanie otwarte dotyczące wybranej umiejętności i odpowiedzi ucznia. Jeśli nie ma rozmowy, zadaj pierwsze pytanie. Zwróć {"pytanie": "treść"}.',
+    [ZASADY_TUTORA,
+      "Zadaj jedno otwarte pytanie o wybraną umiejętność. Odnieś się do ostatniej odpowiedzi, jeśli już padła. To rozmowa tekstowa bez odtwarzacza audio. Nie proś o słuchanie ani o korzystanie z materiałów poza rozmową.",
+      zasadyPrzykladu,
+      'Zwróć {"przyklad": "materiał do pytania (do 400 znaków)", "pytanie": "jedno pytanie bez powtarzania przykładu"}.',
+    ].join(" "),
     dane,
   );
-  return { pytanie: wymagajWyniku(tekst(wynik.pytanie, 500)), zakoncz: false };
+  const pytanie = wymagajWyniku(tekst(wynik.pytanie, 500));
+  const przyklad = maPrzyklad && wynik.przyklad === null ? null : wymagajWyniku(tekst(wynik.przyklad, 400));
+  return { pytanie: przyklad ? `${NAGLOWEK_PRZYKLADU}${przyklad}\n\n${pytanie}` : pytanie, zakoncz: false };
 }
 
 function statusy(kryteria: object, raw: unknown) {

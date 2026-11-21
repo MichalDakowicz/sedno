@@ -5,7 +5,7 @@
 | `action` | Pola wejścia | Odpowiedź |
 | --- | --- | --- |
 | `dopasuj-temat` | `temat` do 280 znaków, `poziom` | `{umiejetnosc, format}`. Oba mogą być `null`, gdy temat nie pasuje do katalogu angielskiego. |
-| `sokratejski` | `umiejetnosc`, `poziom`, `historia?` | `{pytanie, zakoncz}`. Historia to pary `{od:"pestka",tekst}`, `{od:"uczen",tekst}` po maks. 1000 znaków na wpis. Początek rozmowy to pusta lista. Po siedmiu parach `pytanie` jest `null`. Można wcześniej przejść do mini-testu przez RPC sesji nauki. |
+| `sokratejski` | `umiejetnosc`, `poziom`, `historia?` | `{pytanie, zakoncz}`. Rozmowa jest tekstowa. Pierwsze pytanie zawiera przykład potrzebny do odpowiedzi. Umiejętności z obszaru słuchania są dostępne w szybkiej rundzie z odtwarzaczem. Historia to pary `{od:"pestka",tekst}`, `{od:"uczen",tekst}` po maks. 1000 znaków na wpis. Początek rozmowy to pusta lista. Po siedmiu parach `pytanie` jest `null`. Można wcześniej przejść do mini-testu przez RPC sesji nauki. |
 | `krok-po-kroku` | `etap`, `poziom`, `polecenie` do 3500 znaków, `tekst` do 8500 znaków | `{etap,slowa,akapity,statusy,pytanie}`. Kod liczy słowa i akapity oddzielone pustą linią. Pusty szkic daje `do-zrobienia` i `pytanie:null`. |
 | `uczen-uczy-scenariusze` | Brak dodatkowych pól | `{scenariusze}` z tytułem, poleceniem, błędnym przykładem i identyfikatorami kryteriów. |
 | `uczen-uczy` | `scenariusz`, `wypowiedzi` ucznia, od jednej do sześciu po maks. 1500 znaków | `{kolega,statusy,ruch,zakoncz,omowienie}`. Omówienie z regułą pojawia się po zakończeniu rundy. |

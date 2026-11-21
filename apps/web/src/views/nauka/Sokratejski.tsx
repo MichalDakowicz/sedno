@@ -31,6 +31,7 @@ export function Sokratejski() {
   const mapa = useZapytanie(zapytania.mapa(poziom));
   const id = params.get("umiejetnosc");
   const wybrana = mapa.dane?.skills.find((u) => u.skill_id === id);
+  const sluchanie = wybrana?.area === "słuchanie";
 
   return (
     <main className={`container czytanie ${s.strona}`}>
@@ -38,19 +39,26 @@ export function Sokratejski() {
         tytul={wybrana?.name ?? "Rozmowa z pytaniami"} lead={wybrana ? undefined : "Pestka pyta, ty tłumaczysz. Siedem pytań, potem mini-test."}>
         {wybrana && <p className="small muted">Język angielski · {nazwaPoziomu[poziom]}</p>}
       </NaglowekStrony>
-      {aiGotowe === false ? (
-        <BrakPestki tekst="Pytania zadaje Pestka, a na tym koncie nie ma jeszcze modelu." />
-      ) : mapa.stan === "ladowanie" ? (
+      {mapa.stan === "ladowanie" ? (
         <Ladowanie ile={5} etykieta="Wczytuję umiejętności" />
       ) : mapa.stan === "blad" ? (
         <BladPestki blad={null} ponow={mapa.ponow} />
+      ) : wybrana && sluchanie ? (
+        <section className={s.sekcja}>
+          <p>Nagrań posłuchasz w szybkiej rundzie.</p>
+          <Link to={adresStartu(poziom, wybrana.skill_id, "szybka-runda")} className="btn btn-primary">
+            Szybka runda <ArrowRight size={17} aria-hidden="true" />
+          </Link>
+        </section>
+      ) : aiGotowe === false ? (
+        <BrakPestki tekst="Pytania zadaje Pestka, a na tym koncie nie ma jeszcze modelu." />
       ) : wybrana && session ? (
         <Rozmowa key={`${session.user.id}:${poziom}:${wybrana.skill_id}`} user={session.user.id} umiejetnosc={wybrana} poziom={poziom} />
       ) : (
         <section className={`${s.sekcja} ${z.bezLinii}`} aria-labelledby="sokratejski-temat">
           <h2 className="h2" id="sokratejski-temat">O czym rozmawiamy?</h2>
           <ul className="wiersze">
-            {(mapa.dane?.skills ?? []).filter((u) => u.skill_id !== "pisanie").map((u) => (
+            {(mapa.dane?.skills ?? []).filter((u) => u.area !== "słuchanie" && u.skill_id !== "pisanie").map((u) => (
               <li key={u.skill_id}>
                 <Link to={`/nauka/sokratejski?poziom=${poziom}&umiejetnosc=${u.skill_id}`} className="wiersz">
                   <span className="wiersz-tresc"><span className="h3">{u.name}</span></span>
@@ -136,7 +144,7 @@ function Rozmowa({ user, umiejetnosc, poziom }: { user: string; umiejetnosc: Umi
     tytul: `rozmowa o: ${umiejetnosc.name}`,
     opis: [`Rozmowa sokratejska o umiejętności z matury z angielskiego: ${umiejetnosc.name}.`,
       ...historia.map((w) => `${w.od === "pestka" ? "Pestka" : "Uczeń"}: ${w.tekst}`),
-      "Prowadź pytaniami, nie podawaj gotowej reguły."].join("\n"),
+      "Prowadź pytaniami, nie podawaj gotowej reguły. Zamieść cały potrzebny materiał w wiadomości. Ta rozmowa jest tekstowa."].join("\n"),
   });
 
   function wyslij(e?: FormEvent) {
