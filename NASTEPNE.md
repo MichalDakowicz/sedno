@@ -1,6 +1,6 @@
 # Następne kroki i pomysły
 
-Stan na 2 listopada 2026, koniec pierwszej sesji planowania; sekcja 0 z 16 listopada, sekcja 0a z 19 listopada. Termin zgłoszenia do konkursu: **29 listopada 2026**.
+Stan na 2 listopada 2026, koniec pierwszej sesji planowania; sekcja 0 z 16 listopada, sekcja 0a z 19 listopada. Przegląd z 21 listopada: odhaczone to, co kod potwierdza (przekreślone); nadal otwarte w 0a, potwierdzone w kodzie: cele w kontekście `omow-brudnopis`, zdarzenie `stan` w strumieniu tablicy. Nie sprawdzone w kodzie: prognoza poza angielskim, tematy zadań, przypinanie notatek poza angielskim, rubryki, brudnopis (wygładzanie i prostowanie pisma: brak w kodzie). Termin zgłoszenia do konkursu: **29 listopada 2026**.
 
 Dokumentacja wizualna (GitHub Pages z `docs/`): 139 stron w 16 rozdziałach. Poniżej to, co zostało.
 
@@ -34,7 +34,7 @@ Niesprawdzone w przeglądarce (wymaga modelu albo zapisu na koncie): prowadzenie
 - **Tematy zadań w arkuszach.** Dane arkuszy nie mają tematu zadania, więc nie da się przypiąć modeli z Wizualizacji ani umiejętności do zadań CKE.
 - **Stan prowadzenia w strumieniu tablicy.** Strumień nie wysyła `stanProwadzenia` przed wskazówką, więc przy prowadzeniu na żywo wskazówka czeka na wynik (nie wiadomo, czy to krok, błąd, czy „czekam”). Osobne zdarzenie `{"type":"stan"}` na początku pozwoliłoby pisać ją od pierwszych słów.
 - **Mapa wiedzy:** przypinanie notatek do umiejętności poza angielskim (ograniczenie `skill_id` w `knowledge_nodes` i brak taksonomii); odwołania do notatek w rozmowie z Pestką (kontekst funkcji czatu). Notatki z rundy (`source = session`) baza już przyjmuje, w aplikacji jeszcze ich nie zapisujemy.
-- **„Odłóż” w Powtórkach** (`docs/dash-powtorki.html`): odłożenie powtórki musi zmienić termin w bazie.
+- **„Odłóż” w Powtórkach** (`docs/dash-powtorki.html`): nadal brak w kodzie. Powtórki weszły do Nauki jako sekcja „Do powtórki” (commit `32e7e8d`), więc projekt `dash-powtorki.html` jest częściowo nieaktualny; odłożenie musi zmienić termin w bazie.
 
 ## 0. Najbliższe kroki (stan na 16 listopada 2026)
 
@@ -52,13 +52,13 @@ Niesprawdzone w przeglądarce (wymaga modelu albo zapisu na koncie): prowadzenie
 
 ### Pomysły do zrobienia
 
-- **Profil ucznia od pierwszego wejścia.** Na początku więcej rzeczy do wybrania przez ucznia, z których powstaje profil: jak się uczy (profil psychologiczny: motywacja, tempo, co go zniechęca), co umie, czego nie, ile czasu zajmują mu zadania. Profil uzupełnia się sam z wyników i czasów z arkuszy.
-- **Polecenia na podstawie profilu.** „Co robić dziś” z tego, co uczeń umie, czego nie i ile ma czasu. Uczeń ma priorytety (np. „najpierw słuchanie”, „mam 20 minut dziennie”), które zmienia rozmową z Pestką, a Pestka zapisuje je w profilu.
-- **Jeden spójny design.** Ustalić raz: gdzie karty, a gdzie linie, jakie teksty i w jakim rozmiarze, czytelność (kontrast, szerokość wiersza). Przejść przez wszystkie widoki i ujednolicić. Zapisać zasady w `apps/web/README.md`.
+- ~~**Profil ucznia od pierwszego wejścia.**~~ Zrobione (onboarding w czterech krokach, quiz celów, `ProfilUcznia.tsx`). Pierwotny opis: na początku więcej rzeczy do wybrania przez ucznia, z których powstaje profil: jak się uczy (profil psychologiczny: motywacja, tempo, co go zniechęca), co umie, czego nie, ile czasu zajmują mu zadania. Profil uzupełnia się sam z wyników i czasów z arkuszy.
+- ~~**Polecenia na podstawie profilu.**~~ Zrobione (priorytety w profilu, plan dnia: karta i „Potem”, commit `1fa4970`). Pierwotny opis: „Co robić dziś” z tego, co uczeń umie, czego nie i ile ma czasu. Uczeń ma priorytety (np. „najpierw słuchanie”, „mam 20 minut dziennie”), które zmienia rozmową z Pestką, a Pestka zapisuje je w profilu.
+- ~~**Jeden spójny design.**~~ Zrobione (`DESIGN.md` uzgodniony z aplikacją, commit `7b6800e`). Pierwotny opis: ustalić raz: gdzie karty, a gdzie linie, jakie teksty i w jakim rozmiarze, czytelność (kontrast, szerokość wiersza). Przejść przez wszystkie widoki i ujednolicić. Zapisać zasady w `apps/web/README.md`.
 - **Brudnopis: wygładzanie pisma.** Odręczne pismo w brudnopisie automatycznie poprawiane na czytelne (rozpoznanie znaków i wzorów, zamiana na tekst albo wygładzona kreska), z możliwością cofnięcia.
 - **Brudnopis: prostowanie przez przytrzymanie.** Narysowana kreska, przytrzymana chwilę na końcu, prostuje się w linię (a zamknięty kształt w okrąg, trójkąt lub prostokąt), jak w notatkach na tablecie.
-- **Pestka przy tablicy matematycznej.** Na tablicy (brudnopis) Pestka „nadskakuje” po prawym przycisku: analizuje to, co uczeń napisał lub narysował (eksport sceny albo zdjęcie), mówi, co widzi, i sama coś dopisuje albo rysuje, np. figurę, oś czy podpowiedź w kolejnym kroku.
-- **Analiza zdjęcia.** Uczeń wrzuca zdjęcie rozwiązania z kartki, a Pestka czyta je i omawia jak błędy z arkusza.
+- ~~**Pestka przy tablicy matematycznej.**~~ Zrobione (`BrudnopisPestka.tsx`, prowadzenie i omawianie szkicu; opisane wyżej w 0a). Pierwotny opis: na tablicy (brudnopis) Pestka „nadskakuje” po prawym przycisku: analizuje to, co uczeń napisał lub narysował (eksport sceny albo zdjęcie), mówi, co widzi, i sama coś dopisuje albo rysuje, np. figurę, oś czy podpowiedź w kolejnym kroku.
+- ~~**Analiza zdjęcia.**~~ Zrobione (`views/nauka/Zdjecie.tsx`, funkcje `odczytaj-zdjecie` i `omow-odczyt`). Pierwotny opis: uczeń wrzuca zdjęcie rozwiązania z kartki, a Pestka czyta je i omawia jak błędy z arkusza.
 
 ## 1. Decyzje otwarte
 
