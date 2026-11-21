@@ -48,6 +48,14 @@ function PowtorkiAngielski() {
     if (pierwszy) navigate(pierwszy);
   }
 
+  // Odkłada pierwszą umiejętność: zostaje w kolejce (pilność rośnie), tylko idzie na koniec na dobę.
+  async function odloz() {
+    const pierwsza = wszystkie[0]?.skill_id;
+    if (!pierwsza) return;
+    await naukaApi.odloz([pierwsza]);
+    powtorki.ponow();
+  }
+
   if (powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") return <Ladowanie ile={3} etykieta="Wczytuję powtórki" />;
   if (powtorki.stan === "blad") return <BladNauki komunikat="Nie udało się wczytać powtórek." ponow={powtorki.ponow} />;
   if (!wszystkie.length) return <StanPestki rozmiar="maly" emocja="radosc" tekst={wybierz(glos.puste.powtorki, 0)} />;
@@ -63,6 +71,7 @@ function PowtorkiAngielski() {
           <RotateCcw size={18} aria-hidden="true" />
           {doZrobienia.length > 1 ? `Powtórz wszystkie · ${doZrobienia.length}` : "Powtórz"}
         </button>
+        {grupy.length > 1 && <button type="button" className="btn btn-ghost btn-sm" onClick={() => void odloz()}>Odłóż {wszystkie[0]!.name}</button>}
       </div>
       {/* Bez listy umiejętności: jeden wiersz z liczbą i jednym działaniem. Którą umiejętność powtórzyć osobno, widać w ogrodzie. */}
       {grupy.length > 1 && <p className="small muted">{grupy.map((g) => g[0]!.name).slice(0, 3).join(", ")}{grupy.length > 3 ? ` i ${grupy.length - 3} ${grupy.length - 3 === 1 ? "inna" : "inne"}` : ""}</p>}

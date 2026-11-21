@@ -32,9 +32,11 @@ export function useBladNagrania(audio: RefObject<HTMLAudioElement | null>) {
       wyczysc();
       setBlad(true);
     };
+    // Z preload metadata nagranie rusza ładować od razu, więc zawieszony serwer zgłaszamy bez klikania „Odtwórz”.
+    if (a.preload !== "none" && a.readyState < 1) limit = window.setTimeout(() => setBlad(true), LIMIT_MS);
     const zdarzenia: [string, () => void][] = [
       ["play", czekaj], ["waiting", czekaj],
-      ["progress", naPostep], ["loadeddata", naPostep], ["timeupdate", wyczysc], ["canplay", wyczysc], ["pause", wyczysc], ["ended", wyczysc],
+      ["loadedmetadata", wyczysc], ["progress", naPostep], ["loadeddata", naPostep], ["timeupdate", wyczysc], ["canplay", wyczysc], ["pause", wyczysc], ["ended", wyczysc],
       ["playing", naGra],
       ["error", naBlad],
     ];

@@ -14,6 +14,8 @@
 .pola,
 .formularz {
   display: grid;
+  /* Bez tego kolumna ma szerokość najszerszej treści (tabela, obraz) i strona wychodzi poza 375 px. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-4);
 }
 
@@ -259,7 +261,7 @@
 .opcjeCke dt { font-weight: 600; }
 .opcjeCke dd { margin: 0; }
 
-.tabelaCke { max-width: 100%; overflow: auto; }
+.tabelaCke { max-width: 100%; min-width: 0; overflow: auto; }
 .tabelaCke table { border-collapse: collapse; }
 .tabelaCke :is(td, th) { border: 1px solid var(--line); padding: 6px 8px; }
 .lukaCke { background: var(--primary-soft); padding-inline: 4px; font-weight: 600; }

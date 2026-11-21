@@ -658,7 +658,8 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
         elements: sceny,
         files: pliki.length ? Object.fromEntries(pliki.map((p) => [p.id, p])) : undefined,
         appState: {
-          viewBackgroundColor: "#ffffff",
+          // W ciemnym motywie filtr płótna (invert 93% + hue-rotate 180°) zamienia ten kolor na ok. --bg (#10151c).
+          viewBackgroundColor: ciemny ? "#f7fdff" : "#ffffff",
           currentItemStrokeColor: KOLORY[0].wartosc,
           currentItemRoughness: 0,
           // Domyślnie średnia: odręczne pismo jak długopisem, nie markerem.

@@ -420,6 +420,7 @@
 }
 
 .canvas :global(.excalidraw) {
+  --color-selection: var(--primary);
   --color-primary: var(--primary);
   --color-primary-darker: var(--primary-hover);
   --color-primary-darkest: var(--tone-orange-fg);
@@ -433,6 +434,7 @@
 /* .theme--dark ma własne --color-primary* o tej samej sile i jest ładowane później, więc podnosimy specyficzność. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-motyw="jasny"]) .canvas :global(.excalidraw.theme--dark) {
+    --color-selection: var(--primary);
     --color-primary: var(--primary);
     --color-primary-darker: var(--primary-hover);
     --color-primary-darkest: var(--tone-orange-fg);
@@ -443,6 +445,7 @@
 }
 
   :root[data-motyw="ciemny"] .canvas :global(.excalidraw.theme--dark) {
+    --color-selection: var(--primary);
     --color-primary: var(--primary);
     --color-primary-darker: var(--primary-hover);
     --color-primary-darkest: var(--tone-orange-fg);

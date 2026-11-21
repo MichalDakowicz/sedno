@@ -64,7 +64,7 @@ export function KontoAI() {
     setRouting((r.data ?? []) as Routing[]);
     setUsage(u.data ?? []);
     // Pestka pojawia się i znika razem z dostawcą, więc stan „AI gotowe” odświeżamy po każdej zmianie.
-    void refreshAiReady();
+    void refreshAiReady(true);
   }, []);
 
   useEffect(() => void load(), [load]);

@@ -1,25 +1,27 @@
 # Orchestration: handoff
 
-_Updated 2026-11-18_
+_Updated 2026-11-21_
 
-**State.** Goal 2 (English learning loop) is achieved, 17/17 bars, archived in `goals/2026-11-18-petla-nauki-angielskiego.md`. No active goal. `main` is at `e5e82c6`; production and staging databases run migrations up to 0019 (autodeploy logs: `gotowe: sedno ← main e5e82c6`, staging at the same code).
+**State.** Goal 3 („Poprawki od kolegi”, `goal.md`) is active: 8/9 wymagań spełnione, otwarta tylko skrócona runda (nie trafiła się na żywo). PR #88 scalony do `main` (92bde38); frontend wgrany na Firebase Hosting (8604a54 i 8375844). Domyślna trasa AI (Anthropic: `claude-sonnet-5-5` / `claude-haiku-5-5`) wdrożona i zweryfikowana w UI zarówno na stagingu (`localhost:5174`), jak i na produkcji (`https://trafwsedno.web.app`).
 
-**How it went.** The teammate built the backend and the views (PRs #55, #56, then #57–#65). The orchestrator verified them against the goal (import report, PDF spot-checks, three Opus audits, five Haiku tester runs on staging, a hand calculation of mastery) and built the fixes: #66–#68 (abandoned rounds, listening segment, breakdown summary, decay as estimate × retention, Powtórki grouping) and #69–#71 (writing skill out of automatic ranking, „mało danych” threshold without ageing, delete only open rounds, focus fixes, „Ćwicz” first, dashboard widgets Powtórki / Kontynuuj / Wybierz temat). All merged at the user's yes.
+**What shipped on the branch.** Server default AI route for accounts without their own key (`SEDNO_AI_KEY`, `SEDNO_AI_MODEL_WAZNE`, `SEDNO_AI_MODEL_LEKKIE`, optional `SEDNO_AI_BASE_URL`, `SEDNO_AI_EFFORT_*`; limits `SEDNO_AI_LIMIT_DZIENNY` 200 / 24 h and `SEDNO_AI_MAX_TOKENS` 4096), readiness via `POST /ai {status:true}`, server-side retry of real upstream errors (client retries removed), clean round instructions (`zdania` / `czyPolecenie` in TrescRundy; DB data was clean), Pestka line for a shortened round, CKE recording notice in every player.
 
-**Decisions this run.** Backend and views from the teammate, orchestrator verifies and fixes. Student-facing skill names approved (migration 0009). Displayed mastery = Elo estimate × retention; breakdown before/after = estimate without decay. Skills without scored CKE evidence (pisanie) are left out of automatic recommendations and the weekly plan. „Usuń” for unfinished rounds without confirm (as in the student profile).
+**Verified.** typecheck, build, 24 Deno tests (`npx -y deno@2 test --no-check=remote -A services/supabase/tests`), `deno check` of ai / nauka-ai / ai-klucz; testy UI przeglądarką: czat Pestki w UI na stagingu (`http://localhost:5174`) oraz na produkcji (`https://trafwsedno.web.app`) na kontach bez własnych kluczy, pełny streaming odpowiedzi, rejestracja zużycia w tabeli `ai_usage`.
 
-**Not verified / left.** Listed in `NASTEPNE.md` section 0 („Pętla nauki angielskiego, faza 2”): micro-skills, weekly trend, low-confidence bar and names/codes toggle on the map; diagnosis prompt at „mało danych”; „Odłóż” in Powtórki; listening segment seek on iOS Safari; per-question fragment after answering inside „Treść zadania”; dashboard runs the map 3–4 times per load (not measured); an occasional „Failed to load resource: 400” on page load (not seen on the last clean load). The production frontend (Firebase Hosting `trafwsedno`) was redeployed by the orchestrator from `main` at the user's request on 2026-11-18 (`firebase deploy --only hosting`); production serves the new bundle (contains the #66–#71 views); smoke-tested signed in (read-only, no rounds started): dashboard shows Powtórki, Kontynuuj and the map widget; /umiejetnosci, /nauka and /powtorki (with „Szacowany czas”) load; no console errors.
+**Drobne poprawki (21 listopada, PR #90, gałąź `male-poprawki`).** Zrobione: `?omow=1`, komunikat nagrania przy metadanych, motyw i tekst po wylogowaniu, Pestka nad edytorem SQL, `llm.ts:245` `Array.isArray`, `refreshAiReady(poZmianie)`, runda 375 px, zaznaczenie i ciemne tło w Excalidraw. Sprawdzone typecheck/build/deno check, bez przeglądarki. Wstrzymane: „Odłóż” w Powtórkach (potrzebna migracja: `due_at` liczone w `private.learning_map`, brak kolumny na odłożenie), przełącznik nazw/kodów CKE na mapie (właściciel usunął go w c863a74; łatka w scratchpadzie sesji), potwierdzenie usuwania rundy (nie znaleziono akcji usuwania rundy).
 
-**In flight.** Nothing. Test data on the staging account: a few unfinished rounds and many listening mistakes in Powtórki.
+**Open bars.**
+- Shortened-round line not seen live (tester never reached 4 correct after a mistake). Code reviewed in audits.
 
-**Claimed but unfinished.** None.
+**Blocked on the user.**
+- Confirm daily limit (200) and copy „Na dziś wykorzystano limit rozmów z Pestką. Wróć jutro.” (window is rolling 24 h).
+- `.env.staging` and `SEDNO_TEST_*` for the teammate: user hands them over privately.
 
-**Next.**
-- User: agree with the teammate on the split of work for the next goal (two agent teams worked on the same goal twice this run).
-- Next orchestrator: draft goal 3 with the user (candidates in `NASTEPNE.md`: other subjects, „Do matury” forecast and weekly plan, other formats).
+**Brief.** „ai dla każdego konta” (c56ae715…) zamknięte jako done 21 listopada na polecenie właściciela. „staging dla kolegi” (97e050f2…) is the user's, unclaimed.
+
+**Next.** Przy zmianach w `ai` / `nauka-ai` powtórzyć test na nowym koncie bez klucza (staging, potem produkcja). Then `NASTEPNE.md` section 00: 375 px overflow in rounds, Pestka dock answers with empty English examples on staging (qwen3:8b — model or rendering?), two-column interleave in 2023 podstawowy task 5 text A (parser).
 
 **Housekeeping.**
-- `npm run dev:staging` runs in the terminal tab „dev staging” from `C:\sedno` on `main`.
-- Merged branches deleted on GitHub (only `main` and `dev` remain) and locally for this run. Left: `C:\sedno-dev` (junction `node_modules`; local branch `dev-scal` for staging merges) and the worktree with the dropped unmerged branch `mapa-umiejetnosci`; worktrees of other sessions untouched.
-- The built-in browser loses the staging session when the pane restarts; the user signs in again.
-- After switching branches under a running dev server, restart it: stale hot-reload modules cause false console errors (`useTutor poza TutorProvider`).
+- `npm run dev:staging` runs in terminal tab „dev staging” on port 5174 (5173 was taken), from `C:\sedno` on `main`.
+- Staging deploy: merge the branch into `origin/dev` from the detached worktree in the session scratchpad, then push `HEAD:dev` (dev has no own content, only merges).
+- Agent worktrees under `.claude/worktrees/` are left in place (branches `worktree-agent-*`, all merged into `poprawki-od-kolegi`).
