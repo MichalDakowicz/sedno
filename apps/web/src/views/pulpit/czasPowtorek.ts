@@ -7,12 +7,21 @@ export function kluczPowtorki(p: Powtorka) {
   return `${p.skill_id}:${m.source_id ?? m.sheet_id ?? m.session_id ?? ""}:${m.question ?? ""}`;
 }
 
-/** Kolejka bez powtórzeń: każda pozycja to osobna krótka runda. */
+/** Ile błędów z jednej umiejętności trafia do kolejki naraz; reszta wraca, gdy te zostaną poprawione. */
+const BLEDOW_NA_UMIEJETNOSC = 3;
+
+/** Kolejka bez powtórzeń: każda pozycja to osobna krótka runda. Błędów jednej umiejętności (np. słuchania z całych arkuszy) jest najwyżej kilka, od najnowszych. */
 export function unikalnePowtorki(kolejka: Powtorka[]) {
   const klucze = new Set<string>();
+  const bledy = new Map<string, number>();
   return kolejka.filter((p) => {
     const klucz = kluczPowtorki(p);
     if (klucze.has(klucz)) return false;
+    if (p.mistake) {
+      const n = (bledy.get(p.skill_id) ?? 0) + 1;
+      if (n > BLEDOW_NA_UMIEJETNOSC) return false;
+      bledy.set(p.skill_id, n);
+    }
     klucze.add(klucz);
     return true;
   });
