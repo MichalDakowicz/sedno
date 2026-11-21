@@ -49,10 +49,13 @@ export function PlanDnia({ poziom, maly = false }: { poziom: Poziom; maly?: bool
       <h2 className={maly ? "label" : "h2"} id="plan-potem">Potem</h2>
       <ul className="wiersze">
         {kroki.slice(0, 3).map((k) => (
-          <li key={k.id}>
+          <li key={k.id} className={k.id === "powtorki" && powtorki.odloz ? s.zOdlozeniem : undefined}>
             {"do" in k
               ? <Link to={k.do} className="wiersz">{tresc(k)}</Link>
               : <button type="button" className={`wiersz ${s.przycisk}`} onClick={k.onClick}>{tresc(k)}</button>}
+            {k.id === "powtorki" && powtorki.odloz && (
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => void powtorki.odloz?.wykonaj()}>Odłóż {powtorki.odloz.nazwa}</button>
+            )}
           </li>
         ))}
       </ul>

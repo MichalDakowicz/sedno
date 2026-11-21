@@ -48,14 +48,6 @@ function PowtorkiAngielski() {
     if (pierwszy) navigate(pierwszy);
   }
 
-  // Odkłada pierwszą umiejętność: zostaje w kolejce (pilność rośnie), tylko idzie na koniec na dobę.
-  async function odloz() {
-    const pierwsza = wszystkie[0]?.skill_id;
-    if (!pierwsza) return;
-    await naukaApi.odloz([pierwsza]);
-    powtorki.ponow();
-  }
-
   if (powtorki.stan === "ladowanie" || powtorki.stan === "pominiete") return <Ladowanie ile={3} etykieta="Wczytuję powtórki" />;
   if (powtorki.stan === "blad") return <BladNauki komunikat="Nie udało się wczytać powtórek." ponow={powtorki.ponow} />;
   if (!wszystkie.length) return <StanPestki rozmiar="maly" emocja="radosc" tekst={wybierz(glos.puste.powtorki, 0)} />;
@@ -71,7 +63,6 @@ function PowtorkiAngielski() {
           <RotateCcw size={18} aria-hidden="true" />
           {doZrobienia.length > 1 ? `Powtórz wszystkie · ${doZrobienia.length}` : "Powtórz"}
         </button>
-        {grupy.length > 1 && <button type="button" className="btn btn-ghost btn-sm" onClick={() => void odloz()}>Odłóż {wszystkie[0]!.name}</button>}
       </div>
       {/* Bez listy umiejętności: jeden wiersz z liczbą i jednym działaniem. Którą umiejętność powtórzyć osobno, widać w ogrodzie. */}
       {grupy.length > 1 && <p className="small muted">{grupy.map((g) => g[0]!.name).slice(0, 3).join(", ")}{grupy.length > 3 ? ` i ${grupy.length - 3} ${grupy.length - 3 === 1 ? "inna" : "inne"}` : ""}</p>}
@@ -140,9 +131,13 @@ export function useKolejkaPowtorek(poziom: Poziom, wlaczone = true) {
   const wszystkie = unikalnePowtorki([...(powtorki.dane?.today ? [powtorki.dane.today] : []), ...(powtorki.dane?.queue ?? [])]);
   const naDzis = powtorkiNaDni(wszystkie)[0]?.liczba ?? 0;
   const doZrobienia = wszystkie.slice(0, naDzis || wszystkie.length);
+  // Odłożyć ma sens tylko przy co najmniej dwóch umiejętnościach: inaczej kolejność się nie zmienia.
+  const pierwsza = new Set(wszystkie.map((x) => x.skill_id)).size > 1 ? wszystkie[0] : undefined;
   return {
     stan: powtorki.stan,
     ile: doZrobienia.length,
+    /** Pierwsza umiejętność zostaje w kolejce (pilność rośnie), tylko na dobę idzie na koniec. */
+    odloz: pierwsza && { nazwa: pierwsza.name, wykonaj: async () => { await naukaApi.odloz([pierwsza.skill_id]); powtorki.ponow(); } },
     zacznij: () => {
       const pierwszy = zacznijKolejke(doZrobienia.map((x) => adresCwiczenia(poziom, x)));
       if (pierwszy) navigate(pierwszy);
