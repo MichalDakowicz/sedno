@@ -8,6 +8,8 @@ _Updated 2026-11-21_
 
 **Verified.** typecheck, build, 24 Deno tests (`npx -y deno@2 test --no-check=remote -A services/supabase/tests`), `deno check` of ai / nauka-ai / ai-klucz; testy UI przeglądarką: czat Pestki w UI na stagingu (`http://localhost:5174`) oraz na produkcji (`https://trafwsedno.web.app`) na kontach bez własnych kluczy, pełny streaming odpowiedzi, rejestracja zużycia w tabeli `ai_usage`.
 
+**Drobne poprawki (21 listopada, PR #90, gałąź `male-poprawki`).** Zrobione: `?omow=1`, komunikat nagrania przy metadanych, motyw i tekst po wylogowaniu, Pestka nad edytorem SQL, `llm.ts:245` `Array.isArray`, `refreshAiReady(poZmianie)`, runda 375 px, zaznaczenie i ciemne tło w Excalidraw. Sprawdzone typecheck/build/deno check, bez przeglądarki. Wstrzymane: „Odłóż” w Powtórkach (potrzebna migracja: `due_at` liczone w `private.learning_map`, brak kolumny na odłożenie), przełącznik nazw/kodów CKE na mapie (właściciel usunął go w c863a74; łatka w scratchpadzie sesji), potwierdzenie usuwania rundy (nie znaleziono akcji usuwania rundy).
+
 **Open bars.**
 - Shortened-round line not seen live (tester never reached 4 correct after a mistake). Code reviewed in audits.
 
