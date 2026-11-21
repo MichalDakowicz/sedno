@@ -242,7 +242,7 @@ export async function* chatStream(p: Provider, req: ChatRequest, fetchImpl: Fetc
       text += delta.content;
       yield { type: "text", delta: delta.content };
     }
-    for (const c of delta.tool_calls ?? []) {
+    for (const c of Array.isArray(delta.tool_calls) ? delta.tool_calls : []) {
       // Some providers (Gemini) number every parallel call 0. A name arrives once per call, so a
       // name (or a new id) on a call that already has one starts the next call.
       let slotKey: number = c.index ?? 0;

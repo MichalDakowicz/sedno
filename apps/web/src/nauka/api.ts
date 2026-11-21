@@ -233,6 +233,7 @@ export const naukaApi = {
   polec: (poziom: Poziom, skill?: string, signal?: AbortSignal) =>
     rpc<PropozycjaNauki | null>("nauka_polec", { p_level: poziom, p_skill: skill ?? null }, signal),
   powtorki: (poziom: Poziom, signal?: AbortSignal) => rpc<PowtorkiNauki>("nauka_powtorki", { p_level: poziom }, signal),
+  odloz: (umiejetnosci: string[]) => zmiana(rpc<void>("nauka_odloz", { p_skills: umiejetnosci })),
   plan: (poziom: Poziom, signal?: AbortSignal) => rpc<PlanNauki>("nauka_plan", { p_level: poziom }, signal),
   dniPlanu: (poziom: Poziom, dni: number[] | null) => zmiana(rpc<PlanNauki>("nauka_plan_dni", { p_days: dni, p_level: poziom })),
   ostatnie: (poziom: Poziom, signal?: AbortSignal) => rpc<OtwartaSesjaNauki[]>("nauka_ostatnie", { p_level: poziom }, signal),

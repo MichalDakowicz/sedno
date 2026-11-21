@@ -131,9 +131,13 @@ export function useKolejkaPowtorek(poziom: Poziom, wlaczone = true) {
   const wszystkie = unikalnePowtorki([...(powtorki.dane?.today ? [powtorki.dane.today] : []), ...(powtorki.dane?.queue ?? [])]);
   const naDzis = powtorkiNaDni(wszystkie)[0]?.liczba ?? 0;
   const doZrobienia = wszystkie.slice(0, naDzis || wszystkie.length);
+  // Odłożyć ma sens tylko przy co najmniej dwóch umiejętnościach: inaczej kolejność się nie zmienia.
+  const pierwsza = new Set(wszystkie.map((x) => x.skill_id)).size > 1 ? wszystkie[0] : undefined;
   return {
     stan: powtorki.stan,
     ile: doZrobienia.length,
+    /** Pierwsza umiejętność zostaje w kolejce (pilność rośnie), tylko na dobę idzie na koniec. */
+    odloz: pierwsza && { nazwa: pierwsza.name, wykonaj: async () => { await naukaApi.odloz([pierwsza.skill_id]); powtorki.ponow(); } },
     zacznij: () => {
       const pierwszy = zacznijKolejke(doZrobienia.map((x) => adresCwiczenia(poziom, x)));
       if (pierwszy) navigate(pierwszy);

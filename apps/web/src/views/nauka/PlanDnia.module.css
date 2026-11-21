@@ -31,3 +31,15 @@
   text-align: left;
   cursor: pointer;
 }
+
+/* Wiersz powtórek z przyciskiem „Odłóż” obok. */
+.zOdlozeniem {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.zOdlozeniem > .przycisk {
+  flex: 1;
+  min-width: 0;
+}

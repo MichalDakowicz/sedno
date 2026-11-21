@@ -77,6 +77,8 @@ const magazyn = utworzMagazyn<Ustawienia>({
   zWire: (raw) => ({ ...DOMYSLNE, ...poprawne(raw) }),
   doWire: roznice,
   naZmiane: zastosuj,
+  // Motyw i rozmiar tekstu zostają na ekranie logowania.
+  poWylogowaniu: (u) => ({ ...DOMYSLNE, motyw: u.motyw, tekst: u.tekst }),
 });
 
 export const ustawienia = () => magazyn.biezace();
