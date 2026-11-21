@@ -94,12 +94,12 @@ async function zapytajOGotowosc(): Promise<boolean | undefined> {
 let sprawdzanie: { user: string | undefined; p: Promise<void> } | null = null;
 let potem = false;
 
-export async function refreshAiReady(): Promise<void> {
+export async function refreshAiReady(poZmianie = false): Promise<void> {
   const { data } = await supabase.auth.getSession();
   const user = data.session?.user.id;
   // Prośba w trakcie sprawdzania (np. po zapisie klucza) może dotyczyć nowszego stanu: po zakończeniu idziemy jeszcze raz.
   if (sprawdzanie && sprawdzanie.user === user) {
-    potem = true;
+    if (poZmianie) potem = true;
     return sprawdzanie.p;
   }
   const p = (async () => {
