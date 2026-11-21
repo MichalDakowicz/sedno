@@ -10,7 +10,7 @@ _Set 2026-11-20 · status: active_
 ## Done when
 
 ### Works
-- [x] An account without `ai_credential` gets a route from server secrets: tier `wazne` → sol model, `lekkie` → luna model; an account's own key still wins; without server secrets the reply is a clean `not_configured`, not a crash · proof: Deno tests (24/24, `czyTrasaSerwera`, `domyslnaTrasa`); staging `{status:true}` → `ready:true` for the test account; live default route waits for the key
+- [x] An account without `ai_credential` gets a route from server secrets: tier `wazne` → sol model, `lekkie` → luna model; an account's own key still wins; without server secrets the reply is a clean `not_configured`, not a crash · proof: Deno tests (24/24, `czyTrasaSerwera`, `domyslnaTrasa`); staging `{status:true}` → `ready:true` for the test account; live on production for accounts without a key (commit 74a5b01, UI check)
 - [x] A 500 / 429 / network error from the provider gets one server-side retry, then the other tier's model; in a stream only before the first chunk; in both `ai` and `nauka-ai` · proof: Deno tests (upstream flag, stream before/after first chunk), audit 2
 - [x] Junk in 2024 task 4.3 („Przeczytaj tekst. ).”) and glued sub-question instructions in 2023 task 5.1 are fixed at the source; re-import and `kontrola` pass; sheets uploaded to staging · proof: cause was in the app (`zdania` in TrescRundy), DB data clean, no re-upload needed; script over 39 English sheets; tester saw no junk in round instructions
 - [ ] When a quick round is shortened after a streak (e.g. „4 z 6” → „5 z 5”), Pestka says „Cztery dobre z rzędu. Kończymy rundę wcześniej.” · proof: tester on staging — NOT reached live (no 4-streak after a mistake); code path reviewed in both audits
@@ -29,8 +29,9 @@ _Set 2026-11-20 · status: active_
 - [x] `npm run typecheck`, `npm run build`, `deno test services/supabase/tests` green; branch + PR; tested on staging; Brief and `NASTEPNE.md` updated; production only on the user's yes · proof: 24/24 Deno, typecheck, build; PR #88 merged at the user's yes (92bde38)
 
 ## Blocked on
-- OpenAI key as a server secret (blocks: live proof of the default route, not the code)
+- Nothing. The route runs on Anthropic (sol / luna) and is live on production; the earlier OpenAI-key blocker is no longer relevant.
 
 ## Changes
+- 2026-11-21: live proof of the default route on production (74a5b01); Brief c56ae715 („ai dla każdego konta”) closed as done at the owner's request; the shortened-round bar stays open (not reached live)
 - 2026-11-20: parser bar met in the app instead of the importer (root cause); token ceiling default 4096 because the scratchpad needs 3400
 - 2026-11-20: goal set (approved by the user)
