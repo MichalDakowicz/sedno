@@ -368,7 +368,8 @@ textarea {
 }
 
 .select:focus-visible {
-  outline: none;
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
   border-color: var(--primary);
 }
 

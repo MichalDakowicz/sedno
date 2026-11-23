@@ -10,6 +10,8 @@
   color: var(--fg);
   font-size: var(--t-md);
   vertical-align: middle;
+  /* Przycisk klawiatury MathLive wystaje z pola o kilka pikseli i poszerzał stronę na telefonie. */
+  overflow: clip;
   --caret-color: var(--primary);
   --primary-color: var(--primary);
   --selection-background-color: var(--primary-soft);

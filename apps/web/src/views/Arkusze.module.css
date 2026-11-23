@@ -65,8 +65,8 @@
   height: 40px;
   min-height: 40px;
   padding: 0 40px 0 16px;
-  line-height: 1;
-  align-items: center;
+  /* Wysokość linii = wysokość pola bez ramek: tekst stoi na środku jak w pigułkach. */
+  line-height: 38px;
   background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%;
   color: var(--muted);
   font-size: var(--t-sm);
@@ -83,6 +83,7 @@
   .inne {
     height: 44px;
     min-height: 44px;
+    line-height: 42px;
   }
 }
 
