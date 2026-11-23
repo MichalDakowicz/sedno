@@ -1,59 +1,20 @@
-import { TutorAvatar } from "../components/TutorAvatar";
+import { useNavigate, useNavigationType, useOutletContext } from "react-router-dom";
 import { TutorChat } from "../components/TutorChat";
-import { useTutor } from "../components/TutorContext";
-import { SubjectIcon } from "../components/icons";
-import { PodlaczAI } from "../components/PodlaczAI";
-import { useProfil, useSession } from "../auth";
-import { useAiReady } from "../ai";
-import { opisPoziomow, przedmiot, zgrupuj } from "../konto/przedmioty";
 import styles from "./Tutor.module.css";
 
 export function Tutor() {
-  const { state } = useTutor();
-  const session = useSession();
-  const profil = useProfil();
-  const ai = useAiReady(session ? session.user.id : null);
+  const navigate = useNavigate();
+  const nawigacja = useNavigationType();
+  const bylWInnymWidoku = useOutletContext<boolean>();
 
-  if (ai === false)
-    return (
-      <main className={`container ${styles.page}`}>
-        <section className={styles.intro}>
-          <TutorAvatar size={96} className={styles.avatar} />
-          <h1 className="h1">Pestka</h1>
-          <PodlaczAI />
-        </section>
-      </main>
-    );
-
-  const moje = profil?.subjects ?? [];
+  function wroc() {
+    if (bylWInnymWidoku && nawigacja !== "REPLACE") navigate(-1);
+    else navigate("/", { replace: true });
+  }
 
   return (
-    <main className={`container ${styles.page}`}>
-      <section className={`obok-karty ${styles.intro}`}>
-        <TutorAvatar size={96} state={state} className={styles.avatar} />
-        <h1 className="h1">Pestka</h1>
-        <p className="muted">Zadaj pytanie, wklej zadanie albo pokaż swoją próbę.</p>
-        {moje.length > 0 && (
-          <dl className={styles.context}>
-            {zgrupuj(moje).map((m) => {
-              const p = przedmiot(m.id)!;
-              return (
-                <div key={m.id}>
-                  <dt className={styles.subject}>
-                    <SubjectIcon subject={p} size="sm" />
-                    {p.nazwa}
-                  </dt>
-                  <dd>poziom {opisPoziomow(m.poziomy)}</dd>
-                </div>
-              );
-            })}
-          </dl>
-        )}
-      </section>
-
-      <section className={styles.chat} aria-label="Rozmowa z Pestką">
-        <TutorChat />
-      </section>
+    <main className={styles.page} aria-label="Rozmowa z Pestką">
+      <TutorChat pelny zamknijPelny={wroc} />
     </main>
   );
 }
