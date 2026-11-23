@@ -102,6 +102,7 @@ export type OcenaRozwiazania = {
   punkty: number | null;
   maksPunktow: number;
   opis: string;
+  krok?: string;
   kryteria?: Kryterium[];
   zasady?: { pdf: string; strona: number | null };
 };
