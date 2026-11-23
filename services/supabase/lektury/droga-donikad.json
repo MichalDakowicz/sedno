@@ -1,0 +1,46 @@
+{
+  "id": "droga-donikad",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "początek powieści, praca w lesie", "kto": ["Paweł", "Karol"], "gdzie": "las na Wileńszczyźnie", "opis": "Po objęciu kraju władzą sowiecką Paweł i Karol podejmują pracę w lesie." },
+    { "nr": 2, "miejsce": "epizod na dworcu, poczekalnia", "kto": ["funkcjonariusz NKWD", "Paweł", "podróżni"], "gdzie": "dworzec w Wilnie", "opis": "Funkcjonariusz NKWD zatrzymuje podróżnych i każe zamknąć ich w dawnej poczekalni trzeciej klasy." },
+    { "nr": 3, "miejsce": "epizod na dworcu, powitanie delegatów", "kto": ["Paweł", "delegaci"], "gdzie": "dworzec w Wilnie", "opis": "Paweł dowiaduje się, że przed dworcem witani są delegaci wracający z Moskwy po uzyskaniu zgody na przyłączenie kraju do ZSRR." },
+    { "nr": 4, "miejsce": "epizod na dworcu, powitanie delegatów", "kto": ["Paweł", "Łaszowski"], "gdzie": "dworzec w Wilnie", "opis": "Paweł z poczekalni widzi przyjazd przedstawicieli miejscowej prasy, wśród których rozpoznaje Łaszowskiego." },
+    { "nr": 5, "miejsce": "rozmowa o mechanizmie sowietyzacji", "kto": ["Tadeusz"], "gdzie": "Wileńszczyzna", "opis": "Tadeusz przedstawia kłamstwo jako narzędzie, którym władza sowiecka zmienia postępowanie ludzi." },
+    { "nr": 6, "miejsce": "wątek Karola", "kto": ["Karol"], "gdzie": "uniwersytet robotniczy", "opis": "Karol podejmuje pracę wykładowcy marksizmu-leninizmu." },
+    { "nr": 7, "miejsce": "rozmowa z ptasznikiem", "kto": ["Paweł", "ptasznik"], "gdzie": "Wileńszczyzna", "opis": "Ptasznik w rozmowie z Pawłem używa przykładu hodowanych ptaków, by mówić o różnicach między narodami i wspólnych cechach ludzi." },
+    { "nr": 8, "miejsce": "zakończenie, deportacje", "kto": ["mieszkańcy Wileńszczyzny"], "gdzie": "Wileńszczyzna", "opis": "Władze sowieckie przystępują do deportowania miejscowej ludności." },
+    { "nr": 9, "miejsce": "zakończenie, ucieczka", "kto": ["Paweł", "Marta"], "gdzie": "Wileńszczyzna", "opis": "Paweł i Marta uciekają przed wywózką." },
+    { "nr": 10, "miejsce": "zakończenie, rozmowa w drodze", "kto": ["Paweł", "wędrowiec"], "gdzie": "droga na Wileńszczyźnie", "opis": "Spotkany w drodze człowiek opowiada Pawłowi o jeziorze zmieniającym barwy zależnie od pory dnia i pogody." },
+    { "nr": 11, "miejsce": "ostatnia scena", "kto": ["Paweł", "Marta"], "gdzie": "puszcza na Wileńszczyźnie", "opis": "Paweł i Marta w nocy docierają do miejsca, w którym droga urywa się w puszczy." }
+  ],
+  "postacie": [
+    { "imie": "Paweł", "odmiany": ["Pawła", "Pawłowi", "Pawłem", "Pawle"], "rola": "były dziennikarz, w okupowanej Wileńszczyźnie utrzymuje się z pracy fizycznej", "relacje": "mąż Marty, przyjaciel Karola, rozmówca ptasznika", "miejsca": ["Wilno", "Wileńszczyzna"] },
+    { "imie": "Marta", "odmiany": ["Marty", "Marcie", "Martę", "Martą"], "rola": "towarzyszy Pawłowi w ucieczce przed deportacją", "relacje": "żona Pawła", "miejsca": ["Wileńszczyzna", "puszcza"] },
+    { "imie": "Karol", "odmiany": ["Karola", "Karolowi", "Karolem", "Karolu"], "rola": "podejmuje współpracę z nowym systemem jako wykładowca", "relacje": "pracuje początkowo w lesie z Pawłem", "miejsca": ["Wileńszczyzna", "uniwersytet robotniczy"] },
+    { "imie": "Tadeusz", "odmiany": ["Tadeusza", "Tadeuszowi", "Tadeuszem", "Tadeuszu"], "rola": "krytykuje mechanizmy sowieckiej władzy i opowiada się za oporem", "relacje": "jeden z bohaterów, których postawy zestawiono z wyborami Pawła", "miejsca": ["Wileńszczyzna"] },
+    { "imie": "ptasznik", "odmiany": ["ptasznika", "ptasznikowi", "ptasznikiem"], "rola": "hodowca ptaków podejmujący opór wobec okupanta", "relacje": "rozmówca Pawła", "miejsca": ["Wileńszczyzna"] },
+    { "imie": "Łaszowski", "odmiany": ["Łaszowskiego", "Łaszowskiemu", "Łaszowskim"], "rola": "przedstawiciel miejscowej prasy uczestniczący w oficjalnym powitaniu", "relacje": "rozpoznany przez Pawła na dworcu", "miejsca": ["Wilno"] }
+  ],
+  "motywy": [
+    { "motyw": "zniewolenie w życiu codziennym", "przyklad": "Podróżni zostają zamknięci w poczekalni na czas uroczystości, ponieważ ich obecność przeszkadzałaby w zorganizowanym powitaniu delegatów.", "miejsce": "epizod na dworcu, poczekalnia" },
+    { "motyw": "propaganda i oficjalny rytuał", "przyklad": "Paweł ogląda powitanie przedstawicieli wracających z Moskwy i rozpoznaje wśród uczestników Łaszowskiego z czerwoną gwiazdą w klapie.", "miejsce": "epizod na dworcu, powitanie delegatów" },
+    { "motyw": "przystosowanie do władzy", "przyklad": "Karol, wcześniej przeciwnik komunizmu, zaczyna nauczać marksizmu-leninizmu na uniwersytecie robotniczym.", "miejsce": "wątek Karola" },
+    { "motyw": "kłamstwo jako narzędzie władzy", "przyklad": "Tadeusz opisuje wykorzystanie przez bolszewików ludzkiej skłonności do kłamstwa i jego wpływ na psychikę.", "miejsce": "rozmowa o mechanizmie sowietyzacji" },
+    { "motyw": "przyroda i wspólnota ludzi", "przyklad": "Ptasznik odwołuje się do różnic między gatunkami ptaków, by w rozmowie z Pawłem oddzielić obyczaje narodów od wspólnego człowieczeństwa.", "miejsce": "rozmowa z ptasznikiem" },
+    { "motyw": "droga i utrata perspektyw", "przyklad": "Paweł i Marta w ucieczce docierają do urywającej się drogi w lesie. Można ją odczytać jako obraz zawężenia wyboru pod okupacją.", "miejsce": "ostatnia scena" }
+  ],
+  "utwory": [
+    { "tytul": "Scena na dworcu w Wilnie", "miejsce": "epizod na dworcu", "opis": "Powitanie delegatów z Moskwy widziane przez podróżnego zamkniętego w poczekalni." },
+    { "tytul": "Paweł i ptasznik", "miejsce": "rozmowa z ptasznikiem", "opis": "Rozmowa o ptakach prowadzi do refleksji nad wspólną naturą ludzi." },
+    { "tytul": "Ucieczka przed wywózką", "miejsce": "zakończenie", "opis": "Zagrożenie deportacją wypędza Pawła i Martę z domu, a ich dalszy los pozostaje otwarty." }
+  ],
+  "zrodla": [
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE wskazuje fragmenty jako pozycję przejściową na lata 2025–2028." },
+    { "url": "https://jozefmackiewicz.com/wp-content/uploads/1941/03/Fitas-Adam-Tylko-prawda-jest-ciekawa.pdf", "rodzaj": "opracowanie", "co": "Adam Fitas, Tylko prawda jest ciekawa, rozdz. III, cz. 1, s. 75–86: epizod na dworcu, postawy Karola i Tadeusza, rozmowa z ptasznikiem, deportacje i finał." },
+    { "url": "https://bibliotekacyfrowa.ujk.edu.pl/dlibra/publication/10367/edition/9843/droga-donikad-mackiewicz-jozef-1902-1985?language=pl", "rodzaj": "opracowanie", "co": "Opis bibliograficzny powieści oraz informacja o ochronie prawnoautorskiej." }
+  ],
+  "do_weryfikacji": [
+    "Informator CKE nie wyznacza zamkniętej listy fragmentów.",
+    "Numery rozdziałów dla wskazanych scen wymagają sprawdzenia w pełnym wydaniu."
+  ]
+}

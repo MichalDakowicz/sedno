@@ -1,0 +1,40 @@
+{
+  "id": "raport-o-stanie-wojennym",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "Nowe życie, początek", "kto": ["mężczyzna", "kobieta"], "gdzie": "pobocze wiejskiej drogi", "opis": "Mężczyzna podtrzymuje kobietę, która od północy ma nasilające się bóle." },
+    { "nr": 2, "miejsce": "Nowe życie, początek", "kto": ["mężczyzna", "kobieta", "kierowca"], "gdzie": "skrzyżowanie wiejskich dróg", "opis": "Gdy nadjeżdża ciężarówka, mężczyzna wybiega na drogę i zatrzymuje pojazd." },
+    { "nr": 3, "miejsce": "Nowe życie, początek", "kto": ["mężczyzna", "kobieta", "kierowca"], "gdzie": "wiejska droga, ciężarówka", "opis": "Kierowca pomaga ułożyć kobietę na siedzeniu, a mężczyzna prosi o pilny przejazd do szpitala." },
+    { "nr": 4, "miejsce": "Nowe życie, podróż", "kto": ["kierowca", "mężczyzna", "kobieta"], "gdzie": "kabina ciężarówki", "opis": "Na wiadomość o bólach porodowych kierowca przyspiesza, chcąc szybciej dotrzeć do miasta." },
+    { "nr": 5, "miejsce": "Nowe życie, kontrola drogowa", "kto": ["kierowca", "mężczyzna", "kobieta", "milicjanci"], "gdzie": "droga do miasta", "opis": "Dwaj uzbrojeni milicjanci zagradzają drogę motocyklem i zatrzymują ciężarówkę." },
+    { "nr": 6, "miejsce": "Nowe życie, kontrola drogowa", "kto": ["kierowca", "mężczyzna", "milicjanci"], "gdzie": "droga do miasta", "opis": "Milicjanci sprawdzają dokumenty i przeszukują ładunek ziemniaków, choć kierowca wyjaśnia cel podróży." },
+    { "nr": 7, "miejsce": "Nowe życie, kontrola drogowa", "kto": ["kierowca", "kobieta", "milicjant"], "gdzie": "przy ciężarówce", "opis": "Kiedy milicjant zwraca uwagę na kobietę, kierowca mówi mu, że grozi jej śmierć." },
+    { "nr": 8, "miejsce": "Nowe życie, odjazd", "kto": ["kierowca", "milicjanci"], "gdzie": "droga do miasta", "opis": "Po kontroli milicjanci pozwalają odjechać i kierowca uruchamia silnik po kilku próbach." },
+    { "nr": 9, "miejsce": "Nowe życie, zakończenie", "kto": ["mężczyzna", "kobieta", "kierowca"], "gdzie": "kabina ciężarówki", "opis": "Mężczyzna dostrzega, że kobieta straciła przytomność, i woła, żeby jechali szybciej." },
+    { "nr": 10, "miejsce": "Nowe życie, zakończenie", "kto": ["mężczyzna", "kobieta"], "gdzie": "kabina ciężarówki", "opis": "Mężczyzna obawia się utraty dziecka i próbuje przypomnieć sobie modlitwę." }
+  ],
+  "postacie": [
+    { "imie": "mężczyzna", "odmiany": ["mężczyzny", "mężczyźnie", "mężczyznę", "mężczyzną"], "rola": "szuka transportu do szpitala dla rodzącej i martwi się o dziecko", "relacje": "towarzyszy kobiecie w drodze, prosi kierowcę o pomoc", "miejsca": ["pobocze", "kabina ciężarówki"] },
+    { "imie": "kobieta", "odmiany": ["kobiety", "kobiecie", "kobietę", "kobietą", "rodząca"], "rola": "ma bóle porodowe i traci przytomność podczas jazdy", "relacje": "pod opieką mężczyzny i kierowcy", "miejsca": ["pobocze", "kabina ciężarówki"] },
+    { "imie": "kierowca", "odmiany": ["kierowcy", "kierowcę", "kierowcą", "szofer"], "rola": "zabiera parę ciężarówką i odpowiada na pytania patrolu", "relacje": "pomaga kobiecie i mężczyźnie", "miejsca": ["droga do miasta", "ciężarówka"] },
+    { "imie": "milicjanci", "odmiany": ["milicjantów", "milicjantom", "milicjantami", "milicjant"], "rola": "uzbrojony patrol sprawdzający osoby i ładunek", "relacje": "zatrzymują ciężarówkę wiozącą kobietę do szpitala", "miejsca": ["droga do miasta"] }
+  ],
+  "motywy": [
+    { "motyw": "stan wojenny w codziennym życiu", "przyklad": "Kontrola dokumentów i ładunku przerywa pilny przejazd do szpitala.", "miejsce": "Nowe życie, kontrola drogowa" },
+    { "motyw": "solidarność", "przyklad": "Kierowca pomaga umieścić rodzącą w kabinie i jedzie w stronę miasta, gdy dowiaduje się o porodzie.", "miejsce": "Nowe życie, początek i podróż" },
+    { "motyw": "bezsilność wobec instytucji", "przyklad": "Mężczyzna okazuje dowód osobisty, podczas gdy kierowca próbuje przekonać patrol, że kobieta wymaga pilnej pomocy.", "miejsce": "Nowe życie, kontrola drogowa" },
+    { "motyw": "zagrożone narodziny", "przyklad": "Gdy kobieta mdleje, mężczyzna boi się, że dziecko nie przeżyje. Tytuł można czytać w związku z niepewnością finału.", "miejsce": "Nowe życie, zakończenie" },
+    { "motyw": "modlitwa w chwili lęku", "przyklad": "Mężczyzna w ciężarówce usiłuje odtworzyć zapomnianą modlitwę, gdy traci pewność, czy zdążą do szpitala.", "miejsce": "Nowe życie, zakończenie" },
+    { "motyw": "otwarte zakończenie", "przyklad": "Opowiadanie kończy się w czasie jazdy, gdy mężczyzna martwi się o dalszy los kobiety i dziecka.", "miejsce": "Nowe życie, zakończenie" }
+  ],
+  "utwory": [
+    { "tytul": "Nowe życie", "miejsce": "całe opowiadanie", "opis": "Próba dowiezienia rodzącej do szpitala w czasie stanu wojennego; wybór zgodny z przykładem w katalogu." }
+  ],
+  "zrodla": [
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE wskazuje jedno wybrane opowiadanie z tomu." },
+    { "url": "https://nowynapis.eu/tygodnik/nr-153/artykul/raport-o-stanie-wojennym-fragmenty", "rodzaj": "utwór", "co": "Publikacja Instytutu Literatury; sprawdzono przebieg i zakończenie opowiadania Nowe życie." },
+    { "url": "https://www.bn.org.pl/download/document/1640776130.pdf", "rodzaj": "opracowanie", "co": "Bibliografia Biblioteki Narodowej potwierdza publikację Nowego życia wśród fragmentów tomu." }
+  ],
+  "do_weryfikacji": [
+    "CKE pozostawia wybór opowiadania; Nowe życie to przykład z katalogu, a zakres pliku ogranicza się do niego."
+  ]
+}
