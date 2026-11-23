@@ -58,7 +58,7 @@ Klucz pojedynczego wyboru daje przyciski i poprawną literę. P/F i inne jednozn
 
 - `npm run kontrola` sprawdza zgodność indeksu z arkuszami, punkty, odsyłacze do pytań i kluczy, zakresy krojów, obrazy i wzory KaTeX. Ostrzeżenia importu oraz podejrzanie długie odpowiedzi są liczone obok błędów.
 - Tabele w źródłach, wielokolumnowe teksty i zapis matematyczny w PDF bywają niejednoznaczne. Rozwiązanie do samooceny może wtedy wymagać otwarcia wskazanej strony klucza, np. gdy klucz pokazuje wykres albo wzór strukturalny.
-- Polecenia typu „zaznacz na mapie” i „dorysuj” używają ilustracji i otwartego pola odpowiedzi zgodnie z bieżącym formatem aplikacji.
+- Podpunkt z odpowiedzią rysunkową zawiera `rysowanie: { obraz: { src, szer, wys } }`. Analizujemy polecenie i położenie figury w PDF. `rysowanie.json` wskazuje ręcznie sprawdzone wycinki w punktach PDF `[lewo, dół, prawo, góra]` lub figurę innego fragmentu, gdy obszar odpowiedzi nie pokrywa się z automatycznym kadrem. `kontrola` dekoduje osadzone PNG/WebP, porównuje wymiary i sprawdza kontrast. Klucz pytania służy nadal do oceny.
 - Regresję należy porównać z kopią `data/arkusze-przed`. Dane z kodem sprzed rozszerzenia i dane po rozszerzeniu powinny mieć takie same identyfikatory, zadania, pytania i klucze dla wcześniejszych 47 arkuszy.
 
 ## Podgląd importu i wgrywanie

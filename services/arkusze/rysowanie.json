@@ -1,0 +1,29 @@
+{
+  "biologia-rozszerzony-2015-maj-formula-2015": {
+    "9.2": { "fragment": "9", "figura": 0 }
+  },
+  "biologia-rozszerzony-2022-grudzien-probna": {
+    "18.2": { "strona": 25, "ramka": [125, 260, 485, 708] }
+  },
+  "chemia-rozszerzony-2022-grudzien-probna": {
+    "11.1": { "strona": 10, "ramka": [68, 192, 519, 548] }
+  },
+  "chemia-rozszerzony-2022-maj-formula-2015": {
+    "20.1": { "strona": 16, "ramka": [70, 228, 525, 597] }
+  },
+  "fizyka-rozszerzony-2022-maj-formula-2015": {
+    "2": { "strona": 4, "ramka": [65, 67, 529, 300] }
+  },
+  "fizyka-rozszerzony-2024-grudzien-probna": {
+    "2.1": { "strona": 6, "ramka": [145, 91, 423, 326] }
+  },
+  "fizyka-rozszerzony-2025-maj": {
+    "9.1": { "strona": 22, "ramka": [325, 354, 495, 538] }
+  },
+  "geografia-rozszerzony-2014-grudzien-probna-formula-2015": {
+    "6": { "strona": 4, "ramka": [122, 548, 489, 701] }
+  },
+  "matematyka-rozszerzony-2022-grudzien-probna": {
+    "10": { "strona": 18, "ramka": [68, 59, 525, 582] }
+  }
+}

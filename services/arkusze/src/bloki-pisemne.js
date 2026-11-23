@@ -17,6 +17,7 @@ export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { p
   const kadry = [];
   for (const f of fragmenty) {
     f.bloki = [];
+    f.figury = [];
     for (const [i, c] of f.czesci.entries()) {
       for (const [n, s] of cache) {
         if (n < c.strona) {
@@ -45,7 +46,9 @@ export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { p
       }
       const figury = ramkiRysunkow(s, c, tabele);
       for (const [nr, ramka] of figury.entries()) {
-        elementy.push({ y: ramka[3], blok: { typ: "rysunek", obraz: await wytnij(ramka, "rysunek-" + nr) } });
+        const obraz = await wytnij(ramka, "rysunek-" + nr);
+        f.figury.push({ ramka, obraz, strona: c.strona });
+        elementy.push({ y: ramka[3], blok: { typ: "rysunek", obraz } });
       }
       const kadrujWzor = async (ramka, linie, nazwa, powod) => {
         const obraz = await wytnij(ramka, nazwa);

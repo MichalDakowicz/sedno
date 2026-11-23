@@ -5,10 +5,42 @@
 // każdy wzór LaTeX daje się wyrenderować przez KaTeX.
 // Użycie: node src/kontrola.js  (kod wyjścia 1, gdy są błędy)
 import { access, readdir, readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { join } from "node:path";
 import katex from "katex";
 import { KATALOG_ARKUSZY } from "./sciezki.js";
 import { identyfikator } from "./sesje.js";
+
+// Dekoder jest dostarczany przez PDF.js i używany też do renderowania arkuszy.
+const require = createRequire(import.meta.url);
+const { createCanvas, loadImage } = createRequire(require.resolve("pdfjs-dist/package.json"))("@napi-rs/canvas");
+
+async function obrazRysowania({ src, szer, wys } = {}) {
+  const dane = typeof src === "string" && src.match(/^data:image\/(png|webp);base64,([A-Za-z0-9+/]+={0,2})$/);
+  if (!dane || !Number.isInteger(szer) || !Number.isInteger(wys) || szer < 1 || wys < 1) return false;
+  const bajty = Buffer.from(dane[2], "base64");
+  if (bajty.toString("base64") !== dane[2]) return false;
+  if (dane[1] === "png" ? bajty.subarray(0, 8).toString("hex") !== "89504e470d0a1a0a"
+    : bajty.toString("ascii", 0, 4) !== "RIFF" || bajty.toString("ascii", 8, 12) !== "WEBP") return false;
+  const obraz = await loadImage(bajty);
+  // Wycinki są renderowane w skali 2, a wymiary zapisujemy w całych punktach PDF.
+  if (Math.abs(obraz.width - 2 * szer) > 1 || Math.abs(obraz.height - 2 * wys) > 1) return false;
+  const ctx = createCanvas(obraz.width, obraz.height).getContext("2d");
+  ctx.drawImage(obraz, 0, 0);
+  const { data } = ctx.getImageData(0, 0, obraz.width, obraz.height);
+  let min = 255;
+  let max = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    const a = data[i + 3] / 255;
+    for (let k = 0; k < 3; k++) {
+      const kolor = data[i + k] * a + 255 * (1 - a);
+      min = Math.min(min, kolor);
+      max = Math.max(max, kolor);
+    }
+    if (max - min >= 12) return true;
+  }
+  return false;
+}
 
 // Wszystkie wzory zadania: bloki „wzor” i \( … \) w tekstach, tabelach i opcjach.
 function wzory(z) {
@@ -36,6 +68,7 @@ let bledy = 0;
 let pytan = 0;
 let ostrzezen = 0;
 let dlugieOdpowiedzi = 0;
+let rysowan = 0;
 
 if (!indeks.length || wpisy.size !== indeks.length) {
   console.log("✗ Pusty indeks lub powtórzone id w index.json");
@@ -98,6 +131,13 @@ for (const plik of pliki.sort()) {
 
     for (const q of z.pytania) {
       pytan++;
+      if (Object.hasOwn(q, "rysowanie")) {
+        rysowan++;
+        if (!q.rysowanie || q.typ !== "otwarte"
+          || !await obrazRysowania(q.rysowanie.obraz).catch(() => false)) {
+          problemy.push(q.nr + ": niepoprawny lub pusty obraz do rysowania");
+        }
+      }
       if (!wBlokach.has(q.nr) && !luki.has(q.nr)) problemy.push(`${q.nr}: pytania nie ma w treści`);
       if (q.typ === "zamkniete") {
         if (!q.litery?.includes(q.poprawna)) problemy.push(`${q.nr}: poprawna ${q.poprawna} spoza ${q.litery?.join("")}`);
@@ -122,5 +162,5 @@ for (const plik of pliki.sort()) {
   } else console.log(`✓ ${a.id}`);
 }
 
-console.log(`\n${pliki.length} arkuszy, ${pytan} pytań, ${bledy} problemów, ${ostrzezen} ostrzeżeń importu, ${dlugieOdpowiedzi} podejrzanie długich odpowiedzi`);
+console.log(`\n${pliki.length} arkuszy, ${pytan} pytań, ${rysowan} do rysowania, ${bledy} problemów, ${ostrzezen} ostrzeżeń importu, ${dlugieOdpowiedzi} podejrzanie długich odpowiedzi`);
 process.exitCode = bledy ? 1 : 0;

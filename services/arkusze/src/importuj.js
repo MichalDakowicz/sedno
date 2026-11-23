@@ -15,6 +15,7 @@ import { skladajTresc } from "./tresc-pdf.js";
 import { importujPisemny } from "./arkusz-pisemny.js";
 import { identyfikator, MIESIACE, terminMiesiaca } from "./sesje.js";
 import { uzupelnijKluczAngielskiego } from "./angielski.js";
+import { oznaczRysowanie } from "./rysowanie.js";
 
 // Fragmenty nagrań dopasowane do pytań (services/arkusze/nagrania/dopasuj.py) leżą osobno,
 // żeby ponowny import ich nie kasował: { "1.1": { od, do, tekst }, … }.
@@ -30,6 +31,7 @@ async function doklejFragmenty(id, pytania) {
 
 // Ręczne poprawki ramek rysunków bazowych (matematyka.js).
 const POPRAWKI_RYSUNKOW = JSON.parse(await readFile(new URL("../rysunki.json", import.meta.url), "utf8"));
+const POPRAWKI_RYSOWANIA = JSON.parse(await readFile(new URL("../rysowanie.json", import.meta.url), "utf8"));
 
 await mkdir(KATALOG_ARKUSZY, { recursive: true });
 const katalog = JSON.parse(await readFile(join(KATALOG_CKE, "katalog.json"), "utf8"));
@@ -66,15 +68,20 @@ for (const w of katalog) {
       // Treść ze wzorami z formy DOCX; kadry zostają dla zadań, których nie da się z niej wziąć.
       const docx = w.tresc ? fragmentyDocx(await czytajDocx(join(KATALOG_CKE, w.tresc.plik))) : null;
       // Kadry i rysunki to wycinki arkusza CKE, więc lądują obok JSON-ów w data/.
-      await kadruj(await otworzPdf(join(KATALOG_CKE, w.arkusz.plik)), fragmenty, {
-        katalog: join(KATALOG_ARKUSZY, "obrazy", id),
-        prefiks: `obrazy/${id}`,
-        poprawki: POPRAWKI_RYSUNKOW[id],
-        zRysunkiem: new Set((docx ?? []).filter((d) => d.bloki.some((b) => b.typ === "miejsceRysunku")).map((d) => d.nr)),
-      });
-      const klucz = w.zasady ? kluczMatematyki(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
+      const pdf = await otworzPdf(sciezka);
       let kadry;
-      ({ zadania, ostrzezenia, kadry } = zadaniaMatematyki(fragmenty, klucz, docx));
+      try {
+        await kadruj(pdf, fragmenty, {
+          ...obrazy,
+          poprawki: POPRAWKI_RYSUNKOW[id],
+          zRysunkiem: new Set((docx ?? []).filter((d) => d.bloki.some((b) => b.typ === "miejsceRysunku")).map((d) => d.nr)),
+        });
+        const klucz = w.zasady ? kluczMatematyki(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
+        ({ zadania, ostrzezenia, kadry } = zadaniaMatematyki(fragmenty, klucz, docx));
+        await oznaczRysowanie(pdf, zadania, fragmenty, obrazy, POPRAWKI_RYSOWANIA[id]);
+      } finally {
+        await pdf.destroy();
+      }
       // Arkusz trafia do bazy (npm run wgraj) jako jeden JSON, więc obrazy jadą w nim jako data URL.
       await osadzObrazy(zadania, KATALOG_ARKUSZY);
       if (kadry.length) process.stdout.write(`kadry: ${kadry.join("; ")} … `);
@@ -98,7 +105,7 @@ for (const w of katalog) {
       let mapa, kadry;
       try {
         if (w.mapa) mapa = await otworzPdf(join(KATALOG_CKE, w.mapa.plik));
-        ({ zadania, ostrzezenia, kadry } = await importujPisemny(pdf, strony, stronyKlucza, w, metadane, obrazy, docx, dane, mapa));
+        ({ zadania, ostrzezenia, kadry } = await importujPisemny(pdf, strony, stronyKlucza, w, metadane, obrazy, docx, dane, mapa, POPRAWKI_RYSOWANIA[id]));
       } finally {
         await Promise.all([pdf.destroy(), mapa?.destroy()]);
       }

@@ -7,6 +7,7 @@ import { plotno } from "./tresc-pdf.js";
 import { segmenty } from "./tekst.js";
 import { odpowiedziZTabeli } from "./matematyka-klucz.js";
 import { kluczInformatykiZTabeli } from "./informatyka-klucz.js";
+import { oznaczRysowanie } from "./rysowanie.js";
 
 const POLECENIE = /^(?:Na podstawie|Wybierz|Dokończ|Uzupełnij|Oceń|Rozstrzygnij|Wyjaśnij|Uzasadnij|Zaznacz|Wyznacz|Oblicz|Rozwiąż|Podaj|Wskaż|Określ|Zapisz|Napisz|Przetłumacz|Wymień|Sformułuj|Przedstaw|Wykaż|Udowodnij)\b/i;
 const SZUM = /^Strona\s+\d+\s+z\s+\d+|^[A-Z]{3,4}-[PRD]\d?[-_]\d{3}|^Więcej arkuszy|^©|^Nr strony|^Ciąg dalszy na następnej stronie/i;
@@ -160,10 +161,11 @@ function pytanie(f, k, tekst, esej) {
   return { ...baza, typ: "otwarte", ...(oczekiwane?.length && { oczekiwane }), ...(kod && { kod: true }), ...(tabela && !kod && { tabela: true }) };
 }
 
-export async function importujPisemny(pdf, strony, stronyKlucza, wpis, metadane, obrazy, docx, dane, mapa) {
+export async function importujPisemny(pdf, strony, stronyKlucza, wpis, metadane, obrazy, docx, dane, mapa, poprawkiRysowania) {
   const fragmenty = fragmentyPisemne(strony, wpis);
   const kadry = await trescZFragmentow(pdf, fragmenty, obrazy, wpis);
   const wynik = zadaniaPisemne(fragmenty, stronyKlucza, wpis, metadane, docx, dane);
+  await oznaczRysowanie(pdf, wynik.zadania, fragmenty, obrazy, poprawkiRysowania);
   if (mapa && wynik.zadania.length) {
     const cache = new Map();
     const zalacznik = [];
