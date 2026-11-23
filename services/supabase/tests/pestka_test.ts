@@ -1,6 +1,6 @@
 import { assert, assertEquals } from "jsr:@std/assert";
 import { odczytajOdpowiedzPestki, zatwierdzPowierzchnie } from "../functions/_shared/pestka-odpowiedz.ts";
-import { awaryjnaOdpowiedzLektury, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, weryfikuj } from "../functions/ai/pestka.ts";
+import { metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, uzupelnijZrodloLektury, weryfikuj } from "../functions/ai/pestka.ts";
 import { zawieraCytat } from "../functions/ai/lektury.ts";
 
 const fragment = "W Zemście Rejent polecił murarzom naprawić mur, co zaostrza spór między sąsiadami.";
@@ -49,7 +49,7 @@ Deno.test("pytanie o Wokulskiego pobiera sekcję bohaterów Lalki i pokazuje wy�
   assertEquals(dane.akcje, ["zrodlo"]);
   assertEquals(dane.zrodla[0]?.sekcja, "Opracowanie Sedno · Bohaterowie i relacje");
   assertEquals(dane.zrodla[0]?.twierdzenie, "[1] Wokulski jest kupcem.");
-  assertEquals(awaryjnaOdpowiedzLektury(krok), "Wokulski jest kupcem. [[zrodlo:1]]");
+  assertEquals(uzupelnijZrodloLektury(krok, "Wokulski jest kupcem."), "Wokulski jest kupcem. [[zrodlo:1]]");
 });
 
 Deno.test("stresc mi lalke wybiera Lalkę i jej krótkie streszczenie", async () => {
@@ -66,7 +66,10 @@ Deno.test("stresc mi lalke wybiera Lalkę i jej krótkie streszczenie", async ()
   });
   assertEquals(pytaniaDoBazy, [{ p_przedmiot: "polski", p_utwor: "lalka", p_sekcja: "streszczenie", p_pytanie: pytanie }]);
   assertEquals(krok.materialy[0]?.zrodlo.sekcja, "Opracowanie Sedno · Krótkie streszczenie");
-  assertEquals(krok.streszczenie, "**„Lalka” (Bolesław Prus)**. Wokulski zabiega o względy Izabeli Łęckiej. [[zrodlo:1]]");
+  assert(String(krok.messages[0]?.content).includes("Napisz streszczenie własnymi słowami"));
+  assert(String(krok.messages[0]?.content).includes("Wokulski zabiega o względy Izabeli Łęckiej."));
+  const wygenerowane = "To historia Wokulskiego, który stara się zdobyć względy Izabeli.";
+  assertEquals(uzupelnijZrodloLektury(krok, wygenerowane), `${wygenerowane} [[zrodlo:1]]`);
 });
 
 Deno.test("akapit jest oceniany w obrębie wskazanego utworu, a karta przechodzi walidację po serializacji", async () => {
