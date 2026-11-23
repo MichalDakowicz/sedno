@@ -1,0 +1,70 @@
+{
+  "id": "wesele",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "akt I, sc. 1", "kto": ["Czepiec", "Dziennikarz"], "gdzie": "izba weselna w Bronowicach", "opis": "Czepiec rozmawia z Dziennikarzem o polityce; ich dialog pokazuje różnice między wsią a gośćmi z miasta."},
+    {"nr": 2, "miejsce": "akt I, sc. 2–4", "kto": ["Dziennikarz", "Zosia", "Radczyni", "Haneczka", "Klimina"], "gdzie": "izba weselna", "opis": "Goście z miasta rozmawiają z wiejskimi uczestnikami wesela, a Klimina wchodzi, witając państwa."},
+    {"nr": 3, "miejsce": "akt I, sc. 8–9", "kto": ["Ksiądz", "Pan Młody", "Panna Młoda"], "gdzie": "izba weselna", "opis": "Ksiądz rozmawia z państwem młodymi; Pan Młody (z miasta) i Panna Młoda (ze wsi) rozmawiają o swoim ślubie."},
+    {"nr": 4, "miejsce": "akt I, sc. 10", "kto": ["Poeta", "Maryna"], "gdzie": "izba weselna", "opis": "Poeta flirtuje z Maryną."},
+    {"nr": 5, "miejsce": "akt I, sc. 17–21", "kto": ["Pan Młody", "Żyd", "Rachel", "Poeta"], "gdzie": "izba weselna", "opis": "Pan Młody rozmawia z Żydem, pojawia się Rachel, a w dalszych scenach rozmawia z nią Poeta."},
+    {"nr": 6, "miejsce": "akt I, sc. 24–25", "kto": ["Poeta", "Gospodarz", "Czepiec", "Ojciec"], "gdzie": "izba weselna", "opis": "Poeta opowiada Gospodarzowi, jaki dramat snuje, a Czepiec dołącza do rozmowy."},
+    {"nr": 7, "miejsce": "akt I, sc. 28–29", "kto": ["Żyd", "Ksiądz", "Czepiec"], "gdzie": "izba weselna", "opis": "Ksiądz rozmawia z arendarzem, a do rozmowy włącza się Czepiec."},
+    {"nr": 8, "miejsce": "akt I, sc. 36–38", "kto": ["Poeta", "Rachel", "Panna Młoda", "Pan Młody"], "gdzie": "izba weselna", "opis": "Poeta rozmawia z Rachel, a potem z Panną Młodą i Panem Młodym; w tych rozmowach pada wątek chochoła."},
+    {"nr": 9, "miejsce": "akt II, sc. 1–3", "kto": ["Gospodyni", "Isia", "Klimina", "Chochoł"], "gdzie": "izba weselna, noc", "opis": "Gospodyni układa dzieci do snu; Chochoł pojawia się Isi i odpowiada na jej pytania."},
+    {"nr": 10, "miejsce": "akt II, sc. 4–6", "kto": ["Marysia", "Wojtek", "Widmo"], "gdzie": "izba weselna", "opis": "Marysia rozmawia z Wojtkiem, po czym zjawia się Widmo, które mówi jej o dawnym zamiarze ślubu."},
+    {"nr": 11, "miejsce": "akt II, sc. 7–8", "kto": ["Stańczyk", "Dziennikarz", "Poeta"], "gdzie": "izba weselna", "opis": "Stańczyk pojawia się przed Dziennikarzem, który potem rozmawia z Poetą."},
+    {"nr": 12, "miejsce": "akt II, sc. 9", "kto": ["Poeta", "Rycerz Czarny"], "gdzie": "izba weselna", "opis": "Poetę odwiedza Rycerz Czarny."},
+    {"nr": 13, "miejsce": "akt II, sc. 10–13", "kto": ["Poeta", "Pan Młody", "Hetman", "Chór"], "gdzie": "izba weselna", "opis": "Pan Młody spotyka Hetmana; w tle śpiewa chór o panu Braneckim."},
+    {"nr": 14, "miejsce": "akt II, sc. 14–15", "kto": ["Pan Młody", "Dziad", "Upiór"], "gdzie": "izba weselna", "opis": "Pan Młody rozmawia z Dziadem, a Upiór pojawia się za nim."},
+    {"nr": 15, "miejsce": "akt II, sc. 16–18", "kto": ["Kasper", "Kasia", "Jasiek", "Nos"], "gdzie": "izba weselna", "opis": "Kasper rozmawia z Kasią i Jaśkiem, a w następnych scenach pojawia się Nos."},
+    {"nr": 16, "miejsce": "akt II, sc. 22–24", "kto": ["Gospodarz", "Kuba", "Wernyhora"], "gdzie": "izba weselna", "opis": "Kuba zapowiada gościa, który przybył; jest nim Wernyhora."},
+    {"nr": 17, "miejsce": "akt II, sc. 24", "kto": ["Gospodarz", "Wernyhora"], "gdzie": "izba weselna", "opis": "Wernyhora przekazuje Gospodarzowi złoty róg i zapowiada wydarzenia, które mają nastąpić."},
+    {"nr": 18, "miejsce": "akt II, sc. 26", "kto": ["Gospodarz", "Jasiek"], "gdzie": "izba weselna", "opis": "Gospodarz wręcza Jaśkowi złoty róg i poleca zadąć w niego w odpowiednim momencie, a także nie zgubić go."},
+    {"nr": 19, "miejsce": "akt III, sc. 1–2", "kto": ["Gospodarz", "Poeta", "Nos", "Pan Młody"], "gdzie": "izba weselna", "opis": "Gospodarz chodzi po izbie i zamyka drzwi, a w sc. 2 pojawiają się Poeta, Nos, Pan Młody, Gospodyni i Panna Młoda."},
+    {"nr": 20, "miejsce": "akt III, sc. 3–5", "kto": ["Czepiec", "Czepcowa", "Muzykant", "Gospodyni"], "gdzie": "izba weselna", "opis": "Czepiec rozmawia z Muzykantem i żoną Czepcową, a potem z Gospodynią."},
+    {"nr": 21, "miejsce": "akt III, sc. 18–22", "kto": ["Czepiec", "Gospodarz", "Pan Młody", "Parobcy"], "gdzie": "izba weselna", "opis": "Czepiec w kożuchu z wielką kosą w ręku podchodzi do śpiącego Gospodarza i szarpie go za ramię."},
+    {"nr": 22, "miejsce": "akt III, sc. 32", "kto": ["Gospodyni", "Chłopi z kosami"], "gdzie": "izba weselna", "opis": "Do izby wchodzą chłopi z kosami i różną bronią, a Gospodyni woła o ratunek."},
+    {"nr": 23, "miejsce": "akt III, sc. 33–35", "kto": ["Haneczka", "Zosia", "Jasiek", "Chochoł"], "gdzie": "izba weselna", "opis": "Jasiek wraca bez złotego rogu, który zgubił po drodze; Chochoł mówi mu, że został tylko sznur."},
+    {"nr": 24, "miejsce": "akt III, sc. 36–37", "kto": ["Jasiek", "Chochoł", "goście weselni"], "gdzie": "izba weselna, świt", "opis": "Chochoł każe Jaśkowi wyjąć gościom kosy z rąk i odpasać szable; sam chce grać, a finał dramatu to chocholi taniec gości."}
+  ],
+  "postacie": [
+    {"imie": "Pan Młody", "odmiany": ["Pan Młody", "Pana Młodego", "Panu Młodemu", "Panem Młodym"], "rola": "młody mężczyzna z miasta, ożeniony z wiejską dziewczyną", "relacje": "mąż Panny Młodej", "miejsca": ["akt I, sc. 9", "akt II, sc. 13", "akt III, sc. 20"]},
+    {"imie": "Panna Młoda", "odmiany": ["Panna Młoda", "Panny Młodej", "Pannie Młodej", "Panną Młodą"], "rola": "wiejska dziewczyna, wychodząca za Pana Młodego", "relacje": "żona Pana Młodego", "miejsca": ["akt I, sc. 9", "akt III, sc. 13"]},
+    {"imie": "Gospodarz", "odmiany": ["Gospodarz", "Gospodarza", "Gospodarzowi", "Gospodarzem"], "rola": "gospodarz domu, w którym odbywa się wesele; otrzymuje złoty róg od Wernyhory", "relacje": "mąż Gospodyni; przekazuje róg Jaśkowi", "miejsca": ["akt II, sc. 24", "akt II, sc. 26", "akt III, sc. 1"]},
+    {"imie": "Gospodyni", "odmiany": ["Gospodyni", "Gospodyni", "Gospodynią"], "rola": "gospodyni domu weselnego", "relacje": "żona Gospodarza", "miejsca": ["akt II, sc. 1", "akt III, sc. 32"]},
+    {"imie": "Czepiec", "odmiany": ["Czepiec", "Czepca", "Czepcowi", "Czepcem"], "rola": "wiejski sołtys, chłop o poglądach wojennych", "relacje": "mąż Czepcowej; rozmawia z Dziennikarzem i Księdzem", "miejsca": ["akt I, sc. 1", "akt III, sc. 18"]},
+    {"imie": "Poeta", "odmiany": ["Poeta", "Poety", "Poecie", "Poetą"], "rola": "gość weselny z miasta, wrażliwy twórca, często rozmawia z innymi o sztuce i miłości", "relacje": "rozmawia z Rachel, Maryną i Gospodarzem", "miejsca": ["akt I, sc. 10", "akt II, sc. 9", "akt III, sc. 6"]},
+    {"imie": "Dziennikarz", "odmiany": ["Dziennikarz", "Dziennikarza", "Dziennikarzowi", "Dziennikarzem"], "rola": "gość z miasta, rozmówca Czepca", "relacje": "rozmawia ze Stańczykiem i Poetą", "miejsca": ["akt I, sc. 1", "akt II, sc. 7"]},
+    {"imie": "Jasiek", "odmiany": ["Jasiek", "Jaśka", "Jaśkowi", "Jaśkiem"], "rola": "młody chłopak, drużba, któremu powierzono złoty róg", "relacje": "otrzymuje róg od Gospodarza; gubi go", "miejsca": ["akt II, sc. 26", "akt III, sc. 33–36"]},
+    {"imie": "Wernyhora", "odmiany": ["Wernyhora", "Wernyhory", "Wernyhorze", "Wernyhorą"], "rola": "legendarny ukraiński wieszcz, przybywa jako zjawa i przekazuje złoty róg", "relacje": "daje róg Gospodarzowi", "miejsca": ["akt II, sc. 24"]},
+    {"imie": "Chochoł", "odmiany": ["Chochoł", "Chochoła", "Chochołowi", "Chochołem"], "rola": "słomiana postać z ogrodu, uosabia marazm i usypianie narodu", "relacje": "rozmawia z Isią i z Jaśkiem; prowadzi do chocholiego tańca", "miejsca": ["akt II, sc. 3", "akt III, sc. 35–37"]},
+    {"imie": "Rachel", "odmiany": ["Rachel", "Rachel", "Rachel"], "rola": "młoda Żydówka, gość weselny, rozmawia z Panem Młodym i Poetą", "relacje": "córka Żyda arendarza", "miejsca": ["akt I, sc. 18", "akt III, sc. 6"]},
+    {"imie": "Stańczyk", "odmiany": ["Stańczyk", "Stańczyka", "Stańczykowi"], "rola": "zjawa błazna, pojawia się przed Dziennikarzem", "relacje": "rozmawia z Dziennikarzem", "miejsca": ["akt II, sc. 7"]},
+    {"imie": "Hetman", "odmiany": ["Hetman", "Hetmana", "Hetmanowi", "Hetmanem"], "rola": "zjawa hetmana, rozmawia z Panem Młodym", "relacje": "spotyka Pana Młodego", "miejsca": ["akt II, sc. 10–13"]},
+    {"imie": "Rycerz Czarny", "odmiany": ["Rycerz Czarny", "Rycerza Czarnego", "Rycerzowi Czarnemu"], "rola": "zjawa dawnego rycerza, rozmawia z Poetą", "relacje": "odwiedza Poetę", "miejsca": ["akt II, sc. 9"]},
+    {"imie": "Upiór", "odmiany": ["Upiór", "Upiora", "Upiorowi"], "rola": "zjawa pojawiająca się za Panem Młodym", "relacje": "towarzyszy Dziadowi", "miejsca": ["akt II, sc. 15"]},
+    {"imie": "Widmo", "odmiany": ["Widmo", "Widma", "Widmu", "Widmem"], "rola": "zjawa, rozmawia z Marysią", "relacje": "Marysia", "miejsca": ["akt II, sc. 5"]},
+    {"imie": "Ksiądz", "odmiany": ["Ksiądz", "Księdza", "Księdzu", "Księdzem"], "rola": "duchowny na weselu", "relacje": "rozmawia z państwem młodymi i arendarzem", "miejsca": ["akt I, sc. 8", "akt I, sc. 28"]}
+  ],
+  "motywy": [
+    {"motyw": "chocholi taniec i niemoc narodu", "przyklad": "Na końcu gości, znieruchomiałych ze strachu, Chochoł pobudza do tańca, który zastępuje działanie.", "miejsce": "akt III, sc. 37", "cytat": "Ostał ci sie ino sznur."},
+    {"motyw": "zmarnowana szansa i zgubiony róg", "przyklad": "Jasiek, któremu powierzono złoty róg, gubi go i zostaje mu tylko sznur; powstanie się nie zaczyna.", "miejsce": "akt III, sc. 35", "cytat": "Miałeś, chłopie, złoty róg,"},
+    {"motyw": "wizja Wernyhory", "przyklad": "Wernyhora przekazuje Gospodarzowi złoty róg i zadanie zwołania ludzi na znak.", "miejsce": "akt II, sc. 24", "cytat": "Daję Waści złoty róg."},
+    {"motyw": "spotkanie inteligencji z chłopami", "przyklad": "Pan Młody z miasta żeni się z chłopką, a goście z miasta rozmawiają z Czepcem i innymi o polityce i różnicach klasowych.", "miejsce": "akt I, sc. 1; akt I, sc. 9"},
+    {"motyw": "zjawy z przeszłości i pamięć narodowa", "przyklad": "Przed gośćmi pojawiają się Stańczyk, Rycerz Czarny, Hetman i Upiór, każdy zwraca się do wybranego uczestnika wesela.", "miejsce": "akt II, sc. 7–15"},
+    {"motyw": "poezja i sztuka wobec rzeczywistości", "przyklad": "Poeta snuje dramat, rozmawia z Rachel i Gospodarzem o twórczości, a potem jest świadkiem wydarzeń.", "miejsce": "akt I, sc. 24; akt III, sc. 6"},
+    {"motyw": "stereotypy o Żydach i relacje chrześcijańsko-żydowskie", "przyklad": "Ksiądz i Czepiec rozmawiają z arendarzem, a Rachel jest przedstawiana jako uczestniczka wesela.", "miejsce": "akt I, sc. 28–29"},
+    {"motyw": "miłość i małżeństwo ponad podziałami", "przyklad": "Pan Młody pyta Pannę Młodą o miłość; w rozmowie wychodzą rozbieżności ich światów.", "miejsce": "akt I, sc. 12"},
+    {"motyw": "brak działania i bierność", "przyklad": "Choć do izby wchodzą chłopi z kosami, a Jasiek ma róg, w finale goście pozostają w bezruchu aż do chocholiego tańca.", "miejsce": "akt III, sc. 32"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/wesele/", "rodzaj": "utwór", "co": "Pobrany tekst dramatu; podział na akty i sceny według Wolnych Lektur; sprawdzono pełną listę scen z osobami, scenę Wernyhory (akt II, sc. 24), wręczenie rogu (sc. 26) i końcówkę dramatu (akt III, sc. 35–37) oraz cytaty."}
+  ],
+  "do_weryfikacji": [
+    "Przypisanie postaci historycznym osobom z Bronowic (Pan Młody, Poeta, Dziennikarz, Gospodarz) nie jest zawarte w danych; wymaga źródła.",
+    "Opisy większości scen aktu I (poza sc. 1, 24, 36–38) i aktu II (poza sc. 3, 24, 26) powstały na podstawie listy osób i nagłówków scen, nie pełnego czytania; wymagają sprawdzenia w tekście.",
+    "Treść rozmów Poety, Dziennikarza i zjaw w akcie II i III oraz rola Czepca w akcie III są opisane ogólnie; szczegóły do uzupełnienia po czytaniu tekstu.",
+    "W wersji z Wolnych Lektur wiersz brzmi „Miałeś, chłopie, złoty róg”; w niektórych wydaniach używa się słowa „chamie”.",
+    "Dokładny przebieg chocholiego tańca w akcie III sc. 37 nie został przeczytany do końca."
+  ]
+}
