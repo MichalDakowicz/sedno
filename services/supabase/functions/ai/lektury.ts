@@ -1,9 +1,11 @@
 import { napisPestki, obiektPestki, zrodloPestki, type ZrodloPestki } from "../_shared/pestka-odpowiedz.ts";
 
+export const bezAkcentow = (t: string) => t.toLowerCase().replace(/ł/g, "l").normalize("NFD").replace(/\p{M}/gu, "");
+
 const UTWORY = [
-  { id: "lalka", tytul: "Lalka", wl: "lalka", nazwy: /(?:\b(?:lal(?:k[ai]|ce)|wokuls\w*|rzeck\w*|ochock\w*|zasław\w*|izabel[aięą]? łęck\w*)\b|\blalk[ęą])/iu },
-  { id: "zemsta", tytul: "Zemsta", wl: "zemsta", nazwy: /(?:\b(?:cześni\w*|raptusiewicz\w*|papkin\w*|milczek|milczka|podstolin\w*)\b|\bzemst[ayęą]|\bzemście)/iu },
-  { id: "dziady-iii", tytul: "Dziady, część III", wl: "dziady-dziady-poema-dziady-czesc-iii", nazwy: /\b(?:dziad(?:y|ów|ach|om)\b.{0,24}\b(?:iii|3)\b|(?:iii|3)\b.{0,24}\bdziad\w*|rollison\w*|nowosilcow\w*|wielk\w* improwizac\w*|widzeni\w* księdza piotra|salon\w* warszawsk\w*)/iu },
+  { id: "lalka", tytul: "Lalka", autor: "Bolesław Prus", wl: "lalka", nazwy: /\b(?:lal(?:k[aie]|ce)|wokuls\w*|rzeck\w*|ochock\w*|zaslaw\w*|izabel[aie]? leck\w*)\b/ },
+  { id: "zemsta", tytul: "Zemsta", autor: "Aleksander Fredro", wl: "zemsta", nazwy: /\b(?:czesni\w*|raptusiewicz\w*|papkin\w*|milczek|milczka|podstolin\w*|zemst[aye]|zemscie)\b/ },
+  { id: "dziady-iii", tytul: "Dziady, część III", autor: "Adam Mickiewicz", wl: "dziady-dziady-poema-dziady-czesc-iii", nazwy: /\b(?:dziad(?:y|ow|ach|om)\b.{0,24}\b(?:iii|3)\b|(?:iii|3)\b.{0,24}\bdziad\w*|rollison\w*|nowosilcow\w*|wielk\w* improwizac\w*|widzeni\w* ksiedza piotra|salon\w* warszawsk\w*)/ },
 ];
 
 const SEKCJE = {
@@ -22,32 +24,37 @@ export type CelLektury = { tytul: string; fakt: string; cytat?: string; fragment
 export type SzukajBaza = (p: { p_przedmiot: string; p_utwor: string | null; p_sekcja: Sekcja | null; p_pytanie: string }) => Promise<unknown>;
 
 export function utworPytania(tekst: string): Utwor | undefined {
-  const pasujace = UTWORY.filter((u) => u.nazwy.test(tekst));
+  const pytanie = bezAkcentow(tekst);
+  const pasujace = UTWORY.filter((u) => u.nazwy.test(pytanie));
   // Część II i IV mają odrębnych bohaterów i fabułę.
-  if (pasujace[0]?.id === "dziady-iii" && /\bdziad\w*.{0,20}(?:\bii\b|\biv\b|\b[24]\b)/iu.test(tekst)) return;
+  if (pasujace[0]?.id === "dziady-iii" && /\bdziad\w*.{0,20}(?:\bii\b|\biv\b|\b[24]\b)/.test(pytanie)) return;
   return pasujace.length === 1 ? pasujace[0] : undefined;
 }
 
-export const prosiOCytat = (pytanie: string) => /cytat|cytuj|zacytuj|dosłown|brzmią? słowa|dokładne słowa/i.test(pytanie);
-export const chceZweryfikowac = (pytanie: string) => /^(?:czy (?:to|w|na pewno|naprawdę)|sprawdź|zweryfikuj)|źródł|potwierdź/i.test(pytanie);
-const maKontekstLiteracki = (pytanie: string) => /lektur|powieś|komedi|dramat|streszcz|fabuł|bohat|motyw|tytuł|mickiewicz|fredr|prusa|[„“»"]/i.test(pytanie);
+export const prosiOCytat = (pytanie: string) => /cytat|cytuj|zacytuj|doslown|brzmia? slowa|dokladne slowa/.test(bezAkcentow(pytanie));
+export const chceZweryfikowac = (pytanie: string) => /^(?:czy (?:to|w|na pewno|naprawde)|sprawdz|zweryfikuj)|zrodl|potwierdz/.test(bezAkcentow(pytanie));
+const STRESZCZENIE = /stres(?:zcz|c)|o czym (?:jest|opowiada)|fabul|co to za (?:utwor|ksiazka|powiesc|komedia|dramat)|opowiedz (?:mi )?o /;
+const maKontekstLiteracki = (pytanie: string) =>
+  STRESZCZENIE.test(pytanie) || /lektur|powies|komedi|dramat|bohat|motyw|tytul|mickiewicz|fredr|prusa|[„“»"]/.test(pytanie);
 
 export function czyWyszukacLekture(pytanie: string, przedmiot?: string): boolean {
   const utwor = utworPytania(pytanie);
-  if (!utwor) return maKontekstLiteracki(pytanie) && (prosiOCytat(pytanie) || chceZweryfikowac(pytanie));
-  if (utwor.id === "zemsta" && !/cześni|papkin|milcz|raptus|podstolin|\b(?:w|z|ze|o|streszcz) zem(?:st[ayęi]|ście)/i.test(pytanie)) {
-    return przedmiot === "polski" || maKontekstLiteracki(pytanie);
+  const zapis = bezAkcentow(pytanie);
+  if (!utwor) return maKontekstLiteracki(zapis) && (prosiOCytat(pytanie) || chceZweryfikowac(pytanie));
+  if (utwor.id === "zemsta" && !/czesni|papkin|milcz|raptus|podstolin|\b(?:w|z|ze|o) zem(?:st[ayei]|scie)/.test(zapis)) {
+    return przedmiot === "polski" || maKontekstLiteracki(zapis);
   }
   return true;
 }
 
 export function sekcjaPytania(pytanie: string): Sekcja | null {
-  if (/genez|kiedy .{0,18}(wydan|powsta|napisan)|skąd .{0,15}tytuł/i.test(pytanie)) return "geneza";
-  if (/kontekst|epok/i.test(pytanie)) return "konteksty";
-  if (/motyw|symbol|tematyk/i.test(pytanie)) return "motywy";
-  if (/kim (?:jest|był|była)|bohater|jak(?:ie|a) relac|charakteryz/i.test(pytanie)) return "bohaterowie";
-  if (/szczegółow|przebieg|kolejność|wydarzeni/i.test(pytanie) && !chceZweryfikowac(pytanie)) return "wydarzenia";
-  if (/streszcz|o czym (?:jest|opowiada)|fabuł|co to za (?:utwór|książka|powieść|komedia|dramat)|opowiedz (?:mi )?o /i.test(pytanie)) return "streszczenie";
+  const zapis = bezAkcentow(pytanie);
+  if (/genez|kiedy .{0,18}(wydan|powsta|napisan)|skad .{0,15}tytul/.test(zapis)) return "geneza";
+  if (/kontekst|epok/.test(zapis)) return "konteksty";
+  if (/motyw|symbol|tematyk/.test(zapis)) return "motywy";
+  if (/kim (?:jest|byl|byla)|bohater|jak(?:ie|a) relac|charakteryz/.test(zapis)) return "bohaterowie";
+  if (/szczegolow|przebieg|kolejnosc|wydarzeni/.test(zapis) && !chceZweryfikowac(pytanie)) return "wydarzenia";
+  if (STRESZCZENIE.test(zapis)) return "streszczenie";
   return null;
 }
 
@@ -65,7 +72,6 @@ export async function szukajOpracowania(szukaj: SzukajBaza, pytanie: string, utw
   });
 }
 
-const bezAkcentow = (t: string) => t.toLowerCase().replace(/ł/g, "l").normalize("NFD").replace(/\p{M}/gu, "");
 const slug = (tytul: string) => bezAkcentow(tytul).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const bialeznaki = (t: string) => t.normalize("NFC").replace(/\s+/gu, " ").trim();
 
