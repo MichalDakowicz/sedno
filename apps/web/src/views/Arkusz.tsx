@@ -1110,6 +1110,9 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
       id={pierwsza ? `zadanie-${zadanie.nr}` : undefined}
       data-tutor={pierwsza ? `zadanie-${zadanie.nr}` : undefined}
       data-tutor-kontekst={kontekst}
+      data-tutor-przedmiot={arkusz.przedmiot}
+      data-tutor-proba={zadanie.pytania.some((p) => !!postep.odpowiedzi[p.nr]?.trim()) ? "tak" : undefined}
+      data-tutor-chron={gotowe ? undefined : "tak"}
       data-tutor-klucz={`arkusz:${arkusz.id}:${zadanie.nr}`}
       data-tutor-tytul={nazwaZadaniaCke(arkusz.id, String(zadanie.nr))}
     >

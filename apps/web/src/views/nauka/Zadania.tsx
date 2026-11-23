@@ -164,11 +164,15 @@ function ZadanieZSzablonu({ user, szablon, przedmiot, nazwa, bladKatalogu }: {
   const tytul = nazwa ?? "Zadanie";
   const tytulZadania = `${tytul} · zadanie ${pamiec.numer}`;
 
-  useKontekstPestki(zadanie ? {
+  const kontekstPestki = zadanie ? {
     klucz: `wariant:${pamiec.wariant}`,
     tytul: tytulZadania,
     opis: opisDlaPestki(zadanie, odpowiedz, ocena),
-  } : null);
+    przedmiot,
+    chronOdpowiedz: !ocena,
+    maProbe: !!odpowiedz.tekst.trim() || Object.values(odpowiedz.pola).some((w) => !!w.trim()),
+  } : null;
+  useKontekstPestki(kontekstPestki);
 
   function nastepne() {
     trwa.current?.abort();
@@ -239,7 +243,7 @@ function ZadanieZSzablonu({ user, szablon, przedmiot, nazwa, bladKatalogu }: {
 
           {ocena ? (
             <Werdykt ocena={ocena} zadanie={zadanie} odpowiedz={odpowiedz} seria={seria} numer={pamiec.numer} tytulRef={werdykt}
-              wyjasnij={aiGotowe ? () => open({ klucz: `wariant:${pamiec.wariant}`, tytul: tytulZadania, opis: opisDlaPestki(zadanie, odpowiedz, ocena) }) : null}
+              wyjasnij={aiGotowe && kontekstPestki ? () => open(kontekstPestki) : null}
               nastepne={nastepne} poprawiaj={poprawiaj} />
           ) : (
             <form className={s.formularz} onSubmit={(e) => void sprawdz(e)} aria-busy={sprawdzam}>
@@ -385,6 +389,7 @@ function Werdykt({ ocena, zadanie, odpowiedz, seria, numer, tytulRef, wyjasnij, 
         </ul>
       )}
       <p className="muted">{ocena.opis}</p>
+      {ocena.krok && <p><strong>Następny krok</strong> · {ocena.krok}</p>}
       <div className={s.akcje}>
         <button type="button" className="btn btn-primary" onClick={nastepne}>Następne zadanie <ArrowRight size={17} aria-hidden="true" /></button>
         {!pelne && <button type="button" className="btn btn-ghost" onClick={poprawiaj}>{niepewne ? "Popraw zapis" : "Spróbuj jeszcze raz"}</button>}
@@ -407,10 +412,11 @@ function opisDlaPestki(zadanie: ZadanieWariantu, o: { tekst: string; pola: Recor
   const linie = ["Zadanie ćwiczebne z losowymi danymi.", `Polecenie: ${zadanie.polecenie}`];
   if (zadanie.dane) linie.push(`Dane: ${JSON.stringify(zadanie.dane)}`);
   linie.push(`Odpowiedź ucznia: ${opisOdpowiedzi(zadanie, o)}`);
-  if (!ocena) return [...linie, "", "Uczeń jeszcze nie sprawdził odpowiedzi. Nie podawaj wyniku: naprowadzaj pytaniami."].join("\n");
+  if (!ocena) return [...linie, "", "Etap: przed oddaniem. Nie podawaj wyniku. Odnieś się do próby ucznia i pomóż wskazówką."].join("\n");
   linie.push(`Ocena kluczem: ${opisWerdyktu(ocena)}`);
   ocena.kryteria?.forEach((k) => linie.push(`- ${nazwaPola(k.opis)}: ${k.punkty}/${k.maksPunktow}`));
-  linie.push("", "Klucz nie jest znany. Pomóż znaleźć błąd pytaniami, bez podawania wyniku.");
+  if (ocena.krok) linie.push(`Sugerowany krok: ${ocena.krok}`);
+  linie.push("", "Etap: po sprawdzeniu. Wyjaśnij, co wynika z oceny, i zaproponuj krok. Jeśli klucz nie rozstrzyga, wyraźnie oznacz, co wymaga weryfikacji.");
   return linie.join("\n");
 }
 

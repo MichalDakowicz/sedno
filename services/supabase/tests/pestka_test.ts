@@ -1,0 +1,191 @@
+import { assert, assertEquals } from "jsr:@std/assert";
+import { odczytajOdpowiedzPestki, zatwierdzPowierzchnie } from "../functions/_shared/pestka-odpowiedz.ts";
+import { metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, uzupelnijZrodloLektury, weryfikuj } from "../functions/ai/pestka.ts";
+import { zawieraCytat } from "../functions/ai/lektury.ts";
+
+const fragment = "W Zemście Rejent polecił murarzom naprawić mur, co zaostrza spór między sąsiadami.";
+const dowod = "Na polecenie Rejenta murarze naprawiają mur";
+const rekord = {
+  utwor: "zemsta", sekcja: "wydarzenia", tekst: dowod,
+  zrodlo_url: "https://wolnelektury.pl/katalog/lektura/zemsta/", zrodlo_rodzaj: "utwór",
+};
+const cel = JSON.stringify({ tytul: "Zemsta", fakt: "Rejent polecił murarzom naprawić mur", fragment });
+const werdykt = JSON.stringify({
+  status: "potwierdzone", numer: 1, dowod, komentarz: "Murarze działają na zlecenie Rejenta.",
+  teza: "Scena pokazuje, jak decyzja Rejenta zaostrza sąsiedzki konflikt.",
+  krok: "Dopisz, jak Cześnik reaguje na decyzję Rejenta.",
+});
+const bezSieci = () => { throw new Error("Nieoczekiwane wywołanie sieci"); };
+const dostep = {
+  baza: () => Promise.resolve([]), brave: "", fetcher: bezSieci,
+  signal: AbortSignal.timeout(10_000), zapytaj: async () => cel,
+};
+
+Deno.test("bezpośrednie pytania z matematyki, informatyki i angielskiego nie wywołują wyszukiwania", async () => {
+  let zapytaniaDoBazy = 0;
+  for (const content of ["Co to jest pochodna?", "Co oznacza GROUP BY?", "Kiedy używam Past Simple?"]) {
+    const krok = await przygotujCzat([{ role: "user", content }], { tryb: "czat" }, {
+      ...dostep, zapytaj: bezSieci, baza: () => {
+        zapytaniaDoBazy++;
+        return Promise.resolve([]);
+      },
+    });
+    assertEquals(krok.materialy, []);
+    assertEquals(krok.messages.at(-1)?.content, content);
+  }
+  assertEquals(zapytaniaDoBazy, 0);
+});
+
+Deno.test("prywatne fragmenty trafiają do promptu tylko przy odwołaniu do wcześniejszego czatu", async () => {
+  const wywolania: [string, string | null][] = [];
+  const przygotuj = (content: string, chronOdpowiedz = false) => przygotujCzat(
+    [{ role: "user", content }], { tryb: "czat", rozmowa: "rbiezaca", chronOdpowiedz },
+    { ...dostep, rozmowy: (id, pytanie) => {
+      wywolania.push([id, pytanie]);
+      return Promise.resolve([{ od: "student", tekst: "Projekt Bursztyn ma kod WIOSNA47." }, { od: "system", tekst: "Tego fragmentu nie ma w rozmowie." }]);
+    } },
+  );
+  const zwykle = await przygotuj("Przypomnij mi, co oznacza GROUP BY.");
+  assertEquals(wywolania, []);
+  assert(!String(zwykle.messages[0]?.content).includes("WIOSNA47"));
+  const pamiec = await przygotuj("Przypomnij kod projektu Bursztyn z poprzedniej rozmowy.");
+  assertEquals(wywolania, [["rbiezaca", "kod projektu bursztyn"]]);
+  assert(String(pamiec.messages[0]?.content).includes("WIOSNA47"));
+  assert(!String(pamiec.messages[0]?.content).includes("Tego fragmentu"));
+  await przygotuj("O czym gadaliśmy ostatnio?");
+  assertEquals(wywolania.at(-1), ["rbiezaca", null]);
+  await przygotuj("Pamiętasz projekt Bursztyn?", true);
+  assertEquals(wywolania.length, 2);
+});
+
+Deno.test("pytanie o Wokulskiego pobiera sekcję bohaterów Lalki i pokazuje wyłącznie użyte źródło", async () => {
+  const krok = await przygotujCzat([{ role: "user", content: "Kim jest Wokulski?" }], { tryb: "czat" }, {
+    ...dostep,
+    baza: (p) => {
+      assertEquals(p, { p_przedmiot: "polski", p_utwor: "lalka", p_sekcja: "bohaterowie", p_pytanie: "Kim jest Wokulski?" });
+      return Promise.resolve([{ ...rekord, utwor: "lalka", sekcja: "bohaterowie", tekst: "Wokulski jest kupcem.",
+        zrodlo_url: "https://wolnelektury.pl/katalog/lektura/lalka/" }]);
+    },
+  });
+  const dane = metadaneCzatu("Wokulski jest kupcem. [[zrodlo:1]][[zrodlo:8]]\n[[akcja:sprawdz]]", krok.materialy, false);
+  assertEquals(dane.akcje, ["zrodlo"]);
+  assertEquals(dane.zrodla[0]?.sekcja, "Opracowanie Sedno · Bohaterowie i relacje");
+  assertEquals(dane.zrodla[0]?.twierdzenie, "[1] Wokulski jest kupcem.");
+  assertEquals(uzupelnijZrodloLektury(krok, "Wokulski jest kupcem."), "Wokulski jest kupcem. [[zrodlo:1]]");
+});
+
+Deno.test("stresc mi lalke wybiera wydarzenia i postaci zamiast gotowego streszczenia", async () => {
+  const pytanie = "stresc mi lalke";
+  const pytaniaDoBazy: unknown[] = [];
+  const krok = await przygotujCzat([{ role: "user", content: pytanie }], { tryb: "czat" }, {
+    ...dostep,
+    zapytaj: bezSieci,
+    baza: (p) => {
+      pytaniaDoBazy.push(p);
+      return Promise.resolve([
+        { ...rekord, utwor: "lalka", sekcja: "wydarzenia", tekst: "Wokulski odkupuje kamienicę Łęckich." },
+        { ...rekord, utwor: "lalka", sekcja: "bohaterowie", tekst: "Wokulski zabiega o względy Izabeli Łęckiej." },
+        { ...rekord, utwor: "lalka", sekcja: "streszczenie", tekst: "Gotowe streszczenie opracowania." },
+      ]);
+    },
+  });
+  assertEquals(pytaniaDoBazy, [{ p_przedmiot: "polski", p_utwor: "lalka", p_sekcja: "wydarzenia", p_pytanie: pytanie }]);
+  assertEquals(krok.materialy.map((m) => m.sekcja), ["wydarzenia", "bohaterowie"]);
+  assert(String(krok.messages[0]?.content).includes("Napisz streszczenie własnymi słowami"));
+  assert(String(krok.messages[0]?.content).includes("Wokulski zabiega o względy Izabeli Łęckiej."));
+  assert(!String(krok.messages[0]?.content).includes("Gotowe streszczenie opracowania."));
+  const wygenerowane = "To historia Wokulskiego, który stara się zdobyć względy Izabeli.";
+  assertEquals(uzupelnijZrodloLektury(krok, wygenerowane), `${wygenerowane} [[zrodlo:1]]`);
+});
+
+Deno.test("pytanie o fakt używa treści odpowiedzi modelu, a dowód zostaje przy źródle", async () => {
+  let wywolania = 0;
+  const odpowiedz = "Tak, Rejent każe murarzom naprawić mur.";
+  const wynik = await przygotujCzat([{ role: "user", content: "Czy w Zemście Rejent zlecił naprawę muru?" }], { tryb: "czat" }, {
+    ...dostep, baza: () => Promise.resolve([rekord]),
+    zapytaj: () => Promise.resolve(wywolania++ === 0 ? cel : JSON.stringify({
+      status: "potwierdzone", numer: 1, dowod, komentarz: odpowiedz,
+    })),
+  });
+  assert(wynik.weryfikacja);
+  const { tekst, dane } = odpowiedzWeryfikacji(wynik.weryfikacja, false);
+  assertEquals(tekst, odpowiedz);
+  assertEquals(dane.sprawdzenie, undefined);
+  assertEquals(odczytajOdpowiedzPestki(dane)?.zrodla[0]?.dowod, dowod);
+});
+
+Deno.test("Pestka dostaje kilka sekcji tego samego utworu i zachowuje przypisy powyżej trzech", async () => {
+  const sekcje = ["streszczenie", "wydarzenia", "bohaterowie", "motywy", "konteksty"] as const;
+  const wiersze = sekcje.map((sekcja) => ({ ...rekord, utwor: "lalka", sekcja, tekst: `Fragment ${sekcja} o Wokulskim.`,
+    zrodlo_url: "https://wolnelektury.pl/katalog/lektura/lalka/" }));
+  const krok = await przygotujCzat([{ role: "user", content: "Streść Lalkę z uwzględnieniem wydarzeń i motywów. Podaj źródła." }], { tryb: "czat" }, {
+    ...dostep, baza: () => Promise.resolve([...wiersze, rekord]),
+  });
+  assertEquals(krok.materialy.map((m) => m.sekcja), [...sekcje]);
+  assert(String(krok.messages[0]?.content).includes("Fragment wydarzenia o Wokulskim."));
+  const dane = metadaneCzatu(sekcje.map((s, i) => `Uwagi o sekcji ${s}. [[zrodlo:${i + 1}]]`).join("\n"), krok.materialy, false);
+  assertEquals(odczytajOdpowiedzPestki(dane)?.zrodla.length, 5);
+  assertEquals(dane.zrodla[4]?.twierdzenie, "[5] Uwagi o sekcji konteksty.");
+});
+
+Deno.test("do streszczenia bez spoilerów model dostaje tylko zawiązanie fabuły", async () => {
+  const krok = await przygotujCzat([{ role: "user", content: "Stresc mi Lalke w trzech punktach bez spoilerow" }], { tryb: "czat" }, {
+    ...dostep,
+    baza: () => Promise.resolve([{ ...rekord, utwor: "lalka", sekcja: "streszczenie",
+      tekst: "Wokulski jest kupcem. Zabiega o względy Izabeli. Później odkrywa jej zażyłość ze Starskim." },
+      { ...rekord, utwor: "lalka", sekcja: "wydarzenia", tekst: "Starski zdradza szczegóły finału." },
+      { ...rekord, utwor: "lalka", sekcja: "bohaterowie", tekst: "Izabela jest arystokratką. Wokulski zabiega o jej względy." },
+    ]),
+  });
+  assertEquals(krok.materialy[0]?.tekst, "Wokulski jest kupcem. Zabiega o względy Izabeli.");
+  assertEquals(krok.materialy.map((m) => m.sekcja), ["streszczenie", "bohaterowie"]);
+  assert(!String(krok.messages[0]?.content).includes("Starsk"));
+});
+
+Deno.test("akapit jest oceniany w obrębie wskazanego utworu, a karta przechodzi walidację po serializacji", async () => {
+  let wywolania = 0;
+  const wynik = await weryfikuj(fragment, "Jak rodzi się konflikt?", {
+    ...dostep, baza: (p) => {
+      assertEquals(p.p_utwor, "zemsta");
+      assert(!p.p_pytanie.includes("co zaostrza spór"));
+      return Promise.resolve([rekord]);
+    },
+    zapytaj: () => Promise.resolve(wywolania++ === 0 ? cel : werdykt),
+  });
+  assertEquals(wynik.sprawdzenie.status, "Potwierdzone");
+  assertEquals(wynik.sprawdzenie.fragment, fragment);
+  const { tekst, dane } = odpowiedzWeryfikacji(wynik, true);
+  assert(tekst.includes("Związek z tezą"));
+  const zapis = odczytajOdpowiedzPestki(JSON.parse(JSON.stringify(dane)));
+  assert(zapis && zatwierdzPowierzchnie(zapis));
+  const podmieniony = { ...dane, a2ui: { ...dane.a2ui as object, dodatkowaAkcja: "download" } };
+  assertEquals(zatwierdzPowierzchnie(podmieniony), undefined);
+});
+
+Deno.test("brak dowodu i niedostępna sieć dają stan Niepotwierdzone", async () => {
+  let wywolania = 0;
+  const wynik = await weryfikuj(fragment, "", {
+    ...dostep, baza: () => Promise.resolve([rekord]),
+    zapytaj: () => Promise.resolve(wywolania++ === 0 ? cel : werdykt.replace(dowod, "Rejent porzuca mur")),
+    fetcher: () => Promise.resolve(new Response(null, { status: 503 })),
+  });
+  assertEquals(wynik.sprawdzenie.status, "Niepotwierdzone");
+  assertEquals(wynik.zrodla, []);
+});
+
+Deno.test("sprzeczne źródła dają stan Niepotwierdzone", async () => {
+  let wywolania = 0;
+  const wynik = await weryfikuj(fragment, "", {
+    ...dostep, baza: () => Promise.resolve([rekord, { ...rekord, tekst: "Rejent zabrania naprawy muru." }]),
+    zapytaj: () => Promise.resolve(wywolania++ === 0 ? cel : '{"status":"konflikt"}'),
+  });
+  assertEquals(wynik.sprawdzenie.status, "Niepotwierdzone");
+  assertEquals(wynik.sprawdzenie.podstawa, "Dostępne źródła są sprzeczne w tej sprawie.");
+  assertEquals(wynik.zrodla, []);
+});
+
+Deno.test("cytat musi występować dosłownie, z tolerancją odstępów", () => {
+  assert(zawieraCytat("Niech się dzieje\n wola nieba,", "Niech się dzieje wola nieba"));
+  assert(!zawieraCytat("Niech się dzieje wola nieba", "Niech sie dzieje wola nieba"));
+  assert(!zawieraCytat("Niech się dzieje wola nieba", "Niech się dzieje wola nieb"));
+});

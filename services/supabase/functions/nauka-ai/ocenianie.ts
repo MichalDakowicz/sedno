@@ -19,6 +19,7 @@ type Ocena = {
   punkty: number | null;
   maksPunktow: number;
   opis: string;
+  krok?: string;
   kryteria?: unknown[];
   zasady?: { pdf: string; strona: number | null };
 };
@@ -129,6 +130,11 @@ function ocenaKluczem(punkty: number, maksPunktow: number, opis: string): Ocena 
   return { status: "ocenione", metoda: "klucz", punkty, maksPunktow, opis };
 }
 
+function cytatDoOceny(wejscie: string, fragment: string | null) {
+  const odstepy = (t: string) => t.replace(/\s+/g, " ").trim();
+  return !!fragment && odstepy(wejscie).includes(odstepy(fragment));
+}
+
 function jestOdpowiedz(a: Odpowiedz) {
   return Boolean(a.tekst || a.kod || a.wynik || a.obraz || Object.keys(a.pola ?? {}).length);
 }
@@ -150,9 +156,14 @@ function zKlucza(p: Obiekt, a: Odpowiedz, maks: number, tresc: string): Ocena | 
   if ((!wynikZImportu && (maks > 1 || wymagaUzasadnienia)) ||
     (wynikZImportu && typeof p.zasady === "string" && /poprawn[yae]\s+(?:kod|algorytm|program|zapytanie)|uzasadnieni/i.test(p.zasady))) return null;
   if ([...listy(p.oczekiwane), ...listy(p.akceptowane)].some(pasuje)) {
-    return ocenaKluczem(maks, maks, "Odpowiedź jest zgodna z kluczem arkusza.");
+    return ocenaKluczem(maks, maks, `„${wpis.slice(0, 120)}” pasuje do odpowiedzi akceptowanej w kluczu arkusza.`);
   }
-  if (listy(p.odrzucone).some(pasuje)) return ocenaKluczem(0, maks, "Ta odpowiedź jest wymieniona w kluczu jako niepoprawna.");
+  if (listy(p.odrzucone).some(pasuje)) {
+    return {
+      ...ocenaKluczem(0, maks, `Klucz wskazuje „${wpis.slice(0, 120)}” jako odpowiedź niepoprawną.`),
+      krok: "Porównaj zapis z wymaganym wynikiem w schemacie CKE.",
+    };
+  }
   return null;
 }
 
@@ -193,8 +204,9 @@ async function sprawdzArkusz(cel: Extract<Zrodlo, { arkusz: string }>, a: Odpowi
       "Przyznawaj punkty zgodnie z progami CKE, w tym punkty częściowe. Poprawne rozwiązania alternatywne są dopuszczalne. Nie traktuj przykładu z klucza jako jedynego sposobu.",
       "Oceń rozumowanie, gdy punktacja go wymaga. Sam wynik nie dowodzi, że uczeń wykonał wymagane kroki. Odpowiedź tekstowa, zdjęcie, kod i wynik należą do jednego zgłoszenia. Oceniaj wyłącznie wskazany numer pytania.",
       "Kod, pseudokod i SQL analizuj na podstawie ich działania i podanych danych. Nie twierdź, że zostały uruchomione. Jeśli brakuje danych, rysunku lub nie da się wiarygodnie ocenić działania, wskaż potrzebę weryfikacji.",
-      "Jeśli nie można pewnie odczytać pracy albo przydzielić progu punktacji, zwróć status do-weryfikacji i punkty null. Nie zgaduj. Pisz po polsku, w maksymalnie 3 zdaniach wskaż co dało punkty i co sprawdzić.",
-      'Format {"status":"ocenione" lub "do-weryfikacji","punkty":liczba całkowita albo null,"opis":"krótkie uzasadnienie"}.',
+      "Nie obniżaj punktacji na podstawie własnej wiedzy, niewiarygodnego źródła lub wątpliwości spoza schematu CKE. Jeśli nie można pewnie odczytać pracy albo przydzielić progu punktacji, zwróć status do-weryfikacji i punkty null.",
+      "Wskaż krótki, dosłowny fragment próby i wyjaśnij, dlaczego jest poprawny lub wymaga poprawy. Podaj dosłowny fragment dołączonego schematu CKE, na którym opierasz punkty, oraz oddzielnie jeden następny krok. Pisz po polsku.",
+      'Format {"status":"ocenione" lub "do-weryfikacji","punkty":liczba całkowita albo null,"opis":"krótkie uzasadnienie","fragment":"fragment odpowiedzi","kryterium":"fragment kryteriów CKE","krok":"jedna sugestia"}.',
     ].join("\n"),
     material,
     3400,
@@ -203,12 +215,20 @@ async function sprawdzArkusz(cel: Extract<Zrodlo, { arkusz: string }>, a: Odpowi
   const opis = tekst(wynik.opis, 1000);
   const status = wybierz(wynik.status, ["ocenione", "do-weryfikacji"] as const);
   const punkty = wynik.punkty;
+  const fragment = tekst(wynik.fragment, 450);
+  const kryterium = tekst(wynik.kryterium, 550);
+  const krok = tekst(wynik.krok, 450);
   if (!opis || !status || (status === "do-weryfikacji" ? punkty !== null :
     typeof punkty !== "number" || !Number.isInteger(punkty) || punkty < 0 || punkty > maks)) {
-    throw new BladApi(424, "bad_model_response");
+    return doWeryfikacji(maks, "Nie udało się uzasadnić oceny zgodnie ze schematem CKE.", "rubryka");
+  }
+  const tekstProby = [a.tekst, a.kod, a.wynik, ...Object.values(a.pola ?? {})].filter(Boolean).join("\n");
+  if (status === "ocenione" && (!cytatDoOceny(kryteriaCke, kryterium) || (tekstProby && !cytatDoOceny(tekstProby, fragment)))) {
+    return { ...doWeryfikacji(maks, "Porównaj próbę z kryteriami CKE. Punkty wymagają weryfikacji.", "rubryka"), ...(pdf && { zasady: { pdf, strona } }) };
   }
   return {
-    status, metoda: "rubryka", punkty: punkty as number | null, maksPunktow: maks, opis,
+    status, metoda: "rubryka", punkty: punkty as number | null, maksPunktow: maks,
+    opis: fragment ? `„${fragment}”. ${opis}` : opis, ...(krok && { krok }),
     ...(pdf && { zasady: { pdf, strona } }),
   };
 }
@@ -221,10 +241,26 @@ async function sprawdzWariant(id: string, user: string, a: Odpowiedz): Promise<O
   if (typeof maks !== "number" || !klucz) throw new BladApi(500, "server_error");
   if (!jestOdpowiedz(a)) return ocenaKluczem(0, maks, "Pusta odpowiedź.");
   const ocena = ocenWariant(klucz as KluczWariantu, { ...a, tekst: a.wynik ?? a.tekst });
-  if (!ocena) return doWeryfikacji(maks, "Sprawdź format. Podaj wynik w wymaganych polach lub zapisz jedno zapytanie zgodne z poleceniem.");
+  if (!ocena) return {
+    ...doWeryfikacji(maks, "Próba w tej postaci nie daje się sprawdzić."),
+    krok: klucz.typ === "sql-sumy" ? "Zapisz jedno zapytanie zgodne z poleceniem." : "Podaj wynik w formacie wymaganym w poleceniu.",
+  };
+  const punkty = ocena.kryteria.reduce((suma, k) => suma + k.punkty, 0);
+  const wpis = a.wynik ?? a.tekst;
+  const opis = wpis
+    ? punkty === maks
+      ? `Wynik „${wpis.slice(0, 120)}” spełnia kryteria z klucza.`
+      : `Wynik „${wpis.slice(0, 120)}” nie spełnia wszystkich kryteriów z klucza.`
+    : klucz.typ === "sql-sumy"
+      ? punkty === maks ? "Zapytanie zwraca wymagane wyniki w testach." : "Wyniki zapytania różnią się od oczekiwanych w co najmniej jednym teście."
+      : ocena.opis;
+  const krok = punkty === maks ? undefined
+    : klucz.typ === "sql-sumy" ? "Uruchom zapytanie na danych zadania i porównaj wiersze wyniku z poleceniem."
+    : klucz.typ === "korzenie" ? "Podstaw oba zapisane wyniki do pierwotnego równania."
+    : "Sprawdź obliczenie albo zapis wskazany przy kryterium bez pełnej punktacji.";
   return {
     status: "ocenione", metoda: klucz.typ === "sql-sumy" ? "testy" : "klucz",
-    punkty: ocena.kryteria.reduce((suma, k) => suma + k.punkty, 0), maksPunktow: maks, ...ocena,
+    punkty, maksPunktow: maks, kryteria: ocena.kryteria, opis, ...(krok && { krok }),
   };
 }
 

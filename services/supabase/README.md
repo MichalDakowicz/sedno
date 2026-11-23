@@ -89,6 +89,41 @@ Kto ma prawo zapisu do repo, ten uruchamia migracje jako `postgres` i kod funkcj
 
 Staging ma osobną bazę i konta. Logowanie tylko mailem, rejestracja bez potwierdzenia (bez Google). Arkusze są skopiowane z produkcji. Ollama serwera działa jak na produkcji, z flagą `server_ollama` ustawianą przez administratora. Migracje z porzuconych gałęzi zostają w bazie stagingu. Gdy się rozjedzie, trzeba ją postawić od nowa. Konto testowe (`SEDNO_TEST_*` w `.env`) skopiowano z produkcji razem z dostawcami AI. Klucze przeszyfrowano kluczem stagingu, a adres Ollamy zmieniono na `172.16.78.1`.
 
+## Pilotaż wiedzy Pestki
+
+Migracje `0027_wiedza_pestki.sql` i `0028_opracowania_lektur.sql` wymagają,
+aby obraz Postgresa zawierał rozszerzenia `vector` i `unaccent`. Ładują
+18 autorskich sekcji Sedno o „Lalce”, „Zemście” i „Dziadach, części III”.
+Każda sekcja ma wskazane źródło i warunki użycia. Kolejna migracja może
+aktualizować treść tym samym kluczem `(przedmiot, utwor, sekcja)`. Trigger
+przeliczy wektor po zmianie tekstu lub haseł. Dostęp do wyszukiwania ma
+wyłącznie rola serwisowa. Indeks lektur zawiera wyłącznie opracowania.
+
+Pilotaż używa 512-wymiarowych wektorów cech słów, liczonych w Postgresie.
+Migracja `0029_szerszy_kontekst_pestki.sql` zwraca trafne sekcje tego samego
+utworu, z sekcją główną na początku. Przykładowo przy streszczeniu do modelu
+mogą trafić także przebieg wydarzeń i opisy bohaterów.
+Weryfikacja poza indeksem pobiera fragmenty z publicznego API Wolnych Lektur.
+Jeśli do środowiska kontenera Edge Functions dodasz `SEDNO_BRAVE_SEARCH_KEY`
+i zrestartujesz funkcje, Pestka będzie mogła przeszukać także ZPE i Culture.pl
+przez Brave Search. Tylko skrócony fakt i tytuł trafiają do wyszukiwarki.
+Cytaty są sprawdzane w dostępnej treści utworu.
+
+Interfejs pilotażu jest dostępny w czacie Pestki i pod
+`/nauka/wypracowanie`. Drugi przepływ korzysta z ograniczonego katalogu
+A2UI 1.0. Zapis rozmowy obejmuje tekst, źródła i kartę.
+
+Zwykły czat przekazuje całą historię i domyślnie pomija parametr
+`max_tokens`. Długość ustala dostawca. Bramka i zapis rozmowy mają
+limit transportowy 8 MiB. Sufit `SEDNO_AI_MAX_TOKENS` nadal dotyczy
+wywołań narzędzi z ustalonym formatem.
+
+Migracja `0030_pamiec_rozmow_pestki.sql` wektoryzuje zapisane rozmowy
+w prywatnej tabeli powiązanej z `tutor_chats`. Usunięcie rozmowy usuwa jej
+wektory. Bramka wyszukuje fragmenty z własnego konta, gdy uczeń odwołuje się
+do wcześniejszego czatu. W bieżącej rozmowie model nadal dostaje jej historię.
+Sprawdzanie zaznaczonych akapitów jest pomijane przy indeksowaniu rozmów.
+
 ## Aplikacja web
 
 Produkcja: `https://trafwsedno.web.app` (Firebase Hosting, projekt `trafwsedno`, konfiguracja w `firebase.json`). Deploy: `npm run build`, potem `firebase deploy --only hosting`. Ten adres jest w Supabase jako `SITE_URL`.

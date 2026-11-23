@@ -1,7 +1,4 @@
-.scrim {
-  position: fixed;
-  inset: 0;
-  z-index: 49;
+.panel::backdrop {
   background: var(--scrim);
   animation: fade var(--ruch-zwykly) var(--ruch-krzywa);
 }
@@ -11,8 +8,18 @@
   top: 16px;
   right: 16px;
   bottom: 16px;
-  z-index: 50;
+  left: auto;
   width: min(420px, calc(100vw - 32px));
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  color: var(--fg);
+}
+
+.panel[open] {
   display: flex;
   flex-direction: column;
   border-radius: var(--r-lg);
@@ -82,6 +89,9 @@
   .panel {
     inset: 0;
     width: 100%;
+  }
+
+  .panel[open] {
     border-radius: 0;
   }
 }

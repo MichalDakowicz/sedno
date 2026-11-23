@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
   height: 100%;
 }
 
@@ -13,8 +14,16 @@
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
-  gap: var(--s-5);
+  min-width: 0;
   padding: var(--s-5);
+}
+
+.wiadomosci {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: var(--s-5);
+  min-width: 0;
 }
 
 .tutorRow {
@@ -24,10 +33,19 @@
   max-width: 92%;
 }
 
+.tutorRow > svg {
+  flex-shrink: 0;
+}
+
+.tutorRow > div {
+  min-width: 0;
+}
+
 .tutorText {
   font-size: calc(16px * var(--skala-tekstu, 1));
   line-height: 1.55;
   padding-top: 2px;
+  overflow-x: auto;
 }
 
 .studentText {
@@ -38,6 +56,8 @@
   background: var(--secondary);
   color: var(--secondary-fg);
   line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .typing {
@@ -131,6 +151,17 @@
   cursor: pointer;
 }
 
+.rozmowyLista button > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rozmowyLista button > span:last-child {
+  flex-shrink: 0;
+}
+
 .rozmowyLista button:hover > span:first-child {
   color: var(--primary-text);
 }
@@ -171,6 +202,10 @@
 .form {
   display: flex;
   gap: var(--s-2);
+}
+
+.form :global(.input) {
+  min-width: 0;
 }
 
 .form :global(.btn) {
@@ -228,4 +263,305 @@
 .wsparcie a {
   color: var(--primary-text);
   text-decoration: underline;
+}
+.kartaLektury {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.kartaLektury p, .zrodla p {
+  margin: 0;
+}
+
+.akcje {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.akcje:not(:empty), .zrodla {
+  margin-top: 0.55rem;
+}
+
+.zrodla {
+  padding-inline-start: 1.25rem;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.chat[data-pelny] {
+  --szerokosc-rozmowy: 47rem;
+  --odstep-rozmowy: clamp(1rem, 3vw, 2.75rem);
+  display: grid;
+  grid-template:
+    "historia naglowek" auto
+    "historia rozmowa" minmax(0, 1fr)
+    "historia composer" auto
+    / minmax(13rem, 17rem) minmax(0, 1fr);
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.historiaPanel {
+  grid-area: historia;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg);
+  border-inline-end: 1px solid var(--line);
+}
+
+.historiaNaglowek {
+  display: grid;
+  gap: var(--s-3);
+  padding: var(--s-5) var(--s-4) var(--s-3);
+}
+
+.historiaNaglowek h2 {
+  margin: 0;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.historiaPanel .rozmowyLista {
+  padding: var(--s-1) var(--s-3) var(--s-4);
+  overscroll-behavior: contain;
+}
+
+.historiaPanel .rozmowyLista li + li {
+  border: 0;
+}
+
+.historiaPanel .rozmowyLista button {
+  min-height: 44px;
+  align-items: center;
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-sm);
+  font-size: var(--t-sm);
+}
+
+.historiaPanel .rozmowyLista button:hover:not(:disabled),
+.historiaPanel .rozmowyLista button[aria-current] {
+  background: var(--secondary);
+  color: var(--secondary-fg);
+}
+
+.historiaPusta {
+  margin: var(--s-2) var(--s-4);
+  color: var(--muted);
+  font-size: var(--t-sm);
+}
+
+.nowaRozmowa,
+.historiaPrzelacznik,
+.wroc {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  gap: var(--s-2);
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nowaRozmowa:hover:not(:disabled),
+.historiaPrzelacznik:hover,
+.historiaPrzelacznik[aria-expanded="true"],
+.wroc:hover {
+  background: var(--secondary);
+  color: var(--secondary-fg);
+}
+
+.nowaRozmowa:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.pelnyNaglowek {
+  grid-area: naglowek;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+  padding: var(--s-3) var(--odstep-rozmowy);
+  border-bottom: 1px solid var(--line);
+}
+
+.pelnyTytul {
+  min-width: 0;
+  flex: 1;
+}
+
+.pelnyTytul h1 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.pelnyTytul h1:focus {
+  outline: none;
+}
+
+.pelnyTytul p {
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--t-xs);
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historiaPrzelacznik,
+.mobilnaNowa {
+  display: none;
+}
+
+.chat[data-pelny] .list {
+  grid-area: rozmowa;
+  scrollbar-gutter: stable both-edges;
+  padding: var(--s-6) var(--odstep-rozmowy);
+  outline-offset: -2px;
+}
+
+.chat[data-pelny] .wiadomosci {
+  width: 100%;
+  max-width: var(--szerokosc-rozmowy);
+  min-height: 100%;
+  margin-inline: auto;
+  gap: var(--s-6);
+}
+
+.chat[data-pelny] .tutorRow {
+  max-width: 100%;
+}
+
+.powitanie {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-2);
+  margin: auto;
+  text-align: center;
+}
+
+.powitanie h2,
+.powitanie p {
+  margin: 0;
+}
+
+.powitanie h2 {
+  font-size: clamp(1.375rem, 3vw, 2rem);
+}
+
+.chat[data-pelny] .composer {
+  grid-area: composer;
+  padding: var(--s-3) var(--odstep-rozmowy) var(--s-4);
+}
+
+.chat[data-pelny] .composer > * {
+  width: 100%;
+  max-width: var(--szerokosc-rozmowy);
+  margin-inline: auto;
+}
+
+.chat[data-pelny] .suggestions {
+  justify-content: center;
+}
+
+.chat[data-pelny] .chip {
+  min-height: 44px;
+}
+
+.chat[data-pelny] .form {
+  align-items: flex-end;
+  gap: var(--s-3);
+}
+
+.chat[data-pelny] .pole {
+  border-radius: var(--r-md);
+  max-height: min(22dvh, 9rem);
+  resize: vertical;
+}
+
+@media (max-width: 760px) {
+  .chat[data-pelny] {
+    --odstep-rozmowy: var(--s-3);
+    grid-template:
+      "naglowek" auto
+      "rozmowa" minmax(0, 1fr)
+      "composer" auto
+      / minmax(0, 1fr);
+  }
+
+  .pelnyNaglowek {
+    gap: var(--s-2);
+  }
+
+  .pelnyNaglowek > svg {
+    flex-shrink: 0;
+  }
+
+  .historiaPrzelacznik,
+  .mobilnaNowa {
+    display: inline-flex;
+  }
+
+  .mobilnaNowa .nowaRozmowa {
+    padding-inline: var(--s-2);
+  }
+
+  .historiaPanel {
+    display: none;
+    grid-area: rozmowa;
+    border: 0;
+  }
+
+  .historiaNaglowek .nowaRozmowa {
+    display: none;
+  }
+
+  .chat[data-pelny][data-historia] .historiaPanel {
+    display: flex;
+  }
+
+  .chat[data-pelny][data-historia] :is(.list, .composer) {
+    display: none;
+  }
+
+  .chat[data-pelny] .list {
+    padding-block: var(--s-4);
+    scrollbar-gutter: auto;
+  }
+}
+
+@media (max-width: 390px) {
+  .mobilnaNowa .nowaRozmowa span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
+
+@media (max-height: 430px) {
+  .chat[data-pelny] .suggestions {
+    display: none;
+  }
 }

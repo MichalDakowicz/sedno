@@ -67,7 +67,7 @@ export function Onboarding() {
             <h1 className="display">
               Cześć{imie ? `, ${imie}` : ""}! <span className="accent">Jestem Pestka.</span>
             </h1>
-            <p className="lead">Nie podaję gotowych odpowiedzi: pytam, aż dojdziesz do rozwiązania.</p>
+            <p className="lead">Odpowiem na pytanie, dam wskazówkę albo pomogę ci sprawdzić próbę.</p>
             <button type="button" className="btn btn-primary" onClick={() => setKrok(1)}>
               Zaczynamy
             </button>

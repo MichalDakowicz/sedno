@@ -120,16 +120,15 @@ export function promptOmowienia(a: Arkusz, d: DoOmowienia, p: Postep, krotko?: b
     : d.wypracowanie
     ? [
         "Omawiasz z uczniem jego wypracowanie z tego arkusza.",
-        "Zacznij od jednej mocnej strony tekstu, potem wskaż jedną, najważniejszą rzecz do poprawy i zapytaj, jak by ją poprawił.",
+        "Przytocz konkretny fragment i wyjaśnij jedną mocną stronę oraz najważniejszą rzecz do poprawy. Oddziel ocenę od jednego następnego kroku. Fakty o lekturach bez podstawy oznacz jako niepotwierdzone, nie odejmuj za nie punktów.",
         "Nie przepisuj wypracowania za ucznia. Cytuj krótkie fragmenty, gdy pokazujesz błąd.",
         "Nie oceniaj długości na oko: opieraj się na podanej liczbie słów i wspominaj o długości tylko wtedy, gdy wypada poza wymaganym zakresem.",
       ]
     : [
         "Omawiasz z uczniem jego błąd w tym zadaniu z arkusza. Znasz jego odpowiedź i klucz CKE; klucz jest pewny, nie podważaj go.",
-        "Na start krótko nazwij, co uczeń zaznaczył lub napisał, i zadaj jedno pytanie, które naprowadzi go na błąd. Nie podawaj od razu poprawnej odpowiedzi.",
-        "Gdy uczeń dojdzie do rozwiązania albo dwa razy utknie, wyjaśnij krótko, dlaczego poprawna odpowiedź jest poprawna, a jego nie.",
+        "Na start wskaż krótki fragment próby i wyjaśnij, co jest poprawne lub wymaga poprawy na podstawie klucza. Podaj osobno jeden następny krok. Jeśli klucz nie rozstrzyga poprawności, oznacz uwagę jako wymagającą weryfikacji.",
       ];
-  return [promptPestki({ przedmiot, krotko, zadanie: tekstZadania(d.zadanie, p) }), ...zasady].join("\n");
+  return [promptPestki({ przedmiot, krotko, tryb: d.pusty ? "sokratejski" : "pomoc", zadanie: tekstZadania(d.zadanie, p) }), ...zasady].join("\n");
 }
 
 export type Przyklad = { tresc: string; opcje: Record<string, string>; poprawna: string; wyjasnienie: string };
@@ -217,7 +216,7 @@ const KLUCZ = /^(Poprawna odpowiedź|Poprawne odpowiedzi|Też akceptowane|Zasady
 /** Zadanie jako kontekst rozmowy z Pestką. Przed sprawdzeniem bez klucza, żeby nie zdradziła odpowiedzi. */
 export function kontekstZadania(z: Zadanie, p: Pick<Postep, "odpowiedzi" | "samoocena">, sprawdzone: boolean): string {
   const tekst = tekstZadania(z, { sprawdzony: sprawdzone, sprawdzoneZadania: [], ...p });
-  if (sprawdzone) return tekst;
+  if (sprawdzone) return `Etap: po sprawdzeniu.\n${tekst}`;
   const bez = tekst.split("\n").filter((l) => !KLUCZ.test(l)).join("\n");
-  return `${bez}\n\nUczeń jeszcze nie sprawdził tego zadania. Nie podawaj poprawnej odpowiedzi ani nie mów, czy jego odpowiedź jest dobra: naprowadzaj pytaniami.`;
+  return `Etap: przed oddaniem odpowiedzi.\n${bez}\n\nW tym zadaniu nie zdradzaj poprawnego wyniku ani werdyktu. Na prośbę o pomoc wskaż krok lub metodę i możesz skomentować już wykonany fragment bez ujawniania wyniku.`;
 }

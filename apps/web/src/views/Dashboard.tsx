@@ -171,6 +171,12 @@ export function Dashboard() {
         )}
       </section>
 
+      {aktywny?.id === "polski" && (
+        <Link to="/nauka/wypracowanie" className="link">
+          Ćwicz wypracowanie <ArrowRight size={14} aria-hidden="true" />
+        </Link>
+      )}
+
       {profil && !moje.length && <BezPrzedmiotow />}
 
       {!dane && <Ladowanie ksztalt="pulpit" ile={3} etykieta="Wczytuję twoje arkusze i wyniki" />}

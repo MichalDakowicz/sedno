@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { Navigate, Outlet, useLocation, useMatch } from "react-router-dom";
 import { TopNav } from "./TopNav";
 import { TutorDock } from "./TutorDock";
 import { TutorGuide } from "./TutorGuide";
@@ -13,9 +13,12 @@ import { pobierzRozmowy } from "../konto/rozmowy";
 import { opisPrzedmiotow } from "../konto/przedmioty";
 import { useRozgrzewanie } from "../nauka/rozgrzewanie";
 import { oznaczStrone, zapamietajStrone } from "../ruch";
+import styles from "../views/Tutor.module.css";
 
 export function AppLayout() {
   const location = useLocation();
+  const pelnyCzat = useMatch("/tutor") !== null;
+  const bylWInnymWidoku = useRef(false);
   const session = useSession();
   const userId = session ? session.user.id : null;
   const profil = useProfil();
@@ -28,6 +31,10 @@ export function AppLayout() {
   useEffect(() => {
     if (!location.hash) window.scrollTo(0, 0);
   }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    if (!pelnyCzat && profil?.onboarded_at) bylWInnymWidoku.current = true;
+  }, [pelnyCzat, profil]);
 
   // Po zalogowaniu ściągamy postęp i rozmowy z Pestką z konta, żeby były od razu, także z innego urządzenia.
   useEffect(() => {
@@ -62,16 +69,18 @@ export function AppLayout() {
   // modelu, sprawdza aiGotowe (rozmowa bez AI odsyła do profilu).
   return (
     <TutorProvider ai={ai} przedmioty={opisPrzedmiotow(profil?.subjects ?? [])}>
-      <TopNav />
-      <ZegarWPasku />
-      <Wyszukiwanie />
-      <Outlet />
-      {location.pathname !== "/tutor" && (
-        <>
-          <TutorGuide />
-          <TutorDock />
-        </>
-      )}
+      <div className={pelnyCzat ? styles.okno : styles.uklad}>
+        <TopNav />
+        <ZegarWPasku />
+        <Wyszukiwanie />
+        <Outlet context={pelnyCzat ? bylWInnymWidoku.current : undefined} />
+        {!pelnyCzat && (
+          <>
+            <TutorGuide />
+            <TutorDock />
+          </>
+        )}
+      </div>
     </TutorProvider>
   );
 }
