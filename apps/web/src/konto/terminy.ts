@@ -32,7 +32,8 @@ export function egzaminyUcznia(moje: MojPrzedmiot[], tylko?: PrzedmiotId): Egzam
   return zgrupuj(moje)
     .filter((m) => !tylko || m.id === tylko)
     .flatMap((m) => m.poziomy.map((l) => egzamin(m.id, l)))
-    .sort((a, b) => a.data.localeCompare(b.data));
+    // Przedmioty bez daty (data to tylko początek sesji) na końcu, żeby nie udawały pierwszego egzaminu.
+    .sort((a, b) => Number(b.znana) - Number(a.znana) || a.data.localeCompare(b.data));
 }
 
 const dzien = (iso: string) => {

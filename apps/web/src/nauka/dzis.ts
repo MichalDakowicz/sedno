@@ -76,7 +76,7 @@ export function zArkuszy(co: Propozycja): PropozycjaDnia {
       tytul: tytulArkusza(co.arkusz),
       powod: co.ostatni
         ? `Na dziś wybrałam ten arkusz, bo ostatni wynik to ${procent(co.ostatni)}% (${tytulArkusza(co.ostatni.arkusz).toLowerCase()}), a kolejny pokaże, czy to stały poziom.`
-        : `Na dziś wybrałam najnowszy arkusz na poziomie ${poziom}, bo nie mam jeszcze twojego wyniku z tego przedmiotu.`,
+        : `Na dziś wybrałam najnowszy arkusz ${naPoziomie[co.przedmiot.poziom]}, bo nie mam jeszcze twojego wyniku z tego przedmiotu.`,
       akcja: { do: `/arkusze/${co.arkusz.id}`, etykieta: "Rozwiąż arkusz" },
       minuty: co.arkusz.czas ?? null,
       ikona: "arkusz",
@@ -88,7 +88,7 @@ export function zArkuszy(co: Propozycja): PropozycjaDnia {
       rodzaj: "wszystko",
       przedmiot: id,
       tytul: "Wszystkie arkusze rozwiązane",
-      powod: `Wszystkie arkusze na poziomie ${poziom} w Sedno masz za sobą.${co.ostatni ? ` Ostatni: ${procent(co.ostatni)}%.` : ""}${zadania ? " Na dziś wybrałam zadania z nowymi danymi, bo arkusze się skończyły." : ""}`,
+      powod: `Wszystkie arkusze ${naPoziomie[co.przedmiot.poziom]} w Sedno masz za sobą.${co.ostatni ? ` Ostatni: ${procent(co.ostatni)}%.` : ""}${zadania ? " Na dziś wybrałam zadania z nowymi danymi, bo arkusze się skończyły." : ""}`,
       akcja: zadania ?? { do: "/arkusze", etykieta: "Przejrzyj arkusze" },
       minuty: null,
       ikona: "arkusz",
