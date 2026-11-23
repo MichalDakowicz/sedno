@@ -53,6 +53,8 @@ type TutorValue = {
   ustawKontekst: (kontekst: KontekstPestki | null) => void;
   /** Tytuł zadania, o którym jest bieżąca rozmowa. */
   tematRozmowy: string | null;
+  szkicWiadomosci: string;
+  ustawSzkicWiadomosci: (tekst: string) => void;
   close: () => void;
   send: (text: string, przedmiot?: string) => void;
   wykonajAkcje: (akcja: Exclude<AkcjaPestki, "zrodlo">, id: number, przedmiot?: string) => void;
@@ -176,6 +178,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   });
   const [state, setState] = useState<AvatarState>("idle");
   const [isOpen, setOpen] = useState(false);
+  const [szkicWiadomosci, ustawSzkicWiadomosci] = useState("");
   const [guide, setGuide] = useState<Guide | null>(null);
   const [summon, setSummon] = useState<Summon | null>(null);
   const nextId = useRef(1000);
@@ -217,6 +220,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   const zacznijRozmowe = useCallback((k: KontekstPestki | null, powitanie = greeting) => {
     const id = noweId();
     biezacaRef.current = id;
+    ustawSzkicWiadomosci("");
     kontekstRozmowy.current = k;
     setTematRozmowy(k?.tytul ?? null);
     setBiezacaRozmowa(id);
@@ -438,10 +442,11 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   }, [zacznijRozmowe]);
 
   const otworzRozmowe = useCallback((id: string) => {
-    if (stanRef.current !== "idle") return;
+    if (stanRef.current !== "idle" || biezacaRef.current === id) return;
     const r = wczytajRozmowy().find((x) => x.id === id);
     if (!r) return;
     biezacaRef.current = id;
+    ustawSzkicWiadomosci("");
     kontekstRozmowy.current = null;
     setTematRozmowy(null);
     setBiezacaRozmowa(id);
@@ -474,6 +479,8 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       open,
       ustawKontekst,
       tematRozmowy,
+      szkicWiadomosci,
+      ustawSzkicWiadomosci,
       close: () => setOpen(false),
       send,
       wykonajAkcje,
@@ -497,7 +504,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       summonAt,
       spi,
     }),
-    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, send, wykonajAkcje, sprawdzOdwolanie, ponow, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
+    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, szkicWiadomosci, send, wykonajAkcje, sprawdzOdwolanie, ponow, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
   );
 
   return <TutorContext.Provider value={value}>{children}</TutorContext.Provider>;

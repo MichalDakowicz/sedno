@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { TutorAvatar } from "./TutorAvatar";
 import { TutorChat } from "./TutorChat";
 import { useTutor } from "./TutorContext";
@@ -20,6 +20,9 @@ const MIEJSCA: [string, string][] = [
   ["/przedmiot/", "przy pulpicie"],
 ];
 
+const PROG_ZNAKOW = 700;
+const PROG_WIERSZY = 9;
+
 export function gdziePatrzy(sciezka: string, temat: string | null) {
   if (temat) return `przy: ${temat}`;
   if (sciezka === "/") return "przy pulpicie";
@@ -28,15 +31,40 @@ export function gdziePatrzy(sciezka: string, temat: string | null) {
 
 // Wysuwany panel rozmowy z Pestką. Otwiera się kliknięciem w wędrującego avatara albo z jego dymka.
 export function TutorDock() {
-  const { isOpen, close, state, tematRozmowy } = useTutor();
+  const { isOpen, close, messages, state, tematRozmowy } = useTutor();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const panel = useRef<HTMLDialogElement>(null);
   const zamknij = useRef<HTMLButtonElement>(null);
+  const przedPytaniem = useRef<number | null>(null);
+  const przechodziDoCzatu = useRef(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      przedPytaniem.current = null;
+      return;
+    }
+    const ostatnia = messages.at(-1);
+    if (przedPytaniem.current === null) return;
+    if (
+      ostatnia?.from === "tutor" && !ostatnia.blad && ostatnia.id > przedPytaniem.current &&
+      (ostatnia.text.length >= PROG_ZNAKOW ||
+        ostatnia.text.split("\n").filter((wiersz) => wiersz.trim()).length >= PROG_WIERSZY)
+    ) {
+      przedPytaniem.current = null;
+      przechodziDoCzatu.current = true;
+      close();
+      navigate("/tutor");
+    } else if (state === "idle") {
+      przedPytaniem.current = null;
+    }
+  }, [isOpen, messages, state, close, navigate]);
 
   // Modalny panel zatrzymuje fokus w rozmowie. Początkowy fokus na zamknięciu nie uruchamia klawiatury telefonu.
   useEffect(() => {
     const dialog = panel.current;
     if (!isOpen || !dialog) return;
+    przechodziDoCzatu.current = false;
     const wczesniej = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     dialog.showModal();
     zamknij.current?.focus({ preventScroll: true });
@@ -44,7 +72,7 @@ export function TutorDock() {
       dialog.close();
       // Twarz Pestki wraca na ekran dopiero po zamknięciu panelu, więc fokus ustawiamy w następnej klatce.
       requestAnimationFrame(() => {
-        if (dialog.open) return;
+        if (dialog.open || przechodziDoCzatu.current) return;
         const cel = wczesniej?.isConnected && wczesniej.offsetParent ? wczesniej : document.querySelector<HTMLElement>("[data-pestka=przewodnik]");
         cel?.focus({ preventScroll: true });
       });
@@ -70,7 +98,11 @@ export function TutorDock() {
           <p className={styles.title}>Pestka</p>
           <p className={styles.context}>{gdziePatrzy(pathname, tematRozmowy)}</p>
         </div>
-        <Link to="/tutor" className={styles.iconBtn} onClick={close} aria-label="Otwórz na pełnym ekranie">
+        <Link to="/tutor" className={styles.iconBtn} onClick={(e) => {
+          if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+          przechodziDoCzatu.current = true;
+          close();
+        }} aria-label="Otwórz na pełnym ekranie">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -81,7 +113,7 @@ export function TutorDock() {
           </svg>
         </button>
       </header>
-      <TutorChat />
+      <TutorChat poWyslaniu={() => { przedPytaniem.current = messages.at(-1)?.id ?? -1; }} />
     </dialog>
   );
 }

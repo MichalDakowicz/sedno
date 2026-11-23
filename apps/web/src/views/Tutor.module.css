@@ -1,102 +1,25 @@
-.page {
-  display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
-  gap: var(--s-8);
-  align-items: start;
-  padding-top: var(--s-6);
-  padding-bottom: var(--s-6);
-  /* Wstęp (.obok-karty) zaczyna się na wysokości pierwszej wiadomości w karcie rozmowy. */
-  --wnetrze-karty: 24px;
+.uklad {
+  display: contents;
 }
 
-.intro {
-  position: sticky;
-  top: 120px;
-  display: grid;
-  gap: var(--s-4);
-  justify-items: start;
-}
-
-.avatar {
-  margin-bottom: var(--s-2);
-}
-
-.context {
-  width: 100%;
-  margin: var(--s-4) 0 0;
-  border-top: 1px solid var(--line);
-}
-
-.context div {
+.okno {
   display: flex;
-  justify-content: space-between;
-  gap: var(--s-4);
-  padding: var(--s-3) 0;
-  border-bottom: 1px solid var(--line);
-  font-size: var(--t-sm);
-}
-
-.context dt {
-  color: var(--muted);
-}
-
-.context dd {
-  margin: 0;
-  font-weight: 500;
-  text-align: right;
-}
-
-.context .subject {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
-}
-
-.context div:has(.subject) {
-  align-items: center;
-}
-
-/* Rozmowa potrzebuje własnej, wyraźnie odciętej powierzchni, więc tu karta ma sens. */
-.chat {
-  height: calc(100vh - 152px);
-  min-height: 480px;
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-float);
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
-@media (max-width: 900px) {
-  .page {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--s-6);
-    padding-top: var(--s-6);
-  }
-
-  .intro {
-    position: static;
-  }
-
-  .chat {
-    height: 70vh;
-  }
+.okno > :not(.page) {
+  flex-shrink: 0;
 }
 
-/* Na telefonie rozmowa zaczyna się od razu pod tytułem: bez dużej twarzy i listy przedmiotów (Pestka zna je z profilu). */
-@media (max-width: 640px) {
-  .page {
-    gap: var(--s-4);
-    padding-top: var(--s-4);
-  }
-
-  .avatar,
-  .context {
-    display: none;
-  }
-
-  .chat {
-    height: calc(100dvh - 220px);
-    min-height: 420px;
-    border-radius: var(--r-md);
-  }
+.page {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  border-top: 1px solid var(--line);
+  background: var(--surface);
 }
