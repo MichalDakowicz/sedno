@@ -74,7 +74,7 @@ Deno.test("pytanie o Wokulskiego pobiera sekcję bohaterów Lalki i pokazuje wy�
   assertEquals(uzupelnijZrodloLektury(krok, "Wokulski jest kupcem."), "Wokulski jest kupcem. [[zrodlo:1]]");
 });
 
-Deno.test("stresc mi lalke wybiera Lalkę i jej krótkie streszczenie", async () => {
+Deno.test("stresc mi lalke wybiera wydarzenia i postaci zamiast gotowego streszczenia", async () => {
   const pytanie = "stresc mi lalke";
   const pytaniaDoBazy: unknown[] = [];
   const krok = await przygotujCzat([{ role: "user", content: pytanie }], { tryb: "czat" }, {
@@ -82,16 +82,36 @@ Deno.test("stresc mi lalke wybiera Lalkę i jej krótkie streszczenie", async ()
     zapytaj: bezSieci,
     baza: (p) => {
       pytaniaDoBazy.push(p);
-      return Promise.resolve([{ ...rekord, utwor: "lalka", sekcja: "streszczenie",
-        tekst: "Wokulski zabiega o względy Izabeli Łęckiej.", zrodlo_url: "https://wolnelektury.pl/katalog/lektura/lalka/" }]);
+      return Promise.resolve([
+        { ...rekord, utwor: "lalka", sekcja: "wydarzenia", tekst: "Wokulski odkupuje kamienicę Łęckich." },
+        { ...rekord, utwor: "lalka", sekcja: "bohaterowie", tekst: "Wokulski zabiega o względy Izabeli Łęckiej." },
+        { ...rekord, utwor: "lalka", sekcja: "streszczenie", tekst: "Gotowe streszczenie opracowania." },
+      ]);
     },
   });
-  assertEquals(pytaniaDoBazy, [{ p_przedmiot: "polski", p_utwor: "lalka", p_sekcja: "streszczenie", p_pytanie: pytanie }]);
-  assertEquals(krok.materialy[0]?.zrodlo.sekcja, "Opracowanie Sedno · Krótkie streszczenie");
+  assertEquals(pytaniaDoBazy, [{ p_przedmiot: "polski", p_utwor: "lalka", p_sekcja: "wydarzenia", p_pytanie: pytanie }]);
+  assertEquals(krok.materialy.map((m) => m.sekcja), ["wydarzenia", "bohaterowie"]);
   assert(String(krok.messages[0]?.content).includes("Napisz streszczenie własnymi słowami"));
   assert(String(krok.messages[0]?.content).includes("Wokulski zabiega o względy Izabeli Łęckiej."));
+  assert(!String(krok.messages[0]?.content).includes("Gotowe streszczenie opracowania."));
   const wygenerowane = "To historia Wokulskiego, który stara się zdobyć względy Izabeli.";
   assertEquals(uzupelnijZrodloLektury(krok, wygenerowane), `${wygenerowane} [[zrodlo:1]]`);
+});
+
+Deno.test("pytanie o fakt używa treści odpowiedzi modelu, a dowód zostaje przy źródle", async () => {
+  let wywolania = 0;
+  const odpowiedz = "Tak, Rejent każe murarzom naprawić mur.";
+  const wynik = await przygotujCzat([{ role: "user", content: "Czy w Zemście Rejent zlecił naprawę muru?" }], { tryb: "czat" }, {
+    ...dostep, baza: () => Promise.resolve([rekord]),
+    zapytaj: () => Promise.resolve(wywolania++ === 0 ? cel : JSON.stringify({
+      status: "potwierdzone", numer: 1, dowod, komentarz: odpowiedz,
+    })),
+  });
+  assert(wynik.weryfikacja);
+  const { tekst, dane } = odpowiedzWeryfikacji(wynik.weryfikacja, false);
+  assertEquals(tekst, odpowiedz);
+  assertEquals(dane.sprawdzenie, undefined);
+  assertEquals(odczytajOdpowiedzPestki(dane)?.zrodla[0]?.dowod, dowod);
 });
 
 Deno.test("Pestka dostaje kilka sekcji tego samego utworu i zachowuje przypisy powyżej trzech", async () => {

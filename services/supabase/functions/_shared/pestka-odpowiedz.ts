@@ -12,6 +12,7 @@ export type ZrodloPestki = {
   rodzaj: "utwór" | "opracowanie";
   sekcja?: string;
   twierdzenie?: string;
+  dowod?: string;
 };
 export type SprawdzenieLektury = {
   status: "Potwierdzone" | "Sprzeczne ze źródłem" | "Niepotwierdzone";
@@ -49,7 +50,8 @@ export function zrodloPestki(raw: unknown): ZrodloPestki | undefined {
   }
   const sekcja = napisPestki(dane.sekcja, 200);
   const twierdzenie = napisPestki(dane.twierdzenie, 500);
-  return { url, tytul, rodzaj: dane.rodzaj, ...(sekcja && { sekcja }), ...(twierdzenie && { twierdzenie }) };
+  const dowod = napisPestki(dane.dowod, 400);
+  return { url, tytul, rodzaj: dane.rodzaj, ...(sekcja && { sekcja }), ...(twierdzenie && { twierdzenie }), ...(dowod && { dowod }) };
 }
 
 export function sprawdzeniePestki(raw: unknown): SprawdzenieLektury | undefined {

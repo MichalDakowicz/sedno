@@ -285,7 +285,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
         write(wynik.pestka?.sprawdzenie ? text : "Sprawdzanie lektur jest chwilowo niedostępne. Spróbuj ponownie.", { pestka, blad: !pestka?.sprawdzenie });
       }
       else if (!widoczny.trim()) write("Zamyśliłam się i nic nie napisałam. Zapytaj jeszcze raz?");
-      else if (powtarzaTutora(widoczny, historia)) write("Powtarzam się. Napisz własnymi słowami, co jest dla ciebie niejasne, a wyjaśnię to inaczej.");
+      else if (k?.sokratejski && powtarzaTutora(widoczny, historia)) write("Powtarzam się. Napisz własnymi słowami, co jest dla ciebie niejasne, a wyjaśnię to inaczej.");
       else {
         // Zapis dopiero po całej odpowiedzi i najwyżej jeden na odpowiedź; uczeń zawsze widzi w czacie, co trafiło do profilu.
         // Twarda ochrona obok promptu: priorytet musi wynikać z ostatniej wiadomości ucznia; odrzucony znika po cichu.

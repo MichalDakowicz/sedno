@@ -47,6 +47,7 @@ export function OdpowiedzPestki({ tekst, dane, zajeta, wykonaj }: {
           {odpowiedz.zrodla.map((z, i) => (
             <li key={i}>
               {otwarte && z.twierdzenie && <p>{z.twierdzenie}</p>}
+              {otwarte && z.dowod && <p>„{z.dowod}”</p>}
               <a href={z.url} target="_blank" rel="noreferrer">
                 {z.twierdzenie?.match(/^\[\d+\]/)?.[0]} {z.tytul}{z.sekcja ? ` · ${z.sekcja}` : ""}
               </a>{" "}
