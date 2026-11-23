@@ -88,6 +88,9 @@ export type PytanieOtwarte = PytanieBaza & {
   kod?: boolean; // odpowiedź to kod z liter i cyfr (PF, A2), a nie tekst
   wynik?: boolean; // wynik zadania praktycznego (informatyka): porównanie bez spacji, jednostek i formatu liczb
   tabela?: boolean; // odpowiedź w komórkach tabeli (informatyka): wiersze sprawdzane z wierszami klucza
+  // Polecenie „narysuj”, „dorysuj”, „zaznacz na mapie”: uczeń rysuje na figurze (obraz), a rysunek
+  // porównuje z zasadami CKE (samoocena albo Pestka). polecenie: samo zdanie o tym, co narysować.
+  rysowanie?: { obraz: Obraz; polecenie?: string };
 };
 
 export type Wypowiedz = PytanieBaza & { typ: "wypowiedz"; poczatek?: string };
