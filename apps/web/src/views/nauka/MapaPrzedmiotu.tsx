@@ -4,7 +4,7 @@
 import { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, ChevronRight, MessagesSquare } from "lucide-react";
-import type { Poziom } from "../../arkusze/typy";
+import { nazwaSesji, type Poziom } from "../../arkusze/typy";
 import { Gotowosc } from "../../components/Gotowosc";
 import { Kielek } from "../../components/Kielek";
 import { Ogrod } from "../../components/Ogrod";
@@ -20,7 +20,7 @@ import { Opanowanie } from "./Opanowanie";
 import s from "./Umiejetnosci.module.css";
 
 export const adresMapyPrzedmiotu = (p: PrzedmiotId, skill?: string) => `/umiejetnosci?przedmiot=${p}${skill ? `&umiejetnosc=${skill}` : ""}`;
-export const nazwaBledu = (b: BladArkusza) => `Matura ${b.arkusz.sesja} ${b.arkusz.rok} · ${b.tytul}`;
+export const nazwaBledu = (b: BladArkusza) => `${nazwaSesji(b.arkusz)} · ${b.tytul}`;
 export const adresBledu = (b: BladArkusza) => `/arkusze/${encodeURIComponent(b.arkusz.id)}#zadanie-${b.zadanie}`;
 const zadan = (n: number) => (n === 1 ? "zadanie" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "zadania" : "zadań");
 

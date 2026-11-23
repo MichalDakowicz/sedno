@@ -11,6 +11,7 @@ import {
   nazwaPoziomu,
   adresObrazu,
   nazwaPrzedmiotu,
+  nazwaSesji,
   nazwaZadaniaCke,
   type Arkusz as ArkuszDane,
   type Blok,
@@ -745,7 +746,7 @@ function Naglowek({ arkusz, onNaCzas, onCofnijNaCzas, zwiniety, wStronach }: {
       </span>
       {!zwiniety && (
       <h1 className="h1">
-        Matura {arkusz.sesja} {arkusz.rok}
+        {nazwaSesji(arkusz)}
       </h1>
       )}
       {!zwiniety && <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>}

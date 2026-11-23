@@ -3,7 +3,7 @@
 // powtórka na dziś → obszar zadeklarowany jako słaby, dopóki dane go nie potwierdzą ani nie obalą → polecenie z
 // nauka_polec → nowy arkusz. Powód mówi o celu i czasie z quizu celów, gdy uczeń je podał.
 // Rundy są tylko z angielskiego; inne przedmioty dostają propozycję z arkuszy (konto/wyniki.ts).
-import type { ArkuszWpis, Poziom } from "../arkusze/typy";
+import { nazwaSesji, type ArkuszWpis, type Poziom } from "../arkusze/typy";
 import { brakArkuszy, naPoziomie, nazwaPoziomu, przedmiot, type PrzedmiotId } from "../konto/przedmioty";
 import { useProfil } from "../auth";
 import { propozycja, useWynikiKonta, type Podsumowanie, type Propozycja } from "../konto/wyniki";
@@ -34,7 +34,7 @@ export type PropozycjaDnia = {
   powtorka?: Powtorka;
 };
 
-const tytulArkusza = (a: ArkuszWpis) => `Matura ${a.sesja} ${a.rok}`;
+const tytulArkusza = (a: ArkuszWpis) => nazwaSesji(a);
 const procent = (w: { zdobyte: number; mozliwe: number }) => (w.mozliwe > 0 ? Math.round((w.zdobyte / w.mozliwe) * 100) : 0);
 
 /** Co da się dziś zrobić w przedmiocie bez rund angielskiego (Nauka, pulpit przedmiotu). */

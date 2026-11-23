@@ -1,7 +1,11 @@
 // Format danych z services/arkusze (importuj.js).
 
 export type Poziom = "podstawowy" | "rozszerzony" | "dwujezyczny";
-export type Przedmiot = "angielski" | "matematyka" | "informatyka";
+export type Przedmiot =
+  | "angielski" | "matematyka" | "informatyka" | "polski" | "biologia" | "chemia"
+  | "fizyka" | "geografia" | "historia" | "wos" | "filozofia" | "lacina";
+/** Rodzaj sesji: główny (maj), dodatkowy (czerwiec), poprawkowy (sierpień), próbny (arkusze próbne CKE). */
+export type Termin = "glowny" | "dodatkowy" | "poprawkowy" | "probny";
 
 export type ArkuszWpis = {
   id: string;
@@ -10,6 +14,10 @@ export type ArkuszWpis = {
   poziom: Poziom;
   rok: number;
   sesja: string;
+  /** Brak = termin główny. */
+  termin?: Termin;
+  /** Gdy jedna sesja ma kilka arkuszy (np. polski): „Część 1”. */
+  czesc?: string;
   symbol: string;
   czas?: number;
   punkty: number;
@@ -116,6 +124,15 @@ export const nazwaPrzedmiotu: Record<Przedmiot, string> = {
   angielski: "Język angielski",
   matematyka: "Matematyka",
   informatyka: "Informatyka",
+  polski: "Język polski",
+  biologia: "Biologia",
+  chemia: "Chemia",
+  fizyka: "Fizyka",
+  geografia: "Geografia",
+  historia: "Historia",
+  wos: "Wiedza o społeczeństwie",
+  filozofia: "Filozofia",
+  lacina: "Język łaciński i kultura antyczna",
 };
 
 export const nazwaPoziomu: Record<Poziom, string> = {
@@ -124,7 +141,31 @@ export const nazwaPoziomu: Record<Poziom, string> = {
   dwujezyczny: "Poziom dwujęzyczny",
 };
 
-const nazwySesji: Record<string, string> = { sierpien: "sierpień", wrzesien: "wrzesień" };
+const nazwySesji: Record<string, string> = { sierpien: "sierpień", wrzesien: "wrzesień", grudzien: "grudzień", probna: "próbna" };
+
+type Sesja = Pick<ArkuszWpis, "sesja" | "rok" | "termin" | "czesc">;
+
+/** „Matura maj 2026”, „Próbna matura grudzień 2025”; z częścią: „Matura maj 2026, część 1”. Jedna nazwa arkusza w całej aplikacji. */
+export function nazwaSesji(a: Sesja): string {
+  const nazwa = `${a.termin === "probny" ? "Próbna matura" : "Matura"} ${a.sesja} ${a.rok}`;
+  return a.czesc ? `${nazwa}, ${a.czesc.charAt(0).toLowerCase()}${a.czesc.slice(1)}` : nazwa;
+}
+
+export const nazwyTerminow: Record<Termin, string> = { glowny: "Termin główny", dodatkowy: "Termin dodatkowy", poprawkowy: "Termin poprawkowy", probny: "Próbne" };
+export const KOLEJNOSC_TERMINOW: Termin[] = ["glowny", "dodatkowy", "poprawkowy", "probny"];
+
+export const terminArkusza = (a: Pick<ArkuszWpis, "termin">): Termin => a.termin ?? "glowny";
+export const formulaArkusza = (a: Pick<ArkuszWpis, "formula">) => a.formula ?? "2023";
+
+/** Od tego, co uczeń zdaje dziś: formuła 2023 przed 2015, termin główny przed pozostałymi, potem od najnowszego roku i części. */
+export function porownajArkusze(a: ArkuszWpis, b: ArkuszWpis): number {
+  return (
+    formulaArkusza(b).localeCompare(formulaArkusza(a)) ||
+    KOLEJNOSC_TERMINOW.indexOf(terminArkusza(a)) - KOLEJNOSC_TERMINOW.indexOf(terminArkusza(b)) ||
+    b.rok - a.rok ||
+    (a.czesc ?? "").localeCompare(b.czesc ?? "", "pl", { numeric: true })
+  );
+}
 
 const dataRundy = new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long", timeZone: "Europe/Warsaw" });
 

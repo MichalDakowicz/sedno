@@ -3,41 +3,34 @@ import { Link, useSearchParams } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { rozgrzejArkusz, useListaArkuszy } from "../arkusze/dane";
 import { wczytajPostep } from "../arkusze/postep";
-import type { ArkuszWpis, Poziom, Przedmiot } from "../arkusze/typy";
+import {
+  KOLEJNOSC_TERMINOW,
+  formulaArkusza,
+  nazwaPrzedmiotu,
+  nazwaSesji,
+  nazwyTerminow,
+  porownajArkusze,
+  terminArkusza,
+  type ArkuszWpis,
+  type Poziom,
+  type Przedmiot,
+} from "../arkusze/typy";
 import { useProfil } from "../auth";
-import { brakArkuszy } from "../konto/przedmioty";
+import { brakArkuszy, PRZEDMIOTY, przedmiot as opisPrzedmiotu } from "../konto/przedmioty";
 import { NaglowekStrony } from "../components/NaglowekStrony";
 import { Ladowanie } from "../components/Ladowanie";
 import { Pierscien } from "../components/wykresy";
-import { Plywak } from "../components/Plywak";
+import { Pigulki } from "../components/Pigulki";
 import { usePostepyKonta } from "../konto/wyniki";
 import { liczOdpowiedzi } from "../arkusze/sprawdz";
 import styles from "./Arkusze.module.css";
 
-const PRZEDMIOTY: { id: Przedmiot; nazwa: string; opis: string }[] = [
-  {
-    id: "angielski",
-    nazwa: "Angielski",
-    opis: "Język angielski · matura od 2015",
-  },
-  {
-    id: "matematyka",
-    nazwa: "Matematyka",
-    opis: "Matematyka · poziom podstawowy · matura od 2023",
-  },
-  {
-    id: "informatyka",
-    nazwa: "Informatyka",
-    opis: "Informatyka · poziom rozszerzony · matura od 2023",
-  },
-];
 const POZIOMY: Poziom[] = ["podstawowy", "rozszerzony", "dwujezyczny"];
 const NAZWY: Record<Poziom, string> = { podstawowy: "Podstawowy", rozszerzony: "Rozszerzony", dwujezyczny: "Dwujęzyczny" };
+const FORMULY = ["2023", "2015"] as const;
 
-const FORMULY = [
-  { id: "2023", nazwa: "Formuła 2023" },
-  { id: "2015", nazwa: "Formuła 2015" },
-];
+const idPrzedmiotu = (a: ArkuszWpis): Przedmiot => a.przedmiot ?? "angielski";
+const nazwaKrotka = (id: Przedmiot) => opisPrzedmiotu(id)?.nazwa ?? id;
 
 export function Arkusze() {
   const { dane, blad, laduje } = useListaArkuszy();
@@ -48,49 +41,87 @@ export function Arkusze() {
   const [parametry] = useSearchParams();
   const zAdresu = PRZEDMIOTY.find((p) => p.id === parametry.get("przedmiot"))?.id;
   const poziomZAdresu = POZIOMY.find((p) => p === parametry.get("poziom"));
-  const [przedmiot, setPrzedmiot] = useState<Przedmiot>(() => zAdresu ?? PRZEDMIOTY.find((p) => poziomKonta(p.id))?.id ?? "angielski");
-  const [wybranyPoziom, setPoziom] = useState<Poziom>(() => poziomZAdresu ?? poziomKonta(przedmiot) ?? "podstawowy");
-  const opis = PRZEDMIOTY.find((p) => p.id === przedmiot)!;
-  const zPrzedmiotu = dane?.filter((a) => (a.przedmiot ?? "angielski") === przedmiot);
-  // Poziomy, dla których są arkusze (matematyka na razie tylko podstawowa).
+  const [wybrany, setPrzedmiot] = useState<Przedmiot>(() => zAdresu ?? profil?.subjects[0]?.id ?? "angielski");
+  const [wybranyPoziom, setPoziom] = useState<Poziom>(() => poziomZAdresu ?? poziomKonta(wybrany) ?? "podstawowy");
+  const [wybranaFormula, setFormula] = useState<string>(FORMULY[0]);
+
+  // Przełącznik zna tylko przedmioty, które mają arkusze: najpierw te z profilu (pigułki), reszta w liście „Inne”.
+  const zArkuszami = new Set((dane ?? []).map(idPrzedmiotu));
+  const mojeId = [...new Set((profil?.subjects ?? []).map((s) => s.id))];
+  const glowne = mojeId.filter((id) => zArkuszami.has(id));
+  const inne = PRZEDMIOTY.map((p) => p.id).filter((id) => zArkuszami.has(id) && !glowne.includes(id));
+  const przedmiot = !dane || zArkuszami.has(wybrany) ? wybrany : (glowne[0] ?? inne[0] ?? wybrany);
+
+  const zPrzedmiotu = dane?.filter((a) => idPrzedmiotu(a) === przedmiot);
+  // Poziomy, dla których są arkusze przedmiotu.
   const poziomy = POZIOMY.filter((p) => !zPrzedmiotu || zPrzedmiotu.some((a) => a.poziom === p));
   const poziom = poziomy.includes(wybranyPoziom) ? wybranyPoziom : (poziomy[0] ?? "podstawowy");
+  const naPoziomie = zPrzedmiotu?.filter((a) => a.poziom === poziom) ?? [];
+  // Formuły tego poziomu: bez wyboru pierwsza (2023), bo to ona obowiązuje na obecnej maturze.
+  const formuly = FORMULY.filter((f) => naPoziomie.some((a) => formulaArkusza(a) === f));
+  const formula = formuly.some((f) => f === wybranaFormula) ? wybranaFormula : (formuly[0] ?? FORMULY[0]);
+  const arkusze = naPoziomie.filter((a) => formulaArkusza(a) === formula).sort(porownajArkusze);
+  const terminy = KOLEJNOSC_TERMINOW.map((t) => ({ termin: t, arkusze: arkusze.filter((a) => terminArkusza(a) === t) })).filter((g) => g.arkusze.length);
+
   // Poziom z profilu, którego arkuszy jeszcze nie ma, i przedmioty z profilu bez żadnych arkuszy: mówimy to wprost.
   const brakPoziomu = zPrzedmiotu && poziomKonta(przedmiot) && !poziomy.includes(poziomKonta(przedmiot)!) ? poziomKonta(przedmiot)! : null;
-  const bezArkuszy = (profil?.subjects ?? []).filter((s) => !PRZEDMIOTY.some((p) => p.id === s.id)).map((s) => s.id);
+  const bezArkuszy = dane ? mojeId.filter((id) => !zArkuszami.has(id)) : [];
+
+  function wybierzPrzedmiot(id: Przedmiot) {
+    setPrzedmiot(id);
+    setPoziom(poziomKonta(id) ?? "podstawowy");
+  }
 
   return (
     <main className={`container ${styles.page}`}>
-      <NaglowekStrony etykieta={opis.opis} tytul="Arkusze" />
+      <NaglowekStrony etykieta={nazwaPrzedmiotu[przedmiot]} tytul="Arkusze" />
 
-      <nav className={styles.levels} aria-label="Przedmiot">
-        <Plywak wyglad="pigulka" />
-        {PRZEDMIOTY.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            className={styles.level}
-            onClick={() => {
-              setPrzedmiot(p.id);
-              setPoziom(poziomKonta(p.id) ?? "podstawowy");
-            }}
-            aria-pressed={przedmiot === p.id}
-          >
-            {p.nazwa}
-          </button>
-        ))}
-      </nav>
+      {dane && (
+        <div className={styles.filtry}>
+          <Pigulki role="group" aria-label="Przedmiot">
+            {glowne.map((id) => (
+              <button key={id} type="button" className="pigulka" onClick={() => wybierzPrzedmiot(id)} aria-pressed={przedmiot === id}>
+                {nazwaKrotka(id)}
+              </button>
+            ))}
+            {inne.length > 0 && (
+              <select
+                className={`select ${styles.inne}`}
+                aria-label="Inne przedmioty"
+                data-wybrany={inne.includes(przedmiot)}
+                value={inne.includes(przedmiot) ? przedmiot : ""}
+                onChange={(e) => wybierzPrzedmiot(e.target.value as Przedmiot)}
+              >
+                <option value="" disabled>{glowne.length ? "Inne przedmioty" : "Wybierz przedmiot"}</option>
+                {inne.map((id) => (
+                  <option key={id} value={id}>{nazwaKrotka(id)}</option>
+                ))}
+              </select>
+            )}
+          </Pigulki>
 
-      {poziomy.length > 1 && (
-        <nav className={styles.levels} aria-label="Poziom">
-          <Plywak wyglad="pigulka" />
-          {poziomy.map((p) => (
-            <button key={p} type="button" className={styles.level} onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
-              {NAZWY[p]}
-              {zPrzedmiotu && <span className={styles.levelCount}>{zPrzedmiotu.filter((a) => a.poziom === p).length}</span>}
-            </button>
-          ))}
-        </nav>
+          {poziomy.length > 1 && (
+            <Pigulki role="group" aria-label="Poziom">
+              {poziomy.map((p) => (
+                <button key={p} type="button" className="pigulka" onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
+                  {NAZWY[p]}
+                  <span className={styles.levelCount}>{zPrzedmiotu!.filter((a) => a.poziom === p).length}</span>
+                </button>
+              ))}
+            </Pigulki>
+          )}
+
+          {formuly.length > 1 && (
+            <Pigulki role="group" aria-label="Formuła matury">
+              {formuly.map((f) => (
+                <button key={f} type="button" className="pigulka" onClick={() => setFormula(f)} aria-pressed={formula === f}>
+                  Formuła {f}
+                  <span className={styles.levelCount}>{naPoziomie.filter((a) => formulaArkusza(a) === f).length}</span>
+                </button>
+              ))}
+            </Pigulki>
+          )}
+        </div>
       )}
 
       {brakPoziomu && (
@@ -105,29 +136,28 @@ export function Arkusze() {
       {laduje && <Ladowanie ksztalt="wiersze" ile={5} etykieta="Wczytuję listę arkuszy" />}
       {blad && <BrakDanych blad={blad} />}
 
-      {zPrzedmiotu &&
-        FORMULY.map((f) => {
-          const arkusze = zPrzedmiotu.filter((a) => a.poziom === poziom && (a.formula ?? "2023") === f.id);
-          if (!arkusze.length) return null;
-          return (
-            <section key={f.id} className={`${styles.group} wejscie`}>
+      {terminy.length > 0 && (
+        <div className={styles.grupy}>
+          {terminy.map((g) => (
+            <section key={`${formula}-${g.termin}`} className={`${styles.group} wejscie`} aria-labelledby={`termin-${g.termin}`}>
               <header className={styles.groupHead}>
-                <h2 className="h3">{f.nazwa}</h2>
-                <p className="small muted">{opisGrupy(arkusze).join(" · ")}</p>
+                <h2 className="h3" id={`termin-${g.termin}`}>{nazwyTerminow[g.termin]}</h2>
+                <p className="small muted">{opisGrupy(g.arkusze).join(" · ")}</p>
               </header>
-              <ul className={styles.list}>
-                {arkusze.map((a) => (
-                  <Karta key={a.id} arkusz={a} />
+              <ul className={`wiersze ${styles.list}`}>
+                {g.arkusze.map((a) => (
+                  <Wiersz key={a.id} arkusz={a} />
                 ))}
               </ul>
             </section>
-          );
-        })}
+          ))}
+        </div>
+      )}
 
       {/* Przedmioty z profilu bez arkuszy nie mają zakładki: informacja o nich stoi pod listą, a nie nad arkuszami innego przedmiotu. */}
       {bezArkuszy.length > 0 && (
         <div className={styles.braki}>
-          {[...new Set(bezArkuszy)].map((id) => (
+          {bezArkuszy.map((id) => (
             <p key={id} className="muted">{brakArkuszy(id, null, [])}</p>
           ))}
         </div>
@@ -157,24 +187,26 @@ function KontynuujArkusz({ lista }: { lista: ArkuszWpis[] }) {
   );
 }
 
-const nazwaArkusza = (a: ArkuszWpis) => `${a.przedmiot === "matematyka" ? "Matematyka" : a.przedmiot === "informatyka" ? "Informatyka" : "Angielski"} · matura ${a.sesja} ${a.rok}`;
+const nazwaArkusza = (a: ArkuszWpis) => `${nazwaKrotka(idPrzedmiotu(a))} · ${nazwaSesji(a).replace(/^./, (c) => c.toLowerCase())}`;
 
-function Karta({ arkusz: a }: { arkusz: ArkuszWpis }) {
+const wielka = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+
+/** Jeden arkusz: sesja z rokiem, część (gdy sesja ma kilka arkuszy), stan i wynik. */
+function Wiersz({ arkusz: a }: { arkusz: ArkuszWpis }) {
   const postep = wczytajPostep(a.id);
   const zaczety = Object.keys(postep.odpowiedzi).length > 0;
   const proc = postep.wynik && postep.wynik.mozliwe > 0 ? Math.round((postep.wynik.zdobyte / postep.wynik.mozliwe) * 100) : null;
   return (
     <li>
-      <Link to={`/arkusze/${a.id}`} className={styles.card} title={a.symbol} onPointerEnter={() => rozgrzejArkusz(a.id)} onFocus={() => rozgrzejArkusz(a.id)} onTouchStart={() => rozgrzejArkusz(a.id)}>
-        <span className="kicker">{a.sesja}</span>
-        <span className={styles.year}>{a.rok}</span>
-        <span className={styles.status}>
-          {proc !== null ? <Pierscien wartosc={proc / 100} prog={a.poziom === "podstawowy" ? 0.3 : undefined} rozmiar={48} opis={`Wynik ${proc}%`} /> : zaczety ? <span className="small muted">w trakcie</span> : <span className="small muted">nierozwiązany</span>}
+      <Link to={`/arkusze/${a.id}`} className="wiersz" title={a.symbol} onPointerEnter={() => rozgrzejArkusz(a.id)} onFocus={() => rozgrzejArkusz(a.id)} onTouchStart={() => rozgrzejArkusz(a.id)}>
+        <span className="wiersz-tresc">
+          <span className="h3">{wielka(a.sesja)} {a.rok}</span>
+          {a.czesc && <span className="wiersz-opis">{a.czesc}</span>}
         </span>
-        <span className={`btn btn-ghost ${styles.action}`}>
-          {proc !== null ? "Zobacz wynik" : zaczety ? "Kontynuuj" : "Rozwiąż"}
-          <ChevronRight size={16} aria-hidden="true" />
+        <span className="wiersz-wartosc">
+          {proc !== null ? <Pierscien wartosc={proc / 100} prog={a.poziom === "podstawowy" ? 0.3 : undefined} rozmiar={44} opis={`Wynik ${proc}%`} /> : zaczety ? <span className="muted">w trakcie</span> : <span className="muted">nierozwiązany</span>}
         </span>
+        <span className="wiersz-akcja"><ChevronRight size={20} aria-hidden="true" /></span>
       </Link>
     </li>
   );
