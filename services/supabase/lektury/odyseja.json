@@ -1,0 +1,598 @@
+{
+ "id": "odyseja",
+ "wydarzenia": [
+  {
+   "nr": 1,
+   "miejsce": "pieśń I",
+   "kto": [
+    "Atena",
+    "Zeus",
+    "Telemachos"
+   ],
+   "gdzie": "Itaka; Olimp",
+   "opis": "Bogowie radzą nad losem Odyseusza, uwięzionego przez nimfę Kalypso, a Atena w postaci gościa zachęca Telemacha, by szukał wieści o ojcu."
+  },
+  {
+   "nr": 2,
+   "miejsce": "pieśń II",
+   "kto": [
+    "Telemachos",
+    "zalotnicy"
+   ],
+   "gdzie": "Itaka",
+   "opis": "Telemachos na zgromadzeniu skarży się na zalotników Penelopy i potajemnie wyrusza statkiem na poszukiwanie ojca."
+  },
+  {
+   "nr": 3,
+   "miejsce": "pieśń III",
+   "kto": [
+    "Telemachos",
+    "Nestor"
+   ],
+   "gdzie": "Pylos",
+   "opis": "W Pylos Nestor opowiada Telemachowi o powrotach wodzów spod Troi, ale nie wie, co stało się z Odyseuszem."
+  },
+  {
+   "nr": 4,
+   "miejsce": "pieśń IV",
+   "kto": [
+    "Telemachos",
+    "Menelaos",
+    "Helena"
+   ],
+   "gdzie": "Sparta",
+   "opis": "W Sparcie Menelaos opowiada, że wedle słów Proteusza Odyseusz żyje i jest więziony na wyspie nimfy."
+  },
+  {
+   "nr": 5,
+   "miejsce": "pieśń V",
+   "kto": [
+    "Odyseusz",
+    "Kalypso",
+    "Hermes",
+    "Posejdon"
+   ],
+   "gdzie": "wyspa Kalypso; morze",
+   "opis": "Na rozkaz bogów Kalypso wypuszcza Odyseusza, który buduje tratwę; Posejdon rozbija ją burzą, a Odyseusz ratuje się dzięki pomocy bogini Leukotei."
+  },
+  {
+   "nr": 6,
+   "miejsce": "pieśń VI",
+   "kto": [
+    "Odyseusz",
+    "Nausyka"
+   ],
+   "gdzie": "wybrzeże Feaków",
+   "opis": "Odyseusz, wyrzucony przez morze, budzi się na brzegu, spotyka królewnę Nausykę i prosi ją o pomoc."
+  },
+  {
+   "nr": 7,
+   "miejsce": "pieśń VII",
+   "kto": [
+    "Odyseusz",
+    "Alkinoos",
+    "Arete"
+   ],
+   "gdzie": "pałac Alkinoosa",
+   "opis": "Odyseusz zostaje przyjęty w pałacu króla Alkinoosa."
+  },
+  {
+   "nr": 8,
+   "miejsce": "pieśń VIII",
+   "kto": [
+    "Odyseusz",
+    "Alkinoos",
+    "Demodokos"
+   ],
+   "gdzie": "pałac Alkinoosa",
+   "opis": "Na uczcie Feakowie urządzają igrzyska, a pieśń Demodokosa o Troi sprawia, że Odyseusz płacze."
+  },
+  {
+   "nr": 9,
+   "miejsce": "pieśń IX",
+   "kto": [
+    "Odyseusz",
+    "Polyfem",
+    "towarzysze"
+   ],
+   "gdzie": "kraj Lotofagów; jaskinia Kyklopa",
+   "opis": "Odyseusz opowiada o przygodach u Lotofagów i w jaskini Kyklopa Polyfema, którego oślepia, podając się za Nikogo."
+  },
+  {
+   "nr": 10,
+   "miejsce": "pieśń X",
+   "kto": [
+    "Odyseusz",
+    "Ajolos",
+    "Lajstrygonowie",
+    "Kirka",
+    "Hermes"
+   ],
+   "gdzie": "wyspa Ajola; kraj Lajstrygonów; wyspa Kirki",
+   "opis": "Odyseusz opowiada o przygodach u Ajola i Lajstrygonów oraz u Kirki, która zamienia towarzyszy w świnie; ziółko od Hermesa pomaga Odyseuszowi ją pokonać."
+  },
+  {
+   "nr": 11,
+   "miejsce": "pieśń XI",
+   "kto": [
+    "Odyseusz",
+    "Tejresjasz"
+   ],
+   "gdzie": "kraj zmarłych (Nekyja)",
+   "opis": "Odyseusz zstępuje do świata zmarłych, gdzie wieszcz Tejresjasz przepowiada mu dalszą drogę, a potem rozmawia z cieniami zmarłych."
+  },
+  {
+   "nr": 12,
+   "miejsce": "pieśń XII",
+   "kto": [
+    "Odyseusz",
+    "Syreny",
+    "Skylla",
+    "Charybda",
+    "towarzysze"
+   ],
+   "gdzie": "morze: wyspa Syren, cieśnina",
+   "opis": "Odyseusz każe zalać woskiem uszy załogi i przywiązać się do masztu, by usłyszeć Syreny; mija Skyllę i Charybdę, a towarzysze giną po zabiciu bydła Heliosa."
+  },
+  {
+   "nr": 13,
+   "miejsce": "pieśń XIII",
+   "kto": [
+    "Odyseusz",
+    "Alkinoos",
+    "Atena"
+   ],
+   "gdzie": "kraj Feaków; Itaka",
+   "opis": "Feakowie odwożą Odyseusza do Itaki, a Atena pomaga mu ukryć powrót, zmieniając jego wygląd."
+  },
+  {
+   "nr": 14,
+   "miejsce": "pieśń XIV",
+   "kto": [
+    "Odyseusz",
+    "Eumajos"
+   ],
+   "gdzie": "chata pastucha Eumajosa",
+   "opis": "Przebrany za żebraka Odyseusz zatrzymuje się u wiernego pastucha Eumajosa."
+  },
+  {
+   "nr": 15,
+   "miejsce": "pieśń XV",
+   "kto": [
+    "Telemachos",
+    "Eumajos"
+   ],
+   "gdzie": "Sparta; Itaka",
+   "opis": "Telemachos wraca z Pylos do Itaki i zatrzymuje się u Eumajosa."
+  },
+  {
+   "nr": 16,
+   "miejsce": "pieśń XVI",
+   "kto": [
+    "Odyseusz",
+    "Telemachos"
+   ],
+   "gdzie": "chata Eumajosa",
+   "opis": "Telemachos rozpoznaje Odyseusza, a razem planują zemstę na zalotnikach."
+  },
+  {
+   "nr": 17,
+   "miejsce": "pieśń XVII",
+   "kto": [
+    "Odyseusz",
+    "Argos",
+    "Antinoos",
+    "Eumajos"
+   ],
+   "gdzie": "droga do miasta; pałac",
+   "opis": "Pies Argos poznaje Odyseusza, a zalotnik Antinoos upokarza przebranego żebraka."
+  },
+  {
+   "nr": 18,
+   "miejsce": "pieśń XVIII",
+   "kto": [
+    "Odyseusz",
+    "Iros",
+    "Penelopa"
+   ],
+   "gdzie": "pałac w Itace",
+   "opis": "Odyseusz wygrywa walkę na pięści z żebrakiem Irosem."
+  },
+  {
+   "nr": 19,
+   "miejsce": "pieśń XIX",
+   "kto": [
+    "Odyseusz",
+    "Penelopa",
+    "Eurykleja"
+   ],
+   "gdzie": "pałac w Itace",
+   "opis": "Penelopa rozmawia z żebrakiem, a piastunka Eurykleja poznaje Odyseusza po bliźnie."
+  },
+  {
+   "nr": 20,
+   "miejsce": "pieśń XX",
+   "kto": [
+    "Odyseusz",
+    "zalotnicy",
+    "Telemachos"
+   ],
+   "gdzie": "pałac w Itace",
+   "opis": "Przed rozprawą z zalotnikami Odyseusz obserwuje ich ucztę i niepokojące znaki."
+  },
+  {
+   "nr": 21,
+   "miejsce": "pieśń XXI",
+   "kto": [
+    "Penelopa",
+    "zalotnicy",
+    "Odyseusz",
+    "Telemachos"
+   ],
+   "gdzie": "pałac w Itace",
+   "opis": "Penelopa ogłasza próbę łuku z przestrzeleniem toporów; zalotnicy nie potrafią napiąć łuku, a Odyseusz tak."
+  },
+  {
+   "nr": 22,
+   "miejsce": "pieśń XXII",
+   "kto": [
+    "Odyseusz",
+    "Telemachos",
+    "zalotnicy",
+    "Eumajos"
+   ],
+   "gdzie": "sala pałacu",
+   "opis": "Odyseusz zabija Antinoosa i pozostałych zalotników."
+  },
+  {
+   "nr": 23,
+   "miejsce": "pieśń XXIII",
+   "kto": [
+    "Penelopa",
+    "Odyseusz",
+    "Eurykleja"
+   ],
+   "gdzie": "komnata Penelopy",
+   "opis": "Penelopa sprawdza męża pytaniem o łoże i uznaje go za Odyseusza."
+  },
+  {
+   "nr": 24,
+   "miejsce": "pieśń XXIV",
+   "kto": [
+    "Odyseusz",
+    "Laertes",
+    "Atena"
+   ],
+   "gdzie": "gospodarstwo Laertesa; Itaka",
+   "opis": "Odyseusz spotyka ojca Laertesa, a Atena przywraca pokój w Itace."
+  }
+ ],
+ "postacie": [
+  {
+   "imie": "Odyseusz",
+   "odmiany": [
+    "Odyseusz",
+    "Odyseusza",
+    "Odyseuszowi",
+    "Odyseuszem",
+    "Odyseuszu",
+    "Odys",
+    "Odysa"
+   ],
+   "rola": "król Itaki, bohater tułaczki po wojnie trojańskiej",
+   "relacje": "mąż Penelopy, ojciec Telemacha, syn Laertesa, wróg Posejdona",
+   "miejsca": [
+    "pieśń IX",
+    "pieśń XIII",
+    "pieśń XXIII"
+   ]
+  },
+  {
+   "imie": "Penelopa",
+   "odmiany": [
+    "Penelopa",
+    "Penelopy",
+    "Penelopie",
+    "Penelopę",
+    "Penelopą"
+   ],
+   "rola": "żona Odyseusza, czeka na jego powrót",
+   "relacje": "żona Odyseusza, matka Telemacha",
+   "miejsca": [
+    "pieśń XIX",
+    "pieśń XXI",
+    "pieśń XXIII"
+   ]
+  },
+  {
+   "imie": "Telemachos",
+   "odmiany": [
+    "Telemachos",
+    "Telemacha",
+    "Telemachowi",
+    "Telemachem",
+    "Telemachu"
+   ],
+   "rola": "syn Odyseusza, wyrusza na poszukiwanie ojca",
+   "relacje": "syn Odyseusza i Penelopy",
+   "miejsca": [
+    "pieśń II",
+    "pieśń XVI",
+    "pieśń XXII"
+   ]
+  },
+  {
+   "imie": "Atena",
+   "odmiany": [
+    "Atena",
+    "Ateny",
+    "Atenie",
+    "Atenę",
+    "Ateną",
+    "Pallas"
+   ],
+   "rola": "bogini, opiekunka Odyseusza",
+   "relacje": "pomaga Odyseuszowi i Telemachowi",
+   "miejsca": [
+    "pieśń I",
+    "pieśń XIII",
+    "pieśń XXIV"
+   ]
+  },
+  {
+   "imie": "Posejdon",
+   "odmiany": [
+    "Posejdon",
+    "Posejdona",
+    "Posejdonowi",
+    "Posejdonem"
+   ],
+   "rola": "bóg mórz, prześladowca Odyseusza za oślepienie Polyfema",
+   "relacje": "ojciec Polyfema",
+   "miejsca": [
+    "pieśń I",
+    "pieśń V"
+   ]
+  },
+  {
+   "imie": "Kalypso",
+   "odmiany": [
+    "Kalypso",
+    "Kalypsy",
+    "Kalypsie",
+    "Kalypsę",
+    "Kalypsą"
+   ],
+   "rola": "nimfa, która przez lata więziła Odyseusza",
+   "relacje": "pragnie go za męża",
+   "miejsca": [
+    "pieśń V"
+   ]
+  },
+  {
+   "imie": "Polyfem",
+   "odmiany": [
+    "Polyfem",
+    "Polyfema",
+    "Polyfemowi",
+    "Polyfemem",
+    "Kyklop",
+    "Kyklopa",
+    "Kyklopowi"
+   ],
+   "rola": "jednooki Kyklop, syn Posejdona, pożera towarzyszy Odyseusza",
+   "relacje": "wróg Odyseusza",
+   "miejsca": [
+    "pieśń IX"
+   ]
+  },
+  {
+   "imie": "Kirka",
+   "odmiany": [
+    "Kirka",
+    "Kirki",
+    "Kirce",
+    "Kirkę",
+    "Kirką"
+   ],
+   "rola": "czarodziejka zamieniająca ludzi w zwierzęta",
+   "relacje": "przeciwniczka, potem pomocnica Odyseusza",
+   "miejsca": [
+    "pieśń X"
+   ]
+  },
+  {
+   "imie": "Nausyka",
+   "odmiany": [
+    "Nausyka",
+    "Nausyki",
+    "Nausyce",
+    "Nausykę",
+    "Nausyką"
+   ],
+   "rola": "królewna Feaków, pomaga rozbitkowi",
+   "relacje": "córka Alkinoosa",
+   "miejsca": [
+    "pieśń VI"
+   ]
+  },
+  {
+   "imie": "Alkinoos",
+   "odmiany": [
+    "Alkinoos",
+    "Alkinoosa",
+    "Alkinoosowi",
+    "Alkinoosem"
+   ],
+   "rola": "król Feaków, wspiera Odyseusza",
+   "relacje": "ojciec Nausyki",
+   "miejsca": [
+    "pieśń VII",
+    "pieśń XIII"
+   ]
+  },
+  {
+   "imie": "Eumajos",
+   "odmiany": [
+    "Eumajos",
+    "Eumajosa",
+    "Eumajosowi",
+    "Eumajosem"
+   ],
+   "rola": "wierny pastuch Odyseusza",
+   "relacje": "sługa Odyseusza, pomocnik w zemście",
+   "miejsca": [
+    "pieśń XIV",
+    "pieśń XXII"
+   ]
+  },
+  {
+   "imie": "Eurykleja",
+   "odmiany": [
+    "Eurykleja",
+    "Euryklei",
+    "Eurykleję",
+    "Euryklejo"
+   ],
+   "rola": "piastunka Odyseusza, poznaje go po bliźnie",
+   "relacje": "wierna sługa rodziny",
+   "miejsca": [
+    "pieśń XIX"
+   ]
+  },
+  {
+   "imie": "Antinoos",
+   "odmiany": [
+    "Antinoos",
+    "Antinoosa",
+    "Antinoosowi",
+    "Antinoosem"
+   ],
+   "rola": "zalotnik, arogancki wobec żebraka",
+   "relacje": "pierwszy zabity z zalotników",
+   "miejsca": [
+    "pieśń XVII",
+    "pieśń XXII"
+   ]
+  },
+  {
+   "imie": "Eurymach",
+   "odmiany": [
+    "Eurymach",
+    "Eurymacha",
+    "Eurymachowi",
+    "Eurymachem"
+   ],
+   "rola": "zalotnik, syn Polyba",
+   "relacje": "jeden z przywódców zalotników",
+   "miejsca": [
+    "pieśń II",
+    "pieśń XXII"
+   ]
+  },
+  {
+   "imie": "Laertes",
+   "odmiany": [
+    "Laertes",
+    "Laertesa",
+    "Laertesowi",
+    "Laertesem"
+   ],
+   "rola": "ojciec Odyseusza",
+   "relacje": "ojciec Odyseusza",
+   "miejsca": [
+    "pieśń XXIV"
+   ]
+  },
+  {
+   "imie": "Argos",
+   "odmiany": [
+    "Argos",
+    "Argosa",
+    "Argosowi",
+    "Argosem"
+   ],
+   "rola": "pies Odyseusza, wychowany przez niego",
+   "relacje": "wierny zwierzak",
+   "miejsca": [
+    "pieśń XVII"
+   ]
+  },
+  {
+   "imie": "Tejresjasz",
+   "odmiany": [
+    "Tejresjasz",
+    "Tejresjasza",
+    "Tejresjaszowi"
+   ],
+   "rola": "wieszcz, w świecie zmarłych zapowiada Odyseuszowi powrót",
+   "relacje": "doradca Odyseusza w Nekyi",
+   "miejsca": [
+    "pieśń XI"
+   ]
+  }
+ ],
+ "motywy": [
+  {
+   "motyw": "powrót do domu",
+   "przyklad": "Całość łączy tułaczkę Odyseusza z dążeniem do Itaki; bohater tęskni do żony, mimo że u Kalypso czeka na niego wygodne życie.",
+   "miejsce": "pieśń I; pieśń V",
+   "cytat": "Muzo! Męża wyśpiewaj, co święty gród Troi"
+  },
+  {
+   "motyw": "gościnność",
+   "przyklad": "Feakowie przyjmują rozbitka życzliwie, a zalotnicy w domu Odyseusza łamią zasady gościnności; Eumajos dzieli się jedzeniem z przebranym żebrakiem.",
+   "miejsce": "pieśń VII; pieśń XIV; pieśń XVII"
+  },
+  {
+   "motyw": "spryt bohatera",
+   "przyklad": "Odyseusz podaje się Kyklopowi za Nikogo i dzięki temu ucieka z jaskini; później wraca do Itaki w przebraniu żebraka.",
+   "miejsce": "pieśń IX",
+   "cytat": "Nikt — to moje nazwisko; Niktem woła matka"
+  },
+  {
+   "motyw": "pokusy w drodze",
+   "przyklad": "Odyseusz mija Lotofagów, Kirkę i Syreny; kolejne postacie próbują odciągnąć załogę od powrotu.",
+   "miejsce": "pieśń IX; pieśń X; pieśń XII"
+  },
+  {
+   "motyw": "zstąpienie do zmarłych",
+   "przyklad": "W Nekyi Odyseusz rozmawia z wieszczem Tejresjaszem i cieniami zmarłych; można odczytać to jako sprawdzian jego losu.",
+   "miejsce": "pieśń XI"
+  },
+  {
+   "motyw": "wierność i rozpoznanie",
+   "przyklad": "Penelopa sprawdza męża pytaniem o łoże, a pies Argos poznaje pana bez słów.",
+   "miejsce": "pieśń XVII; pieśń XXIII",
+   "cytat": "Był to Argos, którego sam Odys wychował"
+  },
+  {
+   "motyw": "kara za pychę i złamanie praw bogów",
+   "przyklad": "Towarzysze giną po zabiciu bydła Heliosa, a zalotnicy giną za nadużycia w domu Odyseusza.",
+   "miejsce": "pieśń XII; pieśń XXII"
+  },
+  {
+   "motyw": "wola bogów a los człowieka",
+   "przyklad": "Atena wspiera Odyseusza i Telemacha, Posejdon go ściga; bogowie wpływają na bieg wydarzeń w prawie każdej pieśni.",
+   "miejsce": "pieśń I; pieśń V; pieśń XIII"
+  },
+  {
+   "motyw": "dojrzewanie młodego bohatera",
+   "przyklad": "Telemachos z bezradnego chłopca staje się współwalczącym u boku ojca.",
+   "miejsce": "pieśń II; pieśń XVI; pieśń XXII"
+  }
+ ],
+ "utwory": [],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/homer-odyseja/",
+   "rodzaj": "utwór",
+   "co": "Tłumaczenie Lucjana Siemieńskiego: podział na 24 pieśni, tytuły pieśni, pisownia imion; cytaty (pieśń I, IX, XVII) sprawdzone na tekście."
+  }
+ ],
+ "do_weryfikacji": [
+  "Tekst z Wolnych Lektur nie ma numeracji wersów, więc miejsca są podane jako numery pieśni; CKE wskazuje fragmenty bez zamkniętej listy, nie ustalono, które pieśni są wymagane.",
+  "Imiona w tłumaczeniu Siemieńskiego (Polyfem, Kyklop, Tejresjasz, Ajolos) różnią się od spotykanych w innych wydaniach.",
+  "Opisy pieśni XIII–XXIV oparte na tytułach pieśni z wydania i sprawdzonych fragmentach (Argos, blizna, łoże, łuk, Antinoos); całe sceny nie zostały przeczytane w całości."
+ ]
+}
