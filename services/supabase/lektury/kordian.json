@@ -1,0 +1,550 @@
+{
+ "id": "kordian",
+ "wydarzenia": [
+  {
+   "nr": 1,
+   "miejsce": "Przygotowanie",
+   "kto": [
+    "Szatan",
+    "Czarownica",
+    "diabły"
+   ],
+   "gdzie": "chata Twardowskiego w Karpatach, noc z 31 grudnia 1799 r.",
+   "opis": "Na przełomie wieków Szatan i diabły w obecności Czarownicy przygotowują zło, które ma zgubić naród; w kotle powstaje przyszłe pokolenie."
+  },
+  {
+   "nr": 2,
+   "miejsce": "akt I, sc. 1",
+   "kto": [
+    "Kordian",
+    "Grzegorz"
+   ],
+   "gdzie": "wiejski dziedziniec",
+   "opis": "Piętnastoletni Kordian leży pod lipą, rozmyśla o samobójstwie młodego człowieka i o własnym nastroju, a stary sługa Grzegorz czyści broń."
+  },
+  {
+   "nr": 3,
+   "miejsce": "akt I, sc. 1",
+   "kto": [
+    "Grzegorz",
+    "Kordian"
+   ],
+   "gdzie": "wiejski dziedziniec",
+   "opis": "Grzegorz opowiada Kordianowi bajkę o chłopcu Janku, który uciekł ze szkoły, a potem opowiada o swojej walce w wyprawie Napoleona do Egiptu."
+  },
+  {
+   "nr": 4,
+   "miejsce": "akt I, sc. 2",
+   "kto": [
+    "Kordian",
+    "Laura"
+   ],
+   "gdzie": "ogród z lipowymi alejami, jesień",
+   "opis": "Kordian wyznaje Laurze miłość, a ona z lekką drwiną odrzuca jego romantyczne uniesienia i odjeżdża."
+  },
+  {
+   "nr": 5,
+   "miejsce": "akt I, sc. 2",
+   "kto": [
+    "Kordian"
+   ],
+   "gdzie": "ogród",
+   "opis": "Sam w ogrodzie Kordian wyjmuje pistolet i przykłada go do czoła, ale rezygnuje i odchodzi w poszukiwaniu odludnego miejsca."
+  },
+  {
+   "nr": 6,
+   "miejsce": "akt I, sc. 3",
+   "kto": [
+    "Laura",
+    "panna pokojowa"
+   ],
+   "gdzie": "pokój Laury w nocy",
+   "opis": "Laura czyta wiersz Kordiana we własnym sztambuchu, ale przyjmuje jego miłość z obojętnością."
+  },
+  {
+   "nr": 7,
+   "miejsce": "akt II, Londyn",
+   "kto": [
+    "Kordian",
+    "dozorca ogrodu"
+   ],
+   "gdzie": "James Park w Londynie",
+   "opis": "W Londynie Kordian, znudzony i zrezygnowany, daje dozorcy szylinga i nie bierze reszty."
+  },
+  {
+   "nr": 8,
+   "miejsce": "akt II, Dover",
+   "kto": [
+    "Kordian"
+   ],
+   "gdzie": "kredowa skała nad morzem w Dover",
+   "opis": "Nad morzem Kordian czyta „Króla Leara” Szekspira i rozważa sens życia."
+  },
+  {
+   "nr": 9,
+   "miejsce": "akt II, Włochy",
+   "kto": [
+    "Kordian",
+    "Wioletta"
+   ],
+   "gdzie": "willa włoska",
+   "opis": "Kordian jest zakochany w Włoszce Wioletcie, lecz szybko traci uczucie i zostawia ją pod wpływem rozczarowania."
+  },
+  {
+   "nr": 10,
+   "miejsce": "akt II, Włochy",
+   "kto": [
+    "Kordian",
+    "Wioletta"
+   ],
+   "gdzie": "droga publiczna",
+   "opis": "Podczas szalonej jazdy koń Kordiana przewraca się, a on porzuca Wiolettę, patrząc na nią ze wzgardą."
+  },
+  {
+   "nr": 11,
+   "miejsce": "akt II, Watykan",
+   "kto": [
+    "Kordian",
+    "Papież"
+   ],
+   "gdzie": "sala w Watykanie",
+   "opis": "Kordian przynosi papieżowi garść ziemi z miejsca rzezi Polaków i prosi o błogosławieństwo, a papież chwali cara i odmawia błogosławienia ziemi."
+  },
+  {
+   "nr": 12,
+   "miejsce": "akt II, Mont Blanc",
+   "kto": [
+    "Kordian"
+   ],
+   "gdzie": "szczyt Mont Blanc",
+   "opis": "Na szczycie Mont Blanc Kordian porównuje się do alpejskiego bohatera Winkelrieda i ogłasza, że Polska ma poświęcić się za narody."
+  },
+  {
+   "nr": 13,
+   "miejsce": "akt III, sc. 1",
+   "kto": [
+    "lud warszawski"
+   ],
+   "gdzie": "plac przed zamkiem królewskim w Warszawie",
+   "opis": "Warszawiacy czekają na koronację cara Mikołaja I na króla Polski, a ich nastroje są pełne napięcia i niechęci."
+  },
+  {
+   "nr": 14,
+   "miejsce": "akt III, sc. 2",
+   "kto": [
+    "Prymas",
+    "car"
+   ],
+   "gdzie": "katedra",
+   "opis": "W katedrze odprawia się uroczysta msza koronacyjna z udziałem polskich dygnitarzy."
+  },
+  {
+   "nr": 15,
+   "miejsce": "akt III, sc. 3",
+   "kto": [
+    "lud",
+    "człowiek w czarnym płaszczu"
+   ],
+   "gdzie": "plac przed zamkiem",
+   "opis": "Po koronacji lud rozchodzi się ponury, a ktoś w czarnym płaszczu przyłącza się do pijących i śpiewa."
+  },
+  {
+   "nr": 16,
+   "miejsce": "akt III, sc. 4",
+   "kto": [
+    "Prezes",
+    "spiskowi"
+   ],
+   "gdzie": "loch w kościele św. Jana, wśród grobów królów polskich",
+   "opis": "Prezes spisku zbiera zamaskowanych spiskowców i przedstawia plan zamachu na cara."
+  },
+  {
+   "nr": 17,
+   "miejsce": "akt III, sc. 4",
+   "kto": [
+    "Prezes",
+    "spiskowi",
+    "Podchorąży"
+   ],
+   "gdzie": "loch w kościele św. Jana",
+   "opis": "Spiskowcy głosują, rzucając pieniądze (przeciw zamachowi) albo kule (za), i większość opowiada się przeciw zabiciu cara; Prezes umywa ręce."
+  },
+  {
+   "nr": 18,
+   "miejsce": "akt III, sc. 4",
+   "kto": [
+    "Kordian",
+    "spiskowi"
+   ],
+   "gdzie": "loch w kościele św. Jana",
+   "opis": "Kordian ogłasza, że ma wartę w zamku tej nocy, pisze na kartce, że zapisuje narodowi swą krew i życie, i bierze zamach na siebie."
+  },
+  {
+   "nr": 19,
+   "miejsce": "akt III, sc. 5",
+   "kto": [
+    "Kordian",
+    "Strach",
+    "Imaginacja"
+   ],
+   "gdzie": "sala w zamku królewskim, droga do sypialni cara",
+   "opis": "Idąc do sypialni cara, Kordian zostaje osaczony przez głosy Strachu i Imaginacji, które pokazują mu przerażające wizje."
+  },
+  {
+   "nr": 20,
+   "miejsce": "akt III, sc. 5",
+   "kto": [
+    "Kordian",
+    "car"
+   ],
+   "gdzie": "sypialnia cara",
+   "opis": "Kordian traci przytomność tuż przed zamachem, a car potyka się o niego, rani go szpadą i każe rozstrzelać."
+  },
+  {
+   "nr": 21,
+   "miejsce": "akt III, sc. 6",
+   "kto": [
+    "Kordian",
+    "Dozorca",
+    "Doktor"
+   ],
+   "gdzie": "szpital wariatów",
+   "opis": "Kordian trafia do szpitala dla obłąkanych jako rzekomy szaleniec, a Doktor próbuje go przekonać do wiary we własne szaleństwo."
+  },
+  {
+   "nr": 22,
+   "miejsce": "akt III, sc. 6",
+   "kto": [
+    "Kordian",
+    "Wielki Książę"
+   ],
+   "gdzie": "szpital wariatów",
+   "opis": "Wielki Książę Konstanty wpada do szpitala i każe zabrać Kordiana na Plac Saski."
+  },
+  {
+   "nr": 23,
+   "miejsce": "akt III, sc. 7",
+   "kto": [
+    "Kordian",
+    "car",
+    "Wielki Książę",
+    "żołnierze"
+   ],
+   "gdzie": "Plac Saski w Warszawie",
+   "opis": "Kordian zostaje postawiony przed carem, a Wielki Książę wydaje wyrok śmierci."
+  },
+  {
+   "nr": 24,
+   "miejsce": "akt III, sc. 8",
+   "kto": [
+    "Kordian",
+    "Ksiądz",
+    "Grzegorz"
+   ],
+   "gdzie": "izba klasztorna przerobiona na więzienie",
+   "opis": "Skazany Kordian rozmawia z księdzem i żegna się ze sługą Grzegorzem."
+  },
+  {
+   "nr": 25,
+   "miejsce": "akt III, sc. 9",
+   "kto": [
+    "car",
+    "Wielki Książę"
+   ],
+   "gdzie": "pokój w zamku królewskim",
+   "opis": "Car i Konstanty kłócą się o wyrok; car podpisuje ułaskawienie, które Konstanty niechętnie przekazuje adiutantowi."
+  },
+  {
+   "nr": 26,
+   "miejsce": "scena ostatnia",
+   "kto": [
+    "Kordian",
+    "lud",
+    "żołnierze"
+   ],
+   "gdzie": "Plac Marsowy",
+   "opis": "Kordian stoi przed plutonem egzekucyjnym, a w tłumie ktoś krzyczy, że jedzie adiutant; tekst urywa się, zanim wiadomo, czy ułaskawienie zdąży dotrzeć."
+  }
+ ],
+ "postacie": [
+  {
+   "imie": "Kordian",
+   "odmiany": [
+    "Kordian",
+    "Kordiana",
+    "Kordianowi",
+    "Kordianem",
+    "Kordianie"
+   ],
+   "rola": "młody romantyk, bohater dramatu; po kolejnych rozczarowaniach postanawia zabić cara",
+   "relacje": "podopieczny Grzegorza, zakochany w Laurze i Wioletcie, członek spisku, wróg cara",
+   "miejsca": [
+    "akt I, sc. 1",
+    "akt II, Mont Blanc",
+    "akt III, sc. 4"
+   ]
+  },
+  {
+   "imie": "Grzegorz",
+   "odmiany": [
+    "Grzegorz",
+    "Grzegorza",
+    "Grzegorzowi",
+    "Grzegorzem"
+   ],
+   "rola": "stary sługa Kordiana, dawny żołnierz, opowiada mu historie wojenne",
+   "relacje": "opiekun i towarzysz Kordiana, w ostatnich scenach odwiedza go w więzieniu",
+   "miejsca": [
+    "akt I, sc. 1",
+    "akt III, sc. 8"
+   ]
+  },
+  {
+   "imie": "Laura",
+   "odmiany": [
+    "Laura",
+    "Laury",
+    "Laurze",
+    "Laurę",
+    "Laurą"
+   ],
+   "rola": "pierwsza miłość Kordiana, trzeźwa i ironiczna dziewczyna",
+   "relacje": "odrzuca uczucie Kordiana",
+   "miejsca": [
+    "akt I, sc. 2",
+    "akt I, sc. 3"
+   ]
+  },
+  {
+   "imie": "Wioletta",
+   "odmiany": [
+    "Wioletta",
+    "Wioletty",
+    "Wioletcie",
+    "Wiolettę",
+    "Wiolettą"
+   ],
+   "rola": "młoda Włoszka, kochanka Kordiana we Włoszech",
+   "relacje": "związana z Kordianem krótko, po czym zostaje przez niego porzucona",
+   "miejsca": [
+    "akt II, Włochy"
+   ]
+  },
+  {
+   "imie": "Szatan",
+   "odmiany": [
+    "Szatan",
+    "Szatana",
+    "Szatanowi",
+    "Szatanem"
+   ],
+   "rola": "przywódca diabłów w prologu, zapowiada zło dla narodu",
+   "relacje": "dowodzi diabłami i kieruje Czarownicą",
+   "miejsca": [
+    "Przygotowanie"
+   ]
+  },
+  {
+   "imie": "Czarownica",
+   "odmiany": [
+    "Czarownica",
+    "Czarownicy",
+    "Czarownicę",
+    "Czarownicą"
+   ],
+   "rola": "pomocnica Szatana w prologu, śpiewa i czesze włosy",
+   "relacje": "współpracuje z Szatanem",
+   "miejsca": [
+    "Przygotowanie"
+   ]
+  },
+  {
+   "imie": "Prezes",
+   "odmiany": [
+    "Prezes",
+    "Prezesa",
+    "Prezesowi",
+    "Prezesem"
+   ],
+   "rola": "przywódca spisku koronacyjnego, starzec w czarnej masce",
+   "relacje": "przewodniczy spiskowcom, w głosowaniu większość odrzuca zamach, a on umywa ręce",
+   "miejsca": [
+    "akt III, sc. 4"
+   ]
+  },
+  {
+   "imie": "Car",
+   "odmiany": [
+    "car",
+    "cara",
+    "carowi",
+    "carem",
+    "carze"
+   ],
+   "rola": "Mikołaj I, koronowany na króla Polski, adresat zamachu",
+   "relacje": "przeciwnik Kordiana, brat Wielkiego Księcia Konstantego",
+   "miejsca": [
+    "akt III, sc. 1",
+    "akt III, sc. 5",
+    "akt III, sc. 9"
+   ]
+  },
+  {
+   "imie": "Wielki Książę Konstanty",
+   "odmiany": [
+    "Wielki Książę",
+    "Wielkiego Księcia",
+    "Wielkiemu Księciu",
+    "Wielkim Księciem",
+    "Konstanty",
+    "Konstantego"
+   ],
+   "rola": "brat cara, namiestnik w Królestwie Polskim, okrutny wobec Polaków",
+   "relacje": "brat cara, wydaje wyrok śmierci na Kordiana",
+   "miejsca": [
+    "akt III, sc. 6",
+    "akt III, sc. 7",
+    "akt III, sc. 9"
+   ]
+  },
+  {
+   "imie": "Doktor",
+   "odmiany": [
+    "Doktor",
+    "Doktora",
+    "Doktorowi",
+    "Doktorem"
+   ],
+   "rola": "tajemniczy gość w szpitalu wariatów, który wmawia Kordianowi szaleństwo",
+   "relacje": "przeciwnik Kordiana w scenie szpitalnej",
+   "miejsca": [
+    "akt III, sc. 6"
+   ]
+  },
+  {
+   "imie": "Dozorca",
+   "odmiany": [
+    "Dozorca",
+    "Dozorcy",
+    "Dozorcę"
+   ],
+   "rola": "nadzorca szpitala wariatów, trzeźwo ocenia Kordiana",
+   "relacje": "rozmawia z Doktorem o Kordianie",
+   "miejsca": [
+    "akt III, sc. 6"
+   ]
+  },
+  {
+   "imie": "Strach i Imaginacja",
+   "odmiany": [
+    "Strach",
+    "Strachu",
+    "Imaginacja",
+    "Imaginacji",
+    "Imaginację"
+   ],
+   "rola": "alegoryczne głosy, które nękają Kordiana przed zamachem",
+   "relacje": "symbolizują jego lęk i rozbudzoną wyobraźnię",
+   "miejsca": [
+    "akt III, sc. 5"
+   ]
+  },
+  {
+   "imie": "Papież",
+   "odmiany": [
+    "papież",
+    "papieża",
+    "papieżowi",
+    "papieżem"
+   ],
+   "rola": "głowa Kościoła, którego Kordian prosi o poparcie dla Polski",
+   "relacje": "wychwala cara i odrzuca prośbę Kordiana; obok niego siedzi papuga z tiary",
+   "miejsca": [
+    "akt II, Watykan"
+   ]
+  },
+  {
+   "imie": "Ksiądz",
+   "odmiany": [
+    "Ksiądz",
+    "Księdza",
+    "Księdzu",
+    "Księdzem"
+   ],
+   "rola": "duchowny odwiedzający skazanego Kordiana w klasztornym więzieniu",
+   "relacje": "towarzyszy Kordianowi przed egzekucją",
+   "miejsca": [
+    "akt III, sc. 8"
+   ]
+  }
+ ],
+ "motywy": [
+  {
+   "motyw": "bohater romantyczny i jego wahania",
+   "przyklad": "Kordian przeżywa nieszczęśliwą miłość, próbuje samobójstwa, wędruje po Europie, aż postanawia zabić cara. Można odczytać jego drogę jako ewolucję od egoistycznego cierpienia ku czynowi dla narodu.",
+   "miejsce": "akt I, sc. 2; akt II; akt III, sc. 4"
+  },
+  {
+   "motyw": "nieszczęśliwa miłość",
+   "przyklad": "Laura odrzuca uczucie Kordiana, a on w ogrodzie bierze do ręki pistolet. Sama scena łączy miłosną rozpacz z myślą o śmierci.",
+   "miejsce": "akt I, sc. 2"
+  },
+  {
+   "motyw": "samobójstwo",
+   "przyklad": "Kordian wyjmuje pistolet, rozmyśla o tym, czy po śmierci będzie coś więcej, i rezygnuje, odkładając decyzję.",
+   "miejsce": "akt I, sc. 2"
+  },
+  {
+   "motyw": "wędrówka i rozczarowanie światem",
+   "przyklad": "Kordian odwiedza Londyn, Dover, Włochy i Watykan, a każde miejsce pogłębia jego rozczarowanie; papież nie chce wesprzeć polskiej sprawy.",
+   "miejsce": "akt II"
+  },
+  {
+   "motyw": "Polska Winkelriedem narodów",
+   "przyklad": "Na szczycie Mont Blanc Kordian porównuje Polskę do Winkelrieda, który osłonił piersią włócznie wrogów. Można odczytać to jako wyraz mesjanizmu, według którego Polska poświęca się dla innych.",
+   "miejsce": "akt II, Mont Blanc",
+   "cytat": "Polska Winkelriedem narodów!"
+  },
+  {
+   "motyw": "spisek i ofiara",
+   "przyklad": "W podziemiu kościoła św. Jana spiskowcy głosują nad zamachem na cara i większość jest przeciw; wtedy Kordian bierze zadanie na siebie.",
+   "miejsce": "akt III, sc. 4",
+   "cytat": "Kordian ma wartę w zamku w nocy"
+  },
+  {
+   "motyw": "strach i wyobraźnia",
+   "przyklad": "Przed wejściem do sypialni cara Strach i Imaginacja podsuwają Kordianowi wizje węży, sfinksów i dziewicy, które paraliżują jego wolę.",
+   "miejsce": "akt III, sc. 5"
+  },
+  {
+   "motyw": "szaleństwo i obłęd",
+   "przyklad": "Kordian trafia do szpitala wariatów, mimo że Dozorca uznaje go za człowieka o zdrowym rozsądku.",
+   "miejsce": "akt III, sc. 6"
+  },
+  {
+   "motyw": "tyrania i władza",
+   "przyklad": "Car i Wielki Książę Konstanty skazują Kordiana na śmierć, a jednocześnie spierają się o wyrok, co pokazuje kapryśność władzy.",
+   "miejsce": "akt III, sc. 7; akt III, sc. 9"
+  },
+  {
+   "motyw": "otwarte zakończenie",
+   "przyklad": "Kordian stoi przed plutonem, w tłumie ktoś wykrzykuje, że jedzie adiutant, a tekst urywa się bez rozstrzygnięcia.",
+   "miejsce": "scena ostatnia",
+   "cytat": "Stój! Adiutant jedzie!"
+  }
+ ],
+ "utwory": [],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/kordian/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst: podział na akty i sceny, didaskalia z miejscami, przebieg wydarzeń, dosłowne cytaty z Przygotowania, aktu II, III i sceny ostatniej."
+  }
+ ],
+ "do_weryfikacji": [
+  "Numeracja scen w akcie III według wydania Wolnych Lektur (sc. I–IX i scena ostatnia); akt II w tekście ma tylko didaskalia miejsc, bez numerów scen.",
+  "Tekst na Wolnych Lekturach urywa się na okrzyku o adiutancie i relacji tłumu; ostateczne rozstrzygnięcie (egzekucja czy ułaskawienie) nie jest w tym fragmencie podane — nie ustalono go.",
+  "Rola i tożsamość Doktora (alegoria Szatana?) to interpretacja z literatury przedmiotu, w tekście wprost nie została potwierdzona.",
+  "Nie ustalono, kim dokładnie jest Doktor, ani jakie jest znaczenie papugi w scenie watykańskiej — to kwestie interpretacyjne."
+ ]
+}
