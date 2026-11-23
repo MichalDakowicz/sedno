@@ -1,0 +1,62 @@
+{
+  "id": "dzuma",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "cz. I", "kto": ["Bernard Rieux", "Michel"], "gdzie": "Oran, klatka schodowa kamienicy", "opis": "Rieux znajduje martwego szczura i zawiadamia dozorcę, który sądzi, że ktoś podrzucił zwierzę."},
+    {"nr": 2, "miejsce": "cz. I", "kto": ["Bernard Rieux", "żona Rieux"], "gdzie": "Oran, dworzec", "opis": "Rieux odprowadza chorą żonę na pociąg, którym wyjeżdża na leczenie poza miastem."},
+    {"nr": 3, "miejsce": "cz. I", "kto": ["Bernard Rieux", "Raymond Rambert"], "gdzie": "Oran, gabinet Rieux", "opis": "Rambert, dziennikarz przybyły w sprawie warunków życia ludności arabskiej, zwraca się do Rieux o informacje."},
+    {"nr": 4, "miejsce": "cz. I", "kto": ["Bernard Rieux", "matka Rieux", "mieszkańcy Oranu"], "gdzie": "Oran, domy i ulice", "opis": "Martwe szczury pojawiają się w coraz większej liczbie, a do Oranu przyjeżdża matka doktora."},
+    {"nr": 5, "miejsce": "cz. I", "kto": ["Bernard Rieux", "Michel", "ojciec Paneloux"], "gdzie": "Oran, kamienica i ambulans", "opis": "Gorączkujący dozorca Michel umiera po gwałtownym pogorszeniu stanu zdrowia."},
+    {"nr": 6, "miejsce": "cz. I", "kto": ["Joseph Grand", "Cottard", "Bernard Rieux"], "gdzie": "Oran, mieszkanie Cottarda", "opis": "Grand wzywa Rieux do sąsiada Cottarda, który próbował odebrać sobie życie."},
+    {"nr": 7, "miejsce": "cz. I", "kto": ["Bernard Rieux", "Castel"], "gdzie": "Oran", "opis": "Wobec kolejnych zachorowań Castel rozpoznaje dżumę, a Rieux przyznaje, że objawy wskazują na tę samą chorobę."},
+    {"nr": 8, "miejsce": "cz. I", "kto": ["Bernard Rieux", "prefekt", "lekarze"], "gdzie": "Oran, prefektura", "opis": "Po sporze o rozpoznanie i środki ostrożności władze ogłaszają stan epidemii i zamykają miasto."},
+    {"nr": 9, "miejsce": "cz. II", "kto": ["mieszkańcy Oranu"], "gdzie": "zamknięte miasto", "opis": "Zamknięcie bram rozdziela mieszkańców od bliskich, a z powodu ograniczeń kontaktu wielu korzysta z telegramów."},
+    {"nr": 10, "miejsce": "cz. II", "kto": ["Raymond Rambert", "Bernard Rieux"], "gdzie": "Oran, prefektura i gabinet Rieux", "opis": "Rambert próbuje uzyskać zgodę na wyjazd i prosi o zaświadczenie, którego Rieux nie może wystawić."},
+    {"nr": 11, "miejsce": "cz. II", "kto": ["ojciec Paneloux", "mieszkańcy Oranu"], "gdzie": "Oran, katedra", "opis": "Paneloux wygłasza kazanie, w którym przedstawia epidemię jako karę i wzywa wiernych do zastanowienia się nad swoim postępowaniem."},
+    {"nr": 12, "miejsce": "cz. II", "kto": ["Jean Tarrou", "Bernard Rieux", "Joseph Grand"], "gdzie": "Oran", "opis": "Tarrou proponuje organizowanie ochotniczych formacji sanitarnych, w których Grand pomaga przy zadaniach administracyjnych."},
+    {"nr": 13, "miejsce": "cz. II", "kto": ["Raymond Rambert", "Cottard", "Gonzalès"], "gdzie": "Oran, miejsca spotkań i okolice bram", "opis": "Za pośrednictwem Cottarda Rambert szuka ludzi, którzy mogą pomóc mu potajemnie opuścić miasto."},
+    {"nr": 14, "miejsce": "cz. II", "kto": ["Raymond Rambert", "Jean Tarrou", "Bernard Rieux"], "gdzie": "Oran", "opis": "Rambert dowiaduje się od Tarrou, że Rieux też jest rozdzielony z żoną, i zgłasza gotowość do pracy w formacjach sanitarnych podczas oczekiwania na wyjazd."},
+    {"nr": 15, "miejsce": "cz. III", "kto": ["mieszkańcy Oranu", "władze miasta"], "gdzie": "Oran, ulice i cmentarze", "opis": "Wobec nasilającej się epidemii władze wprowadzają godzinę policyjną, a przy rosnącej liczbie zmarłych skracają ceremonie pogrzebowe i zmieniają sposób pochówku."},
+    {"nr": 16, "miejsce": "cz. IV", "kto": ["Raymond Rambert", "Bernard Rieux", "Jean Tarrou"], "gdzie": "Oran, szpital", "opis": "Gdy możliwość ucieczki staje się realna, Rambert postanawia zostać i pomagać przy zwalczaniu epidemii."},
+    {"nr": 17, "miejsce": "cz. IV", "kto": ["syn sędziego Othona", "Castel", "Bernard Rieux", "Jean Tarrou", "ojciec Paneloux"], "gdzie": "Oran, szpital", "opis": "Lekarze podają ciężko choremu synowi Othona surowicę Castela, ale dziecko umiera w obecności dorosłych."},
+    {"nr": 18, "miejsce": "cz. IV", "kto": ["Bernard Rieux", "ojciec Paneloux"], "gdzie": "Oran, przy szpitalu", "opis": "Po śmierci dziecka Rieux sprzeciwia się usprawiedliwianiu jego cierpienia, a razem z Paneloux uznaje potrzebę dalszej pomocy chorym."},
+    {"nr": 19, "miejsce": "cz. IV", "kto": ["ojciec Paneloux", "mieszkańcy Oranu"], "gdzie": "Oran, kościół i szpital", "opis": "Paneloux wygłasza drugie kazanie, a później sam choruje i umiera z objawami, które nie pozwalają jednoznacznie rozpoznać dżumy."},
+    {"nr": 20, "miejsce": "cz. IV", "kto": ["sędzia Othon", "Bernard Rieux"], "gdzie": "Oran, obóz kwarantanny", "opis": "Po zwolnieniu z kwarantanny Othon chce wrócić do obozu jako ochotnik, żeby być bliżej miejsca, z którym wiąże pamięć o synu."},
+    {"nr": 21, "miejsce": "cz. IV", "kto": ["Jean Tarrou", "Bernard Rieux"], "gdzie": "Oran, taras i morze", "opis": "Tarrou opowiada Rieux o sprzeciwie wobec zabijania, a następnie obaj przyjaciele kąpią się w morzu."},
+    {"nr": 22, "miejsce": "cz. IV", "kto": ["Joseph Grand", "Bernard Rieux"], "gdzie": "Oran, mieszkanie Granda", "opis": "Ciężko chory Grand prosi doktora o spalenie rękopisu, po czym niespodziewanie dochodzi do zdrowia."},
+    {"nr": 23, "miejsce": "cz. V", "kto": ["mieszkańcy Oranu", "Bernard Rieux"], "gdzie": "Oran, zamknięte miasto", "opis": "Wraz ze spadkiem liczby zachorowań mieszkańcy odzyskują nadzieję, chociaż władze przez pewien czas utrzymują zamknięcie bram."},
+    {"nr": 24, "miejsce": "cz. V", "kto": ["Jean Tarrou", "Bernard Rieux", "matka Rieux"], "gdzie": "Oran, mieszkanie Rieux", "opis": "Tarrou zapada na dżumę i umiera mimo opieki Rieux i jego matki."},
+    {"nr": 25, "miejsce": "cz. V", "kto": ["Bernard Rieux", "matka Rieux", "żona Rieux"], "gdzie": "Oran, mieszkanie Rieux", "opis": "Po śmierci Tarrou Rieux dowiaduje się z telegramu, że jego żona zmarła poza miastem."},
+    {"nr": 26, "miejsce": "cz. V", "kto": ["Raymond Rambert", "mieszkańcy Oranu"], "gdzie": "Oran, dworzec i ulice", "opis": "Po otwarciu miasta Rambert spotyka ukochaną, a mieszkańcy witają przyjeżdżających bliskich."},
+    {"nr": 27, "miejsce": "cz. V", "kto": ["Cottard", "Joseph Grand", "Bernard Rieux", "policjanci"], "gdzie": "Oran, kamienica przy ulicy Granda", "opis": "Cottard strzela z mieszkania do ludzi na ulicy, po czym zostaje obezwładniony przez policję."},
+    {"nr": 28, "miejsce": "cz. V", "kto": ["Bernard Rieux", "mieszkańcy Oranu"], "gdzie": "Oran, taras nad świętującym miastem", "opis": "Rieux ujawnia, że jest autorem kroniki, i w ostatniej scenie przypomina o możliwości powrotu zarazy mimo powszechnej radości."}
+  ],
+  "postacie": [
+    {"imie": "Bernard Rieux", "odmiany": ["Bernard Rieux", "Bernarda Rieux", "Bernardem Rieux", "doktor Rieux", "doktora Rieux", "Rieux"], "rola": "lekarz opiekujący się chorymi, autor kroniki o epidemii", "relacje": "mąż kobiety leczącej się poza Oranem, przyjaciel Tarrou, współpracownik Castela", "miejsca": ["cz. I", "cz. IV", "cz. V"]},
+    {"imie": "Jean Tarrou", "odmiany": ["Jean Tarrou", "Jeana Tarrou", "Jeanem Tarrou", "Tarrou"], "rola": "przybysz w Oranie, prowadzi notatki i organizuje formacje sanitarne", "relacje": "przyjaciel Rieux, obserwuje zachowanie Cottarda", "miejsca": ["cz. I", "cz. II", "cz. IV–V"]},
+    {"imie": "Raymond Rambert", "odmiany": ["Rambert", "Ramberta", "Rambertowi", "Rambertem", "Raymond Rambert"], "rola": "dziennikarz, próbuje opuścić Oran i ostatecznie przyłącza się do walki z epidemią", "relacje": "rozdzielony z ukochaną, współpracuje z Tarrou i Rieux", "miejsca": ["cz. I–II", "cz. IV", "cz. V"]},
+    {"imie": "Joseph Grand", "odmiany": ["Grand", "Granda", "Grandowi", "Grandem", "Joseph Grand"], "rola": "urzędnik miejski, pracuje nad rękopisem i pomaga formacjom sanitarnym", "relacje": "sąsiad Cottarda, przyjaźni się z Rieux", "miejsca": ["cz. I", "cz. II", "cz. IV"]},
+    {"imie": "Cottard", "odmiany": ["Cottard", "Cottarda", "Cottardowi", "Cottardem"], "rola": "mężczyzna obawiający się zatrzymania, w epidemii czuje się bezpieczniej", "relacje": "sąsiad Granda, kontaktuje Ramberta z ludźmi organizującymi ucieczki", "miejsca": ["cz. I", "cz. II", "cz. V"]},
+    {"imie": "Ojciec Paneloux", "odmiany": ["Paneloux", "ojciec Paneloux", "ojca Paneloux", "ojcu Paneloux"], "rola": "jezuita, wygłasza dwa kazania i pomaga formacjom sanitarnym", "relacje": "prowadzi z Rieux spór o cierpienie i wiarę", "miejsca": ["cz. II", "cz. IV"]},
+    {"imie": "Castel", "odmiany": ["Castel", "Castela", "Castelowi", "Castelem", "doktor Castel"], "rola": "lekarz rozpoznający dżumę i przygotowujący surowicę", "relacje": "współpracownik Rieux, stara się pomóc synowi Othona", "miejsca": ["cz. I", "cz. IV"]},
+    {"imie": "Michel", "odmiany": ["Michel", "Michela", "Michelowi", "Michelem"], "rola": "dozorca, jedna z pierwszych ofiar zarazy", "relacje": "pracuje w kamienicy Rieux", "miejsca": ["cz. I"]},
+    {"imie": "Sędzia Othon", "odmiany": ["Othon", "Othona", "Othonowi", "Othonem", "sędzia Othon"], "rola": "sędzia, po stracie syna zgłasza się do pomocy w obozie kwarantanny", "relacje": "ojciec chłopca leczonego przez Rieux i Castela", "miejsca": ["cz. IV"]},
+    {"imie": "Matka Rieux", "odmiany": ["matka Rieux", "matki Rieux", "matkę Rieux", "matką Rieux", "pani Rieux"], "rola": "przyjeżdża do Oranu po wyjeździe żony syna", "relacje": "wspiera syna i czuwa przy Tarrou", "miejsca": ["cz. I", "cz. V"]}
+  ],
+  "motywy": [
+    {"motyw": "solidarność", "przyklad": "Tarrou proponuje zorganizowanie ochotniczych formacji, a Rambert rezygnuje z wyjazdu, by dalej pomagać w Oranie.", "miejsce": "cz. II i IV"},
+    {"motyw": "obowiązek wobec chorych", "przyklad": "Rieux odmawia Rambertowi zaświadczenia i nadal zajmuje się chorymi, chociaż sam cierpi z powodu rozłąki z żoną.", "miejsce": "cz. II i IV"},
+    {"motyw": "cierpienie niewinnych", "przyklad": "Podanie surowicy nie ratuje syna Othona. Rieux i Paneloux rozmawiają potem o tym, jak reagować na cierpienie dziecka.", "miejsce": "cz. IV"},
+    {"motyw": "wiara wystawiona na próbę", "przyklad": "Po kazaniu o karze za grzechy Paneloux widzi śmierć dziecka. W drugim kazaniu próbuje zmierzyć się z cierpieniem, którego przyczyny nie umie wyjaśnić.", "miejsce": "cz. II i IV"},
+    {"motyw": "epidemia jako korzyść dla jednostki", "przyklad": "Cottard angażuje się w nielegalny handel podczas zamknięcia miasta, a gdy epidemia ustępuje, strzela do ludzi z mieszkania.", "miejsce": "cz. II i V"},
+    {"motyw": "przyjaźń", "przyklad": "Po rozmowie Tarrou o przemocy przyjaciele kąpią się razem w morzu, pozwalając sobie na krótką przerwę w pracy.", "miejsce": "cz. IV"},
+    {"motyw": "rozłąka i powrót", "przyklad": "Rambert przeżywa przymusowe rozdzielenie z ukochaną i spotyka ją na dworcu po otwarciu miasta.", "miejsce": "cz. II i V"},
+    {"motyw": "pamięć i powracające zło", "przyklad": "Rieux utrwala cierpienia mieszkańców i ostrzega, że zaraza może wrócić. Można to odczytać jako przestrogę przed powrotem przemocy i obojętności.", "miejsce": "cz. V"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://www.anthropomada.com/bibliotheque/CAMUS-La-peste.pdf", "rodzaj": "utwór", "co": "Francuski tekst Gallimarda w edycji cyfrowej Les Classiques des sciences sociales. Zweryfikowano pięć części, kolejność zdarzeń, postacie i finał."},
+    {"url": "https://zpe.gov.pl/a/przeczytaj/DYYYKDl8M", "rodzaj": "opracowanie", "co": "Polskie nazwy postaci, zarys fabuły, stanowiska bohaterów wobec epidemii."},
+    {"url": "https://zpe.gov.pl/watek/LPDHCLV14X/16/a/dowiedz-sie/D7MPDBC15", "rodzaj": "utwór", "co": "Przekład Joanny Guze przytoczony w ZPE, finał kroniki Rieux i ostrzeżenie o powrocie epidemii."}
+  ],
+  "do_weryfikacji": []
+}
