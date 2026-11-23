@@ -1,0 +1,28 @@
+{
+  "id": "lament-swietokrzyski",
+  "wydarzenia": [],
+  "postacie": [
+    {"imie": "Matka Boska", "odmiany": ["Matka", "Matki", "Matce", "Matką", "Maryja", "Maria", "Maryi"], "rola": "osoba mówiąca w utworze, matka umierającego na krzyżu Chrystusa", "relacje": "zwraca się do Syna, do słuchaczy, do anioła Gabriela i do matek", "miejsca": ["w. 1–4", "w. 9–13", "w. 26–31", "w. 32–36"]},
+    {"imie": "Chrystus (Syn)", "odmiany": ["Syn", "Syna", "Synu", "Synku", "Chrystus"], "rola": "ukrzyżowany Syn, do którego zwraca się Matka", "relacje": "cierpi na krzyżu; Matka prosi go o słowo", "miejsca": ["w. 14–25", "w. 37–38"]},
+    {"imie": "Anioł Gabriel", "odmiany": ["Gabriel", "Gabriela", "Gabryjele", "anioł"], "rola": "zwiastun wspominany w apostrofie Matki", "relacje": "obiecał Maryi radość, a ona przeżywa ból", "miejsca": ["w. 26–31"]}
+  ],
+  "motywy": [
+    {"motyw": "cierpienie matki po śmierci dziecka", "przyklad": "Matka opowiada, że widzi swego Syna bitego i zakrwawionego, i ma tylko jednego Syna, na krzyżu rozbitego.", "miejsce": "w. 7–13; w. 37–38", "cytat": "Nie mam ani będę mieć jinego,"},
+    {"motyw": "apostrofa do słuchaczy", "przyklad": "Utwór zaczyna się zwrotem do braci, żeby wysłuchali narzekania Matki.", "miejsce": "w. 1–4", "cytat": "Posłuchajcie, bracia miła,"},
+    {"motyw": "bezsilność wobec cierpienia ukochanej osoby", "przyklad": "Matka chciałaby podeprzeć głowę Syna, obetrzeć krew i dać mu pić, ale nie może dotknąć jego ciała.", "miejsce": "w. 20–25"},
+    {"motyw": "pragnienie kontaktu z umierającym", "przyklad": "Matka prosi Syna o odezwanie się, bo odchodzi od niej jej nadzieja.", "miejsce": "w. 18–19", "cytat": "Przemów k matce, bych się ucieszyła,"},
+    {"motyw": "zestawienie radości zwiastowania z bólem pod krzyżem", "przyklad": "W apostrofie do anioła Gabriela Matka wspomina obiecaną radość i mówi, że teraz jest pełna smutku, a jej ciało i kości sprochniały.", "miejsce": "w. 26–31", "cytat": "Sprochniało we mnie ciało i moje wszytki kości."},
+    {"motyw": "niewinne cierpienie", "przyklad": "Matka mówi, że Syn cierpi męki bez żadnej winy.", "miejsce": "w. 34–36"},
+    {"motyw": "apel do innych matek", "przyklad": "Matka zwraca się do żądnych macior, by prosiły Boga, aby nie miały nad swymi dziećmi takiego bólu.", "miejsce": "w. 32–33"}
+  ],
+  "utwory": [
+    {"tytul": "Lament świętokrzyski (Posłuchajcie, bracia miła)", "miejsce": "cały utwór, 38 wersów", "opis": "Średniowieczny polski tekst wierszowany, w którym Matka Boska opowiada o męce Syna w Wielki Piątek; w tekście są trzy zasadnicze części: zwrot do słuchaczy (w. 1–8), opis cierpienia Syna i prośba do niego (w. 9–25) oraz apostrofa do anioła Gabriela i do matek z zakończeniem o jedynym Synu na krzyżu (w. 26–38)."}
+  ],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/lament-swietokrzyski/", "rodzaj": "utwór", "co": "Pobrany i przeczytany cały tekst (38 wersów); numeracja wersów liczona od pierwszej linii utworu w wersji WL."}
+  ],
+  "do_weryfikacji": [
+    "Numeracja wersów jest własna (liczona w wersji z Wolnych Lektur); w wydaniach naukowych numeracja bywa inna.",
+    "Wiek powstania utworu i znaczenie nazwy „świętokrzyski” nie zostały sprawdzone w źródłach."
+  ]
+}
