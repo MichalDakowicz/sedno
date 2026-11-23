@@ -1,16 +1,21 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { AvatarState } from "./TutorAvatar";
-import { aiErrorText, AiError, streamAi } from "../ai";
-import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA_ROZMOW, type Rozmowa } from "../konto/rozmowy";
-import { bezEmoji, powtarzaTutora, priorytetDozwolony, rozmowa, trudnaSprawa, wytnijPriorytety } from "../pestka";
+import { aiErrorText, AiError, streamAi, type ProsbaPestki } from "../ai";
+import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA_ROZMOW, type Rozmowa, type WiadomoscRozmowy } from "../konto/rozmowy";
+import { bezEmoji, pokazTekstCzatu, powtarzaTutora, priorytetDozwolony, rozmowa, trudnaSprawa, wytnijPriorytety } from "../pestka";
 import { dodajPriorytet, listaPelna, opisProfilu, usunPriorytet } from "../konto/profilUcznia";
 import { useUstawienia } from "../konto/ustawienia";
 import { glos } from "../pestka/glos";
+import { AKCJE, type AkcjaPestki } from "../../../../services/supabase/functions/_shared/pestka-odpowiedz";
 
 /** Priorytet, który Pestka zapisała w profilu ucznia z danej wypowiedzi (tylko na ekranie); cofniete: uczeń go cofnął. */
 export type ZapisPriorytetu = { id: string; tekst: string; cofniete?: boolean };
 /** zapisane i pelna: informacja pod wypowiedzią Pestki o zapisie w profilu albo o pełnej liście (tylko na ekranie). */
-export type Message = { id: number; from: "tutor" | "student"; text: string; zapisane?: ZapisPriorytetu[]; pelna?: boolean; wsparcie?: boolean; blad?: boolean };
+export type Message = WiadomoscRozmowy & { id: number; zapisane?: ZapisPriorytetu[]; pelna?: boolean; wsparcie?: boolean; blad?: boolean };
+
+function doZapisu({ from, text, pestka }: Message): WiadomoscRozmowy {
+  return { from, text, ...(pestka && { pestka }) };
+}
 
 // Wskazówka tutora przypięta do elementu z atrybutem data-tutor. Lista celów: pierwszy widoczny wygrywa,
 // np. linki w pasku na desktopie, a przycisk menu na telefonie.
@@ -30,7 +35,7 @@ export type Guide = { key: string; kind: "tour" | "hint"; hints: Hint[]; index: 
  * To, na co uczeń patrzy (zadanie w rundzie albo w arkuszu). klucz: to samo zadanie przed i po sprawdzeniu;
  * opis: tekst dla modelu (przed sprawdzeniem bez klucza odpowiedzi).
  */
-export type KontekstPestki = { klucz: string; tytul: string; opis: string };
+export type KontekstPestki = { klucz: string; tytul: string; opis: string; przedmiot?: string; maProbe?: boolean; sokratejski?: boolean; chronOdpowiedz?: boolean };
 
 export type Summon = { x: number; y: number; about: string | null; kontekst?: KontekstPestki | null };
 
@@ -49,7 +54,9 @@ type TutorValue = {
   /** Tytuł zadania, o którym jest bieżąca rozmowa. */
   tematRozmowy: string | null;
   close: () => void;
-  send: (text: string) => void;
+  send: (text: string, przedmiot?: string) => void;
+  wykonajAkcje: (akcja: Exclude<AkcjaPestki, "zrodlo">, id: number, przedmiot?: string) => void;
+  sprawdzOdwolanie: (fragment: string, temat?: string) => boolean;
   /** Po błędzie modelu wysyła jeszcze raz ostatnie pytanie ucznia, bez dopisywania nowej wiadomości. */
   ponow: () => void;
   /** Pytanie z wyszukiwania: zaczyna nową rozmowę i od razu w niej pyta. Nic nie robi, gdy AI nie jest gotowe albo Pestka odpowiada. */
@@ -165,7 +172,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   const [biezacaRozmowa, setBiezacaRozmowa] = useState(() => idBiezacej() ?? noweId());
   const [messages, setMessages] = useState<Message[]>(() => {
     const zapis = wczytajRozmowy().find((r) => r.id === idBiezacej());
-    return zapis ? zapis.wiadomosci.map((m, i) => ({ id: i, from: m.from, text: m.text })) : [{ id: 0, from: "tutor", text: greeting }];
+    return zapis ? zapis.wiadomosci.map((m, i) => ({ ...m, id: i })) : [{ id: 0, from: "tutor", text: greeting }];
   });
   const [state, setState] = useState<AvatarState>("idle");
   const [isOpen, setOpen] = useState(false);
@@ -181,6 +188,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   // Kontekst strony nie przerysowuje niczego, więc trzymamy go w ref. Rozmowa pamięta, o którym zadaniu jest.
   const kontekstStrony = useRef<KontekstPestki | null>(null);
   const kontekstRozmowy = useRef<KontekstPestki | null>(null);
+  const ostatniaProsba = useRef<{ pestka?: ProsbaPestki; akcja?: string; przedmiot?: string }>({});
   const [tematRozmowy, setTematRozmowy] = useState<string | null>(null);
 
   // Rozmowy z konta (z innego urządzenia) dochodzą po zalogowaniu: lista się odświeża, a otwarta rozmowa
@@ -192,9 +200,9 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       if (stanRef.current !== "idle") return;
       const zapis = lista.find((r) => r.id === biezacaRef.current);
       if (!zapis) return;
-      const naEkranie = JSON.stringify(history.current.filter((m) => !m.blad).map((m) => ({ from: m.from, text: m.text })));
+      const naEkranie = JSON.stringify(history.current.filter((m) => !m.blad).map(doZapisu));
       if (naEkranie === JSON.stringify(zapis.wiadomosci)) return;
-      setMessages(zapis.wiadomosci.map((m) => ({ id: nextId.current++, from: m.from, text: m.text })));
+      setMessages(zapis.wiadomosci.map((m) => ({ ...m, id: nextId.current++ })));
     };
     window.addEventListener(ZMIANA_ROZMOW, odswiez);
     return () => window.removeEventListener(ZMIANA_ROZMOW, odswiez);
@@ -219,15 +227,25 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   }, []);
 
   // Odpowiedź modelu z konta: dopisujemy ją do jednej wiadomości w miarę, jak przychodzi.
-  const askModel = useCallback(async (all: Message[]) => {
+  const askModel = useCallback(async (all: Message[], opcje: typeof ostatniaProsba.current = {}) => {
+    ostatniaProsba.current = opcje;
+    const kontekst = kontekstRozmowy.current ?? kontekstStrony.current;
+    const zadanieArkusza = kontekst?.klucz.startsWith("arkusz:")
+      ? document.querySelector<HTMLElement>(`[data-tutor-klucz="${CSS.escape(kontekst.klucz)}"]`)
+      : null;
+    const k = kontekst && zadanieArkusza?.dataset.tutorKontekst ? {
+      ...kontekst, opis: zadanieArkusza.dataset.tutorKontekst,
+      maProbe: zadanieArkusza.dataset.tutorProba === "tak", chronOdpowiedz: zadanieArkusza.dataset.tutorChron === "tak",
+    } : kontekst;
     const id = nextId.current++;
     let started = false;
     // Flagę czytamy przed setMessages: updater wykonuje się dopiero przy renderze.
     const historia = all.filter((m) => !m.blad).map((m) => ({ od: m.from === "tutor" ? ("tutor" as const) : ("uczen" as const), tekst: m.text }));
     const ostatniaUcznia = [...historia].reverse().find((m) => m.od === "uczen")?.tekst ?? "";
     // Stała informacja o wsparciu pod odpowiedzią na taką wiadomość, niezależnie od tego, co napisze model.
-    const wsparcie = trudnaSprawa(ostatniaUcznia);
-    const write = (text: string, dodatek?: Pick<Message, "zapisane" | "pelna" | "blad">) => {
+    const weryfikacja = opcje.pestka?.tryb === "lektura";
+    const wsparcie = !weryfikacja && trudnaSprawa(ostatniaUcznia);
+    const write = (text: string, dodatek?: Pick<Message, "zapisane" | "pelna" | "blad" | "pestka">) => {
       const first = !started;
       started = true;
       const pola = { ...dodatek, ...(wsparcie ? { wsparcie: true } : {}) };
@@ -235,32 +253,44 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     };
     let text = "";
     try {
-      await streamAi(
+      const wynik = await streamAi(
         {
           tier: "lekkie",
-          task: "pestka-czat",
+          task: weryfikacja ? "pestka-sprawdz-lekture" : "pestka-czat",
+          pestka: opcje.pestka ?? (!wsparcie && !k?.sokratejski ? {
+            tryb: "czat", przedmiot: k?.przedmiot ?? opcje.przedmiot,
+            chronOdpowiedz: k?.chronOdpowiedz,
+            maProbe: k?.maProbe || historia.some((m) => m.od === "uczen" && /moja próba|moja odpowiedź|mój wynik|wyszło mi/i.test(m.tekst)),
+          } : undefined),
           messages: rozmowa(
-            { przedmiot: przedmioty ? `matura: ${przedmioty}` : "matura", krotko, czat: true, profil: opisProfilu(), listaPelna: listaPelna(), zadanie: kontekstRozmowy.current?.opis },
-            historia,
+            { przedmiot: k?.przedmiot ?? opcje.przedmiot ?? (przedmioty ? `matura: ${przedmioty}` : "matura"), krotko,
+              tryb: k?.sokratejski ? "sokratejski" : "pomoc", czat: !weryfikacja, profil: opisProfilu(), listaPelna: listaPelna(),
+              zadanie: k?.opis },
+            opcje.akcja ? [...historia.slice(0, -1), { od: "uczen", tekst: opcje.akcja }] : historia,
           ),
         },
         (delta) => {
           text += delta;
           if (!started) setState("talking");
-          write(wytnijPriorytety(bezEmoji(text)).widoczny);
+          write(weryfikacja ? text : wytnijPriorytety(bezEmoji(pokazTekstCzatu(text))).widoczny);
         },
       );
-      const { widoczny, priorytety } = wytnijPriorytety(bezEmoji(text));
-      if (!widoczny.trim()) write("Zamyśliłam się i nic nie napisałam. Zapytaj jeszcze raz?");
+      const numery = wynik.pestka?.zrodla.flatMap((z) => z.twierdzenie?.match(/^\[(\d)\]/)?.[1] ?? []) ?? [];
+      const { widoczny, priorytety } = wytnijPriorytety(bezEmoji(pokazTekstCzatu(text, numery)));
+      const pestka = wsparcie ? undefined : wynik.pestka;
+      if (wynik.pestka?.sprawdzenie || weryfikacja) {
+        write(wynik.pestka?.sprawdzenie ? text : "Sprawdzanie lektur jest chwilowo niedostępne. Spróbuj ponownie.", { pestka, blad: !pestka?.sprawdzenie });
+      }
+      else if (!widoczny.trim()) write("Zamyśliłam się i nic nie napisałam. Zapytaj jeszcze raz?");
       else if (powtarzaTutora(widoczny, historia)) write("Powtarzam się. Napisz własnymi słowami, co jest dla ciebie niejasne, a wyjaśnię to inaczej.");
       else {
         // Zapis dopiero po całej odpowiedzi i najwyżej jeden na odpowiedź; uczeń zawsze widzi w czacie, co trafiło do profilu.
         // Twarda ochrona obok promptu: priorytet musi wynikać z ostatniej wiadomości ucznia; odrzucony znika po cichu.
         const propozycja = priorytety.find((p) => priorytetDozwolony(p, ostatniaUcznia));
-        if (propozycja && listaPelna()) write(widoczny, { pelna: true });
+        if (propozycja && listaPelna()) write(widoczny, { pelna: true, pestka });
         else {
           const idP = propozycja ? dodajPriorytet(propozycja, "pestka") : null;
-          write(widoczny, idP ? { zapisane: [{ id: idP, tekst: propozycja!.trim().replace(/\s+/g, " ").slice(0, 120) }] } : undefined);
+          write(widoczny, { pestka, ...(idP && { zapisane: [{ id: idP, tekst: propozycja!.trim().replace(/\s+/g, " ").slice(0, 120) }] }) });
         }
       }
     } catch (e) {
@@ -274,7 +304,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     setMessages((m) => m.map((x) => (x.id === idWiadomosci ? { ...x, zapisane: x.zapisane?.map((z) => (z.id === idPriorytetu ? { ...z, cofniete: true } : z)) } : x)));
   }, []);
 
-  const send = useCallback((text: string) => {
+  const wyslij = useCallback((text: string, opcje: typeof ostatniaProsba.current) => {
     const clean = text.trim();
     // Jedna odpowiedź naraz: także w trakcie strumienia („talking”), inaczej druga trafiłaby do innej rozmowy.
     if (!clean || stanRef.current !== "idle") return;
@@ -284,7 +314,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     setState("thinking");
 
     if (ai) {
-      void askModel([...history.current, student]);
+      void askModel([...history.current, student], opcje);
       return;
     }
 
@@ -294,6 +324,31 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     }, 500);
   }, [ai, askModel]);
 
+  const send = useCallback((text: string, przedmiot?: string) => wyslij(text, { przedmiot }), [wyslij]);
+
+  const wykonajAkcje = useCallback((akcja: Exclude<AkcjaPestki, "zrodlo">, id: number, przedmiot?: string) => {
+    const lista = history.current;
+    const indeks = lista.findIndex((m) => m.id === id && m.pestka?.akcje?.includes(akcja));
+    if (indeks < 1) return;
+    const pytanie = lista.slice(0, indeks).reverse().find((m) => m.from === "student")?.text ?? "";
+    const akcjaZKontekstem = `${AKCJE[akcja]}. Odnieś się do bieżącego zadania i tej wymiany:\nProśba ucznia: ${pytanie}\nOdpowiedź: ${lista[indeks].text}`;
+    wyslij(AKCJE[akcja], { przedmiot, akcja: akcjaZKontekstem });
+  }, [wyslij]);
+
+  const sprawdzOdwolanie = useCallback((fragment: string, temat?: string) => {
+    if (!ai || stanRef.current !== "idle") return false;
+    const start = zacznijRozmowe({ klucz: "sprawdzenie-lektury", tytul: "sprawdzanie odwołania do lektury", opis: "", przedmiot: "polski" });
+    const wpis: Message = { id: nextId.current++, from: "student", text: `Sprawdź odwołanie do lektury\n\n${fragment}` };
+    setMessages([...start, wpis]);
+    stanRef.current = "thinking";
+    setState("thinking");
+    setGuide(null);
+    setSummon(null);
+    setOpen(true);
+    void askModel([...start, wpis], { pestka: { tryb: "lektura", fragment, temat: temat?.slice(0, 1400) } });
+    return true;
+  }, [ai, askModel, zacznijRozmowe]);
+
   const ponow = useCallback(() => {
     if (!ai || stanRef.current !== "idle") return;
     const bez = history.current.filter((m) => !m.blad);
@@ -301,7 +356,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     stanRef.current = "thinking";
     setMessages(bez);
     setState("thinking");
-    void askModel(bez);
+    void askModel(bez, ostatniaProsba.current);
   }, [ai, askModel]);
 
   // Historię dla modelu budujemy tu wprost (powitanie + pytanie), bez odwoływania się do poprzedniej rozmowy.
@@ -311,6 +366,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       if (!clean || !ai || stanRef.current !== "idle") return;
       const wiadomosci: Message[] = [...zacznijRozmowe(null), { id: nextId.current++, from: "student", text: clean }];
       history.current = wiadomosci;
+      stanRef.current = "thinking";
       setMessages(wiadomosci);
       setState("thinking");
       void askModel(wiadomosci);
@@ -370,7 +426,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   useEffect(() => {
     if (state === "talking" || state === "thinking") return;
     ustawBiezaca(biezacaRozmowa);
-    setRozmowy(zapiszRozmowe(biezacaRozmowa, messages.filter((m) => !m.blad).map((m) => ({ from: m.from, text: m.text }))));
+    setRozmowy(zapiszRozmowe(biezacaRozmowa, messages.filter((m) => !m.blad).map(doZapisu)));
   }, [messages, state, biezacaRozmowa]);
 
   const nowaRozmowa = useCallback(() => {
@@ -386,7 +442,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     setTematRozmowy(null);
     setBiezacaRozmowa(id);
     ustawBiezaca(id);
-    setMessages(r.wiadomosci.map((m) => ({ id: nextId.current++, from: m.from, text: m.text })));
+    setMessages(r.wiadomosci.map((m) => ({ ...m, id: nextId.current++ })));
   }, []);
 
   // Otwarcie przy zadaniu zaczyna rozmowę o nim, zamiast pokazywać poprzednią, niezwiązaną.
@@ -416,6 +472,8 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       tematRozmowy,
       close: () => setOpen(false),
       send,
+      wykonajAkcje,
+      sprawdzOdwolanie,
       ponow,
       zapytajWNowej,
       aiGotowe: aiStan,
@@ -425,7 +483,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
           ? []
           : messages.length <= 1
           ? ["Co powtórzyć przed maturą?", "Wyjaśnij mi zadanie", "Sprawdź, czy rozumiem temat"]
-          : ["Daj wskazówkę", "Pokaż przykład", "Spróbuję jeszcze raz"],
+          : [],
       guide,
       summon,
       showHints,
@@ -435,7 +493,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       summonAt,
       spi,
     }),
-    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, send, ponow, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
+    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, send, wykonajAkcje, sprawdzOdwolanie, ponow, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
   );
 
   return <TutorContext.Provider value={value}>{children}</TutorContext.Provider>;
@@ -450,7 +508,7 @@ export function useTutor(): TutorValue {
 /** Strona zgłasza, na co uczeń patrzy; po odejściu ze strony kontekst znika. */
 export function useKontekstPestki(kontekst: KontekstPestki | null) {
   const { ustawKontekst } = useContext(TutorContext) ?? {};
-  const klucz = kontekst ? `${kontekst.klucz}\n${kontekst.opis}` : null;
+  const klucz = kontekst ? JSON.stringify(kontekst) : null;
   useEffect(() => {
     if (!ustawKontekst) return;
     ustawKontekst(kontekst);

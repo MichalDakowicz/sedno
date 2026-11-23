@@ -175,7 +175,7 @@ async function krokPoKroku(body: Obiekt, zapytaj: Zapytaj) {
   }
   const wynik = await zapytaj(
     "nauka-krok-po-kroku", etap === "przeglad" ? "wazne" : "lekkie",
-    ZASADY_TUTORA + ' Oceń szkic według każdego kryterium bieżącego etapu. Zwróć {"statusy": {"id-kryterium": "dobrze|do-poprawy|do-zrobienia|niepewne"}, "pytanie": "jedno pytanie pomocnicze"}. Wypełnij wszystkie identyfikatory.',
+    ZASADY_TUTORA + ' Oceń szkic według każdego kryterium bieżącego etapu. Gdy fragment pracy nie pozwala rozstrzygnąć kryterium, użyj niepewne. W uwadze wskaż fragment i wyjaśnij jego związek z kryterium. Osobno zakończ jednym konkretnym następnym krokiem. Zwróć {"statusy": {"id-kryterium": "dobrze|do-poprawy|do-zrobienia|niepewne"}, "pytanie": "krótka uwaga i następny krok"}. Wypełnij wszystkie identyfikatory.',
     { etap, poziom, polecenie, szkic, kryteria },
   );
   return { etap, slowa, akapity, statusy: statusy(kryteria, wynik.statusy), pytanie: wymagajWyniku(tekst(wynik.pytanie, 500)) };
@@ -233,7 +233,7 @@ async function omowOdczyt(body: Obiekt, zapytaj: Zapytaj) {
   if (!polecenie || !odczyt) throw new BladApi(400, "bad_input");
   const wynik = await zapytaj(
     "nauka-omow-odczyt", "wazne",
-    ZASADY_TUTORA + ' Uczeń sprawdził transkrypcję swojego rozwiązania. Krótko wskaż, jaki jego krok warto sprawdzić w pierwszej kolejności. Zwróć {"uwaga": "krótka uwaga o kroku", "pytanie": "jedno pytanie naprowadzające"}.',
+    ZASADY_TUTORA + ' Uczeń sprawdził transkrypcję swojego rozwiązania. W uwadze przytocz fragment próby i wyjaśnij, co się zgadza albo co wymaga poprawy. Jeśli brakuje danych, wpisz „Wymaga weryfikacji”. Zwróć {"uwaga": "krótka uwaga o próbie", "pytanie": "jeden konkretny krok do wykonania"}.',
     { polecenie, odczyt },
   );
   return { uwaga: wymagajWyniku(tekst(wynik.uwaga, 500)), pytanie: wymagajWyniku(tekst(wynik.pytanie, 500)) };

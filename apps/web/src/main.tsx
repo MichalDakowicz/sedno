@@ -30,6 +30,7 @@ import { Zadania } from "./views/nauka/Zadania";
 import { Zdjecie } from "./views/nauka/Zdjecie";
 import { Sokratejski } from "./views/nauka/Sokratejski";
 import { KrokPoKroku } from "./views/nauka/KrokPoKroku";
+import { WypracowaniePolski } from "./views/nauka/WypracowaniePolski";
 import { Umiejetnosci } from "./views/nauka/Umiejetnosci";
 import { MapaWiedzy } from "./views/nauka/MapaWiedzy";
 import { Wizualizacje } from "./views/nauka/Wizualizacje";
@@ -60,6 +61,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="nauka/zdjecie" element={<Zdjecie />} />
           <Route path="nauka/sokratejski" element={<Sokratejski />} />
           <Route path="nauka/pisanie" element={<KrokPoKroku />} />
+          <Route path="nauka/wypracowanie" element={<WypracowaniePolski />} />
           <Route path="nauka/diagnoza" element={<Diagnoza />} />
           <Route path="nauka/mapa-wiedzy" element={<MapaWiedzy />} />
           <Route path="nauka/wizualizacje" element={<Wizualizacje />} />

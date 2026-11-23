@@ -4,7 +4,7 @@ import { useProfil } from "../auth";
 import { PRZEDMIOTY, type PrzedmiotId } from "../konto/przedmioty";
 import { ZapiszWMapie } from "./ZapiszWMapie";
 import { TutorAvatar } from "./TutorAvatar";
-import { Markdown } from "./Markdown";
+import { OdpowiedzPestki } from "./OdpowiedzPestki";
 import { useTutor } from "./TutorContext";
 import styles from "./TutorChat.module.css";
 import { MAPA_WIEDZY_WLACZONA } from "../nauka/wiedza";
@@ -32,7 +32,7 @@ function usePrzedmiotRozmowy(): PrzedmiotId | null {
 }
 
 export function TutorChat() {
-  const { messages, state, send, ponow, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, aiGotowe } = useTutor();
+  const { messages, state, send, wykonajAkcje, ponow, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, aiGotowe } = useTutor();
   const przedmiotNotatki = usePrzedmiotRozmowy();
   const [draft, setDraft] = useState("");
   const [lista, setLista] = useState(false);
@@ -57,7 +57,7 @@ export function TutorChat() {
   function submit(e: FormEvent) {
     e.preventDefault();
     if (state !== "idle") return;
-    send(draft);
+    send(draft, przedmiotNotatki ?? undefined);
     setDraft("");
   }
 
@@ -108,7 +108,8 @@ export function TutorChat() {
             <div key={m.id} className={styles.tutorRow}>
               <TutorAvatar size={28} />
               <div>
-                <Markdown className={styles.tutorText}>{m.text}</Markdown>
+                <OdpowiedzPestki tekst={m.text} dane={m.pestka} zajeta={zajeta}
+                  wykonaj={(akcja) => wykonajAkcje(akcja, m.id, przedmiotNotatki ?? undefined)} />
                 {m.zapisane?.map((p) => (
                   <p key={p.id} className={styles.zapisano}>
                     {p.cofniete ? (
@@ -168,7 +169,7 @@ export function TutorChat() {
         ) : (
         <div className={styles.suggestions}>
           {suggestions.map((s) => (
-            <button key={s} type="button" className={styles.chip} onClick={() => send(s)} disabled={state !== "idle"}>
+            <button key={s} type="button" className={styles.chip} onClick={() => send(s, przedmiotNotatki ?? undefined)} disabled={state !== "idle"}>
               {s}
             </button>
           ))}

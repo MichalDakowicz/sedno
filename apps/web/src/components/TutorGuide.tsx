@@ -600,7 +600,12 @@ export function TutorGuide() {
       const about = t.closest<HTMLElement>("[data-tutor-about]")?.dataset.tutorAbout ?? null;
       const zadanie = t.closest<HTMLElement>("[data-tutor-kontekst]");
       const kontekst = zadanie?.dataset.tutorKontekst
-        ? { klucz: zadanie.dataset.tutorKlucz ?? zadanie.dataset.tutorKontekst, tytul: zadanie.dataset.tutorTytul ?? "to zadanie", opis: zadanie.dataset.tutorKontekst }
+        ? {
+          klucz: zadanie.dataset.tutorKlucz ?? zadanie.dataset.tutorKontekst,
+          tytul: zadanie.dataset.tutorTytul ?? "to zadanie", opis: zadanie.dataset.tutorKontekst,
+          przedmiot: zadanie.dataset.tutorPrzedmiot, maProbe: zadanie.dataset.tutorProba === "tak",
+          chronOdpowiedz: zadanie.dataset.tutorChron === "tak",
+        }
         : null;
       summonAt({ x: e.pageX, y: e.pageY, about, kontekst });
     };

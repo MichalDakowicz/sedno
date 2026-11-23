@@ -35,7 +35,7 @@ function opisAutorski(prompt: Exclude<PolecenieNauki, { typ: "cke" }>, odpowiedz
   if (prompt.tekst) linie.push(prompt.tekst);
   if (prompt.typ !== "luka") prompt.opcje.forEach((o) => linie.push(`${o.id}. ${o.tekst}`));
   linie.push(`Odpowiedź ucznia: ${odpowiedz.trim() ? nazwaOdpowiedzi(odpowiedz, prompt) : "(brak)"}`);
-  if (!ocena) return [...linie, "", "Uczeń jeszcze nie sprawdził tego zadania. Nie podawaj poprawnej odpowiedzi: naprowadzaj pytaniami."].join("\n");
+  if (!ocena) return [...linie, "", "Etap: przed oddaniem. Możesz wskazać następny krok, bez zdradzania odpowiedzi."].join("\n");
   if (prompt.typ !== "luka" && prompt.audioTekst) linie.push(`Transkrypcja nagrania: ${prompt.audioTekst}`);
   linie.push(`Poprawna odpowiedź: ${ocena.solutions.map((a) => nazwaOdpowiedzi(a, prompt)).join(" / ")}`, `Wyjaśnienie: ${ocena.explanation}`);
   return linie.join("\n");
@@ -48,13 +48,17 @@ function KontekstCke({ prompt, klucz, odpowiedz, sprawdzone }: { prompt: Extract
   useKontekstPestki(zadanie && pytanie ? {
     klucz,
     tytul: nazwaZadaniaCke(prompt.sheet_id, prompt.question),
+    przedmiot: dane?.przedmiot,
+    maProbe: !!odpowiedz.trim(),
+    chronOdpowiedz: !sprawdzone,
     opis: kontekstZadania({ ...zadanie, pytania: [pytanie] }, { odpowiedzi: { [pytanie.nr]: odpowiedz }, samoocena: {} }, sprawdzone),
   } : null);
   return null;
 }
 
 function KontekstAutorski({ prompt, klucz, odpowiedz, ocena }: { prompt: Exclude<PolecenieNauki, { typ: "cke" }>; klucz: string; odpowiedz: string; ocena?: OdpowiedzNauki }) {
-  useKontekstPestki({ klucz, tytul: "zadanie z rundy", opis: opisAutorski(prompt, odpowiedz, ocena) });
+  useKontekstPestki({ klucz, tytul: "zadanie z rundy", opis: opisAutorski(prompt, odpowiedz, ocena),
+    przedmiot: "angielski", maProbe: !!odpowiedz.trim(), chronOdpowiedz: !ocena });
   return null;
 }
 

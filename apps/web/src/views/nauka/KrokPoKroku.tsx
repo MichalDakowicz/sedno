@@ -244,6 +244,8 @@ function Edytor({ id }: { id: string }) {
   useKontekstPestki(szkic ? {
     klucz: `szkic:${szkic.id}:${szkic.stage}`,
     tytul: `${nazwaFormy(szkic.form)}, etap: ${ETAPY.find((e) => e.id === szkic.stage)?.nazwa.toLowerCase()}`,
+    przedmiot: "angielski",
+    maProbe: !!(szkic.sections.plan || calyTekst(szkic.sections).trim()),
     opis: [`Wypowiedź pisemna z angielskiego (${nazwaPoziomu[szkic.level]}), forma: ${nazwaFormy(szkic.form)}.`, `Polecenie: ${szkic.prompt}`,
       `Plan: ${szkic.sections.plan ?? ""}`, `Tekst: ${calyTekst(szkic.sections)}`, "Nie pisz tekstu za ucznia: pytaj i wskazuj."].join("\n"),
   } : null);

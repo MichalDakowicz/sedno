@@ -148,6 +148,7 @@ function Przebieg({ tytul, polecenieStartowe }: { tytul: string | null; poleceni
   const kontekst = {
     klucz: `zdjecie:${tytul ?? "wlasne"}`,
     tytul: tytul ? `${tytul}, zdjęcie z kartki` : "zdjęcie rozwiązania z kartki",
+    maProbe: !!tekst.trim(),
     opis: [`Treść zadania:\n${polecenie}`, tekst && `Odczyt rozwiązania ucznia (sprawdzony przez ucznia):\n${tekst}`,
       omowienie && `Twoja uwaga: ${omowienie.uwaga}\nTwoje pytanie: ${omowienie.pytanie}`,
       "Nie podawaj gotowego rozwiązania: naprowadzaj pytaniami."].filter(Boolean).join("\n\n"),

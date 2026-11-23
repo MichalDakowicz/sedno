@@ -142,6 +142,8 @@ function Rozmowa({ user, umiejetnosc, poziom }: { user: string; umiejetnosc: Umi
   useKontekstPestki({
     klucz: `sokratejski:${umiejetnosc.skill_id}`,
     tytul: `rozmowa o: ${umiejetnosc.name}`,
+    przedmiot: "angielski",
+    sokratejski: true,
     opis: [`Rozmowa sokratejska o umiejętności z matury z angielskiego: ${umiejetnosc.name}.`,
       ...historia.map((w) => `${w.od === "pestka" ? "Pestka" : "Uczeń"}: ${w.tekst}`),
       "Prowadź pytaniami, nie podawaj gotowej reguły. Zamieść cały potrzebny materiał w wiadomości. Ta rozmowa jest tekstowa."].join("\n"),

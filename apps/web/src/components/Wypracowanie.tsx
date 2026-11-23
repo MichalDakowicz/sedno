@@ -1,7 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Check, Maximize2, Minimize2 } from "lucide-react";
 import { liczSlowa } from "../arkusze/sprawdz";
 import styles from "./Wypracowanie.module.css";
+import { useTutor } from "./TutorContext";
 
 export type Temat = { nr: number; tekst: string; punkty: string[] };
 
@@ -15,6 +16,7 @@ type Props = {
   temat: number | null;
   odhaczone: number[];
   tylkoOdczyt: boolean;
+  jezyk?: "pl" | "en";
   onTekst: (t: string) => void;
   onTemat: (nr: number) => void;
   onOdhacz: (i: number) => void;
@@ -24,9 +26,13 @@ type Props = {
 // odhaczenia, licznik słów względem zakresu z polecenia i tryb skupienia.
 export function Wypracowanie(props: Props) {
   const { tekst, poczatek, tematy, zakres, temat, odhaczone, tylkoOdczyt } = props;
+  const polski = props.jezyk === "pl";
+  const { sprawdzOdwolanie, state: stanPestki, aiGotowe } = useTutor();
   const pole = useRef<HTMLTextAreaElement>(null);
+  const opisZaznaczenia = useId();
   const [skupienie, setSkupienie] = useState(false);
   const [zapisano, setZapisano] = useState(false);
+  const [zaznaczenie, ustawZaznaczenie] = useState("");
 
   // Pole rośnie razem z tekstem, zamiast przewijać się w środku.
   useLayoutEffect(() => {
@@ -59,6 +65,13 @@ export function Wypracowanie(props: Props) {
   const akapity = tekst.split(/\n\s*\n/).filter((a) => a.trim()).length;
   const wybrany = tematy.find((t) => t.nr === temat);
   const lista = tematy.length ? (wybrany?.punkty ?? []) : props.punkty;
+  const fragment = zaznaczenie.trim();
+  const jedenAkapit = fragment.length <= 3500 && !/\n\s*\n/.test(fragment);
+  const instrukcja = aiGotowe === false
+    ? "Pestka jest chwilowo niedostępna."
+    : fragment && !jedenAkapit
+      ? "Zaznacz fragment jednego akapitu, do 3500 znaków."
+      : "Zaznacz w tekście akapit z odwołaniem do lektury.";
 
   return (
     <div className={styles.wrap}>
@@ -114,12 +127,32 @@ export function Wypracowanie(props: Props) {
               className={styles.area}
               value={tekst}
               readOnly={tylkoOdczyt}
-              onChange={(e) => props.onTekst(e.target.value)}
-              lang="en"
+              onChange={(e) => {
+                ustawZaznaczenie("");
+                props.onTekst(e.target.value);
+              }}
+              onSelect={polski ? (e) => {
+                const { value, selectionStart, selectionEnd } = e.currentTarget;
+                ustawZaznaczenie(value.slice(selectionStart, selectionEnd));
+              } : undefined}
+              lang={props.jezyk ?? "en"}
               spellCheck
               aria-label="Twoja wypowiedź"
-              placeholder={poczatek ? "Pisz dalej po angielsku…" : "Zacznij pisać po angielsku. Akapity oddzielaj pustą linią."}
+              aria-describedby={polski ? opisZaznaczenia : undefined}
+              placeholder={polski ? "Napisz własne wypracowanie. Akapity oddzielaj pustą linią." : poczatek ? "Pisz dalej po angielsku…" : "Zacznij pisać po angielsku. Akapity oddzielaj pustą linią."}
             />
+            {polski && (
+              <div className={styles.lektura}>
+                <button type="button" className="btn btn-secondary btn-sm"
+                  disabled={!fragment || !jedenAkapit || aiGotowe !== true || stanPestki !== "idle"}
+                  onClick={() => {
+                    if (sprawdzOdwolanie(fragment, wybrany?.tekst ?? props.polecenie)) setSkupienie(false);
+                  }}>
+                  Sprawdź odwołanie do lektury
+                </button>
+                <p id={opisZaznaczenia} className="small muted">{instrukcja}</p>
+              </div>
+            )}
           </div>
 
           <Licznik slowa={slowa} zakres={zakres} akapity={akapity} />
