@@ -19,23 +19,25 @@ export function polecenieRysowania(f) {
     offset += l.tekst.length + 1;
   }
   const tresc = linie.map((l) => l.tekst).join(" ");
-  for (const zdanie of tresc.matchAll(/[^!?;]+?(?:[!?;]|[.](?=\s+(?:[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]|[a-d]\)))|$)/gu)) {
+  for (const zdanie of tresc.matchAll(/[^!?;]+?(?:[!?;]|[.](?=\s+(?:[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż]|[WZIAO]\s|[a-d]\)))|$)/gu)) {
     const tekst = zdanie[0];
     if (/^\s*(?:Informacja|Materiał źródłowy) do zadań/i.test(tekst)) break;
     if (/\b(?:uzupełnij|dokończ)\s+(?:poniższ\p{L}+\s+)?zdani[ae]\b/iu.test(tekst)) continue;
     const rysuj = RYSUJ.exec(tekst) ?? UTWORZ.exec(tekst) ?? UZUPELNIJ_SCHEMAT.exec(tekst);
     const oznacz = OZNACZ.exec(tekst);
     const naFigurze = NA_FIGURZE.exec(tekst);
+    const dopelnijRownanie = /schemaci/i.test(naFigurze?.[0] ?? "") && /(?:napisz|zapisz|podaj) równani[ea]|współczynniki stechiometryczne/i.test(tresc);
     const ok = oznacz && naFigurze && Math.abs(naFigurze.index - oznacz.index) < 90 && !/\(\s*$/.test(tekst.slice(0, oznacz.index))
-      && !/\bw (?:tabeli|kolumnie|wierszu tabeli)\b/i.test(tekst.slice(oznacz.index))
+      && !/(?:tabeli|kolumnie|w tabelę|numer (?:wskazując|oznaczając))/i.test(tekst) && !dopelnijRownanie
       && !/(?:równanie|liczb\p{L}+\s+(?:atomow|masow)|atomową i masową|schemaci\p{L}*\s+rozpadu)/iu.test(tekst)
       && !WYBOR.test(tekst.slice(Math.min(naFigurze.index + naFigurze[0].length, oznacz.index + oznacz[0].length),
         Math.max(naFigurze.index, oznacz.index)));
     const czynność = rysuj ?? (ok ? oznacz : null);
-    if (!czynność) continue;
+    if (!czynność || !rysuj && /(?:spośród|z podanych).{0,80}(?:pokazan|przedstawion).{0,35}na rysunk/iu.test(tekst)) continue;
     const l = linie.findLast((l) => l.od <= zdanie.index + czynność.index);
     const odCzynnosci = tekst.slice(czynność.index);
-    return { ...l, tekst: tekst.trim(), naFigurze: Boolean(naFigurze), wzor: WZOR.test(odCzynnosci) && !naFigurze,
+    const koniec = linie.find((x) => x.od > l.od && /^(?:Informacja|Materiał źródłowy) do zadań/i.test(x.tekst));
+    return { ...l, tekst: tekst.trim(), koniec, naFigurze: Boolean(naFigurze), wzor: WZOR.test(odCzynnosci) && !naFigurze,
       nowyWykres: /^(?:narysuj|wykonaj|sporządź|naszkicuj|zbuduj)\s+(?:(?!na\s)\p{L}+\s+)?(?:wykres|diagram|krzywą|profil)/iu.test(odCzynnosci),
       odZera: /^(?:narysuj|sporządź|wykonaj|naszkicuj)\s+(?:(?:jeden z możliwych|użyty|prosty)\s+)?(?:schemat|rysunek|szkic|układ|[0-9]+ punkt)/iu.test(odCzynnosci) };
   }
@@ -73,6 +75,12 @@ export async function oznaczRysowanie(pdf, zadania, fragmenty, { katalog, prefik
         const obraz = cel.obraz ?? await zapiszWycinek(await plotno(pdf, cel.strona, cache), cel.ramka, katalog, prefiks, q.nr + "-rysowanie.webp");
         q.rysowanie = { obraz };
         const zastepowane = new Set((f.figury ?? []).filter((g) => g === cel || g.strona === cel.strona && pokrywa(cel.ramka, g.ramka)).map((g) => g.obraz.src));
+        if (poprawka?.zrodlo) {
+          const [figura] = f.figury;
+          const blok = z.bloki.find((b) => b.typ === "rysunek" && b.obraz.src === figura?.obraz.src);
+          if (!blok) throw new Error("Brak figury źródłowej w zadaniu " + q.nr);
+          blok.obraz = await zapiszWycinek(await plotno(pdf, cel.strona, cache), poprawka.zrodlo, katalog, prefiks, q.nr + "-zrodlo.webp");
+        }
         if (zastepowane.size) z.bloki = z.bloki.filter((b) => b.typ !== "rysunek" || !zastepowane.has(b.obraz.src));
         if (z.rysunek?.src === obraz.src) delete z.rysunek;
       }
@@ -87,7 +95,8 @@ function wybierzFigure(figury, p, wspolne = false) {
   const naStronie = figury.filter((f) => miejsce ? f.strona === Number(miejsce) : wspolne || f.strona >= p.strona);
   const kandydaci = naStronie.filter(({ obraz }) => obraz.szer >= 65 && obraz.wys >= 34);
   const po = kandydaci.filter((f) => f.strona > p.strona || f.strona === p.strona && f.ramka[3] <= p.y + 3);
-  if (p.nowyWykres) return po.find(({ obraz }) => obraz.wys >= 70);
+  if (p.nowyWykres) return po.find(({ obraz, ramka, strona }) => obraz.wys >= 70
+    && (!p.koniec || strona < p.koniec.strona || strona === p.koniec.strona && ramka[1] > p.koniec.y));
   if (kandydaci.length <= 1) return kandydaci[0];
   const przed = /(?:powyż|poprzedni)/i.test(p.tekst);
   if (przed) return kandydaci.findLast((f) => !po.includes(f));
@@ -101,8 +110,9 @@ function pokrywa([xl, yd, xp, yg], [l, d, p, g]) {
 
 async function znajdzSiatke(pdf, czesci, p, cache) {
   for (const c of czesci.filter((c) => c.strona >= p.strona && !c.wstep)) {
+    if (p.koniec && c.strona > p.koniec.strona) break;
     const gora = c.strona === p.strona ? p.y - 5 : c.gora;
-    const dol = c.dol ?? Math.max(60, c.brudnopis ?? 0);
+    const dol = Math.max(c.dol ?? Math.max(60, c.brudnopis ?? 0), c.strona === p.koniec?.strona ? p.koniec.y + 12 : 0);
     if (gora - dol < 45) continue;
     const s = await plotno(pdf, c.strona, cache);
     const ramka = ramkaSiatki(s, gora, dol);
