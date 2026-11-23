@@ -1,0 +1,50 @@
+{
+  "id": "z-legend-dawnego-egiptu",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "początek noweli", "kto": ["Ramzes", "lekarz z Karnaku"], "gdzie": "Egipt, pałac Ramzesa", "opis": "Stuletni, ciężko chory faraon Ramzes każe najmędrszemu lekarzowi ze świątyni w Karnaku przyrządzić lekarstwo, które albo zabije, albo od razu wyleczy." },
+    { "nr": 2, "miejsce": "początek noweli", "kto": ["Ramzes", "lekarz z Karnaku"], "gdzie": "Egipt, pałac Ramzesa", "opis": "Lekarz się waha, ale Ramzes nakazuje spełnić rozkaz, przypominając, że żyje jego trzydziestoletni wnuk i następca, Horus; wypija lekarstwo." },
+    { "nr": 3, "miejsce": "początek noweli", "kto": ["Ramzes", "astrolog z Teb", "lekarz z Karnaku"], "gdzie": "Egipt, pałac Ramzesa", "opis": "Astrolog odczytuje z gwiazd (Saturn połączony z Księżycem) śmierć członka dynastii; lekarz mówi, że przed świtem Ramzes albo wyzdrowieje, albo pierścień przejdzie na rękę Horusa." },
+    { "nr": 4, "miejsce": "sala faraonów, ganek nad Nilem", "kto": ["Ramzes", "Horus"], "gdzie": "Egipt, sala faraonów", "opis": "Ramzes każe zaprowadzić Horusa do sali faraonów, żeby czekał na pierścień i na ostatnie słowa dziada." },
+    { "nr": 5, "miejsce": "sala faraonów, ganek nad Nilem", "kto": ["Horus", "dworzanin"], "gdzie": "ganek nad Nilem", "opis": "Horus patrzy na tłum zgromadzony w nocy i dowiaduje się, że ludzie czekają na nowego faraona; pierwszy raz czuje dumę władzy." },
+    { "nr": 6, "miejsce": "sala faraonów, ganek nad Nilem", "kto": ["Horus", "dworzanin"], "gdzie": "ganek nad Nilem", "opis": "Horus dowiaduje się, że kapłani przenoszą zwłoki jego matki Zefory do katakumb faraonów, że kanclerz wysłał gońców po jego nauczyciela Jetrona oraz że Berenika czeka na wolność w klasztornym więzieniu." },
+    { "nr": 7, "miejsce": "sala faraonów, ganek nad Nilem", "kto": ["Horus", "dworzanin"], "gdzie": "ganek nad Nilem", "opis": "Horusa ukąsiła w nogę pszczoła, dworzanin mówi, że dobrze, iż nie pająk, którego jad bywa o tej porze śmiertelny." },
+    { "nr": 8, "miejsce": "sala faraonów", "kto": ["Horus", "wódz armii"], "gdzie": "sala faraonów", "opis": "Wódz armii przekazuje rozkaz Ramzesa, by spełniać wolę Horusa po zobaczeniu pierścienia; Horus każe napisać edykt o pokoju z Etiopami i drugi, że jeńcom nie wolno wyrywać języków." },
+    { "nr": 9, "miejsce": "sala faraonów", "kto": ["Horus", "kanclerz"], "gdzie": "sala faraonów", "opis": "Kanclerz, spełniając ten sam rozkaz, słyszy edykt o zmniejszeniu o połowę czynszów i podatków oraz o trzech dniach wolnych w tygodniu dla niewolników, a także o powrocie Jetrona z wygnania." },
+    { "nr": 10, "miejsce": "sala faraonów", "kto": ["Horus", "arcykapłan"], "gdzie": "sala faraonów", "opis": "Arcykapłan obiecuje posłuszeństwo; Horus zapowiada nowe świątynie i żąda edyktów o przeniesieniu zwłok Zefory i o uwolnieniu Bereniki z klasztoru." },
+    { "nr": 11, "miejsce": "sala faraonów", "kto": ["Horus", "lekarz z Karnaku"], "gdzie": "sala faraonów", "opis": "Lekarz mówi, że Ramzes kona, i widząc bladość Horusa, ogląda jego nogę; stwierdza, że ukąsił go bardzo jadowity pająk i że książę umrze, zanim księżyc schowa się za palmę." },
+    { "nr": 12, "miejsce": "sala faraonów", "kto": ["Horus", "kanclerz", "wódz armii", "arcykapłan", "lekarz z Karnaku"], "gdzie": "sala faraonów", "opis": "Ministrowie przynoszą gotowe edykty, ale brakuje pierścienia faraona; lekarz odlicza, ile kroków dzieli Horusa od śmierci (od tysiąca do stu)." },
+    { "nr": 13, "miejsce": "sala faraonów", "kto": ["Horus"], "gdzie": "sala faraonów", "opis": "W miarę odliczania kolejne edykty wypadają Horusowi z rąk, a na końcu zostaje tylko rozkaz uwolnienia Bereniki." },
+    { "nr": 14, "miejsce": "zakończenie noweli", "kto": ["zastępca arcykapłana", "Horus", "lekarz z Karnaku"], "gdzie": "sala faraonów", "opis": "Wbiega zastępca arcykapłana z wieścią, że Ramzes cudownie odzyskał zdrowie i zaprasza Horusa na łowy; Horus spogląda w stronę światła w więzieniu Bereniki i umiera." }
+  ],
+  "postacie": [
+    { "imie": "Ramzes", "odmiany": ["Ramzesa", "Ramzesowi", "Ramzesem", "Ramzesie", "faraon"], "rola": "stuletni faraon, surowy i potężny; po lekarstwie odzyskuje zdrowie", "relacje": "dziad Horusa, ojciec Zefory (wg kontekstu: teść), władca, który wygnał Jetrona", "miejsca": ["pałac Ramzesa", "sala faraonów"] },
+    { "imie": "Horus", "odmiany": ["Horusa", "Horusowi", "Horusem", "Horusie", "książę"], "rola": "trzydziestoletni wnuk i następca Ramzesa, litościwy; ginie od jadu pająka", "relacje": "wnuk Ramzesa, syn Zefory, uczeń Jetrona, ukochany Bereniki", "miejsca": ["ganek nad Nilem", "sala faraonów"] },
+    { "imie": "Zefora", "odmiany": ["Zefory", "Zeforze", "Zeforą"], "rola": "matka Horusa, pochowana między niewolnikami za okazywanie im miłosierdzia", "relacje": "matka Horusa", "miejsca": ["grób niewolników", "katakumby faraonów"] },
+    { "imie": "Jetron", "odmiany": ["Jetrona", "Jetronowi", "Jetronem"], "rola": "nauczyciel Horusa, wygnany przez Ramzesa za uczenie litości i niechęci do wojen", "relacje": "nauczyciel i przyjaciel Horusa", "miejsca": ["wygnanie"] },
+    { "imie": "Berenika", "odmiany": ["Bereniki", "Berenice", "Berenikę", "Berenika"], "rola": "ukochana Horusa, więziona w klasztorze", "relacje": "narzeczona Horusa", "miejsca": ["klasztorne więzienie za Nilem"] },
+    { "imie": "lekarz z Karnaku", "odmiany": ["lekarza", "lekarzowi", "lekarzem", "kapłan"], "rola": "najmędrszy lekarz ze świątyni w Karnaku, podaje Ramzesowi lekarstwo i odliczy Horusowi kroki do śmierci", "relacje": "kapłan, doradca Ramzesa", "miejsca": ["pałac Ramzesa", "sala faraonów"] },
+    { "imie": "astrolog z Teb", "odmiany": ["astrologa", "astrologowi", "mędrzec"], "rola": "odczytuje z gwiazd zapowiedź śmierci członka dynastii", "relacje": "doradca Ramzesa", "miejsca": ["pałac Ramzesa"] },
+    { "imie": "wódz armii", "odmiany": ["wodza", "wodzowi", "naczelny wódz"], "rola": "wysłannik Ramzesa do Horusa, przyjmuje edykt o pokoju z Etiopami", "relacje": "podwładny Ramzesa", "miejsca": ["sala faraonów"] },
+    { "imie": "kanclerz", "odmiany": ["kanclerza", "kanclerzowi", "kanclerzu"], "rola": "wysłannik Ramzesa do Horusa, przyjmuje edykty o podatkach i powrocie Jetrona", "relacje": "podwładny Ramzesa", "miejsca": ["sala faraonów"] },
+    { "imie": "arcykapłan", "odmiany": ["arcykapłana", "arcykapłanowi"], "rola": "przyjmuje edykty o pogrzebie Zefory i uwolnieniu Bereniki", "relacje": "podwładny faraona, zwierzchnik kapłanów", "miejsca": ["sala faraonów"] },
+    { "imie": "zastępca arcykapłana", "odmiany": ["zastępcy arcykapłana"], "rola": "wysłannik z wieścią o cudownym ozdrowieniu Ramzesa", "relacje": "zastępca arcykapłana", "miejsca": ["sala faraonów"] }
+  ],
+  "motywy": [
+    { "motyw": "marność ludzkich planów wobec przeznaczenia", "przyklad": "Narrator na początku i na końcu mówi o marności ludzkich nadziei wobec wyroków Przedwiecznego; Horus ginie w chwili, gdy miał objąć władzę.", "miejsce": "początek i zakończenie noweli", "cytat": "Patrzcie, jak marne są ludzkie nadzieje wobec porządku świata" },
+    { "motyw": "władza i jej ciężar", "przyklad": "Wszyscy dostojnicy gotowi są spełnić każdy edykt Horusa, ale tylko gdy dotknie go pierścieniem; sama wola bez pierścienia nic nie znaczy.", "miejsce": "sala faraonów: rozmowy z ministrami", "cytat": "" },
+    { "motyw": "sprawiedliwość i miłosierdzie wobec poddanych", "przyklad": "Horus zmniejsza podatki o połowę, daje niewolnikom trzy dni wolne w tygodniu i zakazuje bicia bez wyroku sądowego.", "miejsce": "rozmowa Horusa z kanclerzem", "cytat": "" },
+    { "motyw": "pokój wobec wojny", "przyklad": "Horus nie oddaje Etiopom Egiptu, lecz chce zawrzeć pokój z żalu nad krwią ludu i zakazuje wyrywania języków jeńcom.", "miejsce": "rozmowa Horusa z wodzem", "cytat": "" },
+    { "motyw": "ludzie dobrzy ulegają okrutnym władcom", "przyklad": "Ramzes pochował Zeforę między niewolnikami za jej miłosierdzie, a Jetrona wygnał za uczenie wnuka litości.", "miejsce": "rozmowa Horusa z dworzaninem", "cytat": "" },
+    { "motyw": "ironia losu", "przyklad": "Stary faraon, który ma umrzeć, wyzdrowieje, a młody następca zginie od ukąszenia pająka.", "miejsce": "zakończenie noweli", "cytat": "" },
+    { "motyw": "odliczanie czasu – kroki do śmierci", "przyklad": "Lekarz odlicza liczbę kroków do śmierci, a z rąk księcia wypada kolejny edykt.", "miejsce": "odliczanie lekarza", "cytat": "" },
+    { "motyw": "miłość i niespełniona nadzieja", "przyklad": "Ostatnim edyktem, który Horus zatrzymuje w dłoni, jest uwolnienie Bereniki; umierając, patrzy na światło w jej więzieniu.", "miejsce": "zakończenie noweli", "cytat": "" }
+  ],
+  "utwory": [],
+  "zrodla": [
+    { "url": "https://wolnelektury.pl/katalog/lektura/z-legend-dawnego-egiptu/", "rodzaj": "utwór", "co": "Przeczytana cała nowela z Wolnych Lektur (domena publiczna); sprawdzony przebieg zdarzeń i cytat." }
+  ],
+  "do_weryfikacji": [
+    "Pokrewieństwo Ramzesa i Zefory (czy Zefora jest jego córką) nie wynika wprost z tekstu; w relacjach podano tylko, że Horus jest wnukiem Ramzesa i synem Zefory.",
+    "Interpretacje (marność nadziei, ironia losu) to odczytania, a nie fakty z tekstu."
+  ]
+}

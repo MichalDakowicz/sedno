@@ -1,0 +1,43 @@
+{
+  "id": "rozdziobia-nas-kruki-wrony",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "początek noweli (opis krajobrazu)", "kto": ["narrator"], "gdzie": "płaska, pusta okolica pod Nasielskiem, jesienią po klęsce powstania", "opis": "Narrator opisuje deszczowy, ponury poranek i pusty, rozmokły krajobraz." },
+    { "nr": 2, "miejsce": "początek noweli", "kto": ["Andrzej Borycki (Szymon Winrych)"], "gdzie": "okolice Nasielska, od strony pagórków rajgórskich", "opis": "Andrzej Borycki, znany jako Szymon Winrych, wiezie wozem broń (karabinki i pałasze) dla oddziału powstańczego; od dwóch nocy nie spał, jest przemoczony i głodny." },
+    { "nr": 3, "miejsce": "myśli Winrycha", "kto": ["Szymon Winrych"], "gdzie": "okolice Nasielska", "opis": "Winrych przypomina sobie, że był kiedyś wesołym prezesem warszawskiej konfraterni, a teraz, gdy powstanie upada, jest już prawie sam i zaciekle upiera się przy walce." },
+    { "nr": 4, "miejsce": "spotkanie z Rosjanami", "kto": ["Szymon Winrych", "oddział ułanów rosyjskich"], "gdzie": "okolice Nasielska", "opis": "Winrych zauważa przez mgłę rosyjskie wojsko, zawraca wóz i ucieka, ale oddział wysyła za nim ośmiu jeźdźców, którzy go doganiają." },
+    { "nr": 5, "miejsce": "spotkanie z Rosjanami", "kto": ["Szymon Winrych", "ułani rosyjscy"], "gdzie": "okolice Nasielska", "opis": "Ułani znajdują w wozie karabinki, pytają, do czyjej partii wiózł broń, a Winrych odpowiada tylko „Głupiś!”." },
+    { "nr": 6, "miejsce": "śmierć Winrycha", "kto": ["Szymon Winrych", "ułani rosyjscy"], "gdzie": "okolice Nasielska", "opis": "Ułani przebijają Winrycha lancami; on prosi, by go nie zabijali; trzeci ułan celuje mu w głowę, lecz kula trafia i zabija jednego z koni." },
+    { "nr": 7, "miejsce": "śmierć Winrycha", "kto": ["Szymon Winrych", "ułani rosyjscy"], "gdzie": "okolice Nasielska", "opis": "Ułani rewidują kieszenie powstańca i odjeżdżają, biorąc kilka pałaszy, a bronie w wozie zostawiają; Winrych wymawia w deszczu słowa modlitwy „Ojcze nasz” i umiera." },
+    { "nr": 8, "miejsce": "los konia", "kto": ["koń Winrycha"], "gdzie": "okolice Nasielska", "opis": "Drugi koń z zaprzęgu szamoce się, łamie nogę między szprychami koła i zostaje uwięziony przy wozie." },
+    { "nr": 9, "miejsce": "nazajutrz: kruki i wrony", "kto": ["wrony", "koń Winrycha"], "gdzie": "okolice Nasielska", "opis": "Nazajutrz nad padliną zlatują się kruki i wrony; ranny koń woła do ludzi, a wrony zaczynają dziobać martwego konia i ciało Winrycha." },
+    { "nr": 10, "miejsce": "chłop zabiera łupy", "kto": ["chłop z pobliskiej wsi", "wrony"], "gdzie": "okolice Nasielska", "opis": "Przybywa chłop z pobliskiej wsi, odpędza wrony, modli się nad zwłokami, a potem zabiera Winrychowi sukmanę, buty i broń z wozu." },
+    { "nr": 11, "miejsce": "chłop zabiera łupy", "kto": ["chłop z pobliskiej wsi", "koń Winrycha"], "gdzie": "okolice Nasielska", "opis": "Chłop wyprzęga ranną szkapę, próbuje ją udusić, ale z obrzydzenia odwiązuje linkę; zdejmuje skórę z konia zabitego przez ułanów, a rannego zostawia, bo nie chce się „paprać”." },
+    { "nr": 12, "miejsce": "pochowanie zwłok", "kto": ["chłop z pobliskiej wsi"], "gdzie": "stare doły kartoflane przy polu", "opis": "Chłop wrzuca ciało Winrycha i zdartą skórę konia do starego dołu kartoflanego, zasypuje je gliną i wraca do domu, dziękując Bogu za zesłane mu żelastwo i rzemienie." },
+    { "nr": 13, "miejsce": "zakończenie noweli", "kto": ["koń Winrycha", "wrony"], "gdzie": "okolice Nasielska, zmierzch", "opis": "O zmroku słychać rżenie rannego konia, który stoi przy wozie, odwrócony ku grobowi Winrycha, a nad nim krążą wrony; nowela kończy się słowami o nocy, rozpaczy i śmierci." }
+  ],
+  "postacie": [
+    { "imie": "Szymon Winrych (Andrzej Borycki)", "odmiany": ["Winrycha", "Winrychowi", "Winrychem", "Winrychu", "Andrzeja Boryckiego", "Jędrka"], "rola": "powstaniec styczniowy, który wozi broń dla oddziałów; ginie z rąk ułanów", "relacje": "dawniej prezes warszawskiej konfraterni śrubstaków (według tekstu „król i padyszach syren warszawskich”)", "miejsca": ["okolice Nasielska"] },
+    { "imie": "ułani rosyjscy", "odmiany": ["ułanów", "ułanom", "żołdak", "Moskale", "Moskali"], "rola": "oddział rosyjski, który zabija Winrycha i jego konia", "relacje": "wrogowie powstańców", "miejsca": ["okolice Nasielska"] },
+    { "imie": "koń (kaleka)", "odmiany": ["konia", "koniowi", "koń", "szkapa", "szkapy", "szkapie"], "rola": "ranny koń z zaprzęgu, który cierpi i woła do ludzi", "relacje": "zwierzę towarzyszące Winrychowi", "miejsca": ["pole", "okolice Nasielska"] },
+    { "imie": "chłop", "odmiany": ["chłopa", "chłopu", "chłopem", "włościanin", "włościanina", "chłopowina"], "rola": "wieśniak, który rabuje zwłoki i pozostawia konia na cierpienie", "relacje": "pochodzi z najbliższej wsi", "miejsca": ["pole", "doły kartoflane"] },
+    { "imie": "wrony", "odmiany": ["wron", "wronom", "wronami", "kruki", "kruków", "trupojady"], "rola": "ptaki żerujące na trupach; symbol rozpadu i zagłady", "relacje": "przybywają nad ciała po śmierci Winrycha", "miejsca": ["pole"] }
+  ],
+  "motywy": [
+    { "motyw": "upadek powstania styczniowego i klęska idei", "przyklad": "Winrych jest ostatnim, który jeszcze „chodzi po broń”; gdy rozpada się partia, on dalej wozi karabinki i ginie od lancy rosyjskiego ułana.", "miejsce": "początek noweli; spotkanie z ułanami", "cytat": "" },
+    { "motyw": "bohaterstwo i jego bezsens (interpretacja)", "przyklad": "Winrych wyniszczony, w podartych butach, odpowiada Rosjanom tylko „Głupiś!”; potem prosi dziecięcym głosem, żeby go nie zabijali.", "miejsce": "spotkanie z ułanami", "cytat": "Nie zabijajcie mnie…" },
+    { "motyw": "modlitwa i nadzieja nieśmiertelności", "przyklad": "Umierający powstaniec wypowiada do chmur słowa modlitwy „Ojcze nasz” i czuje wielką nadzieję nieśmiertelności.", "miejsce": "śmierć Winrycha", "cytat": "Odpuść nam nasze winy, jako i my odpuszczamy naszym winowajcom" },
+    { "motyw": "rola chłopa w powstaniu (interpretacja)", "przyklad": "Chłop modli się nad zwłokami, a potem zdziera z nich ubranie i buty i dziękuje Bogu za „żelastwo i rzemienie”.", "miejsce": "chłop zabiera łupy", "cytat": "" },
+    { "motyw": "cierpienie zwierzęcia i obojętność ludzi", "przyklad": "Ranny koń woła o pomoc, a chłop zostawia go z odkrytą kością przy zwłokach konia, mówiąc, że i tak zdechnie.", "miejsce": "nazajutrz: kruki i wrony; los konia", "cytat": "Dychaj se tu, niebogo, dychaj" },
+    { "motyw": "krytyka ludzi i świata", "przyklad": "Koń przeklina rodzaj ludzki, nazywając go plemieniem morderców.", "miejsce": "nazajutrz: kruki i wrony", "cytat": "O ludzie nikczemni, o rodzie występny, o plemię morderców!" },
+    { "motyw": "natura obojętna na ludzkie dzieje", "przyklad": "Na początku i na końcu noweli opisana jest ponura, deszczowa jesień, a wrony niszczą ciało powstańca bez jakiegokolwiek sensu historii.", "miejsce": "początek i zakończenie noweli", "cytat": "Zza świata szła noc, rozpacz i śmierć." },
+    { "motyw": "pesymizm i rozczarowanie postawą narodu", "przyklad": "Winrych w monologu myśli, że po klęsce wyjdą na wierzch „metafizycy reakcji i prorocy ciemnoty”, a wszystko jest „przełajdaczone”.", "miejsce": "myśli Winrycha", "cytat": "" }
+  ],
+  "utwory": [],
+  "zrodla": [
+    { "url": "https://wolnelektury.pl/katalog/lektura/zeromski-rozdziobia-nas-kruki-wrony/", "rodzaj": "utwór", "co": "Przeczytana cała nowela z Wolnych Lektur (domena publiczna); sprawdzony przebieg zdarzeń i wszystkie cytaty." }
+  ],
+  "do_weryfikacji": [
+    "Rok akcji (powstanie styczniowe, 1863–1864) wynika z kontekstu, nie jest podany wprost w czytanym tekście.",
+    "Interpretacje motywów (bezsens bohaterstwa, rola chłopa) oznaczone jako interpretacja nie są faktami z tekstu."
+  ]
+}
