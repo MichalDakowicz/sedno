@@ -1,4 +1,4 @@
-﻿import { mkdir, writeFile, access, rename, unlink } from "node:fs/promises";
+import { mkdir, writeFile, access, rename, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { KATALOG_CKE } from "./sciezki.js";

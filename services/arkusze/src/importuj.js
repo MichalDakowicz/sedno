@@ -34,7 +34,7 @@ const POPRAWKI_RYSUNKOW = JSON.parse(await readFile(new URL("../rysunki.json", i
 await mkdir(KATALOG_ARKUSZY, { recursive: true });
 const katalog = JSON.parse(await readFile(join(KATALOG_CKE, "katalog.json"), "utf8"));
 // Np. „2015”, „angielski-2015” albo „matematyka”: tylko pasujące wpisy (do testów).
-const tylko = process.argv[2];
+const prefiksy = process.argv.slice(2);
 const indeks = [];
 let bledyImportu = 0;
 
@@ -44,7 +44,8 @@ for (const w of katalog) {
   const termin = w.termin ?? terminMiesiaca(w.rok, miesiac);
   const sesja = w.sesja ?? MIESIACE[miesiac - 1] ?? "maj";
   const id = identyfikator({ ...w, przedmiot, termin, sesja });
-  if (tylko && ![id, [przedmiot, w.formula, w.rok, w.poziom].join("-"), [w.formula, w.rok, w.poziom].join("-")].some((k) => k.startsWith(tylko))) continue;
+  const klucze = [id, [przedmiot, w.formula, w.rok, w.poziom].join("-"), [w.formula, w.rok, w.poziom].join("-")];
+  if (prefiksy.length && !prefiksy.some((p) => klucze.some((k) => k.startsWith(p)))) continue;
   process.stdout.write(`${id} … `);
 
   try {
@@ -176,7 +177,7 @@ if (bledyImportu || !indeks.length) {
   process.exitCode = 1;
 } else {
   // Przy imporcie części katalogu dopisujemy do istniejącego indeksu.
-  const stary = tylko ? JSON.parse(await readFile(join(KATALOG_ARKUSZY, "index.json"), "utf8").catch((e) => {
+  const stary = prefiksy.length ? JSON.parse(await readFile(join(KATALOG_ARKUSZY, "index.json"), "utf8").catch((e) => {
     if (e.code === "ENOENT") return "[]";
     throw e;
   })) : [];
@@ -191,13 +192,14 @@ if (bledyImportu || !indeks.length) {
 
 function czytajMetadane(strony, wspolnyParser) {
   const tekst = strony.flat().map((l) => l.s).join("\n");
+  const testy = wspolnyParser ? [...tekst.matchAll(/LICZBA PUNKTÓW DO UZYSKANIA ZA TEST (?:JĘZYK POLSKI W UŻYCIU|HISTORYCZNOLITERACKI):\s*(\d+)/gi)] : [];
   const liczba = (r) => {
     const m = tekst.match(r);
     return m ? Number(m[1]) : undefined;
   };
   return {
     czas: liczba(/CZAS (?:TRWANIA|PRACY):?\s*(\d+)\s*minut/i) ?? liczba(/Czas pracy:?\s*(\d+)\s*minut/i),
-    punkty: liczba(/LICZBA PUNKTÓW DO UZYSKANIA:?\s*(\d+)/i) ?? (wspolnyParser
+    punkty: liczba(/LICZBA PUNKTÓW DO UZYSKANIA:?\s*(\d+)/i) ?? (testy.length === 2 ? Number(testy[0][1]) + Number(testy[1][1]) : undefined) ?? (wspolnyParser
       ? liczba(/LICZBA PUNKTÓW DO UZYSKANIA ZA (?:ARKUSZ [12]\.?|CZĘŚ(?:Ć|CI) [123]\.?|WYPRACOWANIE|TEST)[^:\n]*:\s*(\d+)/i)
         ?? liczba(/(?:ŁĄCZNIE|ZA ROZWIĄZANIE ZADAŃ)\s*(\d+)\s*(?:PKT|PUNKTÓW)/i)
       : undefined),

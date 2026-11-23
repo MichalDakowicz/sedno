@@ -544,7 +544,9 @@ function zbudujTabele(pasy, czesci, { x0, yPdf, odpowiedzi }) {
   const szerokosci = new Set(wynik.map((w) => w.reduce((n, k) => n + k.zakres, 0)));
   // Wiersz krótszy o jedną komórkę (np. ostatni wiersz bez kolumny, której w nim nie wypełnia się) jest w porządku.
   const rozrzut = Math.max(...szerokosci) - Math.min(...szerokosci);
-  if (puste > (odpowiedzi ? 0.8 : 0.6) || rozrzut > 1 || Math.max(...wynik.map((w) => w.length)) < 2) return null;
+  const niepelnyOstatni = odpowiedzi && wynik.length > 2 && puste < 0.25 && szerokosci.size === 2
+    && new Set(wynik.slice(0, -1).map((w) => w.reduce((n, k) => n + k.zakres, 0))).size === 1;
+  if (puste > (odpowiedzi ? 0.8 : 0.6) || rozrzut > 1 && !niepelnyOstatni || Math.max(...wynik.map((w) => w.length)) < 2) return null;
 
   // Nagłówek: początkowe wiersze bez pustych komórek i bez przełączników P / F, pogrubione albo
   // opisowe nad wierszem z liczbami.

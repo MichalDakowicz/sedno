@@ -1,6 +1,7 @@
+import katex from "katex";
 import { kluczMatematyki, powodKadru, zapiszWycinek } from "./matematyka.js";
 import { kluczPisemny, kryteriaWypracowania, NAGLOWEK } from "./klucz-pisemny.js";
-import { czyWypracowanie, poczatekWypracowania } from "./polski.js";
+import { czyWypracowanie, numerPolskiego, poczatekWypracowania } from "./polski.js";
 import { trescZFragmentow } from "./bloki-pisemne.js";
 import { plotno } from "./tresc-pdf.js";
 import { segmenty } from "./tekst.js";
@@ -40,8 +41,9 @@ export function fragmentyPisemne(strony, wpis) {
       const m = l.s.match(NAGLOWEK);
       const esej = !akt && wpis.przedmiot === "polski" && poczatekWypracowania(l.s, wpis);
       const zapowiedz = m?.[3] && /^(?:rozwiąż|wykonaj|odnosi się|[-–]\s*\d)/i.test(m[3]);
-      if (m && !zapowiedz || esej) {
-        const nr = m ? m[1] : "1";
+      if (m && !zapowiedz && (m[2] || /^Zad(?:ani[ea]|nie)\b/i.test(l.s)) || esej) {
+        const numer = m ? m[1] : "1";
+        const nr = wpis.przedmiot === "polski" ? numerPolskiego(numer, wpis) : numer;
         if (rozpoznane.has(nr)) continue;
         rozpoznane.add(nr);
         if (c && !zakonczonaTresc) c.dol = Math.max(56, l.y + 13);
@@ -95,6 +97,15 @@ function zDocx(f, d) {
   const rysunki = f.bloki.filter((b) => b.typ === "rysunek");
   const tekstPdf = f.czesci.flatMap((c) => c.linie.map((l) => l.s)).join(" ");
   if (powodKadru({ rysunek: rysunki[0] }, d, tekstPdf)) return;
+  try {
+    for (const b of d.bloki) {
+      const teksty = b.wiersze?.flat() ?? [b.tekst ?? b.tresc ?? ""];
+      const wzory = b.typ === "wzor" ? [b.tex] : teksty.flatMap((s) => [...s.matchAll(/\\\((.*?)\\\)/gs)].map((m) => m[1]));
+      for (const tex of wzory) katex.renderToString(tex, { throwOnError: true, strict: "ignore" });
+    }
+  } catch {
+    return;
+  }
   const strona = f.czesci[0].strona;
   const bloki = [];
   for (const b of d.bloki) {
@@ -164,7 +175,8 @@ export async function importujPisemny(pdf, strony, stronyKlucza, wpis, metadane,
     }
     wynik.zadania[0].bloki.unshift(...zalacznik);
   }
-  return { ...wynik, kadry };
+  const uzyteKadry = new Set(wynik.zadania.flatMap((z) => z.bloki.filter((b) => b.typ === "kadr").map((b) => b.obraz.src)));
+  return { ...wynik, kadry: kadry.filter((k) => uzyteKadry.has(k.src)) };
 }
 
 export function zadaniaPisemne(fragmenty, stronyKlucza, wpis, metadane, docx, dane) {
@@ -185,6 +197,7 @@ export function zadaniaPisemne(fragmenty, stronyKlucza, wpis, metadane, docx, da
     const czyMaPodpunkty = !f.nr.includes(".") && fragmenty.some((g) => g.zadanie === f.zadanie && g.nr.includes(".") && (g.punkty || klucz[g.nr]?.punkty));
     let k = klucz[f.nr];
     if (kluczMat[f.nr]) k = { ...kluczMat[f.nr], ...k };
+    if (k && !k.zasady && f.nr.includes(".")) k = { ...k, zasady: klucz[f.nr.split(".")[0]]?.zasady };
     if (k && !k.rozwiazanie && k.kod) k.rozwiazanie = k.kod;
     const tresc = f.czesci.flatMap((c) => c.linie.map((l) => l.s)).join(" ");
     if (wpis.przedmiot === "polski" && !czyMaPodpunkty && /Temat [12]\.|wybierz jeden temat/i.test(tresc)) f.esej = true;

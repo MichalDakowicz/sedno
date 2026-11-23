@@ -1,6 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { zapiszWycinek } from "./matematyka.js";
 import { akapity, plotno, rodzaj, tabeleZSiatki, tekstLinii } from "./tresc-pdf.js";
+import { wzoryWielowierszowe } from "./wzory-pdf.js";
 
 const X0 = 65;
 const X1 = 530;
@@ -8,6 +9,7 @@ const SKALA = 2;
 const PUSTA_LINIA = /^[\s.…_•–-]+$/;
 const ZRODLO = /^(?:Źródło|Na podstawie|Opracowano na podstawie|Zaczerpnięto z)\s*:/i;
 const TYTUL = /^(?:Tekst|Źródło|Materiał|Temat|Mapa|Ilustracja|Rysunek|Wykres|Tabela|Fotografia|Część)\s+[0-9IVX]+(?:[.:]|\s*$)|^(?:Test historycznoliteracki|Język polski w użyciu)$/i;
+const PRZEDMIOTY_Z_WZORAMI = new Set(["matematyka", "fizyka", "chemia", "biologia", "informatyka"]);
 
 export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { przedmiot }) {
   await mkdir(katalog, { recursive: true });
@@ -45,16 +47,32 @@ export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { p
       for (const [nr, ramka] of figury.entries()) {
         elementy.push({ y: ramka[3], blok: { typ: "rysunek", obraz: await wytnij(ramka, "rysunek-" + nr) } });
       }
+      const kadrujWzor = async (ramka, linie, nazwa, powod) => {
+        const obraz = await wytnij(ramka, nazwa);
+        const tekst = linie.map((l) => l.t.tekst).join("\n");
+        elementy.push({ y: linie[0].y, blok: { typ: "kadr", tekst, obraz } });
+        kadry.push({ nr: f.nr, strona: c.strona, powod, src: obraz.src });
+      };
+      const zKadru = new Set();
+      if (PRZEDMIOTY_Z_WZORAMI.has(przedmiot)) {
+        for (const [nr, w] of wzoryWielowierszowe(linie).entries()) {
+          const dol = Math.max(c.dol, w.linie.at(-1).y - 5);
+          const gora = Math.min(c.gora, w.linie[0].y + 13);
+          if (gora <= dol || figury.some((r) => r[0] <= w.lewa && r[2] >= w.prawa && r[1] <= dol && r[3] >= gora)) continue;
+          const ramka = [Math.max(0, w.lewa - 4), dol, Math.min(s.canvas.width / SKALA, w.prawa + 5), gora];
+          await kadrujWzor(ramka, w.linie, "wzor-" + nr, "wielowierszowy wzór PDF");
+          w.linie.forEach((l) => zKadru.add(l));
+        }
+      }
       for (const [nr, l] of linie.entries()) {
+        if (zKadru.has(l)) continue;
         if (PUSTA_LINIA.test(l.t.tekst) || /^\s*(?:Odpowiedź|Miejsce na odpowiedź)\s*:\s*[_.…]*$/i.test(l.t.tekst)) continue;
         const x1 = Math.max(...l.czesci.map((k) => k.x + k.w));
         if (figury.some(([xl, yd, xp, yg]) => l.y + 4 > yd && l.y + 4 < yg && l.x >= xl && x1 <= xp)) continue;
         if (/[�\u0000-\u0008\u000b-\u001f\uE000-\uF8FF]/.test(l.t.tekst)) {
           const ramka = [Math.max(0, l.x - 3), Math.max(c.dol, l.y - 5), Math.min(s.canvas.width / SKALA, x1 + 3), Math.min(c.gora, l.y + 13)];
           if (ramka[2] > ramka[0] && ramka[3] > ramka[1]) {
-            const powod = "nierozpoznany znak PDF";
-            kadry.push({ nr: f.nr, strona: c.strona, powod });
-            elementy.push({ y: l.y, blok: { typ: "kadr", tekst: l.t.tekst, obraz: await wytnij(ramka, "kadr-" + nr) } });
+            await kadrujWzor(ramka, [l], "kadr-" + nr, "nierozpoznany znak PDF");
             continue;
           }
         }
@@ -131,10 +149,15 @@ function ramkiRysunkow(s, { gora, dol, linie }, tabele) {
     let min = szer;
     let max = -1;
     let ile = 0;
+    let kontrast = 0;
     for (let c = 0; c < szer; c += 2) {
       const p = r * szer + c;
       const i = p * 4;
       if (maska[p] || !data[i + 3] || data[i] + data[i + 1] + data[i + 2] > 680) continue;
+      const czerwony = data[i];
+      const zielony = data[i + 1];
+      const niebieski = data[i + 2];
+      if (czerwony + zielony + niebieski < 450 || Math.max(czerwony, zielony, niebieski) - Math.min(czerwony, zielony, niebieski) > 16) kontrast++;
       min = Math.min(min, c);
       max = Math.max(max, c);
       ile++;
@@ -146,9 +169,11 @@ function ramkiRysunkow(s, { gora, dol, linie }, tabele) {
       ostatni.min = Math.min(ostatni.min, min);
       ostatni.max = Math.max(ostatni.max, max);
       ostatni.tusz += ile;
-    } else pasy.push({ od: r, do: r, min, max, tusz: ile });
+      ostatni.kontrast += kontrast;
+    } else pasy.push({ od: r, do: r, min, max, tusz: ile, kontrast });
   }
-  return pasy.filter((p) => p.do - p.od >= 20 && p.max - p.min >= 28 && p.tusz >= 44).map((p) => [
+  // Jasna, szara kratka do obliczeń nie jest rysunkiem. Wykresy mają ciemne osie lub kolor.
+  return pasy.filter((p) => p.do - p.od >= 20 && p.max - p.min >= 28 && p.tusz >= 44 && p.kontrast >= 16).map((p) => [
     Math.max(X0, X0 + p.min / SKALA - 4),
     Math.max(dol, s.wys - (y0 + p.do) / SKALA - 5),
     Math.min(X1, X0 + p.max / SKALA + 5),

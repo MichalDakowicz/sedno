@@ -1,8 +1,9 @@
 import { tekstLinii } from "./tresc-pdf.js";
 
-export const NAGLOWEK = /^(?:Zadani[ea]|Zdanie)\.?\s+(\d+(?:\.\d+)*(?:[a-d](?=\.))?)\.?(?=\s|\(|$)(?:\s*\(\s*(?:0\s*[–−-]\s*)?(\d+)\s*(?:pkt|p\.)?\s*\))?(?:\s+(.*))?$/i;
+export const NAGLOWEK = /^(?:Zad(?:ani[ea]|nie)?|Zdanie|Polecenie)\.?\s+(\d+(?:\.\d+)*(?:[a-d](?=\.))?)\.?(?=\s|\(|$)(?:\s*\(\s*(?:0\s*[–−-]\s*)?(\d+)\s*(?:pkt|p\.)?\s*\))?(?:\s+(.*))?$/i;
 const SZUM = /^Strona\s+\d+\s+z\s+\d+|^[A-Z]{3,4}-[PRD]\d?[-_]\d{3}|^Egzamin maturalny z |^Zasady oceniania rozwiązań zadań$|^Więcej arkuszy/i;
 const PODPUNKT = /^(\d+(?:\.\d+)+)\.?\s*\(\s*0\s*[–−-]\s*(\d+)\s*(?:pkt|p\.)?\s*\)\s*$/;
+const PODPUNKT_Z_ODPOWIEDZIA = /^(\d+(?:\.\d+)+)\.\s+((?:Poprawna|Przykładowa|Prawidłowa|Oczekiwana)\s+odpowied[źzi]+.*)$/i;
 const ZASADY = /^(?:Zasady (?:oceniania|punktowania)|Schemat (?:punktowania|oceniania)|Punktacja|Punktowanie|Uwagi?)(?:\s*[:.]|\s*$)/i;
 const ROZWIAZANIE = /^(?:(?:Poprawn[ae]|Prawidłow[ae]|Przykładow[ae]|Oczekiwan[ae]|Akceptowan[ae])\s+)?(?:pełn[ae]\s+)?(?:odpowiedzi|odpowiedź|rozwiązani[ea]|uzasadnieni[ea]|realizacj[ae]|schemat rozwiązania)(?:\s*(?::|[.–]\s)|\s+[IVX]+ sposób|\s*$)/i;
 const WYMAGANIA = /^(?:Wymagani[ae]\s+(?:ogóln|szczeg|egzamin)|Podstawa programowa)/i;
@@ -25,11 +26,12 @@ export function kluczPisemny(strony) {
       stronaPrzypisu = l.strona;
       continue;
     }
-    const m = l.s.match(NAGLOWEK) ?? l.s.match(PODPUNKT);
+    const odpowiedz = l.s.match(PODPUNKT_Z_ODPOWIEDZIA);
+    const m = l.s.match(NAGLOWEK) ?? l.s.match(PODPUNKT) ?? (odpowiedz && [odpowiedz[0], odpowiedz[1]]);
     if (m) {
       const nr = m[1];
       akt = wynik[nr] ??= { nr, strona: l.strona, punkty: m[2] === undefined ? undefined : Number(m[2]), zasady: [], rozwiazanie: [], inne: [] };
-      sekcja = "inne";
+      sekcja = odpowiedz ? "rozwiazanie" : "inne";
       wersjaA = null;
       continue;
     }
@@ -72,7 +74,7 @@ export function kluczPisemny(strony) {
 
 export function kryteriaWypracowania(strony, nr, { bezCalegoKlucza = false } = {}) {
   const linie = linieKlucza(strony);
-  const start = linie.findIndex((l) => /^(?:Ogólne )?zasady oceniania (?:wypracowania|wypowiedzi)|^Kryteria oceniania (?:wypracowania|wypowiedzi)/i.test(l.s));
+  const start = linie.findIndex((l) => /^(?:Ogólne )?zasady oceniania (?:wypracowania|wypowiedzi)|^Kryteria oceniania (?:wypracowania|wypowiedzi)|^Przy przyznawaniu punktów na określonym poziomie w zadaniu rozszerzonej odpowiedzi/i.test(l.s));
   const zadanie = linie.findIndex((l) => l.s.match(NAGLOWEK)?.[1] === nr);
   const od = Math.max(start, zadanie);
   if (od < 0 && bezCalegoKlucza) return null;

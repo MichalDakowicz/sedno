@@ -1,4 +1,4 @@
-﻿import { ascii, MIESIACE, terminMiesiaca } from "./sesje.js";
+import { ascii, MIESIACE, terminMiesiaca } from "./sesje.js";
 
 const PRZEDMIOT = {
   JA: "angielski", JAP: "angielski", JAA: "angielski", AD: "angielski",
