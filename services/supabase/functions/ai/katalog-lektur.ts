@@ -49,7 +49,7 @@ export const KATALOG_LEKTUR: readonly Utwor[] = [
   {
     id: "antygona", tytul: "Antygona", autor: "Sofokles", epoka: "starożytność",
     poziom: "podstawowy", zakres: "podstawa-2024", czesci: "Całość.",
-    wl: "antygona", tytuly: ["antygon*"],
+    wl: "antygona", tytuly: ["antygon*"], niejednoznaczny: true,
     wskazowki: ["polinejk*","eteokl*","ismena*","ismeny*","hajmon*","kreon*"],
   },
   {
@@ -200,7 +200,7 @@ export const KATALOG_LEKTUR: readonly Utwor[] = [
   {
     id: "pan-tadeusz", tytul: "Pan Tadeusz", autor: "Adam Mickiewicz", epoka: "romantyzm",
     poziom: "podstawowy", zakres: "podstawa-2024", czesci: "Księgi I, II, IV, X, XI, XII w zakresie sprawdzanym; w wypracowaniu do 2028 r. dopuszczony cały utwór.",
-    wl: "pan-tadeusz", tytuly: ["pan* tadeusz*","pana tadeusza"],
+    wl: "pan-tadeusz", tytuly: ["pan* tadeusz*","pana tadeusza"], niejednoznaczny: true,
     wskazowki: ["soplic*","gerwaz*","sedzi* soplic*","telimen*","wojsk* koncert*","protaz*","hrabi* horeszk*"],
     wypracowanie: "Całość w latach 2025–2028",
   },
@@ -459,7 +459,7 @@ export const KATALOG_LEKTUR: readonly Utwor[] = [
   {
     id: "odyseja", tytul: "Odyseja", autor: "Homer", epoka: "starożytność",
     poziom: "rozszerzony", zakres: "podstawa-2024", czesci: "Fragmenty.",
-    wl: "homer-odyseja", tytuly: ["odysej*","odysei"],
+    wl: "homer-odyseja", tytuly: ["odysej*","odysei"], niejednoznaczny: true,
     wskazowki: ["odyseusz*","odyss*","penelop*","telemach*","polifem*","itajk*","itak*"],
     do_weryfikacji: "Dokumenty wskazują fragmenty bez zamkniętego wykazu miejsc w tekście.",
   },
@@ -473,13 +473,13 @@ export const KATALOG_LEKTUR: readonly Utwor[] = [
   {
     id: "hamlet", tytul: "Hamlet", autor: "William Szekspir", epoka: "renesans",
     poziom: "rozszerzony", zakres: "podstawa-2024", czesci: "Całość.",
-    wl: "hamlet", tytuly: ["hamlet*"],
+    wl: "hamlet", tytuly: ["hamlet*"], niejednoznaczny: true,
     wskazowki: ["ofeli*","klaudiusz* hamlet*","elsynor*","poloniusz*","laertes*","rozenkranc*","gildenstern*"],
   },
   {
     id: "kordian", tytul: "Kordian", autor: "Juliusz Słowacki", epoka: "romantyzm",
     poziom: "rozszerzony", zakres: "podstawa-2024", czesci: "Całość.",
-    wl: "kordian", tytuly: ["kordian*"],
+    wl: "kordian", tytuly: ["kordian*"], niejednoznaczny: true,
     wskazowki: ["mont blanc","grzegorz* kordian*","winkler* kordian*","strach i imaginacj*"],
   },
   {
@@ -532,7 +532,7 @@ export const KATALOG_LEKTUR: readonly Utwor[] = [
   {
     id: "sklepy-cynamonowe", tytul: "Sklepy cynamonowe, wybór", autor: "Bruno Schulz", epoka: "dwudziestolecie międzywojenne",
     poziom: "rozszerzony", zakres: "podstawa-2024", czesci: "Wybrane opowiadania. Przykłady: Sklepy cynamonowe, Ptaki, Ulica Krokodyli.",
-    wl: "schulz-sklepy-cynamonowe", tytuly: ["sklep* cynamonow*","ulic* krokodyl*","traktat* o manekinach"],
+    wl: "schulz-sklepy-cynamonowe", tytuly: ["sklep* cynamonow*","ulic* krokodyl*","traktat* o manekinach"], niejednoznaczny: true,
     wskazowki: ["adela* jakub*","jakub* adela*"],
     do_weryfikacji: "Podstawa nie określa zamkniętej listy opowiadań z tomu.",
   },

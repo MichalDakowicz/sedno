@@ -6,6 +6,8 @@ export const AKCJE = {
 } as const;
 
 export type AkcjaPestki = keyof typeof AKCJE;
+export const TYPY_ZRODLA = ["karta", "sekcja", "wydarzenie", "postac", "motyw", "utwor", "fragment"] as const;
+export type TypZrodla = typeof TYPY_ZRODLA[number];
 export type ZrodloPestki = {
   url: string;
   tytul: string;
@@ -15,6 +17,10 @@ export type ZrodloPestki = {
   miejsce?: string;
   twierdzenie?: string;
   dowod?: string;
+  /** Identyfikator materiału Sedno, z którego pochodzi odpowiedź, np. W12, P3, M5, F1, S:geneza, K. */
+  id?: string;
+  /** Rodzaj materiału: karta lektury, sekcja opracowania, wydarzenie, postać, motyw, utwór zbioru lub fragment tekstu. */
+  typ?: TypZrodla;
 };
 export type SprawdzenieLektury = {
   status: "Potwierdzone" | "Sprzeczne ze źródłem" | "Niepotwierdzone";
@@ -55,10 +61,13 @@ export function zrodloPestki(raw: unknown): ZrodloPestki | undefined {
   const miejsce = napisPestki(dane.miejsce, 240);
   const twierdzenie = napisPestki(dane.twierdzenie, 500);
   const dowod = napisPestki(dane.dowod, 400);
+  const id = napisPestki(dane.id, 12);
+  const typ = TYPY_ZRODLA.find((t) => t === dane.typ);
   return {
     url, tytul, rodzaj: dane.rodzaj, ...(sekcja && { sekcja }),
     ...(/^[a-z0-9-]+\/[a-z0-9-]+$/.test(idSekcji) && { idSekcji }),
     ...(miejsce && { miejsce }), ...(twierdzenie && { twierdzenie }), ...(dowod && { dowod }),
+    ...(/^(?:[WPMUF]\d{1,4}|S:[a-z]+|K)$/.test(id) && { id }), ...(typ && { typ }),
   };
 }
 
