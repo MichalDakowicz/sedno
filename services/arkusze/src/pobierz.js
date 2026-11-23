@@ -30,7 +30,7 @@ async function linki(url) {
   return [...html.matchAll(/<a\b[^>]*\bhref\s*=\s*["']([^"']+)["'][^>]*>(.*?)<\/a>/gis)].flatMap(([, href, etykieta]) => {
     if (!/^(?:https?:|\/|[^#:/]+\/)/i.test(href)) return [];
     const adres = new URL(href.replace(/&amp;|&#038;/g, "&"), url);
-    if (adres.hostname !== "cke.gov.pl" || !/^https?:$/.test(adres.protocol) || adres.hash) return [];
+    if (!["cke.gov.pl", "www.cke.gov.pl"].includes(adres.hostname) || !/^https?:$/.test(adres.protocol) || adres.hash) return [];
     adres.protocol = "https:";
     return [{ url: adres.href, etykieta: etykieta.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim() }];
   });
@@ -56,7 +56,8 @@ for (const formula of FORMULY) {
       const miesiac = MIESIACE.findIndex((m) => l.etykieta.toLowerCase().includes(m)) + 1;
       const rok = Number(l.etykieta.match(/\b20\d{2}\b/)?.[0]);
       if (/^20\d{2}$/.test(l.etykieta)) strony.set(l.url, { formula, rok });
-      else if (miesiac && rok && /^(?:arkusze diagnostyczne|próbny egzamin|(?:egzamin maturalny.*)?test diagnostyczny)/i.test(l.etykieta)) {
+      else if (miesiac && rok && (/^(?:arkusze diagnostyczne|próbny egzamin|(?:egzamin maturalny.*)?test diagnostyczny)/i.test(l.etykieta)
+        || /\/arkusze-pokazowe-marzec-2022\/$/.test(l.url))) {
         strony.set(l.url, { formula, rok, miesiac, termin: "probny" });
       } else if (formula === "2015" && l.url.endsWith("probny-egzamin-maturalny-2021/")) {
         strony.set(l.url, { formula, rok: 2021, miesiac: 3, termin: "probny" });
@@ -93,7 +94,8 @@ while ([...strony.keys()].some((url) => !odwiedzone.has(url))) {
       const sciezka = new URL(l.url).pathname;
       if (!/\.(pdf|docx|zip|mp3)$/i.test(sciezka)) {
         const nazwa = ascii(l.etykieta);
-        const termin = /(?:termin|sesja) dodatkow/.test(nazwa) ? "dodatkowy" : /(?:termin|sesja) poprawkow/.test(nazwa) ? "poprawkowy" : null;
+        const termin = /(?:termin|sesja) dodatkow|^arkusze.*\b(?:czerwiec|lipiec)\b/.test(nazwa) ? "dodatkowy"
+          : /(?:termin|sesja) poprawkow|^arkusze.*\b(?:sierpien|wrzesien)\b/.test(nazwa) ? "poprawkowy" : null;
         if (termin && sciezka.includes("/arkusze/") && !strony.has(l.url)) {
           const miesiac = termin === "dodatkowy" ? (strona.rok === 2020 ? 7 : 6) : (strona.rok === 2020 ? 9 : 8);
           strony.set(l.url, { ...strona, termin, miesiac });
@@ -187,7 +189,14 @@ await Promise.all(Array.from({ length: 8 }, async () => {
 lista.sort((a, b) => a.przedmiot.localeCompare(b.przedmiot) || b.rok - a.rok || b.formula.localeCompare(a.formula)
   || a.poziom.localeCompare(b.poziom) || a.termin.localeCompare(b.termin) || (a.czesc ?? "").localeCompare(b.czesc ?? ""));
 if (!lista.some((w) => w.arkusz)) throw new Error("CKE nie zwróciła żadnych arkuszy.");
-const raport = { strony: brakiStron, pliki: brakiPobran, wpisy: [] };
+const raport = { strony: brakiStron, pliki: brakiPobran, wpisy: [], terminy: [] };
+for (const formula of FORMULY) {
+  for (const termin of ["dodatkowy", "poprawkowy"]) {
+    if (!lista.some((w) => w.formula === formula && w.termin === termin)) {
+      raport.terminy.push(formula + ", termin " + termin + ": brak linków do arkuszy w sprawdzonych wykazach CKE");
+    }
+  }
+}
 for (const w of lista) {
   const oczekiwane = ["arkusz", "zasady"];
   if (w.przedmiot === "angielski") oczekiwane.push("nagranie");
@@ -202,4 +211,3 @@ await writeFile(join(KATALOG_CKE, "braki.json"), JSON.stringify(raport, null, 1)
 console.log("Katalog: " + lista.length + " wpisów");
 for (const b of Object.values(raport).flat()) console.log("  ! " + b);
 if (raport.strony.length) process.exitCode = 1;
-
