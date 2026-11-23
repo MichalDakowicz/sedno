@@ -1,18 +1,20 @@
 import katex from "katex";
+import { OPS } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { kluczMatematyki, powodKadru, zapiszWycinek } from "./matematyka.js";
 import { kluczPisemny, kryteriaWypracowania, NAGLOWEK } from "./klucz-pisemny.js";
 import { czyWypracowanie, numerPolskiego, poczatekWypracowania } from "./polski.js";
 import { trescZFragmentow } from "./bloki-pisemne.js";
-import { plotno } from "./tresc-pdf.js";
+import { plotno, tekstKomorki } from "./tresc-pdf.js";
 import { segmenty } from "./tekst.js";
 import { odpowiedziZTabeli } from "./matematyka-klucz.js";
 import { kluczInformatykiZTabeli } from "./informatyka-klucz.js";
 import { oznaczRysowanie } from "./rysowanie.js";
 
-const POLECENIE = /^(?:Na podstawie|Wybierz|Dokończ|Uzupełnij|Oceń|Rozstrzygnij|Wyjaśnij|Uzasadnij|Zaznacz|Wyznacz|Oblicz|Rozwiąż|Podaj|Wskaż|Określ|Zapisz|Napisz|Przetłumacz|Wymień|Sformułuj|Przedstaw|Wykaż|Udowodnij)\b/i;
+const POLECENIE = /^(?:Na podstawie|Wybierz|Dokończ|Uzupełnij|Oceń|Rozstrzygnij|Wyjaśnij|Uzasadnij|Zaznacz|Wyznacz|Oblicz|Rozwiąż|Podaj|Wskaż|Określ|Zapisz|Napisz|Przetłumacz|Wymień|Sformułuj|Przedstaw|Wykaż|Udowodnij)(?!\p{L})/iu;
 const SZUM = /^Strona\s+\d+\s+z\s+\d+|^[A-Z]{3,4}-[PRD]\d?[-_]\d{3}|^Więcej arkuszy|^©|^Nr strony|^Ciąg dalszy na następnej stronie/i;
 const KONIEC = /^(?:BRUDNOPIS|KARTA ODPOWIEDZI|WYPRACOWANIE|CZYSTOPIS|Koniec arkusza)\s*$/i;
 const POMIN_KONCOWKE = /^(?:Miejsce na (?:obliczenia|zapis|notatki|odpowiedź)|Do oceny oddajesz)\s*[:.]?$/i;
+const WSTEP = /^(?:Przeczytaj (?:uważnie )?(?:(?:podany|poniższy|zamieszczony) )?(?:tekst|fragment|materiał)|Lista lektur obowiązkowych|Język polski w użyciu|Test historycznoliteracki|Tekst [12]\b|Część [12]\b|Materiał źródłowy do)/i;
 
 function liniaTresci(l) {
   const czesci = l.czesci.filter((c) => c.x >= 49 && c.x < 539 && (c.x >= 64 || !/^\s*[\d.−–-]+\s*$/.test(c.s)));
@@ -67,12 +69,10 @@ export function fragmentyPisemne(strony, wpis) {
         continue;
       }
       if (!akt) {
-        // Pierwsza wiązka w arkuszu polskiego zaczyna się tekstem przed numerem zadania.
-        if (wpis.przedmiot !== "polski" || n < 2 || wpis.czesc === "Część 2" || wpis.poziom === "rozszerzony") continue;
-        if (!przedZadaniem.length && !/^(?:Język polski w użyciu|Test historycznoliteracki|Przeczytaj|Tekst [12]\b|Część [12]\b)/i.test(l.s)) continue;
+        if (!przedZadaniem.length && !WSTEP.test(l.s)) continue;
         const poprzednia = przedZadaniem.at(-1);
         if (poprzednia?.strona === n + 1) poprzednia.linie.push(l);
-        else przedZadaniem.push({ strona: n + 1, gora: l.y + 13, dol: 56, linie: [l] });
+        else przedZadaniem.push({ strona: n + 1, gora: l.y + 13, dol: 56, linie: [l], wstep: true });
         continue;
       }
       if (POMIN_KONCOWKE.test(l.s)) {
@@ -120,7 +120,7 @@ function zDocx(f, d) {
 
 function kodOdpowiedzi(tekst) {
   const kod = tekst.trim().replace(/\(kolejność (?:nie ma znaczenia|dowolna)\)/gi, "")
-    .replace(/\b\d{1,2}[.)]\s*(?=[A-HFP]\b)/g, "").replace(/[\s,.;–−-]/g, "");
+    .replace(/\b\d{1,2}[.)]\s*[–−-]?\s*(?=[A-HFP]\b)/g, "").replace(/[\s,.;–−-]/g, "");
   return /^(?:[PF]{2,10}|[A-H](?:[1-9]|[A-H]){1,4}|[1-9][A-H]|[0-9]{2,6})$/.test(kod) ? kod : null;
 }
 
@@ -137,6 +137,8 @@ function pytanie(f, k, tekst, esej) {
   const baza = { nr: f.nr, tresc: "", punkty: f.punkty, ...(k && { zasadyStrona: k.strona, zasady: k.zasady, rozwiazanie: k.rozwiazanie }) };
   if (esej) return { ...baza, typ: "otwarte" };
   const odpowiedz = k?.rozwiazanie?.trim() || k?.kod || k?.odpowiedz || "";
+  const kodZNawiasow = opcjeZNawiasow(f.bloki, k?.wybory);
+  if (kodZNawiasow) return { ...baza, typ: "otwarte", kod: true, oczekiwane: [kodZNawiasow] };
   const litera = odpowiedz.match(/^([A-H])\.?$/)?.[1];
   const pola = f.bloki.filter((b) => b.typ === "akapit" && /^[A-H][.)]\s/.test(b.tekst));
   const opcje = pola.map((b) => ({ litera: b.tekst[0], tresc: b.tekst.slice(2).trim() })).sort((a, b) => a.litera.localeCompare(b.litera));
@@ -161,24 +163,59 @@ function pytanie(f, k, tekst, esej) {
   return { ...baza, typ: "otwarte", ...(oczekiwane?.length && { oczekiwane }), ...(kod && { kod: true }), ...(tabela && !kod && { tabela: true }) };
 }
 
+function opcjeZNawiasow(bloki, wybory) {
+  if (wybory?.length !== 2 || !bloki.some((b) => b.typ === "akapit" && /(?:w każdym nawiasie|w nawiasach)/i.test(b.tekst))) return null;
+  const zdania = bloki.filter((b) => b.typ === "akapit" && /\([^()]+\/[^()]+\)/.test(b.tekst));
+  const nawiasy = zdania.flatMap((b) => [...tekstKomorki({ ...b, formaty: b.formaty ?? [] }).matchAll(/\(([^()]+\/[^()]+)\)/g)]
+    .map((m) => m[1].split(/\s*\/\s*/)));
+  if (nawiasy.length !== 2 || nawiasy.some((n, i) => n.length !== wybory[i].ile || wybory[i].wybrana >= n.length)) return null;
+  const litery = "ABCDEFGH";
+  const [pierwsze, drugie] = nawiasy;
+  if (pierwsze.length > litery.length || drugie.length > 9) return null;
+  for (const b of zdania) b.polecenie = true;
+  const strona = zdania.at(-1).strona;
+  bloki.push(
+    { typ: "akapit", tekst: "Pierwszy nawias", strona },
+    { typ: "opcje", opcje: pierwsze.map((tresc, i) => ({ litera: litery[i], tresc })), strona },
+    { typ: "akapit", tekst: "Drugi nawias", strona },
+    ...drugie.map((tresc, i) => ({ typ: "akapit", tekst: (i + 1) + ". " + tresc, strona })),
+  );
+  return litery[wybory[0].wybrana] + (wybory[1].wybrana + 1);
+}
+
 export async function importujPisemny(pdf, strony, stronyKlucza, wpis, metadane, obrazy, docx, dane, mapa, poprawkiRysowania) {
   const fragmenty = fragmentyPisemne(strony, wpis);
   const kadry = await trescZFragmentow(pdf, fragmenty, obrazy, wpis);
   const wynik = zadaniaPisemne(fragmenty, stronyKlucza, wpis, metadane, docx, dane);
-  await oznaczRysowanie(pdf, wynik.zadania, fragmenty, obrazy, poprawkiRysowania);
+  const zalacznik = [];
   if (mapa && wynik.zadania.length) {
     const cache = new Map();
-    const zalacznik = [];
     for (let i = 1; i <= mapa.numPages; i++) {
-      const s = await plotno(mapa, i, cache);
+      const s = await plotno(mapa, i, cache, await obrotMapy(await mapa.getPage(i)));
       const obraz = await zapiszWycinek(s, [0, 0, s.canvas.width / 2, s.wys], obrazy.katalog, obrazy.prefiks, "mapa-" + i + ".webp");
       zalacznik.push({ typ: "rysunek", obraz });
       s.fabryka.destroy(s);
     }
     wynik.zadania[0].bloki.unshift(...zalacznik);
   }
+  await oznaczRysowanie(pdf, wynik.zadania, fragmenty, obrazy, poprawkiRysowania, zalacznik);
   const uzyteKadry = new Set(wynik.zadania.flatMap((z) => z.bloki.filter((b) => b.typ === "kadr").map((b) => b.obraz.src)));
   return { ...wynik, kadry: kadry.filter((k) => uzyteKadry.has(k.src)) };
+}
+
+async function obrotMapy(strona) {
+  if (strona.rotate) return strona.rotate;
+  const { fnArray, argsArray } = await strona.getOperatorList();
+  const obrazy = fnArray.flatMap((fn, i) => fn === OPS.paintImageXObject ? [i] : []);
+  if (obrazy.length !== 1) return undefined;
+  const obraz = obrazy[0];
+  let transformacja = obraz - 1;
+  while (fnArray[transformacja] === OPS.dependency) transformacja--;
+  if (fnArray[transformacja] !== OPS.transform) return undefined;
+  const [a, b, c, d] = argsArray[transformacja];
+  const [, szer, wys] = argsArray[obraz];
+  if (szer > wys && Math.abs(a) < 1 && Math.abs(d) < 1 && Math.abs(b) > 400 && Math.abs(c) > 400) return b > 0 ? 90 : 270;
+  return undefined;
 }
 
 export function zadaniaPisemne(fragmenty, stronyKlucza, wpis, metadane, docx, dane) {
@@ -223,10 +260,8 @@ export function zadaniaPisemne(fragmenty, stronyKlucza, wpis, metadane, docx, da
     if (esej && !k?.zasady && wpis.przedmiot !== "polski") {
       const kandydaci = Object.entries(klucz).filter(([nr, cz]) => cz.punkty === f.punkty && cz.zasady
         && !fragmenty.some((g) => g.nr === nr) && /wypracowani|wypowiedzi argumentacyjnej/i.test(cz.zasady));
-      if (kandydaci.length === 1) k = kandydaci[0][1];
-      else if (!k?.rozwiazanie && f === fragmenty.at(-1)) {
-        k = kryteriaWypracowania(stronyKlucza, f.nr, { bezCalegoKlucza: true }) ?? k;
-      }
+      const kryteria = f === fragmenty.at(-1) && kryteriaWypracowania(stronyKlucza, f.nr, { bezCalegoKlucza: true });
+      k = kryteria || (kandydaci.length === 1 ? kandydaci[0][1] : k);
     }
     zDocx(f, docx?.find((d) => d.nr === f.nr));
     if (f.nr.includes(".")) z.bloki.push({ typ: "naglowek", tekst: "Zadanie " + f.nr + "." + (f.punkty ? " (0–" + f.punkty + ")" : ""), strona });

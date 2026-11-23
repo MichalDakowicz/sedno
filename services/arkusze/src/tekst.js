@@ -39,6 +39,7 @@ async function tekstDokumentu(doc, { fonty = false, naprawKodowanie = false }) {
       w.czesci.push(czesc);
     }
     dolaczIndeksyGorne(wiersze);
+    if (naprawKodowanie) dolaczIndeksyDolne(wiersze);
     const linie = wiersze
       .sort((a, b) => b.y - a.y)
       .map((w) => {
@@ -90,6 +91,25 @@ function dolaczIndeksyGorne(wiersze) {
     pod.czesci.push(...w.czesci);
     wiersze.splice(wiersze.indexOf(w), 1);
   }
+}
+
+function dolaczIndeksyDolne(wiersze) {
+  for (const w of [...wiersze]) {
+    const przeniesione = new Set();
+    for (const c of w.czesci) {
+      if (c.h > 10 || !/^[\p{L}\d+−-]{1,3}$/u.test(c.s.normalize("NFKC"))) continue;
+      const cel = wiersze.find((v) => v !== w && v.y - c.y >= 2.5 && v.y - c.y <= 6.5
+        && v.czesci.some((p) => p.h >= c.h * 1.23 && /^[\p{L}\d]{1,2}$/u.test(p.s.normalize("NFKC"))
+          && (c.x >= p.x + p.w * 0.5 && c.x <= p.x + p.w + 1.2
+            || c.x <= p.x + 1 && c.x + c.w >= p.x - 1.5 && v.czesci.some((g) => g.y > v.y + 3
+              && g.x <= c.x + 2 && g.x + g.w >= c.x + c.w - 2))));
+      if (!cel) continue;
+      cel.czesci.push(c);
+      przeniesione.add(c);
+    }
+    w.czesci = w.czesci.filter((c) => !przeniesione.has(c));
+  }
+  for (let i = wiersze.length - 1; i >= 0; i--) if (!wiersze[i].czesci.length) wiersze.splice(i, 1);
 }
 
 export function segmenty(czesci) {

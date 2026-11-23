@@ -38,6 +38,7 @@ export function tekstLinii(czesci) {
   let tekst = "";
   const formaty = [];
   let koniec = null;
+  let poprzedni;
   // Linia bazowa: położenie kawałków pełnej wielkości. Drobniejszy kawałek wyżej to wykładnik (m³, 2¹⁰⁰),
   // niżej to indeks (s₁, (2011)₃).
   const maxH = Math.max(...czesci.map((c) => c.h || 0));
@@ -52,7 +53,8 @@ export function tekstLinii(czesci) {
     // Indeks dolny bywa prawie na linii bazowej (podstawa systemu: 101112₃), więc drobny znak nie wyżej niż ona to indeks.
     const indeks = drobny ? (c.y > bazowa + 1.5 ? "sup" : "sub") : null;
     const przerwa = koniec === null ? 0 : c.x - koniec;
-    if (tekst && przerwa > 1.2 && !indeks && !tekst.endsWith(" ") && !s.startsWith(" ")) tekst += " ";
+    const przedrostek = indeks === "sup" && /\p{L}{2,}$/u.test(poprzedni?.s ?? "") && poprzedni.h >= 0.85 * maxH;
+    if (tekst && przerwa > 1.2 && (!indeks || przedrostek) && !tekst.endsWith(" ") && !s.startsWith(" ")) tekst += " ";
     const od = tekst.length;
     tekst += indeks ? s.trim() : s;
     const kroj = indeks ?? (c.f === "b" || c.f === "i" || c.f === "m" ? c.f : null);
@@ -63,6 +65,7 @@ export function tekstLinii(czesci) {
       else formaty.push([od, tekst.length, kroj]);
     }
     koniec = c.x + c.w;
+    poprzedni = c;
   }
   const lead = tekst.length - tekst.trimStart().length;
   return { tekst: tekst.trim(), formaty: formaty.map(([a, b, f]) => [Math.max(0, a - lead), Math.min(tekst.trim().length, b - lead), f]).filter(([a, b]) => b > a) };
@@ -104,13 +107,13 @@ export function rodzaj(l, lewa) {
 // Krótki napis bez słów; między wycinkami należy do rysunku (oś wykresu przy marginesie).
 const krotki = (l) => l.t.tekst.length < 18 && !/[a-ząćęłńóśźż]{4,}/i.test(l.t.tekst);
 
-export async function plotno(doc, n, cache) {
+export async function plotno(doc, n, cache, rotation) {
   if (!cache.has(n)) {
     const page = await doc.getPage(n);
-    const viewport = page.getViewport({ scale: SKALA });
+    const viewport = page.getViewport({ scale: SKALA, rotation });
     const c = doc.canvasFactory.create(viewport.width, viewport.height);
     await page.render({ canvasContext: c.context, viewport }).promise;
-    cache.set(n, { ...c, wys: page.view[3], fabryka: doc.canvasFactory });
+    cache.set(n, { ...c, wys: viewport.height / SKALA, fabryka: doc.canvasFactory });
   }
   return cache.get(n);
 }
@@ -417,7 +420,7 @@ function sklej(pozycje) {
 const SUP = { 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹", "-": "⁻", "+": "⁺" };
 const SUB = { 0: "₀", 1: "₁", 2: "₂", 3: "₃", 4: "₄", 5: "₅", 6: "₆", 7: "₇", 8: "₈", 9: "₉" };
 // W komórce tabeli wykładniki i indeksy z cyfr zapisujemy znakami Unicode (10⁶, s₁).
-function tekstKomorki({ tekst, formaty }) {
+export function tekstKomorki({ tekst, formaty }) {
   let wynik = "";
   let poz = 0;
   for (const [od, do_, k] of formaty) {

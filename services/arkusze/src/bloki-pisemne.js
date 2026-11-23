@@ -1,14 +1,17 @@
 import { mkdir } from "node:fs/promises";
 import { zapiszWycinek } from "./matematyka.js";
 import { akapity, plotno, rodzaj, tabeleZSiatki, tekstLinii } from "./tresc-pdf.js";
-import { wzoryWielowierszowe } from "./wzory-pdf.js";
+import { ulamkiWLinii, wzoryWielowierszowe } from "./wzory-pdf.js";
 
-const X0 = 65;
-const X1 = 530;
+const X0 = 48;
+const X1 = 558;
+const TRESC_X0 = 65;
+const TRESC_X1 = 530;
 const SKALA = 2;
 const PUSTA_LINIA = /^[\s.…_•–-]+$/;
 const ZRODLO = /^(?:Źródło|Na podstawie|Opracowano na podstawie|Zaczerpnięto z)\s*:/i;
-const TYTUL = /^(?:Tekst|Źródło|Materiał|Temat|Mapa|Ilustracja|Rysunek|Wykres|Tabela|Fotografia|Część)\s+[0-9IVX]+(?:[.:]|\s*$)|^(?:Test historycznoliteracki|Język polski w użyciu)$/i;
+const TYTUL = /^(?:Tekst|Źródło|Materiał|Temat|Mapa|Ilustracja|Rysunek|Wykres|Tabela|Fotografia|Część)\s+(?:[0-9IVX]+|[A-D])(?:[.:]|\s*$)|^(?:Test historycznoliteracki|Język polski w użyciu)$/i;
+const PODPIS_FIGURY = /^(?:Rysunek|Diagram|Wykres|Mapa|Fotografia)(?:\s+(?:\d+|[A-D]))?\.?$/i;
 const PRZEDMIOTY_Z_WZORAMI = new Set(["matematyka", "fizyka", "chemia", "biologia", "informatyka"]);
 
 export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { przedmiot }) {
@@ -28,12 +31,15 @@ export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { p
       const s = await plotno(pdf, c.strona, cache);
       const wytnij = (ramka, nazwa) => zapiszWycinek(s, ramka, katalog, prefiks, f.nr + "-" + (i + 1) + "-" + nazwa + ".webp");
       const czesci = c.linie.flatMap((l) => l.czesci);
-      const tabele = tabeleZSiatki(s, c.gora, c.dol, czesci, { odpowiedzi: true });
+      const genealogie = ramkiGenealogii(c);
+      const tabele = tabeleZSiatki(s, c.gora, c.dol, czesci, { odpowiedzi: true })
+        .filter((t) => !genealogie.some(([, yd, , yg]) => yd < t.gora && yg > t.dol));
       const elementy = [];
-      const linie = c.linie.map((l) => ({ ...l, czesci: l.czesci.filter((k) =>
+      const pozaTabelami = c.linie.map((l) => ({ ...l, czesci: l.czesci.filter((k) =>
         !tabele.some((t) => k.y + (k.h || 10) * 0.3 < t.gora && k.y + (k.h || 10) * 0.3 > t.dol)) }))
-        .filter((l) => l.czesci.length)
-        .map((l) => ({ ...l, x: l.czesci[0].x, t: tekstLinii(l.czesci) }));
+        .filter((l) => l.czesci.length);
+      const ulozone = PRZEDMIOTY_Z_WZORAMI.has(przedmiot) ? ulamkiWLinii(s, pozaTabelami) : pozaTabelami;
+      const linie = ulozone.map((l) => ({ ...l, x: l.czesci[0].x, t: tekstLinii(l.czesci) }));
       for (const [nr, t] of tabele.entries()) {
         const obrazy = [];
         for (const { r, c: kol, ramka } of t.obrazy) {
@@ -44,7 +50,7 @@ export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { p
         elementy.push({ y: t.gora, blok: { typ: "tabelaTresci", wiersze: t.wiersze, naglowek: t.naglowek,
           ...(zakresy && { zakresy: t.zakresy }), ...(obrazy.length && { obrazy }) } });
       }
-      const figury = ramkiRysunkow(s, c, tabele);
+      const figury = [...genealogie, ...ramkiRysunkow(s, c, tabele, genealogie)];
       for (const [nr, ramka] of figury.entries()) {
         const obraz = await wytnij(ramka, "rysunek-" + nr);
         f.figury.push({ ramka, obraz, strona: c.strona });
@@ -128,7 +134,7 @@ function dodajAkapity(linie, dodaj, informatyka) {
 
 // Rozpoznajemy tusz poza obwiedniami znaków i tabel. Ciasno przycinamy do grafiki,
 // a sąsiednie podpisy w środku ramki pozostają na grafice (np. legenda w mapie).
-function ramkiRysunkow(s, { gora, dol, linie }, tabele) {
+function ramkiRysunkow(s, { gora, dol, linie }, tabele, zajete) {
   if (gora - dol < 12) return [];
   const y0 = Math.max(0, Math.round((s.wys - gora) * SKALA));
   const wysokosc = Math.round((s.wys - dol) * SKALA) - y0;
@@ -144,6 +150,7 @@ function ramkiRysunkow(s, { gora, dol, linie }, tabele) {
     }
   };
   for (const t of tabele) zastrzez(X0, t.dol - 2, X1, t.gora + 2);
+  for (const [, yd, , yg] of zajete) zastrzez(X0, yd, X1, yg);
   for (const l of linie) {
     for (const c of l.czesci) zastrzez(c.x - 2, c.y - 3, c.x + c.w + 2, c.y + (c.h || 11) + 2);
   }
@@ -153,7 +160,7 @@ function ramkiRysunkow(s, { gora, dol, linie }, tabele) {
     let max = -1;
     let ile = 0;
     let kontrast = 0;
-    for (let c = 0; c < szer; c += 2) {
+    for (let c = (TRESC_X0 - X0) * SKALA; c < (TRESC_X1 - X0) * SKALA; c += 2) {
       const p = r * szer + c;
       const i = p * 4;
       if (maska[p] || !data[i + 3] || data[i] + data[i + 1] + data[i + 2] > 680) continue;
@@ -167,7 +174,8 @@ function ramkiRysunkow(s, { gora, dol, linie }, tabele) {
     }
     if (ile < 2) continue;
     const ostatni = pasy.at(-1);
-    if (ostatni && r - ostatni.do <= 18) {
+    const pasWspolny = ostatni && min < ostatni.max && max > ostatni.min;
+    if (ostatni && (r - ostatni.do <= 18 || pasWspolny && r - ostatni.do <= 34)) {
       ostatni.do = r;
       ostatni.min = Math.min(ostatni.min, min);
       ostatni.max = Math.max(ostatni.max, max);
@@ -176,10 +184,51 @@ function ramkiRysunkow(s, { gora, dol, linie }, tabele) {
     } else pasy.push({ od: r, do: r, min, max, tusz: ile, kontrast });
   }
   // Jasna, szara kratka do obliczeń nie jest rysunkiem. Wykresy mają ciemne osie lub kolor.
-  return pasy.filter((p) => p.do - p.od >= 20 && p.max - p.min >= 28 && p.tusz >= 44 && p.kontrast >= 16).map((p) => [
-    Math.max(X0, X0 + p.min / SKALA - 4),
-    Math.max(dol, s.wys - (y0 + p.do) / SKALA - 5),
-    Math.min(X1, X0 + p.max / SKALA + 5),
-    Math.min(gora, s.wys - (y0 + p.od) / SKALA + 5),
-  ]);
+  const ramki = pasy.filter((p) => p.do - p.od >= 20 && p.max - p.min >= 28 && p.tusz >= 44 && p.kontrast >= 16).map((p) => {
+    const bocznyTusz = (kol) => {
+      let n = 0;
+      for (let r = p.od; r <= p.do; r += 2) {
+        const i = (r * szer + kol) * 4;
+        if (!maska[i / 4] && data[i + 3] && data[i] + data[i + 1] + data[i + 2] < 695) n++;
+      }
+      return n >= Math.max(5, (p.do - p.od) * 0.045);
+    };
+    let { min, max } = p;
+    if (p.do - p.od > 75) {
+      while (min > 1 && bocznyTusz(min - 2)) min -= 2;
+      while (max < szer - 2 && bocznyTusz(max + 2)) max += 2;
+    }
+    return [Math.max(X0, X0 + min / SKALA - 4), Math.max(dol, s.wys - (y0 + p.do) / SKALA - 5),
+      Math.min(X1, X0 + max / SKALA + 5), Math.min(gora, s.wys - (y0 + p.od) / SKALA + 5)];
+  });
+  return ramki.map((r) => dolaczEtykiety(r, linie, dol, gora));
+}
+
+function dolaczEtykiety(r, linie, dol, gora) {
+  const [x0, y0, x1, y1] = r;
+  for (const l of linie) {
+    if (l.y < y0 - 26 || l.y > y1 + 18 || ZRODLO.test(l.s)) continue;
+    const podpis = PODPIS_FIGURY.test(l.s);
+    // Dłuższy wiersz przy marginesie to treść zadania. Etykiety w legendach mogą zawierać kilka słów.
+    const etykieta = podpis || l.x >= 86 && l.s.length <= 55 && !/[.!?]$/.test(l.s)
+      || l.s.length <= 17 && !/\p{L}{4}/u.test(l.s) || /(?:^|\s)\d+[.,]?\d*(?:\s+\d+[.,]?\d*){3}/.test(l.s);
+    if (!etykieta) continue;
+    const xl = Math.min(...l.czesci.map((c) => c.x));
+    const xp = Math.max(...l.czesci.map((c) => c.x + c.w));
+    if (xp < x0 - (podpis ? 90 : 45) || xl > x1 + 55) continue;
+    r[0] = Math.max(X0, Math.min(r[0], xl - 4));
+    r[1] = Math.max(dol, Math.min(r[1], l.y - 5));
+    r[2] = Math.min(X1, Math.max(r[2], xp + 4));
+    r[3] = Math.min(gora, Math.max(r[3], l.y + 13));
+  }
+  return r;
+}
+
+function ramkiGenealogii({ linie, dol }) {
+  return linie.flatMap((l, i) => {
+    if (!/(?:tablica|drzewo) genealogiczn/i.test(l.s) || !/^Źródło\s/i.test(l.s)) return [];
+    const koniec = linie.slice(i + 1).find((x) => ZRODLO.test(x.s) || /^Na podstawie\b|^Źródło |^Rozstrzygnij |^Na podstawie źródeł/i.test(x.s));
+    const y = koniec ? koniec.y + 13 : dol;
+    return l.y - y >= 55 ? [[X0, y, X1, l.y - 5]] : [];
+  });
 }
