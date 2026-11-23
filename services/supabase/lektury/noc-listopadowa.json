@@ -18,8 +18,8 @@
     { "nr": 15, "miejsce": "sc. 5", "kto": ["Józef Chłopicki", "oficer Zajączkowski", "oficer Dąbrowski"], "gdzie": "Teatr Rozmaitości", "opis": "Wiadomość o zrywie dociera do teatru wraz z oficerami Zajączkowskim i Dąbrowskim, którzy zwracają się do Chłopickiego." },
     { "nr": 16, "miejsce": "sc. 5", "kto": ["Nike Napoleonidów", "Józef Chłopicki"], "gdzie": "Teatr Rozmaitości", "opis": "Chłopicki w obliczu pożaru stawia na jedną kartę, a Nike Napoleonidów oznajmia mu przegraną i odchodzi." },
     { "nr": 17, "miejsce": "sc. 6", "kto": ["Joachim Lelewel", "Ksawery Bronikowski", "Hermes"], "gdzie": "mieszkanie Lelewela", "opis": "Lelewel ogląda starą monetę, gdy do mieszkania wpada Bronikowski, a za nim przychodzi Hermes." },
-    { "nr": 18, "miejsce": "sc. 6", "kto": ["Joachim Lelewel", "ojciec Lelewela", "Nike spod Cheronei"], "gdzie": "mieszkanie Lelewela", "opis": "W chwili gdy Lelewel przeżywa śmierć ojca, Nike spod Cheronei nawołuje go, by włączył się do walki." },
-    { "nr": 19, "miejsce": "sc. 7", "kto": ["Pallas", "Czechowski", "Ares", "Żymirski"], "gdzie": "warszawska ulica", "opis": "Wśród przemieszczających się oddziałów Pallas zatrzymuje Czechowskiego, a Ares i Pallas mierzą się z oporem dowódców." },
+    { "nr": 18, "miejsce": "sc. 6", "kto": ["Joachim Lelewel", "ojciec Lelewela", "Nike spod Cheronei"], "gdzie": "mieszkanie Lelewela", "opis": "Po śmierci ojca Nike spod Cheronei nawołuje Lelewela, by włączył się do walki." },
+    { "nr": 19, "miejsce": "sc. 7", "kto": ["Pallas", "Czechowski", "Ares", "Żymirski"], "gdzie": "warszawska ulica", "opis": "Wśród przemieszczających się oddziałów Pallas kieruje oddział Czechowskiego do Arsenału, podczas gdy Ares i Żymirski wołają, by iść do Belwederu." },
     { "nr": 20, "miejsce": "sc. 7", "kto": ["Piotr Wysocki", "Stanisław Potocki", "sprzysiężeni"], "gdzie": "warszawska ulica", "opis": "Potocki odmawia przyłączenia się do powstańców i w starciu pada na ulicy." },
     { "nr": 21, "miejsce": "sc. 7", "kto": ["Zaliwski", "oddział Zaliwskiego", "patrol rosyjski"], "gdzie": "warszawska ulica", "opis": "Oddział Zaliwskiego napotyka rosyjskich żandarmów, padają strzały i część ludzi upada." },
     { "nr": 22, "miejsce": "sc. 7", "kto": ["Kery", "Adam Czartoryski", "Stanisław Potocki"], "gdzie": "warszawska ulica", "opis": "Kery pochylają się nad poległymi, a Czartoryski zatrzymuje się przy ciele Potockiego." },
@@ -35,7 +35,7 @@
   "postacie": [
     { "imie": "Pallas", "odmiany": ["Atena", "Ateny", "Atenie", "Atenę", "Ateną"], "rola": "bogini, która przyzywa Nike i daje znak do walki", "relacje": "oddziałuje na podchorążych, występuje obok Aresa i Hermesa", "miejsca": ["sc. 1", "sc. 7", "sc. 9"] },
     { "imie": "Piotr Wysocki", "odmiany": ["Wysockiego", "Wysockiemu", "Wysockim", "Piotra Wysockiego"], "rola": "podchorąży dowodzący pierwszym wystąpieniem w szkole", "relacje": "prowadzi podchorążych, wzywa do broni wraz z Pallas", "miejsca": ["sc. 1", "sc. 7"] },
-    { "imie": "wielki książę Konstanty", "odmiany": ["Konstantego", "Konstantemu", "Konstantym", "wielkiego księcia", "W. Książę"], "rola": "dowódca wojsk i cel ataku na Belweder, uchodzi ze zrywu", "relacje": "mąż Joanny, przełożony Potockiego i Kuruty", "miejsca": ["sc. 2", "sc. 4", "sc. 10"] },
+    { "imie": "wielki książę Konstanty", "odmiany": ["Konstantego", "Konstantemu", "Konstantym", "wielkiego księcia", "W. Książę"], "rola": "dowódca wojsk i cel ataku na Belweder, uchodzi przed napastnikami", "relacje": "mąż Joanny, przełożony Potockiego i Kuruty", "miejsca": ["sc. 2", "sc. 4", "sc. 10"] },
     { "imie": "Joanna", "odmiany": ["Joanny", "Joannie", "Joannę", "Joanną"], "rola": "żona Konstantego obecna przy jego reakcjach na wybuch walk", "relacje": "towarzyszy Konstantemu, w pałacu przyprowadza ją Eros", "miejsca": ["sc. 2", "sc. 4", "sc. 8", "sc. 10"] },
     { "imie": "Seweryn Goszczyński", "odmiany": ["Goszczyńskiego", "Goszczyńskiemu", "Goszczyńskim"], "rola": "uczestnik wyprawy na Belweder", "relacje": "współdziała z Nabielakiem i sprzysiężonymi", "miejsca": ["sc. 3", "sc. 4", "sc. 7"] },
     { "imie": "Ludwik Nabielak", "odmiany": ["Nabielaka", "Nabielakowi", "Nabielakiem"], "rola": "uczestnik wyprawy na Belweder", "relacje": "współdziała z Goszczyńskim", "miejsca": ["sc. 3", "sc. 4", "sc. 7"] },
@@ -52,15 +52,15 @@
   "motywy": [
     { "motyw": "powstanie i gotowość do walki", "przyklad": "Pallas i Wysocki wzywają podchorążych do broni, łącząc mitologiczny i historyczny plan dramatu.", "miejsce": "sc. 1" },
     { "motyw": "mit i historia", "przyklad": "Pallas przywołuje postacie związane z dawnymi bitwami, a później bogowie pojawiają się wśród warszawskich oddziałów.", "miejsce": "sc. 1 i 7" },
-    { "motyw": "ziarno i odrodzenie", "przyklad": "Kora odchodzi do podziemi, gdzie ma strzec ziaren. Ich trwanie pod ziemią można odczytać jako obraz nadziei po klęsce.", "miejsce": "sc. 3" },
+    { "motyw": "ziarno i odrodzenie", "przyklad": "Kora odchodzi do podziemi, gdzie ma strzec ziaren. Ich trwanie pod ziemią można odczytać jako obraz nadziei po klęsce.", "miejsce": "sc. 3", "cytat": "My oto, matko, zmartwychwstaniem" },
     { "motyw": "teatr w teatrze", "przyklad": "Publiczność ogląda widowisko z postaciami z Fausta, a wiadomość o powstaniu wprowadza do teatru równoległą akcję polityczną.", "miejsce": "sc. 5" },
     { "motyw": "przywództwo i przegrana", "przyklad": "W czasie powstania Chłopicki stawia na jedną kartę, lecz Nike Napoleonidów orzeka, że przegrał.", "miejsce": "sc. 5" },
-    { "motyw": "śmierć i przeprawa", "przyklad": "Na scenie Teatrum pojawiają się ofiary pierwszych starć, a ich odejście przedstawiono jako wejście do łodzi Charona.", "miejsce": "sc. 9" },
+    { "motyw": "śmierć i przeprawa", "przyklad": "Na scenie Teatrum pojawiają się ofiary pierwszych starć, a ich odejście przedstawiono jako wejście do łodzi Charona.", "miejsce": "sc. 9", "cytat": "pora zejść w Acheronu bród," },
     { "motyw": "wolność i uwięzienie", "przyklad": "Łukasiński, którego straż przywiązuje do armaty, zwraca się ku jutrzence wolności; jego słowa można czytać jako nadzieję sięgającą poza tę noc.", "miejsce": "sc. 10" }
   ],
   "utwory": [],
   "zrodla": [
-    { "url": "https://wolnelektury.pl/katalog/lektura/noc-listopadowa/", "rodzaj": "utwór", "co": "TXT sprawdzony z podziałem czytnika; przebieg scen, didaskalia i końcowy pochód." },
+    { "url": "https://wolnelektury.pl/katalog/lektura/noc-listopadowa/", "rodzaj": "utwór", "co": "TXT sprawdzony z podziałem czytnika; przebieg scen, didaskalia, końcowy pochód i cytaty." },
     { "url": "https://literat.ug.edu.pl/xxx/wysnoc/index.htm", "rodzaj": "utwór", "co": "Wydanie elektroniczne Uniwersytetu Gdańskiego potwierdza numerację dziesięciu scen, w tym sceny z Demeter w ramach sceny 3." },
     { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE umieszcza cały dramat w wykazie przejściowym dla zakresu rozszerzonego." }
   ],

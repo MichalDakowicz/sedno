@@ -3,9 +3,9 @@
   "wydarzenia": [
     { "nr": 1, "miejsce": "rozdz. 1", "kto": ["Josef K.", "Franz", "Willem"], "gdzie": "pensjonat pani Grubach", "opis": "Rankiem w dniu trzydziestych urodzin Józefa K. dwaj strażnicy oznajmiają mu, że jest aresztowany." },
     { "nr": 2, "miejsce": "rozdz. 1", "kto": ["Josef K.", "nadzorca", "pracownicy banku"], "gdzie": "pensjonat, pokój panny Bürstner", "opis": "Nadzorca nie podaje przyczyny aresztowania, pozwala jednak K. iść do banku w towarzystwie trzech pracowników." },
-    { "nr": 3, "miejsce": "rozdz. 1", "kto": ["Josef K.", "pani Grubach", "panna Bürstner"], "gdzie": "pensjonat pani Grubach", "opis": "Wieczorem K. rozmawia z gospodynią, po czym odtwarza pannie Bürstner w jej pokoju scenę porannego przesłuchania." },
+    { "nr": 3, "miejsce": "rozdz. 1", "kto": ["Josef K.", "pani Grubach", "panna Bürstner"], "gdzie": "pensjonat pani Grubach", "opis": "Wieczorem K. rozmawia z gospodynią, po czym odtwarza pannie Bürstner scenę porannej rozmowy z nadzorcą." },
     { "nr": 4, "miejsce": "rozdz. 2", "kto": ["Josef K."], "gdzie": "bank", "opis": "K. telefonicznie dowiaduje się, że w niedzielę ma stawić się na pierwszym przesłuchaniu." },
-    { "nr": 5, "miejsce": "rozdz. 2", "kto": ["Josef K.", "sędzia śledczy"], "gdzie": "kamienica, sala przesłuchań", "opis": "K. odnajduje salę w kamienicy, a sędzia śledczy podczas przesłuchania przypisuje mu inny zawód." },
+    { "nr": 5, "miejsce": "rozdz. 2", "kto": ["Josef K.", "sędzia śledczy"], "gdzie": "kamienica, sala przesłuchań", "opis": "K. odnajduje salę w kamienicy, a sędzia śledczy uznaje go za malarza pokojowego." },
     { "nr": 6, "miejsce": "rozdz. 2", "kto": ["Josef K.", "sędzia śledczy", "publiczność"], "gdzie": "kamienica, sala przesłuchań", "opis": "K. publicznie krytykuje sposób prowadzenia sprawy, dostrzega oznaki związku z sądem po obu stronach sali i wychodzi." },
     { "nr": 7, "miejsce": "rozdz. 3", "kto": ["Josef K.", "żona woźnego", "student"], "gdzie": "kamienica, sala przesłuchań", "opis": "K. wraca w następną niedzielę i rozmawia z żoną woźnego, którą student zabiera do sędziego śledczego." },
     { "nr": 8, "miejsce": "rozdz. 3", "kto": ["Josef K.", "woźny sądowy", "pracownicy kancelarii"], "gdzie": "poddasze kamienicy", "opis": "Woźny pokazuje K. kancelarie sądu, gdzie K. źle się czuje i potrzebuje pomocy, żeby wyjść." },

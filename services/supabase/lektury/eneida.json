@@ -17,7 +17,7 @@
     { "nr": 14, "miejsce": "ks. III", "kto": ["Enej", "Anchizes", "Trojanie"], "gdzie": "Delos i Kreta", "opis": "Wyrocznia nakazuje Trojanom szukać ziemi przodków, a po przybyciu na Kretę Enej dowiaduje się od Penatów, że celem jest Italia." },
     { "nr": 15, "miejsce": "ks. III", "kto": ["Enej", "Celena", "Trojanie"], "gdzie": "Strofady", "opis": "Po walce o pożywienie z harpiami Celena zapowiada Trojanom, że głód zmusi ich do zjedzenia stołów." },
     { "nr": 16, "miejsce": "ks. III", "kto": ["Enej", "Andromacha", "Helen"], "gdzie": "Epir", "opis": "Enej spotyka Andromachę i Helena, a Helen poucza go o dalszej drodze i wskazuje znaki, które ma rozpoznać w Italii." },
-    { "nr": 17, "miejsce": "ks. III", "kto": ["Enej", "Anchizes"], "gdzie": "Drepanum na Sycylii", "opis": "W Drepanum umiera Anchizes, na czym Enej kończy opowieść o podróży do czasu przybycia do Kartaginy." },
+    { "nr": 17, "miejsce": "ks. III", "kto": ["Enej", "Anchizes"], "gdzie": "Drepanum (Drepan) na Sycylii", "opis": "W Drepanum umiera Anchizes, na czym Enej kończy opowieść o podróży do czasu przybycia do Kartaginy." },
     { "nr": 18, "miejsce": "ks. IV", "kto": ["Dydona", "Anna"], "gdzie": "Kartagina", "opis": "Dydona zwierza się Annie z miłości do Eneja, a siostra zachęca ją do związku z Trojaninem." },
     { "nr": 19, "miejsce": "ks. IV", "kto": ["Dydona", "Enej", "Junona"], "gdzie": "okolice Kartaginy, jaskinia", "opis": "Podczas burzy na polowaniu Dydona i Enej znajdują schronienie w jednej jaskini, a Dydona uznaje ich związek za małżeństwo." },
     { "nr": 20, "miejsce": "ks. IV", "kto": ["Jowisz", "Merkury", "Enej"], "gdzie": "Kartagina", "opis": "Merkury z polecenia Jowisza przypomina Enejowi o jego obowiązku i skłania go do przygotowania odpłynięcia." },
@@ -36,14 +36,14 @@
     { "nr": 33, "miejsce": "ks. IX", "kto": ["Turn", "Trojanie"], "gdzie": "obóz trojański", "opis": "Turn atakuje obóz podczas nieobecności Eneja, a okręty, które chce spalić, przemieniają się w nimfy." },
     { "nr": 34, "miejsce": "ks. IX", "kto": ["Nizus", "Eurial", "Rutulowie"], "gdzie": "obóz Rutulów i las", "opis": "Nizus i Eurial próbują przedostać się do Eneja, lecz obaj giną, gdy oddział wroga dostrzega Euriala." },
     { "nr": 35, "miejsce": "ks. X", "kto": ["Enej", "Pallas", "Turn"], "gdzie": "pole bitwy w Lacjum", "opis": "Enej wraca do walki, a Turn zabija Pallasa i zabiera mu pas." },
-    { "nr": 36, "miejsce": "ks. X", "kto": ["Enej", "Laus", "Mezencjusz"], "gdzie": "pole bitwy w Lacjum", "opis": "Enej zabija Lausa, który osłania ojca, a następnie pokonuje wracającego do walki Mezencjusza." },
+    { "nr": 36, "miejsce": "ks. X", "kto": ["Enej", "Lauz", "Mezent"], "gdzie": "pole bitwy w Lacjum", "opis": "Enej zabija Lauza, który osłania ojca, a następnie pokonuje wracającego do walki Mezenta." },
     { "nr": 37, "miejsce": "ks. XI", "kto": ["Enej", "Ewander", "Pallas"], "gdzie": "obóz trojański i Pallanteum", "opis": "Enej wyprawia ciało Pallasa do Ewandra, a walczący uzgadniają przerwę na pochówek poległych." },
     { "nr": 38, "miejsce": "ks. XI", "kto": ["Kamilla", "Arruns", "Turn"], "gdzie": "pole bitwy w Lacjum", "opis": "Kamilla walczy po stronie Turna i ginie trafiona przez Arrunsa." },
     { "nr": 39, "miejsce": "ks. XII", "kto": ["Enej", "Turn", "Latyn", "Juturna"], "gdzie": "pole bitwy w Lacjum", "opis": "Enej i Turn mają rozstrzygnąć wojnę w pojedynku, ale za sprawą Juturny rozejm zostaje zerwany." },
     { "nr": 40, "miejsce": "ks. XII", "kto": ["Enej", "Wenus", "Julus"], "gdzie": "obóz trojański", "opis": "Wenus pomaga uleczyć rannego Eneja, który wraca do starcia." },
     { "nr": 41, "miejsce": "ks. XII", "kto": ["Junona", "Jowisz"], "gdzie": "nad polem bitwy", "opis": "Junona ustępuje, gdy Jowisz przyrzeka, że po połączeniu obu ludów pozostaną imię i obyczaje Latynów." },
     { "nr": 42, "miejsce": "ks. XII", "kto": ["Enej", "Turn"], "gdzie": "pole pojedynku w Lacjum", "opis": "Ranny Turn błaga o litość ze względu na ojca, a Enej waha się, dopóki nie widzi na nim pasa Pallasa." },
-    { "nr": 43, "miejsce": "ks. XII", "kto": ["Enej", "Turn"], "gdzie": "pole pojedynku w Lacjum", "opis": "Enej zabija Turna, a poemat urywa się na odejściu duszy pokonanego do podziemi." }
+    { "nr": 43, "miejsce": "ks. XII", "kto": ["Enej", "Turn"], "gdzie": "pole pojedynku w Lacjum", "opis": "Enej zabija Turna, a poemat kończy się odejściem duszy pokonanego do podziemi." }
   ],
   "postacie": [
     { "imie": "Enej", "odmiany": ["Eneja", "Enejowi", "Enejem", "Eneasz", "Eneasza", "Eneaszowi", "Eneaszem"], "rola": "wódz Trojan po upadku miasta, kieruje ocalałych do Italii", "relacje": "syn Wenus i Anchizesa, mąż Kreuzy, ojciec Julusa, ukochany Dydony, przeciwnik Turna", "miejsca": ["ks. I–XII"] },
@@ -68,14 +68,14 @@
     { "motyw": "zagłada ojczyzny", "przyklad": "Trojanie wpuszczają konia do miasta po podstępie Synona, a nocą ukryci Grecy wychodzą i Troja pada.", "miejsce": "ks. II" },
     { "motyw": "synowska powinność", "przyklad": "W czasie ucieczki z Troi Enej bierze ojca na plecy i prowadzi syna, ratując dwie generacje rodziny.", "miejsce": "ks. II" },
     { "motyw": "miłość i obowiązek", "przyklad": "Merkury przypomina Enejowi o misji w Italii, po czym Enej opuszcza Kartaginę, choć Dydona próbuje go zatrzymać.", "miejsce": "ks. IV" },
-    { "motyw": "zejście do świata zmarłych", "przyklad": "Enej pod opieką Sybilli spotyka w podziemiu Dydonę i Anchizesa, od którego dowiaduje się o swoich przyszłych potomkach.", "miejsce": "ks. VI" },
+    { "motyw": "zejście do świata zmarłych", "przyklad": "Enej pod opieką Sybilli spotyka w podziemiu Dydonę i Anchizesa, od którego dowiaduje się o swoich przyszłych potomkach.", "miejsce": "ks. VI", "cytat": "Ty władnąć nad ludami pomnij, Rzymianinie!" },
     { "motyw": "przyjaźń i lojalność", "przyklad": "Kiedy Eurial zostaje schwytany, Nizus próbuje go ratować i sam ginie.", "miejsce": "ks. IX" },
     { "motyw": "mit o przyszłości Rzymu", "przyklad": "Wenus daje Enejowi tarczę Wulkana z przedstawieniami przyszłych dziejów Rzymu.", "miejsce": "ks. VIII" },
-    { "motyw": "litość i zemsta", "przyklad": "Enej zatrzymuje się, kiedy Turn prosi go o litość ze względu na ojca, lecz widok pasa zabitego Pallasa przesądza o jego decyzji.", "miejsce": "ks. XII" }
+    { "motyw": "litość i zemsta", "przyklad": "Enej zatrzymuje się, kiedy Turn prosi go o litość ze względu na ojca, lecz widok pasa zabitego Pallasa przesądza o jego decyzji.", "miejsce": "ks. XII", "cytat": "Pallas cię raną tą, Pallas" }
   ],
   "utwory": [],
   "zrodla": [
-    { "url": "https://wolnelektury.pl/katalog/lektura/wergiliusz-eneida/", "rodzaj": "utwór", "co": "TXT w przekładzie Tadeusza Karyłowskiego, domena publiczna; podział na dwanaście ksiąg, wędrówka, wojna i finał pojedynku." },
+    { "url": "https://wolnelektury.pl/katalog/lektura/wergiliusz-eneida/", "rodzaj": "utwór", "co": "TXT w przekładzie Tadeusza Karyłowskiego, domena publiczna; podział na dwanaście ksiąg, wędrówka, wojna, finał pojedynku i cytaty." },
     { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE wskazuje fragmenty w wykazie dla zakresu rozszerzonego." }
   ],
   "do_weryfikacji": [
