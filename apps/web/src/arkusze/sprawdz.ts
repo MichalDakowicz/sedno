@@ -39,8 +39,15 @@ export function normalizujWynik(s: string): string {
     .replace(/\.(?!\d)/g, "");
 }
 
+export function odpowiedzDoOceny(p: Pytanie, odpowiedz: string | undefined): string {
+  const tekst = typeof odpowiedz === "string" ? odpowiedz.trim() : "";
+  // Starsze zapisy P/F mogą trzymać niepełny kod pod numerem pytania zamiast pod kluczem roboczym.
+  if (p.typ === "otwarte" && p.kod && /^[PF]+$/.test(p.oczekiwane?.[0] ?? "") && /^[PF_]*_[PF_]*$/i.test(tekst)) return "";
+  return tekst;
+}
+
 export function werdykt(p: Pytanie, odpowiedz: string | undefined): Werdykt {
-  const o = (odpowiedz ?? "").trim();
+  const o = odpowiedzDoOceny(p, odpowiedz);
   if (!o) return "pusto";
   if (p.typ === "zamkniete") return o === p.poprawna ? "dobrze" : "zle";
   if (p.typ === "wypowiedz") return "do-oceny";
@@ -68,11 +75,11 @@ export function werdykt(p: Pytanie, odpowiedz: string | undefined): Werdykt {
   return "do-oceny";
 }
 
-/** Pytania z niepustą odpowiedzią (wszystkie albo z listy numerów): jedna miara dla pulpitu, stopki arkusza i spisu zadań. */
-export function liczOdpowiedzi(odpowiedzi: Odpowiedzi | undefined, numery?: Iterable<string>): number {
+/** Pytania z niepustą odpowiedzią: jedna miara dla pulpitu, stopki arkusza i spisu zadań. */
+export function liczOdpowiedzi(odpowiedzi: Odpowiedzi | undefined, pytania?: Iterable<Pytanie>): number {
   const o = odpowiedzi ?? {};
+  if (pytania) return [...pytania].filter((p) => odpowiedzDoOceny(p, o[p.nr])).length;
   const pelne = (nr: string) => typeof o[nr] === "string" && !!o[nr].trim();
-  if (numery) return [...numery].filter(pelne).length;
   // Bez listy pytań (katalog, pulpit) liczymy pytania, nie pola: robocze klucze jednego pytania
   // („1.1:tabela”, „1.1.wybor”, „1.1.pf”) dają jedną odpowiedź, jak w spisie arkusza.
   return new Set(Object.keys(o).filter(pelne).map((k) => k.replace(/(:tabela|:rysunek|:opis|[.]wybor|[.]pf)$/, ""))).size;
