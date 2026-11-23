@@ -19,6 +19,7 @@ type Ocena = {
   punkty: number | null;
   maksPunktow: number;
   opis: string;
+  krok?: string;
   kryteria?: unknown[];
   zasady?: { pdf: string; strona: number | null };
 };
@@ -158,7 +159,10 @@ function zKlucza(p: Obiekt, a: Odpowiedz, maks: number, tresc: string): Ocena | 
     return ocenaKluczem(maks, maks, `„${wpis.slice(0, 120)}” pasuje do odpowiedzi akceptowanej w kluczu arkusza.`);
   }
   if (listy(p.odrzucone).some(pasuje)) {
-    return ocenaKluczem(0, maks, `Klucz wskazuje „${wpis.slice(0, 120)}” jako odpowiedź niepoprawną. Następny krok: porównaj zapis z wymaganym wynikiem w schemacie CKE.`);
+    return {
+      ...ocenaKluczem(0, maks, `Klucz wskazuje „${wpis.slice(0, 120)}” jako odpowiedź niepoprawną.`),
+      krok: "Porównaj zapis z wymaganym wynikiem w schemacie CKE.",
+    };
   }
   return null;
 }
@@ -224,7 +228,7 @@ async function sprawdzArkusz(cel: Extract<Zrodlo, { arkusz: string }>, a: Odpowi
   }
   return {
     status, metoda: "rubryka", punkty: punkty as number | null, maksPunktow: maks,
-    opis: [fragment ? `„${fragment}”. ${opis}` : opis, krok && `Następny krok: ${krok}`].filter(Boolean).join(" "),
+    opis: fragment ? `„${fragment}”. ${opis}` : opis, ...(krok && { krok }),
     ...(pdf && { zasady: { pdf, strona } }),
   };
 }
@@ -237,10 +241,26 @@ async function sprawdzWariant(id: string, user: string, a: Odpowiedz): Promise<O
   if (typeof maks !== "number" || !klucz) throw new BladApi(500, "server_error");
   if (!jestOdpowiedz(a)) return ocenaKluczem(0, maks, "Pusta odpowiedź.");
   const ocena = ocenWariant(klucz as KluczWariantu, { ...a, tekst: a.wynik ?? a.tekst });
-  if (!ocena) return doWeryfikacji(maks, "Sprawdź format. Podaj wynik w wymaganych polach lub zapisz jedno zapytanie zgodne z poleceniem.");
+  if (!ocena) return {
+    ...doWeryfikacji(maks, "Próba w tej postaci nie daje się sprawdzić."),
+    krok: klucz.typ === "sql-sumy" ? "Zapisz jedno zapytanie zgodne z poleceniem." : "Podaj wynik w formacie wymaganym w poleceniu.",
+  };
+  const punkty = ocena.kryteria.reduce((suma, k) => suma + k.punkty, 0);
+  const wpis = a.wynik ?? a.tekst;
+  const opis = wpis
+    ? punkty === maks
+      ? `Wynik „${wpis.slice(0, 120)}” spełnia kryteria z klucza.`
+      : `Wynik „${wpis.slice(0, 120)}” nie spełnia wszystkich kryteriów z klucza.`
+    : klucz.typ === "sql-sumy"
+      ? punkty === maks ? "Zapytanie zwraca wymagane wyniki w testach." : "Wyniki zapytania różnią się od oczekiwanych w co najmniej jednym teście."
+      : ocena.opis;
+  const krok = punkty === maks ? undefined
+    : klucz.typ === "sql-sumy" ? "Uruchom zapytanie na danych zadania i porównaj wiersze wyniku z poleceniem."
+    : klucz.typ === "korzenie" ? "Podstaw oba zapisane wyniki do pierwotnego równania."
+    : "Sprawdź obliczenie albo zapis wskazany przy kryterium bez pełnej punktacji.";
   return {
     status: "ocenione", metoda: klucz.typ === "sql-sumy" ? "testy" : "klucz",
-    punkty: ocena.kryteria.reduce((suma, k) => suma + k.punkty, 0), maksPunktow: maks, ...ocena,
+    punkty, maksPunktow: maks, kryteria: ocena.kryteria, opis, ...(krok && { krok }),
   };
 }
 

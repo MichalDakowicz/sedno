@@ -89,6 +89,28 @@ Kto ma prawo zapisu do repo, ten uruchamia migracje jako `postgres` i kod funkcj
 
 Staging ma osobną bazę i konta. Logowanie tylko mailem, rejestracja bez potwierdzenia (bez Google). Arkusze są skopiowane z produkcji. Ollama serwera działa jak na produkcji, z flagą `server_ollama` ustawianą przez administratora. Migracje z porzuconych gałęzi zostają w bazie stagingu. Gdy się rozjedzie, trzeba ją postawić od nowa. Konto testowe (`SEDNO_TEST_*` w `.env`) skopiowano z produkcji razem z dostawcami AI. Klucze przeszyfrowano kluczem stagingu, a adres Ollamy zmieniono na `172.16.78.1`.
 
+## Pilotaż wiedzy Pestki
+
+Migracje `0027_wiedza_pestki.sql` i `0028_opracowania_lektur.sql` wymagają,
+aby obraz Postgresa zawierał rozszerzenia `vector` i `unaccent`. Ładują
+18 autorskich sekcji Sedno o „Lalce”, „Zemście” i „Dziadach, części III”.
+Każda sekcja ma wskazane źródło i warunki użycia. Kolejna migracja może
+aktualizować treść tym samym kluczem `(przedmiot, utwor, sekcja)`. Trigger
+przeliczy wektor po zmianie tekstu lub haseł. Dostęp do wyszukiwania ma
+wyłącznie rola serwisowa. Rozmowy i prace uczniów nie trafiają do indeksu.
+
+Pilotaż używa 512-wymiarowych wektorów cech słów i filtrów według przedmiotu,
+tytułu oraz rodzaju sekcji. Nie wymaga osobnego dostawcy embeddingów.
+Weryfikacja poza indeksem pobiera fragmenty z publicznego API Wolnych Lektur.
+Jeśli do środowiska kontenera Edge Functions dodasz `SEDNO_BRAVE_SEARCH_KEY`
+i zrestartujesz funkcje, Pestka będzie mogła przeszukać także ZPE i Culture.pl
+przez Brave Search. Tylko skrócony fakt i tytuł trafiają do wyszukiwarki.
+Cytaty są sprawdzane w dostępnej treści utworu.
+
+Interfejs pilotażu jest dostępny w czacie Pestki i pod
+`/nauka/wypracowanie`. Drugi przepływ korzysta z ograniczonego katalogu
+A2UI 1.0. Zapis rozmowy obejmuje tekst, źródła i kartę.
+
 ## Aplikacja web
 
 Produkcja: `https://trafwsedno.web.app` (Firebase Hosting, projekt `trafwsedno`, konfiguracja w `firebase.json`). Deploy: `npm run build`, potem `firebase deploy --only hosting`. Ten adres jest w Supabase jako `SITE_URL`.
