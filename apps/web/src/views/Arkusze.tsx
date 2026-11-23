@@ -100,26 +100,30 @@ export function Arkusze() {
             )}
           </Pigulki>
 
-          {poziomy.length > 1 && (
-            <Pigulki role="group" aria-label="Poziom">
-              {poziomy.map((p) => (
-                <button key={p} type="button" className="pigulka" onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
-                  {NAZWY[p]}
-                  <span className={styles.levelCount}>{zPrzedmiotu!.filter((a) => a.poziom === p).length}</span>
-                </button>
-              ))}
-            </Pigulki>
-          )}
+          {(poziomy.length > 1 || formuly.length > 1) && (
+            <div className={styles.opcje}>
+              {poziomy.length > 1 && (
+                <Pigulki role="group" aria-label="Poziom">
+                  {poziomy.map((p) => (
+                    <button key={p} type="button" className="pigulka" onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
+                      {NAZWY[p]}
+                      <span className={styles.levelCount}>{zPrzedmiotu!.filter((a) => a.poziom === p).length}</span>
+                    </button>
+                  ))}
+                </Pigulki>
+              )}
 
-          {formuly.length > 1 && (
-            <Pigulki role="group" aria-label="Formuła matury">
-              {formuly.map((f) => (
-                <button key={f} type="button" className="pigulka" onClick={() => setFormula(f)} aria-pressed={formula === f}>
-                  Formuła {f}
-                  <span className={styles.levelCount}>{naPoziomie.filter((a) => formulaArkusza(a) === f).length}</span>
-                </button>
-              ))}
-            </Pigulki>
+              {formuly.length > 1 && (
+                <Pigulki role="group" aria-label="Formuła matury">
+                  {formuly.map((f) => (
+                    <button key={f} type="button" className="pigulka" onClick={() => setFormula(f)} aria-pressed={formula === f}>
+                      Formuła {f}
+                      <span className={styles.levelCount}>{naPoziomie.filter((a) => formulaArkusza(a) === f).length}</span>
+                    </button>
+                  ))}
+                </Pigulki>
+              )}
+            </div>
           )}
         </div>
       )}
@@ -200,8 +204,10 @@ function Wiersz({ arkusz: a }: { arkusz: ArkuszWpis }) {
     <li>
       <Link to={`/arkusze/${a.id}`} className="wiersz" title={a.symbol} onPointerEnter={() => rozgrzejArkusz(a.id)} onFocus={() => rozgrzejArkusz(a.id)} onTouchStart={() => rozgrzejArkusz(a.id)}>
         <span className="wiersz-tresc">
-          <span className="h3">{wielka(a.sesja)} {a.rok}</span>
-          {a.czesc && <span className="wiersz-opis">{a.czesc}</span>}
+          <span className={styles.nazwa}>
+            <span className="h3">{wielka(a.sesja)} {a.rok}</span>
+            {a.czesc && <span className="wiersz-opis">{a.czesc}</span>}
+          </span>
         </span>
         <span className="wiersz-wartosc">
           {proc !== null ? <Pierscien wartosc={proc / 100} prog={a.poziom === "podstawowy" ? 0.3 : undefined} rozmiar={44} opis={`Wynik ${proc}%`} /> : zaczety ? <span className="muted">w trakcie</span> : <span className="muted">nierozwiązany</span>}

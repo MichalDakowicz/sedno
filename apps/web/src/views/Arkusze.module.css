@@ -11,6 +11,13 @@
   gap: var(--s-3);
 }
 
+/* Poziom i formuła obok siebie, na telefonie jedna pod drugą. */
+.opcje {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-5);
+}
+
 .levelCount {
   margin-left: var(--s-2);
   font-size: var(--t-xs);
@@ -44,11 +51,22 @@
   --wiersz-wartosc: 8rem;
 }
 
+/* Sesja z rokiem i część w jednej linii, żeby na telefonie wiersz miał dwie linie, nie trzy. */
+.nazwa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--s-3);
+}
+
 /* Lista „Inne przedmioty” stoi w rzędzie pigułek i ma ich wysokość. */
 .inne {
   width: auto;
+  height: 40px;
   min-height: 40px;
   padding: 0 40px 0 16px;
+  line-height: 1;
+  align-items: center;
   background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%;
   color: var(--muted);
   font-size: var(--t-sm);
@@ -63,6 +81,7 @@
 
 @media (pointer: coarse) {
   .inne {
+    height: 44px;
     min-height: 44px;
   }
 }
