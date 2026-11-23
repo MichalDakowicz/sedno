@@ -13,10 +13,10 @@
     { "nr": 10, "miejsce": "Nowe życie, zakończenie", "kto": ["mężczyzna", "kobieta"], "gdzie": "kabina ciężarówki", "opis": "Mężczyzna obawia się utraty dziecka i próbuje przypomnieć sobie modlitwę." }
   ],
   "postacie": [
-    { "imie": "mężczyzna", "odmiany": ["mężczyzny", "mężczyźnie", "mężczyznę", "mężczyzną"], "rola": "szuka transportu do szpitala dla rodzącej i martwi się o dziecko", "relacje": "towarzyszy kobiecie w drodze, prosi kierowcę o pomoc", "miejsca": ["pobocze", "kabina ciężarówki"] },
-    { "imie": "kobieta", "odmiany": ["kobiety", "kobiecie", "kobietę", "kobietą", "rodząca"], "rola": "ma bóle porodowe i traci przytomność podczas jazdy", "relacje": "pod opieką mężczyzny i kierowcy", "miejsca": ["pobocze", "kabina ciężarówki"] },
-    { "imie": "kierowca", "odmiany": ["kierowcy", "kierowcę", "kierowcą", "szofer"], "rola": "zabiera parę ciężarówką i odpowiada na pytania patrolu", "relacje": "pomaga kobiecie i mężczyźnie", "miejsca": ["droga do miasta", "ciężarówka"] },
-    { "imie": "milicjanci", "odmiany": ["milicjantów", "milicjantom", "milicjantami", "milicjant"], "rola": "uzbrojony patrol sprawdzający osoby i ładunek", "relacje": "zatrzymują ciężarówkę wiozącą kobietę do szpitala", "miejsca": ["droga do miasta"] }
+    { "imie": "mężczyzna", "odmiany": ["mężczyzny", "mężczyźnie", "mężczyznę", "mężczyzną"], "rola": "szuka transportu do szpitala dla rodzącej i martwi się o dziecko", "relacje": "towarzyszy kobiecie w drodze, prosi kierowcę o pomoc", "miejsca": ["Nowe życie, początek", "Nowe życie, zakończenie"] },
+    { "imie": "kobieta", "odmiany": ["kobiety", "kobiecie", "kobietę", "kobietą", "rodząca"], "rola": "ma bóle porodowe i traci przytomność podczas jazdy", "relacje": "pod opieką mężczyzny i kierowcy", "miejsca": ["Nowe życie, początek", "Nowe życie, zakończenie"] },
+    { "imie": "kierowca", "odmiany": ["kierowcy", "kierowcę", "kierowcą", "szofer"], "rola": "zabiera parę ciężarówką i odpowiada na pytania patrolu", "relacje": "pomaga kobiecie i mężczyźnie", "miejsca": ["Nowe życie, podróż", "Nowe życie, kontrola drogowa"] },
+    { "imie": "milicjanci", "odmiany": ["milicjantów", "milicjantom", "milicjantami", "milicjant"], "rola": "uzbrojony patrol sprawdzający osoby i ładunek", "relacje": "zatrzymują ciężarówkę wiozącą kobietę do szpitala", "miejsca": ["Nowe życie, kontrola drogowa"] }
   ],
   "motywy": [
     { "motyw": "stan wojenny w codziennym życiu", "przyklad": "Kontrola dokumentów i ładunku przerywa pilny przejazd do szpitala.", "miejsce": "Nowe życie, kontrola drogowa" },

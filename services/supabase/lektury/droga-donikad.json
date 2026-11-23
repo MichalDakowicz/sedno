@@ -14,12 +14,12 @@
     { "nr": 11, "miejsce": "ostatnia scena", "kto": ["Paweł", "Marta"], "gdzie": "puszcza na Wileńszczyźnie", "opis": "Paweł i Marta w nocy docierają do miejsca, w którym droga urywa się w puszczy." }
   ],
   "postacie": [
-    { "imie": "Paweł", "odmiany": ["Pawła", "Pawłowi", "Pawłem", "Pawle"], "rola": "były dziennikarz, w okupowanej Wileńszczyźnie utrzymuje się z pracy fizycznej", "relacje": "mąż Marty, przyjaciel Karola, rozmówca ptasznika", "miejsca": ["Wilno", "Wileńszczyzna"] },
-    { "imie": "Marta", "odmiany": ["Marty", "Marcie", "Martę", "Martą"], "rola": "towarzyszy Pawłowi w ucieczce przed deportacją", "relacje": "żona Pawła", "miejsca": ["Wileńszczyzna", "puszcza"] },
-    { "imie": "Karol", "odmiany": ["Karola", "Karolowi", "Karolem", "Karolu"], "rola": "podejmuje współpracę z nowym systemem jako wykładowca", "relacje": "pracuje początkowo w lesie z Pawłem", "miejsca": ["Wileńszczyzna", "uniwersytet robotniczy"] },
-    { "imie": "Tadeusz", "odmiany": ["Tadeusza", "Tadeuszowi", "Tadeuszem", "Tadeuszu"], "rola": "krytykuje mechanizmy sowieckiej władzy i opowiada się za oporem", "relacje": "jeden z bohaterów, których postawy zestawiono z wyborami Pawła", "miejsca": ["Wileńszczyzna"] },
-    { "imie": "ptasznik", "odmiany": ["ptasznika", "ptasznikowi", "ptasznikiem"], "rola": "hodowca ptaków podejmujący opór wobec okupanta", "relacje": "rozmówca Pawła", "miejsca": ["Wileńszczyzna"] },
-    { "imie": "Łaszowski", "odmiany": ["Łaszowskiego", "Łaszowskiemu", "Łaszowskim"], "rola": "przedstawiciel miejscowej prasy uczestniczący w oficjalnym powitaniu", "relacje": "rozpoznany przez Pawła na dworcu", "miejsca": ["Wilno"] }
+    { "imie": "Paweł", "odmiany": ["Pawła", "Pawłowi", "Pawłem", "Pawle"], "rola": "były dziennikarz, w okupowanej Wileńszczyźnie utrzymuje się z pracy fizycznej", "relacje": "mąż Marty, przyjaciel Karola, rozmówca ptasznika", "miejsca": ["epizod na dworcu", "ostatnia scena"] },
+    { "imie": "Marta", "odmiany": ["Marty", "Marcie", "Martę", "Martą"], "rola": "towarzyszy Pawłowi w ucieczce przed deportacją", "relacje": "żona Pawła", "miejsca": ["zakończenie, ucieczka", "ostatnia scena"] },
+    { "imie": "Karol", "odmiany": ["Karola", "Karolowi", "Karolem", "Karolu"], "rola": "podejmuje współpracę z nowym systemem jako wykładowca", "relacje": "pracuje początkowo w lesie z Pawłem", "miejsca": ["początek powieści, praca w lesie", "wątek Karola"] },
+    { "imie": "Tadeusz", "odmiany": ["Tadeusza", "Tadeuszowi", "Tadeuszem", "Tadeuszu"], "rola": "krytykuje mechanizmy sowieckiej władzy i opowiada się za oporem", "relacje": "jeden z bohaterów, których postawy zestawiono z wyborami Pawła", "miejsca": ["rozmowa o mechanizmie sowietyzacji"] },
+    { "imie": "ptasznik", "odmiany": ["ptasznika", "ptasznikowi", "ptasznikiem"], "rola": "hodowca ptaków podejmujący opór wobec okupanta", "relacje": "rozmówca Pawła", "miejsca": ["rozmowa z ptasznikiem"] },
+    { "imie": "Łaszowski", "odmiany": ["Łaszowskiego", "Łaszowskiemu", "Łaszowskim"], "rola": "przedstawiciel miejscowej prasy uczestniczący w oficjalnym powitaniu", "relacje": "rozpoznany przez Pawła na dworcu", "miejsca": ["epizod na dworcu"] }
   ],
   "motywy": [
     { "motyw": "zniewolenie w życiu codziennym", "przyklad": "Podróżni zostają zamknięci w poczekalni na czas uroczystości, ponieważ ich obecność przeszkadzałaby w zorganizowanym powitaniu delegatów.", "miejsce": "epizod na dworcu, poczekalnia" },
@@ -29,11 +29,7 @@
     { "motyw": "przyroda i wspólnota ludzi", "przyklad": "Ptasznik odwołuje się do różnic między gatunkami ptaków, by w rozmowie z Pawłem oddzielić obyczaje narodów od wspólnego człowieczeństwa.", "miejsce": "rozmowa z ptasznikiem" },
     { "motyw": "droga i utrata perspektyw", "przyklad": "Paweł i Marta w ucieczce docierają do urywającej się drogi w lesie. Można ją odczytać jako obraz zawężenia wyboru pod okupacją.", "miejsce": "ostatnia scena" }
   ],
-  "utwory": [
-    { "tytul": "Scena na dworcu w Wilnie", "miejsce": "epizod na dworcu", "opis": "Powitanie delegatów z Moskwy widziane przez podróżnego zamkniętego w poczekalni." },
-    { "tytul": "Paweł i ptasznik", "miejsce": "rozmowa z ptasznikiem", "opis": "Rozmowa o ptakach prowadzi do refleksji nad wspólną naturą ludzi." },
-    { "tytul": "Ucieczka przed wywózką", "miejsce": "zakończenie", "opis": "Zagrożenie deportacją wypędza Pawła i Martę z domu, a ich dalszy los pozostaje otwarty." }
-  ],
+  "utwory": [],
   "zrodla": [
     { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE wskazuje fragmenty jako pozycję przejściową na lata 2025–2028." },
     { "url": "https://jozefmackiewicz.com/wp-content/uploads/1941/03/Fitas-Adam-Tylko-prawda-jest-ciekawa.pdf", "rodzaj": "opracowanie", "co": "Adam Fitas, Tylko prawda jest ciekawa, rozdz. III, cz. 1, s. 75–86: epizod na dworcu, postawy Karola i Tadeusza, rozmowa z ptasznikiem, deportacje i finał." },
