@@ -106,7 +106,7 @@ Deno.test("słowa z tytułu bez związku z lekturą nie ciągną materiałów an
   const zdania = [
     "Idę na wesele kuzynki w sobotę", "Moja siostra ma nową lalkę", "To była słodka zemsta za klasówkę", "W grze jest dżuma i muszę wyleczyć wioskę",
     "Mój kot nazywa się Hamlet", "Pan Tadeusz to mój sąsiad", "To był dramat, moja lalka się zepsuła", "Mam proces w sądzie za mandat",
-    "Ona gra w Tango na weselu", "Kupiłem miejsce w kinie", "Bohater dnia to mój brat, a jego lalka jest zepsuta",
+    "Ona gra w Tango na weselu", "Kupiłem miejsce w kinie", "Cześć! Pomożesz mi z ortografią?", "Napisałem akt notarialny dla rodziców", "Bohater dnia to mój brat, a jego lalka jest zepsuta",
   ];
   for (const zdanie of zdania) {
     const { krok, wywolania } = await czat(zdanie);
