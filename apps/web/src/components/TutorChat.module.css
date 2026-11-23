@@ -42,7 +42,7 @@
 }
 
 .tutorText {
-  font-size: calc(16px * var(--skala-tekstu, 1));
+  font-size: inherit;
   line-height: 1.55;
   padding-top: 2px;
   overflow-x: auto;
@@ -181,7 +181,7 @@
 
 .chip {
   min-height: 36px;
-  padding: 6px 14px;
+  padding: var(--s-2) var(--s-3);
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
   background: var(--surface);
@@ -232,7 +232,7 @@
 
 .zapisano {
   margin: var(--s-2) 0 0;
-  font-size: var(--t-xs);
+  font-size: var(--t-sm);
   color: var(--muted);
 }
 
@@ -255,7 +255,7 @@
   margin: var(--s-3) 0 0;
   padding-top: var(--s-2);
   border-top: 1px solid var(--line);
-  font-size: var(--t-xs);
+  font-size: var(--t-sm);
   line-height: 1.5;
   color: var(--muted);
 }
@@ -264,12 +264,13 @@
   color: var(--primary-text);
   text-decoration: underline;
 }
+
 .kartaLektury {
   display: grid;
-  gap: 0.65rem;
-  padding: 0.8rem;
+  gap: var(--s-3);
+  padding: var(--s-3);
   border: 1px solid var(--line);
-  border-radius: 0.75rem;
+  border-radius: var(--r-sm);
   overflow-wrap: anywhere;
 }
 
@@ -280,32 +281,36 @@
 .akcje {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: var(--s-2);
 }
 
 .akcje:not(:empty), .zrodla {
-  margin-top: 0.55rem;
+  margin-top: var(--s-3);
 }
 
 .zrodla {
-  padding-inline-start: 1.25rem;
-  font-size: 0.875rem;
+  padding-inline-start: var(--s-5);
+  font-size: var(--t-sm);
   overflow-wrap: anywhere;
 }
 
+/* Pełny ekran: jedno okno rozmowy (karta) na kremowym tle strony, z listą rozmów po lewej. */
 .chat[data-pelny] {
-  --szerokosc-rozmowy: 47rem;
-  --odstep-rozmowy: clamp(1rem, 3vw, 2.75rem);
+  --szerokosc-rozmowy: 42rem;
+  --odstep-rozmowy: clamp(var(--s-4), 3vw, var(--s-7));
   display: grid;
   grid-template:
     "historia naglowek" auto
     "historia rozmowa" minmax(0, 1fr)
     "historia composer" auto
-    / minmax(13rem, 17rem) minmax(0, 1fr);
+    / minmax(14rem, 18rem) minmax(0, 1fr);
   width: 100%;
   height: auto;
   overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
   background: var(--surface);
+  box-shadow: var(--shadow-float);
 }
 
 .historiaPanel {
@@ -314,7 +319,6 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  background: var(--bg);
   border-inline-end: 1px solid var(--line);
 }
 
@@ -324,11 +328,13 @@
   padding: var(--s-5) var(--s-4) var(--s-3);
 }
 
-.historiaNaglowek h2 {
+.historiaTytul {
   margin: 0;
-  font-size: var(--t-sm);
+  font-size: var(--t-xs);
   font-weight: 600;
-  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--subtle);
 }
 
 .historiaPanel .rozmowyLista {
@@ -342,16 +348,42 @@
 
 .historiaPanel .rozmowyLista button {
   min-height: 44px;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
   padding: var(--s-2) var(--s-3);
   border-radius: var(--r-sm);
   font-size: var(--t-sm);
+  line-height: 1.35;
+  transition: background-color var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.historiaPanel .rozmowyLista button > span:first-child {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.historiaPanel .rozmowyLista button > span:last-child {
+  font-size: var(--t-xs);
 }
 
 .historiaPanel .rozmowyLista button:hover:not(:disabled),
 .historiaPanel .rozmowyLista button[aria-current] {
-  background: var(--secondary);
-  color: var(--secondary-fg);
+  background: var(--primary-soft);
+  color: var(--fg);
+}
+
+.historiaPanel .rozmowyLista button:hover > span:first-child {
+  color: inherit;
+}
+
+.historiaPanel .rozmowyLista button:disabled {
+  cursor: default;
+  opacity: 0.6;
 }
 
 .historiaPusta {
@@ -370,22 +402,28 @@
   align-items: center;
   justify-content: center;
   padding: var(--s-2) var(--s-3);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  background: var(--surface);
-  color: var(--fg);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--muted);
   font: inherit;
   font-size: var(--t-sm);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
+  transition: background-color var(--ruch-szybki) var(--ruch-krzywa), color var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.nowaRozmowa {
+  border-color: var(--line);
+  color: var(--fg);
 }
 
 .nowaRozmowa:hover:not(:disabled),
 .historiaPrzelacznik:hover,
 .historiaPrzelacznik[aria-expanded="true"],
 .wroc:hover {
-  background: var(--secondary);
-  color: var(--secondary-fg);
+  background: var(--primary-soft);
+  color: var(--fg);
 }
 
 .nowaRozmowa:disabled {
@@ -399,7 +437,7 @@
   align-items: center;
   gap: var(--s-3);
   min-width: 0;
-  padding: var(--s-3) var(--odstep-rozmowy);
+  padding: var(--s-3) max(var(--odstep-rozmowy), calc((100% - var(--szerokosc-rozmowy)) / 2));
   border-bottom: 1px solid var(--line);
 }
 
@@ -410,8 +448,9 @@
 
 .pelnyTytul h1 {
   margin: 0;
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: var(--t-lg);
+  line-height: 1.2;
+  font-weight: 500;
 }
 
 .pelnyTytul h1:focus {
@@ -444,17 +483,26 @@
   max-width: var(--szerokosc-rozmowy);
   min-height: 100%;
   margin-inline: auto;
-  gap: var(--s-6);
+  gap: var(--s-5);
 }
 
 .chat[data-pelny] .tutorRow {
   max-width: 100%;
 }
 
+.chat[data-pelny] .studentText {
+  max-width: 85%;
+}
+
+.chat[data-pelny] .tutorText {
+  font-size: var(--t-md);
+  line-height: 1.6;
+}
+
 .powitanie {
   display: grid;
   justify-items: center;
-  gap: var(--s-2);
+  gap: var(--s-3);
   margin: auto;
   text-align: center;
 }
@@ -464,13 +512,18 @@
   margin: 0;
 }
 
-.powitanie h2 {
-  font-size: clamp(1.375rem, 3vw, 2rem);
+.powitanieTytul {
+  composes: h1 from global;
+}
+
+.powitanie > svg {
+  margin-bottom: var(--s-2);
 }
 
 .chat[data-pelny] .composer {
   grid-area: composer;
-  padding: var(--s-3) var(--odstep-rozmowy) var(--s-4);
+  padding: var(--s-3) var(--odstep-rozmowy) var(--s-5);
+  border-top: 0;
 }
 
 .chat[data-pelny] .composer > * {
@@ -487,29 +540,63 @@
   min-height: 44px;
 }
 
+.chat[data-pelny] .akcje .chip {
+  min-height: 40px;
+}
+
+.chat[data-pelny] .composer > p {
+  text-align: center;
+}
+
+/* Pole i przycisk wysyłania stoją w jednej obwódce; fokus podświetla całość. */
 .chat[data-pelny] .form {
   align-items: flex-end;
-  gap: var(--s-3);
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-1) var(--s-1) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.chat[data-pelny] .form:focus-within {
+  border-color: var(--primary);
 }
 
 .chat[data-pelny] .pole {
-  border-radius: var(--r-md);
-  max-height: min(22dvh, 9rem);
-  resize: vertical;
+  min-height: 0;
+  max-height: min(30dvh, 12rem);
+  padding: var(--s-3) 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  line-height: 1.5;
+  resize: none;
+  field-sizing: content;
+}
+
+.chat[data-pelny] .form :global(.btn) {
+  width: 44px;
+  min-height: 44px;
+  border-radius: var(--r-pill);
 }
 
 @media (max-width: 760px) {
   .chat[data-pelny] {
-    --odstep-rozmowy: var(--s-3);
+    --odstep-rozmowy: var(--s-4);
     grid-template:
       "naglowek" auto
       "rozmowa" minmax(0, 1fr)
       "composer" auto
       / minmax(0, 1fr);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .pelnyNaglowek {
     gap: var(--s-2);
+    padding-block: var(--s-2);
   }
 
   .pelnyNaglowek > svg {
@@ -523,6 +610,7 @@
 
   .mobilnaNowa .nowaRozmowa {
     padding-inline: var(--s-2);
+    border-color: transparent;
   }
 
   .historiaPanel {
@@ -546,6 +634,14 @@
   .chat[data-pelny] .list {
     padding-block: var(--s-4);
     scrollbar-gutter: auto;
+  }
+
+  .chat[data-pelny] .composer {
+    padding-bottom: var(--s-3);
+  }
+
+  .chat[data-pelny] .studentText {
+    max-width: 90%;
   }
 }
 
