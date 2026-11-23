@@ -30,7 +30,9 @@ Identyfikatory trzech arkuszy angielskiego z czerwca 2020 zachowują końcówkę
 
 `pobierz.js` czyta wykazy lat, archiwum i materiały dodatkowe na cke.gov.pl. Rozpoznaje linki według nazw plików i opisów, dopasowuje formę 100 lub historyczny odpowiednik A1 oraz łączy zeszyty ze wspólnym kluczem. Próby obejmują również publikacje diagnostyczne, m.in. materiały z marca, września i grudnia 2022. Samodzielny załącznik mapy i ZIP są kojarzone z właściwą sesją.
 
-Raport `data/cke/braki.json` zawiera niedostępne strony, nieudane pobrania, niekompletne wpisy i terminy bez linków. W sprawdzonych publicznych wykazach CKE nie ma arkuszy z terminu dodatkowego ani poprawkowego obu formuł. Rozpoznawanie tych terminów jest przewidziane dla opublikowanych linków. Katalog korzysta z adresów umieszczonych w wykazach CKE.
+Raport `data/cke/braki.json` zawiera niedostępne strony, nieudane pobrania, niekompletne wpisy i terminy bez linków. W sprawdzonych publicznych wykazach CKE i OKE nie potwierdzono arkuszy terminów dodatkowych i poprawkowych w Formule 2015 ani 2023. W [katalogu Komisji Egzaminacyjnych](https://egzaminy.gov.pl/cke/materialy-egzaminacyjne/egzamin-maturalny) parametry czerwca i sierpnia zwracały domyślny maj. Próby zmiany kodu sesji w adresach plików z terminów głównych nie dały PDF-ów tych terminów.
+
+OKE Łomża publikuje archiwalne arkusze z [czerwca 2012](https://oke.lomza.pl/aktualnosci/arkusze-egzaminu-maturalnego-czerwiec-2012-r/), [sierpnia 2012](https://oke.lomza.pl/aktualnosci/arkusze-egzaminu-maturalnego-sierpie-2012-r/) i [sierpnia 2014](https://oke.lomza.pl/aktualnosci/arkusze-z-egzaminu-poprawkowego-w-2014-r/). Do importu brakuje oficjalnych zasad oceniania dla tych publikacji. Czerwiec 2020 w katalogu był terminem głównym przesuniętym z maja.
 
 ## Parsery
 
