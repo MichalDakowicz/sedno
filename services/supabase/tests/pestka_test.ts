@@ -72,6 +72,16 @@ Deno.test("stresc mi lalke wybiera Lalkę i jej krótkie streszczenie", async ()
   assertEquals(uzupelnijZrodloLektury(krok, wygenerowane), `${wygenerowane} [[zrodlo:1]]`);
 });
 
+Deno.test("do streszczenia bez spoilerów model dostaje tylko zawiązanie fabuły", async () => {
+  const krok = await przygotujCzat([{ role: "user", content: "Stresc mi Lalke w trzech punktach bez spoilerow" }], { tryb: "czat" }, {
+    ...dostep,
+    baza: () => Promise.resolve([{ ...rekord, utwor: "lalka", sekcja: "streszczenie",
+      tekst: "Wokulski jest kupcem. Zabiega o względy Izabeli. Później odkrywa jej zażyłość ze Starskim." }]),
+  });
+  assertEquals(krok.materialy[0]?.tekst, "Wokulski jest kupcem. Zabiega o względy Izabeli.");
+  assert(!String(krok.messages[0]?.content).includes("Starskim"));
+});
+
 Deno.test("akapit jest oceniany w obrębie wskazanego utworu, a karta przechodzi walidację po serializacji", async () => {
   let wywolania = 0;
   const wynik = await weryfikuj(fragment, "Jak rodzi się konflikt?", {
