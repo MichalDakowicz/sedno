@@ -16,12 +16,13 @@ import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
 import { metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosbaPestki, uzupelnijZrodloLektury, weryfikuj } from "./pestka.ts";
 import type { OdpowiedzPestki } from "../_shared/pestka-odpowiedz.ts";
 
-const MAX_BODY = 256 * 1024;
+// Osłona transportu dla całego żądania. Historię czatu ogranicza okno dostawcy.
+const MAX_BODY = 8 * 1024 * 1024;
 const TIERS = new Set(["wazne", "lekkie"]);
 const ROLES = new Set(["system", "user", "assistant"]);
 
 function parseMessages(raw: unknown): Message[] | null {
-  if (!Array.isArray(raw) || raw.length < 1 || raw.length > 100) return null;
+  if (!Array.isArray(raw) || raw.length < 1) return null;
   const out: Message[] = [];
   for (const m of raw) {
     if (!m || typeof m !== "object" || !ROLES.has(m.role) || typeof m.content !== "string") return null;
@@ -66,7 +67,10 @@ async function handle(req: Request): Promise<Response> {
   if (body.pestka !== undefined && (!pestka || body.stream !== true)) return reply(400, { error: "bad_pestka_request" });
   const task = typeof body.task === "string" ? body.task.slice(0, 60) : null;
   const override = typeof body.provider === "string" ? body.provider : undefined;
-  const requested = typeof body.max_tokens === "number" ? Math.min(Math.max(1, body.max_tokens), 8192) : undefined;
+  const czatPestki = pestka?.tryb === "czat" || task === "pestka-czat";
+  const requested = typeof body.max_tokens === "number" && Number.isFinite(body.max_tokens)
+    ? Math.max(1, Math.floor(body.max_tokens))
+    : undefined;
   const temperature = typeof body.temperature === "number" ? body.temperature : undefined;
 
   const resolvedRoute = await resolveAi(user, tier, override);
@@ -74,7 +78,10 @@ async function handle(req: Request): Promise<Response> {
   const route = resolvedRoute;
   const limited = await limitDzienny(user, route);
   if (limited) return limited;
-  const maxTokens = route.provider === SEDNO ? ograniczTokeny(requested) : requested;
+  const limitNarzedzia = requested === undefined ? undefined : Math.min(requested, 8192);
+  const maxTokens = czatPestki
+    ? requested
+    : route.provider === SEDNO ? ograniczTokeny(limitNarzedzia) : limitNarzedzia;
   // Komunikat dostawcy może zawierać fragment klucza serwera albo dane organizacji.
   const detailOf = (e: unknown) => (e instanceof LlmError && route.provider !== SEDNO ? e.detail : undefined);
 
@@ -100,7 +107,7 @@ async function handle(req: Request): Promise<Response> {
 
   const enc = new TextEncoder();
   const cancel = new AbortController();
-  const signal = AbortSignal.any([req.signal, cancel.signal, AbortSignal.timeout(120_000)]);
+  const signal = AbortSignal.any([req.signal, cancel.signal, ...(czatPestki ? [] : [AbortSignal.timeout(120_000)])]);
   const dostep = {
     baza: async (p: Parameters<import("./lektury.ts").SzukajBaza>[0]) => {
       const { data, error } = await admin.rpc("pestka_wyszukaj_wiedze", p).abortSignal(AbortSignal.any([signal, AbortSignal.timeout(3500)]));

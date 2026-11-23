@@ -66,11 +66,11 @@ export function Wypracowanie(props: Props) {
   const wybrany = tematy.find((t) => t.nr === temat);
   const lista = tematy.length ? (wybrany?.punkty ?? []) : props.punkty;
   const fragment = zaznaczenie.trim();
-  const jedenAkapit = fragment.length <= 3500 && !/\n\s*\n/.test(fragment);
+  const jedenAkapit = !/\n\s*\n/.test(fragment);
   const instrukcja = aiGotowe === false
     ? "Pestka jest chwilowo niedostępna."
     : fragment && !jedenAkapit
-      ? "Zaznacz fragment jednego akapitu, do 3500 znaków."
+      ? "Zaznacz fragment jednego akapitu."
       : "Zaznacz w tekście akapit z odwołaniem do lektury.";
 
   return (

@@ -6,7 +6,7 @@ export type Kontekst = {
   umiejetnosc?: string;
   typowyBlad?: string;
   zadanie?: string;
-  /** Ustawienie ucznia; brak lub true: krótko (1–3 zdania), false: szerzej. */
+  /** Preferencja ucznia co do domyślnej długości. */
   krotko?: boolean;
   /** Tylko czat: Pestka może zapisać priorytet ucznia znacznikiem [[priorytet: …]]. */
   czat?: boolean;
@@ -23,13 +23,19 @@ export function promptPestki(k: Kontekst): string {
     "TRUDNE SPRAWY. Gdy uczeń pisze o strachu, smutku, trudnej sytuacji w domu lub w szkole albo o swoim bezpieczeństwie: w tej odpowiedzi najpierw spokojnie to przyjmij (1–2 zdania) i nie proponuj zadań ani nauki. W takiej odpowiedzi nie proponuj pomocy w zadaniach ani nauki, nawet na końcu. Ta zasada ma pierwszeństwo przed limitem długości oraz przed zasadami uczenia i zadawania pytań. " +
         "Delikatnie zaproponuj rozmowę z zaufaną dorosłą osobą (rodzic lub opiekun, wychowawca, pedagog albo psycholog szkolny), a gdy brzmi to poważnie albo dotyczy bezpieczeństwa, podaj bezpłatny, całodobowy Telefon Zaufania dla Dzieci i Młodzieży 116 111. " +
         "Wrócić do nauki zaproponuj dopiero, jeśli uczeń sam tego chce. Nie dopytuj o szczegóły, nie stawiaj diagnoz i nic z takiej wiadomości nie zapisuj w profilu.",
-    k.krotko === false
+    k.tryb === "pomoc"
+      ? "Piszesz po polsku, ciepło i konkretnie. Dopasuj długość i formę do prośby ucznia oraz złożoności tematu. " +
+        (k.krotko === false ? "" : "Gdy prośba jest prosta i uczeń nie określa długości, domyślnie pisz zwięźle. ") +
+        "Zwracasz się do ucznia na „ty”."
+      : k.krotko === false
       ? "Piszesz po polsku, ciepło i konkretnie, a gdy temat tego wymaga, szerzej: kilka zdań albo krótka lista kroków. Zwracasz się do ucznia na „ty”."
       : "Piszesz po polsku, krótko (1–3 zdania), ciepło i konkretnie. Zwracasz się do ucznia na „ty”.",
     "Nie znasz płci ucznia: zwracaj się do niego bezosobowo albo neutralnie płciowo. Nigdy nie używaj form zależnych od płci, ani męskich, ani żeńskich: " +
       "„zrobiłeś”, „zrobiłaś”, „zrobiłbyś”, „opisałbyś”, „byłeś pewny”, „jesteś gotowy”. Pisz w trybie rozkazującym, w czasie teraźniejszym albo przyszłym " +
       "(„sprawdź”, „widzisz”, „spróbujesz”) albo bezosobowo („warto sprawdzić”, „tu brakuje kroku”). Dotyczy też pytań i pochwał („Dobrze, to się zgadza”, nie „Dobrze zrobiłeś”).",
-    "Odpowiedź jest renderowana jako Markdown: możesz pogrubić kluczowe słowo albo zrobić krótką listę, ale bez nagłówków.",
+    k.tryb === "pomoc"
+      ? "Używaj Markdown. W dłuższej odpowiedzi uporządkuj treść nagłówkami albo listami, gdy ułatwia to czytanie."
+      : "Odpowiedź jest renderowana jako Markdown: możesz pogrubić kluczowe słowo albo zrobić krótką listę, ale bez nagłówków.",
     "Wzory i symbole matematyczne zapisuj w LaTeX-u: w tekście $2^{10}$, osobny wzór w $$...$$. Nie pisz wzorów zwykłym tekstem typu 2^10.",
     k.tryb === "pomoc"
       ? [
@@ -90,7 +96,7 @@ const ZNACZNIK = /\[\[\s*priorytet\s*:([^\]]*)\]\]/gi;
 
 export function pokazTekstCzatu(tekst: string, numery: readonly string[] = []): string {
   return tekst.replace(/\[\[\s*(?:akcja|zrodlo)\s*:[^\]]*\]\]/gi, (znacznik) => {
-    const numer = znacznik.match(/^\[\[\s*zrodlo\s*:\s*([1-3])\s*\]\]$/i)?.[1];
+    const numer = znacznik.match(/^\[\[\s*zrodlo\s*:\s*([1-9]\d*)\s*\]\]$/i)?.[1];
     return numer && numery.includes(numer) ? ` [${numer}]` : "";
   });
 }
