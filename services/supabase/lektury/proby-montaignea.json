@@ -1,0 +1,30 @@
+{
+  "id": "proby-montaignea",
+  "wydarzenia": [],
+  "postacie": [],
+  "motywy": [
+    { "motyw": "ocena obcego obyczaju", "przyklad": "Montaigne przywołuje Pyrrusa, który dostrzegł porządek w wojsku rzymskim mimo greckiego określania cudzoziemców mianem barbarzyńców.", "miejsce": "ks. I, rozdz. 30, O kanibalach" },
+    { "motyw": "zwyczaj jako miara sądu", "przyklad": "Montaigne zauważa, że ludzie mają skłonność do uznawania własnych praw i wierzeń za miarę tego, co rozsądne.", "miejsce": "ks. I, rozdz. 30, O kanibalach" },
+    { "motyw": "świadectwo i interpretacja", "przyklad": "Autor przywołuje relację człowieka, który mieszkał za oceanem, i pyta, jak pragnienie przekonania czytelnika zmienia relację świadka.", "miejsce": "ks. I, rozdz. 30, O kanibalach" },
+    { "motyw": "natura i sztuczność", "przyklad": "Porównanie do dzikich owoców pozwala Montaigne’owi podważyć sąd, że to, co nie zostało przekształcone przez człowieka, musi być gorsze.", "miejsce": "ks. I, rozdz. 30, O kanibalach" },
+    { "motyw": "przemoc i punkt widzenia", "przyklad": "Opis obyczaju wobec jeńców zostaje zestawiony z europejskimi praktykami okrucieństwa, by zakwestionować moralną wyższość obserwatorów.", "miejsce": "ks. I, rozdz. 30, O kanibalach" },
+    { "motyw": "nierówność majątkowa", "przyklad": "Podróżni z Ameryki dziwią się, że w tym samym społeczeństwie jedni żyją w dostatku, a inni głodują u ich drzwi.", "miejsce": "ks. I, rozdz. 30, O kanibalach, epizod w Rouen" },
+    { "motyw": "śmierć i wolność", "przyklad": "Przyzwyczajanie myśli do śmierci ma zmniejszać nad nią lęk i uwalniać od podporządkowania mu życia.", "miejsce": "ks. I, rozdz. 19", "cytat": "Rozmyślanie o śmierci jest rozmyślaniem o wolności" },
+    { "motyw": "wychowanie samodzielnego sądu", "przyklad": "Montaigne radzi sprawdzać, jak uczeń rozumie i stosuje poznane treści, zamiast zadowalać się mechanicznym odtwarzaniem słów.", "miejsce": "ks. I, rozdz. 25", "cytat": "Umieć na pamięć, nie znaczy umieć" },
+    { "motyw": "przyjaźń", "przyklad": "Więź ze Stefanem de la Boétie jest dla Montaigne’a przykładem bliskości opartej na zgodności woli, odróżnionej od znajomości wynikających z okazji i pożytku.", "miejsce": "ks. I, rozdz. 27" }
+  ],
+  "utwory": [
+    { "tytul": "Jako filozofować znaczy uczyć się umierać", "miejsce": "ks. I, rozdz. 19", "opis": "Filozofia oswaja śmiertelność przez namysł, a znajomość granic życia pomaga odzyskać swobodę." },
+    { "tytul": "O wychowaniu dzieci", "miejsce": "ks. I, rozdz. 25", "opis": "Wychowanie ma ćwiczyć rozum i charakter, dając uczniowi sposobność do samodzielnego sądzenia." },
+    { "tytul": "O przyjaźni", "miejsce": "ks. I, rozdz. 27", "opis": "Przykład więzi z La Boétie służy opisowi wzajemności i wyjątkowości głębokiej przyjaźni." },
+    { "tytul": "O kanibalach", "miejsce": "ks. I, rozdz. 30", "opis": "Autor zestawia zwyczaje opisywanych mieszkańców Ameryki z europejskimi ocenami i praktykami oraz oddaje głos podróżnym obserwującym Francję." }
+  ],
+  "zrodla": [
+    { "url": "https://wolnelektury.pl/katalog/lektura/proby-ksiega-pierwsza/", "rodzaj": "utwór", "co": "TXT pierwszej księgi w przekładzie Tadeusza Boya-Żeleńskiego i Edmunda Cięglewicza; sprawdzono numerację, argumentację czterech rozdziałów i cytaty." },
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE wskazuje fragmenty Prób w zakresie rozszerzonym." }
+  ],
+  "do_weryfikacji": [
+    "Informator nie wylicza fragmentów; O kanibalach to przykład katalogowy, a trzy inne rozdziały księgi I uzupełniają wybór.",
+    "Numery rozdziałów odpowiadają wydaniu Wolnych Lektur; inne wydania mogą numerować je inaczej."
+  ]
+}
