@@ -204,7 +204,7 @@ async function handle(req: Request): Promise<Response> {
       await Promise.allSettled([events.return(undefined), finish({ ok: false, status: 499 })]);
     },
   });
-  return new Response(stream, { headers: { ...cors, "Content-Type": "text/event-stream", "Cache-Control": "no-cache" } });
+  return new Response(stream, { headers: { ...cors, "Content-Type": "text/event-stream", "Cache-Control": "no-store" } });
 }
 
 Deno.serve(async (req) => {
