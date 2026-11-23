@@ -123,7 +123,7 @@ export async function przygotujCzat(messages: Message[], p: Extract<ProsbaPestki
     /szczegolow|dokladn|dluzsz|rozbudowan|rozszerzon|pelne|na (?:tomy|akty|czesci|rozdzialy)|kazd\w+ (?:tom|akt|czesc|rozdzial|ksieg)|\b(?:tom|akt|czesc|rozdzial|ksieg)\w* (?:[ivx]+|\d+)\b/.test(bezAkcentow(pytanie));
 
   const [zebrane, pamiec, czas] = await Promise.all([
-    lektura && utwor ? zbierzMaterialy(d, pytanie, utwor, typ).catch(() => undefined) : undefined,
+    lektura && utwor ? zbierzMaterialy(d, pytanie, utwor, typ, { dlugie }).catch(() => undefined) : undefined,
     p.chronOdpowiedz || bezSpoilerow ? "" : pamiecRozmow(pytanie, p.rozmowa, d.rozmowy),
     !lektura && pytaOCzasNauki(pytanie) ? d.czasZProfilu?.().catch(() => undefined) : undefined,
   ]);

@@ -198,7 +198,7 @@ const unikalne = (m: Material[]) => [...new Map(m.map((x) => [x.id, x])).values(
 
 /** Zbiera materiały o utworze zależnie od typu pytania. Karta jest zawsze pierwsza. */
 export async function zbierzMaterialy(
-  d: DostepLektur, pytanie: string, utwor: Utwor, typ: TypPytania, opcje: { fraza?: string | null } = {},
+  d: DostepLektur, pytanie: string, utwor: Utwor, typ: TypPytania, opcje: { fraza?: string | null; dlugie?: boolean } = {},
 ): Promise<Zebrane> {
   const el = (rodzaje: string[], limit: number, kolejnosc = false) =>
     pewnie(d.elementy?.({ p_utwor: utwor.id, p_rodzaje: rodzaje, p_pytanie: pytanie, p_limit: limit, p_kolejnosc: kolejnosc }), []).then((r) => elementy(r, utwor));
@@ -220,7 +220,7 @@ export async function zbierzMaterialy(
       break;
     }
     case "streszczenie": {
-      const [w, s] = await Promise.all([el(["wydarzenie"], 25, true), sekcje("streszczenie")]);
+      const [w, s] = await Promise.all([el(["wydarzenie"], opcje.dlugie ? 60 : 25, true), sekcje("streszczenie")]);
       zdarzenia = w;
       glowne = [...naj(s, "streszczenie"), ...w, ...naj(s, "bohaterowie"), ...(w.length ? [] : naj(s, "wydarzenia"))];
       break;
