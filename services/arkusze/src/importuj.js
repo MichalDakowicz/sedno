@@ -154,7 +154,7 @@ for (const w of katalog) {
       ostrzezenia,
       zadania,
     };
-    await writeFile(join(KATALOG_ARKUSZY, `${id}.json`), JSON.stringify(arkusz, null, 1));
+    await zapiszJson(join(KATALOG_ARKUSZY, `${id}.json`), arkusz);
     indeks.push({
       id,
       przedmiot: arkusz.przedmiot,
@@ -190,11 +190,14 @@ if (bledyImportu || !indeks.length) {
   })) : [];
   const wszystkie = [...stary.filter((a) => !indeks.some((n) => n.id === a.id)), ...indeks];
   wszystkie.sort((a, b) => b.rok - a.rok || (b.formula ?? "2023").localeCompare(a.formula ?? "2023") || a.poziom.localeCompare(b.poziom));
-  const plikIndeksu = join(KATALOG_ARKUSZY, "index.json");
-  const tymczasowy = `${plikIndeksu}.${process.pid}.tmp`;
-  await writeFile(tymczasowy, JSON.stringify(wszystkie, null, 1));
-  await rename(tymczasowy, plikIndeksu);
+  await zapiszJson(join(KATALOG_ARKUSZY, "index.json"), wszystkie);
   console.log(`Zapisano ${indeks.length} arkuszy do ${KATALOG_ARKUSZY}`);
+}
+
+async function zapiszJson(plik, dane) {
+  const tymczasowy = `${plik}.${process.pid}.tmp`;
+  await writeFile(tymczasowy, JSON.stringify(dane, null, 1));
+  await rename(tymczasowy, plik);
 }
 
 function czytajMetadane(strony, wspolnyParser) {

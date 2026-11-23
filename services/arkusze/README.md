@@ -32,7 +32,13 @@ Identyfikatory trzech arkuszy angielskiego z czerwca 2020 zachowują końcówkę
 
 Raport `data/cke/braki.json` zawiera niedostępne strony, nieudane pobrania, niekompletne wpisy i terminy bez linków. W sprawdzonych publicznych wykazach CKE i OKE nie potwierdzono arkuszy terminów dodatkowych i poprawkowych w Formule 2015 ani 2023. W [katalogu Komisji Egzaminacyjnych](https://egzaminy.gov.pl/cke/materialy-egzaminacyjne/egzamin-maturalny) parametry czerwca i sierpnia zwracały domyślny maj. Próby zmiany kodu sesji w adresach plików z terminów głównych nie dały PDF-ów tych terminów.
 
-OKE Łomża publikuje archiwalne arkusze z [czerwca 2012](https://oke.lomza.pl/aktualnosci/arkusze-egzaminu-maturalnego-czerwiec-2012-r/), [sierpnia 2012](https://oke.lomza.pl/aktualnosci/arkusze-egzaminu-maturalnego-sierpie-2012-r/) i [sierpnia 2014](https://oke.lomza.pl/aktualnosci/arkusze-z-egzaminu-poprawkowego-w-2014-r/). Do importu brakuje oficjalnych zasad oceniania dla tych publikacji. Czerwiec 2020 w katalogu był terminem głównym przesuniętym z maja.
+OKE Łomża publikuje trzy archiwalne zestawy sprzed Formuły 2015. Pobranie PDF i treść pierwszych stron potwierdzają poniższe sesje. Wszystkim wymienionym arkuszom brakuje zweryfikowanych oficjalnych zasad oceniania.
+
+- [Czerwiec 2012](https://oke.lomza.pl/aktualnosci/arkusze-egzaminu-maturalnego-czerwiec-2012-r/) obejmuje 20 zeszytów z angielskiego, biologii, chemii, francuskiego, geografii, historii, matematyki, polskiego i WOS-u.
+- [Sierpień 2012](https://oke.lomza.pl/aktualnosci/arkusze-egzaminu-maturalnego-sierpie-2012-r/) obejmuje 4 arkusze podstawowe z angielskiego, matematyki, niemieckiego i polskiego.
+- [Sierpień 2014](https://oke.lomza.pl/aktualnosci/arkusze-z-egzaminu-poprawkowego-w-2014-r/) obejmuje 3 arkusze podstawowe z angielskiego, matematyki i polskiego.
+
+Czerwiec 2020 w katalogu był terminem głównym przesuniętym z maja.
 
 ## Parsery
 
@@ -58,7 +64,7 @@ Klucz pojedynczego wyboru daje przyciski i poprawną literę. P/F i inne jednozn
 
 - `npm run kontrola` sprawdza zgodność indeksu z arkuszami, punkty, odsyłacze do pytań i kluczy, zakresy krojów, obrazy i wzory KaTeX. Ostrzeżenia importu oraz podejrzanie długie odpowiedzi są liczone obok błędów.
 - Tabele w źródłach, wielokolumnowe teksty i zapis matematyczny w PDF bywają niejednoznaczne. Rozwiązanie do samooceny może wtedy wymagać otwarcia wskazanej strony klucza, np. gdy klucz pokazuje wykres albo wzór strukturalny.
-- Podpunkt z odpowiedzią rysunkową zawiera `rysowanie: { obraz: { src, szer, wys } }`. Analizujemy polecenie i położenie figury w PDF. `rysowanie.json` wskazuje ręcznie sprawdzone wycinki w punktach PDF `[lewo, dół, prawo, góra]` lub figurę innego fragmentu, gdy obszar odpowiedzi nie pokrywa się z automatycznym kadrem. `kontrola` dekoduje osadzone PNG/WebP, porównuje wymiary i sprawdza kontrast. Klucz pytania służy nadal do oceny.
+- Podpunkt z odpowiedzią rysunkową zawiera `rysowanie: { obraz: { src, szer, wys } }`. Analizujemy polecenie i położenie figury w PDF. Przy tworzeniu nowego wykresu szukamy osi lub siatki za poleceniem. Płótno zastępuje wykorzystany blok rysunku we własnym podpunkcie, a figury źródłowe pozostają dostępne w treści. `rysowanie.json` pozwala wybrać ręcznie sprawdzone wycinki w punktach PDF `[lewo, dół, prawo, góra]` lub figurę innego fragmentu. `kontrola` dekoduje osadzone PNG/WebP, porównuje wymiary i sprawdza kontrast. Klucz pytania służy nadal do oceny.
 - Regresję należy porównać z kopią `data/arkusze-przed`. Dane z kodem sprzed rozszerzenia i dane po rozszerzeniu powinny mieć takie same identyfikatory, zadania, pytania i klucze dla wcześniejszych 47 arkuszy.
 
 ## Podgląd importu i wgrywanie

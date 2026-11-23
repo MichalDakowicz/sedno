@@ -28,16 +28,12 @@ async function obrazRysowania({ src, szer, wys } = {}) {
   const ctx = createCanvas(obraz.width, obraz.height).getContext("2d");
   ctx.drawImage(obraz, 0, 0);
   const { data } = ctx.getImageData(0, 0, obraz.width, obraz.height);
-  let min = 255;
-  let max = 0;
-  for (let i = 0; i < data.length; i += 4) {
-    const a = data[i + 3] / 255;
+  const naBialym = (i, k) => 255 + (data[i + k] - 255) * data[i + 3] / 255;
+  const tlo = [naBialym(0, 0), naBialym(0, 1), naBialym(0, 2)];
+  for (let i = 4; i < data.length; i += 4) {
     for (let k = 0; k < 3; k++) {
-      const kolor = data[i + k] * a + 255 * (1 - a);
-      min = Math.min(min, kolor);
-      max = Math.max(max, kolor);
+      if (Math.abs(naBialym(i, k) - tlo[k]) >= 12) return true;
     }
-    if (max - min >= 12) return true;
   }
   return false;
 }
