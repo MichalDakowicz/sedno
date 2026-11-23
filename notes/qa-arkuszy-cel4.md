@@ -14,3 +14,9 @@ Robocza lista błędów z dwóch testów (Terra, Haiku) gałęzi `wszystkie-matu
 ## Niesprawdzone dogłębnie
 
 WOS, łacina, geografia 2024 f2015, biologia 2024 f2015 (zad. 16), polski cz. 1, chemia 2024 f2015.
+
+## Z testu UI (Haiku, staging)
+
+7. **Pytania zamknięte bez wyboru.** Chemia 2025 zad. 2.2 („Zaznacz jedną odpowiedź”: opcje w tekście, pole tekstowe, samoocena zamiast oceny automatycznej). Biologia 2025 zad. 1.1 tabela P/F jako zwykłe komórki i pole tekstowe; informatyka ma już przełączniki P/F z tabeli, użyć tego samego. Major.
+8. Indeksy górne i dolne w chemii 2025 zad. 2.1–2.2 sklejone z tekstem („jąder235U powstają92Kr”). Minor/major.
+9. Polski 2025 cz. 1: pusta odpowiedź do wypracowania i tak pokazuje „Do oceny przy pytaniu: 1”. Minor (aplikacja).
