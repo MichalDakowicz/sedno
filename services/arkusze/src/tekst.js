@@ -9,22 +9,32 @@ const PRZERWA_KOLUMNY = 12;
 // fonty: każdy surowy kawałek dostaje krój `f`: b (pogrubiony), i (kursywa), m (stała szerokość,
 // np. Courier z nazwami plików), s (symbole, np. strzałka przypisania), "" (zwykły). Wymaga listy
 // operacji strony, więc jest wolniejsze i włączane tylko tam, gdzie potrzebne (informatyka).
-export async function tekstPdf(sciezka, { fonty = false } = {}) {
+export async function tekstPdf(sciezka, opcje = {}) {
   const data = new Uint8Array(await readFile(sciezka));
   const doc = await getDocument({ data, useSystemFonts: true, verbosity: 0 }).promise;
+  try {
+    return await tekstDokumentu(doc, opcje);
+  } finally {
+    await doc.destroy();
+  }
+}
+
+async function tekstDokumentu(doc, { fonty = false, naprawKodowanie = false }) {
   const strony = [];
   for (let n = 1; n <= doc.numPages; n++) {
     const strona = await doc.getPage(n);
     if (fonty) await strona.getOperatorList();
     const { items } = await strona.getTextContent();
+    const przesuniete = naprawKodowanie && items.some((it) => /=DGDQLH\x03|6WURQD\x03/.test(it.str ?? ""));
     const kroje = {};
     const wiersze = [];
     for (const it of items) {
-      if (!it.str || !it.str.trim()) continue;
+      const s = przesuniete ? dekodujGlify(it.str ?? "") : it.str;
+      if (!s || !s.trim()) continue;
       const y = it.transform[5];
       let w = wiersze.find((r) => Math.abs(r.y - y) <= 2.5);
       if (!w) wiersze.push((w = { y, czesci: [] }));
-      const czesc = { x: it.transform[4], y, s: it.str, w: it.width, h: it.height };
+      const czesc = { x: it.transform[4], y, s, w: it.width, h: it.height };
       if (fonty) czesc.f = kroje[it.fontName] ??= kroj(strona, it.fontName);
       w.czesci.push(czesc);
     }
@@ -40,6 +50,16 @@ export async function tekstPdf(sciezka, { fonty = false } = {}) {
     strony.push(linie);
   }
   return strony;
+}
+
+const GLIFY = { y: "ó", Ï: "Ó", ü: "ć", Ċ: "ę", Ę: "Ę",
+  á: "ł", à: "Ł", Ĕ: "ń", ē: "Ń", Ğ: "ś", ĝ: "Ś", Ĩ: "ź", Ī: "ż", ĩ: "Ż", "±": "–" };
+
+// Brak mapy ToUnicode w części stron CKE: glify podstawowe mają numery
+// o 29 niższe od ASCII, a polskie litery zachowały osobne kody fontu.
+function dekodujGlify(s) {
+  return [...s].map((z) => GLIFY[z] ?? (/[\x03-\x5d]/.test(z) && z !== " "
+    ? String.fromCharCode(z.charCodeAt(0) + 29) : z)).join("");
 }
 
 function kroj(strona, fontName) {
@@ -72,7 +92,7 @@ function dolaczIndeksyGorne(wiersze) {
   }
 }
 
-function segmenty(czesci) {
+export function segmenty(czesci) {
   const wynik = [];
   let akt = null;
   let koniec = null;

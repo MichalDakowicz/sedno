@@ -68,7 +68,7 @@ export function tekstLinii(czesci) {
   return { tekst: tekst.trim(), formaty: formaty.map(([a, b, f]) => [Math.max(0, a - lead), Math.min(tekst.trim().length, b - lead), f]).filter(([a, b]) => b > a) };
 }
 
-function rodzaj(l, lewa) {
+export function rodzaj(l, lewa) {
   const { tekst } = l.t;
   // Miejsce na odpowiedź (same kropki albo podkreślenia) pomijamy; linia z treścią i kropkami do uzupełnienia
   // („1201₃ + 2102₉ = ……”) zostaje.
@@ -104,7 +104,7 @@ function rodzaj(l, lewa) {
 // Krótki napis bez słów; między wycinkami należy do rysunku (oś wykresu przy marginesie).
 const krotki = (l) => l.t.tekst.length < 18 && !/[a-ząćęłńóśźż]{4,}/i.test(l.t.tekst);
 
-async function plotno(doc, n, cache) {
+export async function plotno(doc, n, cache) {
   if (!cache.has(n)) {
     const page = await doc.getPage(n);
     const viewport = page.getViewport({ scale: SKALA });
@@ -354,7 +354,7 @@ export async function skladajTresc(doc, fragmenty, { katalog, prefiks }) {
 
 // Linie tekstu w akapity: nowy akapit po większej przerwie, po krótkiej linii (koniec akapitu
 // w arkuszu), przy punktorze, numeracji i podpunkcie „a)”, przy wcięciu.
-function akapity(linie) {
+export function akapity(linie) {
   const wynik = [];
   let akt = null;
   let poprz = null;
@@ -436,7 +436,7 @@ function tekstKomorki({ tekst, formaty }) {
  * (między liniami poziomymi), z których każdy ma co najmniej dwie linie pionowe. Każda tabela:
  * wiersze komórek (tekst), rozpiętość komórek w kolumnach, liczba wierszy nagłówka, zakres pionowy.
  */
-export function tabeleZSiatki(s, gora, dol, czesci) {
+export function tabeleZSiatki(s, gora, dol, czesci, { odpowiedzi = false } = {}) {
   const [x0, x1] = KADR_X.map((x) => Math.round(x * SKALA));
   const szer = x1 - x0;
   const py0 = Math.max(0, Math.round((s.wys - gora) * SKALA));
@@ -480,10 +480,10 @@ export function tabeleZSiatki(s, gora, dol, czesci) {
       akt.push(p);
     } else akt = null;
   }
-  return tabele.filter((t) => t.length >= 2 || t[0].linie.length >= 3).map((t) => zbudujTabele(t, czesci, { x0, yPdf })).filter(Boolean);
+  return tabele.filter((t) => t.length >= 2 || t[0].linie.length >= 3).map((t) => zbudujTabele(t, czesci, { x0, yPdf, odpowiedzi })).filter(Boolean);
 }
 
-function zbudujTabele(pasy, czesci, { x0, yPdf }) {
+function zbudujTabele(pasy, czesci, { x0, yPdf, odpowiedzi }) {
   const granice = sklej([...new Set(pasy.flatMap((w) => w.linie.map(Math.round)))].sort((a, b) => a - b));
   const wynik = pasy.map((w) => {
     const yGora = yPdf(w.gora);
@@ -544,7 +544,7 @@ function zbudujTabele(pasy, czesci, { x0, yPdf }) {
   const szerokosci = new Set(wynik.map((w) => w.reduce((n, k) => n + k.zakres, 0)));
   // Wiersz krótszy o jedną komórkę (np. ostatni wiersz bez kolumny, której w nim nie wypełnia się) jest w porządku.
   const rozrzut = Math.max(...szerokosci) - Math.min(...szerokosci);
-  if (puste > 0.6 || rozrzut > 1 || Math.max(...wynik.map((w) => w.length)) < 2) return null;
+  if (puste > (odpowiedzi ? 0.8 : 0.6) || rozrzut > 1 || Math.max(...wynik.map((w) => w.length)) < 2) return null;
 
   // Nagłówek: początkowe wiersze bez pustych komórek i bez przełączników P / F, pogrubione albo
   // opisowe nad wierszem z liczbami.

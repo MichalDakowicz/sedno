@@ -11,7 +11,10 @@ import { przypiszWymagania } from "./wymagania.js";
 import { fragmentyMatematyki, kadruj, kluczMatematyki, osadzObrazy, otworzPdf, zadaniaMatematyki } from "./matematyka.js";
 import { czytajDocx, fragmentyDocx } from "./docx.js";
 import { fragmentyInformatyki, kluczInformatyki, plikiDanych, zadaniaInformatyki } from "./informatyka.js";
-import { skladajTresc } from "./informatyka-tresc.js";
+import { skladajTresc } from "./tresc-pdf.js";
+import { importujPisemny } from "./arkusz-pisemny.js";
+import { identyfikator, MIESIACE, terminMiesiaca } from "./sesje.js";
+import { uzupelnijKluczAngielskiego } from "./angielski.js";
 
 // Fragmenty nagrań dopasowane do pytań (services/arkusze/nagrania/dopasuj.py) leżą osobno,
 // żeby ponowny import ich nie kasował: { "1.1": { od, do, tekst }, … }.
@@ -25,7 +28,6 @@ async function doklejFragmenty(id, pytania) {
   for (const q of pytania) if (fragmenty[q.nr]) q.fragment = fragmenty[q.nr];
 }
 
-const MIESIACE = { "05": "maj", "06": "czerwiec", "08": "sierpień" };
 // Ręczne poprawki ramek rysunków bazowych (matematyka.js).
 const POPRAWKI_RYSUNKOW = JSON.parse(await readFile(new URL("../rysunki.json", import.meta.url), "utf8"));
 
@@ -37,20 +39,28 @@ const indeks = [];
 let bledyImportu = 0;
 
 for (const w of katalog) {
-  if (!w.arkusz) continue;
   const przedmiot = w.przedmiot ?? "angielski";
-  if (tylko && ![`${przedmiot}-${w.formula}-${w.rok}-${w.poziom}`, `${w.formula}-${w.rok}-${w.poziom}`].some((k) => k.startsWith(tylko))) continue;
-  const sesja = MIESIACE[w.miesiac ?? "05"] ?? "maj";
-  // Identyfikatory formuły 2023 zostają bez dopisku, żeby nie zgubić zapisanych postępów.
-  const id = `${przedmiot}-${w.poziom}-${w.rok}-${sesja}${w.formula === "2015" ? "-formula-2015" : ""}`;
+  const miesiac = Number(w.miesiac ?? 5);
+  const termin = w.termin ?? terminMiesiaca(w.rok, miesiac);
+  const sesja = w.sesja ?? MIESIACE[miesiac - 1] ?? "maj";
+  const id = identyfikator({ ...w, przedmiot, termin, sesja });
+  if (tylko && ![id, [przedmiot, w.formula, w.rok, w.poziom].join("-"), [w.formula, w.rok, w.poziom].join("-")].some((k) => k.startsWith(tylko))) continue;
   process.stdout.write(`${id} … `);
 
   try {
-    const strony = await tekstPdf(join(KATALOG_CKE, w.arkusz.plik));
-    const metadane = czytajMetadane(strony.slice(0, 2));
+    if (!w.arkusz) throw new Error("brak PDF arkusza w katalogu");
+    const sciezka = join(KATALOG_CKE, w.arkusz.plik);
+    const glowny2023 = termin === "glowny" && w.formula === "2023" && w.rok >= 2023 && w.rok <= 2026;
+    const staraMatematyka = glowny2023 && przedmiot === "matematyka" && w.poziom === "podstawowy";
+    const staraInformatyka = glowny2023 && przedmiot === "informatyka";
+    const wspolnyParser = przedmiot !== "angielski" && !staraMatematyka && !staraInformatyka;
+    const strony = await tekstPdf(sciezka, { fonty: wspolnyParser, naprawKodowanie: wspolnyParser });
+    const metadane = czytajMetadane(strony.slice(0, 2), wspolnyParser);
+    const obrazy = { katalog: join(KATALOG_ARKUSZY, "obrazy", id), prefiks: "obrazy/" + id };
     let zadania, ostrzezenia, dane;
     let pokrycieWymagan = "";
-    if (przedmiot === "matematyka") {
+    if (przedmiot === "informatyka" && w.dane) dane = { zip: w.dane.url, pliki: await plikiDanych(join(KATALOG_CKE, w.dane.plik)) };
+    if (staraMatematyka) {
       const fragmenty = fragmentyMatematyki(strony);
       // Treść ze wzorami z formy DOCX; kadry zostają dla zadań, których nie da się z niej wziąć.
       const docx = w.tresc ? fragmentyDocx(await czytajDocx(join(KATALOG_CKE, w.tresc.plik))) : null;
@@ -67,7 +77,7 @@ for (const w of katalog) {
       // Arkusz trafia do bazy (npm run wgraj) jako jeden JSON, więc obrazy jadą w nim jako data URL.
       await osadzObrazy(zadania, KATALOG_ARKUSZY);
       if (kadry.length) process.stdout.write(`kadry: ${kadry.join("; ")} … `);
-    } else if (przedmiot === "informatyka") {
+    } else if (staraInformatyka) {
       // Treść z PDF z krojami pisma (pogrubienie, kursywa, Courier), żeby złożyć ją jako tekst.
       const fragmenty = fragmentyInformatyki(await tekstPdf(join(KATALOG_CKE, w.arkusz.plik), { fonty: true }));
       const pdf = await otworzPdf(join(KATALOG_CKE, w.arkusz.plik));
@@ -75,17 +85,32 @@ for (const w of katalog) {
       const tresc = await skladajTresc(pdf, fragmenty, { katalog: join(KATALOG_ARKUSZY, "obrazy", id), prefiks: `obrazy/${id}` });
       process.stdout.write(`tekstem ${tresc.tekstem}, kadrem ${tresc.kadrem} … `);
       const klucz = w.zasady ? kluczInformatyki(await tekstPdf(join(KATALOG_CKE, w.zasady.plik))) : {};
-      dane = w.dane ? { zip: w.dane.url, pliki: await plikiDanych(join(KATALOG_CKE, w.dane.plik)) } : undefined;
       if (!dane) ostrzezenia = ["brak plików danych"];
       const wynik = zadaniaInformatyki(fragmenty, klucz, dane?.pliki);
       zadania = wynik.zadania;
       ostrzezenia = [...(ostrzezenia ?? []), ...wynik.ostrzezenia];
+      await osadzObrazy(zadania, KATALOG_ARKUSZY);
+    } else if (wspolnyParser) {
+      const stronyKlucza = w.zasady ? await tekstPdf(join(KATALOG_CKE, w.zasady.plik), { fonty: true, naprawKodowanie: true }) : [];
+      const docx = w.tresc ? fragmentyDocx(await czytajDocx(join(KATALOG_CKE, w.tresc.plik))) : undefined;
+      const pdf = await otworzPdf(sciezka);
+      let mapa, kadry;
+      try {
+        if (w.mapa) mapa = await otworzPdf(join(KATALOG_CKE, w.mapa.plik));
+        ({ zadania, ostrzezenia, kadry } = await importujPisemny(pdf, strony, stronyKlucza, w, metadane, obrazy, docx, dane, mapa));
+      } finally {
+        await Promise.all([pdf.destroy(), mapa?.destroy()]);
+      }
+      if (kadry.length) process.stdout.write("kadry (" + kadry.length + "): " + kadry.map((k) => k.nr + " s. " + k.strona + " " + k.powod).join("; ") + " … ");
+      if (przedmiot === "informatyka" && w.czesc !== "Część 1" && !dane) ostrzezenia.push("brak plików danych");
+      if (metadane.punkty === undefined) ostrzezenia.push("brak sumy punktów na stronie tytułowej w tekście PDF");
       await osadzObrazy(zadania, KATALOG_ARKUSZY);
     } else {
       zadania = parsujArkusz(strony);
       const sciezkaKlucza = w.zasady && join(KATALOG_CKE, w.zasady.plik);
       const stronyKlucza = sciezkaKlucza ? await tekstPdf(sciezkaKlucza) : [];
       ({ ostrzezenia } = scal(zadania, parsujKlucz(stronyKlucza)));
+      if (termin !== "glowny" || w.formula === "2015" && w.rok > 2023) uzupelnijKluczAngielskiego(stronyKlucza, zadania, ostrzezenia);
       if (przedmiot === "angielski" && w.formula === "2023") {
         const pytania = zadania.flatMap((z) => z.pytania);
         const brak = sciezkaKlucza ? await przypiszWymagania(sciezkaKlucza, stronyKlucza, zadania) : pytania.map((p) => p.nr);
@@ -109,6 +134,8 @@ for (const w of katalog) {
       poziom: w.poziom,
       rok: w.rok,
       sesja,
+      termin,
+      ...(w.czesc && { czesc: w.czesc }),
       symbol: plik.replace(/(-A)?(-\d{4})?(-arkusz)?\.pdf$/, "").replace(/_1[PA]-\d{3}$/, ""),
       ...metadane,
       punkty: metadane.punkty ?? sumaPunktow,
@@ -127,6 +154,8 @@ for (const w of katalog) {
       poziom: w.poziom,
       rok: w.rok,
       sesja,
+      termin,
+      ...(w.czesc && { czesc: w.czesc }),
       symbol: arkusz.symbol,
       czas: arkusz.czas,
       punkty: arkusz.punkty,
@@ -160,7 +189,7 @@ if (bledyImportu || !indeks.length) {
   console.log(`Zapisano ${indeks.length} arkuszy do ${KATALOG_ARKUSZY}`);
 }
 
-function czytajMetadane(strony) {
+function czytajMetadane(strony, wspolnyParser) {
   const tekst = strony.flat().map((l) => l.s).join("\n");
   const liczba = (r) => {
     const m = tekst.match(r);
@@ -168,7 +197,10 @@ function czytajMetadane(strony) {
   };
   return {
     czas: liczba(/CZAS (?:TRWANIA|PRACY):?\s*(\d+)\s*minut/i) ?? liczba(/Czas pracy:?\s*(\d+)\s*minut/i),
-    punkty: liczba(/LICZBA PUNKTÓW DO UZYSKANIA:?\s*(\d+)/i) ?? liczba(/Liczba punktów do uzyskania:?\s*(\d+)/i),
+    punkty: liczba(/LICZBA PUNKTÓW DO UZYSKANIA:?\s*(\d+)/i) ?? (wspolnyParser
+      ? liczba(/LICZBA PUNKTÓW DO UZYSKANIA ZA (?:ARKUSZ [12]\.?|CZĘŚ(?:Ć|CI) [123]\.?|WYPRACOWANIE|TEST)[^:\n]*:\s*(\d+)/i)
+        ?? liczba(/(?:ŁĄCZNIE|ZA ROZWIĄZANIE ZADAŃ)\s*(\d+)\s*(?:PKT|PUNKTÓW)/i)
+      : undefined),
     data: tekst.match(/DATA:?\s*(\d{1,2} \S+ \d{4})/i)?.[1],
   };
 }

@@ -267,7 +267,7 @@ const POLECENIE = /^(Dokończ zdanie|Oceń prawdziwość|Uzupełnij|Wybierz|Wpis
 // zadaniu z prawdziwego arkusza i żeby pasował klucz wersji A.
 const PROG_PODOBIENSTWA = 0.8;
 
-function powodKadru(f, d, tekstPdf) {
+export function powodKadru(f, d, tekstPdf) {
   if (d.obiekty) return "osadzony obiekt w DOCX";
   if (d.bloki.some((b) => b.typ === "miejsceRysunku") && !f.rysunek) return "rysunek bez wycinka z PDF";
   const a = normalizuj(tekstPdf);
