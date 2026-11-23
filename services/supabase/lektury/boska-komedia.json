@@ -1,0 +1,461 @@
+{
+ "id": "boska-komedia",
+ "wydarzenia": [
+  {
+   "nr": 1,
+   "miejsce": "Piekło, pieśń I",
+   "kto": [
+    "Dante",
+    "Wergiliusz"
+   ],
+   "gdzie": "ciemny las; wzgórze",
+   "opis": "Dante błądzi w ciemnym lesie w połowie życia, napotyka trzy zwierzęta (pantera, lew, wilczyca) i spotyka Wergiliusza, który zapowiada drogę przez zaświaty."
+  },
+  {
+   "nr": 2,
+   "miejsce": "Piekło, pieśń II",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "Beatrycze"
+   ],
+   "gdzie": "przed bramą piekła",
+   "opis": "Wergiliusz wyjaśnia, że posłała go Beatrycze za wstawiennictwem Łucji; Dante zbiera odwagę do podróży."
+  },
+  {
+   "nr": 3,
+   "miejsce": "Piekło, pieśń III",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "Charon"
+   ],
+   "gdzie": "brama piekła; Przedpiekle; Acheront",
+   "opis": "Nad bramą jest napis o wyrzeczeniu się nadziei; poeci mijają Przedpiekle (tchórze) i przeprawiają się przez Acheront z Charonem."
+  },
+  {
+   "nr": 4,
+   "miejsce": "Piekło, pieśń IV",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "poeci i filozofowie"
+   ],
+   "gdzie": "Krąg I (Limbus)",
+   "opis": "W Limbusie przebywają niechrzczeni, w tym starożytni poeci i filozofowie."
+  },
+  {
+   "nr": 5,
+   "miejsce": "Piekło, pieśń V",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "Minos",
+    "Franczeska",
+    "Paolo"
+   ],
+   "gdzie": "Krąg II",
+   "opis": "W kręgu grzeszników z miłości Dante rozmawia z Franczeską z Rimini, która opowiada o swojej miłości i śmierci."
+  },
+  {
+   "nr": 6,
+   "miejsce": "Piekło, pieśń VI–VII",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "Cerber",
+    "Ciacco",
+    "Plutus"
+   ],
+   "gdzie": "Kręgi III, IV, V",
+   "opis": "Poeci mijają żarłoków (Cerber), skąpców i marnotrawców (Plutus) oraz popędliwych."
+  },
+  {
+   "nr": 7,
+   "miejsce": "Piekło, pieśń VIII–XI",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "Farinata"
+   ],
+   "gdzie": "Krąg VI",
+   "opis": "Poeci wchodzą do miasta Dis, gdzie w grobach leżą kacerze; Dante rozmawia z Farinatą i poznaje podział kręgów piekła."
+  },
+  {
+   "nr": 8,
+   "miejsce": "Piekło, pieśń XII–XVII",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "centaurowie",
+    "Brunetto Latini",
+    "Gerion"
+   ],
+   "gdzie": "Krąg VII",
+   "opis": "W kręgu VII poeci widzą przemocnych wobec innych, samobójców i sodomitów; Dante spotyka nauczyciela Brunetta Latiniego."
+  },
+  {
+   "nr": 9,
+   "miejsce": "Piekło, pieśń XVIII–XXX",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "Ulisses"
+   ],
+   "gdzie": "Krąg VIII (Malebolge)",
+   "opis": "W ósmym kręgu poeci mijają kolejne „tłumoki” (rajfury, symoniacy, złodzieje, fałszerze); w pieśni XXVI Dante spotyka Ulissesa wśród złych doradców."
+  },
+  {
+   "nr": 10,
+   "miejsce": "Piekło, pieśń XXXI–XXXII",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "Anteus"
+   ],
+   "gdzie": "Krąg IX (Kocyt)",
+   "opis": "Olbrzym Anteus zanosi poetów na dno piekła do zamarzniętej rzeki Kocyt, gdzie karani są zdrajcy."
+  },
+  {
+   "nr": 11,
+   "miejsce": "Piekło, pieśń XXXIII",
+   "kto": [
+    "Dante",
+    "hrabia Ugolino"
+   ],
+   "gdzie": "Krąg IX, Antenora",
+   "opis": "Ugolino opowiada, jak został zamknięty z synami w wieży i umarł z głodu; w tej pieśni także przechodzą przez Ptolomeę."
+  },
+  {
+   "nr": 12,
+   "miejsce": "Piekło, pieśń XXXIV",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "Szatan"
+   ],
+   "gdzie": "Krąg IX, Judekka",
+   "opis": "Poeci widzą Szatana tkwiącego w lodzie i pożerającego Judasza, Brutusa i Kasjusza, po czym wychodzą na powierzchnię ziemi."
+  },
+  {
+   "nr": 13,
+   "miejsce": "Czyściec, pieśń I",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "Katon"
+   ],
+   "gdzie": "wybrzeże góry Czyśćca",
+   "opis": "Dante i Wergiliusz docierają na brzeg góry Czyśćca, gdzie Katon wyznacza im przygotowania do wejścia."
+  },
+  {
+   "nr": 14,
+   "miejsce": "Czyściec, pieśń II–IX",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "dusze"
+   ],
+   "gdzie": "Przedczyściec",
+   "opis": "Poeci mijają dusze czekające na pokutę, w tym tych, którzy zmarli w klątwie kościelnej, oraz tych, którzy pokutowali dopiero na łożu śmierci."
+  },
+  {
+   "nr": 15,
+   "miejsce": "Czyściec, pieśń X–XXVII",
+   "kto": [
+    "Dante",
+    "Wergiliusz",
+    "Stacjusz"
+   ],
+   "gdzie": "siedem gzymsów Czyśćca",
+   "opis": "Poeci wspinają się przez siedem gzymsów, na których oczyszczają się dusze z siedmiu grzechów głównych; dołącza do nich Stacjusz."
+  },
+  {
+   "nr": 16,
+   "miejsce": "Czyściec, pieśń XXVIII–XXXIII",
+   "kto": [
+    "Dante",
+    "Beatrycze",
+    "Wergiliusz"
+   ],
+   "gdzie": "Ziemski Raj",
+   "opis": "W Ziemskim Raju Wergiliusz odchodzi, a pojawia się Beatrycze, która wypomina Dantemu jego błędy; Dante zanurza się w rzekach Lete i Eunoe."
+  },
+  {
+   "nr": 17,
+   "miejsce": "Raj, pieśń I",
+   "kto": [
+    "Dante",
+    "Beatrycze"
+   ],
+   "gdzie": "Ziemski Raj; wzlot ku niebu",
+   "opis": "Dante w towarzystwie Beatrycze wznosi się ku niebu i dowiada się o porządku wszechświata."
+  },
+  {
+   "nr": 18,
+   "miejsce": "Raj, pieśń II–XXX",
+   "kto": [
+    "Dante",
+    "Beatrycze",
+    "błogosławieni"
+   ],
+   "gdzie": "kolejne sfery nieba",
+   "opis": "Dante wznosi się przez sfery planet i rozmawia z duszami błogosławionych, a Beatrycze objaśnia mu zasady wiary i porządku świata."
+  },
+  {
+   "nr": 19,
+   "miejsce": "Raj, pieśń XXXI–XXXII",
+   "kto": [
+    "Dante",
+    "święty Bernard"
+   ],
+   "gdzie": "Empireum",
+   "opis": "W Empireum Beatrycze zastępuje św. Bernard, który prowadzi Dantego do widzenia Maryi."
+  },
+  {
+   "nr": 20,
+   "miejsce": "Raj, pieśń XXXIII",
+   "kto": [
+    "Dante",
+    "święty Bernard"
+   ],
+   "gdzie": "Empireum",
+   "opis": "Bernard modli się do Maryi, a Dante zostaje dopuszczony do wizji Boga i ukazanego mu zamysłu miłości."
+  }
+ ],
+ "postacie": [
+  {
+   "imie": "Dante",
+   "odmiany": [
+    "Dante",
+    "Dantego",
+    "Dantemu",
+    "Dantem",
+    "Alighieri"
+   ],
+   "rola": "narrator i bohater, poeta w połowie życia, który odbywa podróż przez zaświaty",
+   "relacje": "uczeń Wergiliusza, wielbiciel Beatrycze",
+   "miejsca": [
+    "całość"
+   ]
+  },
+  {
+   "imie": "Wergiliusz",
+   "odmiany": [
+    "Wergiliusz",
+    "Wergiliusza",
+    "Wergiliuszowi",
+    "Wergiliuszem"
+   ],
+   "rola": "rzymski poeta, przewodnik Dantego przez Piekło i Czyściec",
+   "relacje": "mistrz i opiekun Dantego, symbol rozumu",
+   "miejsca": [
+    "Piekło",
+    "Czyściec"
+   ]
+  },
+  {
+   "imie": "Beatrycze",
+   "odmiany": [
+    "Beatrycze",
+    "Beatrycze"
+   ],
+   "rola": "ukochana Dantego, prowadzi go przez Raj",
+   "relacje": "wysłała Wergiliusza na pomoc, symbol łaski i objawienia",
+   "miejsca": [
+    "Piekło, pieśń II",
+    "Czyściec, pieśń XXX–XXXIII",
+    "Raj"
+   ]
+  },
+  {
+   "imie": "Franczeska z Rimini",
+   "odmiany": [
+    "Franczeska",
+    "Franczeski",
+    "Franczesce",
+    "Franczeskę"
+   ],
+   "rola": "dusza kochanki w Kręgu II Piekła",
+   "relacje": "opowiada Dantemu o miłości do Paola",
+   "miejsca": [
+    "Piekło, pieśń V"
+   ]
+  },
+  {
+   "imie": "hrabia Ugolino",
+   "odmiany": [
+    "Ugolino",
+    "Ugolina",
+    "Ugolinowi",
+    "hrabia Ugolino"
+   ],
+   "rola": "zdrajca w Kręgu IX, uwięziony w wieży z synami",
+   "relacje": "pożera czaszkę arcybiskupa Ruggieriego",
+   "miejsca": [
+    "Piekło, pieśń XXXIII"
+   ]
+  },
+  {
+   "imie": "Charon",
+   "odmiany": [
+    "Charon",
+    "Charona",
+    "Charonowi"
+   ],
+   "rola": "przewoźnik dusz przez Acheront",
+   "relacje": "strażnik przeprawy w Piekle",
+   "miejsca": [
+    "Piekło, pieśń III"
+   ]
+  },
+  {
+   "imie": "Szatan",
+   "odmiany": [
+    "Szatan",
+    "Szatana",
+    "Szatanowi"
+   ],
+   "rola": "władca Piekła uwięziony w lodzie",
+   "relacje": "pożera Judasza, Brutusa i Kasjusza",
+   "miejsca": [
+    "Piekło, pieśń XXXIV"
+   ]
+  },
+  {
+   "imie": "Ulisses",
+   "odmiany": [
+    "Ulisses",
+    "Ulissesa",
+    "Ulissesowi"
+   ],
+   "rola": "dusza wśród złych doradców w VIII kręgu",
+   "relacje": "opowiada o ostatniej wyprawie",
+   "miejsca": [
+    "Piekło, pieśń XXVI"
+   ]
+  },
+  {
+   "imie": "święty Bernard",
+   "odmiany": [
+    "Bernard",
+    "Bernarda",
+    "Bernardowi"
+   ],
+   "rola": "ostatni przewodnik Dantego w Empireum",
+   "relacje": "modli się do Maryi za Dantego",
+   "miejsca": [
+    "Raj, pieśń XXXI–XXXIII"
+   ]
+  }
+ ],
+ "motywy": [
+  {
+   "motyw": "podróż w zaświaty",
+   "przyklad": "Dante odbywa wędrówkę przez Piekło, Czyściec i Raj, prowadzony najpierw przez Wergiliusza, później przez Beatrycze i Bernarda.",
+   "miejsce": "całość"
+  },
+  {
+   "motyw": "las ciemny i zbłąkanie",
+   "przyklad": "Poemat zaczyna się od zbłąkania w ciemnym lesie w połowie życia.",
+   "miejsce": "Piekło, pieśń I",
+   "cytat": "Z prostego toru w naszych dni połowie Wszedłem w las ciemny; jaka gęstwa dzika"
+  },
+  {
+   "motyw": "napis na bramie piekła",
+   "przyklad": "Napis nad bramą kończy się wezwaniem do porzucenia nadziei przez tych, którzy wchodzą.",
+   "miejsce": "Piekło, pieśń III",
+   "cytat": "Wchodzący we mnie, zostawcie nadzieję!"
+  },
+  {
+   "motyw": "miłość grzeszna (Franczeska)",
+   "przyklad": "Franczeska opowiada, że miłość nie pozwoliła jej zrezygnować z ukochanego, i właśnie za to ją potępiono.",
+   "miejsce": "Piekło, pieśń V",
+   "cytat": "Miłość, co łatwo tkliwe serca ima,"
+  },
+  {
+   "motyw": "kara dopasowana do winy (kontrapasso)",
+   "przyklad": "Kolejne kręgi Piekła karzą grzeszników w sposób odpowiadający ich występkom, np. zdrajców zamarza lód.",
+   "miejsce": "Piekło, pieśń XXXIV"
+  },
+  {
+   "motyw": "zdrada i głód (Ugolino)",
+   "przyklad": "Ugolino opowiada o śmierci głodowej z synami w wieży i gryzie czaszkę wroga.",
+   "miejsce": "Piekło, pieśń XXXIII"
+  },
+  {
+   "motyw": "oczyszczenie (Czyściec)",
+   "przyklad": "Dusze wspinają się na siedem gzymsów, oczyszczając się z grzechów głównych.",
+   "miejsce": "Czyściec, pieśń X–XXVII"
+  },
+  {
+   "motyw": "Beatrycze jako przewodniczka ku Bogu",
+   "przyklad": "Beatrycze zastępuje Wergiliusza, bo rozum nie może iść dalej niż do granicy łaski.",
+   "miejsce": "Czyściec, pieśń XXX–XXXIII; Raj"
+  },
+  {
+   "motyw": "wizja Boga i miłość",
+   "przyklad": "Poemat kończy się widzeniem Boga i obrazem miłości poruszającej świat.",
+   "miejsce": "Raj, pieśń XXXIII"
+  },
+  {
+   "motyw": "rozum a wiara",
+   "przyklad": "Wergiliusz, przewodnik rozumu, odchodzi w Ziemskim Raju, a prowadzenie przejmuje Beatrycze (łaska).",
+   "miejsce": "Czyściec, pieśń XXX"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Piekło, pieśń I",
+   "miejsce": "Piekło, I",
+   "opis": "Wprowadzenie do poematu: Dante gubi się w ciemnym lesie, napotyka trzy zwierzęta i spotyka Wergiliusza."
+  },
+  {
+   "tytul": "Piekło, pieśń III",
+   "miejsce": "Piekło, III",
+   "opis": "Brama piekła, napis o utracie nadziei, Przedpiekle i Charon."
+  },
+  {
+   "tytul": "Piekło, pieśń V",
+   "miejsce": "Piekło, V",
+   "opis": "Krąg II: grzesznicy z miłości, Minos jako sędzia, Franczeska z Rimini."
+  },
+  {
+   "tytul": "Piekło, pieśń XXVI",
+   "miejsce": "Piekło, XXVI",
+   "opis": "Ulisses w kręgu złych doradców (opis według podtytułu pieśni w wydaniu)."
+  },
+  {
+   "tytul": "Piekło, pieśń XXXIII",
+   "miejsce": "Piekło, XXXIII",
+   "opis": "Ugolino opowiada o śmierci głodowej z synami; Ptolomea."
+  },
+  {
+   "tytul": "Czyściec, pieśń I",
+   "miejsce": "Czyściec, I",
+   "opis": "Wejście do Czyśćca i pierwsze rozmowy z Katonem."
+  },
+  {
+   "tytul": "Raj, pieśń XXXIII",
+   "miejsce": "Raj, XXXIII",
+   "opis": "Modlitwa Bernarda do Maryi i wizja Boga (według opisu pieśni)."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/boska-komedia/",
+   "rodzaj": "utwór",
+   "co": "Tłumaczenie Juliana Korsaka (Piekło, Czyściec, Raj): numeracja i podtytuły pieśni; cytaty z Piekła sprawdzone w tekście."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/boska-komedia-pieklo/",
+   "rodzaj": "utwór",
+   "co": "Tekst Piekła: podtytuły pieśni I–XXXIV, napis z pieśni III, fragmenty pieśni V."
+  }
+ ],
+ "do_weryfikacji": [
+  "CKE wskazuje „fragmenty” Boskiej Komedii bez zamkniętej listy pieśni; nie ustalono, które są wymagane (częste wybory: Piekło I, III, V, XXVI, XXXIII; Czyściec I, XXX; Raj XXXIII) — wybór do potwierdzenia w informatorze CKE.",
+  "Opisy Czyśćca i Raju oparte na podtytułach pieśni w wydaniu i znajomości dzieła; szczegółowe treści wybranych pieśni (poza Piekłem I, III, V, XXXIII) nie zostały przeczytane w całości.",
+  "Numeracja pieśni według wydania Wolnych Lektur (tłum. Korsak); nazwy i pisownia imion mogą się różnić w innych przekładach (np. Franczeska/Francesca)."
+ ]
+}
