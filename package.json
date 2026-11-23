@@ -15,6 +15,8 @@
     "importuj": "npm run importuj -w @sedno/arkusze",
     "nakladka": "npm run nakladka -w @sedno/arkusze",
     "kontrola": "npm run kontrola -w @sedno/arkusze",
-    "wgraj": "npm run wgraj -w @sedno/arkusze"
+    "wgraj": "npm run wgraj -w @sedno/arkusze",
+    "lektury:generuj": "npx -y deno@2 run -A services/supabase/lektury/generuj.ts",
+    "lektury:teksty": "npx -y deno@2 run -A services/supabase/lektury/wgraj-teksty.ts"
   }
 }

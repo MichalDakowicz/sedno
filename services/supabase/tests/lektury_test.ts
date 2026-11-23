@@ -1,6 +1,7 @@
 import { assert, assertEquals, assertStringIncludes } from "jsr:@std/assert";
 import { migracjaElementow, sprawdzPlikLektury, wczytajPlikiLektur, wierszeElementow, type PlikLektury } from "../lektury/format.ts";
 import { ostatniaWygenerowana, wygenerowane } from "../lektury/generuj.ts";
+import { kotwiceZHtml, naglowek, podzielTekst, wytnijTresc } from "../lektury/teksty.ts";
 
 const poprawny = (): PlikLektury => ({
   id: "lalka",
@@ -62,4 +63,55 @@ Deno.test("generator rozkłada plik na wiersze i bezpiecznie cytuje dane", () =>
   assertStringIncludes(sql, "$1 i");
   p.wydarzenia[0].opis = "znacznik $lektury$ w danych";
   assertStringIncludes(sprawdzPlikLektury(p, "lalka").join("\n"), "znacznik");
+});
+
+const tekstProby = [
+  "Autor", "", "Tytuł", "", "Tom I", "",
+  "I. Początek sprawy", "", "Pierwszy akapit ma kilka słów.", "", "Drugi akapit też.", "",
+  "II. Dalsza część", "", "Trzeci akapit.", "",
+  "Ten utwór jest w domenie publicznej. Reszta stopki.",
+].join("\n");
+
+Deno.test("loader: stopka domeny publicznej jest wymagana, a separator w treści nie ucina tekstu", () => {
+  assertEquals(wytnijTresc("Tekst bez stopki"), undefined);
+  const z = "Początek\n\n------------------------------------------------ Środek\n\nKoniec\n\n-----\nTa lektura, podobnie jak tysiące innych\n\nTen utwór jest w domenie publicznej.";
+  const tresc = wytnijTresc(z)!;
+  assertStringIncludes(tresc, "Środek");
+  assertStringIncludes(tresc, "Koniec");
+  assert(!tresc.includes("Ta lektura"));
+});
+
+Deno.test("loader: nagłówki strukturalne dają lokalizację w notacji z README", () => {
+  assertEquals(naglowek("VIII. Medytacje"), { poziom: "lisc", etykieta: "rozdz. 8", tytul: "Medytacje" });
+  assertEquals(naglowek("SCENA II. IMPROWIZACJA")?.etykieta, "sc. 2");
+  assertEquals(naglowek("AKT I")?.etykieta, "akt I");
+  assertEquals(naglowek("KSIĘGA IV")?.etykieta, "ks. IV");
+  assertEquals(naglowek("CZĘŚĆ III")?.etykieta, "cz. III");
+  assertEquals(naglowek("Zwykłe zdanie, które nie jest nagłówkiem."), null);
+  assertEquals(naglowek("J. Mincel w sklepie"), null);
+});
+
+Deno.test("loader: fragmenty mają lokalizację, kotwicę i limity długości", () => {
+  const kotwice = kotwiceZHtml('<h2 id="menu-group-1">Katalog</h2><h3 id="wl-e4">I. Początek sprawy</h3>');
+  const f = podzielTekst(wytnijTresc(tekstProby)!, { stronaHtml: "https://wolnelektury.pl/katalog/lektura/x.html", kotwice });
+  assertEquals(f.map((x) => x.miejsce), ["t. I, rozdz. 1", "t. I, rozdz. 2"]);
+  assertEquals(f[0].url, "https://wolnelektury.pl/katalog/lektura/x.html#wl-e4");
+  assertEquals(f[1].url, "https://wolnelektury.pl/katalog/lektura/x.html");
+  assertEquals(f.map((x) => x.nr), [1, 2]);
+  const dlugi = ["Tom II", "", "I. Długi", "", ...Array.from({ length: 12 }, (_, i) => `${"słowo ".repeat(200)}koniec${i}.`).flatMap((a) => [a, ""])].join("\n");
+  const kawalki = podzielTekst(dlugi, { stronaHtml: "https://wolnelektury.pl/katalog/lektura/y.html" });
+  assert(kawalki.length > 2);
+  for (const k of kawalki) {
+    assert(k.slowa <= 800 + 200, `za długi fragment: ${k.slowa}`);
+    assertEquals(k.miejsce, "t. II, rozdz. 1");
+  }
+  assertEquals(kawalki.map((k) => k.czesc), kawalki.map((_, i) => i + 1));
+});
+
+Deno.test("loader: wiersze dostają zakres wersów w obrębie księgi", () => {
+  const wers = (i: number) => `Litwo, ojczyzno moja numer ${i}`;
+  const ksiega = ["KSIĘGA I", "", ...[0, 1, 2].flatMap((s) => [Array.from({ length: 10 }, (_, i) => wers(s * 10 + i)).join("\n"), ""])].join("\n");
+  const f = podzielTekst(ksiega, { stronaHtml: "https://wolnelektury.pl/katalog/lektura/z.html" });
+  assertEquals(f.length, 1);
+  assertEquals(f[0].miejsce, "ks. I, w. 1–30");
 });
