@@ -1,6 +1,6 @@
 import { assert, assertEquals } from "jsr:@std/assert";
 import { odczytajOdpowiedzPestki, zatwierdzPowierzchnie } from "../functions/_shared/pestka-odpowiedz.ts";
-import { metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, weryfikuj } from "../functions/ai/pestka.ts";
+import { awaryjnaOdpowiedzLektury, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, weryfikuj } from "../functions/ai/pestka.ts";
 import { zawieraCytat } from "../functions/ai/lektury.ts";
 
 const fragment = "W Zemście Rejent polecił murarzom naprawić mur, co zaostrza spór między sąsiadami.";
@@ -22,11 +22,18 @@ const dostep = {
 };
 
 Deno.test("bezpośrednie pytania z matematyki, informatyki i angielskiego nie wywołują wyszukiwania", async () => {
+  let zapytaniaDoBazy = 0;
   for (const content of ["Co to jest pochodna?", "Co oznacza GROUP BY?", "Kiedy używam Past Simple?"]) {
-    const krok = await przygotujCzat([{ role: "user", content }], { tryb: "czat" }, { ...dostep, baza: bezSieci, zapytaj: bezSieci });
+    const krok = await przygotujCzat([{ role: "user", content }], { tryb: "czat" }, {
+      ...dostep, zapytaj: bezSieci, baza: () => {
+        zapytaniaDoBazy++;
+        return Promise.resolve([]);
+      },
+    });
     assertEquals(krok.materialy, []);
     assertEquals(krok.messages.at(-1)?.content, content);
   }
+  assertEquals(zapytaniaDoBazy, 0);
 });
 
 Deno.test("pytanie o Wokulskiego pobiera sekcję bohaterów Lalki i pokazuje wyłącznie użyte źródło", async () => {
@@ -42,6 +49,7 @@ Deno.test("pytanie o Wokulskiego pobiera sekcję bohaterów Lalki i pokazuje wy�
   assertEquals(dane.akcje, ["zrodlo"]);
   assertEquals(dane.zrodla[0]?.sekcja, "Opracowanie Sedno · Bohaterowie i relacje");
   assertEquals(dane.zrodla[0]?.twierdzenie, "[1] Wokulski jest kupcem.");
+  assertEquals(awaryjnaOdpowiedzLektury(krok), "Wokulski jest kupcem. [[zrodlo:1]]");
 });
 
 Deno.test("akapit jest oceniany w obrębie wskazanego utworu, a karta przechodzi walidację po serializacji", async () => {
@@ -72,6 +80,17 @@ Deno.test("brak dowodu i niedostępna sieć dają stan Niepotwierdzone", async (
     fetcher: () => Promise.resolve(new Response(null, { status: 503 })),
   });
   assertEquals(wynik.sprawdzenie.status, "Niepotwierdzone");
+  assertEquals(wynik.zrodla, []);
+});
+
+Deno.test("sprzeczne źródła dają stan Niepotwierdzone", async () => {
+  let wywolania = 0;
+  const wynik = await weryfikuj(fragment, "", {
+    ...dostep, baza: () => Promise.resolve([rekord, { ...rekord, tekst: "Rejent zabrania naprawy muru." }]),
+    zapytaj: () => Promise.resolve(wywolania++ === 0 ? cel : '{"status":"konflikt"}'),
+  });
+  assertEquals(wynik.sprawdzenie.status, "Niepotwierdzone");
+  assertEquals(wynik.sprawdzenie.podstawa, "Dostępne źródła są sprzeczne w tej sprawie.");
   assertEquals(wynik.zrodla, []);
 });
 

@@ -47,7 +47,7 @@ export function sekcjaPytania(pytanie: string): Sekcja | null {
   if (/motyw|symbol|tematyk/i.test(pytanie)) return "motywy";
   if (/kim (?:jest|był|była)|bohater|jak(?:ie|a) relac|charakteryz/i.test(pytanie)) return "bohaterowie";
   if (/szczegółow|przebieg|kolejność|wydarzeni/i.test(pytanie) && !chceZweryfikowac(pytanie)) return "wydarzenia";
-  if (/streszcz|o czym (?:jest|opowiada)|fabuł/i.test(pytanie)) return "streszczenie";
+  if (/streszcz|o czym (?:jest|opowiada)|fabuł|co to za (?:utwór|książka|powieść|komedia|dramat)|opowiedz (?:mi )?o /i.test(pytanie)) return "streszczenie";
   return null;
 }
 

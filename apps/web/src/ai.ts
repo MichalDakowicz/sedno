@@ -64,7 +64,7 @@ export async function streamAi(r: AiRequest, onText: (delta: string) => void, si
         text += ev.delta;
         onText(ev.delta);
       } else if (ev.type === "done") {
-        return { text, provider: ev.provider, model: ev.model, pestka: odczytajOdpowiedzPestki(ev.pestka) };
+        return { text: typeof ev.text === "string" ? ev.text : text, provider: ev.provider, model: ev.model, pestka: odczytajOdpowiedzPestki(ev.pestka) };
       } else if (ev.type === "error") {
         throw new AiError("provider_failed", ev.status ?? 502);
       }

@@ -32,7 +32,7 @@ export function Tutor() {
       <section className={`obok-karty ${styles.intro}`}>
         <TutorAvatar size={96} state={state} className={styles.avatar} />
         <h1 className="h1">Pestka</h1>
-        <p className="muted" data-tutor-about="Prowadzę pytaniami do zrozumienia, zamiast podawać gotowe odpowiedzi.">Wklej zadanie albo opisz, co sprawia ci kłopot.</p>
+        <p className="muted">Zadaj pytanie, wklej zadanie albo pokaż swoją próbę.</p>
         {moje.length > 0 && (
           <dl className={styles.context}>
             {zgrupuj(moje).map((m) => {

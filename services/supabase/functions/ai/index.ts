@@ -13,7 +13,7 @@ import { readJsonObject } from "../_shared/http.ts";
 import { LlmError, type Message } from "../_shared/llm.ts";
 import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
 import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
-import { metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosbaPestki, weryfikuj } from "./pestka.ts";
+import { awaryjnaOdpowiedzLektury, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosbaPestki, weryfikuj } from "./pestka.ts";
 import type { OdpowiedzPestki } from "../_shared/pestka-odpowiedz.ts";
 
 const MAX_BODY = 256 * 1024;
@@ -120,6 +120,7 @@ async function handle(req: Request): Promise<Response> {
     brave: Deno.env.get("SEDNO_BRAVE_SEARCH_KEY") ?? "", fetcher: fetch, signal,
   };
   let metadane: OdpowiedzPestki | undefined;
+  let tekstKoncowy: string | undefined;
   let zweryfikowano = false;
   async function* odpowiedz() {
     const czat = pestka?.tryb === "czat" ? await przygotujCzat(messages, pestka, dostep) : undefined;
@@ -135,7 +136,13 @@ async function handle(req: Request): Promise<Response> {
     let tekst = "";
     for await (const ev of streamRetry(route, { messages: czat?.messages ?? messages, maxTokens, temperature, signal }, { fallback })) {
       if (pestka?.tryb === "czat" && ev.type === "text") tekst += ev.delta;
-      if (pestka?.tryb === "czat" && ev.type === "done") metadane = metadaneCzatu(tekst, czat?.materialy ?? [], pestka.maProbe === true);
+      if (pestka?.tryb === "czat" && ev.type === "done") {
+        metadane = metadaneCzatu(tekst, czat?.materialy ?? [], pestka.maProbe === true);
+        if (!metadane.zrodla.length) {
+          tekstKoncowy = awaryjnaOdpowiedzLektury(czat);
+          if (tekstKoncowy) metadane = metadaneCzatu(tekstKoncowy, czat?.materialy ?? [], false);
+        }
+      }
       yield ev;
     }
   }
@@ -165,7 +172,7 @@ async function handle(req: Request): Promise<Response> {
           const { provider, model } = ev.route;
           if (!zweryfikowano) await finish({ provider, model, ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
           if (cancel.signal.aborted) return;
-          send({ type: "done", provider, model, usage, pestka: metadane });
+          send({ type: "done", provider, model, usage, pestka: metadane, text: tekstKoncowy });
           break;
         }
       } catch (e) {

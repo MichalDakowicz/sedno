@@ -52,7 +52,8 @@ export async function przygotujCzat(messages: Message[], p: Extract<ProsbaPestki
   if (lektura && (prosiOCytat(pytanie) || chceZweryfikowac(pytanie))) {
     return { weryfikacja: await weryfikuj(pytanie, "", d), messages, materialy: [] };
   }
-  const materialy = lektura && utwor ? await opracowanie(d, pytanie, utwor, sekcjaPytania(pytanie)) : [];
+  const sekcja = sekcjaPytania(pytanie);
+  const materialy = lektura && utwor ? await opracowanie(d, pytanie, utwor, sekcja) : [];
   const instrukcja = [
     "Odpowiedz na ostatnią prośbę. Jeżeli rzeczywiście warto, na końcu dodaj osobną linię [[akcja:krok]], [[akcja:przyklad]] lub [[akcja:sprawdz]] (do dwóch akcji).",
     "Daj krok tylko przy rozwiązywaniu zadania, przykład przy wyjaśnieniu, sprawdzenie tylko po podaniu próby. Przy prostej odpowiedzi lub trudnej sprawie osobistej pomiń akcje.",
@@ -62,7 +63,7 @@ export async function przygotujCzat(messages: Message[], p: Extract<ProsbaPestki
       : "",
     materialy.length ? JSON.stringify(materialDlaModelu(materialy)) : "",
   ].filter(Boolean).join("\n");
-  return { messages: [{ role: "system" as const, content: instrukcja }, ...messages], materialy };
+  return { messages: [{ role: "system" as const, content: instrukcja }, ...messages], materialy, sekcja, pytanie };
 }
 
 export function metadaneCzatu(tekst: string, materialy: Material[], maProbe: boolean): OdpowiedzPestki {
@@ -76,6 +77,20 @@ export function metadaneCzatu(tekst: string, materialy: Material[], maProbe: boo
     return [{ ...zrodlo, twierdzenie: `[${i + 1}]${twierdzenie ? ` ${twierdzenie}` : ""}`.slice(0, 500) }];
   });
   return { zrodla, akcje: [...akcje, ...(zrodla.length ? ["zrodlo" as const] : [])] };
+}
+
+export function awaryjnaOdpowiedzLektury(czat: Awaited<ReturnType<typeof przygotujCzat>> | undefined) {
+  if (!czat?.sekcja || czat.materialy.length !== 1) return;
+  if (/^(?:pokaż następny krok|daj podobny przykład|sprawdź moją próbę)/i.test(czat.pytanie)) return;
+  const tekst = czat.materialy[0].tekst;
+  if (czat.sekcja !== "bohaterowie" || !/^kim (?:jest|był|była)\b/i.test(czat.pytanie)) {
+    return `${tekst} [[zrodlo:1]]`;
+  }
+  const nazwy = (czat.pytanie.replace(/^kim (?:jest|był|była)\s*/i, "").toLowerCase().match(/\p{L}{4,}/gu) ?? [])
+    .map((w) => w.slice(0, 5));
+  const zdanie = tekst.match(/[^.!?]+[.!?]?/g)?.find((w) => nazwy.some((nazwa) =>
+    w.toLowerCase().split(/[^\p{L}]+/u).some((slowo) => slowo.startsWith(nazwa))));
+  if (zdanie) return `${zdanie.trim()} [[zrodlo:1]]`;
 }
 
 function odczytajCel(raw: string, wejscie: string, dokladnie: boolean): CelLektury | undefined {
