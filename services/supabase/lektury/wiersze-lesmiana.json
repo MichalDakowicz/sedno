@@ -1,0 +1,47 @@
+{
+ "id": "wiersze-lesmiana",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "senna zmora i groza",
+   "przyklad": "Dusiołek, zjawa z pyskiem „żabio ślimaczym”, dusi śpiącego bohatera.",
+   "miejsce": "Dusiołek",
+   "cytat": "Szedł po świecie Bajdała"
+  },
+  {
+   "motyw": "humor i groteska",
+   "przyklad": "Opis potwora i język wiersza mieszają straszne ze śmiesznym, np. „zad tyli, co kwoka”.",
+   "miejsce": "Dusiołek"
+  },
+  {
+   "motyw": "pytanie do Boga o zło",
+   "przyklad": "Końcowa strofa: Bajdała pyta Boga, czy mało mu było stworzyć jego, szkapę i wołka, że stworzył jeszcze Dusiołka.",
+   "miejsce": "Dusiołek",
+   "cytat": "Nie dość ci, żeś potworzył mnie, szkapę i wołka"
+  },
+  {
+   "motyw": "ludowość i wierzenia",
+   "przyklad": "Bohater to prosty wędrowiec, a potwór pochodzi z wierzeń ludowych o zmorze.",
+   "miejsce": "Dusiołek"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Dusiołek",
+   "miejsce": "Łąka, Ballady",
+   "opis": "Ballada z humorem i grozą: wędrowiec Bajdała zasypia na łące między szkapą a wołem, a przychodzi Dusiołek, który siada mu na piersiach i go dusi. Bajdała budzi się i pyta zwierzęta, dlaczego go nie obroniły, a w końcu pyta Boga, po co stworzył takiego Dusiołka."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/dusiolek/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst; cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Leśmian zmarł w 1937 r. (domena publiczna). Pochodzenie ballady z tomu „Łąka” podane za nagłówkiem Wolnych Lektur.",
+  "Wybór wierszy CKE nie sprawdzony; poza „Dusiołkiem” nie opracowano innych utworów."
+ ]
+}

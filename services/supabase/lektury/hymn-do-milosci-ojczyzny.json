@@ -1,0 +1,42 @@
+{
+ "id": "hymn-do-milosci-ojczyzny",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "miłość do ojczyzny jako wartość najwyższa",
+   "przyklad": "Pierwszy wers zwraca się do miłości ojczyzny jak do świętości; tylko ludzie poczciwi ją czują.",
+   "miejsce": "Hymn do miłości ojczyzny, w. 1–2",
+   "cytat": "Święta miłości kochanej ojczyzny"
+  },
+  {
+   "motyw": "gotowość do ofiary",
+   "przyklad": "Dla ojczyzny można znosić trucizny, więzy i pęta; wers końcowy mówi, że nie żal ani żyć w nędzy, ani umierać.",
+   "miejsce": "Hymn do miłości ojczyzny, w. 3–8",
+   "cytat": "Nie żal żyć w nędzy, nie żal i umierać."
+  },
+  {
+   "motyw": "blizny jako chluba",
+   "przyklad": "Rany zdobyte dla ojczyzny uczą, by uznawać kalectwo za zaszczyt.",
+   "miejsce": "Hymn do miłości ojczyzny, w. 5"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Hymn do miłości ojczyzny",
+   "miejsce": "całość",
+   "opis": "Ośmiowersowy hymn Ignacego Krasickiego, w którym osoba mówiąca zwraca się do „świętej miłości” ojczyzny. Wymienia, co dla niej można znieść: trucizny, więzy, rany; kończy myślą, że warto żyć i umierać dla ojczyzny."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/hymn-do-milosci-ojczyzny/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst utworu; cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Okoliczności powstania (pierwodruk, związek z operą „Hymn do miłości ojczyzny” i jej użycie jako pieśni patriotycznej) nie były sprawdzane — do weryfikacji w źródle naukowym.",
+  "Wolne Lektury podają jedną ośmiowersową zwrotkę; CKE i szkolne wydania mogą podawać ją jako całość."
+ ]
+}
