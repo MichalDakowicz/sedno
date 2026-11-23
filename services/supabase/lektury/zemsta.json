@@ -1,0 +1,61 @@
+{
+  "id": "zemsta",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "akt I, sc. 1", "kto": ["Cześnik", "Dyndalski"], "gdzie": "pokój w zamku Cześnika", "opis": "Cześnik Raptusiewicz rozmyśla o zamożnej Podstolinie jako przyszłej żonie, chwaląc jej dobra, lasy i glebę."},
+    {"nr": 2, "miejsce": "akt I, sc. 2", "kto": ["Cześnik", "Dyndalski", "Papkin"], "gdzie": "zamek Cześnika", "opis": "Do Cześnika przybywa Papkin, ubrany na francuską modłę, i chełpi się swoimi zasługami jako posłaniec."},
+    {"nr": 3, "miejsce": "akt I, sc. 4", "kto": ["Papkin", "Podstolina"], "gdzie": "zamek Cześnika", "opis": "Papkin spotyka Podstolinę i zalotnie ją zagaduje."},
+    {"nr": 4, "miejsce": "akt I, sc. 5", "kto": ["Cześnik", "Papkin"], "gdzie": "zamek Cześnika", "opis": "Cześnik dowiaduje się, że Rejent „napada” na niego, i wzywa do działania przeciw sąsiadowi."},
+    {"nr": 5, "miejsce": "akt I, sc. 6", "kto": ["Klara", "Wacław"], "gdzie": "ogród i mur oddzielający części zamku", "opis": "Przy murze rozmawiają Klara i Wacław, których dzielą waśnie ich opiekunów i bliskość mieszkań."},
+    {"nr": 6, "miejsce": "akt I, sc. 7", "kto": ["Papkin", "Śmigalski", "Rejent", "Cześnik"], "gdzie": "mur w zamku", "opis": "Przy naprawie muru dochodzi do starcia służby Cześnika z mularzami Rejenta; Papkin przemawia do majstra, a obaj panowie patrzą z okien."},
+    {"nr": 7, "miejsce": "akt I, sc. 8", "kto": ["Papkin", "Wacław"], "gdzie": "okolice muru", "opis": "Papkin i Wacław rozmawiają po starciu przy murze."},
+    {"nr": 8, "miejsce": "akt II, sc. 1", "kto": ["Cześnik", "Papkin", "Wacław"], "gdzie": "pokój w zamku Cześnika", "opis": "Papkin opowiada Cześnikowi o swoim rzekomym zwycięstwie i oznajmia, że wziął do niewoli Wacława, syna Rejenta; Cześnik odsyła chłopca z groźbą dla ojca."},
+    {"nr": 9, "miejsce": "akt II, sc. 2", "kto": ["Papkin", "Wacław"], "gdzie": "zamek Cześnika", "opis": "Wacław sugeruje pojednanie, a Papkin wyśmiewa pomysł zbliżenia zwaśnionych sąsiadów."},
+    {"nr": 10, "miejsce": "akt II, sc. 3", "kto": ["Wacław", "Klara"], "gdzie": "zamek Cześnika", "opis": "Klara i Wacław rozmawiają o zamieszaniu wokół swojego związku."},
+    {"nr": 11, "miejsce": "akt II, sc. 5", "kto": ["Wacław", "Podstolina"], "gdzie": "zamek Cześnika", "opis": "Wacław zjawia się jako petent przed Podstoliną; oboje rozpoznają się z dawnej znajomości."},
+    {"nr": 12, "miejsce": "akt II, sc. 6", "kto": ["Podstolina", "Wacław", "Klara"], "gdzie": "zamek Cześnika", "opis": "Do rozmowy dołącza Klara, a Wacław zachowuje się z pomieszaniem."},
+    {"nr": 13, "miejsce": "akt II, sc. 7–8", "kto": ["Klara", "Papkin"], "gdzie": "zamek Cześnika", "opis": "Papkin wygłasza do Klary patetyczny, wierszowany monolog uwielbienia; w następnej scenie zostaje sam i irytuje się, że Klara chciała od niego tylko krokodyla."},
+    {"nr": 14, "miejsce": "akt II, sc. 9", "kto": ["Cześnik", "Papkin"], "gdzie": "zamek Cześnika", "opis": "Cześnik oznajmia Papkinowi, że dziś odbędą się jego zrękowiny z Podstoliną."},
+    {"nr": 15, "miejsce": "akt III, sc. 1", "kto": ["Rejent", "mularze"], "gdzie": "pokój Rejenta", "opis": "Rejent spisuje skargę na Cześnika, wysłuchując relacji mularzy o sporze o mur."},
+    {"nr": 16, "miejsce": "akt III, sc. 2", "kto": ["Rejent", "Wacław"], "gdzie": "pokój Rejenta", "opis": "Rejent rozmawia z synem, odmawia zgody na jego małżeństwo z Klarą i mówi o swoich planach wobec Podstoliny."},
+    {"nr": 17, "miejsce": "akt III, sc. 4", "kto": ["Rejent", "Papkin"], "gdzie": "pokój Rejenta", "opis": "Papkin wchodzi do Rejenta z poselstwem od Cześnika."},
+    {"nr": 18, "miejsce": "akt III, sc. 5", "kto": ["Rejent", "Papkin", "Podstolina"], "gdzie": "dom Rejenta", "opis": "Podstolina przychodzi do Rejenta i oznajmia, że zmieniła przedsięwzięcie."},
+    {"nr": 19, "miejsce": "akt III, sc. 6–7", "kto": ["Papkin", "Podstolina", "Rejent"], "gdzie": "dom Rejenta", "opis": "Papkin ostrzega Podstolinę przed gniewem Cześnika, a Rejent każe pachołkom wyprowadzić go z domu, wręczywszy mu list do Cześnika."},
+    {"nr": 20, "miejsce": "akt IV, sc. 1–2", "kto": ["Cześnik", "Dyndalski", "Papkin"], "gdzie": "sala w domu Cześnika", "opis": "Cześnik przypasuje karabelę i wysyła Śmigalskiego z zaproszeniem, a po powrocie Papkina słucha jego relacji."},
+    {"nr": 21, "miejsce": "akt IV, sc. 3–4", "kto": ["Papkin", "Dyndalski"], "gdzie": "sala w domu Cześnika", "opis": "Papkin po wypiciu wina uznaje, że został otruty, i zaczyna układać testament."},
+    {"nr": 22, "miejsce": "akt IV, sc. 5", "kto": ["Papkin", "Cześnik", "Dyndalski"], "gdzie": "sala w domu Cześnika", "opis": "Cześnik odrzuca pierwsze pomysły i zapowiada, że przygotuje „lepszą zemstę”."},
+    {"nr": 23, "miejsce": "akt IV, sc. 6–7", "kto": ["Papkin", "Klara", "Wacław"], "gdzie": "sala w domu Cześnika", "opis": "Papkin żegna się z Klarą jako umierający, a Wacław ma wątpliwości co do swojego losu."},
+    {"nr": 24, "miejsce": "akt IV, sc. 8", "kto": ["Cześnik", "Wacław", "Klara", "Papkin"], "gdzie": "sala w domu Cześnika", "opis": "Cześnik stawia Wacławowi warunek: ma wziąć Klarę za żonę albo trafi do wieży; ślub ma się odbyć tego dnia w kaplicy."},
+    {"nr": 25, "miejsce": "akt IV, sc. 10–11", "kto": ["Dyndalski", "Rejent", "Cześnik"], "gdzie": "sala w domu Cześnika", "opis": "Rejent przychodzi do zamku Cześnika i spotyka się z nim."},
+    {"nr": 26, "miejsce": "akt IV, sc. 12", "kto": ["Wacław", "Klara", "Rejent", "Cześnik", "Papkin"], "gdzie": "przed kaplicą", "opis": "Wacław i Klara wychodzą z kaplicy; klękają przed Rejentem i proszą o przebaczenie i błogosławieństwo."},
+    {"nr": 27, "miejsce": "akt IV, sc. 13", "kto": ["Podstolina", "Rejent", "Klara", "Cześnik", "Papkin"], "gdzie": "przed kaplicą", "opis": "Podstolina wyjaśnia sprawę majątku, który przypada Klarze; Rejent błogosławi młodą parę, Cześnik podaje mu rękę, a Papkin drze swój testament. Komedia kończy się zgodą."}
+  ],
+  "postacie": [
+    {"imie": "Cześnik Raptusiewicz", "odmiany": ["Cześnik", "Cześnika", "Cześnikowi", "Cześnikiem", "Raptusiewicz", "Raptusiewicza"], "rola": "porywczy szlachcic, właściciel jednej części zamku, wuj Klary", "relacje": "w sporze z Rejentem o mur; opiekun Klary; zabiega o Podstolinę", "miejsca": ["akt I, sc. 1", "akt IV, sc. 8"]},
+    {"imie": "Rejent Milczek", "odmiany": ["Rejent", "Rejenta", "Rejentowi", "Rejentem", "Milczek", "Milczka"], "rola": "prawnik i sąsiad Cześnika, ojciec Wacława, mieszka w drugiej części zamku", "relacje": "wróg Cześnika; ojciec Wacława; zabiega o Podstolinę", "miejsca": ["akt III, sc. 1", "akt IV, sc. 13"]},
+    {"imie": "Klara", "odmiany": ["Klara", "Klary", "Klarze", "Klarą"], "rola": "bratanica Cześnika, zakochana w Wacławie", "relacje": "narzeczona Wacława; Papkin ją adoruje", "miejsca": ["akt I, sc. 6", "akt IV, sc. 12"]},
+    {"imie": "Wacław", "odmiany": ["Wacław", "Wacława", "Wacławowi", "Wacławem"], "rola": "syn Rejenta, zakochany w Klarze", "relacje": "syn Rejenta; Podstolina zna go z dawnych czasów; mąż Klary", "miejsca": ["akt I, sc. 6", "akt II, sc. 5", "akt IV, sc. 12"]},
+    {"imie": "Podstolina", "odmiany": ["Podstolina", "Podstoliny", "Podstolinie", "Podstoliną"], "rola": "zamożna wdowa, bywa wymieniana jako trzykrotna wdowa, obiekt starań Cześnika i Rejenta", "relacje": "zna Wacława z przeszłości; ma majątek przypadający Klarze", "miejsca": ["akt I, sc. 4", "akt II, sc. 5", "akt IV, sc. 13"]},
+    {"imie": "Papkin", "odmiany": ["Papkin", "Papkina", "Papkinowi", "Papkinem"], "rola": "pyszałkowaty tchórz, dworzanin Cześnika, kreowany na rycerza", "relacje": "służy Cześnikowi; adoruje Klarę; sam pisze testament, gdy uznaje się za otrutego", "miejsca": ["akt I, sc. 2", "akt II, sc. 1", "akt IV, sc. 3–4"]},
+    {"imie": "Dyndalski", "odmiany": ["Dyndalski", "Dyndalskiego", "Dyndalskiemu", "Dyndalskim"], "rola": "marszałek Cześnika, jego powiernik", "relacje": "rozmawia z Cześnikiem o planach", "miejsca": ["akt I, sc. 1", "akt IV, sc. 9–10"]},
+    {"imie": "Śmigalski", "odmiany": ["Śmigalski", "Śmigalskiego", "Śmigalskiemu"], "rola": "dworzanin Cześnika, bierze udział w starciu przy murze", "relacje": "podwładny Cześnika", "miejsca": ["akt I, sc. 7", "akt IV, sc. 1"]},
+    {"imie": "Perełka", "odmiany": ["Perełka", "Perełki"], "rola": "kuchmistrz Cześnika, wymieniony na liście osób dramatu", "relacje": "sługa Cześnika", "miejsca": ["lista osób dramatu"]}
+  ],
+  "motywy": [
+    {"motyw": "waśń sąsiedzka i zemsta", "przyklad": "Cześnik i Rejent toczą spór o mur dzielący zamek, a ich ludzie biją się przy rusztowaniu.", "miejsce": "akt I, sc. 7"},
+    {"motyw": "miłość młodych ponad podziałami rodów", "przyklad": "Klara i Wacław spotykają się przy murze mimo waśni opiekunów, a w finale zostają mężem i żoną.", "miejsce": "akt I, sc. 6; akt IV, sc. 12"},
+    {"motyw": "chciwość i rachuba majątkowa", "przyklad": "Cześnik wylicza zalety dóbr Podstoliny, a Podstolina na końcu wyjaśnia, że majątek ma przypaść Klarze.", "miejsce": "akt I, sc. 1; akt IV, sc. 13"},
+    {"motyw": "tchórzostwo i fanfaronada", "przyklad": "Papkin opowiada Cześnikowi o swoich czynach przy murze, choć stał za plecami, a później sądzi, że został otruty.", "miejsce": "akt II, sc. 1; akt IV, sc. 3–4", "cytat": "Poświęć się tu czyjej sprawie!"},
+    {"motyw": "pojednanie i zgoda", "przyklad": "Po ślubie młodych Cześnik podaje rękę Rejentowi i oznajmia, że między nimi będzie zgoda.", "miejsce": "akt IV, sc. 13", "cytat": "Mocium panie, z nami zgoda."},
+    {"motyw": "rola przypadku i podstępu w intrydze", "przyklad": "Cześnik chce zemścić się, zmuszając Wacława do ślubu z Klarą, a w ten sposób sam spełnia pragnienie młodych.", "miejsce": "akt IV, sc. 8"},
+    {"motyw": "szlachecka porywczość i brak umiaru", "przyklad": "Cześnik w gniewie groźbami i wojną odpowiada na sąsiedzką zaczepkę.", "miejsce": "akt I, sc. 5; akt II, sc. 1"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/zemsta/", "rodzaj": "utwór", "co": "Pobrany tekst komedii; podział na akty i sceny według Wolnych Lektur; sprawdzone sceny kluczowe (akt I sc. 1–2, 6–7; akt II sc. 1, 5, 9; akt III sc. 1–7; akt IV sc. 8, 11–13) i cytaty."}
+  ],
+  "do_weryfikacji": [
+    "Przebieg scen nieprzeczytanych w całości (akt I sc. 3–5, 8; akt II sc. 4, 6–8; akt III sc. 3; akt IV sc. 5, 9–11) podano na podstawie początków scen i wyszukiwania; szczegóły należy sprawdzić w tekście.",
+    "Dokładne motywacje Rejenta i Podstoliny w akcie III (zamiar ślubu, intercyza, zapis majątku) nie zostały przeczytane w całości; opisano tylko to, co potwierdza wypowiedź Podstoliny w akcie IV sc. 13.",
+    "Skład osób w akcie I sc. 2–4 i akcie IV sc. 9–10 odtworzono ze skrótu listy mówców."
+  ]
+}
