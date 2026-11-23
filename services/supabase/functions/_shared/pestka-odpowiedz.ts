@@ -11,6 +11,8 @@ export type ZrodloPestki = {
   tytul: string;
   rodzaj: "utwór" | "opracowanie";
   sekcja?: string;
+  idSekcji?: string;
+  miejsce?: string;
   twierdzenie?: string;
   dowod?: string;
 };
@@ -49,9 +51,15 @@ export function zrodloPestki(raw: unknown): ZrodloPestki | undefined {
     return;
   }
   const sekcja = napisPestki(dane.sekcja, 200);
+  const idSekcji = napisPestki(dane.idSekcji, 160);
+  const miejsce = napisPestki(dane.miejsce, 240);
   const twierdzenie = napisPestki(dane.twierdzenie, 500);
   const dowod = napisPestki(dane.dowod, 400);
-  return { url, tytul, rodzaj: dane.rodzaj, ...(sekcja && { sekcja }), ...(twierdzenie && { twierdzenie }), ...(dowod && { dowod }) };
+  return {
+    url, tytul, rodzaj: dane.rodzaj, ...(sekcja && { sekcja }),
+    ...(/^[a-z0-9-]+\/[a-z0-9-]+$/.test(idSekcji) && { idSekcji }),
+    ...(miejsce && { miejsce }), ...(twierdzenie && { twierdzenie }), ...(dowod && { dowod }),
+  };
 }
 
 export function sprawdzeniePestki(raw: unknown): SprawdzenieLektury | undefined {
