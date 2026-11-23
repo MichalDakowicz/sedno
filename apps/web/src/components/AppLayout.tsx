@@ -70,8 +70,13 @@ export function AppLayout() {
   return (
     <TutorProvider ai={ai} przedmioty={opisPrzedmiotow(profil?.subjects ?? [])}>
       <div className={pelnyCzat ? styles.okno : styles.uklad}>
-        <TopNav />
-        <ZegarWPasku />
+        {/* Pełny czat ma własny nagłówek i panel; górny pasek zostaje poza nim. Wyszukiwanie (Ctrl+K) działa dalej. */}
+        {!pelnyCzat && (
+          <>
+            <TopNav />
+            <ZegarWPasku />
+          </>
+        )}
         <Wyszukiwanie />
         <Outlet context={pelnyCzat ? bylWInnymWidoku.current : undefined} />
         {!pelnyCzat && (
