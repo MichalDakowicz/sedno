@@ -19,7 +19,7 @@ const SEKCJE = {
 
 export type Utwor = typeof UTWORY[number];
 export type Sekcja = keyof typeof SEKCJE;
-export type Material = { zrodlo: ZrodloPestki; tekst: string; opracowanieSedno?: boolean };
+export type Material = { zrodlo: ZrodloPestki; tekst: string; sekcja?: Sekcja };
 export type CelLektury = { tytul: string; fakt: string; cytat?: string; fragment?: string; potwierdzCytat?: boolean };
 export type SzukajBaza = (p: { p_przedmiot: string; p_utwor: string | null; p_sekcja: Sekcja | null; p_pytanie: string }) => Promise<unknown>;
 
@@ -32,7 +32,8 @@ export function utworPytania(tekst: string): Utwor | undefined {
 }
 
 export const prosiOCytat = (pytanie: string) => /cytat|cytuj|zacytuj|doslown|brzmia? slowa|dokladne slowa/.test(bezAkcentow(pytanie));
-export const chceZweryfikowac = (pytanie: string) => /^(?:czy (?:to|w|na pewno|naprawde)|sprawdz|zweryfikuj)|zrodl|potwierdz/.test(bezAkcentow(pytanie));
+export const chceZweryfikowac = (pytanie: string) =>
+  /^(?:czy (?:to|w|na pewno|naprawde)|sprawdz|zweryfikuj)|potwierdz|zrodlo (?:na to|dla twierdzenia)/.test(bezAkcentow(pytanie));
 const STRESZCZENIE = /stres(?:zcz|c)|o czym (?:jest|opowiada)|fabul|co to za (?:utwor|ksiazka|powiesc|komedia|dramat)|opowiedz (?:mi )?o /;
 const maKontekstLiteracki = (pytanie: string) =>
   STRESZCZENIE.test(pytanie) || /lektur|powies|komedi|dramat|bohat|motyw|tytul|mickiewicz|fredr|prusa|[„“»"]/.test(pytanie);
@@ -59,16 +60,17 @@ export function sekcjaPytania(pytanie: string): Sekcja | null {
 }
 
 export async function szukajOpracowania(szukaj: SzukajBaza, pytanie: string, utwor: Utwor, sekcja: Sekcja | null): Promise<Material[]> {
-  const raw = await szukaj({ p_przedmiot: "polski", p_utwor: utwor.id, p_sekcja: sekcja, p_pytanie: pytanie.slice(0, 450) });
+  const raw = await szukaj({ p_przedmiot: "polski", p_utwor: utwor.id, p_sekcja: sekcja, p_pytanie: pytanie });
   if (!Array.isArray(raw)) return [];
-  return raw.slice(0, 3).flatMap((w) => {
-    if (w?.utwor !== utwor.id || !Object.hasOwn(SEKCJE, w.sekcja) || (sekcja && w.sekcja !== sekcja)) return [];
+  return raw.flatMap((w) => {
+    if (w?.utwor !== utwor.id || !Object.hasOwn(SEKCJE, w.sekcja)) return [];
+    const typSekcji = w.sekcja as Sekcja;
     const zrodlo = zrodloPestki({
       url: w.zrodlo_url, tytul: utwor.tytul,
-      rodzaj: w.zrodlo_rodzaj, sekcja: `Opracowanie Sedno · ${SEKCJE[w.sekcja as Sekcja]}`,
+      rodzaj: w.zrodlo_rodzaj, sekcja: `Opracowanie Sedno · ${SEKCJE[typSekcji]}`,
     });
     const tekst = napisPestki(w.tekst, 7000);
-    return zrodlo && tekst ? [{ zrodlo, tekst, opracowanieSedno: true }] : [];
+    return zrodlo && tekst ? [{ zrodlo, tekst, sekcja: typSekcji }] : [];
   });
 }
 

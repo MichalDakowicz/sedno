@@ -148,6 +148,7 @@ export function aiErrorText(code: string): string {
       not_signed_in: "Zaloguj się, żeby rozmawiać z Pestką.",
       rate_limited: "Za dużo zapytań naraz. Spróbuj za chwilę.",
       daily_limit: "Na dziś wykorzystano limit rozmów z Pestką. Wróć jutro.",
+      too_large: "Tekst wraz z historią rozmowy jest za duży do wysłania.",
       provider_failed: "Pestka nie odpowiedziała. Spróbuj ponownie za chwilę.",
       bad_credential: "Pestka jest chwilowo niedostępna. Spróbuj za chwilę.",
       bad_base_url: "Ten adres dostawcy jest niedozwolony.",

@@ -72,14 +72,32 @@ Deno.test("stresc mi lalke wybiera Lalkę i jej krótkie streszczenie", async ()
   assertEquals(uzupelnijZrodloLektury(krok, wygenerowane), `${wygenerowane} [[zrodlo:1]]`);
 });
 
+Deno.test("Pestka dostaje kilka sekcji tego samego utworu i zachowuje przypisy powyżej trzech", async () => {
+  const sekcje = ["streszczenie", "wydarzenia", "bohaterowie", "motywy", "konteksty"] as const;
+  const wiersze = sekcje.map((sekcja) => ({ ...rekord, utwor: "lalka", sekcja, tekst: `Fragment ${sekcja} o Wokulskim.`,
+    zrodlo_url: "https://wolnelektury.pl/katalog/lektura/lalka/" }));
+  const krok = await przygotujCzat([{ role: "user", content: "Streść Lalkę z uwzględnieniem wydarzeń i motywów. Podaj źródła." }], { tryb: "czat" }, {
+    ...dostep, baza: () => Promise.resolve([...wiersze, rekord]),
+  });
+  assertEquals(krok.materialy.map((m) => m.sekcja), [...sekcje]);
+  assert(String(krok.messages[0]?.content).includes("Fragment wydarzenia o Wokulskim."));
+  const dane = metadaneCzatu(sekcje.map((s, i) => `Uwagi o sekcji ${s}. [[zrodlo:${i + 1}]]`).join("\n"), krok.materialy, false);
+  assertEquals(odczytajOdpowiedzPestki(dane)?.zrodla.length, 5);
+  assertEquals(dane.zrodla[4]?.twierdzenie, "[5] Uwagi o sekcji konteksty.");
+});
+
 Deno.test("do streszczenia bez spoilerów model dostaje tylko zawiązanie fabuły", async () => {
   const krok = await przygotujCzat([{ role: "user", content: "Stresc mi Lalke w trzech punktach bez spoilerow" }], { tryb: "czat" }, {
     ...dostep,
     baza: () => Promise.resolve([{ ...rekord, utwor: "lalka", sekcja: "streszczenie",
-      tekst: "Wokulski jest kupcem. Zabiega o względy Izabeli. Później odkrywa jej zażyłość ze Starskim." }]),
+      tekst: "Wokulski jest kupcem. Zabiega o względy Izabeli. Później odkrywa jej zażyłość ze Starskim." },
+      { ...rekord, utwor: "lalka", sekcja: "wydarzenia", tekst: "Starski zdradza szczegóły finału." },
+      { ...rekord, utwor: "lalka", sekcja: "bohaterowie", tekst: "Izabela jest arystokratką. Wokulski zabiega o jej względy." },
+    ]),
   });
   assertEquals(krok.materialy[0]?.tekst, "Wokulski jest kupcem. Zabiega o względy Izabeli.");
-  assert(!String(krok.messages[0]?.content).includes("Starskim"));
+  assertEquals(krok.materialy.map((m) => m.sekcja), ["streszczenie", "bohaterowie"]);
+  assert(!String(krok.messages[0]?.content).includes("Starsk"));
 });
 
 Deno.test("akapit jest oceniany w obrębie wskazanego utworu, a karta przechodzi walidację po serializacji", async () => {

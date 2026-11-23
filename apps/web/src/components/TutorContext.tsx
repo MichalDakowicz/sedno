@@ -276,7 +276,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
         },
       );
       text = wynik.text;
-      const numery = wynik.pestka?.zrodla.flatMap((z) => z.twierdzenie?.match(/^\[(\d)\]/)?.[1] ?? []) ?? [];
+      const numery = wynik.pestka?.zrodla.flatMap((z) => z.twierdzenie?.match(/^\[(\d+)\]/)?.[1] ?? []) ?? [];
       const { widoczny, priorytety } = wytnijPriorytety(bezEmoji(pokazTekstCzatu(text, numery)));
       const pestka = wsparcie ? undefined : wynik.pestka;
       if (wynik.pestka?.sprawdzenie || weryfikacja) {
@@ -346,7 +346,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     setGuide(null);
     setSummon(null);
     setOpen(true);
-    void askModel([...start, wpis], { pestka: { tryb: "lektura", fragment, temat: temat?.slice(0, 1400) } });
+    void askModel([...start, wpis], { pestka: { tryb: "lektura", fragment, temat } });
     return true;
   }, [ai, askModel, zacznijRozmowe]);
 

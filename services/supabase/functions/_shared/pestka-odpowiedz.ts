@@ -67,7 +67,7 @@ export function sprawdzeniePestki(raw: unknown): SprawdzenieLektury | undefined 
 export function odczytajOdpowiedzPestki(raw: unknown): OdpowiedzPestki | undefined {
   const dane = obiektPestki(raw);
   if (!Array.isArray(dane.zrodla) || !Array.isArray(dane.akcje)) return;
-  const zrodla = dane.zrodla.slice(0, 4).map(zrodloPestki).filter((z): z is ZrodloPestki => !!z);
+  const zrodla = dane.zrodla.map(zrodloPestki).filter((z): z is ZrodloPestki => !!z);
   const akcje = [...new Set(dane.akcje.slice(0, 4).filter((a): a is AkcjaPestki =>
     typeof a === "string" && Object.hasOwn(AKCJE, a) && (a !== "zrodlo" || zrodla.length > 0)))];
   const sprawdzenie = sprawdzeniePestki(dane.sprawdzenie);

@@ -99,8 +99,10 @@ aktualizować treść tym samym kluczem `(przedmiot, utwor, sekcja)`. Trigger
 przeliczy wektor po zmianie tekstu lub haseł. Dostęp do wyszukiwania ma
 wyłącznie rola serwisowa. Rozmowy i prace uczniów nie trafiają do indeksu.
 
-Pilotaż używa 512-wymiarowych wektorów cech słów i filtrów według przedmiotu,
-tytułu oraz rodzaju sekcji. Nie wymaga osobnego dostawcy embeddingów.
+Pilotaż używa 512-wymiarowych wektorów cech słów, liczonych w Postgresie.
+Migracja `0029_szerszy_kontekst_pestki.sql` zwraca trafne sekcje tego samego
+utworu, z sekcją główną na początku. Przykładowo przy streszczeniu do modelu
+mogą trafić także przebieg wydarzeń i opisy bohaterów.
 Weryfikacja poza indeksem pobiera fragmenty z publicznego API Wolnych Lektur.
 Jeśli do środowiska kontenera Edge Functions dodasz `SEDNO_BRAVE_SEARCH_KEY`
 i zrestartujesz funkcje, Pestka będzie mogła przeszukać także ZPE i Culture.pl
@@ -110,6 +112,11 @@ Cytaty są sprawdzane w dostępnej treści utworu.
 Interfejs pilotażu jest dostępny w czacie Pestki i pod
 `/nauka/wypracowanie`. Drugi przepływ korzysta z ograniczonego katalogu
 A2UI 1.0. Zapis rozmowy obejmuje tekst, źródła i kartę.
+
+Zwykły czat przekazuje całą historię i domyślnie pomija parametr
+`max_tokens`. Długość ustala dostawca. Bramka i zapis rozmowy mają
+limit transportowy 8 MiB. Sufit `SEDNO_AI_MAX_TOKENS` nadal dotyczy
+wywołań narzędzi z ustalonym formatem.
 
 ## Aplikacja web
 

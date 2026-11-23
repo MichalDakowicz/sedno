@@ -85,7 +85,7 @@ export function Ustawienia() {
         <h2 className="h2">Pestka</h2>
         <ul className={s.wiersze}>
           <Przelacznik tytul="Sama podpowiada" opis="Wskazówki przy elementach strony" wl={u.pestkaSama} onChange={(pestkaSama) => zmienUstawienia({ pestkaSama })} />
-          <Przelacznik tytul="Krótkie odpowiedzi" opis="Najwyżej kilka zdań naraz" wl={u.pestkaKrotko} onChange={(pestkaKrotko) => zmienUstawienia({ pestkaKrotko })} />
+          <Przelacznik tytul="Krótkie odpowiedzi" opis="Domyślnie zwięzła odpowiedź na proste pytania" wl={u.pestkaKrotko} onChange={(pestkaKrotko) => zmienUstawienia({ pestkaKrotko })} />
         </ul>
       </section>
 
