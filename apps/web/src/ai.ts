@@ -2,11 +2,15 @@
 // Klucze zostają po stronie serwera; konto wybiera dostawcę osobno dla zadań ważnych i lekkich.
 import { useEffect, useState } from "react";
 import { functionsUrl, supabase } from "./supabase";
+import { odczytajOdpowiedzPestki, type OdpowiedzPestki } from "../../../services/supabase/functions/_shared/pestka-odpowiedz";
 
 export type Tier = "wazne" | "lekkie";
 export type AiMessage = { role: "system" | "user" | "assistant"; content: string };
-export type AiRequest = { tier: Tier; messages: AiMessage[]; task?: string; provider?: string; maxTokens?: number; temperature?: number };
-export type AiAnswer = { text: string; provider: string; model: string };
+export type ProsbaPestki =
+  | { tryb: "czat"; przedmiot?: string; maProbe?: boolean; chronOdpowiedz?: boolean }
+  | { tryb: "lektura"; fragment: string; temat?: string };
+export type AiRequest = { tier: Tier; messages: AiMessage[]; task?: string; provider?: string; maxTokens?: number; temperature?: number; pestka?: ProsbaPestki };
+export type AiAnswer = { text: string; provider: string; model: string; pestka?: OdpowiedzPestki };
 
 export class AiError extends Error {
   constructor(readonly code: string, readonly status: number) {
@@ -26,7 +30,7 @@ async function headers(): Promise<Record<string, string>> {
 }
 
 const body = (r: AiRequest, stream: boolean) =>
-  JSON.stringify({ tier: r.tier, messages: r.messages, task: r.task, provider: r.provider, max_tokens: r.maxTokens, temperature: r.temperature, stream });
+  JSON.stringify({ tier: r.tier, messages: r.messages, task: r.task, provider: r.provider, max_tokens: r.maxTokens, temperature: r.temperature, pestka: r.pestka, stream });
 
 // Ponowienia i zapasowy poziom robi serwer, więc klient pyta raz.
 export async function askAi(r: AiRequest): Promise<AiAnswer> {
@@ -60,7 +64,7 @@ export async function streamAi(r: AiRequest, onText: (delta: string) => void, si
         text += ev.delta;
         onText(ev.delta);
       } else if (ev.type === "done") {
-        return { text, provider: ev.provider, model: ev.model };
+        return { text, provider: ev.provider, model: ev.model, pestka: odczytajOdpowiedzPestki(ev.pestka) };
       } else if (ev.type === "error") {
         throw new AiError("provider_failed", ev.status ?? 502);
       }

@@ -229,3 +229,31 @@
   color: var(--primary-text);
   text-decoration: underline;
 }
+.kartaLektury {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.kartaLektury p, .zrodla p {
+  margin: 0;
+}
+
+.akcje {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.akcje:not(:empty), .zrodla {
+  margin-top: 0.55rem;
+}
+
+.zrodla {
+  padding-inline-start: 1.25rem;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}

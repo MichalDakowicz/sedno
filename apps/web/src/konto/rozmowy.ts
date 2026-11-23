@@ -4,8 +4,9 @@
 // arkuszach (omawianie błędów) siedzą w postępie arkusza, który synchronizuje się osobno.
 import { currentUserId } from "../auth";
 import { supabase } from "../supabase";
+import type { OdpowiedzPestki } from "../../../../services/supabase/functions/_shared/pestka-odpowiedz";
 
-export type WiadomoscRozmowy = { from: "tutor" | "student"; text: string };
+export type WiadomoscRozmowy = { from: "tutor" | "student"; text: string; pestka?: OdpowiedzPestki };
 /** naKoncie: ta wersja jest potwierdzona zapisem na koncie; każda lokalna zmiana to zdejmuje (zegary klienta i serwera się nie porównują). */
 export type Rozmowa = { id: string; tytul: string; kiedy: string; wiadomosci: WiadomoscRozmowy[]; naKoncie?: boolean };
 
