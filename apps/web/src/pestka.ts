@@ -1,4 +1,4 @@
-// Jak Pestka rozmawia z modelem: wspólny prompt systemowy dla czatu i pokazu w onboardingu.
+// Wspólne reguły rozmowy Pestki oraz wybór między pomocą a prowadzeniem sokratejskim.
 import type { AiMessage } from "./ai";
 
 export type Kontekst = {

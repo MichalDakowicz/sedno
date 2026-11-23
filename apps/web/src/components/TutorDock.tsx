@@ -30,57 +30,58 @@ export function gdziePatrzy(sciezka: string, temat: string | null) {
 export function TutorDock() {
   const { isOpen, close, state, tematRozmowy } = useTutor();
   const { pathname } = useLocation();
-  const panel = useRef<HTMLElement>(null);
+  const panel = useRef<HTMLDialogElement>(null);
+  const zamknij = useRef<HTMLButtonElement>(null);
 
-  // Otwarty panel dostaje fokus (sam panel, nie pole: na telefonie nie wyskakuje klawiatura), a po zamknięciu
-  // fokus wraca tam, skąd uczeń otworzył rozmowę.
+  // Modalny panel zatrzymuje fokus w rozmowie. Początkowy fokus na zamknięciu nie uruchamia klawiatury telefonu.
   useEffect(() => {
-    if (!isOpen) return;
+    const dialog = panel.current;
+    if (!isOpen || !dialog) return;
     const wczesniej = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    panel.current?.focus({ preventScroll: true });
+    dialog.showModal();
+    zamknij.current?.focus({ preventScroll: true });
     return () => {
+      dialog.close();
       // Twarz Pestki wraca na ekran dopiero po zamknięciu panelu, więc fokus ustawiamy w następnej klatce.
       requestAnimationFrame(() => {
+        if (dialog.open) return;
         const cel = wczesniej?.isConnected && wczesniej.offsetParent ? wczesniej : document.querySelector<HTMLElement>("[data-pestka=przewodnik]");
         cel?.focus({ preventScroll: true });
       });
     };
   }, [isOpen]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, close]);
-
+  if (!isOpen) return null;
   return (
-    <>
-      {isOpen && (
-        <>
-          <div className={styles.scrim} onClick={close} aria-hidden="true" />
-          <aside ref={panel} className={styles.panel} aria-label="Pestka" tabIndex={-1}>
-            <header className={styles.header}>
-              <TutorAvatar size={40} state={state} />
-              <div className={styles.headerText}>
-                <p className={styles.title}>Pestka</p>
-                <p className={styles.context}>{gdziePatrzy(pathname, tematRozmowy)}</p>
-              </div>
-              <Link to="/tutor" className={styles.iconBtn} onClick={close} aria-label="Otwórz na pełnym ekranie">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
-              <button type="button" className={styles.iconBtn} onClick={close} aria-label="Zamknij">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
-              </button>
-            </header>
-            <TutorChat />
-          </aside>
-        </>
-      )}
-    </>
+    <dialog
+      ref={panel}
+      className={styles.panel}
+      aria-label="Pestka"
+      onCancel={(e) => { e.preventDefault(); close(); }}
+      onClick={(e) => {
+        if (e.target !== e.currentTarget) return;
+        const { left, right, top, bottom } = e.currentTarget.getBoundingClientRect();
+        if (e.clientX < left || e.clientX > right || e.clientY < top || e.clientY > bottom) close();
+      }}
+    >
+      <header className={styles.header}>
+        <TutorAvatar size={40} state={state} />
+        <div className={styles.headerText}>
+          <p className={styles.title}>Pestka</p>
+          <p className={styles.context}>{gdziePatrzy(pathname, tematRozmowy)}</p>
+        </div>
+        <Link to="/tutor" className={styles.iconBtn} onClick={close} aria-label="Otwórz na pełnym ekranie">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </Link>
+        <button ref={zamknij} type="button" className={styles.iconBtn} onClick={close} aria-label="Zamknij">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+        </button>
+      </header>
+      <TutorChat />
+    </dialog>
   );
 }

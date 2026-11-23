@@ -275,6 +275,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
           write(weryfikacja ? text : wytnijPriorytety(bezEmoji(pokazTekstCzatu(text))).widoczny);
         },
       );
+      text = wynik.text;
       const numery = wynik.pestka?.zrodla.flatMap((z) => z.twierdzenie?.match(/^\[(\d)\]/)?.[1] ?? []) ?? [];
       const { widoczny, priorytety } = wytnijPriorytety(bezEmoji(pokazTekstCzatu(text, numery)));
       const pestka = wsparcie ? undefined : wynik.pestka;

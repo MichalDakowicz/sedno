@@ -182,7 +182,7 @@ export function TutorChat() {
           <input
             id="tutor-input"
             className="input"
-            placeholder="Odpowiedz własnymi słowami…"
+            placeholder="Napisz do Pestki…"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             autoComplete="off"
