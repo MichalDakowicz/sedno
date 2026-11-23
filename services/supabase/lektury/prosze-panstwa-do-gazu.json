@@ -1,0 +1,46 @@
+{
+  "id": "prosze-panstwa-do-gazu",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "początek opowiadania (blok na lagrze)", "kto": ["narrator", "Henri", "marsylczyk"], "gdzie": "obóz Birkenau, blok, odcinek B II", "opis": "W upalny dzień więźniowie w obozie chodzą nago po odwszeniu; narrator razem z francuskimi kolegami je na pryczy chleb, boczek i konserwy z paczek, a Henri marzy o winie i obiecuje przynieść coś z rampy."},
+    {"nr": 2, "miejsce": "początek opowiadania (blok na lagrze)", "kto": ["narrator", "Henri", "marsylczyk"], "gdzie": "blok", "opis": "Więźniowie spierają się, czy transporty do krematorium ustały, i wymieniają uwagi o paczkach i głodzie wśród innych narodowości; marsylczyk komentuje religię jako opium dla narodu."},
+    {"nr": 3, "miejsce": "alarm i wymarsz na rampę", "kto": ["narrator", "Henri", "Kanada"], "gdzie": "blok, brama obozu", "opis": "Do bloku wpada wołanie „Kanada, antreten, transport przychodzi”; Henri zabiera narratora do komanda, które rozładowuje transport, a narrator prosi o buty."},
+    {"nr": 4, "miejsce": "marsz na rampę", "kto": ["narrator", "komando Kanada", "posty SS"], "gdzie": "obóz II B, droga na rampę", "opis": "Grupa maszeruje szybko pod bramę, gdzie ktoś liczy ich do stu, i przechodzi przez kolejne odcinki obozu między drzewami do rampy."},
+    {"nr": 5, "miejsce": "rampa przed transportem", "kto": ["narrator", "Henri", "wartownik SS", "Grecy"], "gdzie": "rampa, zielony plac przy torach", "opis": "Rampa wygląda sielankowo; więźniowie czekają, esesman żartobliwie handluje z Henrim wodą, a Grecy pytają, co mają robić, i słyszą, że transport idzie do krematorium."},
+    {"nr": 6, "miejsce": "rozładunek transportu Sosnowiec–Będzin", "kto": ["narrator", "esesmani", "przybyli Żydzi"], "gdzie": "rampa", "opis": "Do rampy podjeżdża transport; ludzie wysiadają z wagonów pytając, dokąd jadą, rzeczy są zbierane na stos, a esesman z notatnikiem liczy auta odjeżdżające do krematorium."},
+    {"nr": 7, "miejsce": "rozładunek transportu", "kto": ["narrator", "Henri"], "gdzie": "rampa", "opis": "Narrator wybucha, że kobiety uciekają przed niemowlętami, a potem pyta Henriego, czy są ludźmi dobrymi; Henri odpowiada, że wszystko to jest normalne i przewidziane."},
+    {"nr": 8, "miejsce": "scena z kobietą i dzieckiem", "kto": ["młoda kobieta", "dziecko", "Andrej", "esesman"], "gdzie": "rampa", "opis": "Młoda kobieta, chcąc wmieszać się między tych, którzy pójdą pieszo, wypiera się własnego dziecka; Andrej, marynarz z Sewastopola, zbija ją, wrzuca na auto i rzuca jej dziecko pod nogi, a esesman to pochwala."},
+    {"nr": 9, "miejsce": "scena z dziewczyną", "kto": ["narrator", "dziewczyna"], "gdzie": "rampa", "opis": "Jasnowłosa dziewczyna w letniej bluzce zeskakuje z wagonu i patrzy narratorowi w twarz, czekając na odpowiedź; on milczy, ona dochodzi do własnych wniosków i sama wsiada na ciężarówkę."},
+    {"nr": 10, "miejsce": "rampa po rozładunku", "kto": ["narrator"], "gdzie": "rampa", "opis": "Narrator wchodzi do wagonów, wynosi niemowlęta i bagaże, dotyka trupów i ogarnia go strach; widzi starca we fraku, który powtarza, że chce rozmawiać z komendantem."},
+    {"nr": 11, "miejsce": "kolejny transport i noc", "kto": ["narrator", "Henri", "esesmani"], "gdzie": "rampa, w nocy przy świetle reflektorów", "opis": "Po pierwszym transporcie przychodzi kolejny; narrator rozładowuje wagony przy sztucznym świetle i zaczyna odczuwać zmęczenie, a wokół leżą nieżywi."},
+    {"nr": 12, "miejsce": "zakończenie opowiadania", "kto": ["narrator", "Henri", "esesmani"], "gdzie": "rampa i droga do obozu", "opis": "Esesman zamyka rachunek piętnastu tysięcy osób, a narrator wraca do obozu, mijając oddział SS idący na zmianę warty."}
+  ],
+  "postacie": [
+    {"imie": "Narrator", "odmiany": ["narrator", "narratora", "narratorowi", "narratorem"], "rola": "polski więzień Birkenau, pracujący w komandzie rozładowującym transporty", "relacje": "przyjaźni się z Henrim; obserwuje kobietę z dzieckiem i dziewczynę na rampie", "miejsca": ["początek opowiadania", "rampa"]},
+    {"imie": "Henri", "odmiany": ["Henri", "Henriego", "Henriemu", "Henrim"], "rola": "Francuz, więzień z komanda Kanada, przyjaciel narratora", "relacje": "organizuje jedzenie i buty; pomaga narratorowi iść na rampę", "miejsca": ["początek opowiadania", "rampa"]},
+    {"imie": "Marsylczyk", "odmiany": ["marsylczyk", "marsylczyka", "marsylczykowi", "marsylczykiem"], "rola": "otyły Francuz, komunista i rentier, przyjaciel narratora", "relacje": "rozmawia z narratorem i Henrim w bloku", "miejsca": ["początek opowiadania"]},
+    {"imie": "Andrej", "odmiany": ["Andrej", "Andreja", "Andrejowi", "Andrejem"], "rola": "marynarz z Sewastopola, więzień-pomocnik na rampie", "relacje": "bije kobietę, która wyparła się dziecka", "miejsca": ["scena z kobietą i dzieckiem"]},
+    {"imie": "Esesman z notatnikiem", "odmiany": ["esesman", "esesmana", "esesmanowi", "esesmanem"], "rola": "młody oficer SS, który liczy transporty i auta", "relacje": "kontroluje rozładunek", "miejsca": ["rozładunek transportu", "zakończenie opowiadania"]},
+    {"imie": "Młoda kobieta", "odmiany": ["kobieta", "kobiety", "kobiecie", "kobietę"], "rola": "kobieta z transportu, która wypiera się swojego dziecka", "relacje": "matka dziecka; bita przez Andreja", "miejsca": ["scena z kobietą i dzieckiem"]},
+    {"imie": "Dziewczyna", "odmiany": ["dziewczyna", "dziewczyny", "dziewczynie", "dziewczynę"], "rola": "młoda jasnowłosa pasażerka transportu, rozmawia z narratorem", "relacje": "stawia narratora przed pytaniem, na które on nie odpowiada", "miejsca": ["scena z dziewczyną"]}
+  ],
+  "motywy": [
+    {"motyw": "obojętność i znieczulenie na cierpienie", "przyklad": "Więźniowie jedzą w bloku sałatkę z pomidorów, a za chwilę idą na rampę, gdzie przyjmują kolejny transport do komór gazowych.", "miejsce": "początek opowiadania; rozładunek transportu", "cytat": "Cały obóz chodził nago."},
+    {"motyw": "moralna degradacja ofiar i sprawców", "przyklad": "Narrator pyta Henriego, czy są ludźmi dobrymi, a ten odpowiada, że złość najłatwiej wyładować na słabszym.", "miejsce": "rozładunek transportu", "cytat": "Słuchaj, Henri, czy my jesteśmy ludzie dobrzy?"},
+    {"motyw": "zatarcie granicy między kata i ofiarą", "przyklad": "Andrej, więzień, bije młodą kobietę i wrzuca ją na ciężarówkę z komentarzem, że tak się karze wyrodne matki, którym przytakuje esesman.", "miejsce": "scena z kobietą i dzieckiem"},
+    {"motyw": "milczenie i bezsilność narratora", "przyklad": "Na pytanie dziewczyny narrator milczy, a ona wsiada do auta, domyślając się odpowiedzi.", "miejsce": "scena z dziewczyną"},
+    {"motyw": "biurokratyczna organizacja zagłady", "przyklad": "Esesman z notatnikiem liczy auta kreskami i podlicza, że piętnaście tysięcy osób przeszło przez rampę.", "miejsce": "rozładunek transportu; zakończenie opowiadania", "cytat": "Był to dobry, bogaty transport."},
+    {"motyw": "hierarchia obozowa i walka o przetrwanie", "przyklad": "Więźniowie z komanda Kanada handlują z wartownikiem, wymieniają się jedzeniem i obiecują sobie buty z rzeczy zabitych.", "miejsce": "początek opowiadania; rampa przed transportem"},
+    {"motyw": "chciwość i grabież mienia ofiar", "przyklad": "Z toreb przybyłych wysypują się banknoty, złoto i zegarki, a esesman przekłada zawartość teczek.", "miejsce": "rozładunek transportu"},
+    {"motyw": "pozory normalności", "przyklad": "Rampa przy zielonych drzewach wygląda jak sielankowa stacja prowincjonalna, a komendy wydawane są spokojnie.", "miejsce": "rampa przed transportem"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/borowski-prosze-panstwa-do-gazu/", "rodzaj": "utwór", "co": "Pobrany tekst opowiadania (domena publiczna); przeczytano początek, scenę z kobietą i dzieckiem, scenę z dziewczyną, końcówkę; resztę przejrzano wybiórczo. Tekst nie ma podziału na rozdziały, więc w miejscu podano etapy akcji."}
+  ],
+  "do_weryfikacji": [
+    "Opowiadanie jest krótkie, ale część środkowa (rozładunek, noc i kolejny transport) przejrzana jest wybiórczo, więc dokładna kolejność scen w środkowej części może się różnić.",
+    "Imię narratora nie występuje w czytanych fragmentach; w opracowaniach bywa łączony z autorem lub nazywany Tadkiem — do sprawdzenia w źródłach.",
+    "Treść pytania dziewczyny do narratora nie została znaleziona w tekście; opisano tylko jej reakcję.",
+    "Nie ustalono, czy Henri i „marsylczyk” to jedna postać czy dwie; w tekście oba określenia pojawiają się obok siebie."
+  ]
+}
