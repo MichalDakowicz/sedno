@@ -97,8 +97,12 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
   }, [pelny]);
 
   // Szuflada na wąskim ekranie: fokus wchodzi do panelu, a po zamknięciu wraca na przycisk historii (zamknijHistorie).
+  const bylaOtwarta = useRef(false);
   useEffect(() => {
     if (pelny && waski && lista) panelRef.current?.querySelector<HTMLElement>("button:not(:disabled)")?.focus({ preventScroll: true });
+    // Po zamknięciu szuflady, już bez inert na wątku, fokus wraca na przycisk historii.
+    else if (pelny && waski && bylaOtwarta.current) historiaRef.current?.focus({ preventScroll: true });
+    bylaOtwarta.current = lista;
   }, [pelny, waski, lista]);
 
   useLayoutEffect(() => {
@@ -115,8 +119,6 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
 
   function zamknijHistorie() {
     setLista(false);
-    // Wątek jest jeszcze nieaktywny (inert), dopóki szuflada się nie zamknie, więc fokus wraca po przerysowaniu.
-    if (lista) requestAnimationFrame(() => historiaRef.current?.focus({ preventScroll: true }));
   }
 
   function przelaczPanel() {
@@ -214,7 +216,7 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
                 <ArrowLeft size={18} aria-hidden="true" />
                 <span>Wróć</span>
               </button>
-              <button type="button" className={styles.ikona} onClick={przelaczPanel} aria-label="Zwiń historię rozmów" aria-controls={listaId} aria-expanded={panelOtwarty}>
+              <button type="button" className={styles.ikona} onClick={przelaczPanel} aria-label={panelOtwarty ? "Zwiń historię rozmów" : "Pokaż historię rozmów"} aria-controls={listaId} aria-expanded={panelOtwarty}>
                 <PanelLeft size={20} aria-hidden="true" />
               </button>
             </div>
