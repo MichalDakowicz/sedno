@@ -19,9 +19,7 @@ export async function ostatniaWygenerowana(): Promise<{ nazwa: string; tresc: st
   const nazwy: string[] = [];
   for await (const w of Deno.readDir(MIGRACJE)) if (w.isFile && w.name.endsWith(".sql")) nazwy.push(w.name);
   for (const nazwa of nazwy.sort().reverse()) {
-    const tresc = (await Deno.readTextFile(new URL(nazwa, MIGRACJE))).replaceAll("
-", "
-");
+    const tresc = (await Deno.readTextFile(new URL(nazwa, MIGRACJE))).replaceAll("\r\n", "\n");
     if (tresc.startsWith(ZNACZNIK_PLIKU)) return { nazwa, tresc };
   }
 }
