@@ -121,14 +121,17 @@ async function handle(req: Request): Promise<Response> {
   };
   let metadane: OdpowiedzPestki | undefined;
   let tekstKoncowy: string | undefined;
-  let zweryfikowano = false;
+  let bezStrumieniaModelu = false;
   async function* odpowiedz() {
     const czat = pestka?.tryb === "czat" ? await przygotujCzat(messages, pestka, dostep) : undefined;
     const wynik = pestka?.tryb === "lektura" ? await weryfikuj(pestka.fragment, pestka.temat ?? "", dostep) : czat?.weryfikacja;
-    if (wynik) {
-      const { tekst, dane } = odpowiedzWeryfikacji(wynik, pestka?.tryb === "lektura");
+    const gotowaOdpowiedz = wynik ? odpowiedzWeryfikacji(wynik, pestka?.tryb === "lektura")
+      : czat?.streszczenie ? { tekst: czat.streszczenie, dane: metadaneCzatu(czat.streszczenie, czat.materialy, false) }
+      : undefined;
+    if (gotowaOdpowiedz) {
+      const { tekst, dane } = gotowaOdpowiedz;
       metadane = dane;
-      zweryfikowano = true;
+      bezStrumieniaModelu = true;
       for (const akapit of tekst.split(/(?<=\n\n)/g)) yield { type: "text" as const, delta: akapit };
       yield { type: "done" as const, route, result: { usage: undefined } };
       return;
@@ -170,7 +173,7 @@ async function handle(req: Request): Promise<Response> {
           if (ev.type !== "done") continue;
           const { usage } = ev.result;
           const { provider, model } = ev.route;
-          if (!zweryfikowano) await finish({ provider, model, ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
+          if (!bezStrumieniaModelu) await finish({ provider, model, ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
           if (cancel.signal.aborted) return;
           send({ type: "done", provider, model, usage, pestka: metadane, text: tekstKoncowy });
           break;

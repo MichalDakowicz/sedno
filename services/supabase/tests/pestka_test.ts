@@ -52,6 +52,23 @@ Deno.test("pytanie o Wokulskiego pobiera sekcję bohaterów Lalki i pokazuje wy�
   assertEquals(awaryjnaOdpowiedzLektury(krok), "Wokulski jest kupcem. [[zrodlo:1]]");
 });
 
+Deno.test("stresc mi lalke wybiera Lalkę i jej krótkie streszczenie", async () => {
+  const pytanie = "stresc mi lalke";
+  const pytaniaDoBazy: unknown[] = [];
+  const krok = await przygotujCzat([{ role: "user", content: pytanie }], { tryb: "czat" }, {
+    ...dostep,
+    zapytaj: bezSieci,
+    baza: (p) => {
+      pytaniaDoBazy.push(p);
+      return Promise.resolve([{ ...rekord, utwor: "lalka", sekcja: "streszczenie",
+        tekst: "Wokulski zabiega o względy Izabeli Łęckiej.", zrodlo_url: "https://wolnelektury.pl/katalog/lektura/lalka/" }]);
+    },
+  });
+  assertEquals(pytaniaDoBazy, [{ p_przedmiot: "polski", p_utwor: "lalka", p_sekcja: "streszczenie", p_pytanie: pytanie }]);
+  assertEquals(krok.materialy[0]?.zrodlo.sekcja, "Opracowanie Sedno · Krótkie streszczenie");
+  assertEquals(krok.streszczenie, "**„Lalka” (Bolesław Prus)**. Wokulski zabiega o względy Izabeli Łęckiej. [[zrodlo:1]]");
+});
+
 Deno.test("akapit jest oceniany w obrębie wskazanego utworu, a karta przechodzi walidację po serializacji", async () => {
   let wywolania = 0;
   const wynik = await weryfikuj(fragment, "Jak rodzi się konflikt?", {
