@@ -1,0 +1,480 @@
+{
+ "id": "pani-bovary",
+ "wydarzenia": [
+  {
+   "nr": 1,
+   "miejsce": "cz. I, rozdz. 1",
+   "kto": [
+    "Karol Bovary"
+   ],
+   "gdzie": "szkoła w Rouen",
+   "opis": "Karol Bovary, nieśmiały uczeń z prowincji, zaczyna naukę i później zostaje lekarzem, wyuczonym tylko skromnie."
+  },
+  {
+   "nr": 2,
+   "miejsce": "cz. I, rozdz. 2–3",
+   "kto": [
+    "Karol",
+    "Heloiza Dubuc",
+    "matka Karola"
+   ],
+   "gdzie": "Tostes",
+   "opis": "Matka żeni Karola z bogatą wdową Heloizą Dubuc; małżeństwo jest nieudane."
+  },
+  {
+   "nr": 3,
+   "miejsce": "cz. I, rozdz. 2–3",
+   "kto": [
+    "Karol",
+    "Emma Rouault",
+    "pan Rouault"
+   ],
+   "gdzie": "gospodarstwo Bertaux",
+   "opis": "Karol leczy ojca Emmy i zaczyna odwiedzać dom Rouaultów, zafascynowany Emmą."
+  },
+  {
+   "nr": 4,
+   "miejsce": "cz. I, rozdz. 3",
+   "kto": [
+    "Karol",
+    "Heloiza"
+   ],
+   "gdzie": "Tostes",
+   "opis": "Heloiza umiera, a Karol, owdowiawszy, oświadcza się Emmie i zostaje przyjęty."
+  },
+  {
+   "nr": 5,
+   "miejsce": "cz. I, rozdz. 4",
+   "kto": [
+    "Karol",
+    "Emma"
+   ],
+   "gdzie": "Bertaux",
+   "opis": "Odbywa się wesele Karola i Emmy."
+  },
+  {
+   "nr": 6,
+   "miejsce": "cz. I, rozdz. 5–7",
+   "kto": [
+    "Emma",
+    "Karol"
+   ],
+   "gdzie": "Tostes",
+   "opis": "Emma szybko rozczarowuje się małżeństwem, wspomina klasztorną edukację i romantyczne lektury; Karol jest dla niej zbyt prosty."
+  },
+  {
+   "nr": 7,
+   "miejsce": "cz. I, rozdz. 8",
+   "kto": [
+    "Emma",
+    "Karol",
+    "markiz d'Andervilliers"
+   ],
+   "gdzie": "zamek La Vaubyessard",
+   "opis": "Państwo Bovary zostają zaproszeni na bal u markiza d'Andervilliers; Emma poznaje świat arystokracji i długo go wspomina."
+  },
+  {
+   "nr": 8,
+   "miejsce": "cz. I, rozdz. 9",
+   "kto": [
+    "Emma",
+    "Karol"
+   ],
+   "gdzie": "Tostes; Yonville",
+   "opis": "Emma popada w apatię i chorobę, więc Karol przenosi praktykę do Yonville-l'Abbaye."
+  },
+  {
+   "nr": 9,
+   "miejsce": "cz. II, rozdz. 1–3",
+   "kto": [
+    "Emma",
+    "Karol",
+    "Homais",
+    "Leon Dupuis",
+    "Lheureux"
+   ],
+   "gdzie": "Yonville",
+   "opis": "W Yonville państwo Bovary poznają aptekarza Homais i kupca Lheureux; Emma zaprzyjaźnia się z młodym pisarzem Leonem Dupuis; rodzi się córka Berta."
+  },
+  {
+   "nr": 10,
+   "miejsce": "cz. II, rozdz. 4–6",
+   "kto": [
+    "Emma",
+    "Leon"
+   ],
+   "gdzie": "Yonville",
+   "opis": "Emma i Leon zbliżają się do siebie, ale Emma nie decyduje się na romans."
+  },
+  {
+   "nr": 11,
+   "miejsce": "cz. II, rozdz. 6–7",
+   "kto": [
+    "Leon",
+    "Emma"
+   ],
+   "gdzie": "Yonville",
+   "opis": "Leon wyjeżdża do Paryża, a Emma popada w smutek."
+  },
+  {
+   "nr": 12,
+   "miejsce": "cz. II, rozdz. 7–8",
+   "kto": [
+    "Rodolphe Boulanger",
+    "Emma"
+   ],
+   "gdzie": "Yonville",
+   "opis": "Pojawia się ziemianin Rodolphe Boulanger; podczas zgromadzenia rolniczego uwodzi Emmę słowami."
+  },
+  {
+   "nr": 13,
+   "miejsce": "cz. II, rozdz. 9–12",
+   "kto": [
+    "Emma",
+    "Rodolphe"
+   ],
+   "gdzie": "okolice Yonville",
+   "opis": "Emma zostaje kochanką Rodolphe'a, spotykają się w sekrecie i planują ucieczkę."
+  },
+  {
+   "nr": 14,
+   "miejsce": "cz. II, rozdz. 11–13",
+   "kto": [
+    "Karol",
+    "Homais",
+    "Hipolit"
+   ],
+   "gdzie": "Yonville",
+   "opis": "Karol za namową Homais operuje stajennego Hipolita; operacja kończy się niepowodzeniem i amputacją nogi, co ośmiesza Karola."
+  },
+  {
+   "nr": 15,
+   "miejsce": "cz. II, rozdz. 13",
+   "kto": [
+    "Rodolphe",
+    "Emma"
+   ],
+   "gdzie": "Yonville",
+   "opis": "Rodolphe rezygnuje z ucieczki i zrywa z Emmą listownie; Emma ciężko choruje."
+  },
+  {
+   "nr": 16,
+   "miejsce": "cz. II, rozdz. 14–15",
+   "kto": [
+    "Emma",
+    "Karol",
+    "Leon"
+   ],
+   "gdzie": "Rouen",
+   "opis": "Karol zabiera Emmę do teatru w Rouen na operę „Łucja z Lammermooru”, gdzie Emma spotyka Leona."
+  },
+  {
+   "nr": 17,
+   "miejsce": "cz. III, rozdz. 1–3",
+   "kto": [
+    "Emma",
+    "Leon"
+   ],
+   "gdzie": "Rouen",
+   "opis": "Emma i Leon rozpoczynają romans, a Emma wyjeżdża co tydzień do Rouen pod pretekstem lekcji muzyki."
+  },
+  {
+   "nr": 18,
+   "miejsce": "cz. III, rozdz. 3–5",
+   "kto": [
+    "Emma",
+    "Lheureux",
+    "Karol"
+   ],
+   "gdzie": "Yonville; Rouen",
+   "opis": "Emma wydaje coraz więcej na luksusowe towary od Lheureux i zaciąga długi, a Karol podpisuje dokumenty, nie rozumiejąc ich."
+  },
+  {
+   "nr": 19,
+   "miejsce": "cz. III, rozdz. 6–7",
+   "kto": [
+    "Emma",
+    "Lheureux"
+   ],
+   "gdzie": "Yonville",
+   "opis": "Lheureux zaczyna ściągać długi, a komornik zajmuje majątek Bovarych."
+  },
+  {
+   "nr": 20,
+   "miejsce": "cz. III, rozdz. 7–8",
+   "kto": [
+    "Emma",
+    "Leon",
+    "Rodolphe"
+   ],
+   "gdzie": "Rouen; zamek Rodolphe'a",
+   "opis": "Emma prosi o pomoc finansową Leona i Rodolphe'a, ale obaj odmawiają."
+  },
+  {
+   "nr": 21,
+   "miejsce": "cz. III, rozdz. 8",
+   "kto": [
+    "Emma",
+    "Justin"
+   ],
+   "gdzie": "apteka Homais",
+   "opis": "Zrozpaczona Emma dostaje się do apteki i połyka arszenik."
+  },
+  {
+   "nr": 22,
+   "miejsce": "cz. III, rozdz. 8",
+   "kto": [
+    "Emma",
+    "Karol",
+    "Homais",
+    "lekarze"
+   ],
+   "gdzie": "dom Bovarych",
+   "opis": "Emma umiera po bolesnej agonii mimo wysiłków lekarzy; Karol nie wie o jej romansach."
+  },
+  {
+   "nr": 23,
+   "miejsce": "cz. III, rozdz. 9–10",
+   "kto": [
+    "Karol",
+    "Berta"
+   ],
+   "gdzie": "Yonville",
+   "opis": "Po śmierci Emmy Karol popada w żałobę, spłaca długi, a potem znajduje listy od Rodolphe'a i Leona."
+  },
+  {
+   "nr": 24,
+   "miejsce": "cz. III, rozdz. 11",
+   "kto": [
+    "Karol",
+    "Berta",
+    "Homais"
+   ],
+   "gdzie": "Yonville",
+   "opis": "Karol umiera, a Berta trafia do biednej ciotki i do pracy w fabryce; Homais otrzymuje Order Legii Honorowej."
+  }
+ ],
+ "postacie": [
+  {
+   "imie": "Emma Bovary",
+   "odmiany": [
+    "Emma",
+    "Emmy",
+    "Emmie",
+    "Emmę",
+    "Emmą",
+    "pani Bovary",
+    "Bovary"
+   ],
+   "rola": "bohaterka tytułowa, romantyczka, córka rolnika, marzy o wielkiej miłości i wystawnym życiu",
+   "relacje": "żona Karola, kochanka Rodolphe'a i Leona, matka Berty, dłużniczka Lheureux",
+   "miejsca": [
+    "cz. I",
+    "cz. II",
+    "cz. III"
+   ]
+  },
+  {
+   "imie": "Karol Bovary",
+   "odmiany": [
+    "Karol",
+    "Karola",
+    "Karolowi",
+    "Karolem",
+    "Bovary"
+   ],
+   "rola": "mąż Emmy, prowincjonalny lekarz, prosty i łatwowierny",
+   "relacje": "pierwszy mąż Heloizy, potem Emmy; ojciec Berty",
+   "miejsca": [
+    "cz. I",
+    "cz. II",
+    "cz. III"
+   ]
+  },
+  {
+   "imie": "Rodolphe Boulanger",
+   "odmiany": [
+    "Rodolphe",
+    "Rodolphe'a",
+    "Rudolf",
+    "Rudolfa",
+    "Boulanger",
+    "Boulangera"
+   ],
+   "rola": "ziemianin, chłodny uwodziciel, kochanek Emmy",
+   "relacje": "porzuca Emmę listem",
+   "miejsca": [
+    "cz. II"
+   ]
+  },
+  {
+   "imie": "Leon Dupuis",
+   "odmiany": [
+    "Leon",
+    "Leona",
+    "Leonowi",
+    "Leonem",
+    "Dupuis"
+   ],
+   "rola": "młody praktykant notarialny, romantyczny wielbiciel Emmy",
+   "relacje": "najpierw platoniczny wielbiciel, potem kochanek",
+   "miejsca": [
+    "cz. II",
+    "cz. III"
+   ]
+  },
+  {
+   "imie": "Homais",
+   "odmiany": [
+    "Homais",
+    "Homaisa",
+    "Homaisowi",
+    "Homaisem",
+    "aptekarz"
+   ],
+   "rola": "aptekarz w Yonville, pewny siebie racjonalista i zwolennik postępu",
+   "relacje": "sąsiad i doradca Bovarych",
+   "miejsca": [
+    "cz. II",
+    "cz. III"
+   ]
+  },
+  {
+   "imie": "Lheureux",
+   "odmiany": [
+    "Lheureux",
+    "Lheureux'a"
+   ],
+   "rola": "kupiec i lichwiarz, sprzedaje Emmie towary na kredyt",
+   "relacje": "wierzyciel Emmy",
+   "miejsca": [
+    "cz. II",
+    "cz. III"
+   ]
+  },
+  {
+   "imie": "Heloiza Dubuc",
+   "odmiany": [
+    "Heloiza",
+    "Heloizy",
+    "Heloizie"
+   ],
+   "rola": "pierwsza żona Karola, starsza i zazdrosna",
+   "relacje": "żona Karola do swojej śmierci",
+   "miejsca": [
+    "cz. I"
+   ]
+  },
+  {
+   "imie": "Berta",
+   "odmiany": [
+    "Berta",
+    "Berty",
+    "Bercie",
+    "Bertę"
+   ],
+   "rola": "córka Emmy i Karola",
+   "relacje": "dziecko zaniedbywane przez Emmę",
+   "miejsca": [
+    "cz. II",
+    "cz. III"
+   ]
+  },
+  {
+   "imie": "Hipolit",
+   "odmiany": [
+    "Hipolit",
+    "Hipolita",
+    "Hipolitowi"
+   ],
+   "rola": "stajenny z końską stopą, operowany przez Karola",
+   "relacje": "ofiara nieudanej operacji",
+   "miejsca": [
+    "cz. II"
+   ]
+  },
+  {
+   "imie": "Justin",
+   "odmiany": [
+    "Justin",
+    "Justina",
+    "Justinowi"
+   ],
+   "rola": "pomocnik aptekarza, który zna miejsce przechowywania arszeniku",
+   "relacje": "uczeń Homais, wielbi Emmę",
+   "miejsca": [
+    "cz. II",
+    "cz. III"
+   ]
+  },
+  {
+   "imie": "markiz d'Andervilliers",
+   "odmiany": [
+    "markiz",
+    "markiza",
+    "d'Andervilliers"
+   ],
+   "rola": "gospodarz balu w La Vaubyessard",
+   "relacje": "arystokrata, którego bal wpływa na Emmę",
+   "miejsca": [
+    "cz. I"
+   ]
+  }
+ ],
+ "motywy": [
+  {
+   "motyw": "marzenia i rzeczywistość (bowaryzm)",
+   "przyklad": "Emma wychowana na romansach chce życia podobnego do książkowego, a codzienność z Karolem ją rozczarowuje.",
+   "miejsce": "cz. I, rozdz. 5–7"
+  },
+  {
+   "motyw": "bal jako wzorzec wystawnego życia",
+   "przyklad": "Po balu w La Vaubyessard Emma wspomina arystokrację jako ideał i traci zadowolenie z własnego domu.",
+   "miejsce": "cz. I, rozdz. 8"
+  },
+  {
+   "motyw": "zdrada małżeńska",
+   "przyklad": "Emma ma romans z Rodolphe'em, a potem z Leonem, i okłamuje męża.",
+   "miejsce": "cz. II, rozdz. 9–12; cz. III, rozdz. 1–3"
+  },
+  {
+   "motyw": "zadłużenie i konsumpcjonizm",
+   "przyklad": "Emma kupuje coraz więcej u Lheureux, aż zadłuża rodzinę.",
+   "miejsce": "cz. III, rozdz. 3–7"
+  },
+  {
+   "motyw": "obojętność ludzi wobec cierpienia",
+   "przyklad": "Rodolphe i Leon odmawiają jej pomocy, a Homais pozostaje spokojny po jej śmierci.",
+   "miejsce": "cz. III, rozdz. 7–8"
+  },
+  {
+   "motyw": "samobójstwo",
+   "przyklad": "Emma po odmowie pomocy połyka arszenik i umiera w męczarniach.",
+   "miejsce": "cz. III, rozdz. 8"
+  },
+  {
+   "motyw": "krytyka mieszczaństwa i prowincji",
+   "przyklad": "Wiejskie zgromadzenie rolnicze i apteka Homais pokazują ograniczoną, pewną siebie społeczność.",
+   "miejsce": "cz. II, rozdz. 8"
+  },
+  {
+   "motyw": "ironia narratora",
+   "przyklad": "Narrator pokazuje bezstronnie bohaterkę, jej marzenia i ich upadek.",
+   "miejsce": "całość"
+  }
+ ],
+ "utwory": [],
+ "zrodla": [
+  {
+   "url": "https://pl.wikipedia.org/wiki/Pani_Bovary",
+   "rodzaj": "opracowanie",
+   "co": "Streszczenie fabuły i data pierwszego wydania (1857): kolejność wydarzeń porównana z moją znajomością powieści; bez kopiowania sformułowań."
+  }
+ ],
+ "do_weryfikacji": [
+  "Tekst powieści nie był czytany (Project Gutenberg był niedostępny w czasie pracy; polskie przekłady z Wolnych Lektur nie istnieją pod tym adresem); fabuła i numeracja rozdziałów opierają się na znajomości powieści i ogólnym streszczeniu — zakresy rozdziałów należy sprawdzić w wydaniu.",
+  "Imiona w polskich przekładach różnią się (Rudolf/Rodolphe, Heloiza/Héloïse); podano warianty.",
+  "Podział utworu na trzy części (I: 9, II: 15, III: 11 rozdziałów) podany z pamięci i nie został potwierdzony w tekście.",
+  "Brak cytatów, bo nie sprawdzono dosłownego tekstu żadnego przekładu."
+ ]
+}
