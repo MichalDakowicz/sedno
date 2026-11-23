@@ -1,0 +1,49 @@
+{
+  "id": "antygona-w-nowym-jorku",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "akt I, początek", "kto": ["Policjant"], "gdzie": "Tompkins Square Park, proscenium", "opis": "Policjant zwraca się bezpośrednio do publiczności z informacjami o parku i jego bezdomnych mieszkańcach." },
+    { "nr": 2, "miejsce": "akt I, scena z kawą", "kto": ["Anita", "Sasza", "John"], "gdzie": "Tompkins Square Park", "opis": "Anita szuka Johna, któremu przyniosła kawę, a Sasza mówi jej o jego śmierci i o Potter’s Field." },
+    { "nr": 3, "miejsce": "akt I, sc. 4", "kto": ["Sasza", "Pchełka", "Anita"], "gdzie": "Tompkins Square Park, ławka", "opis": "Sasza nie wierzy Pchełce, który tłumaczy, dlaczego nie wrócił z pieniędzmi i zamówionym winem." },
+    { "nr": 4, "miejsce": "akt I, przed wyprawą", "kto": ["Sasza", "Pchełka"], "gdzie": "Tompkins Square Park", "opis": "Pchełka próbuje odwieść Saszę od powrotu do Rosji, a Sasza wspomina dzieciństwo w Leningradzie." },
+    { "nr": 5, "miejsce": "akt I, przygotowanie pochówku", "kto": ["Anita", "Sasza", "Pchełka"], "gdzie": "Tompkins Square Park", "opis": "Anita obiecuje zapłatę za odzyskanie ciała Johna i pomoc w pochowaniu go w parku." },
+    { "nr": 6, "miejsce": "akt II, początek", "kto": ["Sasza", "Pchełka"], "gdzie": "molo w Bronxie", "opis": "Sasza i Pchełka otwierają trumny na molo i po rozpoznaniu dokonanym przez Pchełkę zabierają jedne zwłoki." },
+    { "nr": 7, "miejsce": "akt II, początek", "kto": ["Pchełka", "Sasza"], "gdzie": "molo w Bronxie", "opis": "Podczas nocnej wyprawy Pchełka ma napad padaczkowy." },
+    { "nr": 8, "miejsce": "akt II, powrót z ciałem", "kto": ["Sasza", "Pchełka"], "gdzie": "Tompkins Square Park, ławka", "opis": "Po powrocie do parku mężczyźni orientują się, że przynieśli ciało innego człowieka." },
+    { "nr": 9, "miejsce": "akt II, powrót z ciałem", "kto": ["Sasza", "Pchełka", "Jola"], "gdzie": "Tompkins Square Park", "opis": "Sasza wypomina Pchełce, że ukrył przed Jolą swoje położenie i nie spotkał się z nią, gdy przyjechała." },
+    { "nr": 10, "miejsce": "akt II, sc. 11", "kto": ["Anita", "Sasza", "nieznany zmarły"], "gdzie": "Tompkins Square Park, ławka", "opis": "Anita modli się nad ciałem jak nad Johnem, co zaskakuje Saszę." },
+    { "nr": 11, "miejsce": "akt II, pochówek", "kto": ["Anita", "Sasza", "nieznany zmarły"], "gdzie": "Tompkins Square Park", "opis": "Anita i Sasza przygotowują grób i grzebią zmarłego w parku." },
+    { "nr": 12, "miejsce": "akt II, po pochówku", "kto": ["Anita", "Sasza"], "gdzie": "Tompkins Square Park", "opis": "Sasza opowiada Anicie o pracy malarza w Rosji, a potem proponuje jej wspólny wyjazd." },
+    { "nr": 13, "miejsce": "akt II, sc. 13–14", "kto": ["Anita", "Sasza", "Pchełka"], "gdzie": "Tompkins Square Park", "opis": "Anita pomaga Saszy się przebrać przed wizytą w ambasadzie, a po jej odejściu Pchełka wraca i podaje Saszy butelkę." },
+    { "nr": 14, "miejsce": "akt II, przed obławą", "kto": ["Anita", "Sasza", "Pchełka", "napastnicy"], "gdzie": "Tompkins Square Park", "opis": "Zza sceny dobiegają odgłosy napaści na Anitę, a Sasza i Pchełka nie ruszają jej na pomoc." },
+    { "nr": 15, "miejsce": "akt II, przed ostatnim monologiem", "kto": ["Anita", "Sasza", "Pchełka", "policja"], "gdzie": "Tompkins Square Park", "opis": "Anita wraca po napaści, a migające światła zapowiadają policyjną akcję usuwania bezdomnych z parku." },
+    { "nr": 16, "miejsce": "akt II, ostatni monolog", "kto": ["Policjant", "Anita"], "gdzie": "proscenium, relacja o parku", "opis": "Policjant zaprzecza, że w parku był grób, i informuje, że po ogrodzeniu parku Anita powiesiła się na bramie, a jej ciało zabrano na Potter’s Field." }
+  ],
+  "postacie": [
+    { "imie": "Anita", "odmiany": ["Anity", "Anicie", "Anitę", "Anitą", "Portorykanka", "Portorykanki"], "rola": "bezdomna Portorykanka, dąży do pochowania Johna w parku", "relacje": "prosi Saszę i Pchełkę o odzyskanie ciała, zbliża się do Saszy", "miejsca": ["akt I", "akt II"] },
+    { "imie": "Sasza", "odmiany": ["Saszy", "Saszę", "Saszą", "Saszka", "Sashy"], "rola": "emigrant rosyjsko-żydowski, dawniej malarz, rozważa powrót do Rosji", "relacje": "towarzysz Pchełki i pomocnik Anity przy pochówku", "miejsca": ["akt I", "akt II"] },
+    { "imie": "Pchełka", "odmiany": ["Pchełki", "Pchełce", "Pchełkę", "Pchełką"], "rola": "polski emigrant, pomaga w zabraniu zwłok i obawia się odejścia Saszy", "relacje": "towarzysz Saszy, opowiada o Joli", "miejsca": ["akt I", "akt II"] },
+    { "imie": "John", "odmiany": ["Johna", "Johnowi", "Johnem", "Johnny", "Johnny’ego"], "rola": "zmarły bezdomny, którego Anita chce pochować w parku", "relacje": "bliski Anicie, szukają go Pchełka i Sasza", "miejsca": ["akt I, scena z kawą", "akt II, poszukiwanie ciała"] },
+    { "imie": "Policjant", "odmiany": ["Policjanta", "Policjantowi", "Policjantem", "Murphy", "Murphy’ego"], "rola": "funkcjonariusz zwracający się do widowni, relacjonuje obławę i los Anity", "relacje": "reprezentuje służby usuwające bezdomnych z parku", "miejsca": ["akt I, początek", "akt II, ostatni monolog"] },
+    { "imie": "Jola", "odmiany": ["Joli", "Jolę", "Jolą"], "rola": "osoba z Polski przywoływana w rozmowach Pchełki i Saszy", "relacje": "bliska Pchełce, którego opowieści podważa Sasza", "miejsca": ["akt I, przygotowanie pochówku", "akt II, powrót z ciałem"] }
+  ],
+  "motywy": [
+    { "motyw": "pochówek i ludzka godność", "przyklad": "Anita chce pogrzebać Johna w jego wspólnocie i prosi dwóch innych bezdomnych o odzyskanie zwłok.", "miejsce": "akt I, przygotowanie pochówku" },
+    { "motyw": "nawiązanie do Antygony Sofoklesa", "przyklad": "Anita pochowuje zmarłego mimo porządku narzuconego przez władze, a w końcowym monologu policjant neguje istnienie grobu.", "miejsce": "akt II, pochówek i ostatni monolog" },
+    { "motyw": "wykluczenie i kontrola przestrzeni", "przyklad": "Policjant relacjonuje, że miejsce dotąd zamieszkiwane przez bezdomnych ogrodzono, blokując jego dawnym mieszkańcom dostęp.", "miejsce": "akt II, ostatni monolog" },
+    { "motyw": "emigracja i zawiedzione nadzieje", "przyklad": "Sasza opowiada o losie malarza, który po wyjeździe zarabiał na remontach, i planuje wrócić do Moskwy.", "miejsce": "akt II, po pochówku" },
+    { "motyw": "przyjaźń i zależność", "przyklad": "Pchełka wypytuje Saszę o zamiar wyjazdu z Anitą i podaje mu alkohol, po który Sasza w końcu sięga.", "miejsce": "akt II, sc. 14" },
+    { "motyw": "tożsamość zmarłego", "przyklad": "Sasza wie, że przywieźli obcego człowieka, ale Anita żegna go modlitwą skierowaną do Johna. Scena pozostawia otwartą kwestię jej rozpoznania.", "miejsce": "akt II, sc. 11" },
+    { "motyw": "słowo urzędowe i doświadczenie bohaterów", "przyklad": "Publiczność wcześniej widzi pochówek, a później słyszy, że policjant uznaje go za pogłoskę.", "miejsce": "akt II, ostatni monolog" }
+  ],
+  "utwory": [],
+  "zrodla": [
+    { "url": "https://culture.pl/pl/dzielo/janusz-glowacki-antygona-w-nowym-jorku-0", "rodzaj": "opracowanie", "co": "Instytut Adama Mickiewicza udostępnia omówienie Joanny Krakowskiej-Narożniak z Dialogu; przebieg obu aktów i finał." },
+    { "url": "https://zpe.gov.pl/watek/LP491JJ1BM/475/a/cwiczenia/D17D4CGTL", "rodzaj": "utwór", "co": "Przedruk fragmentu aktu II, sceny 11, w którym Anita i Sasza są przy ciele." },
+    { "url": "https://zpe.gov.pl/watek/LP491JJ1BM/474/a/dowiedz-sie/DDXJ4GGT7", "rodzaj": "utwór", "co": "Fragmenty polskiego wydania, rozmowy o emigracji, planach Saszy i powrocie Pchełki." },
+    { "url": "https://bibliotekanauki.pl/articles/1040783.pdf", "rodzaj": "opracowanie", "co": "Studium Alessandra Amenty porównuje wersje językowe i przytacza finał monologu policjanta z polskiego wydania." }
+  ],
+  "do_weryfikacji": [
+    "Zastosowano polski układ dwóch aktów i szesnastu scen; dla epizodów bez numeru w dostępnych materiałach podano opis miejsca w akcie.",
+    "Tożsamość przywiezionego zmarłego oraz to, czy Anita dostrzega pomyłkę, pozostają w zapisie nierozstrzygnięte."
+  ]
+}
