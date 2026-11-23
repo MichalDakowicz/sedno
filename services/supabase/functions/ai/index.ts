@@ -13,7 +13,7 @@ import { readJsonObject } from "../_shared/http.ts";
 import { LlmError, type Message } from "../_shared/llm.ts";
 import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
 import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
-import { awaryjnaOdpowiedzLektury, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosbaPestki, weryfikuj } from "./pestka.ts";
+import { metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosbaPestki, uzupelnijZrodloLektury, weryfikuj } from "./pestka.ts";
 import type { OdpowiedzPestki } from "../_shared/pestka-odpowiedz.ts";
 
 const MAX_BODY = 256 * 1024;
@@ -121,17 +121,14 @@ async function handle(req: Request): Promise<Response> {
   };
   let metadane: OdpowiedzPestki | undefined;
   let tekstKoncowy: string | undefined;
-  let bezStrumieniaModelu = false;
+  let zweryfikowano = false;
   async function* odpowiedz() {
     const czat = pestka?.tryb === "czat" ? await przygotujCzat(messages, pestka, dostep) : undefined;
     const wynik = pestka?.tryb === "lektura" ? await weryfikuj(pestka.fragment, pestka.temat ?? "", dostep) : czat?.weryfikacja;
-    const gotowaOdpowiedz = wynik ? odpowiedzWeryfikacji(wynik, pestka?.tryb === "lektura")
-      : czat?.streszczenie ? { tekst: czat.streszczenie, dane: metadaneCzatu(czat.streszczenie, czat.materialy, false) }
-      : undefined;
-    if (gotowaOdpowiedz) {
-      const { tekst, dane } = gotowaOdpowiedz;
+    if (wynik) {
+      const { tekst, dane } = odpowiedzWeryfikacji(wynik, pestka?.tryb === "lektura");
       metadane = dane;
-      bezStrumieniaModelu = true;
+      zweryfikowano = true;
       for (const akapit of tekst.split(/(?<=\n\n)/g)) yield { type: "text" as const, delta: akapit };
       yield { type: "done" as const, route, result: { usage: undefined } };
       return;
@@ -142,8 +139,8 @@ async function handle(req: Request): Promise<Response> {
       if (pestka?.tryb === "czat" && ev.type === "done") {
         metadane = metadaneCzatu(tekst, czat?.materialy ?? [], pestka.maProbe === true);
         if (!metadane.zrodla.length) {
-          tekstKoncowy = awaryjnaOdpowiedzLektury(czat);
-          if (tekstKoncowy) metadane = metadaneCzatu(tekstKoncowy, czat?.materialy ?? [], false);
+          tekstKoncowy = uzupelnijZrodloLektury(czat, tekst);
+          if (tekstKoncowy) metadane = metadaneCzatu(tekstKoncowy, czat?.materialy ?? [], pestka.maProbe === true);
         }
       }
       yield ev;
@@ -173,7 +170,7 @@ async function handle(req: Request): Promise<Response> {
           if (ev.type !== "done") continue;
           const { usage } = ev.result;
           const { provider, model } = ev.route;
-          if (!bezStrumieniaModelu) await finish({ provider, model, ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
+          if (!zweryfikowano) await finish({ provider, model, ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
           if (cancel.signal.aborted) return;
           send({ type: "done", provider, model, usage, pestka: metadane, text: tekstKoncowy });
           break;
