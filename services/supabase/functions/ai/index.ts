@@ -13,14 +13,22 @@ import { readJsonObject } from "../_shared/http.ts";
 import { LlmError, type Message } from "../_shared/llm.ts";
 import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
 import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
-import { metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosbaPestki, uzupelnijZrodloLektury, weryfikuj } from "./pestka.ts";
+import {
+  czyPytanieOLekturze, metadaneCzatu, odpowiedzWeryfikacji, ostatniePytanie, przygotujCzat, prosbaPestki, prosiOZapisPriorytetu, weryfikuj,
+} from "./pestka.ts";
+import { FiltrCzatu } from "./odpowiedz-lektury.ts";
 import type { OdpowiedzPestki } from "../_shared/pestka-odpowiedz.ts";
 import type { SzukajRozmow } from "./pamiec.ts";
+import type { SzukajBaza, SzukajElementy, SzukajFragmenty } from "./material-lektury.ts";
 
 // Osłona transportu dla całego żądania. Historię czatu ogranicza okno dostawcy.
 const MAX_BODY = 8 * 1024 * 1024;
 const TIERS = new Set(["wazne", "lekkie"]);
 const ROLES = new Set(["system", "user", "assistant"]);
+
+// Poziom modelu dla pytań o lektury (rozpoznany utwór, pytanie o lekturę, sprawdzanie odwołań w wypracowaniu).
+// To jedyny przełącznik: SEDNO_TIER_LEKTUR=lekkie przywraca poziom wybrany przez aplikację.
+const TIER_LEKTUR: "wazne" | null = Deno.env.get("SEDNO_TIER_LEKTUR") === "lekkie" ? null : "wazne";
 
 function parseMessages(raw: unknown): Message[] | null {
   if (!Array.isArray(raw) || raw.length < 1) return null;
@@ -59,13 +67,16 @@ async function handle(req: Request): Promise<Response> {
   if (allowed === null) return reply(500, { error: "server_error" });
   if (!allowed) return reply(429, { error: "rate_limited" });
 
-  const tier = typeof body.tier === "string" ? body.tier : "lekkie";
-  if (!TIERS.has(tier)) return reply(400, { error: "bad_tier" });
+  const requestedTier = typeof body.tier === "string" ? body.tier : "lekkie";
+  if (!TIERS.has(requestedTier)) return reply(400, { error: "bad_tier" });
   const parsedMessages = parseMessages(body.messages);
   if (!parsedMessages) return reply(400, { error: "bad_messages" });
   const messages = parsedMessages;
   const pestka = prosbaPestki(body.pestka);
   if (body.pestka !== undefined && (!pestka || body.stream !== true)) return reply(400, { error: "bad_pestka_request" });
+  const pytanieOLekturze = pestka?.tryb === "lektura" ||
+    (pestka?.tryb === "czat" && czyPytanieOLekturze(ostatniePytanie(messages), pestka).lektura);
+  const tier = pytanieOLekturze && TIER_LEKTUR ? TIER_LEKTUR : requestedTier;
   const task = typeof body.task === "string" ? body.task.slice(0, 60) : null;
   const override = typeof body.provider === "string" ? body.provider : undefined;
   const czatPestki = pestka?.tryb === "czat" || task === "pestka-czat";
@@ -109,12 +120,15 @@ async function handle(req: Request): Promise<Response> {
   const enc = new TextEncoder();
   const cancel = new AbortController();
   const signal = AbortSignal.any([req.signal, cancel.signal, ...(czatPestki ? [] : [AbortSignal.timeout(120_000)])]);
+  const rpc = async (nazwa: string, p: Record<string, unknown>) => {
+    const { data, error } = await admin.rpc(nazwa, p).abortSignal(AbortSignal.any([signal, AbortSignal.timeout(3500)]));
+    if (error) throw error;
+    return data;
+  };
   const dostep = {
-    baza: async (p: Parameters<import("./lektury.ts").SzukajBaza>[0]) => {
-      const { data, error } = await admin.rpc("pestka_wyszukaj_wiedze", p).abortSignal(AbortSignal.any([signal, AbortSignal.timeout(3500)]));
-      if (error) throw error;
-      return data;
-    },
+    baza: ((p) => rpc("pestka_wyszukaj_wiedze", p)) satisfies SzukajBaza,
+    elementy: ((p) => rpc("pestka_lektury_elementy", p)) satisfies SzukajElementy,
+    fragmenty: ((p) => rpc("pestka_lektury_fragmenty", p)) satisfies SzukajFragmenty,
     rozmowy: (async (biezaca, pytanie) => {
       const { data, error } = await admin.rpc("pestka_wyszukaj_rozmowy", {
         p_user: user, p_biezaca: biezaca, p_pytanie: pytanie,
@@ -132,31 +146,46 @@ async function handle(req: Request): Promise<Response> {
       });
       return out.text;
     },
-    brave: Deno.env.get("SEDNO_BRAVE_SEARCH_KEY") ?? "", fetcher: fetch, signal,
+    signal,
   };
   let metadane: OdpowiedzPestki | undefined;
-  let tekstKoncowy: string | undefined;
   let zweryfikowano = false;
   async function* odpowiedz() {
-    const czat = pestka?.tryb === "czat" ? await przygotujCzat(messages, pestka, dostep) : undefined;
-    const wynik = pestka?.tryb === "lektura" ? await weryfikuj(pestka.fragment, pestka.temat ?? "", dostep) : czat?.weryfikacja;
-    if (wynik) {
-      const { tekst, dane } = odpowiedzWeryfikacji(wynik, pestka?.tryb === "lektura");
+    if (pestka?.tryb === "lektura") {
+      const wynik = await weryfikuj(pestka.fragment, pestka.temat ?? "", dostep);
+      const { tekst, dane } = odpowiedzWeryfikacji(wynik, true);
       metadane = dane;
       zweryfikowano = true;
       for (const akapit of tekst.split(/(?<=\n\n)/g)) yield { type: "text" as const, delta: akapit };
       yield { type: "done" as const, route, result: { usage: undefined } };
       return;
     }
-    let tekst = "";
+    const czat = pestka?.tryb === "czat" ? await przygotujCzat(messages, pestka, dostep) : undefined;
+    const procesor = czat?.procesor;
+    // Plan wydarzeń złożony przez serwer: bez wywołania modelu.
+    if (czat?.gotowa !== undefined && procesor) {
+      const tekst = procesor.dodaj(`${czat.gotowa}\n`) + procesor.zakoncz();
+      metadane = metadaneCzatu(tekst, procesor.zrodla(), pestka?.tryb === "czat" && pestka.maProbe === true);
+      zweryfikowano = true;
+      for (const akapit of tekst.split(/(?<=\n\n)/g)) yield { type: "text" as const, delta: akapit };
+      yield { type: "done" as const, route, result: { usage: undefined } };
+      return;
+    }
+    // Zapis priorytetu tylko na wyraźną prośbę ucznia; obietnice zapisu bez prośby też znikają.
+    const filtr = pestka?.tryb === "czat" && !procesor ? new FiltrCzatu(prosiOZapisPriorytetu(ostatniePytanie(messages))) : undefined;
+    let wyslano = "";
     for await (const ev of streamRetry(route, { messages: czat?.messages ?? messages, maxTokens, temperature, signal }, { fallback })) {
-      if (pestka?.tryb === "czat" && ev.type === "text") tekst += ev.delta;
-      if (pestka?.tryb === "czat" && ev.type === "done") {
-        metadane = metadaneCzatu(tekst, czat?.materialy ?? [], pestka.maProbe === true);
-        if (!metadane.zrodla.length) {
-          tekstKoncowy = uzupelnijZrodloLektury(czat, tekst);
-          if (tekstKoncowy) metadane = metadaneCzatu(tekstKoncowy, czat?.materialy ?? [], pestka.maProbe === true);
-        }
+      if (ev.type === "text" && (procesor || filtr)) {
+        const delta = procesor ? procesor.dodaj(ev.delta) : filtr!.dodaj(ev.delta);
+        wyslano += delta;
+        if (delta) yield { type: "text" as const, delta };
+        continue;
+      }
+      if (ev.type === "done" && pestka?.tryb === "czat") {
+        const reszta = procesor ? procesor.zakoncz() : filtr?.zakoncz() ?? "";
+        wyslano += reszta;
+        if (reszta) yield { type: "text" as const, delta: reszta };
+        metadane = metadaneCzatu(wyslano, procesor?.zrodla() ?? [], pestka.maProbe === true);
       }
       yield ev;
     }
@@ -187,7 +216,7 @@ async function handle(req: Request): Promise<Response> {
           const { provider, model } = ev.route;
           if (!zweryfikowano) await finish({ provider, model, ok: true, status: 200, prompt_tokens: usage?.promptTokens, completion_tokens: usage?.completionTokens });
           if (cancel.signal.aborted) return;
-          send({ type: "done", provider, model, usage, pestka: metadane, text: tekstKoncowy });
+          send({ type: "done", provider, model, usage, pestka: metadane });
           break;
         }
       } catch (e) {
