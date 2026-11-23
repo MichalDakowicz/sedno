@@ -24,6 +24,9 @@ export const PRZEDMIOTY: { id: PrzedmiotId; nazwa: string; tone: Ton; poziomy: P
   { id: "lacina", nazwa: "Łacina", tone: "yellow", poziomy: ["rozszerzony"] },
 ];
 
+// Baza (migracja 0003) przyjmuje w profiles.subjects najwyżej 12 wpisów; wpis to przedmiot z jednym poziomem.
+export const MAX_WPISOW_PRZEDMIOTOW = 12;
+
 export const nazwaPoziomu: Record<Poziom, string> = { podstawowy: "podstawowy", rozszerzony: "rozszerzony", dwujezyczny: "dwujęzyczny" };
 
 export const przedmiot = (id: string) => PRZEDMIOTY.find((p) => p.id === id);
