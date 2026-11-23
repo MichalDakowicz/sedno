@@ -1,0 +1,46 @@
+{
+  "id": "antygona",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "prolog", "kto": ["Antygona", "Ismena"], "gdzie": "przed pałacem królewskim w Tebach", "opis": "Antygona przekazuje Ismenie wiadomość o zakazie Kreona i namawia ją do pochowania brata Polinika; Ismena odmawia, obawiając się kary."},
+    {"nr": 2, "miejsce": "parodos", "kto": ["Chór tebańskich starców"], "gdzie": "Teby", "opis": "Chór wita zwycięstwo Teb nad wrogami, którzy przyszli z Polinikiem."},
+    {"nr": 3, "miejsce": "epejsodion I", "kto": ["Kreon", "Chór"], "gdzie": "przed pałacem", "opis": "Kreon obejmuje władzę i ogłasza, że Eteokles ma być pochowany z honorami, a ciało Polinika ma pozostać bez pogrzebu."},
+    {"nr": 4, "miejsce": "epejsodion I", "kto": ["Strażnik", "Kreon"], "gdzie": "przed pałacem", "opis": "Strażnik niechętnie donosi Kreonowi, że ktoś odprawił nad ciałem Polinika obrzęd, a nikt nie widział sprawcy."},
+    {"nr": 5, "miejsce": "epejsodion II", "kto": ["Antygona", "Kreon", "Strażnik"], "gdzie": "przed pałacem", "opis": "Antygona zostaje przyprowadzona przed Kreona jako sprawczyni pogrzebu i przyznaje się; w sporze powołuje się na prawa bogów przeciw ludzkiemu rozkazowi."},
+    {"nr": 6, "miejsce": "epejsodion II", "kto": ["Antygona", "Kreon"], "gdzie": "przed pałacem", "opis": "Kreon odpowiada, że wróg nie staje się miły po śmierci; Antygona mówi, że przyszła współkochać, nie współnienawidzić."},
+    {"nr": 7, "miejsce": "epejsodion II", "kto": ["Ismena", "Antygona", "Kreon"], "gdzie": "przed pałacem", "opis": "Ismena chce dzielić winę siostry, ale Antygona jej to odmawia."},
+    {"nr": 8, "miejsce": "epejsodion III", "kto": ["Hajmon", "Kreon"], "gdzie": "przed pałacem", "opis": "Hajmon, syn Kreona i narzeczony Antygony, prosi ojca o ustępstwo; spór kończy się odmową Kreona i odejściem Hajmona w gniewie."},
+    {"nr": 9, "miejsce": "epejsodion IV", "kto": ["Antygona", "Chór", "Kreon"], "gdzie": "przed pałacem", "opis": "Antygona jest prowadzona do kamiennego grobowca, w którym ma zostać zamknięta; opłakuje swój los."},
+    {"nr": 10, "miejsce": "epejsodion V", "kto": ["Tyrezjasz", "Kreon"], "gdzie": "przed pałacem", "opis": "Wróżbita Tyrezjasz ostrzega Kreona przed skutkami jego decyzji; Kreon po sporze ustępuje."},
+    {"nr": 11, "miejsce": "ekssodos", "kto": ["Posłaniec", "Chór", "Eurydyka"], "gdzie": "przed pałacem", "opis": "Posłaniec donosi, że Kreon z ludźmi znalazł w grobowcu Antygonę powieszoną na muślinowej chuście, a Hajmon w gniewie na ojca sam się zabił."},
+    {"nr": 12, "miejsce": "ekssodos", "kto": ["Eurydyka", "Drugi posłaniec", "Kreon"], "gdzie": "przed pałacem", "opis": "Eurydyka po usłyszeniu wieści wychodzi bez słowa, a drugi posłaniec oznajmia Kreonowi, że żona targnęła się na życie; Kreon zostaje sam z rozpaczą."}
+  ],
+  "postacie": [
+    {"imie": "Antygona", "odmiany": ["Antygona", "Antygony", "Antygonie", "Antygonę", "Antygoną"], "rola": "córka Edypa, grzebie brata Polinika wbrew rozkazowi Kreona", "relacje": "siostra Ismeny i Polinika; narzeczona Hajmona", "miejsca": ["prolog", "epejsodion II", "epejsodion IV"]},
+    {"imie": "Ismena", "odmiany": ["Ismena", "Ismeny", "Ismenie", "Ismeną"], "rola": "siostra Antygony, odmawia udziału w pogrzebie z obawy przed karą", "relacje": "siostra Antygony", "miejsca": ["prolog", "epejsodion II"]},
+    {"imie": "Kreon", "odmiany": ["Kreon", "Kreona", "Kreonowi", "Kreonem"], "rola": "król Teb, wydaje zakaz pochowania Polinika", "relacje": "wuj Antygony; ojciec Hajmona; mąż Eurydyki", "miejsca": ["epejsodion I", "epejsodion V", "ekssodos"]},
+    {"imie": "Hajmon", "odmiany": ["Hajmon", "Hajmona", "Hajmonowi", "Hajmonem"], "rola": "syn Kreona, narzeczony Antygony, ginie od własnego miecza", "relacje": "syn Kreona", "miejsca": ["epejsodion III", "ekssodos"]},
+    {"imie": "Tyrezjasz", "odmiany": ["Tyrezjasz", "Tyrezjasza", "Tyrezjaszowi", "Tyrezjaszem"], "rola": "wróżbita, ostrzega Kreona", "relacje": "doradca Kreona", "miejsca": ["epejsodion V"]},
+    {"imie": "Eurydyka", "odmiany": ["Eurydyka", "Eurydyki", "Eurydyce", "Eurydykę"], "rola": "żona Kreona, odbiera sobie życie po śmierci Hajmona", "relacje": "żona Kreona, matka Hajmona", "miejsca": ["ekssodos"]},
+    {"imie": "Strażnik", "odmiany": ["Strażnik", "Strażnika", "Strażnikowi"], "rola": "donosi o pogrzebie Polinika i o schwytaniu Antygony", "relacje": "podwładny Kreona", "miejsca": ["epejsodion I", "epejsodion II"]},
+    {"imie": "Chór tebańskich starców", "odmiany": ["Chór", "Chóru", "Chórowi", "Chórem", "starcy tebańscy"], "rola": "komentuje wydarzenia i odpowiada na rozmowy bohaterów", "relacje": "doradca Kreona", "miejsca": ["parodos", "stasimony"]},
+    {"imie": "Posłaniec", "odmiany": ["Posłaniec", "Posłańca", "Posłańcowi"], "rola": "przynosi wieść o śmierci Antygony i Hajmona", "relacje": "przekazuje wiadomości z grobowca", "miejsca": ["ekssodos"]}
+  ],
+  "motywy": [
+    {"motyw": "prawo boskie a prawo państwowe", "przyklad": "Antygona grzebie brata wbrew rozkazowi Kreona, powołując się na prawa bogów.", "miejsce": "prolog; epejsodion II"},
+    {"motyw": "miłość i nienawiść", "przyklad": "Na słowa Kreona, że wróg nie staje się miły po śmierci, Antygona odpowiada, że przyszła współkochać.", "miejsce": "epejsodion II", "cytat": "Współkochać przyszłam, nie współnienawidzić."},
+    {"motyw": "tyrania i upór władcy", "przyklad": "Kreon odrzuca prośby Hajmona i ostrzeżenie Tyrezjasza, dopóki nie jest za późno.", "miejsce": "epejsodion III; epejsodion V"},
+    {"motyw": "samotność i odwaga jednostki", "przyklad": "Antygona działa sama, odrzucając nawet pomoc Ismeny, i idzie na śmierć bez kajania się.", "miejsce": "prolog; epejsodion II"},
+    {"motyw": "tragiczna wina i los", "przyklad": "Z decyzji Kreona wynika łańcuch śmierci: Antygony, Hajmona i Eurydyki.", "miejsce": "ekssodos", "cytat": "Największe klęski płyną z nierozumu."},
+    {"motyw": "rodzina i obowiązek wobec zmarłych", "przyklad": "Antygona chce pochować Polinika jako brata i odmawia przejścia obojętnie obok zakazu.", "miejsce": "prolog"},
+    {"motyw": "samobójstwo z rozpaczy", "przyklad": "Hajmon po znalezieniu zwłok Antygony rani się mieczem, a Eurydyka odbiera sobie życie po wiadomości o śmierci syna.", "miejsce": "ekssodos"},
+    {"motyw": "rola chóru jako głosu społeczności", "przyklad": "Chór tebańskich starców komentuje spór Kreona z Antygoną i pyta posłańca o szczegóły wydarzeń.", "miejsce": "parodos; ekssodos"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/antygona/", "rodzaj": "utwór", "co": "Pobrany tekst w przekładzie Kazimierza Morawskiego; tekst nie ma numeracji scen, więc w miejscu użyto części tragedii (prolog, parodos, epejsodia, ekssodos) ułożonych według treści."}
+  ],
+  "do_weryfikacji": [
+    "Podział na epejsodia jest własny (wyznaczony na podstawie zmiany rozmówców), a nie wzięty z wydania; numeracja wersów w tekście WL nie jest podana.",
+    "Szczegóły epejsodionów III–V i stasimonów (pieśni chóru) nieprzeczytane w całości; potwierdzono prolog, spór w epejsodionie II i ekssodos."
+  ]
+}
