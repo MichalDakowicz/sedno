@@ -1,0 +1,75 @@
+{
+ "id": "satyry-krasickiego",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "krytyka naśladowania obcej mody",
+   "przyklad": "Żona pana Piotra domaga się francuskiej służącej, karety, kucharza i urządzenia domu na modłę francuską.",
+   "miejsce": "Żona modna",
+   "cytat": "Winszuję, panie Pietrze, żeś się już ożenił"
+  },
+  {
+   "motyw": "małżeństwo i rola kobiety w satyrze",
+   "przyklad": "Małżeńskie „cukrowe czasy” szybko mijają, a mąż traci kontrolę nad domem i majątkiem.",
+   "miejsce": "Żona modna"
+  },
+  {
+   "motyw": "nałóg i brak umiaru",
+   "przyklad": "Bohater usprawiedliwia kolejne kieliszki kolejnymi powodami (ból głowy, goście, zdrowie).",
+   "miejsce": "Pijaństwo",
+   "cytat": "Bogdaj w piekło przepadło obrzydłe pijaństwo!"
+  },
+  {
+   "motyw": "rozum a zwierzęta",
+   "przyklad": "Rozmówca mówi, że pijak jest gorszy od zwierząt, bo zwierzęta nie biorą więcej niż potrzeba.",
+   "miejsce": "Pijaństwo",
+   "cytat": "Użycie darów bożych powinno być w mierze."
+  },
+  {
+   "motyw": "ironia puenty",
+   "przyklad": "Mimo morału o trzeźwości bohater na końcu idzie napić się wódki, co pokazuje bezskuteczność upomnień.",
+   "miejsce": "Pijaństwo",
+   "cytat": "Zła to radość, mój bracie, po której żal chodzi."
+  },
+  {
+   "motyw": "udawany patriotyzm przy kieliszku",
+   "przyklad": "Przy butelkach pijacy omawiają miłość ojczyzny i reformy państwa, a kończy się bójką o króla Jana.",
+   "miejsce": "Pijaństwo"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Żona modna",
+   "miejsce": "Satyry, cz. I",
+   "opis": "Satyra dialogowa: pan Piotr skarży się koledze, że zaraz po ślubie jego żona narzuciła mu francuską modę: własny ekwipaż, francuskie służące, kosztowne urządzenie domu i ogrodu oraz kosztowne przyjęcia. Mąż traci władzę w domu i grozi mu ruina. Satyra wyśmiewa modę na obce zwyczaje i gospodarską nieudolność."
+  },
+  {
+   "tytul": "Pijaństwo",
+   "miejsce": "Satyry, cz. I",
+   "opis": "Satyra dialogowa: bohater opowiada, jak z okazji imienin żony upił się z kompanami, a po kolejnych „dla zdrowia” kieliszkach doszło do kłótni o króla Jana i bójki, w której oberwał butelką. Rozmówca wygłasza pochwałę trzeźwości (człowiek pijany jest gorszy od zwierząt); w końcowym wersie bohater idzie napić się wódki."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/satyry/",
+   "rodzaj": "utwór",
+   "co": "Podział na część pierwszą i drugą."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/satyry-czesc-pierwsza-pijanstwo/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst; przebieg i cytaty sprawdzone."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/satyry-czesc-pierwsza-zona-modna/",
+   "rodzaj": "utwór",
+   "co": "Tekst satyry czytany wyrywkowo (początek, środek, zakończenie); streszczenie ogólne."
+  }
+ ],
+ "do_weryfikacji": [
+  "Podstawa wymaga jednej wybranej satyry; opisano dwie przykładowe (Żona modna, Pijaństwo). Inne satyry nie zostały opracowane.",
+  "Streszczenie Żony modnej oparto na wyrywkowej lekturze (około jednej piątej wersów) — szczegóły scen z pustelnią, ogrodem i gośćmi nie zostały sprawdzone w całości.",
+  "Data pierwszego wydania satyr nie była sprawdzana w źródle."
+ ]
+}

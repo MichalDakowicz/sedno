@@ -1,0 +1,56 @@
+{
+ "id": "wiersze-baranczaka",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "poezja jako forma protestu",
+   "przyklad": "Według ZPE Barańczak uważał poezję za zawsze jakąś formę protestu — przeciw przemocy politycznej, ale i wobec nieuchronności śmierci.",
+   "miejsce": "Wiersze Barańczaka (ogólnie)"
+  },
+  {
+   "motyw": "krytyka nowomowy i systemu",
+   "przyklad": "W początkach twórczości poeta pokazywał absurd systemu totalitarnego i pustkę nowomowy (Nowa Fala).",
+   "miejsce": "Wiersze Barańczaka (ogólnie)"
+  },
+  {
+   "motyw": "nonkonformizm wobec zastanych wzorów",
+   "przyklad": "Poeta sprzeciwiał się konwencjonalnym i zastanym postawom, także w wymiarze egzystencjalnym i społecznym.",
+   "miejsce": "Drobnomieszczańskie cnoty"
+  },
+  {
+   "motyw": "muzyka i forma",
+   "przyklad": "Poeta bardzo dba o formę; Mozart i muzyka inspirują rozbudowane układy rymów.",
+   "miejsce": "Z okna na którymś piętrze ta aria Mozarta"
+  },
+  {
+   "motyw": "dobro trwałe wobec upadku historii",
+   "przyklad": "Aria Mozarta symbolizuje coś, co przetrwa upadające mocarstwa.",
+   "miejsce": "Z okna na którymś piętrze ta aria Mozarta"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Drobnomieszczańskie cnoty",
+   "miejsce": "przykład z katalogu",
+   "opis": "Wiersz wskazany w katalogu jako przykład. Zgodnie z tytułem ćwiczenia ZPE bohater wiersza odrzuca pewną postawę życiową (związaną z drobnomieszczańskimi „cnotami”) i wybiera inną. Szczegóły treści wiersza nie zostały sprawdzone — zob. do_weryfikacji."
+  },
+  {
+   "tytul": "Z okna na którymś piętrze ta aria Mozarta",
+   "miejsce": "przykład z materiału ZPE",
+   "opis": "Wiersz o arii Mozarta słyszanej z okna bloku w chwili, gdy „walą się mocarstwa”. Muzyka jest obietnicą trwałego dobra wobec zniszczeń historii. Utwór ma wyrafinowaną formę (powtarzające się rymy i wersy), zgodnie z opisem ZPE."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/a/przeczytaj/D4il8EjHH",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE „Jaką postawę życiową odrzuca, a jaką wybiera bohater wiersza Stanisława Barańczaka Drobnomieszczańskie cnoty?”: biografia poety, Nowa Fala, protest, forma, wiersz o arii Mozarta (tekst wiersza nie został skopiowany)."
+  }
+ ],
+ "do_weryfikacji": [
+  "Tekst „Drobnomieszczańskich cnót” nie był czytany; w materiale ZPE nie udało się odnaleźć opisu jego treści, więc opis ogranicza się do tytułu ćwiczenia — wymaga weryfikacji w pełnym materiale ZPE lub opracowaniu.",
+  "Barańczak zmarł w 2014 r., jego wiersze są chronione prawem autorskim; tekstów i cytatów nie podano.",
+  "Wybór wierszy CKE poza przykładem z katalogu nie został sprawdzony."
+ ]
+}
