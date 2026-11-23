@@ -28,7 +28,7 @@ lives in goal.md; the last session's state lives in handoff.md.
 
 ## Models
 
-builder `sonnet` · tester `haiku` · gap auditor `opus`
+From 2026-11-23 (user): heavy work (importer, parsers, data, wiring) `gpt-6.2-sol` (Codex); visual layer and UI `claude-sonnet-5-5`; testers alternate `gpt-6.1-terra` and `claude-haiku-5-5`; gap auditor `opus`.
 
 ## Decisions
 

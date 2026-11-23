@@ -1,37 +1,45 @@
 # Goal
 
-_Set 2026-11-20 · status: active_
+_Set 2026-11-23 · status: active_
 
-**Goal.** The teammate's list is closed: Pestka works on an account without its own AI key (once the server has a default key), a model hiccup is absorbed on the server, English sheets 2023/2024 have clean instructions, a shortened round is explained to the student, and a CKE recording that does not load in a round says so.
+**Goal.** Every planned matura subject is in Sedno with sheets from all CKE sessions that exist (main, additional, resit, CKE mock), as full text, grouped by session type in the sheet list; the full-screen Pestka chat has a new look.
 
-**In scope.** `services/supabase/functions` (default route, server-side retry), `services/arkusze` (parser, re-import, staging upload), `apps/web` quick round and round recordings.
-**Not in this goal.** The OpenAI key itself (the user adds it as a server secret later), handing `.env.staging` to the teammate (the user does it privately), hosting CKE recordings, production sheet upload and production deploy without the user's yes.
+**Subjects.** biologia, chemia, filozofia, fizyka, geografia, historia (only „historia”, not music or art history), informatyka, język łaciński i kultura antyczna, język polski, matematyka, wiedza o społeczeństwie, angielski. Other foreign languages are out.
+
+**In scope.** `services/arkusze` (catalog, download, parsers, `kontrola`, staging upload), `apps/web` (sheet list grouping, subject tabs, profile subjects, full-screen chat), `docs/` pages that describe the sheet list or chat.
+**Not in this goal.** Oral exams, other foreign languages, publishers' mock exams (Operon, Nowa Era: copyright), vocational exams, production upload and production deploy without the user's yes, exam dates for new subjects that are not confirmed on the CKE site.
+
+**Data contract** (shared by importer and app):
+- `przedmiot`: `angielski | matematyka | informatyka | polski | biologia | chemia | fizyka | geografia | historia | wos | filozofia | lacina`
+- entry gets `termin: "glowny" | "dodatkowy" | "poprawkowy" | "probny"` (missing = `glowny`) and optional `czesc` (e.g. „Część 1”) when one session has several booklets.
+- id: `<przedmiot>-<poziom>-<rok>-<sesja ascii>[-<czesc>][-formula-2015]`. Ids of the 47 sheets already in the database do not change (student progress is keyed by id).
+- New subjects use only block types that exist in `apps/web/src/arkusze/typy.ts`; anything new is agreed first.
 
 ## Done when
 
 ### Works
-- [x] An account without `ai_credential` gets a route from server secrets: tier `wazne` → sol model, `lekkie` → luna model; an account's own key still wins; without server secrets the reply is a clean `not_configured`, not a crash · proof: Deno tests (24/24, `czyTrasaSerwera`, `domyslnaTrasa`); staging `{status:true}` → `ready:true` for the test account; live on production for accounts without a key (commit 74a5b01, UI check)
-- [x] A 500 / 429 / network error from the provider gets one server-side retry, then the other tier's model; in a stream only before the first chunk; in both `ai` and `nauka-ai` · proof: Deno tests (upstream flag, stream before/after first chunk), audit 2
-- [x] Junk in 2024 task 4.3 („Przeczytaj tekst. ).”) and glued sub-question instructions in 2023 task 5.1 are fixed at the source; re-import and `kontrola` pass; sheets uploaded to staging · proof: cause was in the app (`zdania` in TrescRundy), DB data clean, no re-upload needed; script over 39 English sheets; tester saw no junk in round instructions
-- [ ] When a quick round is shortened after a streak (e.g. „4 z 6” → „5 z 5”), Pestka says „Cztery dobre z rzędu. Kończymy rundę wcześniej.” · proof: tester on staging — NOT reached live (no 4-streak after a mistake); code path reviewed in both audits
-- [x] A recording in a round that errors or gets no data for ~10 s shows the same notice as the sheet player („Strona CKE nie oddała nagrania. Spróbuj za chwilę.”) with „Wczytaj jeszcze raz” · proof: tester, unreachable src → notice in role=status in ~15 s; real recording 20 s without notice
+- [ ] `npm run pobierz` builds a catalog with all 12 subjects, formuła 2015 and 2023, every level CKE published, sessions main / additional / resit and CKE mocks; missing files are listed, not guessed · proof:
+- [ ] `npm run importuj` turns every catalog entry into a sheet with text content (paragraphs, sources, tables, code; images only for figures, maps, charts, formulas that text cannot carry), closed questions with the key letter, open questions with the CKE marking rule for self-check · proof:
+- [ ] `npm run kontrola` passes for all sheets; point totals match the sheet for a sample of every subject · proof:
+- [ ] Existing 47 sheets keep their ids and content quality (no regression in English, math, informatics) · proof:
+- [ ] Sheets uploaded to staging; a sheet of every subject opens, takes answers and checks them · proof:
+- [ ] Sheet list: tab per subject, groups Termin główny · Termin dodatkowy · Termin poprawkowy · Próbne (and formuła where both exist); student can pick the new subjects in onboarding and profile · proof:
 
 ### Looks
-- [x] New notices follow DESIGN.md (no cards, existing text styles) at 375 and 1280 px, light and dark · proof: tester 375 light/dark, 1280 light: plain text + link button, no card
+- [ ] Sheet list with 12 subjects and the full-screen chat follow `DESIGN.md` (lines, not cards) at 375 and 1280 px, light and dark · proof:
+- [ ] Full-screen chat has a new, deliberate layout (Sonnet design pass, before/after screenshots) · proof:
 
 ### Feels
-- [x] Notices are announced (`role="status"`), the reload button is reachable by keyboard · proof: tester DOM check, region mounted before text
+- [ ] Subject tabs and groups work by keyboard and screen reader; chat input, history and scroll behave on phone and desktop · proof:
 
 ### Holds up
-- [x] No key in logs or error bodies; retry does not duplicate saved grades; Opus audit has no blocker or major findings · proof: audit 1 (3 major) and audit 2 (1 major) fixed in rounds 1–2; detail hidden for provider sedno
+- [ ] Audit has no blocker or major findings; no CKE files or data in the repo · proof:
 
 ### Shipped
-- [x] `npm run typecheck`, `npm run build`, `deno test services/supabase/tests` green; branch + PR; tested on staging; Brief and `NASTEPNE.md` updated; production only on the user's yes · proof: 24/24 Deno, typecheck, build; PR #88 merged at the user's yes (92bde38)
+- [ ] `npm run typecheck`, `npm run build` green; branches + PRs; tested on staging (Terra and Haiku alternating); `NASTEPNE.md`, `services/arkusze/README.md` and Brief updated; production only on the user's yes · proof:
 
 ## Blocked on
-- Nothing. The route runs on Anthropic (sol / luna) and is live on production; the earlier OpenAI-key blocker is no longer relevant.
+- Nothing.
 
 ## Changes
-- 2026-11-21: live proof of the default route on production (74a5b01); Brief c56ae715 („ai dla każdego konta”) closed as done at the owner's request; the shortened-round bar stays open (not reached live)
-- 2026-11-20: parser bar met in the app instead of the importer (root cause); token ceiling default 4096 because the scratchpad needs 3400
-- 2026-11-20: goal set (approved by the user)
+- 2026-11-23: goal set (approved by the user): full text, not page crops; formuła 2015 included
