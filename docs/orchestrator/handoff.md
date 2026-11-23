@@ -1,6 +1,6 @@
 # Orchestration: handoff
 
-_Updated 2026-11-23 21:25_
+_Updated 2026-11-23 22:20_
 
 **State.** Goal 4 (`goal.md`) active: all matura subjects, sheet list by session type, drawing on figures with AI check, lektury for Pestka, full-screen chat. Nothing merged to `main` yet; all work on branches, staging (`dev`) has `rysowanie-ai` merged and 361 sheets (115 drawing questions).
 
@@ -20,3 +20,9 @@ _Updated 2026-11-23 21:25_
 **Open questions for the owner.** Sonnet's chat questions (stop button, grouping conversations, keyboard viewport). Production merge/deploy needs the owner's yes.
 
 **Next.** Collect builder reports, verify, deploy `lektury` to staging (migrations + `wgraj-teksty`), re-run the lektury test (after), merge order into main via PRs: lista-arkuszy → rysowanie-ai → czat-caly-ekran → wszystkie-matury (data) → lektury.
+
+**22:20 update.** Codex usage limit until 2026-11-24 02:49; scheduled task resumes at 02:55 four Codex threads: lektury server fix round (worktree t3-bc3e64b6, uncommitted), importer fix round 2 (t3-b3beb382), app fixes 375 px overflow + empty self-check (t3-fffd8f3b), lektury content part 1 (t3-f53e5da6). Claude credits low: no new Claude agents.
+- Done since 21:25: staging has `lektury` (migrations 0031–0037, WL texts for 63 works), importer fix round 1 (361 sheets, 100 drawing questions, old 47 ids kept) uploaded to staging; lektury content parts 2 and 3 finished (38 + 37 works, pushed); drawing undo fix (StrictMode) pushed.
+- Tests: lektury after-test (Terra) shows partial improvement, open issues in the server fix round; sheets QA round 2 (Terra) open issues in importer round 2.
+- June/August sessions: no official copies with keys (only OKE Łomża 2012/2014 without keys); groups stay hidden.
+- After all content parts: merge `lektury-tresc-1/2/3` into `lektury`, `npm run lektury:generuj`, deploy to staging, re-test lektury.
