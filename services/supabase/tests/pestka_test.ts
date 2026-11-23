@@ -36,6 +36,28 @@ Deno.test("bezpośrednie pytania z matematyki, informatyki i angielskiego nie wy
   assertEquals(zapytaniaDoBazy, 0);
 });
 
+Deno.test("prywatne fragmenty trafiają do promptu tylko przy odwołaniu do wcześniejszego czatu", async () => {
+  const wywolania: [string, string | null][] = [];
+  const przygotuj = (content: string, chronOdpowiedz = false) => przygotujCzat(
+    [{ role: "user", content }], { tryb: "czat", rozmowa: "rbiezaca", chronOdpowiedz },
+    { ...dostep, rozmowy: (id, pytanie) => {
+      wywolania.push([id, pytanie]);
+      return Promise.resolve([{ od: "student", tekst: "Projekt Bursztyn ma kod WIOSNA47." }, { od: "system", tekst: "Tego fragmentu nie ma w rozmowie." }]);
+    } },
+  );
+  const zwykle = await przygotuj("Przypomnij mi, co oznacza GROUP BY.");
+  assertEquals(wywolania, []);
+  assert(!String(zwykle.messages[0]?.content).includes("WIOSNA47"));
+  const pamiec = await przygotuj("Przypomnij kod projektu Bursztyn z poprzedniej rozmowy.");
+  assertEquals(wywolania, [["rbiezaca", "kod projektu bursztyn"]]);
+  assert(String(pamiec.messages[0]?.content).includes("WIOSNA47"));
+  assert(!String(pamiec.messages[0]?.content).includes("Tego fragmentu"));
+  await przygotuj("O czym gadaliśmy ostatnio?");
+  assertEquals(wywolania.at(-1), ["rbiezaca", null]);
+  await przygotuj("Pamiętasz projekt Bursztyn?", true);
+  assertEquals(wywolania.length, 2);
+});
+
 Deno.test("pytanie o Wokulskiego pobiera sekcję bohaterów Lalki i pokazuje wyłącznie użyte źródło", async () => {
   const krok = await przygotujCzat([{ role: "user", content: "Kim jest Wokulski?" }], { tryb: "czat" }, {
     ...dostep,

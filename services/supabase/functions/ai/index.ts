@@ -15,6 +15,7 @@ import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
 import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
 import { metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosbaPestki, uzupelnijZrodloLektury, weryfikuj } from "./pestka.ts";
 import type { OdpowiedzPestki } from "../_shared/pestka-odpowiedz.ts";
+import type { SzukajRozmow } from "./pamiec.ts";
 
 // Osłona transportu dla całego żądania. Historię czatu ogranicza okno dostawcy.
 const MAX_BODY = 8 * 1024 * 1024;
@@ -114,6 +115,13 @@ async function handle(req: Request): Promise<Response> {
       if (error) throw error;
       return data;
     },
+    rozmowy: (async (biezaca, pytanie) => {
+      const { data, error } = await admin.rpc("pestka_wyszukaj_rozmowy", {
+        p_user: user, p_biezaca: biezaca, p_pytanie: pytanie,
+      }).abortSignal(AbortSignal.any([signal, AbortSignal.timeout(3500)]));
+      if (error) throw error;
+      return data;
+    }) satisfies SzukajRozmow,
     zapytaj: async (messages: Message[]) => {
       const start = Date.now();
       const out = await chatRetry(route, { messages, maxTokens: ograniczTokeny(2700), signal }, { fallback });
