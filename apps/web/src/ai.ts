@@ -7,7 +7,7 @@ import { odczytajOdpowiedzPestki, type OdpowiedzPestki } from "../../../services
 export type Tier = "wazne" | "lekkie";
 export type AiMessage = { role: "system" | "user" | "assistant"; content: string };
 export type ProsbaPestki =
-  | { tryb: "czat"; przedmiot?: string; maProbe?: boolean; chronOdpowiedz?: boolean }
+  | { tryb: "czat"; przedmiot?: string; maProbe?: boolean; chronOdpowiedz?: boolean; rozmowa?: string }
   | { tryb: "lektura"; fragment: string; temat?: string };
 export type AiRequest = { tier: Tier; messages: AiMessage[]; task?: string; provider?: string; maxTokens?: number; temperature?: number; pestka?: ProsbaPestki };
 export type AiAnswer = { text: string; provider: string; model: string; pestka?: OdpowiedzPestki };

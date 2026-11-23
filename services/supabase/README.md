@@ -97,7 +97,7 @@ aby obraz Postgresa zawierał rozszerzenia `vector` i `unaccent`. Ładują
 Każda sekcja ma wskazane źródło i warunki użycia. Kolejna migracja może
 aktualizować treść tym samym kluczem `(przedmiot, utwor, sekcja)`. Trigger
 przeliczy wektor po zmianie tekstu lub haseł. Dostęp do wyszukiwania ma
-wyłącznie rola serwisowa. Rozmowy i prace uczniów nie trafiają do indeksu.
+wyłącznie rola serwisowa. Indeks lektur zawiera wyłącznie opracowania.
 
 Pilotaż używa 512-wymiarowych wektorów cech słów, liczonych w Postgresie.
 Migracja `0029_szerszy_kontekst_pestki.sql` zwraca trafne sekcje tego samego
@@ -117,6 +117,12 @@ Zwykły czat przekazuje całą historię i domyślnie pomija parametr
 `max_tokens`. Długość ustala dostawca. Bramka i zapis rozmowy mają
 limit transportowy 8 MiB. Sufit `SEDNO_AI_MAX_TOKENS` nadal dotyczy
 wywołań narzędzi z ustalonym formatem.
+
+Migracja `0030_pamiec_rozmow_pestki.sql` wektoryzuje zapisane rozmowy
+w prywatnej tabeli powiązanej z `tutor_chats`. Usunięcie rozmowy usuwa jej
+wektory. Bramka wyszukuje fragmenty z własnego konta, gdy uczeń odwołuje się
+do wcześniejszego czatu. W bieżącej rozmowie model nadal dostaje jej historię.
+Sprawdzanie zaznaczonych akapitów jest pomijane przy indeksowaniu rozmów.
 
 ## Aplikacja web
 

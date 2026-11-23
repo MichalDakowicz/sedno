@@ -216,6 +216,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
 
   const zacznijRozmowe = useCallback((k: KontekstPestki | null, powitanie = greeting) => {
     const id = noweId();
+    biezacaRef.current = id;
     kontekstRozmowy.current = k;
     setTematRozmowy(k?.tytul ?? null);
     setBiezacaRozmowa(id);
@@ -259,6 +260,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
           task: weryfikacja ? "pestka-sprawdz-lekture" : "pestka-czat",
           pestka: opcje.pestka ?? (!wsparcie && !k?.sokratejski ? {
             tryb: "czat", przedmiot: k?.przedmiot ?? opcje.przedmiot,
+            rozmowa: biezacaRef.current,
             chronOdpowiedz: k?.chronOdpowiedz,
             maProbe: k?.maProbe || historia.some((m) => m.od === "uczen" && /moja próba|moja odpowiedź|mój wynik|wyszło mi/i.test(m.tekst)),
           } : undefined),
@@ -439,6 +441,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     if (stanRef.current !== "idle") return;
     const r = wczytajRozmowy().find((x) => x.id === id);
     if (!r) return;
+    biezacaRef.current = id;
     kontekstRozmowy.current = null;
     setTematRozmowy(null);
     setBiezacaRozmowa(id);
