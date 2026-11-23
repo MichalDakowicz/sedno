@@ -36,7 +36,7 @@ Menu ma pięć pozycji: Pulpit, Nauka, Arkusze, Mapa umiejętności, Powtórki (
 | `/cele` | Quiz celów z Pestką (`views/QuizCelow.tsx`): cel w % na przedmiot, mocne i słabe obszary, czas i dni; ten sam quiz jest krokiem onboardingu |
 | `/arkusze` | Lista arkuszy CKE: angielski według poziomu, matematyka (podstawowy), informatyka (rozszerzony); `?przedmiot&poziom` |
 | `/arkusze/:id` | Rozwiązywanie arkusza i sprawdzanie z kluczem CKE, omawianie błędów z Pestką |
-| `/tutor` | Pełny widok rozmowy z Pestką |
+| `/tutor` | Pełny ekran rozmowy z Pestką bez górnego paska aplikacji (`AppLayout` pomija `TopNav`; Ctrl+K działa dalej): panel rozmów po lewej (od 1024 px stały i zwijany, niżej szuflada), wątek do 42 rem, pole wiadomości na dole, „Wróć” w panelu albo w pasku nagłówka |
 | `/do-matury` | Odliczanie do egzaminów i cele z profilu ucznia |
 | `/profil` | Przedmioty, AI na koncie, wejścia do ustawień, profilu ucznia i układu pulpitu |
 | `/profil-ucznia` | Jak się uczysz, czas i cel, priorytety, wnioski z wyników |

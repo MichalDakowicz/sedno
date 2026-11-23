@@ -1,5 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowLeft, ArrowUp, MessageSquare, Plus } from "lucide-react";
+import { ArrowLeft, ArrowUp, PanelLeft, Search, SquarePen } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useProfil } from "../auth";
 import { PRZEDMIOTY, type PrzedmiotId } from "../konto/przedmioty";
@@ -9,6 +9,7 @@ import { OdpowiedzPestki } from "./OdpowiedzPestki";
 import { useTutor } from "./TutorContext";
 import styles from "./TutorChat.module.css";
 import { MAPA_WIEDZY_WLACZONA } from "../nauka/wiedza";
+import { OTWORZ_SZUKAJ } from "./Wyszukiwanie";
 
 const kiedy = (iso: string) => {
   const dni = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
@@ -40,6 +41,30 @@ function usePrzedmiotRozmowy(): PrzedmiotId | null {
   return przedmiotZAdresu(pathname, search) ?? profil?.subjects?.[0]?.id ?? null;
 }
 
+const WASKI = "(max-width: 1023.98px)";
+const KLUCZ_PANELU = "sedno.czat.panel-zwiniety";
+
+/** Poniżej 1024 px panel rozmów jest szufladą nad wątkiem, od 1024 px stałą kolumną. */
+function useWaski() {
+  const [waski, ustaw] = useState(() => window.matchMedia(WASKI).matches);
+  useEffect(() => {
+    const m = window.matchMedia(WASKI);
+    const zmiana = () => ustaw(m.matches);
+    zmiana();
+    m.addEventListener("change", zmiana);
+    return () => m.removeEventListener("change", zmiana);
+  }, []);
+  return waski;
+}
+
+function zwiniety(): boolean {
+  try {
+    return localStorage.getItem(KLUCZ_PANELU) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
   pelny?: boolean;
   poWyslaniu?: () => void;
@@ -51,6 +76,10 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
   } = useTutor();
   const przedmiotNotatki = usePrzedmiotRozmowy();
   const [lista, setLista] = useState(false);
+  const waski = useWaski();
+  const [zwinieta, ustawZwinieta] = useState(zwiniety);
+  const panelOtwarty = waski ? lista : !zwinieta;
+  const panelRef = useRef<HTMLElement>(null);
   const listaId = useId();
   const poleId = useId();
   const widoczneRozmowy = pelny ? rozmowy : rozmowy.filter((r) => r.id !== biezacaRozmowa);
@@ -67,6 +96,11 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
     if (pelny) naglowekRef.current?.focus({ preventScroll: true });
   }, [pelny]);
 
+  // Szuflada na wąskim ekranie: fokus wchodzi do panelu, a po zamknięciu wraca na przycisk historii (zamknijHistorie).
+  useEffect(() => {
+    if (pelny && waski && lista) panelRef.current?.querySelector<HTMLElement>("button:not(:disabled)")?.focus({ preventScroll: true });
+  }, [pelny, waski, lista]);
+
   useLayoutEffect(() => {
     const el = listRef.current;
     if (el?.clientHeight && sledziKoniec.current) {
@@ -80,8 +114,25 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
   }
 
   function zamknijHistorie() {
-    if (lista) historiaRef.current?.focus({ preventScroll: true });
     setLista(false);
+    // Wątek jest jeszcze nieaktywny (inert), dopóki szuflada się nie zamknie, więc fokus wraca po przerysowaniu.
+    if (lista) requestAnimationFrame(() => historiaRef.current?.focus({ preventScroll: true }));
+  }
+
+  function przelaczPanel() {
+    if (waski) {
+      if (lista) zamknijHistorie();
+      else setLista(true);
+      return;
+    }
+    ustawZwinieta((z) => {
+      try {
+        localStorage.setItem(KLUCZ_PANELU, z ? "0" : "1");
+      } catch {
+        // zwinięcie zostaje do końca wizyty
+      }
+      return !z;
+    });
   }
 
   function zacznijNowa() {
@@ -128,51 +179,84 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
 
   const nowa = (
     <button type="button" className={styles.nowaRozmowa} onClick={zacznijNowa} disabled={zajeta} title={powod}>
-      <Plus size={18} aria-hidden="true" />
+      <SquarePen size={18} aria-hidden="true" />
       <span>Nowa rozmowa</span>
     </button>
   );
-  const powitanie = pelny && !jestPytanie && !tematRozmowy && aiGotowe !== false;
+  // Gdy szuflada jest otwarta, wątek pod nią nie przyjmuje fokusu.
+  const blokada = waski && lista ? { inert: "" } : {};
+  const puste = pelny && !jestPytanie && !tematRozmowy;
+  const niedostepna = puste && aiGotowe === false;
+  const powitanie = puste && aiGotowe !== false;
+  const podpowiedzi = !!suggestions.length && (
+    <div className={styles.suggestions}>
+      {suggestions.map((s) => (
+        <button key={s} type="button" className={styles.chip} onClick={() => wyslij(s)} disabled={zajeta}>
+          {s}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
-    <div className={styles.chat} data-pelny={pelny || undefined} data-historia={lista || undefined}>
+    <div className={styles.chat} data-pelny={pelny || undefined} data-historia={lista || undefined} data-zwinieta={zwinieta || undefined}>
       {pelny ? (
         <>
-          <header className={styles.pelnyNaglowek}>
-            <button type="button" className={styles.wroc} onClick={zamknijPelny} aria-label="Wróć do Sedno" title="Wróć do Sedno">
-              <ArrowLeft size={19} aria-hidden="true" />
-            </button>
+          <aside
+            ref={panelRef}
+            className={styles.historiaPanel}
+            id={listaId}
+            aria-label="Historia rozmów"
+            onKeyDown={(e) => { if (waski && lista && e.key === "Escape") zamknijHistorie(); }}
+          >
+            <div className={styles.panelGora}>
+              <button type="button" className={styles.wroc} onClick={zamknijPelny} title="Wróć do Sedno">
+                <ArrowLeft size={18} aria-hidden="true" />
+                <span>Wróć</span>
+              </button>
+              <button type="button" className={styles.ikona} onClick={przelaczPanel} aria-label="Zwiń historię rozmów" aria-controls={listaId} aria-expanded={panelOtwarty}>
+                <PanelLeft size={20} aria-hidden="true" />
+              </button>
+            </div>
+            <div className={styles.panelNowa}>{nowa}</div>
+            <h2 className={styles.historiaTytul}>Rozmowy</h2>
+            {widoczneRozmowy.length ? historia : <p className={styles.historiaPusta}>Tu pojawią się twoje zapisane rozmowy.</p>}
+          </aside>
+          <div className={styles.zaslona} onClick={zamknijHistorie} aria-hidden="true" />
+          <header className={styles.pelnyNaglowek} {...blokada}>
             <button
               ref={historiaRef}
               type="button"
-              className={styles.historiaPrzelacznik}
+              className={`${styles.ikona} ${styles.wPasku}`}
               aria-label="Historia rozmów"
               aria-controls={listaId}
-              aria-expanded={lista}
-              onClick={() => setLista((otwarta) => !otwarta)}
-              onKeyDown={(e) => { if (lista && e.key === "Escape") zamknijHistorie(); }}
+              aria-expanded={panelOtwarty}
+              onClick={przelaczPanel}
             >
-              <MessageSquare size={19} aria-hidden="true" />
+              <PanelLeft size={20} aria-hidden="true" />
             </button>
-            <TutorAvatar size={36} state={state} />
+            <button type="button" className={`${styles.ikona} ${styles.wPasku}`} onClick={zamknijPelny} aria-label="Wróć do Sedno" title="Wróć do Sedno">
+              <ArrowLeft size={20} aria-hidden="true" />
+            </button>
+            <TutorAvatar size={32} state={state} />
             <div className={styles.pelnyTytul}>
               <h1 ref={naglowekRef} tabIndex={-1}>Pestka</h1>
               {tematRozmowy && <p>{tematRozmowy}</p>}
             </div>
-            <div className={styles.mobilnaNowa}>{nowa}</div>
+            <button
+              type="button"
+              className={styles.ikona}
+              onClick={() => window.dispatchEvent(new Event(OTWORZ_SZUKAJ))}
+              aria-label="Szukaj"
+              aria-keyshortcuts="Control+K Meta+K"
+              title="Szukaj (Ctrl+K)"
+            >
+              <Search size={20} aria-hidden="true" />
+            </button>
+            <button type="button" className={`${styles.ikona} ${styles.wPasku}`} onClick={zacznijNowa} disabled={zajeta} title={powod ?? "Nowa rozmowa"} aria-label="Nowa rozmowa">
+              <SquarePen size={20} aria-hidden="true" />
+            </button>
           </header>
-          <aside
-            className={styles.historiaPanel}
-            id={listaId}
-            aria-label="Historia rozmów"
-            onKeyDown={(e) => { if (lista && e.key === "Escape") zamknijHistorie(); }}
-          >
-            <div className={styles.historiaNaglowek}>
-              <h2 className={styles.historiaTytul}>Rozmowy</h2>
-              {nowa}
-            </div>
-            {widoczneRozmowy.length ? historia : <p className={styles.historiaPusta}>Tu pojawią się twoje zapisane rozmowy.</p>}
-          </aside>
         </>
       ) : (
         <div className={styles.rozmowyPasek}>
@@ -199,17 +283,25 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
           aria-label="Wiadomości"
           role="log"
           tabIndex={pelny ? 0 : undefined}
+          {...blokada}
           onScroll={(e) => {
             const { scrollHeight, scrollTop, clientHeight } = e.currentTarget;
             sledziKoniec.current = scrollHeight - scrollTop - clientHeight <= 64;
           }}
         >
           <div className={styles.wiadomosci}>
-            {powitanie ? (
+            {niedostepna ? (
+              <div className={styles.powitanie}>
+                <TutorAvatar size={96} state="zmartwienie" />
+                <h2 className={styles.powitanieTytul}>Pestka jest chwilowo niedostępna</h2>
+                <p className="lead">Spróbuj za chwilę.</p>
+              </div>
+            ) : powitanie ? (
               <div className={styles.powitanie}>
                 <TutorAvatar size={96} />
                 <h2 className={styles.powitanieTytul}>W czym mogę pomóc?</h2>
                 <p className="lead">Zadaj pytanie, wklej zadanie albo pokaż swoją próbę.</p>
+                {podpowiedzi}
               </div>
             ) : messages.map((m, i) =>
               m.from === "tutor" ? (
@@ -264,8 +356,7 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
             {state === "thinking" && (
               <div className={styles.tutorRow}>
                 <TutorAvatar size={pelny ? 32 : 28} state="thinking" />
-                <span className={styles.typing} aria-label="Pestka pisze">
-                  <i />
+                <span className={styles.pisze} role="status" aria-label="Pestka pisze">
                   <i />
                   <i />
                 </span>
@@ -275,20 +366,14 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
         </div>
       )}
 
-      <div className={styles.composer}>
+      <div className={styles.composer} {...blokada}>
         {aiGotowe === false ? (
-          <p className="small muted">
-            Pestka jest chwilowo niedostępna. Spróbuj za chwilę.
-          </p>
-        ) : (!pelny || powitanie) && !!suggestions.length && (
-          <div className={styles.suggestions}>
-            {suggestions.map((s) => (
-              <button key={s} type="button" className={styles.chip} onClick={() => wyslij(s)} disabled={zajeta}>
-                {s}
-              </button>
-            ))}
-          </div>
-        )}
+          !niedostepna && (
+            <p className="small muted">
+              Pestka jest chwilowo niedostępna. Spróbuj za chwilę.
+            </p>
+          )
+        ) : !pelny && podpowiedzi}
         <form className={styles.form} onSubmit={submit}>
           <label htmlFor={poleId} className="visually-hidden">
             Wiadomość do Pestki

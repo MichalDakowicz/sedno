@@ -294,51 +294,75 @@
   overflow-wrap: anywhere;
 }
 
-/* Pełny ekran: jedno okno rozmowy (karta) na kremowym tle strony, z listą rozmów po lewej. */
+/*
+ * Pełny ekran: czat zajmuje cały ekran, bez paska aplikacji nad nim.
+ * Panel rozmów (biała powierzchnia) | wątek na kremowym tle z siatką, pole wiadomości na dole wątku.
+ * Poniżej 1024 px panel jest szufladą nad wątkiem.
+ */
 .chat[data-pelny] {
   --szerokosc-rozmowy: 42rem;
-  --odstep-rozmowy: clamp(var(--s-4), 3vw, var(--s-7));
+  --odstep-rozmowy: clamp(var(--s-4), 3vw, var(--s-6));
+  --wysokosc-naglowka: 64px;
   display: grid;
   grid-template:
     "historia naglowek" auto
     "historia rozmowa" minmax(0, 1fr)
     "historia composer" auto
-    / minmax(14rem, 18rem) minmax(0, 1fr);
+    / 18rem minmax(0, 1fr);
+  flex: 1;
   width: 100%;
   height: auto;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-float);
 }
 
+.chat[data-pelny][data-zwinieta] {
+  grid-template:
+    "naglowek" auto
+    "rozmowa" minmax(0, 1fr)
+    "composer" auto
+    / minmax(0, 1fr);
+}
+
+/* Panel rozmów */
 .historiaPanel {
   grid-area: historia;
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  background: var(--surface);
   border-inline-end: 1px solid var(--line);
 }
 
-.historiaNaglowek {
-  display: grid;
-  gap: var(--s-3);
-  padding: var(--s-5) var(--s-4) var(--s-3);
+.panelGora {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--wysokosc-naglowka);
+  padding: 0 var(--s-3);
+}
+
+.panelNowa {
+  padding: var(--s-1) var(--s-3) var(--s-3);
+}
+
+.panelNowa .nowaRozmowa {
+  width: 100%;
+}
+
+.nowaRozmowa svg {
+  color: var(--primary-text);
 }
 
 .historiaTytul {
-  margin: 0;
-  font-size: var(--t-xs);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--subtle);
+  margin: var(--s-2) var(--s-4) var(--s-1);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--muted);
 }
 
 .historiaPanel .rozmowyLista {
-  padding: var(--s-1) var(--s-3) var(--s-4);
+  padding: 0 var(--s-3) var(--s-4);
   overscroll-behavior: contain;
 }
 
@@ -374,7 +398,6 @@
 .historiaPanel .rozmowyLista button:hover:not(:disabled),
 .historiaPanel .rozmowyLista button[aria-current] {
   background: var(--primary-soft);
-  color: var(--fg);
 }
 
 .historiaPanel .rozmowyLista button:hover > span:first-child {
@@ -392,8 +415,13 @@
   font-size: var(--t-sm);
 }
 
+.zaslona {
+  display: none;
+}
+
+/* Przyciski paska i panelu: ikona 44 px albo ikona z krótkim podpisem. */
 .nowaRozmowa,
-.historiaPrzelacznik,
+.ikona,
 .wroc {
   display: inline-flex;
   min-width: 44px;
@@ -413,32 +441,43 @@
   transition: background-color var(--ruch-szybki) var(--ruch-krzywa), color var(--ruch-szybki) var(--ruch-krzywa);
 }
 
+.ikona {
+  padding: 0;
+}
+
 .nowaRozmowa {
   border-color: var(--line);
   color: var(--fg);
 }
 
 .nowaRozmowa:hover:not(:disabled),
-.historiaPrzelacznik:hover,
-.historiaPrzelacznik[aria-expanded="true"],
+.ikona:hover:not(:disabled),
 .wroc:hover {
   background: var(--primary-soft);
   color: var(--fg);
 }
 
-.nowaRozmowa:disabled {
+.nowaRozmowa:disabled,
+.ikona:disabled {
   opacity: 0.6;
   cursor: default;
 }
 
+/* Nagłówek wątku: tożsamość Pestki po lewej, szukanie i nowa rozmowa po prawej. */
 .pelnyNaglowek {
   grid-area: naglowek;
   display: flex;
   align-items: center;
-  gap: var(--s-3);
+  gap: var(--s-2);
   min-width: 0;
-  padding: var(--s-3) max(var(--odstep-rozmowy), calc((100% - var(--szerokosc-rozmowy)) / 2));
+  min-height: var(--wysokosc-naglowka);
+  padding: var(--s-2) var(--odstep-rozmowy);
   border-bottom: 1px solid var(--line);
+}
+
+.pelnyNaglowek > svg {
+  flex-shrink: 0;
+  margin-inline-start: var(--s-1);
 }
 
 .pelnyTytul {
@@ -466,15 +505,20 @@
   white-space: nowrap;
 }
 
-.historiaPrzelacznik,
-.mobilnaNowa {
+/* Pozycje paska, które mają sens tylko wtedy, gdy panel nie stoi obok. */
+.wPasku {
   display: none;
 }
 
+.chat[data-pelny][data-zwinieta] .wPasku {
+  display: inline-flex;
+}
+
+/* Wątek */
 .chat[data-pelny] .list {
   grid-area: rozmowa;
   scrollbar-gutter: stable both-edges;
-  padding: var(--s-6) var(--odstep-rozmowy);
+  padding: var(--s-6) var(--odstep-rozmowy) var(--s-5);
   outline-offset: -2px;
 }
 
@@ -483,11 +527,12 @@
   max-width: var(--szerokosc-rozmowy);
   min-height: 100%;
   margin-inline: auto;
-  gap: var(--s-5);
+  gap: var(--s-6);
 }
 
 .chat[data-pelny] .tutorRow {
   max-width: 100%;
+  gap: var(--s-4);
 }
 
 .chat[data-pelny] .studentText {
@@ -499,11 +544,48 @@
   line-height: 1.6;
 }
 
+.chat[data-pelny] .akcje .chip {
+  min-height: 40px;
+}
+
+/* Pestka pisze: dwie linie szkieletu w miejscu odpowiedzi (jak ładowanie w reszcie aplikacji). */
+.pisze {
+  display: grid;
+  gap: var(--s-2);
+  width: min(24rem, 100%);
+  padding-top: var(--s-2);
+}
+
+.pisze i {
+  display: block;
+  height: 12px;
+  border-radius: var(--r-xs);
+  background: linear-gradient(90deg, var(--line) 0%, var(--shimmer) 50%, var(--line) 100%);
+  background-size: 200% 100%;
+  animation: blysk 1.4s ease-in-out infinite;
+}
+
+.pisze i:last-child {
+  width: 60%;
+}
+
+@keyframes blysk {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* Pusty wątek: Pestka, jedno zdanie i gotowe pytania. */
 .powitanie {
   display: grid;
   justify-items: center;
   gap: var(--s-3);
+  max-width: 40rem;
   margin: auto;
+  padding-block: var(--s-5);
   text-align: center;
 }
 
@@ -520,9 +602,19 @@
   margin-bottom: var(--s-2);
 }
 
+.powitanie .suggestions {
+  justify-content: center;
+  margin-top: var(--s-4);
+}
+
+.chat[data-pelny] .chip {
+  min-height: 44px;
+}
+
+/* Pole wiadomości: jedna obwódka na pole i przycisk wysyłania; fokus podświetla całość. */
 .chat[data-pelny] .composer {
   grid-area: composer;
-  padding: var(--s-3) var(--odstep-rozmowy) var(--s-5);
+  padding: var(--s-2) var(--odstep-rozmowy) max(var(--s-5), env(safe-area-inset-bottom));
   border-top: 0;
 }
 
@@ -532,23 +624,10 @@
   margin-inline: auto;
 }
 
-.chat[data-pelny] .suggestions {
-  justify-content: center;
-}
-
-.chat[data-pelny] .chip {
-  min-height: 44px;
-}
-
-.chat[data-pelny] .akcje .chip {
-  min-height: 40px;
-}
-
 .chat[data-pelny] .composer > p {
   text-align: center;
 }
 
-/* Pole i przycisk wysyłania stoją w jednej obwódce; fokus podświetla całość. */
 .chat[data-pelny] .form {
   align-items: flex-end;
   gap: var(--s-2);
@@ -556,11 +635,12 @@
   border: 1px solid var(--line);
   border-radius: var(--r-md);
   background: var(--surface);
-  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa), box-shadow var(--ruch-szybki) var(--ruch-krzywa);
 }
 
 .chat[data-pelny] .form:focus-within {
   border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
 .chat[data-pelny] .pole {
@@ -575,69 +655,92 @@
   field-sizing: content;
 }
 
+.chat[data-pelny] .pole:focus-visible {
+  outline: none;
+}
+
 .chat[data-pelny] .form :global(.btn) {
   width: 44px;
   min-height: 44px;
   border-radius: var(--r-pill);
 }
 
-@media (max-width: 760px) {
+/* Od 1024 px panel to stała kolumna, zwijana przyciskiem. */
+@media (min-width: 1024px) {
+  .chat[data-pelny][data-zwinieta] .historiaPanel {
+    display: none;
+  }
+}
+
+/* Poniżej 1024 px panel jest szufladą z lewej, wątek zajmuje cały ekran. */
+@media (max-width: 1023.98px) {
   .chat[data-pelny] {
-    --odstep-rozmowy: var(--s-4);
     grid-template:
       "naglowek" auto
       "rozmowa" minmax(0, 1fr)
       "composer" auto
       / minmax(0, 1fr);
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
   }
 
-  .pelnyNaglowek {
-    gap: var(--s-2);
-    padding-block: var(--s-2);
-  }
-
-  .pelnyNaglowek > svg {
-    flex-shrink: 0;
-  }
-
-  .historiaPrzelacznik,
-  .mobilnaNowa {
+  .wPasku {
     display: inline-flex;
   }
 
-  .mobilnaNowa .nowaRozmowa {
-    padding-inline: var(--s-2);
-    border-color: transparent;
-  }
-
   .historiaPanel {
-    display: none;
-    grid-area: rozmowa;
-    border: 0;
-  }
-
-  .historiaNaglowek .nowaRozmowa {
-    display: none;
+    position: fixed;
+    z-index: 30;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: min(20rem, 88vw);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: var(--shadow-raised);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform var(--ruch-zwykly) var(--ruch-krzywa), visibility 0s linear var(--ruch-zwykly);
   }
 
   .chat[data-pelny][data-historia] .historiaPanel {
-    display: flex;
+    transform: none;
+    visibility: visible;
+    transition: transform var(--ruch-zwykly) var(--ruch-krzywa), visibility 0s;
   }
 
-  .chat[data-pelny][data-historia] :is(.list, .composer) {
-    display: none;
+  .zaslona {
+    display: block;
+    position: fixed;
+    z-index: 29;
+    inset: 0;
+    background: var(--scrim);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--ruch-zwykly) var(--ruch-krzywa), visibility 0s linear var(--ruch-zwykly);
+  }
+
+  .chat[data-pelny][data-historia] .zaslona {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity var(--ruch-zwykly) var(--ruch-krzywa), visibility 0s;
+  }
+
+  .pelnyNaglowek {
+    --odstep-rozmowy: var(--s-3);
+    min-height: 56px;
+    padding-top: max(var(--s-1), env(safe-area-inset-top));
+    padding-bottom: var(--s-1);
   }
 
   .chat[data-pelny] .list {
-    padding-block: var(--s-4);
+    padding-block: var(--s-5) var(--s-4);
     scrollbar-gutter: auto;
   }
 
+  .chat[data-pelny] .wiadomosci {
+    gap: var(--s-5);
+  }
+
   .chat[data-pelny] .composer {
-    padding-bottom: var(--s-3);
+    padding-bottom: max(var(--s-3), env(safe-area-inset-bottom));
   }
 
   .chat[data-pelny] .studentText {
@@ -645,19 +748,18 @@
   }
 }
 
-@media (max-width: 390px) {
-  .mobilnaNowa .nowaRozmowa span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    clip-path: inset(50%);
-    overflow: hidden;
-    white-space: nowrap;
+@media (max-width: 640px) {
+  .chat[data-pelny] .tutorRow {
+    gap: var(--s-3);
+  }
+
+  .powitanieTytul {
+    font-size: calc(32px * var(--skala-tekstu, 1));
   }
 }
 
 @media (max-height: 430px) {
-  .chat[data-pelny] .suggestions {
+  .powitanie .suggestions {
     display: none;
   }
 }
