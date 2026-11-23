@@ -37,6 +37,11 @@ function blad(e: { code?: string; message?: string } | null, domyslny: string): 
   throw new BladWiedzy(domyslny);
 }
 
+/** Baza (migracja 0013) przyjmuje notatki tylko z tych czterech przedmiotów; reszta nie może dojść do zapisu. */
+export const PRZEDMIOTY_MAPY_WIEDZY: PrzedmiotId[] = ["polski", "matematyka", "angielski", "informatyka"];
+export const czyMapaWiedzy = (p: string): p is PrzedmiotId => (PRZEDMIOTY_MAPY_WIEDZY as string[]).includes(p);
+const bezMapy = () => new BladWiedzy("Mapa wiedzy nie obejmuje jeszcze tego przedmiotu.");
+
 export async function pobierzMape(przedmiot: PrzedmiotId, signal?: AbortSignal): Promise<MapaWiedzy> {
   const [n, p] = await Promise.all([
     supabase.from("knowledge_nodes").select(KOLUMNY).eq("subject", przedmiot)
@@ -53,6 +58,7 @@ export async function dodajNotatke(
   przedmiot: PrzedmiotId, title: string, body: string,
   dodatki: { zrodlo?: ZrodloNotatki; skill_id?: string | null } = {},
 ): Promise<Notatka> {
+  if (!czyMapaWiedzy(przedmiot)) throw bezMapy();
   const { data, error } = await supabase.from("knowledge_nodes")
     .insert({
       subject: przedmiot, title: title.trim().slice(0, LIMIT_TYTULU), body: body.trim().slice(0, LIMIT_TRESCI),
@@ -85,6 +91,7 @@ export async function przypnijDoUmiejetnosci(id: string, skill_id: string | null
 /** Ręczne połączenie dwóch notatek. Krawędź jest nieskierowana: baza trzyma ją z mniejszym id na pierwszym miejscu. */
 export async function polaczNotatki(przedmiot: PrzedmiotId, a: string, b: string, label: string): Promise<void> {
   if (a === b) return;
+  if (!czyMapaWiedzy(przedmiot)) throw bezMapy();
   const [first_id, second_id] = a < b ? [a, b] : [b, a];
   const { error } = await supabase.from("knowledge_edges").insert({ subject: przedmiot, first_id, second_id, label: label.trim().slice(0, LIMIT_ETYKIETY) });
   if (error?.code === "23505") throw new BladWiedzy("Te notatki są już połączone.");

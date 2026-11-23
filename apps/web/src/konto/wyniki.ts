@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useListaArkuszy } from "../arkusze/dane";
 import type { Postep } from "../arkusze/postep";
-import type { ArkuszWpis, Poziom } from "../arkusze/typy";
+import { porownajArkusze, type ArkuszWpis, type Poziom } from "../arkusze/typy";
 import { liczOdpowiedzi } from "../arkusze/sprawdz";
 import { currentUserId } from "../auth";
 import { supabase } from "../supabase";
@@ -76,7 +76,8 @@ export function usePostepyKonta(): Wiersz[] | null {
 }
 
 export function podsumuj(przedmiot: MojPrzedmiot, lista: ArkuszWpis[], wiersze: Wiersz[]): Podsumowanie {
-  const arkusze = lista.filter((a) => a.przedmiot === przedmiot.id && a.poziom === przedmiot.poziom);
+  // Polecenie dnia bierze pierwszy nieruszony: formuła 2023 i termin główny przed starszymi, dodatkowymi i próbnymi.
+  const arkusze = lista.filter((a) => a.przedmiot === przedmiot.id && a.poziom === przedmiot.poziom).sort(porownajArkusze);
   const innePoziomy = arkusze.length ? [] : [...new Set(lista.filter((a) => a.przedmiot === przedmiot.id).map((a) => a.poziom))];
   const wgId = new Map(arkusze.map((a) => [a.id, a]));
   const wyniki: Wynik[] = [];

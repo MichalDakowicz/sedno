@@ -94,6 +94,8 @@ export type FormaZadania = "liczba" | "tekst" | "lista" | "pola" | "sql";
 export type ZadanieWariantu = { polecenie: string; forma: FormaZadania; punkty: number; dane?: unknown; pola?: string[] };
 export type Wariant = { id: string; szablon: string; przedmiot: PrzedmiotWariantu; zadanie: ZadanieWariantu };
 export type OdpowiedzWariantu = { tekst?: string; kod?: string; pola?: Record<string, string> };
+// Odpowiedź na pytanie z arkusza: obraz to figura z rysunkiem ucznia (arkusze/rysunek.ts), tekst to opis słowami.
+export type OdpowiedzNaPytanie = OdpowiedzWariantu & { obraz?: { mime: "image/jpeg" | "image/png" | "image/webp"; base64: string } };
 export type Kryterium = { opis: string; punkty: number; maksPunktow: number };
 export type OcenaRozwiazania = {
   proba: string;
@@ -137,6 +139,11 @@ export const naukaAi = {
       .then((w) => sprawdz(w, (x) => x.id === id && tekst(x.zadanie?.polecenie) && tekst(x.zadanie?.forma))),
   ocenWariant: (proba: string, wariant: string, odpowiedz: OdpowiedzWariantu, signal?: AbortSignal) =>
     wywolaj<OcenaRozwiazania>({ action: "ocen-rozwiazanie", proba, wariant, odpowiedz }, signal)
+      .then((w) => sprawdz(w, (x) => (x.status === "ocenione" || x.status === "do-weryfikacji") && tekst(x.opis))),
+  // Pytanie z arkusza: serwer sam bierze polecenie, zasady i rozwiązanie CKE z bazy po (arkusz, pytanie), więc
+  // klient niczego z rubryki nie wysyła (uczeń nie może jej podmienić).
+  ocenPytanieArkusza: (proba: string, arkusz: string, pytanie: string, odpowiedz: OdpowiedzNaPytanie, signal?: AbortSignal) =>
+    wywolaj<OcenaRozwiazania>({ action: "ocen-rozwiazanie", proba, arkusz, pytanie, odpowiedz }, signal)
       .then((w) => sprawdz(w, (x) => (x.status === "ocenione" || x.status === "do-weryfikacji") && tekst(x.opis))),
   odczytajZdjecie: (obraz: ObrazDoWyslania, signal?: AbortSignal) =>
     wywolaj<OdczytZdjecia>({ action: "odczytaj-zdjecie", obraz }, signal)

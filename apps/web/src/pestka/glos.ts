@@ -59,6 +59,7 @@ export const glos = {
     proby: ["Jeszcze tu pusto. Jedna runda pokaże mi, od czego zacząć."],
     wyniki: ["Jeszcze nie mam twojego wyniku. Jeden arkusz pokaże mi, gdzie jesteś."],
     ogolne: ["Na razie tu pusto."],
+    mapaDzialow: ["Mapy działów z tego przedmiotu jeszcze nie mam. Zajrzyj do arkuszy."],
   },
   ladowanie: ["Już patrzę.", "Chwilę, zbieram twoje wyniki.", "Szukam, co dziś warto."],
   bledy: {

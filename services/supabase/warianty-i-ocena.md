@@ -15,7 +15,7 @@ Każde nowe żądanie zadania losuje dane z jednego z dziesięciu szablonów. Kl
 - Dla form `liczba`, `tekst` i `lista` użyj `odpowiedz.tekst`. Liczbę można zapisać dziesiętnie, jako ułamek lub procent. Pierwiastki równania oddziel średnikiem.
 - Dla formy `pola` użyj `odpowiedz.pola` z nazwami z `zadanie.pola`. Każde pole przyjmuje tekst.
 - Dla formy `sql` użyj `odpowiedz.kod`. Szablon sum w grupach sprawdza pojedynczy `SELECT` z grupowaniem po dziale na widocznym i dodatkowych zestawach. Rozpoznaje `SUM` i `COUNT`, filtr roku oraz kolejność działów. Ocena zapytania spoza tego podzbioru wymaga weryfikacji.
-- Dla arkusza można przekazać `odpowiedz.tekst`, `wynik`, `kod`, `jezyk` oraz zdjęcie `obraz:{mime,base64}` jak w `odczytaj-zdjecie`. Identyfikator `pytanie` przyjmuje również podpunkty, np. `"3.1"`. Ocena dotyczy otwartych pytań z matematyki i informatyki.
+- Dla arkusza można przekazać `odpowiedz.tekst`, `wynik`, `kod`, `jezyk` oraz zdjęcie `obraz:{mime,base64}` jak w `odczytaj-zdjecie`. Identyfikator `pytanie` przyjmuje również podpunkty, np. `"3.1"`. Ocena dotyczy otwartych pytań z matematyki i informatyki oraz otwartych pytań z polem `rysowanie` w dowolnym przedmiocie. Wtedy `obraz` to figura z arkusza z kreskami ucznia, a model dostaje także `rysowanie.polecenie`. Pusty lub nieczytelny rysunek dostaje 0 punktów. Schemat CKE i rozwiązanie pochodzą z bazy.
 
 ### Punktacja i ponowienia
 

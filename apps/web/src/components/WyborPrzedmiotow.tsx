@@ -2,7 +2,7 @@
 // Przedmiot można zdawać na kilku poziomach naraz (np. podstawowy i rozszerzony).
 import { Check } from "lucide-react";
 import { SubjectIcon } from "./icons";
-import { nazwaPoziomu, PRZEDMIOTY, type MojPrzedmiot } from "../konto/przedmioty";
+import { MAX_WPISOW_PRZEDMIOTOW, nazwaPoziomu, PRZEDMIOTY, type MojPrzedmiot } from "../konto/przedmioty";
 import type { Poziom } from "../arkusze/typy";
 import styles from "./WyborPrzedmiotow.module.css";
 
@@ -11,7 +11,10 @@ const uporzadkuj = (v: MojPrzedmiot[]) =>
   PRZEDMIOTY.flatMap((p) => p.poziomy.filter((l) => v.some((x) => x.id === p.id && x.poziom === l)).map((poziom) => ({ id: p.id, poziom })));
 
 export function WyborPrzedmiotow({ value, onChange }: { value: MojPrzedmiot[]; onChange: (v: MojPrzedmiot[]) => void }) {
+  const pelne = value.length >= MAX_WPISOW_PRZEDMIOTOW;
+
   function przelacz(id: MojPrzedmiot["id"], domyslny: Poziom) {
+    if (pelne && !value.some((p) => p.id === id)) return;
     onChange(value.some((p) => p.id === id) ? value.filter((p) => p.id !== id) : uporzadkuj([...value, { id, poziom: domyslny }]));
   }
 
@@ -19,6 +22,7 @@ export function WyborPrzedmiotow({ value, onChange }: { value: MojPrzedmiot[]; o
   function poziom(id: MojPrzedmiot["id"], p: Poziom) {
     const jest = value.some((x) => x.id === id && x.poziom === p);
     if (jest && value.filter((x) => x.id === id).length === 1) return;
+    if (pelne && !jest) return;
     onChange(jest ? value.filter((x) => !(x.id === id && x.poziom === p)) : uporzadkuj([...value, { id, poziom: p }]));
   }
 
@@ -29,7 +33,7 @@ export function WyborPrzedmiotow({ value, onChange }: { value: MojPrzedmiot[]; o
         const wybrany = wybrane.length > 0;
         return (
           <li key={p.id} className={`${styles.row} ${wybrany ? styles.on : ""}`}>
-            <button type="button" className={styles.toggle} aria-pressed={wybrany} onClick={() => przelacz(p.id, p.poziomy[0]!)}>
+            <button type="button" className={styles.toggle} aria-pressed={wybrany} disabled={pelne && !wybrany} onClick={() => przelacz(p.id, p.poziomy[0]!)}>
               <span className={styles.check} aria-hidden="true">
                 {wybrany && <Check size={14} strokeWidth={3} />}
               </span>
@@ -41,7 +45,7 @@ export function WyborPrzedmiotow({ value, onChange }: { value: MojPrzedmiot[]; o
                 {p.poziomy.map((l) => {
                   const on = wybrane.includes(l);
                   return (
-                    <button key={l} type="button" aria-pressed={on} className={styles.level} onClick={() => poziom(p.id, l)}>
+                    <button key={l} type="button" aria-pressed={on} disabled={pelne && !on} className={styles.level} onClick={() => poziom(p.id, l)}>
                       {nazwaPoziomu[l]}
                     </button>
                   );

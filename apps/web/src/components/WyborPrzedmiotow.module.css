@@ -67,3 +67,10 @@
   composes: pigulka from global;
   font-family: inherit;
 }
+
+/* Limit wpisów w profilu: wolne przedmioty i poziomy stają się nieaktywne. */
+.toggle:disabled,
+.level:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

@@ -1,7 +1,15 @@
 import {
+  Atom,
   BookOpen,
   CodeXml,
+  Dna,
+  FlaskConical,
+  Globe,
+  Hourglass,
   Languages,
+  Lightbulb,
+  Scale,
+  Scroll,
   Sigma,
   type LucideIcon,
 } from "lucide-react";
@@ -14,6 +22,14 @@ const subjectIcons: Record<string, LucideIcon> = {
   matematyka: Sigma,
   angielski: Languages,
   informatyka: CodeXml,
+  biologia: Dna,
+  chemia: FlaskConical,
+  fizyka: Atom,
+  geografia: Globe,
+  historia: Hourglass,
+  wos: Scale,
+  filozofia: Lightbulb,
+  lacina: Scroll,
 };
 
 type SubjectIconProps = { subject: { id: string; tone: Ton }; size?: "sm" | "md" | "lg" };
