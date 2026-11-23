@@ -1,0 +1,41 @@
+{
+ "id": "wiersze-bialoszewskiego",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "nawiązania do pieśni średniowiecznej",
+   "przyklad": "ZPE omawia nawiązania do dawnej pieśni religijnej i stylizację (porównanie ze stylistyką pieśni Karpińskiego).",
+   "miejsce": "Stara pieśń na Binnarową"
+  },
+  {
+   "motyw": "stylizacja i język",
+   "przyklad": "Wiersz stylizuje dawną pieśń; materiały ZPE zawierają interaktywny schemat jego warsztatu poetyckiego.",
+   "miejsce": "Stara pieśń na Binnarową"
+  },
+  {
+   "motyw": "Podkarpacie",
+   "przyklad": "Cykl „Ballady rzeszowskie” wyraża podkarpackie fascynacje poety.",
+   "miejsce": "Stara pieśń na Binnarową"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Stara pieśń na Binnarową",
+   "miejsce": "z tomu „Obroty rzeczy” (1956), cykl „Ballady rzeszowskie”",
+   "opis": "Według ZPE wiersz ukazał się w 1956 r. w tomie „Obroty rzeczy” i należy do cyklu „Ballad rzeszowskich”, wyrażającego podkarpackie zainteresowania poety. ZPE omawia nawiązania do kultury średniowiecza, w tym do dawnych pieśni religijnych; nazwa „Binnarowa” nie występuje na współczesnych mapach ani w źródłach średniowiecznych."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/a/przeczytaj/DE4524hI1",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE „Nawiązania do kultury średniowiecza w wierszu Mirona Białoszewskiego Stara pieśń na Binnarową”."
+  }
+ ],
+ "do_weryfikacji": [
+  "Utwory autora są chronione prawem autorskim (zmarł w 1983 r.), więc nie podano tekstu ani cytatów; opis opiera się na materiałach ZPE (wyniki wyszukiwania i streszczenia stron, nie pełne lektury).",
+  "Wybór wierszy w wymaganiach CKE poza przykładem z katalogu nie został sprawdzony; nie opracowano innych utworów.",
+  "Treść wiersza i dokładny sens stylizacji nie były czytane — opis tylko z podsumowań ZPE."
+ ]
+}

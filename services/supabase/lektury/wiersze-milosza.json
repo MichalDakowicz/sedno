@@ -1,0 +1,41 @@
+{
+ "id": "wiersze-milosza",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "koniec świata",
+   "przyklad": "Koniec świata można rozumieć jako doświadczenie indywidualnej śmierci albo zagłady ludzkości (według ZPE).",
+   "miejsce": "Piosenka o końcu świata"
+  },
+  {
+   "motyw": "nawiązania do Apokalipsy",
+   "przyklad": "ZPE wskazuje na odwołania do Apokalipsy św. Jana.",
+   "miejsce": "Piosenka o końcu świata"
+  },
+  {
+   "motyw": "zwyczajność wobec katastrofy",
+   "przyklad": "ZPE zauważa, że wiersz — mimo wojennego kontekstu — odbiega od wierszy naznaczonych okrucieństwem okupacji; można odczytać to jako opis obojętnej codzienności.",
+   "miejsce": "Piosenka o końcu świata"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Piosenka o końcu świata",
+   "miejsce": "z tomu „Ocalenie” (1945), otwiera cykl „Głosy biednych ludzi”",
+   "opis": "Wiersz powstały w czasie wojny. Według ZPE interpretuje się go w kontekście wojennym, a jednocześnie odbiega on od wierszy naznaczonych okrucieństwem okupacji; ma nawiązania do Apokalipsy św. Jana. Koniec świata można rozumieć jako indywidualną śmierć albo zagładę ludzkości."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/watek/LPCgxyBw7p/243/a/innego-konca-swiata-nie-bedzie---czeslaw-milosz-piosenka-o-koncu-swiata/DAf4I4rCP",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE o „Piosence o końcu świata”: tom Ocalenie (1945), cykl Głosy biednych ludzi, nawiązania do Apokalipsy."
+  }
+ ],
+ "do_weryfikacji": [
+  "Utwory autora są chronione prawem autorskim (zmarł w 2004 r.), więc nie podano tekstu ani cytatów; opis opiera się na materiałach ZPE (wyniki wyszukiwania i streszczenia stron, nie pełne lektury).",
+  "Wybór wierszy w wymaganiach CKE poza przykładem z katalogu nie został sprawdzony; nie opracowano innych utworów.",
+  "Opis opiera się na podsumowaniu wyników wyszukiwania ZPE; treść wiersza nie była czytana."
+ ]
+}

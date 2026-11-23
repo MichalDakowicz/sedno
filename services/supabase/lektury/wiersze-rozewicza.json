@@ -1,0 +1,46 @@
+{
+ "id": "wiersze-rozewicza",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "człowiek po wojnie",
+   "przyklad": "Bohater wiersza to ktoś, kto przeżył wojnę i próbuje żyć po katastrofie (według ZPE).",
+   "miejsce": "Ocalony"
+  },
+  {
+   "motyw": "kryzys wartości",
+   "przyklad": "Wiersz stawia pytanie, czy po wojnie można odbudować wartości (według ZPE).",
+   "miejsce": "Ocalony"
+  },
+  {
+   "motyw": "wątpliwości religijne",
+   "przyklad": "ZPE wskazuje na wątpliwości religijne i biblijne aluzje w wierszu.",
+   "miejsce": "Ocalony"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Ocalony",
+   "miejsce": "z tomu „Niepokój” (1947)",
+   "opis": "Według ZPE wiersz ukazał się w tomie „Niepokój” z 1947 r., pierwszym drukowanym zbiorze poety. Tytuł wskazuje na pojedynczego człowieka, który przeżył wojnę; wiersz porusza problematykę moralną i pytanie, czy można odbudować wartości po wojnie. Materiały podkreślają wątpliwości religijne i biblijne aluzje."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/pdf/P13p4pPKr",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE „Czy można pisać poezję po Oświęcimiu? O Ocalonym Tadeusza Różewicza” (czytany jako wynik wyszukiwania)."
+  },
+  {
+   "url": "https://zpe.gov.pl/a/przeczytaj/DqYv5BPbB",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE „Jak dalej żyć? Kondycja człowieka po katastrofie wojny”."
+  }
+ ],
+ "do_weryfikacji": [
+  "Utwory autora są chronione prawem autorskim (zmarł w 2014 r.), więc nie podano tekstu ani cytatów; opis opiera się na materiałach ZPE (wyniki wyszukiwania i streszczenia stron, nie pełne lektury).",
+  "Wybór wierszy w wymaganiach CKE poza przykładem z katalogu nie został sprawdzony; nie opracowano innych utworów.",
+  "Szczegółowa treść wiersza nie była czytana; opis tylko z ogólnych streszczeń ZPE."
+ ]
+}

@@ -1,0 +1,51 @@
+{
+ "id": "wiersze-herberta",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "wierność wartościom",
+   "przyklad": "Pan Cogito jako nauczyciel zaleca wierność niewzruszonym normom etycznym, nawet za cenę ofiar (według ZPE).",
+   "miejsce": "Przesłanie Pana Cogito"
+  },
+  {
+   "motyw": "ofiara i bezsensowna nagroda",
+   "przyklad": "Metafora złotego runa okazuje się „runem nicości”, czyli nagroda za wierność bywa bezwartościowa (według ZPE).",
+   "miejsce": "Przesłanie Pana Cogito"
+  },
+  {
+   "motyw": "etos rycerski",
+   "przyklad": "Herbert odwołuje się do ideałów rycerzy z antyku i średniowiecza, by pokazać uniwersalność zasad moralnych (według ZPE).",
+   "miejsce": "Przesłanie Pana Cogito"
+  },
+  {
+   "motyw": "postać Pana Cogito",
+   "przyklad": "Osoba mówiąca to Pan Cogito, postać-maska poety o nazwisku nawiązującym do Kartezjusza.",
+   "miejsce": "Przesłanie Pana Cogito"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Przesłanie Pana Cogito",
+   "miejsce": "wiersz z tomu „Pan Cogito” (1974)",
+   "opis": "Wiersz, w którym osobą mówiącą jest Pan Cogito, postać o nazwisku odwołującym się do maksymy Kartezjusza; przejmuje rolę nauczyciela i mędrca. Według ZPE wiersz zawiera zalecenie „Bądź wierny” i wyraża przekonanie, że wierność niewzruszonym normom etycznym wymaga ofiar. Metafora „złotego runa” zapowiada nagrodę, która okazuje się „runem nicości”; w wierszu pojawiają się odwołania do ideałów rycerskich."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/a/zbigniew-herbert-przeslanie-pana-cogito/D13cLarOU",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE o „Przesłaniu Pana Cogito”: postać Pana Cogito, zalecenie „Bądź wierny”, złote runo (czytane jako wynik wyszukiwania)."
+  },
+  {
+   "url": "https://zpe.gov.pl/a/sprawdz-sie/DUnS1AeYj",
+   "rodzaj": "opracowanie",
+   "co": "Ćwiczenia ZPE „Etos rycerski” z odniesieniem do wiersza."
+  }
+ ],
+ "do_weryfikacji": [
+  "Utwory autora są chronione prawem autorskim (zmarł w 1998 r.), więc nie podano tekstu ani cytatów; opis opiera się na materiałach ZPE (wyniki wyszukiwania i streszczenia stron, nie pełne lektury).",
+  "Wybór wierszy w wymaganiach CKE poza przykładem z katalogu nie został sprawdzony; nie opracowano innych utworów.",
+  "Interpretacje podano na podstawie fragmentów opisów ZPE widocznych w wynikach wyszukiwania; pełne strony nie zostały przeczytane."
+ ]
+}

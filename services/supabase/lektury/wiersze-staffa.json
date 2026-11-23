@@ -1,0 +1,51 @@
+{
+ "id": "wiersze-staffa",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "melancholia i bezsens istnienia",
+   "przyklad": "Dominujący nastrój wiersza to smutek, przygnębienie i poczucie bezsensu (według ZPE).",
+   "miejsce": "Deszcz jesienny"
+  },
+  {
+   "motyw": "onomatopeje i dźwięk deszczu",
+   "przyklad": "Onomatopeje i powtórzenia naśladują brzmienie deszczu (według ZPE).",
+   "miejsce": "Deszcz jesienny"
+  },
+  {
+   "motyw": "dekadentyzm Młodej Polski",
+   "przyklad": "Wiersz pochodzi z wczesnej twórczości Staffa, naznaczonej dekadentyzmem Młodej Polski.",
+   "miejsce": "Deszcz jesienny"
+  },
+  {
+   "motyw": "kolor, obraz i oniryzm",
+   "przyklad": "ZPE ćwiczy m.in. analizę koloru, obrazów i elementów oniryzmu w wierszu.",
+   "miejsce": "Deszcz jesienny"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Deszcz jesienny",
+   "miejsce": "z tomu „Dzień duszy” (1903)",
+   "opis": "Według ZPE wiersz pochodzi z drugiego tomu poezji Staffa „Dzień duszy” z 1903 r. i wyraża wpływ dekadentyzmu Młodej Polski. Dominujący nastrój to smutek, przygnębienie, melancholia i poczucie bezsensu istnienia; w warstwie brzmieniowej pojawiają się onomatopeje i powtórzenia naśladujące deszcz. ZPE zestawia wiersz z jesiennym wierszem Verlaine'a."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/a/przeczytaj/Dd8dU10nQ",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE „Motywy antyczne i chrześcijańskie w twórczości Leopolda Staffa”."
+  },
+  {
+   "url": "https://zpe.gov.pl/a/sprawdz-sie/DM1mCqM5i",
+   "rodzaj": "opracowanie",
+   "co": "Ćwiczenia ZPE „Wpływ rytmu i melodii wiersza na jego znaczenie”."
+  }
+ ],
+ "do_weryfikacji": [
+  "Staff zmarł w 1957 r., więc jego twórczość jest chroniona prawem autorskim do końca 2027 r. (70 lat po śmierci); nie podano tekstu ani cytatów.",
+  "Wybór wierszy w wymaganiach CKE poza przykładem z katalogu nie został sprawdzony; nie opracowano innych utworów.",
+  "Opis oparty tylko na podsumowaniach wyników wyszukiwania ZPE; nie sprawdzono, które dokładnie wiersze zawiera materiał."
+ ]
+}
