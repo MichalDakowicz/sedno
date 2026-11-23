@@ -160,7 +160,7 @@ export async function rysunekDoPng(obraz: Obraz, kreski: Kreska[], adres: string
 }
 
 /**
- * Ocena rysunków przez Pestkę (nauka-ai, akcja „ocen-rozwiazanie”) czeka na serwer: dziś ocenia on tylko
- * matematykę i informatykę. Do czasu wdrożenia zostaje samoocena z zasadami CKE; po wdrożeniu przełącz na true.
+ * Ocena rysunków przez Pestkę (nauka-ai, akcja „ocen-rozwiazanie”). Serwer przyjmuje pytania z `rysowanie`
+ * w każdym przedmiocie; bez wdrożonej wersji ustaw false, wtedy zostaje samoocena z zasadami CKE.
  */
-export const OCENA_RYSUNKOW_AI = false;
+export const OCENA_RYSUNKOW_AI = true;
