@@ -1,0 +1,33 @@
+{
+  "id": "retoryka-arystotelesa",
+  "wydarzenia": [],
+  "postacie": [],
+  "motywy": [
+    { "motyw": "retoryka i dialektyka", "przyklad": "Arystoteles na początku zestawia retorykę z dialektyką, bo obie wykorzystują sposoby argumentowania, które nie należą do jednej dziedziny wiedzy.", "miejsce": "ks. I, rozdz. 1, 1354a" },
+    { "motyw": "środki perswazji", "przyklad": "Arystoteles odróżnia środki zastane, jak świadectwa, od środków wytwarzanych przez mówcę w toku przemowy.", "miejsce": "ks. I, rozdz. 2, 1355b–1356a" },
+    { "motyw": "etos, patos i argument", "przyklad": "Uzasadnia, że przekonuje zarówno wiarygodność mówcy ujawniona w przemowie, jak nastawienie słuchaczy i argument.", "miejsce": "ks. I, rozdz. 2, 1356a" },
+    { "motyw": "entymemat i przykład", "przyklad": "Entymemat odpowiada wnioskowaniu dedukcyjnemu, a przykład pełni w retoryce rolę indukcji.", "miejsce": "ks. I, rozdz. 2, 1356b–1357a" },
+    { "motyw": "trzy rodzaje wymowy", "przyklad": "Od roli słuchacza zależy rodzaj mowy: doradcza dotyczy decyzji, sądowa ocenia przeszłe czyny, a popisowa chwali lub gani.", "miejsce": "ks. I, rozdz. 3, 1358a–1359a" },
+    { "motyw": "wiarygodność mówcy", "przyklad": "Rozsądek, prawość i życzliwość to cechy, które według Arystotelesa budzą zaufanie odbiorców.", "miejsce": "ks. II, rozdz. 1, 1378a" },
+    { "motyw": "uczucia a osąd", "przyklad": "Arystoteles wyjaśnia, jak uczucia zmieniają ocenę sprawy, a na przykładzie gniewu pyta o stan człowieka, przedmiot uczucia i jego powód.", "miejsce": "ks. II, rozdz. 1–2" },
+    { "motyw": "jasność i stosowność stylu", "przyklad": "Arystoteles uznaje jasność za podstawową zaletę stylu przemowy, a dobór wyrażeń wiąże z przedmiotem wypowiedzi.", "miejsce": "ks. III, rozdz. 2" },
+    { "motyw": "budowa przemówienia", "przyklad": "Za konieczne uznaje przedstawienie sprawy i argumentację, a wstęp i zakończenie wiąże z potrzebą danej mowy.", "miejsce": "ks. III, rozdz. 13" }
+  ],
+  "utwory": [
+    { "tytul": "Retoryka jako umiejętność", "miejsce": "ks. I, rozdz. 1–2", "opis": "Przedmiotem sztuki jest rozpoznawanie dostępnych środków przekonywania, a skuteczność przemowy zależy od argumentu, wiarygodności i nastawienia odbiorców." },
+    { "tytul": "Rodzaje wymowy", "miejsce": "ks. I, rozdz. 3", "opis": "Podział na mowę doradczą, sądową i popisową wynika z roli słuchacza, czasu i celu wypowiedzi." },
+    { "tytul": "Charakter mówcy i emocje słuchaczy", "miejsce": "ks. II, rozdz. 1–2", "opis": "Rozważania o wiarygodności mówcy i wpływie emocji na osąd poprzedzają analizę warunków powstawania gniewu." },
+    { "tytul": "Przykłady i maksymy", "miejsce": "ks. II, rozdz. 20–21", "opis": "Przykład wspiera wniosek przez odniesienie do innych zdarzeń, a maksyma daje ogólny sąd istotny dla działania." },
+    { "tytul": "Styl wypowiedzi", "miejsce": "ks. III, rozdz. 1–2", "opis": "Arystoteles przechodzi od środków przekonywania do sposobu wyrażania argumentów oraz omawia jasność i stosowność stylu." },
+    { "tytul": "Układ wypowiedzi", "miejsce": "ks. III, rozdz. 13–14", "opis": "Odróżnia części niezbędne przemowy od jej możliwych uzupełnień i objaśnia funkcje wstępu." }
+  ],
+  "zrodla": [
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator wymienia fragmenty Retoryki w wykazie przejściowym dla zakresu rozszerzonego." },
+    { "url": "https://classics.mit.edu/Aristotle/rhetoric.html", "rodzaj": "utwór", "co": "Trzy księgi w przekładzie W. Rhysa Robertsa; sprawdzono rozdziały o środkach perswazji, rodzajach mów, uczuciach i budowie wypowiedzi." },
+    { "url": "https://catalog.perseus.org/catalog/urn%3Acts%3AgreekLit%3Atlg0086.tlg038", "rodzaj": "opracowanie", "co": "Katalog Perseus identyfikuje greckie wydanie Immanuela Bekkera i przekłady dzieła." },
+    { "url": "https://plato.stanford.edu/archives/spr2022/entries/aristotle-rhetoric/", "rodzaj": "opracowanie", "co": "Opracowanie o trzech środkach perswazji, entymemacie i związkach z dialektyką, z odsyłaczami Bekkera." }
+  ],
+  "do_weryfikacji": [
+    "Informator CKE nie wskazuje poszczególnych rozdziałów; wybór oparto na głównych tezach trzech ksiąg."
+  ]
+}
