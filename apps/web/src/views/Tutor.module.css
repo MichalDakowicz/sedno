@@ -19,7 +19,14 @@
   flex: 1;
   min-width: 0;
   min-height: 0;
-  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  border-top: 1px solid var(--line);
-  background: var(--surface);
+  padding: var(--s-5) max(var(--s-5), env(safe-area-inset-right)) max(var(--s-5), env(safe-area-inset-bottom)) max(var(--s-5), env(safe-area-inset-left));
+}
+
+/* Telefon: okno rozmowy zajmuje cały ekran pod paskiem. */
+@media (max-width: 760px) {
+  .page {
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+  }
 }

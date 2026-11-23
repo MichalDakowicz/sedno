@@ -160,7 +160,7 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
             onKeyDown={(e) => { if (lista && e.key === "Escape") zamknijHistorie(); }}
           >
             <div className={styles.historiaNaglowek}>
-              <h2>Rozmowy</h2>
+              <h2 className={styles.historiaTytul}>Rozmowy</h2>
               {nowa}
             </div>
             {widoczneRozmowy.length ? historia : <p className={styles.historiaPusta}>Tu pojawią się twoje zapisane rozmowy.</p>}
@@ -199,14 +199,14 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
           <div className={styles.wiadomosci}>
             {powitanie ? (
               <div className={styles.powitanie}>
-                <TutorAvatar size={68} />
-                <h2>W czym mogę pomóc?</h2>
-                <p className="muted">Zadaj pytanie, wklej zadanie albo pokaż swoją próbę.</p>
+                <TutorAvatar size={96} />
+                <h2 className={styles.powitanieTytul}>W czym mogę pomóc?</h2>
+                <p className="lead">Zadaj pytanie, wklej zadanie albo pokaż swoją próbę.</p>
               </div>
             ) : messages.map((m, i) =>
               m.from === "tutor" ? (
                 <div key={m.id} className={styles.tutorRow}>
-                  <TutorAvatar size={28} />
+                  <TutorAvatar size={pelny ? 32 : 28} />
                   <div>
                     <OdpowiedzPestki tekst={m.text} dane={m.pestka} zajeta={zajeta}
                       wykonaj={(akcja) => {
@@ -255,7 +255,7 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
             )}
             {state === "thinking" && (
               <div className={styles.tutorRow}>
-                <TutorAvatar size={28} state="thinking" />
+                <TutorAvatar size={pelny ? 32 : 28} state="thinking" />
                 <span className={styles.typing} aria-label="Pestka pisze">
                   <i />
                   <i />
