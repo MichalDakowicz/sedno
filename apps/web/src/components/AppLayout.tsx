@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Navigate, Outlet, useLocation, useMatch } from "react-router-dom";
 import { TopNav } from "./TopNav";
+import { Ksztalt } from "./Ksztalt";
 import { TutorDock } from "./TutorDock";
 import { TutorGuide } from "./TutorGuide";
 import { TutorProvider } from "./TutorContext";
@@ -71,6 +72,7 @@ export function AppLayout() {
     <TutorProvider ai={ai} przedmioty={opisPrzedmiotow(profil?.subjects ?? [])}>
       <div className={pelnyCzat ? styles.okno : styles.uklad}>
         <TopNav />
+        <Ksztalt />
         <ZegarWPasku />
         <Wyszukiwanie />
         <Outlet context={pelnyCzat ? bylWInnymWidoku.current : undefined} />

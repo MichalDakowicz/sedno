@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nav w sidebar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Tokeny skopiowane z packages/ui/src/tokens.css (tylko potrzebne). */
+:root {
+  color-scheme: light;
+  --bg: #fff9f6; --surface: #fff; --fg: #0f151d; --muted: #424951; --subtle: #545b63;
+  --line: #ece4df; --grid: rgba(15,21,29,.045);
+  --primary: #ff7448; --primary-text: #b83d0b; --primary-strong: #f2643a; --primary-fg: #fff; --primary-soft: #ffe6dc;
+  --pestka-oczy: #0f151d;
+  --r-xs: 6px; --r-sm: 12px; --r-md: 20px; --r-lg: 28px; --r-pill: 999px;
+  --t-xs: 13px; --t-sm: 15px; --t-md: 17px; --t-lg: 20px;
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+  --shadow-float: 0 8px 32px rgba(15,21,29,.08);
+  /* Ten sam cień co --shadow-float, ale jako filtr: pasek, panel i wklęsłe rogi rzucają jeden wspólny cień. */
+  --cien-ksztaltu: drop-shadow(0 8px 20px rgba(15,21,29,.09));
+  --scrim: rgba(15,21,29,.18);
+  --font: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-motyw="jasny"]) {
+    color-scheme: dark;
+    --bg: #10151c; --surface: #1b232e; --fg: #f3efec; --muted: #a3abb5; --subtle: #8a929c;
+    --line: #2a3340; --grid: rgba(255,255,255,.035);
+    --primary: #ff8a5f; --primary-text: #ffab8a; --primary-strong: #ff8a5f; --primary-fg: #10151c; --primary-soft: #3a2219;
+    --shadow-float: 0 8px 32px rgba(0,0,0,.35); --cien-ksztaltu: drop-shadow(0 8px 20px rgba(0,0,0,.4)); --scrim: rgba(0,0,0,.5);
+  }
+}
+:root[data-motyw="ciemny"] {
+  color-scheme: dark;
+  --bg: #10151c; --surface: #1b232e; --fg: #f3efec; --muted: #a3abb5; --subtle: #8a929c;
+  --line: #2a3340; --grid: rgba(255,255,255,.035);
+  --primary: #ff8a5f; --primary-text: #ffab8a; --primary-strong: #ff8a5f; --primary-fg: #10151c; --primary-soft: #3a2219;
+  --shadow-float: 0 8px 32px rgba(0,0,0,.35); --cien-ksztaltu: drop-shadow(0 8px 20px rgba(0,0,0,.4)); --scrim: rgba(0,0,0,.5);
+}
+
+/* Front wylewania treści z nava: maska przesuwana w dół. */
+@property --wylew { syntax: "<percentage>"; inherits: false; initial-value: 115%; }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; font-family: var(--font); font-size: 16px; line-height: 1.55; color: var(--fg);
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 64px 64px; background-position: center top;
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; }
+svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 400; letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
+.sub { color: var(--muted); margin: var(--s-2) 0 0; font-size: var(--t-md); }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* ---------- Strona ---------- */
+.strona { padding: 112px var(--s-5) 120px; }
+.tresc { max-width: 760px; margin: 0 auto; }
+.akcje { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-5); }
+.btn {
+  display: inline-flex; align-items: center; gap: var(--s-2); min-height: 44px; padding: 0 var(--s-4);
+  border: 0; border-radius: var(--r-pill); background: var(--surface); box-shadow: var(--shadow-float);
+  font-size: var(--t-sm); font-weight: 500; cursor: pointer;
+}
+.btn.glowny { background: var(--primary-strong); color: var(--primary-fg); box-shadow: none; }
+.zadanie { margin-top: var(--s-7); padding-top: var(--s-5); border-top: 1px solid var(--line); }
+.zadanie h2 { font-size: var(--t-lg); font-weight: 500; margin: 0 0 var(--s-1); letter-spacing: -0.01em; }
+.zadanie .pkt { color: var(--subtle); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .06em; }
+.zadanie p { color: var(--muted); margin: var(--s-3) 0 0; }
+.kod { margin-top: var(--s-4); padding: var(--s-4); border-radius: var(--r-sm); background: var(--surface); font: 14px/1.6 ui-monospace, Consolas, monospace; color: var(--muted); white-space: pre; overflow-x: auto; }
+.pole { margin-top: var(--s-4); height: 96px; border-radius: var(--r-sm); border: 1px dashed var(--line); display: grid; place-items: center; color: var(--subtle); font-size: var(--t-sm); }
+
+/* ---------- Kształt: pasek + panel + wklęsłe rogi na stykach ---------- */
+.skorupa { position: fixed; inset: 0; z-index: 30; pointer-events: none; filter: var(--cien-ksztaltu); }
+.skorupa > * { position: absolute; background: var(--surface); }
+.wnek { background: none; pointer-events: none; transform: scale(0); }
+
+.pasek { pointer-events: auto; }
+/* Treść wyśrodkowana w pionie: gdy pasek rośnie w górę do krawędzi, przesuwa się razem z nim. */
+.pasek-in { position: absolute; inset: 0; display: flex; align-items: center; gap: var(--s-5); padding: 0 var(--s-2) 0 var(--s-5); }
+.logo { font-size: var(--t-lg); font-weight: 700; letter-spacing: -0.04em; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.logo svg { width: 22px; height: 22px; }
+.linki { display: flex; gap: var(--s-1); margin: 0 auto; }
+.link {
+  display: flex; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-3); border: 0; border-radius: var(--r-pill);
+  background: transparent; color: var(--muted); font-size: var(--t-md); white-space: nowrap; cursor: pointer;
+}
+.link:hover { color: var(--fg); }
+.link.akt { color: var(--fg); background: var(--bg); }
+.link.akt svg { color: var(--primary-text); }
+.prawa { display: flex; align-items: center; gap: var(--s-2); }
+.ikona { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; flex: none; }
+.ikona:hover { background: var(--bg); color: var(--fg); }
+.ikona[aria-expanded="true"] { background: var(--primary-soft); color: var(--primary-text); }
+.awatar { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--primary-strong); color: var(--primary-fg); font-weight: 700; font-size: var(--t-lg); }
+
+.bok { pointer-events: auto; overflow: hidden; visibility: hidden; height: 0; }
+.skorupa[data-stan="otwarty"] .bok, .skorupa.animuje .bok { visibility: visible; }
+.panel {
+  position: absolute; left: 0; right: 0; top: 0; height: var(--wys-panelu);
+  display: none; flex-direction: column; overflow-y: auto;
+  padding: 0 var(--s-5) var(--s-5);
+  mask-image: linear-gradient(to bottom, #000 calc(var(--wylew) - 15%), transparent var(--wylew));
+}
+.panel.widoczny { display: flex; }
+.naglowek { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) 0; border-bottom: 1px solid var(--line); }
+.naglowek strong { font-weight: 500; }
+.panel h2 { font-size: var(--t-xs); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--subtle); margin: var(--s-4) 0 var(--s-2); }
+
+.spis { list-style: none; margin: 0; padding: 0; }
+.spis li { border-bottom: 1px solid var(--line); }
+.spis button {
+  width: 100%; display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3) 0; border: 0; background: none; text-align: left; cursor: pointer;
+  font-size: var(--t-sm); color: var(--muted);
+}
+.spis button:hover { color: var(--fg); }
+.spis .nr { width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--bg); font-size: var(--t-xs); font-weight: 600; color: var(--fg); }
+.spis .zrob .nr { background: var(--primary-soft); color: var(--primary-text); }
+.spis .tu .nr { background: var(--primary-strong); color: var(--primary-fg); }
+.spis .tu button { color: var(--fg); }
+.spis .pkt { margin-left: auto; color: var(--subtle); font-size: var(--t-xs); }
+.plik { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3) 0; border-bottom: 1px solid var(--line); font-size: var(--t-sm); color: var(--muted); }
+.plik code { font-family: ui-monospace, Consolas, monospace; color: var(--fg); }
+
+.rozmowa { flex: 1; display: flex; flex-direction: column; gap: var(--s-3); padding-top: var(--s-4); }
+.dymek { max-width: 88%; padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--bg); font-size: var(--t-sm); color: var(--fg); }
+.dymek.ucz { align-self: flex-end; background: var(--primary-soft); border-bottom-right-radius: var(--r-xs); }
+.dymek.pestka { border-bottom-left-radius: var(--r-xs); }
+.wpisz { display: flex; gap: var(--s-2); align-items: center; margin-top: auto; padding-top: var(--s-4); }
+.wpisz span { flex: 1; min-height: 48px; display: flex; align-items: center; padding: 0 var(--s-4); border-radius: var(--r-pill); background: var(--bg); color: var(--subtle); font-size: var(--t-sm); }
+.wpisz .ikona { background: var(--primary-strong); color: var(--primary-fg); }
+
+.pestka-ksz { fill: var(--primary); }
+.pestka-ksz .o { fill: var(--pestka-oczy); }
+.pestka-ksz .u { fill: none; stroke: var(--pestka-oczy); stroke-width: 3.5; stroke-linecap: round; }
+
+.przyciski { display: flex; gap: var(--s-1); }
+.scena { position: fixed; z-index: 29; display: none; overflow: hidden; background: var(--surface); box-shadow: var(--shadow-float); }
+.scena .panel { height: auto; bottom: 0; }
+.scena .panel > * { width: 100%; max-width: 720px; margin-inline: auto; }
+/* Na kremowej scenie dymki i pole przechodzą na biel, razem ze zmianą tła sceny. */
+.scena .dymek.pestka, .scena .wpisz span { transition: background-color 700ms 250ms var(--krzywa, ease); }
+.scena.pelna .dymek.pestka, .scena.pelna .wpisz span { background: var(--surface); }
+
+.zaslona { position: fixed; inset: 0; z-index: 25; background: var(--scrim); opacity: 0; pointer-events: none; }
+.zaslona.aktywna { pointer-events: auto; }
+
+/* Ster makiety, nie część aplikacji. */
+.ster {
+  position: fixed; z-index: 40; left: 50%; bottom: var(--s-4); transform: translateX(-50%);
+  display: flex; gap: var(--s-1); padding: var(--s-1); border-radius: var(--r-pill);
+  background: var(--fg); color: var(--bg); font-size: var(--t-xs);
+}
+.ster button { border: 0; background: transparent; color: inherit; padding: var(--s-2) var(--s-3); border-radius: var(--r-pill); cursor: pointer; }
+.ster button[aria-pressed="true"] { background: var(--primary-strong); color: var(--primary-fg); }
+
+@media (max-width: 960px) { .linki { display: none; } .pasek-in { justify-content: space-between; } }
+@media (max-width: 640px) {
+  .strona { padding: 96px var(--s-4) 120px; }
+  .pasek-in { padding-left: var(--s-4); }
+  .awatar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></symbol>
+  <symbol id="i-plik" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+  <symbol id="i-mapa" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></symbol>
+  <symbol id="i-szukaj" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-spis" viewBox="0 0 24 24"><path d="M10 6h11M10 12h11M10 18h11M4 6h1M4 12h1M4 18h1"/></symbol>
+  <symbol id="i-wyslij" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></symbol>
+  <symbol id="i-pelny" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
+  <symbol id="i-zwin" viewBox="0 0 24 24"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-czat"viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12Z"/></symbol>
+  <symbol id="pestka" viewBox="0 0 64 64"><path d="M32 4c13.5 0 24 8.6 26.6 21.4 2.4 11.9-2 24-12.6 30.2C38.8 59.8 25.2 59.8 18 55.6 7.4 49.4 3 37.3 5.4 25.4 8 12.6 18.5 4 32 4Z"/><ellipse class="o" cx="24" cy="30" rx="4" ry="5.4"/><ellipse class="o" cx="40" cy="30" rx="4" ry="5.4"/><path class="u" d="M26.5 41c3.2 3 7.8 3 11 0"/></symbol>
+</svg>
+
+<main class="strona" id="strona">
+  <div class="tresc">
+    <h1 class="h1">Arkusz próbny z informatyki</h1>
+    <p class="sub">Część praktyczna · 8 zadań · 150 minut</p>
+    <div class="akcje">
+      <button class="btn" data-otworz="lewy" aria-expanded="false" aria-controls="bok"><svg class="i"><use href="#i-spis"/></svg>Spis i materiały</button>
+      <button class="btn glowny" data-otworz="prawy" aria-expanded="false" aria-controls="bok"><svg class="i"><use href="#i-czat"/></svg>Zapytaj Pestkę</button>
+    </div>
+
+    <section class="zadanie">
+      <span class="pkt">Zadanie 3 · 4 pkt</span>
+      <h2>Liczby pierwsze w pliku</h2>
+      <p>W pliku <code>liczby.txt</code> jest 1000 liczb naturalnych, każda w osobnym wierszu. Napisz program, który poda, ile z nich to liczby pierwsze, oraz wypisze największą z nich.</p>
+      <div class="kod">def pierwsza(n):
+    if n &lt; 2:
+        return False
+    i = 2
+    while i * i &lt;= n:
+        ...</div>
+      <div class="pole">Twoja odpowiedź</div>
+    </section>
+
+    <section class="zadanie">
+      <span class="pkt">Zadanie 4 · 3 pkt</span>
+      <h2>Zapytanie do bazy</h2>
+      <p>Tabela <code>wypozyczenia</code> zawiera daty wypożyczeń i zwrotów. Podaj zapytanie SQL, które zwróci trzy osoby z najdłuższym łącznym czasem wypożyczeń.</p>
+      <div class="pole">Twoja odpowiedź</div>
+    </section>
+
+    <section class="zadanie">
+      <span class="pkt">Zadanie 5 · 5 pkt</span>
+      <h2>Skoroszyt z pomiarami</h2>
+      <p>Na podstawie pliku <code>pomiary.csv</code> przygotuj zestawienie średnich temperatur w kolejnych miesiącach i wykres liniowy.</p>
+      <div class="pole">Twoja odpowiedź</div>
+    </section>
+  </div>
+</main>
+
+<div class="zaslona" id="zaslona"></div>
+
+<!-- Pełny ekran rozmowy: panel Pestki rozlany na całą stronę, pod kształtem nava i historii. -->
+<div class="scena" id="scena"></div>
+
+<div class="skorupa" id="skorupa" data-stan="zamkniety">
+  <nav class="pasek" id="nav" aria-label="Główna">
+    <div class="pasek-in" id="pasekIn">
+      <span class="logo"><svg class="pestka-ksz"><use href="#pestka"/></svg>Sedno</span>
+      <div class="linki">
+        <button class="link"><svg class="i"><use href="#i-grid"/></svg>Pulpit</button>
+        <button class="link"><svg class="i"><use href="#i-cap"/></svg>Nauka</button>
+        <button class="link akt" aria-current="page"><svg class="i"><use href="#i-plik"/></svg>Arkusze</button>
+        <button class="link"><svg class="i"><use href="#i-mapa"/></svg>Mapa umiejętności</button>
+      </div>
+      <div class="prawa">
+        <button class="ikona" aria-label="Szukaj"><svg class="i"><use href="#i-szukaj"/></svg></button>
+        <button class="ikona" data-otworz="prawy" aria-label="Pestka" aria-expanded="false" aria-controls="bok"><svg class="i"><use href="#i-czat"/></svg></button>
+        <span class="awatar">M</span>
+      </div>
+    </div>
+  </nav>
+  <!-- wklęsłe rogi: przy górnej krawędzi, między paskiem a panelem, przy dolnej krawędzi -->
+  <div class="wnek" id="wGora"></div>
+  <aside class="bok" id="bok">
+    <section class="panel" data-panel="lewy" aria-label="Spis i materiały">
+      <div class="naglowek wlewa"><strong>Spis i materiały</strong><button class="ikona zamknij" aria-label="Zamknij panel"><svg class="i"><use href="#i-x"/></svg></button></div>
+      <h2 class="wlewa">Zadania</h2>
+      <ul class="spis">
+        <li class="wlewa zrob"><button><span class="nr">1</span>Algorytm sortowania<span class="pkt">3/3</span></button></li>
+        <li class="wlewa zrob"><button><span class="nr">2</span>Rekurencja<span class="pkt">2/4</span></button></li>
+        <li class="wlewa tu"><button aria-current="step"><span class="nr">3</span>Liczby pierwsze w pliku<span class="pkt">4 pkt</span></button></li>
+        <li class="wlewa"><button><span class="nr">4</span>Zapytanie do bazy<span class="pkt">3 pkt</span></button></li>
+        <li class="wlewa"><button><span class="nr">5</span>Skoroszyt z pomiarami<span class="pkt">5 pkt</span></button></li>
+        <li class="wlewa"><button><span class="nr">6</span>Sieci komputerowe<span class="pkt">2 pkt</span></button></li>
+        <li class="wlewa"><button><span class="nr">7</span>Kodowanie znaków<span class="pkt">3 pkt</span></button></li>
+        <li class="wlewa"><button><span class="nr">8</span>Grafy<span class="pkt">4 pkt</span></button></li>
+      </ul>
+      <h2 class="wlewa">Materiały do zadania 3</h2>
+      <div class="plik wlewa"><svg class="i"><use href="#i-plik"/></svg><code>liczby.txt</code></div>
+      <div class="plik wlewa"><svg class="i"><use href="#i-plik"/></svg><code>przyklad.txt</code></div>
+    </section>
+
+    <section class="panel" data-panel="prawy" aria-label="Rozmowa z Pestką">
+      <div class="naglowek wlewa"><strong>Pestka · zadanie 3</strong><span class="przyciski"><button class="ikona rozwin" aria-label="Pełny ekran"><svg class="i"><use href="#i-pelny"/></svg></button><button class="ikona zamknij" aria-label="Zamknij panel"><svg class="i"><use href="#i-x"/></svg></button></span></div>
+      <div class="rozmowa">
+        <div class="dymek pestka wlewa">Widzę, że sprawdzasz dzielniki do pierwiastka. Dobry kierunek. Co zwróci twoja funkcja dla liczby 2?</div>
+        <div class="dymek ucz wlewa">Pętla się nie wykona, więc True?</div>
+        <div class="dymek pestka wlewa">Tak. A dla 1 i 0 masz już warunek na początku. Spróbuj teraz policzyć wszystkie pierwsze z pliku.</div>
+        <div class="wpisz wlewa"><span>Napisz do Pestki…</span><button class="ikona" aria-label="Wyślij"><svg class="i"><use href="#i-wyslij"/></svg></button></div>
+      </div>
+    </section>
+
+    <section class="panel" data-panel="historia" aria-label="Poprzednie rozmowy">
+      <div class="naglowek wlewa"><strong>Poprzednie rozmowy</strong><button class="ikona" aria-label="Nowa rozmowa"><svg class="i"><use href="#i-plus"/></svg></button></div>
+      <h2 class="wlewa">Dziś</h2>
+      <ul class="spis">
+        <li class="wlewa tu"><button aria-current="true"><span class="nr">I</span>Liczby pierwsze w pliku<span class="pkt">teraz</span></button></li>
+        <li class="wlewa"><button><span class="nr">I</span>Rekurencja: silnia i Fibonacci<span class="pkt">9:40</span></button></li>
+      </ul>
+      <h2 class="wlewa">Ten tydzień</h2>
+      <ul class="spis">
+        <li class="wlewa"><button><span class="nr">M</span>Ciągi geometryczne<span class="pkt">wt</span></button></li>
+        <li class="wlewa"><button><span class="nr">P</span>Teza w rozprawce<span class="pkt">pn</span></button></li>
+        <li class="wlewa"><button><span class="nr">I</span>JOIN czy podzapytanie?<span class="pkt">pn</span></button></li>
+      </ul>
+      <h2 class="wlewa">Wcześniej</h2>
+      <ul class="spis">
+        <li class="wlewa"><button><span class="nr">M</span>Pochodna funkcji wymiernej<span class="pkt">12 lis</span></button></li>
+        <li class="wlewa"><button><span class="nr">P</span>Motyw winy w „Lalce”<span class="pkt">9 lis</span></button></li>
+        <li class="wlewa"><button><span class="nr">I</span>Systemy liczbowe<span class="pkt">3 lis</span></button></li>
+      </ul>
+    </section>
+  </aside>
+  <div class="wnek" id="wStyk"></div>
+  <div class="wnek" id="wDol"></div>
+</div>
+
+<div class="ster" aria-label="Ustawienia makiety">
+  <button id="wolno" aria-pressed="false">Zwolnij ×4</button>
+  <button id="motyw">Motyw</button>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const skorupa = $("skorupa"), nav = $("nav"), bok = $("bok");
+const wGora = $("wGora"), wStyk = $("wStyk"), wDol = $("wDol");
+const strona = $("strona"), zaslona = $("zaslona"), scena = $("scena");
+const mniejRuchu = matchMedia("(prefers-reduced-motion: reduce)");
+
+// Rozmowa na pełnym ekranie to kopia panelu Pestki (w makiecie wystarczy).
+const scenaPanel = bok.querySelector('.panel[data-panel="prawy"]').cloneNode(true);
+scenaPanel.classList.add("widoczny");
+scenaPanel.removeAttribute("data-panel");
+const zwin = scenaPanel.querySelector(".rozwin");
+zwin.setAttribute("aria-label", "Zwiń do panelu");
+zwin.querySelector("use").setAttribute("href", "#i-zwin");
+scena.append(scenaPanel);
+
+let stan = { otwarty: false, strona: "lewy", pelny: false };
+let animuje = false;
+let tempo = 1;
+
+const R_GORA = 20, R_STYK = 28, R_DOL = 24; // promienie wklęsłych rogów
+const DOCISK = 650, ROZLEW = 950; // ms: jazda do boku, potem rozlanie w górę i w dół naraz
+const KRZYWA_ROZLEWU = "cubic-bezier(.3,.6,.3,1)";
+const waski = () => innerWidth < 1100; // panel przykrywa treść zamiast ją rozsuwać
+
+function geometria() {
+  const vw = document.documentElement.clientWidth, vh = innerHeight;
+  const maly = vw <= 640;
+  const h = maly ? 56 : 64, top = maly ? 12 : 16;
+  const w = Math.min(1072, vw - (maly ? 32 : 48));
+  return { vw, vh, h, top, w, x: (vw - w) / 2, W: Math.min(380, vw - 48), bok: maly ? 16 : 24 };
+}
+
+const px = (n) => n + "px";
+// Promienie: lewy górny, prawy górny, prawy dolny, lewy dolny; dla prawej strony lustro.
+const rogi = (s, lg, pg, pd, ld) => (s === "lewy" ? `${lg} ${pg} ${pd} ${ld}` : `${pg} ${lg} ${ld} ${pd}`);
+
+// Wszystko jako para: zamknięty → otwarty. Zamknięcie to ta sama oś puszczona od końca.
+function klatki(s, g) {
+  const L = s === "lewy";
+  const r = px(g.h / 2);
+  const pasekX = L ? 0 : g.vw - g.w;
+  const bokX = L ? 0 : g.vw - g.W;
+  const dolPaska = g.top + g.h;
+  const H = g.vh - dolPaska;
+
+  const pasek = [
+    { offset: 0, left: px(g.x), top: px(g.top), width: px(g.w), height: px(g.h), borderRadius: `${r} ${r} ${r} ${r}`, easing: "cubic-bezier(.5,0,.9,.5)" },
+    // dociśnięty do boku: kształt bez zmian, tylko bok się prostuje; dalej ta sama krzywa co spływanie panelu
+    { offset: DOCISK / (DOCISK + ROZLEW), left: px(pasekX), top: px(g.top), width: px(g.w), height: px(g.h), borderRadius: rogi(s, "6px", r, r, "6px"), easing: KRZYWA_ROZLEWU },
+    // rozlany w górę do krawędzi ekranu
+    { offset: 1, left: px(pasekX), top: "0px", width: px(g.w), height: px(dolPaska), borderRadius: rogi(s, "0px", "0px", r, "0px") },
+  ];
+
+  const plaski = "0px 0px 0px 0px / 0px 0px 0px 0px";
+  const bokK = [
+    { offset: 0, left: px(bokX), top: px(dolPaska), width: px(g.W), height: "0px", borderRadius: plaski },
+    // czoło spływającej cieczy: zaokrąglone, mocniej od strony treści
+    { offset: 0.88, left: px(bokX), top: px(dolPaska), width: px(g.W), height: px(H * 0.88), borderRadius: `${rogi(s, "0px", "0px", "160px", "40px")} / ${rogi(s, "0px", "0px", "120px", "60px")}` },
+    { offset: 1, left: px(bokX), top: px(dolPaska), width: px(g.W), height: px(H), borderRadius: plaski },
+  ];
+
+  // Wklęsły róg: kwadrat wypełniony poza okręgiem o środku w rogu (cx, cy).
+  const wnek = (x, y, rr, cx, cy, origin) => ({
+    left: px(x), top: px(y), width: px(rr), height: px(rr), transformOrigin: origin,
+    background: `radial-gradient(circle at ${cx} ${cy}, transparent ${rr - 0.5}px, var(--surface) ${rr}px)`,
+  });
+  const ksztaltWnekow = {
+    wGora: L ? wnek(g.w, 0, R_GORA, "100%", "100%", "0 0") : wnek(g.vw - g.w - R_GORA, 0, R_GORA, "0%", "100%", "100% 0"),
+    wStyk: L ? wnek(g.W, dolPaska, R_STYK, "100%", "100%", "0 0") : wnek(g.vw - g.W - R_STYK, dolPaska, R_STYK, "0%", "100%", "100% 0"),
+    wDol: L ? wnek(g.W, g.vh - R_DOL, R_DOL, "100%", "0%", "0 100%") : wnek(g.vw - g.W - R_DOL, g.vh - R_DOL, R_DOL, "0%", "0%", "100% 100%"),
+  };
+
+  const wypelnienie = (otwarty) => {
+    const p = { paddingLeft: px(g.bok), paddingRight: px(g.bok) };
+    if (otwarty && !waski()) p[L ? "paddingLeft" : "paddingRight"] = px(g.W + 24);
+    return p;
+  };
+
+  return { pasek, bok: bokK, ksztaltWnekow, strona: [wypelnienie(false), wypelnienie(true)], H, dolPaska };
+}
+
+// Stan końcowy bez animacji: start, zmiana rozmiaru okna, początek każdego przejścia.
+function zastosuj() {
+  const g = geometria(), o = stan.otwarty, p = stan.pelny;
+  // Na pełnym ekranie kształt nava i panelu jest po lewej (historia), a rozmowa pod nim na całej stronie.
+  const k = klatki(p ? "lewy" : stan.strona, g);
+  const ustaw = (el, kf) => Object.assign(el.style, { left: kf.left, top: kf.top, width: kf.width, height: kf.height, borderRadius: kf.borderRadius });
+  ustaw(nav, o ? k.pasek.at(-1) : k.pasek[0]);
+  ustaw(bok, o && (!p || zHistoria(g)) ? k.bok.at(-1) : k.bok[0]);
+  for (const [id, styl] of Object.entries(k.ksztaltWnekow)) {
+    const widoczny = o && (!p || id === "wGora" || zHistoria(g));
+    Object.assign($(id).style, styl, { transform: widoczny ? "none" : "scale(0)" });
+  }
+  bok.style.setProperty("--wys-panelu", px(k.H));
+  skorupa.dataset.stan = o ? "otwarty" : "zamkniety";
+  pokazPanel(p ? "historia" : stan.strona);
+  Object.assign(strona.style, klatki(stan.strona, g).strona[o ? 1 : 0]);
+  const zaslonaWidoczna = o && !p && waski();
+  zaslona.style.opacity = zaslonaWidoczna ? 1 : 0;
+  zaslona.classList.toggle("aktywna", zaslonaWidoczna);
+  scena.style.display = p ? "block" : "none";
+  scena.classList.toggle("pelna", p);
+  if (p) {
+    const s = scenaKlatki(g);
+    Object.assign(scena.style, s.pelna);
+    Object.assign(scenaPanel.style, s.pad1);
+  }
+  document.querySelectorAll("[data-otworz]").forEach((b) => b.setAttribute("aria-expanded", String(o && b.dataset.otworz === stan.strona)));
+}
+
+const pokazPanel = (nazwa) => bok.querySelectorAll(".panel").forEach((el) => el.classList.toggle("widoczny", el.dataset.panel === nazwa));
+const zHistoria = (g) => g.vw >= 900; // na wąskim ekranie pełna rozmowa bez kolumny historii
+
+// Rozmowa: od kolumny po prawej (jak panel) do całej strony, z treścią na środku obok historii.
+function scenaKlatki(g) {
+  const k = klatki("prawy", g);
+  return {
+    waska: { left: px(g.vw - g.W), top: px(k.dolPaska), width: px(g.W), height: px(k.H), backgroundColor: "var(--surface)" },
+    pelna: { left: "0px", top: "0px", width: px(g.vw), height: px(g.vh), backgroundColor: "var(--bg)" },
+    pad0: { paddingLeft: "24px", paddingRight: "24px", paddingTop: "0px" },
+    pad1: { paddingLeft: px(zHistoria(g) ? g.W + 32 : 24), paddingRight: "32px", paddingTop: px(k.dolPaska + 8) },
+  };
+}
+
+// Panel Pestki → pełny ekran. Wszystko na jednej osi długości T, żeby zwinięcie było tą samą osią od końca.
+function osPelna() {
+  const g = geometria(), kP = klatki("prawy", g), kL = klatki("lewy", g), s = scenaKlatki(g);
+  const T = 2100, hist = zHistoria(g);
+  const token = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  s.waska.backgroundColor = token("--surface");
+  s.pelna.backgroundColor = token("--bg");
+  const at = (offset, obj, easing) => ({ offset, ...obj, ...(easing ? { easing } : {}) });
+  const ramka = ({ left, top, width, height, borderRadius }) => ({ left, top, width, height, borderRadius });
+  const navP = ramka(kP.pasek.at(-1)), navL = ramka(kL.pasek.at(-1));
+  // Wklęsły róg znika przy starym miejscu i wyrasta przy nowym; przeskok pozycji, gdy ma skalę 0.
+  const wnekK = (id, znika, wyrasta, koniec) => {
+    const a = kP.ksztaltWnekow[id], b = kL.ksztaltWnekow[id];
+    return [at(0, { ...a, transform: "none" }), at(znika, { ...a, transform: "scale(0)" }),
+      at(wyrasta, { ...b, transform: "scale(0)" }), at(koniec, { ...b, transform: "none" }), at(1, { ...b, transform: "none" })];
+  };
+  const ukryj = (id) => [at(0, { ...kP.ksztaltWnekow[id], transform: "none" }), at(0.1, { ...kP.ksztaltWnekow[id], transform: "scale(0)" }), at(1, { ...kP.ksztaltWnekow[id], transform: "scale(0)" })];
+  const bez = ({ offset, easing, ...reszta }) => reszta;
+  const [b0, b1, b2] = kL.bok.map(bez);
+  const panelHist = bok.querySelector('.panel[data-panel="historia"]');
+
+  const os = [
+    // 1. panel rozlewa się na całą stronę
+    { el: scena, kf: [at(0, s.waska, KRZYWA_ROZLEWU), at(0.45, s.pelna), at(1, s.pelna)] },
+    { el: scenaPanel, kf: [at(0, s.pad0, KRZYWA_ROZLEWU), at(0.45, s.pad1), at(1, s.pad1)] },
+    // 2. nav przelewa się po górnej krawędzi na lewo
+    { el: nav, kf: [at(0, navP), at(0.15, navP, "cubic-bezier(.45,0,.2,1)"), at(0.6, navL), at(1, navL)] },
+    { el: wGora, kf: wnekK("wGora", 0.12, 0.58, 0.7) },
+    // 3. z nava wylewa się w dół historia rozmów
+    { el: bok, kf: hist ? [at(0, b0), at(0.55, b0, KRZYWA_ROZLEWU), at(0.55 + 0.45 * 0.88, b1), at(1, b2)] : [at(0, b0), at(1, b0)] },
+    { el: wStyk, kf: hist ? wnekK("wStyk", 0.1, 0.55, 0.68) : ukryj("wStyk") },
+    { el: wDol, kf: hist ? wnekK("wDol", 0.1, 0.86, 0.96) : ukryj("wDol") },
+    { el: panelHist, kf: [at(0, { "--wylew": "0%" }), at(0.57, { "--wylew": "0%" }), at(1, { "--wylew": "115%" })] },
+    { el: zaslona, kf: [at(0, { opacity: waski() ? 1 : 0 }), at(0.3, { opacity: 0 }), at(1, { opacity: 0 })] },
+  ].map((a) => ({ ...a, start: 0, dur: T }));
+  panelHist.querySelectorAll(".wlewa").forEach((el, i) => {
+    os.push({ el, kf: [{ opacity: 0, transform: "translateY(-18px)" }, { opacity: 1, transform: "none" }], start: T * 0.58 + i * 45, dur: 520, easing: "cubic-bezier(.2,.8,.3,1)" });
+  });
+  return os;
+}
+
+// Puszcza oś naprzód albo od końca. fill: both trzyma ostatnią klatkę do zastosuj(), więc na końcu nie ma mignięcia.
+async function uruchom(os, naprzod) {
+  animuje = true;
+  skorupa.classList.add("animuje");
+  const calosc = Math.max(...os.map((a) => a.start + a.dur));
+  const animacje = os.map((a) => {
+    const anim = a.el.animate(a.kf, {
+      duration: a.dur,
+      delay: naprzod ? a.start : calosc - a.start - a.dur,
+      direction: naprzod ? "normal" : "reverse",
+      easing: a.easing || "linear",
+      fill: "both",
+    });
+    anim.playbackRate = (naprzod ? 1 : 1.35) / tempo;
+    return anim;
+  });
+  await Promise.all(animacje.map((a) => a.finished));
+  zastosuj();
+  animacje.forEach((a) => a.cancel());
+  skorupa.classList.remove("animuje");
+  animuje = false;
+}
+
+async function pelnyEkran(wlacz) {
+  if (animuje || wlacz === stan.pelny) return;
+  if (wlacz && !(stan.otwarty && stan.strona === "prawy")) return;
+  const os = osPelna();
+  stan = { ...stan, pelny: wlacz };
+  zastosuj();
+  if (mniejRuchu.matches) return;
+  // Na czas przejścia w obie strony: rozmowa i historia muszą być w drzewie.
+  scena.style.display = "block";
+  pokazPanel("historia");
+  await uruchom(os, wlacz);
+  (wlacz ? zwin : bok.querySelector(".panel.widoczny .rozwin"))?.focus({ preventScroll: true });
+}
+
+function osCzasu(s, nazwaPanelu = s) {
+  const g = geometria(), k = klatki(s, g);
+  const panel = bok.querySelector(`.panel[data-panel="${nazwaPanelu}"]`);
+  const rosnie = [{ transform: "scale(0)" }, { transform: "none" }];
+  const D = DOCISK; // od tej chwili góra i dół rozlewają się razem
+  const miekko = "cubic-bezier(.2,.8,.3,1)";
+  const os = [
+    { el: nav, kf: k.pasek, start: 0, dur: DOCISK + ROZLEW },             // dociśnięcie, potem rozlanie w górę
+    { el: bok, kf: k.bok, start: D, dur: ROZLEW, easing: KRZYWA_ROZLEWU }, // w tym samym czasie spływanie w dół
+    { el: wGora, kf: rosnie, start: D, dur: 480, easing: miekko },
+    { el: wStyk, kf: rosnie, start: D, dur: 480, easing: miekko },
+    { el: wDol, kf: rosnie, start: D + ROZLEW * 0.62, dur: 380, easing: miekko },
+    { el: strona, kf: k.strona, start: D + 100, dur: 850, easing: "cubic-bezier(.2,0,0,1)" },
+    { el: zaslona, kf: [{ opacity: 0 }, { opacity: waski() ? 1 : 0 }], start: D - 100, dur: 700 },
+    { el: panel, kf: [{ "--wylew": "0%" }, { "--wylew": "115%" }], start: D + 60, dur: 1100, easing: "cubic-bezier(.35,.5,.3,1)" },
+  ];
+  panel.querySelectorAll(".wlewa").forEach((el, i) => {
+    os.push({ el, kf: [{ opacity: 0, transform: "translateY(-18px)" }, { opacity: 1, transform: "none" }], start: D + 120 + i * 55, dur: 560, easing: miekko });
+  });
+  return os;
+}
+
+// Pełny ekran → zamknięty, bez powrotu do panelu: historia cofa się w nav, rozmowa wsiąka w nav,
+// a nav odkleja się od krawędzi i wraca na środek (otwarcie lewej strony puszczone od końca).
+async function zamknijPelny() {
+  if (animuje) return;
+  const g = geometria(), hist = zHistoria(g);
+  const os = osCzasu("lewy", "historia").filter((a) => a.el !== zaslona && (hist || (a.el !== wStyk && a.el !== wDol && !bok.contains(a.el))));
+  const calosc = Math.max(...os.map((a) => a.start + a.dur));
+  const token = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const wNavie = { left: "0px", top: px(g.top), width: px(g.w), height: px(g.h), borderRadius: px(g.h / 2), backgroundColor: token("--surface") };
+  const naStronie = { left: "0px", top: "0px", width: px(g.vw), height: px(g.vh), borderRadius: "0px", backgroundColor: token("--bg") };
+  // Zapis „od zamkniętego”: od końca scena kurczy się do prostokąta nava, zanim ten odjedzie na środek.
+  os.push({ el: scena, kf: [{ ...wNavie, opacity: 0 }, { ...wNavie, opacity: 1, offset: 0.06 }, { ...naStronie, opacity: 1 }], start: DOCISK, dur: calosc - DOCISK, easing: KRZYWA_ROZLEWU });
+  os.push({ el: scenaPanel, kf: [{ opacity: 0 }, { opacity: 1 }], start: calosc - 400, dur: 400 });
+
+  stan = { otwarty: false, strona: "lewy", pelny: false };
+  zastosuj();
+  if (mniejRuchu.matches) return;
+  scena.style.display = "block";
+  pokazPanel("historia");
+  await uruchom(os, false);
+}
+
+async function przejdz(otworz, s) {
+  if (animuje) return;
+  if (stan.pelny) {
+    await zamknijPelny();
+    if (!otworz) return;
+  }
+  if (otworz && stan.otwarty && stan.strona !== s) await przejdz(false, stan.strona);
+  if (otworz === stan.otwarty && s === stan.strona) return;
+  const os = osCzasu(s);
+  stan = { otwarty: otworz, strona: s, pelny: false };
+  zastosuj();
+  if (mniejRuchu.matches) return;
+  await uruchom(os, otworz);
+  if (otworz) bok.querySelector(".panel.widoczny .zamknij")?.focus({ preventScroll: true });
+}
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.matches("[data-otworz]")) przejdz(!(stan.otwarty && stan.strona === b.dataset.otworz), b.dataset.otworz);
+  else if (b.matches(".zamknij")) przejdz(false, stan.strona);
+  else if (b.matches(".rozwin")) pelnyEkran(!stan.pelny);
+});
+zaslona.addEventListener("click", () => przejdz(false, stan.strona));
+addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && stan.otwarty) przejdz(false, stan.strona);
+});
+addEventListener("resize", () => { if (!animuje) zastosuj(); });
+
+$("wolno").addEventListener("click", (e) => {
+  tempo = tempo === 1 ? 4 : 1;
+  e.currentTarget.setAttribute("aria-pressed", String(tempo !== 1));
+});
+$("motyw").addEventListener("click", () => {
+  const root = document.documentElement;
+  const ciemny = root.dataset.motyw ? root.dataset.motyw === "ciemny" : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.motyw = ciemny ? "jasny" : "ciemny";
+});
+
+zastosuj();
+</script>
+</body>
+</html>

@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { TutorAvatar } from "./TutorAvatar";
 import { TutorChat } from "./TutorChat";
 import { useTutor } from "./TutorContext";
+import { doPelnego, otworzPanel, PANEL_OBOK_OD, zamknijPanel } from "./sterKsztaltu";
 import styles from "./TutorDock.module.css";
 
 // Podpis w doku mówi, na co Pestka patrzy razem z uczniem: zadanie z rozmowy, a bez niego strona.
@@ -29,15 +30,45 @@ export function gdziePatrzy(sciezka: string, temat: string | null) {
   return MIEJSCA.find(([poczatek]) => sciezka.startsWith(poczatek))?.[1] ?? "obok ciebie";
 }
 
-// Wysuwany panel rozmowy z Pestką. Otwiera się kliknięciem w wędrującego avatara albo z jego dymka.
+// Panel rozmowy z Pestką wylewany z nava (sterKsztaltu.ts). Otwiera się kliknięciem w wędrującego avatara albo z jego dymka.
+// Na szerokim ekranie stoi obok strony, która dalej działa; na węższym ją przykrywa i reszta jest nieaktywna.
 export function TutorDock() {
   const { isOpen, close, messages, state, tematRozmowy } = useTutor();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const panel = useRef<HTMLDialogElement>(null);
+  const [pokazany, setPokazany] = useState(isOpen);
+  const panel = useRef<HTMLElement>(null);
   const zamknij = useRef<HTMLButtonElement>(null);
   const przedPytaniem = useRef<number | null>(null);
   const przechodziDoCzatu = useRef(false);
+
+  const naPelnyEkran = useCallback(() => {
+    przechodziDoCzatu.current = true;
+    void doPelnego(() => {
+      close();
+      navigate("/tutor");
+    });
+  }, [close, navigate]);
+
+  useEffect(() => {
+    if (isOpen) setPokazany(true);
+  }, [isOpen]);
+
+  // Panel znika z drzewa dopiero, gdy wsiąknie z powrotem w nav.
+  useLayoutEffect(() => {
+    if (!pokazany) return;
+    if (isOpen) {
+      void otworzPanel();
+      return;
+    }
+    let aktualne = true;
+    void zamknijPanel().then(() => {
+      if (aktualne) setPokazany(false);
+    });
+    return () => {
+      aktualne = false;
+    };
+  }, [isOpen, pokazany]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -52,44 +83,53 @@ export function TutorDock() {
         ostatnia.text.split("\n").filter((wiersz) => wiersz.trim()).length >= PROG_WIERSZY)
     ) {
       przedPytaniem.current = null;
-      przechodziDoCzatu.current = true;
-      close();
-      navigate("/tutor");
+      naPelnyEkran();
     } else if (state === "idle") {
       przedPytaniem.current = null;
     }
-  }, [isOpen, messages, state, close, navigate]);
+  }, [isOpen, messages, state, naPelnyEkran]);
 
-  // Modalny panel zatrzymuje fokus w rozmowie. Początkowy fokus na zamknięciu nie uruchamia klawiatury telefonu.
+  // Fokus na zamknięciu (nie uruchamia klawiatury telefonu). Gdy panel przykrywa stronę, reszta poza kształtem
+  // nawigacji jest nieaktywna, więc fokus nie ucieka pod zasłonę.
   useEffect(() => {
-    const dialog = panel.current;
-    if (!isOpen || !dialog) return;
+    const el = panel.current;
+    if (!isOpen || !pokazany || !el) return;
     przechodziDoCzatu.current = false;
     const wczesniej = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    dialog.showModal();
     zamknij.current?.focus({ preventScroll: true });
+    const zablokowane: HTMLElement[] = [];
+    if (window.innerWidth < PANEL_OBOK_OD) {
+      for (const brat of el.parentElement?.children ?? []) {
+        if (brat === el || !(brat instanceof HTMLElement) || brat.dataset.ksztalt || brat.inert) continue;
+        if (brat.querySelector('[data-ksztalt="nav"]')) continue;
+        brat.inert = true;
+        zablokowane.push(brat);
+      }
+    }
     return () => {
-      dialog.close();
+      zablokowane.forEach((b) => (b.inert = false));
       // Twarz Pestki wraca na ekran dopiero po zamknięciu panelu, więc fokus ustawiamy w następnej klatce.
       requestAnimationFrame(() => {
-        if (dialog.open || przechodziDoCzatu.current) return;
+        if (przechodziDoCzatu.current) return;
         const cel = wczesniej?.isConnected && wczesniej.offsetParent ? wczesniej : document.querySelector<HTMLElement>("[data-pestka=przewodnik]");
         cel?.focus({ preventScroll: true });
       });
     };
-  }, [isOpen]);
+  }, [isOpen, pokazany]);
 
-  if (!isOpen) return null;
+  if (!pokazany) return null;
   return (
-    <dialog
+    <section
       ref={panel}
       className={styles.panel}
+      data-ksztalt="panel"
+      role="dialog"
       aria-label="Pestka"
-      onCancel={(e) => { e.preventDefault(); close(); }}
-      onClick={(e) => {
-        if (e.target !== e.currentTarget) return;
-        const { left, right, top, bottom } = e.currentTarget.getBoundingClientRect();
-        if (e.clientX < left || e.clientX > right || e.clientY < top || e.clientY > bottom) close();
+      aria-modal={window.innerWidth < PANEL_OBOK_OD || undefined}
+      onKeyDown={(e) => {
+        if (e.key !== "Escape") return;
+        e.stopPropagation();
+        close();
       }}
     >
       <header className={styles.header}>
@@ -100,8 +140,8 @@ export function TutorDock() {
         </div>
         <Link to="/tutor" className={styles.iconBtn} onClick={(e) => {
           if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
-          przechodziDoCzatu.current = true;
-          close();
+          e.preventDefault();
+          naPelnyEkran();
         }} aria-label="Otwórz na pełnym ekranie">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -114,6 +154,6 @@ export function TutorDock() {
         </button>
       </header>
       <TutorChat poWyslaniu={() => { przedPytaniem.current = messages.at(-1)?.id ?? -1; }} />
-    </dialog>
+    </section>
   );
 }
