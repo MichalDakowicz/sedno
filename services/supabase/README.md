@@ -129,7 +129,8 @@ zawiera jedynie słowo z tytułu lub imię bohatera („wesele kuzynki”, „si
 krótkiej, prostej odpowiedzi i powrotu do nauki.
 Pytanie z ramą literacką (np. „plan wydarzeń tomu II”) może odwołać się do ostatniej rozpoznanej lektury
 w tej samej rozmowie. Bramka dla dopytania ponawia wyszukiwanie materiałów z maksymalnie dwóch wcześniejszych
-pytań z odsyłaczami i używa tych samych identyfikatorów materiałów.
+pytań z odsyłaczami i używa tych samych identyfikatorów materiałów. Model dostaje tekst wcześniejszych odpowiedzi bez
+numerów i identyfikatorów źródeł oraz oznaczenie odpowiedzi podpartych źródłami.
 
 Warstwy (szczegóły formatu, walidator, generator i loader tekstów: `lektury/README.md`):
 
@@ -137,20 +138,21 @@ Warstwy (szczegóły formatu, walidator, generator i loader tekstów: `lektury/R
 | --- | --- | --- |
 | Karta `[K]` (autor, epoka, poziom, części, domena publiczna) | katalog w kodzie | brak, zawsze w kontekście |
 | Opracowanie `[S:streszczenie]`, `[S:geneza]`, … | migracje `0027`–`0034`, `0040` | `private.wiedza_pestki` |
-| Wydarzenia `[W12]`, postacie `[P3]`, motywy `[M5]`, utwory zbioru `[U2]` | `lektury/<id>.json` → migracja `0038_lektury_elementy.sql` | `private.lektury_elementy` |
+| Wydarzenia `[W12]`, postacie `[P3]`, motywy `[M5]`, utwory zbioru `[U2]` | `lektury/<id>.json` → migracja `0041_lektury_elementy.sql` | `private.lektury_elementy` |
 | Fragmenty tekstu `[F1]` (tylko domena publiczna, poza repozytorium) | `npm run lektury:teksty` | `private.lektury_fragmenty` |
 | Osadzenia (na później) | — | `private.lektury_osadzenia` |
 
 Migracje: `0035` (tabele, funkcje wyszukiwania), `0036` (elementy, generowana), `0037` (usuwa przybliżoną notatkę z
 planem „Lalki”, bo plan jest w elementach), `0038` (elementy z kotwicami rozdziałów), `0039` (wyszukiwanie
-początków i zakończeń, uzupełnienie kotwic w załadowanych fragmentach), `0040` (testament Papkina w planie „Zemsty”).
-Funkcje `pestka_lektury_elementy` i `pestka_lektury_fragmenty` wywołuje wyłącznie rola serwisowa.
+początków i zakończeń, uzupełnienie kotwic w załadowanych fragmentach), `0040` (testament Papkina w planie „Zemsty”),
+`0041` (elementy wszystkich lektur), `0042` (łączenie źródeł po miejscu i pobieranie fragmentów do planu rozdziału).
+Funkcje `pestka_lektury_elementy`, `pestka_lektury_fragmenty` i `pestka_lektury_fragmenty_miejsca` wywołuje wyłącznie rola serwisowa.
 
 ### Wybór materiałów według typu pytania
 
 | Typ pytania | Materiały |
 | --- | --- |
-| plan wydarzeń | wydarzenia utworu w kolejności; odpowiedź składa serwer bez modelu (numerowana lista z miejscem w tekście), zawężona do tomu, rozdziału, aktu lub sceny z pytania |
+| plan wydarzeń | numerowana lista z wydarzeń w kolejności fabuły, zawężona do miejsca z pytania. Jeśli dla rozdziału lub sceny są mniej niż trzy wydarzenia, model dostaje wycinki z tego miejsca do ułożenia planu i cytuje ich identyfikatory `[F…]`. Przy braku tekstu zostają dostępne punkty z informacją o zakresie materiału. |
 | streszczenie | sekcja streszczenia, do 25 wydarzeń (60 przy „szczegółowo”), sekcja bohaterów; „bez spoilerów” daje tylko dwa pierwsze zdania |
 | zakończenie, finał | do pięciu końcowych wydarzeń w kolejności fabuły oraz sekcja streszczenia |
 | kim jest …, bohater, relacje | postacie dopasowane po odmianach imienia (bez dopasowania do 8 postaci), sekcja bohaterów |
@@ -160,20 +162,19 @@ Funkcje `pestka_lektury_elementy` i `pestka_lektury_fragmenty` wywołuje wyłąc
 | każde inne, w tym „czy …?” i „dlaczego …?” | trzy najtrafniejsze sekcje opracowania, uzupełnione o wydarzenia i bohaterów, do 8 elementów oraz 2 fragmenty (gdy utwór ma tekst) |
 
 Do kontekstu trafia najwyżej około 18 tys. znaków materiałów (około 6 tys. tokenów), a karta zawsze. Pełne książki
-nigdy nie trafiają do modelu: fragment jest wycinkiem do 1400 znaków.
+nigdy nie trafiają do modelu: wycinek do planu ma do 2200 znaków, a w pozostałych odpowiedziach do 1400.
 
 ### Kontrakt odpowiedzi czatu o lekturze
 
 Model cytuje materiały identyfikatorami w nawiasach kwadratowych (`[W12]`, `[P3][W14]`, `[S:geneza]`, `[K]`), a znacznik
-`[OW]` oznacza wiedzę spoza materiałów. Serwer przetwarza odpowiedź wiersz po wierszu (strumień idzie wierszami):
+`[OW]` oznacza wiedzę spoza materiałów. Strumień buforuje akapit lub punkt listy:
 
 - identyfikator z materiałów zamienia się na znacznik `[[zrodlo:N]]` (N to numer pozycji w `zrodla`, od 1), identyfikator
-  nieznany znika;
-- zdanie bez znanego identyfikatora dostaje dopisek `(z ogólnej wiedzy, sprawdź w tekście)`; zwolnione są
-  nagłówki, pytania, zdania zakończone dwukropkiem, krótkie zdania bez `[OW]` i przyznanie braku materiału.
-  W zdaniu z prawidłowym identyfikatorem `[OW]` ustępuje źródłu;
-- cytat w cudzysłowie „…” (min. 4 słowa) musi występować w materiałach albo w pytaniu ucznia, inaczej wiersz znika, a na końcu
-  pojawia się zdanie o pominiętym fragmencie;
+  nieznany znika, a sąsiednie odsyłacze do tego samego miejsca są scalane;
+- akapit lub punkt listy bez znanego identyfikatora może dostać jeden dopisek `(z ogólnej wiedzy, sprawdź w tekście)`.
+  Dopisek pomija nagłówki, cytaty oraz przyznanie braku materiału;
+- cytat w cudzysłowie „…” (min. 4 słowa) musi występować w materiałach albo w pytaniu ucznia. W innym przypadku
+  serwer usuwa cytat razem z jego odsyłaczami i informuje o tym na końcu odpowiedzi;
 - bez żadnego wiersza z odpowiedzi serwer zwraca: „Sedno nie ma materiału, który rozstrzyga to pytanie. …”;
 - znacznik `[[priorytet: …]]` i zdania typu „dodałam do twoich priorytetów” są usuwane z każdej odpowiedzi czatu, chyba że
   uczeń wyraźnie prosi o zapis priorytetu (np. „Zapisz priorytet: …”).

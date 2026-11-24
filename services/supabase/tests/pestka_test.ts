@@ -1,10 +1,10 @@
 import { assert, assertEquals, assertStringIncludes } from "jsr:@std/assert";
-import { odczytajOdpowiedzPestki, zatwierdzPowierzchnie } from "../functions/_shared/pestka-odpowiedz.ts";
+import { odczytajOdpowiedzPestki, opisKartyZrodla, zatwierdzPowierzchnie } from "../functions/_shared/pestka-odpowiedz.ts";
 import {
-  czyPytanieOLekturze, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosiOZapisPriorytetu, rozpoznajPytanieCzatu, weryfikuj, wydarzeniaZPytania,
+  czyPytanieOLekturze, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosiOZapisPriorytetu, rozpoznajPytanieCzatu, weryfikuj,
 } from "../functions/ai/pestka.ts";
 import { typPytania, utworPytania, zawieraCytat } from "../functions/ai/lektury.ts";
-import { kartaLektury, okno, type Material, type SzukajElementy, type SzukajFragmenty } from "../functions/ai/material-lektury.ts";
+import { kartaLektury, okno, type Material, type SzukajElementy, type SzukajFragmenty, type SzukajFragmentyMiejsca } from "../functions/ai/material-lektury.ts";
 import { BRAK_MATERIALU, ETYKIETA_OGOLNA, FiltrCzatu, POMINIETO, ProcesorOdpowiedzi } from "../functions/ai/odpowiedz-lektury.ts";
 import { KATALOG_LEKTUR } from "../functions/ai/katalog-lektur.ts";
 import type { Message } from "../functions/_shared/llm.ts";
@@ -49,7 +49,10 @@ const FRAGMENT_IMPROWIZACJI = {
 
 type ParametryElementow = Parameters<SzukajElementy>[0];
 type ParametryFragmentow = Parameters<SzukajFragmenty>[0];
-function dostepZ(opcje: { wiersze?: unknown[]; sekcje?: unknown[]; fragmenty?: unknown[]; szukajElementow?: SzukajElementy; szukajFragmentow?: SzukajFragmenty } = {}) {
+function dostepZ(opcje: {
+  wiersze?: unknown[]; sekcje?: unknown[]; fragmenty?: unknown[];
+  szukajElementow?: SzukajElementy; szukajFragmentow?: SzukajFragmenty; fragmentyMiejsca?: SzukajFragmentyMiejsca;
+} = {}) {
   const wywolania = { baza: [] as unknown[], uwagi: 0, elementy: [] as ParametryElementow[], fragmenty: [] as ParametryFragmentow[] };
   return {
     wywolania,
@@ -64,6 +67,7 @@ function dostepZ(opcje: { wiersze?: unknown[]; sekcje?: unknown[]; fragmenty?: u
         wywolania.fragmenty.push(p);
         return opcje.szukajFragmentow?.(p) ?? Promise.resolve(opcje.fragmenty ?? []);
       },
+      fragmentyMiejsca: opcje.fragmentyMiejsca,
       signal: AbortSignal.timeout(10_000), zapytaj: bezSieci as () => Promise<string>,
     },
   };
@@ -194,11 +198,11 @@ Deno.test("plan wydarzeń składa serwer: kolejność, miejsce w tekście, link 
 Deno.test("plan zawęża się do miejsca wskazanego w pytaniu", async () => {
   const { krok } = await czat("Plan wydarzeń Lalki: tom II rozdział 14");
   assertEquals(krok.gotowa?.split("\n").filter((w) => /^\d+\. /.test(w)).length, 1);
-  const m = krok.materialy.filter((x) => x.rodzaj === "wydarzenie");
-  assertEquals(wydarzeniaZPytania("co w rozdziale 3", m).map((w) => w.id), ["W2"]);
-  assertEquals(wydarzeniaZPytania("rozdział XIV", m).map((w) => w.id), ["W3"]);
-  assertEquals(wydarzeniaZPytania("rozdział 99", m), []);
-  assertEquals(wydarzeniaZPytania("plan lalki", m).length, 3);
+  assertEquals(krok.materialy.filter((x) => x.rodzaj === "wydarzenie").map((w) => w.id), ["W3"]);
+  const rzymski = await czat("Plan wydarzeń Lalki, rozdział XIV");
+  assertStringIncludes(rzymski.krok.gotowa!, "1. **t. II, rozdz. 14**");
+  const brak = await czat("Plan wydarzeń Lalki, rozdział 99");
+  assertEquals(brak.krok.gotowa, "Sedno nie ma punktów planu dla wskazanego miejsca.");
 });
 
 Deno.test("plan bez elementów korzysta z numerowanej notatki, bez zmyślonych kotwic", async () => {
@@ -359,6 +363,27 @@ Deno.test("poprzednie źródło tekstu zachowuje identyfikator w kolejnym pytani
   assertEquals(przez(krok.materialy, "To słowa Konrada ze sceny drugiej [F3].").zrodla[0].id, "F3");
 });
 
+Deno.test("odsyłacze z wcześniejszej odpowiedzi nie są widoczne dla modelu", async () => {
+  for (const [pierwsze, odpowiedz, dopytanie] of [
+    ["Podaj plan wydarzeń Lalki", "Wokulski spotyka Geista w Paryżu. [35] [35]", "Czy te rozdziały w planie są pewne?"],
+    ["Co robi Sonia w Zbrodni i karze?", "Sonia spotyka Raskolnikowa [[zrodlo:1]] i rozmawia z nim [W12, OW][P3].", "Czy postać Soni miała źródło?"],
+    ["Co robi Makbet w akcie II?", "Makbet zabija króla [S:wydarzenia, W12]. W akcie II [K].", "Czy scena w akcie II jest pewna?"],
+  ]) {
+    const messages: Message[] = [
+      { role: "user", content: pierwsze },
+      { role: "assistant", content: odpowiedz },
+      { role: "user", content: dopytanie + " Pytam o punkt [35]." },
+    ];
+    const krok = await przygotujCzat(messages, { tryb: "czat" }, dostepZ({ wiersze: [] }).dostep);
+    const historia = krok.messages.find((m) => m.role === "assistant")?.content ?? "";
+    assertStringIncludes(historia, "Potwierdzona odpowiedź Sedno");
+    assert(!historia.includes("["));
+    assertEquals(krok.messages.at(-1)?.content, messages.at(-1)?.content);
+    assertEquals(messages[1].content, odpowiedz);
+    assertStringIncludes(system(krok), "Nie komentuj numeracji źródeł");
+  }
+});
+
 Deno.test("plan bez tytułu dziedziczy utwór, a zwykłe pytanie i nowy utwór tego nie robią", async () => {
   const historia: Message[] = [
     { role: "user", content: "Podaj plan wydarzeń Lalki" },
@@ -370,6 +395,7 @@ Deno.test("plan bez tytułu dziedziczy utwór, a zwykłe pytanie i nowy utwór t
   assert(rozpoznajPytanieCzatu(messages, {}).lektura);
   const krok = await przygotujCzat(messages, { tryb: "czat" }, dostepZ().dostep);
   assertStringIncludes(krok.gotowa!, "1. **t. II, rozdz. 14**");
+  assertStringIncludes(krok.gotowa!, "Sedno ma tylko jeden punkt planu");
   assert(!krok.gotowa?.includes("rozdz. 3"));
   assertEquals(rozpoznajPytanieCzatu(rozmowa("Co to jest pochodna?"), {}).utwor, undefined);
   assertEquals(rozpoznajPytanieCzatu(rozmowa("Jak napisać akt notarialny?"), {}).lektura, false);
@@ -380,6 +406,75 @@ Deno.test("plan bez tytułu dziedziczy utwór, a zwykłe pytanie i nowy utwór t
     role: "user", content: "Plan wydarzeń pierwszego tomu",
   }], {}).utwor, undefined);
   assertEquals(rozpoznajPytanieCzatu(messages, { chronOdpowiedz: true }).lektura, false);
+});
+
+Deno.test("ubogi plan tomu II, rozdziału 14 jest układany tylko z fragmentów tego rozdziału", async () => {
+  let wywolania = 0;
+  const tekst = ["Izabela i Starski rozmawiają w pociągu.", "Wokulski wysiada w Skierniewicach.", "Dróżnik Wysocki ratuje Wokulskiego."];
+  const krok = await przygotujCzat([
+    { role: "user", content: "Podaj plan wydarzeń Lalki" },
+    { role: "assistant", content: "Oto plan lektury. [35]" },
+    { role: "user", content: "Plan wydarzeń tomu II, rozdział 14" },
+  ], { tryb: "czat" }, dostepZ({
+    fragmentyMiejsca: (p) => {
+      wywolania++;
+      assertEquals(p, { p_utwor: "lalka", p_miejsce: "t. 2, rozdz. 14", p_limit: 7 });
+      return Promise.resolve([
+        { utwor: "lalka", nr: 9, miejsce: "t. I, rozdz. 14", tekst: "Inny tom." },
+        ...tekst.map((tekst, i) => ({ utwor: "lalka", nr: 150 + i, miejsce: "t. II, rozdz. 14", tekst, zrodlo_url: XIV })),
+        { utwor: "lalka", nr: 160, miejsce: "t. II, rozdz. 15", tekst: "Kolejny rozdział." },
+      ]);
+    },
+  }).dostep);
+  assertEquals(wywolania, 1);
+  assertEquals(krok.gotowa, undefined);
+  assertEquals(krok.materialy.map((m) => m.id), ["K", "F150", "F151", "F152"]);
+  assertStringIncludes(system(krok), "3–6 punktach");
+  assertStringIncludes(system(krok), "Każdy punkt zakończ identyfikatorem [F…]");
+  const odp = przez(krok.materialy, tekst.map((zdanie, i) => `${i + 1}. ${zdanie} [F${150 + i}]`).join("\n"));
+  assertEquals(odp.zrodla[0].url, XIV);
+  assertEquals(odp.wynik.split("\n").length, 3);
+  assert(!odp.wynik.includes(ETYKIETA_OGOLNA));
+});
+
+Deno.test("plan z trzema wydarzeniami w rozdziale nie pobiera fragmentów", async () => {
+  let wywolania = 0;
+  const { krok } = await czat("Plan wydarzeń Lalki, tom II, rozdział 14", {
+    wiersze: [1, 2, 3].map((nr) => wyd(nr, "t. II, rozdz. 14", "Zdarzenie w rozdziale.", XIV)),
+    fragmentyMiejsca: () => { wywolania++; return Promise.resolve([]); },
+  });
+  assertEquals(wywolania, 0);
+  assertStringIncludes(krok.gotowa!, "3. **t. II, rozdz. 14**");
+});
+
+Deno.test("karty wskazują właściwy tom, a miejsce bez kotwicy jest osobnym tekstem", async () => {
+  const przypadki = [
+    ["chlopi", "Podaj plan wydarzeń Chłopów", "cz. II, rozdz. 3", "https://wolnelektury.pl/katalog/lektura/chlopi-czesc-pierwsza-jesien/", "https://wolnelektury.pl/katalog/lektura/reymont-chlopi-zima/", "Chłopi"],
+    ["chlopi", "Podaj plan wydarzeń Chłopów", "cz. III, rozdz. 1", "https://wolnelektury.pl/katalog/lektura/chlopi-czesc-pierwsza-jesien/", "https://wolnelektury.pl/katalog/lektura/chlopi-czesc-trzecia-wiosna/", "Chłopi"],
+    ["chlopi", "Podaj plan wydarzeń Chłopów", "cz. IV, rozdz. 1", "https://wolnelektury.pl/katalog/lektura/chlopi-czesc-pierwsza-jesien/", "https://wolnelektury.pl/katalog/lektura/chlopi-czesc-czwarta-lato/", "Chłopi"],
+    ["zbrodnia-i-kara", "Podaj plan wydarzeń Zbrodni i kary", "cz. V, rozdz. 2", "https://pl.wikisource.org/wiki/Zbrodnia_i_kara_(Dostojewski,_1928)/Tom_I/całość", "https://pl.wikisource.org/wiki/Zbrodnia_i_kara_(Dostojewski,_1928)/Tom_II/całość", "Zbrodnia i kara"],
+    ["inny-swiat", "Podaj plan wydarzeń Innego świata", "cz. II, Głód", "https://zpe.gov.pl/a/prezentacja-multimedialna/DOPFL0ddG", "https://zpe.gov.pl/a/prezentacja-multimedialna/DOPFL0ddG", "Inny świat · źródło opracowania"],
+  ];
+  for (const [utwor, pytanie, miejsce, url, oczekiwany, link] of przypadki) {
+    const { krok } = await czat(pytanie, { wiersze: [wiersz("wydarzenie", 1, miejsce, { miejsce, opis: "Wydarzenie." }, url, utwor)] });
+    const z = krok.materialy.find((m) => m.id === "W1")?.zrodlo;
+    assert(z);
+    assertEquals(z.url, oczekiwany);
+    assertEquals(opisKartyZrodla(z), { link, miejsce });
+    assertEquals(opisKartyZrodla({ ...z, sekcja: miejsce }), { link, miejsce });
+  }
+  for (const [utwor, tytul, url] of [
+    ["zemsta", "Zemsty", "https://wolnelektury.pl/katalog/lektura/zemsta.html#s33"],
+    ["makbet", "Makbeta", "https://wolnelektury.pl/katalog/lektura/makbet.html#s26"],
+  ]) {
+    const miejsce = utwor === "zemsta" ? "akt IV, sc. 5" : "akt V, sc. 1";
+    const { krok } = await czat(`Podaj plan wydarzeń ${tytul}`, { wiersze: [wiersz("wydarzenie", 1, miejsce, { miejsce, opis: "Wydarzenie." }, url, utwor)] });
+    const z = krok.materialy.find((m) => m.id === "W1")?.zrodlo;
+    assert(z);
+    assertEquals(z.url, url);
+    assertEquals(opisKartyZrodla(z).miejsce, undefined);
+    assertStringIncludes(opisKartyZrodla(z).link, miejsce);
+  }
 });
 
 async function elementyLalki() {
@@ -421,6 +516,15 @@ Deno.test("zakończenie Lalki pobiera ostatnie wydarzenia i streszczenie", async
   assertEquals(zrodla.map((z) => z.id), ["W38", "S:streszczenie"]);
 });
 
+Deno.test("zakończenie Hamleta dostaje materiał i polecenie w kolejności fabuły", async () => {
+  const { dane } = (await wczytajPlikiLektur()).find((p) => p.nazwa === "hamlet")!;
+  const wydarzenia = wierszeElementow(dane as PlikLektury).filter((w) => w.rodzaj === "wydarzenie").slice(-5);
+  const { krok } = await czat("Jak kończy się Hamlet?", {
+    szukajElementow: (p) => Promise.resolve(p.p_od_konca ? wydarzenia.toReversed() : []),
+  });
+  assertEquals(krok.materialy.filter((m) => m.rodzaj === "wydarzenie").map((m) => m.id), wydarzenia.map((w) => `W${w.nr}`));
+  assertStringIncludes(system(krok), "od najwcześniejszego z nich do ostatniego");
+});
 Deno.test("to samo miejsce w tekście ma jedno źródło, a wiele identyfikatorów w jednym nawiasie działa", () => {
   const { krok } = { krok: { materialy: [kartaLektury(KATALOG_LEKTUR[0]), ...WIERSZE.slice(1, 3).map((w, i): Material => ({
     id: `W${i + 2}`, rodzaj: "wydarzenie", tekst: `${w.miejsce}: ${(w.dane as { opis: string }).opis}`,
