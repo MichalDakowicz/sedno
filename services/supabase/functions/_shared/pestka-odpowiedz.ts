@@ -37,6 +37,14 @@ export type OdpowiedzPestki = {
   a2ui?: unknown;
 };
 
+export function opisKartyZrodla(z: ZrodloPestki): { link: string; miejsce?: string } {
+  const trafiaWMiejsce = z.rodzaj === "utwór" && !!z.miejsce && z.sekcja === z.miejsce &&
+    /#[^#]+$/.test(z.url) && !/\d\s*[–—-]\s*\d/.test(z.miejsce);
+  const sekcja = trafiaWMiejsce || z.sekcja !== z.miejsce ? z.sekcja : undefined;
+  const link = [z.tytul, z.rodzaj === "opracowanie" && "źródło opracowania", sekcja].filter(Boolean).join(" · ");
+  return { link, miejsce: trafiaWMiejsce ? undefined : z.miejsce };
+}
+
 export function obiektPestki(raw: unknown): Record<string, unknown> {
   return raw && typeof raw === "object" && !Array.isArray(raw) ? raw as Record<string, unknown> : {};
 }

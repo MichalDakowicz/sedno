@@ -57,8 +57,8 @@ z zapisanymi nagłówkami czytnika.
 ```bash
 npx -y deno@2 test --no-check=remote -A services/supabase/tests/lektury_test.ts   # walidator + zgodność migracji z JSON
 npm run lektury:generuj            # sprawdza najnowszą wygenerowaną migrację
-npm run lektury:generuj -- 0041    # nowa treść po wdrożeniu poprzedniej migracji dostaje nowy numer
-npm run lektury:generuj -- 0041 --nadpisz   # tylko gdy plik jeszcze nie trafił na serwer
+npm run lektury:generuj -- 0043    # nowa treść po wdrożeniu poprzedniej migracji dostaje kolejny wolny numer
+npm run lektury:generuj -- 0043 --nadpisz   # tylko gdy plik jeszcze nie trafił na serwer
 ```
 
 Migracja zawiera wszystkie utwory (dla każdego `delete` + `insert`), więc jest idempotentna i najnowsza wygenerowana
@@ -76,12 +76,17 @@ Skrypt pobiera tekst z API Wolnych Lektur, wymaga stopki „Ten utwór jest w do
 struktury (tom, część, księga, akt, scena, rozdział, prolog) na fragmenty do 800 słów i zapisuje je razem z lokalizacją
 i adresem strony w czytniku (z kotwicą nagłówka `#wl-e…` lub `#s…`, gdy HTML ją ma). Wiersze dostają zakres wersów w obrębie
 księgi. Załadunek jest idempotentny (dla utworu `delete` + `insert` w jednej transakcji). Host ssh: `SEDNO_SSH`.
+Loader zachowuje kolejność tomów „Lalki” i części „Chłopów”, rozpoznaje akty i sceny zapisane słownie oraz samodzielne
+cyfry rzymskie w nagłówkach rozdziałów „Chłopów”. Ponowne wgranie tekstu „Chłopów” uzupełnia miejsca i kotwice rozdziałów.
 
 ## Wyszukiwanie
 
 Funkcje `public.pestka_lektury_elementy` i `public.pestka_lektury_fragmenty` (tylko `service_role`) szukają zawsze w jednym
 utworze. Wyszukiwanie to Postgres full-text z konfiguracją `simple` na tekście bez polskich znaków (`unaccent`)
 i prefiksami 5 liter (znoszą fleksję), a dla dosłownego cytatu `pg_trgm` na tekście znormalizowanym do liter i cyfr.
+Odsyłacze do elementów korzystają z kotwic fragmentów dopasowanych po miejscu. Dla zakresu link może prowadzić do początku,
+a zakres pozostaje opisem tekstowym. Karta bez kotwicy oddziela miejsce w utworze od linku do tomu, całego utworu lub opracowania.
+Funkcja `public.pestka_lektury_fragmenty_miejsca` pobiera fragmenty z wybranego miejsca w kolejności tekstu.
 
 ## Osadzenia (embeddingi) — później, bez przebudowy schematu
 

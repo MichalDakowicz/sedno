@@ -143,3 +143,22 @@ Deno.test("wszystkie 38 rozdziałów Lalki ma zgodną kotwicę w generatorze i l
     assertEquals(w.zrodlo_url, adresy.get(w.miejsce), w.miejsce);
   }
 });
+
+Deno.test("loader rozpoznaje nagłówki numerowane słownie i samodzielne numery rozdziałów", async () => {
+  const html = await Deno.readTextFile(new URL("fixtures/naglowki-czesci-i-scen.html", import.meta.url));
+  const kotwice = kotwiceZHtml(html);
+  for (const [slug, linie, miejsce, anchor] of [
+    ["reymont-chlopi-zima", ["Chłopi\nCzęść druga — Zima", "III"], "cz. II, rozdz. 3", "#s3"],
+    ["chlopi-czesc-trzecia-wiosna", ["Chłopi\nCzęść trzecia. Wiosna", "X"], "cz. III, rozdz. 10", "#s10"],
+    ["zemsta", ["AKT CZWARTY", "SCENA PIĄTA"], "akt 4, sc. 5", "#s33"],
+    ["makbet", ["AKT PIĄTY", "SCENA I"], "akt 5, sc. 1", "#s26"],
+  ] as const) {
+    const stronaHtml = `https://wolnelektury.pl/katalog/lektura/${slug}.html`;
+    const [fragment] = podzielTekst([...linie, "Treść fragmentu do sprawdzenia."].join("\n\n"), {
+      stronaHtml, kotwice, rozdzialyRzymskie: slug.includes("chlopi"),
+      czesc: miejsce.startsWith("cz.") ? miejsce.split(",")[0] : undefined,
+    });
+    assertEquals(fragment.miejsce, miejsce);
+    assertEquals(fragment.url, stronaHtml + anchor);
+  }
+});

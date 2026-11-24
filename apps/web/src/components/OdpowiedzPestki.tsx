@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 import {
-  AKCJE, odczytajOdpowiedzPestki, zatwierdzPowierzchnie, type AkcjaPestki,
+  AKCJE, odczytajOdpowiedzPestki, opisKartyZrodla, zatwierdzPowierzchnie, type AkcjaPestki,
 } from "../../../../services/supabase/functions/_shared/pestka-odpowiedz";
 import { Markdown } from "./Markdown";
 import styles from "./TutorChat.module.css";
@@ -44,16 +44,19 @@ export function OdpowiedzPestki({ tekst, dane, zajeta, wykonaj }: {
       )}
       {!!odpowiedz?.zrodla.length && (
         <ul className={styles.zrodla} id={id}>
-          {odpowiedz.zrodla.map((z, i) => (
-            <li key={i}>
-              {otwarte && z.twierdzenie && <p>{z.twierdzenie}</p>}
-              {otwarte && z.dowod && <p>„{z.dowod}”</p>}
-              <a href={z.url} target="_blank" rel="noreferrer">
-                {z.twierdzenie?.match(/^\[\d+\]/)?.[0]} {z.tytul}{z.sekcja ? ` · ${z.sekcja}` : ""}
-              </a>{" "}
-              <span className="muted">({z.rodzaj})</span>
-            </li>
-          ))}
+          {odpowiedz.zrodla.map((z, i) => {
+            const opis = opisKartyZrodla(z);
+            return (
+              <li key={i}>
+                {otwarte && z.twierdzenie && <p>{z.twierdzenie}</p>}
+                {otwarte && z.dowod && <p>„{z.dowod}”</p>}
+                <a href={z.url} target="_blank" rel="noreferrer">
+                  {z.twierdzenie?.match(/^\[\d+\]/)?.[0]} {opis.link}
+                </a>{" "}
+                {opis.miejsce && <span className="muted">· {opis.miejsce}</span>}
+              </li>
+            );
+          })}
         </ul>
       )}
     </>

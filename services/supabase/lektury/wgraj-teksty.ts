@@ -7,6 +7,7 @@
 // Prefiks (np. "lalka", "dziady") ogranicza listę utworów. --sucho tylko pobiera i liczy, niczego nie wysyła.
 // Host ssh w SEDNO_SSH (domyślnie michu@192.168.100.6), kontener bazy w SEDNO_DB (domyślnie sb-sedno-db).
 import { KATALOG_LEKTUR } from "../functions/ai/katalog-lektur.ts";
+import { TOMY_WL } from "../functions/ai/miejsca-lektur.ts";
 import { czyDomena } from "./format.ts";
 import { type Fragment, kotwiceZHtml, podzielTekst, wytnijTresc } from "./teksty.ts";
 
@@ -45,7 +46,8 @@ async function ksiazki(slug: string): Promise<{ slug: string; txt: string }[]> {
     const dziecko = typeof (d as { slug?: unknown })?.slug === "string" ? await api((d as { slug: string }).slug) : undefined;
     if (dziecko && typeof dziecko.txt === "string" && dziecko.txt) wynik.push({ slug: (d as { slug: string }).slug, txt: dziecko.txt });
   }
-  return wynik;
+  const kolejnosc = TOMY_WL[slug];
+  return kolejnosc ? wynik.sort((a, b) => kolejnosc.indexOf(a.slug) - kolejnosc.indexOf(b.slug)) : wynik;
 }
 
 export async function fragmentyUtworu(slug: string): Promise<{ fragmenty: Fragment[]; powod?: string }> {
@@ -58,11 +60,15 @@ export async function fragmentyUtworu(slug: string): Promise<{ fragmenty: Fragme
     const tresc = surowy && wytnijTresc(surowy);
     if (!tresc) return { fragmenty: [], powod: "tekst nie jest oznaczony jako domena publiczna albo jest za duży" };
     const html = await pobierz(`${WL}/katalog/lektura/${tom.slug}.html`, MAX_HTML);
+    const znanyNumer = TOMY_WL[slug]?.indexOf(tom.slug) ?? -1;
+    const numer = rzymskiZLiczby((znanyNumer < 0 ? i : znanyNumer) + 1);
     fragmenty.push(...podzielTekst(tresc, {
       stronaHtml: `${WL}/katalog/lektura/${tom.slug}.html`,
       kotwice: html ? kotwiceZHtml(html) : undefined,
       odNr: fragmenty.length + 1,
-      tom: tomy.length > 1 ? `t. ${rzymskiZLiczby(i + 1)}` : undefined,
+      tom: (tomy.length > 1 || znanyNumer >= 0) && slug !== "chlopi" ? `t. ${numer}` : undefined,
+      czesc: slug === "chlopi" ? `cz. ${numer}` : undefined,
+      rozdzialyRzymskie: slug === "chlopi",
     }));
     await new Promise((r) => setTimeout(r, 300));
   }

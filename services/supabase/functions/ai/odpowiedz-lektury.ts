@@ -11,44 +11,45 @@ export const POMINIETO = "Pominięto fragment odpowiedzi, którego nie da się p
 
 const GRUPA_ID = /\[\s*((?:(?:[WPMUF]\d{1,4}|S:[a-z]+|K|OW)\s*[,;]?\s*)+)\]/g;
 const TOKEN = /[WPMUF]\d{1,4}|S:[a-z]+|K|OW/g;
-const POCZATEK_ID = new RegExp(`^(?:${GRUPA_ID.source}\\s*)+`);
-const ZDANIA = new Intl.Segmenter("pl", { granularity: "sentence" });
+const ODSYLACZ = /\[\[\s*zrodlo\s*:\s*[1-9]\d*\s*\]\]|\[[1-9]\d*\]/g;
+
+export const maOdsylacz = (tekst: string): boolean => tekst.search(ODSYLACZ) >= 0 ||
+  [...tekst.matchAll(GRUPA_ID)].some((m) => m[1].match(TOKEN)?.some((id) => id !== "OW"));
+export const bezOdsylaczy = (tekst: string): string => tekst
+  .replace(ODSYLACZ, "").replace(GRUPA_ID, "").replace(/[ \t]+(?=[.,;:!?…])/g, "").replace(/[ \t]+$/gm, "").trim();
+
+const NAGLOWEK = /^\s{0,3}#{1,6}(?:\s|$)/;
+const PODKRESLENIE = /^\s{0,3}(?:=+|-+)\s*$/;
+const PUNKT = /^\s*(?:[-+*]|\d{1,9}[.)])(?:[ \t]+|$)/;
+const BLOK_CYTATU = /^\s*>/;
+const CYTAT = /„[^”]*”|“[^”]*”|«[^»]*»|"[^"]*"/g;
+const CUDZYSLOW: Record<string, string> = { "„": "”", "“": "”", "«": "»", '"': '"' };
 const AKCJA = /^\[\[akcja:(?:krok|przyklad|sprawdz)\]\]$/;
 const ZNACZNIK_PRIORYTETU = /\[\[\s*priorytet\s*:[^\]]*\]\]/gi;
 // Model potrafi napisać, że dopisał priorytet, choć o to nie proszono.
 const OBIETNICA_PRIORYTETU = /\b(?:dodał|dopisał|zapisał|ustawił)(?:am|em|o)\b[^.!?\n]{0,80}\bpriorytet|\bdo (?:twoich|Twoich) priorytet/i;
 // Zdanie, w którym Pestka uczciwie mówi o braku materiału, nie wymaga etykiety.
-const PRZYZNANIE_BRAKU = /\bSedno\b[^.\n]{0,60}\b(?:nie ma|brak)|\bnie ma (?:tego |tej |go )?w (?:materiałach|opracowaniu)|z ogólnej wiedzy|\bnie wiem\b|\bnie jestem pewn/i;
+const PRZYZNANIE_BRAKU = /\bSedno\b[^.\n]{0,60}\b(?:nie ma|brak|ma tylko)|\bnie ma (?:tego |tej |go )?w (?:materiałach|opracowaniu)|z ogólnej wiedzy|\bnie wiem\b|\bnie jestem pewn/i;
 
 export type OpcjeProcesora = { pytanie: string; zapisPriorytetu: boolean };
 
 const slowa = (t: string) => t.split(/\s+/).filter(Boolean).length;
 const przytnij = (t: string, n: number) => t.length <= n ? t : t.slice(0, n - 1).replace(/\s+\S*$/, "");
 
-/** Cytaty w cudzysłowie „…” (min. 4 słowa i 18 znaków) muszą występować w materiałach albo w pytaniu ucznia. */
-function cytatyNiepotwierdzone(linia: string, wzorzec: string): boolean {
-  return [...linia.matchAll(/„([^”]{18,400})”/g)].some((m) => slowa(m[1]) >= 4 && !wzorzec.includes(normalizuj(m[1])));
-}
+const CYTAT_DO_SPRAWDZENIA = new RegExp(`„([^”]{18,400})”(?:[ \\t]*${GRUPA_ID.source})*`, "g");
 
-function zdaniaWiersza(linia: string): string[] {
-  // Numer listy i skróty lokalizacji nie kończą zdania. Zamiana kropki zachowuje indeksy.
-  const maska = linia.replace(/^(\s*\d+)\.(?= )|\b(t|rozdz|cz|ks|sc|w)\.(?= )/g, "$1$2_")
-    .replace(/„[^”]*”/g, (cytat) => cytat.replace(/[.!?…]/g, "_"));
-  const zdania: string[] = [];
-  for (const { index, segment } of ZDANIA.segment(maska)) {
-    let zdanie = linia.slice(index, index + segment.length);
-    const odsylacze = POCZATEK_ID.exec(zdanie)?.[0];
-    if (odsylacze && zdania.length) {
-      zdania[zdania.length - 1] += odsylacze;
-      zdanie = zdanie.slice(odsylacze.length);
-    }
-    if (zdanie) zdania.push(zdanie);
+function koniecCudzyslowu(wiersz: string, zamkniecie: string): string {
+  for (const { 0: znak } of wiersz.matchAll(/(?<!\\)[„“”«»"]/g)) {
+    if (zamkniecie) { if (znak === zamkniecie) zamkniecie = ""; }
+    else zamkniecie = CUDZYSLOW[znak] ?? "";
   }
-  return zdania;
+  return zamkniecie;
 }
 
 export class ProcesorOdpowiedzi {
   private bufor = "";
+  private wiersze: string[] = [];
+  private zamkniecie = "";
   private wyemitowano = 0;
   private ostatniaPusta = true;
   private pominieto = false;
@@ -75,6 +76,7 @@ export class ProcesorOdpowiedzi {
 
   zakoncz(): string {
     let wynik = this.bufor ? this.linia(this.bufor) : "";
+    wynik += this.blok();
     this.bufor = "";
     if (!this.wyemitowano) wynik += `${BRAK_MATERIALU}\n`;
     else if (this.pominieto) wynik += `\n${POMINIETO}\n`;
@@ -89,45 +91,77 @@ export class ProcesorOdpowiedzi {
 
   private linia(surowa: string): string {
     const linia = surowa.trimEnd();
+    if (this.zamkniecie) return this.dopisz(linia);
     if (!linia.trim()) {
-      if (this.ostatniaPusta) return "";
+      const wynik = this.blok();
+      if (this.ostatniaPusta) return wynik;
       this.ostatniaPusta = true;
-      return "\n";
+      return wynik + "\n";
     }
-    if (AKCJA.test(linia.trim())) return this.emituj(linia.trim());
+    if (AKCJA.test(linia.trim())) return this.blok() + this.emituj(linia.trim());
     const bezPriorytetu = this.opcje.zapisPriorytetu ? linia : linia.replace(ZNACZNIK_PRIORYTETU, "").trimEnd();
     if (!bezPriorytetu.trim()) return "";
     if (!this.opcje.zapisPriorytetu && OBIETNICA_PRIORYTETU.test(bezPriorytetu)) return "";
 
-    if (cytatyNiepotwierdzone(bezPriorytetu, this.wzorzec)) {
-      this.pominieto = true;
-      return "";
+    if (PODKRESLENIE.test(bezPriorytetu) && this.wiersze.length && !PUNKT.test(this.wiersze[0]) && !BLOK_CYTATU.test(this.wiersze[0])) {
+      this.wiersze.push(bezPriorytetu);
+      return this.blok(true);
     }
-    return this.emituj(zdaniaWiersza(bezPriorytetu).map((zdanie) => this.zdanie(zdanie)).join("").trimEnd());
+    if (NAGLOWEK.test(bezPriorytetu)) {
+      const poprzedni = this.blok();
+      this.wiersze.push(bezPriorytetu);
+      return poprzedni + this.blok(true);
+    }
+    const nowy = PUNKT.test(bezPriorytetu) || (this.wiersze.length > 0 &&
+      BLOK_CYTATU.test(bezPriorytetu) !== BLOK_CYTATU.test(this.wiersze[0]) &&
+      !!bezOdsylaczy(bezPriorytetu));
+    return (nowy ? this.blok() : "") + this.dopisz(bezPriorytetu);
   }
 
-  private zdanie(surowe: string): string {
-    const odstep = /\s*$/.exec(surowe)![0];
-    const zdanie = surowe.trimEnd();
+  private dopisz(linia: string): string {
+    this.wiersze.push(linia);
+    this.zamkniecie = koniecCudzyslowu(linia, this.zamkniecie);
+    return "";
+  }
+
+  private blok(naglowek = false): string {
+    if (!this.wiersze.length) return "";
+    let surowy = this.wiersze.join("\n").replaceAll(ETYKIETA_OGOLNA, "").replace(CYTAT, (cytat) => {
+      const odsylacze = cytat.match(GRUPA_ID);
+      return odsylacze ? cytat.replace(GRUPA_ID, "").replace(/[ \t]+(?=[”»"]$)/, "") + " " + odsylacze.join("") : cytat;
+    });
+    const cytat = BLOK_CYTATU.test(this.wiersze[0]) || !!this.zamkniecie;
+    this.wiersze = [];
+    this.zamkniecie = "";
+    // Dłuższy cytat musi być w materiale. Usuwamy go razem z jego odsyłaczami.
+    let usunietoCytat = false;
+    surowy = surowy.replace(CYTAT_DO_SPRAWDZENIA, (zapis, cytat: string) => {
+      if (slowa(cytat) < 4 || this.wzorzec.includes(normalizuj(cytat))) return zapis;
+      this.pominieto = usunietoCytat = true;
+      return "";
+    });
+    if (usunietoCytat) surowy = surowy.split("\n").filter((w) => w.trim()).join("\n");
     let maId = false;
-    let ogolna = false;
-    const tekst = zdanie.replace(GRUPA_ID, (_, grupa: string) => {
+    const tekst = surowy.replace(GRUPA_ID, (_, grupa: string) => {
       return (grupa.match(TOKEN) ?? []).map((id) => {
-        if (id === "OW") ogolna = true;
         const m = this.mapa.get(id);
         if (m) maId = true;
-        const numer = m?.zrodlo && this.zarejestruj(m, zdanie);
+        const numer = m?.zrodlo && this.zarejestruj(m, surowy);
         return numer ? `[[zrodlo:${numer}]]` : "";
       }).join("");
     });
 
-    const wyczyszczony = (maId ? tekst.replaceAll(ETYKIETA_OGOLNA, "") : tekst)
-      .replace(/[ \t]{2,}/g, " ").replace(/[ \t]+([.,;:!?…])/g, "$1").trimEnd();
+    const wyczyszczony = tekst
+      .replace(/\[(\d+)\](?:[ \t]*\[\1\])*[ \t]*(?=\[\[zrodlo:\1\]\])/g, "")
+      .replace(/\[\[zrodlo:(\d+)\]\](?:[ \t]*(?:\[\[zrodlo:\1\]\]|\[\1\]))+/g, "[[zrodlo:$1]]")
+      .replace(/(\[\d+\])(?:[ \t]*\1)+/g, "$1")
+      .replace(/[ \t]+([.,;:!?…])/g, "$1").replace(/[ \t]+$/gm, "").trimEnd();
     const bezZnacznikow = wyczyszczony.replace(/\[\[[^\]]*\]\]/g, "").trim();
-    const zwolniona = /[:?]$/.test(bezZnacznikow) || /^#{1,6}\s/.test(bezZnacznikow) || slowa(bezZnacznikow.replace(/^[-*\d.\s]+/, "")) < 5 ||
-      PRZYZNANIE_BRAKU.test(bezZnacznikow);
-    const dopisek = !maId && (ogolna ? !PRZYZNANIE_BRAKU.test(bezZnacznikow) : !zwolniona) && bezZnacznikow ? ` ${ETYKIETA_OGOLNA}` : "";
-    return `${wyczyszczony}${dopisek}${odstep}`;
+    const sameCytaty = !bezZnacznikow.replace(CYTAT, "").replace(PUNKT, "").replace(/[\s.,;:!?"…*]+/g, "");
+    const zwolniony = naglowek || cytat || sameCytaty || /^(?:\*\*.+\*\*|__.+__)$/.test(bezZnacznikow) ||
+      /[:?]$/.test(bezZnacznikow) || PRZYZNANIE_BRAKU.test(bezZnacznikow);
+    const dopisek = !maId && !zwolniony ? ` ${ETYKIETA_OGOLNA}` : "";
+    return wyczyszczony.replace(PUNKT, "").trim() ? this.emituj(`${wyczyszczony}${dopisek}`) : "";
   }
 
   /** Numer źródła w odpowiedzi (od 1); to samo miejsce w utworze ma jeden numer. */
