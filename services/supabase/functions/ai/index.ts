@@ -14,7 +14,7 @@ import { LlmError, type Message } from "../_shared/llm.ts";
 import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
 import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
 import {
-  czyPytanieOLekturze, metadaneCzatu, odpowiedzWeryfikacji, ostatniePytanie, przygotujCzat, prosbaPestki, prosiOZapisPriorytetu, weryfikuj,
+  metadaneCzatu, odpowiedzWeryfikacji, ostatniePytanie, przygotujCzat, prosbaPestki, prosiOZapisPriorytetu, rozpoznajPytanieCzatu, weryfikuj,
 } from "./pestka.ts";
 import { FiltrCzatu } from "./odpowiedz-lektury.ts";
 import type { OdpowiedzPestki } from "../_shared/pestka-odpowiedz.ts";
@@ -75,7 +75,7 @@ async function handle(req: Request): Promise<Response> {
   const pestka = prosbaPestki(body.pestka);
   if (body.pestka !== undefined && (!pestka || body.stream !== true)) return reply(400, { error: "bad_pestka_request" });
   const pytanieOLekturze = pestka?.tryb === "lektura" ||
-    (pestka?.tryb === "czat" && czyPytanieOLekturze(ostatniePytanie(messages), pestka).lektura);
+    (pestka?.tryb === "czat" && rozpoznajPytanieCzatu(messages, pestka).lektura);
   const tier = pytanieOLekturze && TIER_LEKTUR ? TIER_LEKTUR : requestedTier;
   const task = typeof body.task === "string" ? body.task.slice(0, 60) : null;
   const override = typeof body.provider === "string" ? body.provider : undefined;
