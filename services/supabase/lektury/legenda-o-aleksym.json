@@ -1,52 +1,400 @@
 {
   "id": "legenda-o-aleksym",
   "wydarzenia": [
-    { "nr": 1, "miejsce": "początek utworu (wstęp)", "kto": ["narrator"], "gdzie": "—", "opis": "Narrator prosi Boga o rozum i zapowiada opowieść o świętym, który miłował Boga, zaczerpniętą z księgi, którą czytał." },
-    { "nr": 2, "miejsce": "opis rodziny Aleksego", "kto": ["Eufemian", "Aglijas"], "gdzie": "Rzym", "opis": "W Rzymie żyje pobożny i bogaty pan Eufemian z żoną Aglijas; utrzymuje trzystu rycerzy, karmi wdowy, sieroty i pielgrzymów, ale nie ma dzieci." },
-    { "nr": 3, "miejsce": "opis rodziny Aleksego", "kto": ["Eufemian", "Aglijas", "Aleksy"], "gdzie": "Rzym", "opis": "Małżonkowie proszą Boga o potomka, Bóg ich wysłuchuje i rodzi się syn Aleksy, który od dziecka służy Bogu." },
-    { "nr": 4, "miejsce": "rozmowa Aleksego z ojcem", "kto": ["Eufemian", "Aleksy"], "gdzie": "Rzym", "opis": "Gdy Aleksy ma dwadzieścia cztery lata, ojciec każe mu się ożenić, a syn z posłuszeństwa się zgadza." },
-    { "nr": 5, "miejsce": "ślub Aleksego", "kto": ["Aleksy", "cesarz", "papież Innocenty", "królewna"], "gdzie": "Rzym", "opis": "Cesarz oddaje Aleksemu córkę za żonę, a papież Innocenty udziela ślubu." },
-    { "nr": 6, "miejsce": "noc poślubna", "kto": ["Aleksy", "królewna"], "gdzie": "Rzym", "opis": "W noc poślubną Aleksy zwraca żonie jej pierścień, zostawia ją w dziewictwie, prosi, by służyła Bogu, i mówi, że jutro odejdzie służyć Bogu; królewna się zgadza." },
-    { "nr": 7, "miejsce": "odejście z domu", "kto": ["Aleksy", "Eufemian"], "gdzie": "Rzym, morze", "opis": "Rano Aleksy zabiera trochę srebra i złota, o niczym nie mówi nikomu poza żoną i odpływa morzem; ojciec i matka zostają w żałości." },
-    { "nr": 8, "miejsce": "pobyt w obcej ziemi", "kto": ["Aleksy"], "gdzie": "obca ziemia (nazwa niepodana)", "opis": "Aleksy rozdaje swoje mienie żebrakom, duchownym i żakom, po czym siedzi jako żebrak pod kościołem i nikt nie wie o jego pochodzeniu." },
-    { "nr": 9, "miejsce": "cud z obrazem Matki Bożej", "kto": ["Aleksy", "żak (kościelny)", "obraz Matki Bożej"], "gdzie": "obca ziemia, kościół", "opis": "Gdy kościół zamknięto, Aleksy leży na mrozie przy progu; obraz Matki Bożej przemawia do żaka z kluczem i każe otworzyć kościół temu człowiekowi." },
-    { "nr": 10, "miejsce": "cud z obrazem Matki Bożej", "kto": ["Aleksy", "żak (kościelny)", "lud"], "gdzie": "obca ziemia", "opis": "Cud powtarza się często, żak opowiada o nim wszystkim, lud uznaje Aleksego za świętego i obdarza go hojnie." },
-    { "nr": 11, "miejsce": "poszukiwania syna", "kto": ["Eufemian", "słudzy Eufemiana", "Aleksy"], "gdzie": "Jelidocnia (nazwa w tekście), obce miasto", "opis": "Ojciec rozsyła sługi po świecie; znajdują Aleksego w mieście, ale go nie poznają, a on poznaje ich i przyjmuje od nich jałmużnę." },
-    { "nr": 12, "miejsce": "poszukiwania syna", "kto": ["słudzy Eufemiana", "Eufemian", "matka Aleksego"], "gdzie": "Rzym", "opis": "Słudzy wracają do Rzymu z wieścią, że nie znaleźli syna, a rodzice na nowo rozpaczają." },
-    { "nr": 13, "miejsce": "ucieczka przed sławą", "kto": ["Aleksy"], "gdzie": "Tars w Syrii (według tekstu)", "opis": "Niechętny rosnącej sławie Aleksy wsiada na statek i płynie do Tarsu w Syrii, gdzie czcił świętego Pawła." },
-    { "nr": 14, "miejsce": "powrót do Rzymu", "kto": ["Aleksy"], "gdzie": "morze, Rzym", "opis": "Zmienia się wiatr i zawraca statek; Aleksy trafia do Rzymu, dziękuje Bogu i postanawia cierpieć w domu ojca." },
-    { "nr": 15, "miejsce": "spotkanie z ojcem przed grodem", "kto": ["Aleksy", "Eufemian"], "gdzie": "Rzym, przed grodem", "opis": "Aleksy spotyka ojca przed grodem i w imię jego syna Aleksego prosi o jałmużnę i okruchy ze stołu; ojciec płacze, nie poznając go, i oddaje go pod opiekę szafarza." },
-    { "nr": 16, "miejsce": "życie pod schodami", "kto": ["Aleksy", "szafarz"], "gdzie": "dwór Eufemiana w Rzymie", "opis": "Szafarz źle traktuje Aleksego; ten leży pod schodami, a domownicy wylewają na niego pomyje, co znosi dla Boga." },
-    { "nr": 17, "miejsce": "śmierć Aleksego", "kto": ["Aleksy"], "gdzie": "dwór Eufemiana w Rzymie", "opis": "Przed śmiercią Aleksy sam pisze list o swoich cierpieniach i o całym życiu, po czym umiera, ściskając go w dłoni." },
-    { "nr": 18, "miejsce": "cud dzwonów", "kto": ["lud Rzymu", "dziecko"], "gdzie": "Rzym", "opis": "Po jego śmierci same dzwony biją we wszystkich rzymskich kościołach; ludzie szukają zmarłego, aż dziecko wskazuje, że leży u Eufemiana pod schodami." },
-    { "nr": 19, "miejsce": "uroczyste odnalezienie ciała", "kto": ["papież", "cesarz", "kapłani", "lud"], "gdzie": "Rzym, dwór Eufemiana", "opis": "Papież z kardynałami i cesarz z duchowieństwem idą do ciała z chorągwiami; od ciała wychodzi woń, a chorzy odzyskują zdrowie." },
-    { "nr": 20, "miejsce": "list w dłoni zmarłego", "kto": ["cesarz", "papież", "żona Aleksego"], "gdzie": "Rzym", "opis": "Nikt, ani cesarz, ani papież, nie może wyjąć listu z ręki zmarłego; dopiero żona Aleksego wyciąga rękę i list sam wpada jej w dłoń." },
-    { "nr": 21, "miejsce": "zakończenie zachowanego tekstu", "kto": ["Eufemian"], "gdzie": "Rzym", "opis": "Z listu poznano, że zmarły był synem Eufemiana i zięciem cesarza; rękopis urywa się w zdaniu o reakcji ojca (dalszego ciągu brak)." }
+    {
+      "nr": 1,
+      "miejsce": "początek utworu (wstęp)",
+      "kto": [
+        "narrator"
+      ],
+      "gdzie": "—",
+      "opis": "Narrator prosi Boga o rozum i zapowiada opowieść o świętym, który miłował Boga, zaczerpniętą z księgi, którą czytał."
+    },
+    {
+      "nr": 2,
+      "miejsce": "opis rodziny Aleksego",
+      "kto": [
+        "Eufemian",
+        "Aglijas"
+      ],
+      "gdzie": "Rzym",
+      "opis": "W Rzymie żyje pobożny i bogaty pan Eufemian z żoną Aglijas; utrzymuje trzystu rycerzy, karmi wdowy, sieroty i pielgrzymów, ale nie ma dzieci."
+    },
+    {
+      "nr": 3,
+      "miejsce": "opis rodziny Aleksego",
+      "kto": [
+        "Eufemian",
+        "Aglijas",
+        "Aleksy"
+      ],
+      "gdzie": "Rzym",
+      "opis": "Małżonkowie proszą Boga o potomka, Bóg ich wysłuchuje i rodzi się syn Aleksy, który od dziecka służy Bogu."
+    },
+    {
+      "nr": 4,
+      "miejsce": "rozmowa Aleksego z ojcem",
+      "kto": [
+        "Eufemian",
+        "Aleksy"
+      ],
+      "gdzie": "Rzym",
+      "opis": "Gdy Aleksy ma dwadzieścia cztery lata, ojciec każe mu się ożenić, a syn z posłuszeństwa się zgadza."
+    },
+    {
+      "nr": 5,
+      "miejsce": "ślub Aleksego",
+      "kto": [
+        "Aleksy",
+        "cesarz",
+        "papież Innocenty",
+        "królewna"
+      ],
+      "gdzie": "Rzym",
+      "opis": "Cesarz oddaje Aleksemu córkę za żonę, a papież Innocenty udziela ślubu."
+    },
+    {
+      "nr": 6,
+      "miejsce": "noc poślubna",
+      "kto": [
+        "Aleksy",
+        "królewna"
+      ],
+      "gdzie": "Rzym",
+      "opis": "W noc poślubną Aleksy zwraca żonie jej pierścień, zostawia ją w dziewictwie, prosi, by służyła Bogu, i mówi, że jutro odejdzie służyć Bogu; królewna się zgadza."
+    },
+    {
+      "nr": 7,
+      "miejsce": "odejście z domu",
+      "kto": [
+        "Aleksy",
+        "Eufemian"
+      ],
+      "gdzie": "Rzym, morze",
+      "opis": "Rano Aleksy zabiera trochę srebra i złota, o niczym nie mówi nikomu poza żoną i odpływa morzem; ojciec i matka zostają w żałości."
+    },
+    {
+      "nr": 8,
+      "miejsce": "pobyt w obcej ziemi",
+      "kto": [
+        "Aleksy"
+      ],
+      "gdzie": "obca ziemia (nazwa niepodana)",
+      "opis": "Aleksy rozdaje swoje mienie żebrakom, duchownym i żakom, po czym siedzi jako żebrak pod kościołem i nikt nie wie o jego pochodzeniu."
+    },
+    {
+      "nr": 9,
+      "miejsce": "cud z obrazem Matki Bożej",
+      "kto": [
+        "Aleksy",
+        "żak (kościelny)",
+        "obraz Matki Bożej"
+      ],
+      "gdzie": "obca ziemia, kościół",
+      "opis": "Gdy kościół zamknięto, Aleksy leży na mrozie przy progu; obraz Matki Bożej przemawia do żaka z kluczem i każe otworzyć kościół temu człowiekowi."
+    },
+    {
+      "nr": 10,
+      "miejsce": "cud z obrazem Matki Bożej",
+      "kto": [
+        "Aleksy",
+        "żak (kościelny)",
+        "lud"
+      ],
+      "gdzie": "obca ziemia",
+      "opis": "Cud powtarza się często, żak opowiada o nim wszystkim, lud uznaje Aleksego za świętego i obdarza go hojnie."
+    },
+    {
+      "nr": 11,
+      "miejsce": "poszukiwania syna",
+      "kto": [
+        "Eufemian",
+        "słudzy Eufemiana",
+        "Aleksy"
+      ],
+      "gdzie": "Jelidocnia (nazwa w tekście), obce miasto",
+      "opis": "Ojciec rozsyła sługi po świecie; znajdują Aleksego w mieście, ale go nie poznają, a on poznaje ich i przyjmuje od nich jałmużnę."
+    },
+    {
+      "nr": 12,
+      "miejsce": "poszukiwania syna",
+      "kto": [
+        "słudzy Eufemiana",
+        "Eufemian",
+        "matka Aleksego"
+      ],
+      "gdzie": "Rzym",
+      "opis": "Słudzy wracają do Rzymu z wieścią, że nie znaleźli syna, a rodzice na nowo rozpaczają."
+    },
+    {
+      "nr": 13,
+      "miejsce": "ucieczka przed sławą",
+      "kto": [
+        "Aleksy"
+      ],
+      "gdzie": "Tars w Syrii (według tekstu)",
+      "opis": "Niechętny rosnącej sławie Aleksy wsiada na statek i płynie do Tarsu w Syrii, gdzie czcił świętego Pawła."
+    },
+    {
+      "nr": 14,
+      "miejsce": "powrót do Rzymu",
+      "kto": [
+        "Aleksy"
+      ],
+      "gdzie": "morze, Rzym",
+      "opis": "Zmienia się wiatr i zawraca statek; Aleksy trafia do Rzymu, dziękuje Bogu i postanawia cierpieć w domu ojca."
+    },
+    {
+      "nr": 15,
+      "miejsce": "spotkanie z ojcem przed grodem",
+      "kto": [
+        "Aleksy",
+        "Eufemian"
+      ],
+      "gdzie": "Rzym, przed grodem",
+      "opis": "Aleksy spotyka ojca przed grodem i w imię jego syna Aleksego prosi o jałmużnę i okruchy ze stołu; ojciec płacze, nie poznając go, i oddaje go pod opiekę szafarza."
+    },
+    {
+      "nr": 16,
+      "miejsce": "życie pod schodami",
+      "kto": [
+        "Aleksy",
+        "szafarz"
+      ],
+      "gdzie": "dwór Eufemiana w Rzymie",
+      "opis": "Szafarz źle traktuje Aleksego; ten leży pod schodami, a domownicy wylewają na niego pomyje, co znosi dla Boga."
+    },
+    {
+      "nr": 17,
+      "miejsce": "śmierć Aleksego",
+      "kto": [
+        "Aleksy"
+      ],
+      "gdzie": "dwór Eufemiana w Rzymie",
+      "opis": "Przed śmiercią Aleksy sam pisze list o swoich cierpieniach i o całym życiu, po czym umiera, ściskając go w dłoni."
+    },
+    {
+      "nr": 18,
+      "miejsce": "cud dzwonów",
+      "kto": [
+        "lud Rzymu",
+        "dziecko"
+      ],
+      "gdzie": "Rzym",
+      "opis": "Po jego śmierci same dzwony biją we wszystkich rzymskich kościołach; ludzie szukają zmarłego, aż dziecko wskazuje, że leży u Eufemiana pod schodami."
+    },
+    {
+      "nr": 19,
+      "miejsce": "uroczyste odnalezienie ciała",
+      "kto": [
+        "papież",
+        "cesarz",
+        "kapłani",
+        "lud"
+      ],
+      "gdzie": "Rzym, dwór Eufemiana",
+      "opis": "Papież z kardynałami i cesarz z duchowieństwem idą do ciała z chorągwiami; od ciała wychodzi woń, a chorzy odzyskują zdrowie."
+    },
+    {
+      "nr": 20,
+      "miejsce": "list w dłoni zmarłego",
+      "kto": [
+        "cesarz",
+        "papież",
+        "żona Aleksego"
+      ],
+      "gdzie": "Rzym",
+      "opis": "Nikt, ani cesarz, ani papież, nie może wyjąć listu z ręki zmarłego; dopiero żona Aleksego wyciąga rękę i list sam wpada jej w dłoń."
+    },
+    {
+      "nr": 21,
+      "miejsce": "zakończenie zachowanego tekstu",
+      "kto": [
+        "Eufemian"
+      ],
+      "gdzie": "Rzym",
+      "opis": "Z listu poznano, że zmarły był synem Eufemiana i zięciem cesarza; rękopis urywa się w zdaniu o reakcji ojca (dalszego ciągu brak)."
+    }
   ],
   "postacie": [
-    { "imie": "Aleksy", "odmiany": ["Aleksego", "Aleksemu", "Aleksym", "Aleksy"], "rola": "bohater, święty; syn Eufemiana, który porzuca żonę i majątek, by służyć Bogu", "relacje": "syn Eufemiana i Aglijas, mąż królewny", "miejsca": ["Rzym", "obca ziemia", "Tars"] },
-    { "imie": "Eufemian", "odmiany": ["Eufemiana", "Eufemianowi", "Eufemianem", "Eufamijan", "Eufamijana"], "rola": "ojciec Aleksego, bogaty i pobożny rzymski pan", "relacje": "mąż Aglijas, ojciec Aleksego, teść królewny", "miejsca": ["Rzym"] },
-    { "imie": "Aglijas", "odmiany": ["Aglijas", "Aglijasy", "matka Aleksego"], "rola": "matka Aleksego (w tekście nazwana raz, potem jako „mać”)", "relacje": "żona Eufemiana, matka Aleksego", "miejsca": ["Rzym"] },
-    { "imie": "królewna (żona Aleksego)", "odmiany": ["królewny", "królewnie", "Famijana", "żona Aleksego", "żony"], "rola": "córka cesarza, wierna żona, której Aleksy zostawia pierścień", "relacje": "córka cesarza, żona Aleksego; to ona jako jedyna odbiera list od zmarłego", "miejsca": ["Rzym"] },
-    { "imie": "cesarz", "odmiany": ["cesarza", "cesarzowi", "cesarzem"], "rola": "ojciec królewny, uczestnik uroczystości po śmierci Aleksego", "relacje": "teść Aleksego", "miejsca": ["Rzym"] },
-    { "imie": "papież Innocenty", "odmiany": ["papieża", "papieżowi", "Innocencyjusz", "Innocencjusz"], "rola": "papież udzielający ślubu i uczestniczący w uroczystościach po śmierci Aleksego", "relacje": "związany z dworem cesarza", "miejsca": ["Rzym"] },
-    { "imie": "szafarz", "odmiany": ["szafarza", "szafarzowi", "szafarzem"], "rola": "sługa Eufemiana, któremu ojciec powierza żebraka; źle go traktuje", "relacje": "podwładny Eufemiana", "miejsca": ["dwór Eufemiana"] },
-    { "imie": "żak (kościelny)", "odmiany": ["żaka", "żakowi", "żak"], "rola": "kościelny, któremu obraz Matki Bożej każe otworzyć kościół", "relacje": "świadek cudu, rozgłasza świętość Aleksego", "miejsca": ["obca ziemia"] },
-    { "imie": "Matka Boska (obraz)", "odmiany": ["Matki Bożej", "Matce Bożej"], "rola": "z obrazu nakazuje otworzyć kościół Aleksemu", "relacje": "opiekunka Aleksego", "miejsca": ["kościół w obcej ziemi"] }
+    {
+      "imie": "Aleksy",
+      "odmiany": [
+        "Aleksego",
+        "Aleksemu",
+        "Aleksym",
+        "Aleksy"
+      ],
+      "rola": "bohater, święty; syn Eufemiana, który porzuca żonę i majątek, by służyć Bogu",
+      "relacje": "syn Eufemiana i Aglijas, mąż królewny",
+      "miejsca": [
+        "Rzym",
+        "obca ziemia",
+        "Tars"
+      ]
+    },
+    {
+      "imie": "Eufemian",
+      "odmiany": [
+        "Eufemiana",
+        "Eufemianowi",
+        "Eufemianem",
+        "Eufamijan",
+        "Eufamijana"
+      ],
+      "rola": "ojciec Aleksego, bogaty i pobożny rzymski pan",
+      "relacje": "mąż Aglijas, ojciec Aleksego, teść królewny",
+      "miejsca": [
+        "Rzym"
+      ]
+    },
+    {
+      "imie": "Aglijas",
+      "odmiany": [
+        "Aglijas",
+        "Aglijasy",
+        "matka Aleksego"
+      ],
+      "rola": "matka Aleksego (w tekście nazwana raz, potem jako „mać”)",
+      "relacje": "żona Eufemiana, matka Aleksego",
+      "miejsca": [
+        "Rzym"
+      ]
+    },
+    {
+      "imie": "królewna (żona Aleksego)",
+      "odmiany": [
+        "królewny",
+        "królewnie",
+        "Famijana",
+        "żona Aleksego",
+        "żony"
+      ],
+      "rola": "córka cesarza, wierna żona, której Aleksy zostawia pierścień",
+      "relacje": "córka cesarza, żona Aleksego; to ona jako jedyna odbiera list od zmarłego",
+      "miejsca": [
+        "Rzym"
+      ]
+    },
+    {
+      "imie": "cesarz",
+      "odmiany": [
+        "cesarza",
+        "cesarzowi",
+        "cesarzem"
+      ],
+      "rola": "ojciec królewny, uczestnik uroczystości po śmierci Aleksego",
+      "relacje": "teść Aleksego",
+      "miejsca": [
+        "Rzym"
+      ]
+    },
+    {
+      "imie": "papież Innocenty",
+      "odmiany": [
+        "papieża",
+        "papieżowi",
+        "Innocencyjusz",
+        "Innocencjusz"
+      ],
+      "rola": "papież udzielający ślubu i uczestniczący w uroczystościach po śmierci Aleksego",
+      "relacje": "związany z dworem cesarza",
+      "miejsca": [
+        "Rzym"
+      ]
+    },
+    {
+      "imie": "szafarz",
+      "odmiany": [
+        "szafarza",
+        "szafarzowi",
+        "szafarzem"
+      ],
+      "rola": "sługa Eufemiana, któremu ojciec powierza żebraka; źle go traktuje",
+      "relacje": "podwładny Eufemiana",
+      "miejsca": [
+        "dwór Eufemiana"
+      ]
+    },
+    {
+      "imie": "żak (kościelny)",
+      "odmiany": [
+        "żaka",
+        "żakowi",
+        "żak"
+      ],
+      "rola": "kościelny, któremu obraz Matki Bożej każe otworzyć kościół",
+      "relacje": "świadek cudu, rozgłasza świętość Aleksego",
+      "miejsca": [
+        "obca ziemia"
+      ]
+    },
+    {
+      "imie": "Matka Boska (obraz)",
+      "odmiany": [
+        "Matki Bożej",
+        "Matce Bożej"
+      ],
+      "rola": "z obrazu nakazuje otworzyć kościół Aleksemu",
+      "relacje": "opiekunka Aleksego",
+      "miejsca": [
+        "kościół w obcej ziemi"
+      ]
+    }
   ],
   "motywy": [
-    { "motyw": "ascetyzm i pogarda świata (contemptus mundi)", "przyklad": "Aleksy opuszcza bogaty dom i żonę, rozdaje mienie i żyje jako żebrak pod kościołem.", "miejsce": "odejście z domu i pobyt w obcej ziemi", "cytat": "Rozdał swe rucho żebrakom" },
-    { "motyw": "posłuszeństwo Bogu ponad posłuszeństwem rodzinie", "przyklad": "Aleksy najpierw zgadza się na ślub z woli ojca, ale już w noc poślubną zwraca żonie pierścień i oznajmia odejście.", "miejsce": "noc poślubna", "cytat": "Ostawiam cię przy twym dziewstwie" },
-    { "motyw": "cierpienie jako droga do świętości (imitatio Christi, interpretacja)", "przyklad": "Aleksy znosi poniżenie we własnym domu: mieszka pod schodami, a domownicy wylewają na niego pomyje.", "miejsce": "życie pod schodami", "cytat": "Tu pod wschodem leżał, Każdy nań pomyje lał." },
-    { "motyw": "pokora i ucieczka przed sławą", "przyklad": "Gdy ludzie zaczynają go czcić jako świętego, Aleksy ucieka morzem dalej.", "miejsce": "wyjazd do Tarsu", "cytat": "" },
-    { "motyw": "cud jako znak świętości", "przyklad": "Obraz Matki Bożej każe otworzyć kościół zmarzniętemu żebrakowi, a po śmierci same biją dzwony w całym Rzymie.", "miejsce": "cud z obrazem; cud dzwonów", "cytat": "Samy zwony zwoniły" },
-    { "motyw": "homo viator – życie jako pielgrzymka", "przyklad": "Aleksy płynie za morze, potem w stronę Tarsu, wreszcie wraca do Rzymu; jego droga kończy się u progu ojcowskiego domu.", "miejsce": "podróże Aleksego", "cytat": "" },
-    { "motyw": "nierozpoznanie bliskich i ból rodziców", "przyklad": "Sługi ojca spotykają Aleksego i go nie poznają; ojciec wzdryga się na wspomnienie imienia syna, nie widząc go w żebraku.", "miejsce": "poszukiwania syna; spotkanie przed grodem", "cytat": "" },
-    { "motyw": "odkrycie prawdy po śmierci (list)", "przyklad": "Dopiero list w ręku zmarłego, który odbiera tylko żona, ujawnia tożsamość świętego.", "miejsce": "list w dłoni zmarłego", "cytat": "" }
+    {
+      "motyw": "ascetyzm i pogarda świata (contemptus mundi)",
+      "przyklad": "Aleksy opuszcza bogaty dom i żonę, rozdaje mienie i żyje jako żebrak pod kościołem.",
+      "miejsce": "odejście z domu i pobyt w obcej ziemi",
+      "cytat": "Rozdał swe rucho żebrakom"
+    },
+    {
+      "motyw": "posłuszeństwo Bogu ponad posłuszeństwem rodzinie",
+      "przyklad": "Aleksy najpierw zgadza się na ślub z woli ojca, ale już w noc poślubną zwraca żonie pierścień i oznajmia odejście.",
+      "miejsce": "noc poślubna",
+      "cytat": "Ostawiam cię przy twym dziewstwie"
+    },
+    {
+      "motyw": "cierpienie jako droga do świętości (imitatio Christi, interpretacja)",
+      "przyklad": "Aleksy znosi poniżenie we własnym domu: mieszka pod schodami, a domownicy wylewają na niego pomyje.",
+      "miejsce": "życie pod schodami",
+      "cytat": "Tu pod wschodem leżał, Każdy nań pomyje lał."
+    },
+    {
+      "motyw": "pokora i ucieczka przed sławą",
+      "przyklad": "Gdy ludzie zaczynają go czcić jako świętego, Aleksy ucieka morzem dalej.",
+      "miejsce": "wyjazd do Tarsu"
+    },
+    {
+      "motyw": "cud jako znak świętości",
+      "przyklad": "Obraz Matki Bożej każe otworzyć kościół zmarzniętemu żebrakowi, a po śmierci same biją dzwony w całym Rzymie.",
+      "miejsce": "cud z obrazem; cud dzwonów",
+      "cytat": "Samy zwony zwoniły"
+    },
+    {
+      "motyw": "homo viator – życie jako pielgrzymka",
+      "przyklad": "Aleksy płynie za morze, potem w stronę Tarsu, wreszcie wraca do Rzymu; jego droga kończy się u progu ojcowskiego domu.",
+      "miejsce": "podróże Aleksego"
+    },
+    {
+      "motyw": "nierozpoznanie bliskich i ból rodziców",
+      "przyklad": "Sługi ojca spotykają Aleksego i go nie poznają; ojciec wzdryga się na wspomnienie imienia syna, nie widząc go w żebraku.",
+      "miejsce": "poszukiwania syna; spotkanie przed grodem"
+    },
+    {
+      "motyw": "odkrycie prawdy po śmierci (list)",
+      "przyklad": "Dopiero list w ręku zmarłego, który odbiera tylko żona, ujawnia tożsamość świętego.",
+      "miejsce": "list w dłoni zmarłego"
+    }
   ],
   "utwory": [],
   "zrodla": [
-    { "url": "https://wolnelektury.pl/katalog/lektura/legenda-o-sw-aleksym/", "rodzaj": "utwór", "co": "Przeczytany cały zachowany tekst z Wolnych Lektur (domena publiczna); sprawdzone wszystkie wydarzenia i cytaty." }
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/legenda-o-sw-aleksym/",
+      "rodzaj": "utwór",
+      "co": "Przeczytany cały zachowany tekst z Wolnych Lektur (domena publiczna); sprawdzone wszystkie wydarzenia i cytaty."
+    }
   ],
   "do_weryfikacji": [
     "Katalog podaje „Fragmenty” bez wykazu; plan obejmuje cały zachowany tekst (urywa się w zdaniu o reakcji ojca).",

@@ -355,11 +355,18 @@
     }
   ],
   "utwory": [],
-  "zrodla": [],
+  "zrodla": [
+    {
+      "url": "https://biblia.deon.pl/",
+      "rodzaj": "utwór",
+      "co": "Biblia Tysiąclecia, tekst do sprawdzenia opisanych fragmentów"
+    }
+  ],
   "do_weryfikacji": [
     "Plik nie był sprawdzany w żadnym źródle online ani w wydaniu Biblii; powstał z ogólnej znajomości Księgi Rodzaju i wymaga weryfikacji (np. w Biblii Tysiąclecia).",
     "Cytatów nie podano, bo tekst współczesnych polskich wydań Biblii jest objęty prawem autorskim.",
     "Zakres „fragmentów” Księgi Rodzaju wymaganych na maturze nie jest ustalony w katalogu; w danych podano najczęściej omawiane epizody.",
-    "Numery wersetów (np. Rdz 2,4a) przyjęto z konwencji spotykanej w opracowaniach; mogą różnić się między wydaniami."
+    "Numery wersetów (np. Rdz 2,4a) przyjęto z konwencji spotykanej w opracowaniach; mogą różnić się między wydaniami.",
+    "Opis nie został porównany z tekstem Biblii przy zapisie; sprawdzić rozdziały i wersety."
   ]
 }

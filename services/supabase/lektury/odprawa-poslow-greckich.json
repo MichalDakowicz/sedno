@@ -1,54 +1,428 @@
 {
   "id": "odprawa-poslow-greckich",
   "wydarzenia": [
-    { "nr": 1, "miejsce": "prolog", "kto": ["Antenor"], "gdzie": "Troja", "opis": "Antenor mówi, że posłowie greccy przybyli żądać wydania Heleny, uprowadzonej przez Aleksandra; jeśli wrócą z niczym, Grecy zaczną wojnę, a on sam odrzuca dary, które Aleksander mu przesyła." },
-    { "nr": 2, "miejsce": "epejsodion pierwszy", "kto": ["Aleksander (Parys)", "Antenor"], "gdzie": "Troja", "opis": "Aleksander prosi Antenora o poparcie w sporze z posłami greckimi; Antenor odpowiada, że będzie popierał tylko to, co słuszne, i dochodzi do ostrej wymiany zdań." },
-    { "nr": 3, "miejsce": "epejsodion pierwszy", "kto": ["Aleksander (Parys)", "Antenor"], "gdzie": "Troja", "opis": "Aleksander zarzuca Antenorowi, że bierze dary od Greków, a rozmowa kończy się zerwaniem współpracy." },
-    { "nr": 4, "miejsce": "stasimon pierwsze", "kto": ["chór panien trojańskich"], "gdzie": "Troja", "opis": "Chór ubolewa, że młodość nie idzie w parze z rozumem i że przez żądze młodych cierpi ojczyzna; zapowiada pojawienie się Heleny." },
-    { "nr": 5, "miejsce": "epejsodion drugi", "kto": ["Helena"], "gdzie": "Troja", "opis": "Helena, czekając na wyrok rady, rozpacza nad swoim losem i obawia się hańby po powrocie do męża." },
-    { "nr": 6, "miejsce": "epejsodion drugi", "kto": ["Helena", "Pani Stara"], "gdzie": "Troja", "opis": "Pani Stara pociesza Helenę, a obie rozmawiają o tym, czy na świecie jest więcej zła niż dobra." },
-    { "nr": 7, "miejsce": "stasimon drugie", "kto": ["chór panien trojańskich"], "gdzie": "Troja", "opis": "Chór przypomina rządzącym, że mają władzę z woli Boga i że sami będą sądzeni; przełożeni zgubili miasta." },
-    { "nr": 8, "miejsce": "epejsodion trzeci", "kto": ["Poseł Parysów", "Helena"], "gdzie": "Troja", "opis": "Poseł przybywa do Heleny z wiadomością, że rada obradowała, a ona ma zostać w Troi." },
-    { "nr": 9, "miejsce": "epejsodion trzeci", "kto": ["Poseł Parysów", "Priamus", "Aleksander (Parys)", "Antenor", "Iketaon"], "gdzie": "Troja, rada królewska (relacja posła)", "opis": "Poseł relacjonuje radę: król Priam oddaje decyzję doradcom, Aleksander broni się, że Helenę dała mu Wenus, a Antenor radzi ją wydać, bo grozi wojna." },
-    { "nr": 10, "miejsce": "epejsodion trzeci", "kto": ["Poseł Parysów", "Iketaon", "Priamus"], "gdzie": "Troja, rada królewska (relacja posła)", "opis": "Iketaon radzi nie wydawać Heleny, dopóki Grecy nie zadośćuczynią za Medeę; większość staje po jego stronie, a król ogłasza, że Helena zostaje w Troi." },
-    { "nr": 11, "miejsce": "epejsodion czwarty", "kto": ["Ulisses"], "gdzie": "Troja, przed odjazdem", "opis": "Ulisses oburzony odprawą oskarża Trojan, że nie mają sprawiedliwości, a młodzież zepsuta zbytkiem i pijaństwem nie nadaje się do obrony ojczyzny." },
-    { "nr": 12, "miejsce": "epejsodion czwarty", "kto": ["Menelaus"], "gdzie": "Troja, przed odjazdem", "opis": "Menelaus wzywa bogów na świadków swojej krzywdy i prosi o pomstę na Aleksandrze." },
-    { "nr": 13, "miejsce": "stasimon trzecie", "kto": ["chór panien trojańskich"], "gdzie": "Troja", "opis": "Chór zwraca się do okrętu, który przywiózł Helenę, wspomina sąd Parysa i zapowiada, że rozbójnika spotka rozbójnik i zagrzmią trąby wojenne." },
-    { "nr": 14, "miejsce": "epejsodion piąty", "kto": ["Antenor", "Priamus"], "gdzie": "Troja", "opis": "Antenor radzi królowi przygotować się do wojny, bo Grecy zbierają wojska w Aulidzie; Priam bagatelizuje jego obawy." },
-    { "nr": 15, "miejsce": "epejsodion piąty", "kto": ["Kasandra", "Priamus", "Antenor"], "gdzie": "Troja", "opis": "Wchodzi Kasandra w szale proroczym i wieszczy zagładę Troi, śmierć Hektora (w tekście nazwanego „bratem”), konia i pożar; nikt jej nie wierzy." },
-    { "nr": 16, "miejsce": "epejsodion piąty", "kto": ["Priamus", "Antenor"], "gdzie": "Troja", "opis": "Priam wspomina sen swojej żony sprzed narodzin Aleksandra o płonącej pochodni i przyznaje, że kazał porzucić dziecko w puszczy, a Antenor mówi, że to proroctwo się spełnia." },
-    { "nr": 17, "miejsce": "epejsodion piąty", "kto": ["Rotmistrz", "Więzień", "Priamus", "Antenor"], "gdzie": "Troja", "opis": "Rotmistrz melduje, że pięć greckich galer wylądowało na brzegu i zrabowało bydło, a pojmany Grek mówi, że w Aulidzie czeka tysiąc okrętów pod wodzą Agamemnona." },
-    { "nr": 18, "miejsce": "epejsodion piąty (zakończenie)", "kto": ["Priamus", "Antenor"], "gdzie": "Troja", "opis": "Priam każe zająć się więźniem i zwołać radę nad obroną, a Antenor mówi, że trzeba radzić o wojnie, a nie tylko się bronić; dramat kończy się bez rozstrzygnięcia." }
+    {
+      "nr": 1,
+      "miejsce": "prolog",
+      "kto": [
+        "Antenor"
+      ],
+      "gdzie": "Troja",
+      "opis": "Antenor mówi, że posłowie greccy przybyli żądać wydania Heleny, uprowadzonej przez Aleksandra; jeśli wrócą z niczym, Grecy zaczną wojnę, a on sam odrzuca dary, które Aleksander mu przesyła."
+    },
+    {
+      "nr": 2,
+      "miejsce": "epejsodion pierwszy",
+      "kto": [
+        "Aleksander (Parys)",
+        "Antenor"
+      ],
+      "gdzie": "Troja",
+      "opis": "Aleksander prosi Antenora o poparcie w sporze z posłami greckimi; Antenor odpowiada, że będzie popierał tylko to, co słuszne, i dochodzi do ostrej wymiany zdań."
+    },
+    {
+      "nr": 3,
+      "miejsce": "epejsodion pierwszy",
+      "kto": [
+        "Aleksander (Parys)",
+        "Antenor"
+      ],
+      "gdzie": "Troja",
+      "opis": "Aleksander zarzuca Antenorowi, że bierze dary od Greków, a rozmowa kończy się zerwaniem współpracy."
+    },
+    {
+      "nr": 4,
+      "miejsce": "stasimon pierwsze",
+      "kto": [
+        "chór panien trojańskich"
+      ],
+      "gdzie": "Troja",
+      "opis": "Chór ubolewa, że młodość nie idzie w parze z rozumem i że przez żądze młodych cierpi ojczyzna; zapowiada pojawienie się Heleny."
+    },
+    {
+      "nr": 5,
+      "miejsce": "epejsodion drugi",
+      "kto": [
+        "Helena"
+      ],
+      "gdzie": "Troja",
+      "opis": "Helena, czekając na wyrok rady, rozpacza nad swoim losem i obawia się hańby po powrocie do męża."
+    },
+    {
+      "nr": 6,
+      "miejsce": "epejsodion drugi",
+      "kto": [
+        "Helena",
+        "Pani Stara"
+      ],
+      "gdzie": "Troja",
+      "opis": "Pani Stara pociesza Helenę, a obie rozmawiają o tym, czy na świecie jest więcej zła niż dobra."
+    },
+    {
+      "nr": 7,
+      "miejsce": "stasimon drugie",
+      "kto": [
+        "chór panien trojańskich"
+      ],
+      "gdzie": "Troja",
+      "opis": "Chór przypomina rządzącym, że mają władzę z woli Boga i że sami będą sądzeni; przełożeni zgubili miasta."
+    },
+    {
+      "nr": 8,
+      "miejsce": "epejsodion trzeci",
+      "kto": [
+        "Poseł Parysów",
+        "Helena"
+      ],
+      "gdzie": "Troja",
+      "opis": "Poseł przybywa do Heleny z wiadomością, że rada obradowała, a ona ma zostać w Troi."
+    },
+    {
+      "nr": 9,
+      "miejsce": "epejsodion trzeci",
+      "kto": [
+        "Poseł Parysów",
+        "Priamus",
+        "Aleksander (Parys)",
+        "Antenor",
+        "Iketaon"
+      ],
+      "gdzie": "Troja, rada królewska (relacja posła)",
+      "opis": "Poseł relacjonuje radę: król Priam oddaje decyzję doradcom, Aleksander broni się, że Helenę dała mu Wenus, a Antenor radzi ją wydać, bo grozi wojna."
+    },
+    {
+      "nr": 10,
+      "miejsce": "epejsodion trzeci",
+      "kto": [
+        "Poseł Parysów",
+        "Iketaon",
+        "Priamus"
+      ],
+      "gdzie": "Troja, rada królewska (relacja posła)",
+      "opis": "Iketaon radzi nie wydawać Heleny, dopóki Grecy nie zadośćuczynią za Medeę; większość staje po jego stronie, a król ogłasza, że Helena zostaje w Troi."
+    },
+    {
+      "nr": 11,
+      "miejsce": "epejsodion czwarty",
+      "kto": [
+        "Ulisses"
+      ],
+      "gdzie": "Troja, przed odjazdem",
+      "opis": "Ulisses oburzony odprawą oskarża Trojan, że nie mają sprawiedliwości, a młodzież zepsuta zbytkiem i pijaństwem nie nadaje się do obrony ojczyzny."
+    },
+    {
+      "nr": 12,
+      "miejsce": "epejsodion czwarty",
+      "kto": [
+        "Menelaus"
+      ],
+      "gdzie": "Troja, przed odjazdem",
+      "opis": "Menelaus wzywa bogów na świadków swojej krzywdy i prosi o pomstę na Aleksandrze."
+    },
+    {
+      "nr": 13,
+      "miejsce": "stasimon trzecie",
+      "kto": [
+        "chór panien trojańskich"
+      ],
+      "gdzie": "Troja",
+      "opis": "Chór zwraca się do okrętu, który przywiózł Helenę, wspomina sąd Parysa i zapowiada, że rozbójnika spotka rozbójnik i zagrzmią trąby wojenne."
+    },
+    {
+      "nr": 14,
+      "miejsce": "epejsodion piąty",
+      "kto": [
+        "Antenor",
+        "Priamus"
+      ],
+      "gdzie": "Troja",
+      "opis": "Antenor radzi królowi przygotować się do wojny, bo Grecy zbierają wojska w Aulidzie; Priam bagatelizuje jego obawy."
+    },
+    {
+      "nr": 15,
+      "miejsce": "epejsodion piąty",
+      "kto": [
+        "Kasandra",
+        "Priamus",
+        "Antenor"
+      ],
+      "gdzie": "Troja",
+      "opis": "Wchodzi Kasandra w szale proroczym i wieszczy zagładę Troi, śmierć Hektora (w tekście nazwanego „bratem”), konia i pożar; nikt jej nie wierzy."
+    },
+    {
+      "nr": 16,
+      "miejsce": "epejsodion piąty",
+      "kto": [
+        "Priamus",
+        "Antenor"
+      ],
+      "gdzie": "Troja",
+      "opis": "Priam wspomina sen swojej żony sprzed narodzin Aleksandra o płonącej pochodni i przyznaje, że kazał porzucić dziecko w puszczy, a Antenor mówi, że to proroctwo się spełnia."
+    },
+    {
+      "nr": 17,
+      "miejsce": "epejsodion piąty",
+      "kto": [
+        "Rotmistrz",
+        "Więzień",
+        "Priamus",
+        "Antenor"
+      ],
+      "gdzie": "Troja",
+      "opis": "Rotmistrz melduje, że pięć greckich galer wylądowało na brzegu i zrabowało bydło, a pojmany Grek mówi, że w Aulidzie czeka tysiąc okrętów pod wodzą Agamemnona."
+    },
+    {
+      "nr": 18,
+      "miejsce": "epejsodion piąty (zakończenie)",
+      "kto": [
+        "Priamus",
+        "Antenor"
+      ],
+      "gdzie": "Troja",
+      "opis": "Priam każe zająć się więźniem i zwołać radę nad obroną, a Antenor mówi, że trzeba radzić o wojnie, a nie tylko się bronić; dramat kończy się bez rozstrzygnięcia."
+    }
   ],
   "postacie": [
-    { "imie": "Antenor", "odmiany": ["Antenora", "Antenorowi", "Antenorem", "Antenorze"], "rola": "trojański dostojnik, rozważny doradca króla, broni sprawiedliwości i rady o wydaniu Heleny", "relacje": "przeciwnik Aleksandra w radzie, doradca Priama", "miejsca": ["Troja"] },
-    { "imie": "Aleksander (Parys)", "odmiany": ["Aleksandra", "Aleksandrowi", "Aleksandrem", "Aleksandrze", "Parysa", "Parys", "Pryjamida"], "rola": "królewicz trojański, który uprowadził Helenę; lekkomyślny i nierozważny", "relacje": "syn Priama, uprowadził żonę Menelausa", "miejsca": ["Troja"] },
-    { "imie": "Helena", "odmiany": ["Heleny", "Helenie", "Helenę", "Heleną"], "rola": "żona Menelausa uprowadzona do Troi; rozpacza i wstydzi się powrotu", "relacje": "żona Menelausa, u Aleksandra w Troi", "miejsca": ["Troja"] },
-    { "imie": "Pani Stara", "odmiany": ["Pani", "Starej", "Staruszki"], "rola": "starsza towarzyszka Heleny, pociesza ją", "relacje": "opiekunka Heleny", "miejsca": ["Troja"] },
-    { "imie": "Priamus", "odmiany": ["Priama", "Priamowi", "Priamem", "Priamie", "Pryjam"], "rola": "król Troi, ojciec Aleksandra i Kasandry; podejmuje decyzję zgodnie z wolą większości", "relacje": "ojciec Aleksandra i Kasandry", "miejsca": ["Troja"] },
-    { "imie": "Kasandra", "odmiany": ["Kasandry", "Kasandrze", "Kasandrę", "Kasandrą"], "rola": "córka Priama, prorokini, której nikt nie wierzy; przepowiada upadek Troi", "relacje": "córka Priama, siostra Aleksandra", "miejsca": ["Troja"] },
-    { "imie": "Ulisses", "odmiany": ["Ulissesa", "Ulissesowi", "Ulissesem"], "rola": "poseł grecki", "relacje": "towarzysz Menelausa w poselstwie", "miejsca": ["Troja"] },
-    { "imie": "Menelaus", "odmiany": ["Menelausa", "Menelausowi", "Menelausem"], "rola": "poseł grecki, mąż Heleny", "relacje": "mąż Heleny, brat Agamemnona", "miejsca": ["Troja"] },
-    { "imie": "Iketaon", "odmiany": ["Iketaona", "Iketaonowi", "Iketaonem"], "rola": "doradca Priama, którego zdanie zwycięża (zatrzymać Helenę)", "relacje": "przeciwnik Antenora w radzie", "miejsca": ["rada królewska"] },
-    { "imie": "Poseł Parysów", "odmiany": ["Posła", "Posłowi", "Posłem"], "rola": "sługa, który relacjonuje Helenie przebieg rady", "relacje": "wysłannik Aleksandra", "miejsca": ["Troja"] },
-    { "imie": "Rotmistrz", "odmiany": ["Rotmistrza", "Rotmistrzowi", "Rotmistrzem"], "rola": "dowódca, który melduje o greckim wylądowaniu", "relacje": "podwładny Priama", "miejsca": ["wybrzeże Troi"] },
-    { "imie": "Więzień", "odmiany": ["Więźnia", "Więźniowi", "Więźniem"], "rola": "pojmany Grek, ujawnia plany Greków", "relacje": "jeniec Trojan", "miejsca": ["Troja"] },
-    { "imie": "chór panien trojańskich", "odmiany": ["chóru", "chórowi", "chórem"], "rola": "komentuje wydarzenia, głosi moralne przestrogi", "relacje": "zbiorowy głos Troi", "miejsca": ["Troja"] }
+    {
+      "imie": "Antenor",
+      "odmiany": [
+        "Antenora",
+        "Antenorowi",
+        "Antenorem",
+        "Antenorze"
+      ],
+      "rola": "trojański dostojnik, rozważny doradca króla, broni sprawiedliwości i rady o wydaniu Heleny",
+      "relacje": "przeciwnik Aleksandra w radzie, doradca Priama",
+      "miejsca": [
+        "Troja"
+      ]
+    },
+    {
+      "imie": "Aleksander (Parys)",
+      "odmiany": [
+        "Aleksandra",
+        "Aleksandrowi",
+        "Aleksandrem",
+        "Aleksandrze",
+        "Parysa",
+        "Parys",
+        "Pryjamida"
+      ],
+      "rola": "królewicz trojański, który uprowadził Helenę; lekkomyślny i nierozważny",
+      "relacje": "syn Priama, uprowadził żonę Menelausa",
+      "miejsca": [
+        "Troja"
+      ]
+    },
+    {
+      "imie": "Helena",
+      "odmiany": [
+        "Heleny",
+        "Helenie",
+        "Helenę",
+        "Heleną"
+      ],
+      "rola": "żona Menelausa uprowadzona do Troi; rozpacza i wstydzi się powrotu",
+      "relacje": "żona Menelausa, u Aleksandra w Troi",
+      "miejsca": [
+        "Troja"
+      ]
+    },
+    {
+      "imie": "Pani Stara",
+      "odmiany": [
+        "Pani",
+        "Starej",
+        "Staruszki"
+      ],
+      "rola": "starsza towarzyszka Heleny, pociesza ją",
+      "relacje": "opiekunka Heleny",
+      "miejsca": [
+        "Troja"
+      ]
+    },
+    {
+      "imie": "Priamus",
+      "odmiany": [
+        "Priama",
+        "Priamowi",
+        "Priamem",
+        "Priamie",
+        "Pryjam"
+      ],
+      "rola": "król Troi, ojciec Aleksandra i Kasandry; podejmuje decyzję zgodnie z wolą większości",
+      "relacje": "ojciec Aleksandra i Kasandry",
+      "miejsca": [
+        "Troja"
+      ]
+    },
+    {
+      "imie": "Kasandra",
+      "odmiany": [
+        "Kasandry",
+        "Kasandrze",
+        "Kasandrę",
+        "Kasandrą"
+      ],
+      "rola": "córka Priama, prorokini, której nikt nie wierzy; przepowiada upadek Troi",
+      "relacje": "córka Priama, siostra Aleksandra",
+      "miejsca": [
+        "Troja"
+      ]
+    },
+    {
+      "imie": "Ulisses",
+      "odmiany": [
+        "Ulissesa",
+        "Ulissesowi",
+        "Ulissesem"
+      ],
+      "rola": "poseł grecki",
+      "relacje": "towarzysz Menelausa w poselstwie",
+      "miejsca": [
+        "Troja"
+      ]
+    },
+    {
+      "imie": "Menelaus",
+      "odmiany": [
+        "Menelausa",
+        "Menelausowi",
+        "Menelausem"
+      ],
+      "rola": "poseł grecki, mąż Heleny",
+      "relacje": "mąż Heleny, brat Agamemnona",
+      "miejsca": [
+        "Troja"
+      ]
+    },
+    {
+      "imie": "Iketaon",
+      "odmiany": [
+        "Iketaona",
+        "Iketaonowi",
+        "Iketaonem"
+      ],
+      "rola": "doradca Priama, którego zdanie zwycięża (zatrzymać Helenę)",
+      "relacje": "przeciwnik Antenora w radzie",
+      "miejsca": [
+        "rada królewska"
+      ]
+    },
+    {
+      "imie": "Poseł Parysów",
+      "odmiany": [
+        "Posła",
+        "Posłowi",
+        "Posłem"
+      ],
+      "rola": "sługa, który relacjonuje Helenie przebieg rady",
+      "relacje": "wysłannik Aleksandra",
+      "miejsca": [
+        "Troja"
+      ]
+    },
+    {
+      "imie": "Rotmistrz",
+      "odmiany": [
+        "Rotmistrza",
+        "Rotmistrzowi",
+        "Rotmistrzem"
+      ],
+      "rola": "dowódca, który melduje o greckim wylądowaniu",
+      "relacje": "podwładny Priama",
+      "miejsca": [
+        "wybrzeże Troi"
+      ]
+    },
+    {
+      "imie": "Więzień",
+      "odmiany": [
+        "Więźnia",
+        "Więźniowi",
+        "Więźniem"
+      ],
+      "rola": "pojmany Grek, ujawnia plany Greków",
+      "relacje": "jeniec Trojan",
+      "miejsca": [
+        "Troja"
+      ]
+    },
+    {
+      "imie": "chór panien trojańskich",
+      "odmiany": [
+        "chóru",
+        "chórowi",
+        "chórem"
+      ],
+      "rola": "komentuje wydarzenia, głosi moralne przestrogi",
+      "relacje": "zbiorowy głos Troi",
+      "miejsca": [
+        "Troja"
+      ]
+    }
   ],
   "motywy": [
-    { "motyw": "wina jednostki a odpowiedzialność za państwo", "przyklad": "Aleksander uprowadził Helenę, a cała Troja ma ponieść konsekwencje wojny; Antenor radzi ją wydać, żeby ocalić ojczyznę.", "miejsce": "prolog; epejsodion trzeci (rada w relacji posła)", "cytat": "" },
-    { "motyw": "interes prywatny wobec dobra wspólnego", "przyklad": "Aleksander prosi Antenora o poparcie dla przyjaźni, a ten odpowiada, że przyjaciel nie może rozkazywać wbrew prawdzie.", "miejsce": "epejsodion pierwszy", "cytat": "Swoje sumnienie każdego ma sądzić." },
-    { "motyw": "rola rady i zasada głosu większości", "przyklad": "Mimo mądrych słów Antenora większość trojańskiej rady staje za Iketaonem, a król ogłasza decyzję zgodnie z wolą większości.", "miejsce": "epejsodion trzeci, relacja posła", "cytat": "" },
-    { "motyw": "odpowiedzialność władzy przed Bogiem", "przyklad": "Chór mówi do rządzących, że ich władza pochodzi od Boga i że kiedyś zdadzą rachunek przed „panem”, który nie bierze darów.", "miejsce": "stasimon drugie", "cytat": "Przełożonych występy miasta zgubiły" },
-    { "motyw": "przekupstwo i zepsucie możnych", "przyklad": "Antenor nie przyjmuje darów od Aleksandra; Ulisses po odprawie mówi, że w Troi „wszytko złotem kupić trzeba”.", "miejsce": "prolog; epejsodion czwarty", "cytat": "Gdzie ani prawa ważą, ani sprawiedliwość Ma miejsca" },
-    { "motyw": "młodość i rozum", "przyklad": "Chór mówi, że gdyby rozum szedł w parze z młodością, nie byłoby tylu trosk; Ulisses krytykuje zbytek i pijaństwo trojańskiej młodzieży.", "miejsce": "stasimon pierwsze; epejsodion czwarty", "cytat": "By rozum był przy młodości" },
-    { "motyw": "fatum i proroctwo, którym nikt nie wierzy", "przyklad": "Kasandra wieszczy zagładę Troi, spalenie konia i śmierć Priama, ale jej słowa nie są traktowane serio.", "miejsce": "epejsodion piąty", "cytat": "Wielki ogień ma powstać, tak wielki ogień" },
-    { "motyw": "los człowieka – więcej zła niż dobra (rozmowa Heleny)", "przyklad": "Helena przekonuje Panią Starą, że na świecie jest więcej zła niż dobra, bo urodzić się można jednym sposobem, a umrzeć na wiele.", "miejsce": "epejsodion drugi", "cytat": "Więcejci złego na tym świecie Niżli dobrego" },
-    { "motyw": "wojna jako skutek błędnych decyzji", "przyklad": "Po odprawie posłów Antenor melduje o greckich wojskach w Aulidzie i radzi przygotować obronę; rotmistrz potwierdza wylądowanie Greków.", "miejsce": "epejsodion piąty", "cytat": "Radźmy, jako kogo bić; lepiej niż go czekać!" }
+    {
+      "motyw": "wina jednostki a odpowiedzialność za państwo",
+      "przyklad": "Aleksander uprowadził Helenę, a cała Troja ma ponieść konsekwencje wojny; Antenor radzi ją wydać, żeby ocalić ojczyznę.",
+      "miejsce": "prolog; epejsodion trzeci (rada w relacji posła)"
+    },
+    {
+      "motyw": "interes prywatny wobec dobra wspólnego",
+      "przyklad": "Aleksander prosi Antenora o poparcie dla przyjaźni, a ten odpowiada, że przyjaciel nie może rozkazywać wbrew prawdzie.",
+      "miejsce": "epejsodion pierwszy",
+      "cytat": "Swoje sumnienie każdego ma sądzić."
+    },
+    {
+      "motyw": "rola rady i zasada głosu większości",
+      "przyklad": "Mimo mądrych słów Antenora większość trojańskiej rady staje za Iketaonem, a król ogłasza decyzję zgodnie z wolą większości.",
+      "miejsce": "epejsodion trzeci, relacja posła"
+    },
+    {
+      "motyw": "odpowiedzialność władzy przed Bogiem",
+      "przyklad": "Chór mówi do rządzących, że ich władza pochodzi od Boga i że kiedyś zdadzą rachunek przed „panem”, który nie bierze darów.",
+      "miejsce": "stasimon drugie",
+      "cytat": "Przełożonych występy miasta zgubiły"
+    },
+    {
+      "motyw": "przekupstwo i zepsucie możnych",
+      "przyklad": "Antenor nie przyjmuje darów od Aleksandra; Ulisses po odprawie mówi, że w Troi „wszytko złotem kupić trzeba”.",
+      "miejsce": "prolog; epejsodion czwarty",
+      "cytat": "Gdzie ani prawa ważą, ani sprawiedliwość Ma miejsca"
+    },
+    {
+      "motyw": "młodość i rozum",
+      "przyklad": "Chór mówi, że gdyby rozum szedł w parze z młodością, nie byłoby tylu trosk; Ulisses krytykuje zbytek i pijaństwo trojańskiej młodzieży.",
+      "miejsce": "stasimon pierwsze; epejsodion czwarty",
+      "cytat": "By rozum był przy młodości"
+    },
+    {
+      "motyw": "fatum i proroctwo, którym nikt nie wierzy",
+      "przyklad": "Kasandra wieszczy zagładę Troi, spalenie konia i śmierć Priama, ale jej słowa nie są traktowane serio.",
+      "miejsce": "epejsodion piąty",
+      "cytat": "Wielki ogień ma powstać, tak wielki ogień"
+    },
+    {
+      "motyw": "los człowieka – więcej zła niż dobra (rozmowa Heleny)",
+      "przyklad": "Helena przekonuje Panią Starą, że na świecie jest więcej zła niż dobra, bo urodzić się można jednym sposobem, a umrzeć na wiele.",
+      "miejsce": "epejsodion drugi",
+      "cytat": "Więcejci złego na tym świecie Niżli dobrego"
+    },
+    {
+      "motyw": "wojna jako skutek błędnych decyzji",
+      "przyklad": "Po odprawie posłów Antenor melduje o greckich wojskach w Aulidzie i radzi przygotować obronę; rotmistrz potwierdza wylądowanie Greków.",
+      "miejsce": "epejsodion piąty",
+      "cytat": "Radźmy, jako kogo bić; lepiej niż go czekać!"
+    }
   ],
   "utwory": [],
   "zrodla": [
-    { "url": "https://wolnelektury.pl/katalog/lektura/odprawa-poslow-greckich/", "rodzaj": "utwór", "co": "Przeczytany cały tekst z Wolnych Lektur (domena publiczna); sprawdzony przebieg zdarzeń i wszystkie cytaty." }
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/odprawa-poslow-greckich/",
+      "rodzaj": "utwór",
+      "co": "Przeczytany cały tekst z Wolnych Lektur (domena publiczna); sprawdzony przebieg zdarzeń i wszystkie cytaty."
+    }
   ],
   "do_weryfikacji": [
     "Postać „brata” w przepowiedni Kasandry (stróż ojczyzny, ciało kupowane od rozbójcy) w tekście nie jest nazwana; utożsamienie z Hektorem to wiedza ogólna o micie.",

@@ -3,33 +3,130 @@
   "wydarzenia": [],
   "postacie": [],
   "motywy": [
-    { "motyw": "sprawiedliwość jako temat główny dialogu", "przyklad": "Dialog rozpoczyna spór o to, czym jest sprawiedliwość; Trazymach twierdzi, że sprawiedliwość to interes silniejszego, a Sokrates to odpiera.", "miejsce": "księga I", "cytat": "to, co leży w interesie mocniejszego" },
-    { "motyw": "pierścień Gygesa – moralność bez kary", "przyklad": "Glaukon opowiada o pasterzu, który znajduje złoty pierścień czyniący go niewidzialnym, i pyta, czy ktokolwiek zostałby sprawiedliwy, gdyby mógł bezkarnie czynić zło.", "miejsce": "księga II", "cytat": "" },
-    { "motyw": "państwo jako powiększony obraz duszy człowieka", "przyklad": "Sokrates proponuje szukać sprawiedliwości najpierw w państwie, bo tam łatwiej ją dostrzec, a potem w jednostce.", "miejsce": "księga II", "cytat": "" },
-    { "motyw": "wychowanie strażników (muzyka, gimnastyka, krytyka mitów o bogach)", "przyklad": "W księgach II–III Sokrates mówi, jakich opowieści o bogach nie należy dzieciom opowiadać i jak kształcić strażników państwa.", "miejsce": "księgi II–III", "cytat": "" },
-    { "motyw": "trzy stany i cztery cnoty w państwie i duszy", "przyklad": "W księdze IV Sokrates wyodrębnia stany (władcy, strażnicy, producenci) i wiąże je z częściami duszy; sprawiedliwość to zgodny podział zadań.", "miejsce": "księga IV (streszczenie na podstawie struktury dzieła)", "cytat": "" },
-    { "motyw": "wspólność kobiet, dzieci i majątku strażników", "przyklad": "W idealnym państwie strażnicy mają mieć wspólne żony, dzieci i wychowanie, a kobiety uczestniczyć w obronie jak mężczyźni.", "miejsce": "księgi V–VIII (powtórzenie tez na początku księgi VIII)", "cytat": "wspólne powinny być kobiety i wspólną własnością dzieci i całe wykształcenie" },
-    { "motyw": "filozofowie-królowie", "przyklad": "Zło w państwach ustanie, gdy władzę obejmą ludzie prawdziwie umiłowani w mądrości, a obecni rządzący zaczną się filozofii oddawać.", "miejsce": "księga VII (zakończenie); wzmianki w księdze VI", "cytat": "kiedy prawdziwi filozofowie obejmą władzę" },
-    { "motyw": "alegoria jaskini", "przyklad": "Ludzie od dzieciństwa przykuci w jaskini widzą tylko cienie niesionych przedmiotów i biorą je za prawdę; uwolniony i wyprowadzony na światło oślepiony cierpi, ale potem patrzy na słońce i współczuje tamtym.", "miejsce": "księga VII, początek", "cytat": "Oto ludzie są niby w podziemnym pomieszczeniu na kształt jaskini" },
-    { "motyw": "wznoszenie się duszy ku światu idei", "przyklad": "Sokrates tłumaczy, że wyjście z jaskini na światło oznacza wznoszenie się duszy do świata myśli, a ten, kto wróci między ludzi, wydaje się śmieszny w sądach i sporach o cienie sprawiedliwości.", "miejsce": "księga VII, objaśnienie obrazu", "cytat": "wznoszenie się duszy do świata myśli" },
-    { "motyw": "degeneracja ustrojów (timokracja, oligarchia, demokracja, tyrania)", "przyklad": "W księgach VIII–IX Sokrates pokazuje, jak kolejne ustroje i odpowiadające im charaktery człowieka się psują, aż do dyktatora, którego życie jest nędzne.", "miejsce": "księga VIII–IX", "cytat": "" },
-    { "motyw": "krytyka poezji naśladowczej", "przyklad": "W księdze X Sokrates powraca do tezy, że poezja naśladowcza nie powinna być przyjęta do idealnego państwa.", "miejsce": "księga X, początek", "cytat": "" },
-    { "motyw": "mit o Erze – nagroda i kara po śmierci", "przyklad": "Księgę X zamyka opowieść o Erze, synu Armeniosa, który poległ na wojnie i wrócił do życia, by opowiedzieć o losie dusz po śmierci.", "miejsce": "księga X, zakończenie", "cytat": "" }
+    {
+      "motyw": "sprawiedliwość jako temat główny dialogu",
+      "przyklad": "Dialog rozpoczyna spór o to, czym jest sprawiedliwość; Trazymach twierdzi, że sprawiedliwość to interes silniejszego, a Sokrates to odpiera.",
+      "miejsce": "księga I",
+      "cytat": "to, co leży w interesie mocniejszego"
+    },
+    {
+      "motyw": "pierścień Gygesa – moralność bez kary",
+      "przyklad": "Glaukon opowiada o pasterzu, który znajduje złoty pierścień czyniący go niewidzialnym, i pyta, czy ktokolwiek zostałby sprawiedliwy, gdyby mógł bezkarnie czynić zło.",
+      "miejsce": "księga II"
+    },
+    {
+      "motyw": "państwo jako powiększony obraz duszy człowieka",
+      "przyklad": "Sokrates proponuje szukać sprawiedliwości najpierw w państwie, bo tam łatwiej ją dostrzec, a potem w jednostce.",
+      "miejsce": "księga II"
+    },
+    {
+      "motyw": "wychowanie strażników (muzyka, gimnastyka, krytyka mitów o bogach)",
+      "przyklad": "W księgach II–III Sokrates mówi, jakich opowieści o bogach nie należy dzieciom opowiadać i jak kształcić strażników państwa.",
+      "miejsce": "księgi II–III"
+    },
+    {
+      "motyw": "trzy stany i cztery cnoty w państwie i duszy",
+      "przyklad": "W księdze IV Sokrates wyodrębnia stany (władcy, strażnicy, producenci) i wiąże je z częściami duszy; sprawiedliwość to zgodny podział zadań.",
+      "miejsce": "księga IV (streszczenie na podstawie struktury dzieła)"
+    },
+    {
+      "motyw": "wspólność kobiet, dzieci i majątku strażników",
+      "przyklad": "W idealnym państwie strażnicy mają mieć wspólne żony, dzieci i wychowanie, a kobiety uczestniczyć w obronie jak mężczyźni.",
+      "miejsce": "księgi V–VIII (powtórzenie tez na początku księgi VIII)",
+      "cytat": "wspólne powinny być kobiety i wspólną własnością dzieci i całe wykształcenie"
+    },
+    {
+      "motyw": "filozofowie-królowie",
+      "przyklad": "Zło w państwach ustanie, gdy władzę obejmą ludzie prawdziwie umiłowani w mądrości, a obecni rządzący zaczną się filozofii oddawać.",
+      "miejsce": "księga VII (zakończenie); wzmianki w księdze VI",
+      "cytat": "kiedy prawdziwi filozofowie obejmą władzę"
+    },
+    {
+      "motyw": "alegoria jaskini",
+      "przyklad": "Ludzie od dzieciństwa przykuci w jaskini widzą tylko cienie niesionych przedmiotów i biorą je za prawdę; uwolniony i wyprowadzony na światło oślepiony cierpi, ale potem patrzy na słońce i współczuje tamtym.",
+      "miejsce": "księga VII, początek",
+      "cytat": "Oto ludzie są niby w podziemnym pomieszczeniu na kształt jaskini"
+    },
+    {
+      "motyw": "wznoszenie się duszy ku światu idei",
+      "przyklad": "Sokrates tłumaczy, że wyjście z jaskini na światło oznacza wznoszenie się duszy do świata myśli, a ten, kto wróci między ludzi, wydaje się śmieszny w sądach i sporach o cienie sprawiedliwości.",
+      "miejsce": "księga VII, objaśnienie obrazu",
+      "cytat": "wznoszenie się duszy do świata myśli"
+    },
+    {
+      "motyw": "degeneracja ustrojów (timokracja, oligarchia, demokracja, tyrania)",
+      "przyklad": "W księgach VIII–IX Sokrates pokazuje, jak kolejne ustroje i odpowiadające im charaktery człowieka się psują, aż do dyktatora, którego życie jest nędzne.",
+      "miejsce": "księga VIII–IX"
+    },
+    {
+      "motyw": "krytyka poezji naśladowczej",
+      "przyklad": "W księdze X Sokrates powraca do tezy, że poezja naśladowcza nie powinna być przyjęta do idealnego państwa.",
+      "miejsce": "księga X, początek"
+    },
+    {
+      "motyw": "mit o Erze – nagroda i kara po śmierci",
+      "przyklad": "Księgę X zamyka opowieść o Erze, synu Armeniosa, który poległ na wojnie i wrócił do życia, by opowiedzieć o losie dusz po śmierci.",
+      "miejsce": "księga X, zakończenie"
+    }
   ],
   "utwory": [
-    { "tytul": "Księga I: spór o sprawiedliwość (Kefalos, Polemarch, Trazymach)", "miejsce": "księga I", "opis": "Rozmowa w domu Polemarcha w Pireusie; Sokrates odrzuca kolejne definicje sprawiedliwości, a Trazymach głosi, że jest nią interes silniejszego." },
-    { "tytul": "Księga II: Glaukon, pierścień Gygesa, budowa państwa", "miejsce": "księga II", "opis": "Glaukon i Adejmant żądają dowodu, że sprawiedliwość jest dobra sama w sobie; opowieść o pierścieniu Gygesa; początek konstrukcji państwa." },
-    { "tytul": "Księga III: wychowanie strażników", "miejsce": "księga III", "opis": "Co o bogach wolno mówić młodym; wychowanie przez muzykę i gimnastykę; wybór strażników." },
-    { "tytul": "Księga IV: sprawiedliwość w państwie i duszy", "miejsce": "księga IV", "opis": "Odpowiedź Adejmantowi i wyznaczenie stanów i cnót państwa; porównanie z duszą (streszczenie według układu dzieła, treść nie była czytana w całości)." },
-    { "tytul": "Księga V: zło państw, kobiety i wspólność", "miejsce": "księga V", "opis": "Początek nazywa ustrój idealny dobrym i słusznym, a mówi o czterech postaciach zła w państwach i charakterach obywateli; w dalszej części, według struktury dialogu, o kobietach i wspólności (do weryfikacji)." },
-    { "tytul": "Księga VI: kim jest filozof", "miejsce": "księga VI", "opis": "Kto jest filozofem, dlaczego powinien rządzić i jak jest wychowywany; (alegorie Dobra i słońca zapowiadają księgę VII)." },
-    { "tytul": "Księga VII: alegoria jaskini i wykształcenie filozofów", "miejsce": "księga VII", "opis": "Obraz jaskini jako symbolu natury ludzkiej wobec wykształcenia i niewiedzy; wyprowadzenie człowieka na światło oznacza wznoszenie się duszy do świata myśli; filozofowie muszą wracać do jaskini i rządzić; zakończenie o rządach prawdziwych filozofów." },
-    { "tytul": "Księga VIII: powtórzenie tez i degeneracja ustrojów", "miejsce": "księga VIII", "opis": "Podsumowanie, że w idealnym państwie wspólne mają być kobiety, dzieci i wychowanie; potem opis upadku ustrojów." },
-    { "tytul": "Księga IX: człowiek tyrański", "miejsce": "księga IX", "opis": "Przemiana ustroju demokratycznego w tyranię i opis życia dyktatora, który jest nędzny, nie szczęśliwy." },
-    { "tytul": "Księga X: poezja i mit o Erze", "miejsce": "księga X", "opis": "Powrót do krytyki poezji naśladowczej, argumenty za nieśmiertelnością duszy i mit o Erze z Pamfilii opowiadający o losie dusz po śmierci." }
+    {
+      "tytul": "Księga I: spór o sprawiedliwość (Kefalos, Polemarch, Trazymach)",
+      "miejsce": "księga I",
+      "opis": "Rozmowa w domu Polemarcha w Pireusie; Sokrates odrzuca kolejne definicje sprawiedliwości, a Trazymach głosi, że jest nią interes silniejszego."
+    },
+    {
+      "tytul": "Księga II: Glaukon, pierścień Gygesa, budowa państwa",
+      "miejsce": "księga II",
+      "opis": "Glaukon i Adejmant żądają dowodu, że sprawiedliwość jest dobra sama w sobie; opowieść o pierścieniu Gygesa; początek konstrukcji państwa."
+    },
+    {
+      "tytul": "Księga III: wychowanie strażników",
+      "miejsce": "księga III",
+      "opis": "Co o bogach wolno mówić młodym; wychowanie przez muzykę i gimnastykę; wybór strażników."
+    },
+    {
+      "tytul": "Księga IV: sprawiedliwość w państwie i duszy",
+      "miejsce": "księga IV",
+      "opis": "Odpowiedź Adejmantowi i wyznaczenie stanów i cnót państwa; porównanie z duszą (streszczenie według układu dzieła, treść nie była czytana w całości)."
+    },
+    {
+      "tytul": "Księga V: zło państw, kobiety i wspólność",
+      "miejsce": "księga V",
+      "opis": "Początek nazywa ustrój idealny dobrym i słusznym, a mówi o czterech postaciach zła w państwach i charakterach obywateli; w dalszej części, według struktury dialogu, o kobietach i wspólności (do weryfikacji)."
+    },
+    {
+      "tytul": "Księga VI: kim jest filozof",
+      "miejsce": "księga VI",
+      "opis": "Kto jest filozofem, dlaczego powinien rządzić i jak jest wychowywany; (alegorie Dobra i słońca zapowiadają księgę VII)."
+    },
+    {
+      "tytul": "Księga VII: alegoria jaskini i wykształcenie filozofów",
+      "miejsce": "księga VII",
+      "opis": "Obraz jaskini jako symbolu natury ludzkiej wobec wykształcenia i niewiedzy; wyprowadzenie człowieka na światło oznacza wznoszenie się duszy do świata myśli; filozofowie muszą wracać do jaskini i rządzić; zakończenie o rządach prawdziwych filozofów."
+    },
+    {
+      "tytul": "Księga VIII: powtórzenie tez i degeneracja ustrojów",
+      "miejsce": "księga VIII",
+      "opis": "Podsumowanie, że w idealnym państwie wspólne mają być kobiety, dzieci i wychowanie; potem opis upadku ustrojów."
+    },
+    {
+      "tytul": "Księga IX: człowiek tyrański",
+      "miejsce": "księga IX",
+      "opis": "Przemiana ustroju demokratycznego w tyranię i opis życia dyktatora, który jest nędzny, nie szczęśliwy."
+    },
+    {
+      "tytul": "Księga X: poezja i mit o Erze",
+      "miejsce": "księga X",
+      "opis": "Powrót do krytyki poezji naśladowczej, argumenty za nieśmiertelnością duszy i mit o Erze z Pamfilii opowiadający o losie dusz po śmierci."
+    }
   ],
   "zrodla": [
-    { "url": "https://wolnelektury.pl/katalog/lektura/platon-panstwo/", "rodzaj": "utwór", "co": "Pobrany cały tekst (tłum. Władysław Witwicki, domena publiczna); przeczytane: wstęp tłumacza, początek księgi, całość alegorii jaskini i jej objaśnienie (księga VII), początki wszystkich ksiąg oraz kluczowe fragmenty (Trazymach, pierścień Gygesa, filozofowie, Er); cytaty sprawdzone." }
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/platon-panstwo/",
+      "rodzaj": "utwór",
+      "co": "Pobrany cały tekst (tłum. Władysław Witwicki, domena publiczna); przeczytane: wstęp tłumacza, początek księgi, całość alegorii jaskini i jej objaśnienie (księga VII), początki wszystkich ksiąg oraz kluczowe fragmenty (Trazymach, pierścień Gygesa, filozofowie, Er); cytaty sprawdzone."
+    }
   ],
   "do_weryfikacji": [
     "Katalog wskazuje jako przykład alegorię jaskini w księdze VII; pełny wykaz wymaganych fragmentów nie został sprawdzony w źródle CKE.",

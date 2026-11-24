@@ -2,27 +2,88 @@
   "id": "ksiega-koheleta",
   "wydarzenia": [],
   "postacie": [
-    {"imie": "Kohelet", "odmiany": ["Kohelet", "Koheleta", "Koheletowi", "Koheletem"], "rola": "mędrzec, narrator księgi, który bada sens ludzkiego życia", "relacje": "zwraca się do czytelnika", "miejsca": ["Koh 1,1", "Koh 12"]}
+    {
+      "imie": "Kohelet",
+      "odmiany": [
+        "Kohelet",
+        "Koheleta",
+        "Koheletowi",
+        "Koheletem"
+      ],
+      "rola": "mędrzec, narrator księgi, który bada sens ludzkiego życia",
+      "relacje": "zwraca się do czytelnika",
+      "miejsca": [
+        "Koh 1,1",
+        "Koh 12"
+      ]
+    }
   ],
   "motywy": [
-    {"motyw": "marność wszystkiego", "przyklad": "Kohelet na początku księgi stwierdza, że wszystko jest marnością, a człowiek na próżno się trudzi pod słońcem.", "miejsce": "Koh 1,2–11"},
-    {"motyw": "poszukiwanie sensu w mądrości, bogactwie i rozkoszy", "przyklad": "Kohelet opisuje, że poznawał mądrość, gromadził majątek i zażywał przyjemności, a na koniec uznał to za pogoń za wiatrem.", "miejsce": "Koh 1,12–2,26"},
-    {"motyw": "czas i rytm życia", "przyklad": "Księga wylicza, że jest czas rodzenia i umierania, sadzenia i wyrywania, płaczu i śmiechu.", "miejsce": "Koh 3,1–8"},
-    {"motyw": "przemijanie i nieuchronna śmierć", "przyklad": "Kohelet podkreśla, że wszyscy, mądrzy i głupi, spotkają ten sam los.", "miejsce": "Koh 2,12–17; Koh 3,18–22"},
-    {"motyw": "radość z codziennych darów", "przyklad": "Kohelet wielokrotnie radzi cieszyć się jedzeniem, pracą i życiem jako darem od Boga.", "miejsce": "Koh 2,24–26; Koh 9,7–10"},
-    {"motyw": "młodość i starość", "przyklad": "W zakończeniu Kohelet radzi pamiętać o Stwórcy w dniach młodości, przed nadejściem starości.", "miejsce": "Koh 11,9–12,8"},
-    {"motyw": "bojaźń Boża jako wniosek końcowy", "przyklad": "Księga kończy się radą, by bać się Boga i zachowywać jego przykazania.", "miejsce": "Koh 12,13–14"}
+    {
+      "motyw": "marność wszystkiego",
+      "przyklad": "Kohelet na początku księgi stwierdza, że wszystko jest marnością, a człowiek na próżno się trudzi pod słońcem.",
+      "miejsce": "Koh 1,2–11"
+    },
+    {
+      "motyw": "poszukiwanie sensu w mądrości, bogactwie i rozkoszy",
+      "przyklad": "Kohelet opisuje, że poznawał mądrość, gromadził majątek i zażywał przyjemności, a na koniec uznał to za pogoń za wiatrem.",
+      "miejsce": "Koh 1,12–2,26"
+    },
+    {
+      "motyw": "czas i rytm życia",
+      "przyklad": "Księga wylicza, że jest czas rodzenia i umierania, sadzenia i wyrywania, płaczu i śmiechu.",
+      "miejsce": "Koh 3,1–8"
+    },
+    {
+      "motyw": "przemijanie i nieuchronna śmierć",
+      "przyklad": "Kohelet podkreśla, że wszyscy, mądrzy i głupi, spotkają ten sam los.",
+      "miejsce": "Koh 2,12–17; Koh 3,18–22"
+    },
+    {
+      "motyw": "radość z codziennych darów",
+      "przyklad": "Kohelet wielokrotnie radzi cieszyć się jedzeniem, pracą i życiem jako darem od Boga.",
+      "miejsce": "Koh 2,24–26; Koh 9,7–10"
+    },
+    {
+      "motyw": "młodość i starość",
+      "przyklad": "W zakończeniu Kohelet radzi pamiętać o Stwórcy w dniach młodości, przed nadejściem starości.",
+      "miejsce": "Koh 11,9–12,8"
+    },
+    {
+      "motyw": "bojaźń Boża jako wniosek końcowy",
+      "przyklad": "Księga kończy się radą, by bać się Boga i zachowywać jego przykazania.",
+      "miejsce": "Koh 12,13–14"
+    }
   ],
   "utwory": [
-    {"tytul": "Marność wszystkiego (wstęp księgi)", "miejsce": "Koh 1,1–11", "opis": "Kohelet stwierdza, że wszystko jest marnością, a pokolenia i rzeczy powracają w niekończącym się cyklu."},
-    {"tytul": "Wiersz o czasie", "miejsce": "Koh 3,1–8", "opis": "Lista zestawionych przeciwieństw (rodzić się i umierać, płakać i śmiać się), pokazująca, że każda rzecz ma swój czas."},
-    {"tytul": "Wezwanie do pamięci o Stwórcy", "miejsce": "Koh 11,9–12,8", "opis": "Rada skierowana do młodego człowieka, by pamiętał o Stwórcy, zanim nadejdzie starość i śmierć, opisana poetyckimi obrazami."}
+    {
+      "tytul": "Marność wszystkiego (wstęp księgi)",
+      "miejsce": "Koh 1,1–11",
+      "opis": "Kohelet stwierdza, że wszystko jest marnością, a pokolenia i rzeczy powracają w niekończącym się cyklu."
+    },
+    {
+      "tytul": "Wiersz o czasie",
+      "miejsce": "Koh 3,1–8",
+      "opis": "Lista zestawionych przeciwieństw (rodzić się i umierać, płakać i śmiać się), pokazująca, że każda rzecz ma swój czas."
+    },
+    {
+      "tytul": "Wezwanie do pamięci o Stwórcy",
+      "miejsce": "Koh 11,9–12,8",
+      "opis": "Rada skierowana do młodego człowieka, by pamiętał o Stwórcy, zanim nadejdzie starość i śmierć, opisana poetyckimi obrazami."
+    }
   ],
-  "zrodla": [],
+  "zrodla": [
+    {
+      "url": "https://biblia.deon.pl/",
+      "rodzaj": "utwór",
+      "co": "Biblia Tysiąclecia, tekst do sprawdzenia opisanych fragmentów"
+    }
+  ],
   "do_weryfikacji": [
     "Plik nie był sprawdzany w żadnym źródle online ani w wydaniu Biblii; powstał z ogólnej znajomości Księgi Koheleta i wymaga weryfikacji (np. w Biblii Tysiąclecia).",
     "Cytatów nie podano, bo tekst współczesnych polskich wydań Biblii jest objęty prawem autorskim.",
     "Zakres „fragmentów” Księgi Koheleta wymaganych na maturze nie jest ustalony w katalogu; wybrano najczęściej omawiane fragmenty.",
-    "Numery wersetów podano według typowej numeracji; mogą różnić się o jeden werset między wydaniami."
+    "Numery wersetów podano według typowej numeracji; mogą różnić się o jeden werset między wydaniami.",
+    "Opis nie został porównany z tekstem Biblii przy zapisie; sprawdzić rozdziały i wersety."
   ]
 }

@@ -3,29 +3,110 @@
   "wydarzenia": [],
   "postacie": [],
   "motywy": [
-    { "motyw": "mimesis – naśladowanie jako źródło poezji", "przyklad": "Arystoteles wywodzi poezję z wrodzonego instynktu naśladowania i z poczucia rytmu i harmonii; poezja różni się środkami, przedmiotem i sposobem naśladowania.", "miejsce": "rozdz. I–V (wstęp; streszczenie tłumacza)", "cytat": "" },
-    { "motyw": "definicja tragedii", "przyklad": "Tragedia to naśladowanie poważnej, skończonej akcji przez działające osoby (a nie przez opowiadanie), które budząc litość i trwogę dokonuje oczyszczenia (ukojenia i zrównoważenia) tych uczuć.", "miejsce": "rozdz. VI", "cytat": "Jest zatem tragedia naśladowaniem akcji poważnej i w sobie skończonej" },
-    { "motyw": "katharsis – ukojenie i zrównoważenie uczuć", "przyklad": "W definicji tragedii skutkiem oglądania cierpienia na scenie jest „ukojenie i zrównoważenie” litości i trwogi (w przekładzie Siedleckiego).", "miejsce": "rozdz. VI", "cytat": "dokonywająca ukojenia i zrównoważenia uczuć tego rodzaju" },
-    { "motyw": "fabuła jako najważniejsza część tragedii", "przyklad": "Fabuła ma mieć początek, środek i koniec, być jednością czynności (nie jedności osoby czy czasu) i opierać się na prawdopodobieństwie lub konieczności.", "miejsce": "rozdz. VII–IX", "cytat": "" },
-    { "motyw": "poezja a historia – prawda ogólna", "przyklad": "Zadaniem poety nie jest opowiadanie zdarzeń, które zaszły, lecz takich, które mogły zajść; dlatego poezja jest według Arystotelesa bardziej filozoficzna od historii.", "miejsce": "rozdz. IX", "cytat": "poezja bardziej filozoficzna i głębsza niż historia" },
-    { "motyw": "przełom i rozpoznanie", "przyklad": "Przełom to przejście do czegoś przeciwnego, np. w „Edypie” posłaniec, który chce uspokoić króla, sprawia skutek odwrotny; rozpoznanie to przejście z niewiedzy w poznanie, najpiękniejsze, gdy zbiega się z przełomem, jak w „Edypie”.", "miejsce": "rozdz. XI", "cytat": "przejście z niewiedzy w poznanie" },
-    { "motyw": "bohater tragiczny i błąd tragiczny", "przyklad": "Najlepszy bohater tragedii to człowiek ani zupełnie cnotliwy, ani niegodziwy, który przechodzi ze szczęścia w nieszczęście przez błąd wielki, a nie przez niegodziwość; takie przejście budzi litość i trwogę.", "miejsce": "rozdz. XIII", "cytat": "przez błąd wielki człowieka" },
-    { "motyw": "litość i trwoga wywołane samą kompozycją", "przyklad": "Arystoteles uważa za lepsze wywołanie litości i trwogi samym układem zdarzeń niż efektami sceny; tego dozna każdy, słuchając opowieści o Edypie.", "miejsce": "rozdz. XIV", "cytat": "" },
-    { "motyw": "charaktery w tragedii", "przyklad": "Charaktery powinny być szlachetne, zgodne z istotą rzeczy, wierne i jednostajne, a bohaterów warto idealizować, jak Homer Achillesa.", "miejsce": "rozdz. XV (streszczenie tłumacza)", "cytat": "" },
-    { "motyw": "tragedia wyższa od epopei", "przyklad": "Po porównaniu obu gatunków Arystoteles przyznaje wyższość tragedii.", "miejsce": "rozdz. XXVI", "cytat": "" }
+    {
+      "motyw": "mimesis – naśladowanie jako źródło poezji",
+      "przyklad": "Arystoteles wywodzi poezję z wrodzonego instynktu naśladowania i z poczucia rytmu i harmonii; poezja różni się środkami, przedmiotem i sposobem naśladowania.",
+      "miejsce": "rozdz. I–V (wstęp; streszczenie tłumacza)"
+    },
+    {
+      "motyw": "definicja tragedii",
+      "przyklad": "Tragedia to naśladowanie poważnej, skończonej akcji przez działające osoby (a nie przez opowiadanie), które budząc litość i trwogę dokonuje oczyszczenia (ukojenia i zrównoważenia) tych uczuć.",
+      "miejsce": "rozdz. VI",
+      "cytat": "Jest zatem tragedia naśladowaniem akcji poważnej i w sobie skończonej"
+    },
+    {
+      "motyw": "katharsis – ukojenie i zrównoważenie uczuć",
+      "przyklad": "W definicji tragedii skutkiem oglądania cierpienia na scenie jest „ukojenie i zrównoważenie” litości i trwogi (w przekładzie Siedleckiego).",
+      "miejsce": "rozdz. VI",
+      "cytat": "dokonywająca ukojenia i zrównoważenia uczuć tego rodzaju"
+    },
+    {
+      "motyw": "fabuła jako najważniejsza część tragedii",
+      "przyklad": "Fabuła ma mieć początek, środek i koniec, być jednością czynności (nie jedności osoby czy czasu) i opierać się na prawdopodobieństwie lub konieczności.",
+      "miejsce": "rozdz. VII–IX"
+    },
+    {
+      "motyw": "poezja a historia – prawda ogólna",
+      "przyklad": "Zadaniem poety nie jest opowiadanie zdarzeń, które zaszły, lecz takich, które mogły zajść; dlatego poezja jest według Arystotelesa bardziej filozoficzna od historii.",
+      "miejsce": "rozdz. IX",
+      "cytat": "poezja bardziej filozoficzna i głębsza niż historia"
+    },
+    {
+      "motyw": "przełom i rozpoznanie",
+      "przyklad": "Przełom to przejście do czegoś przeciwnego, np. w „Edypie” posłaniec, który chce uspokoić króla, sprawia skutek odwrotny; rozpoznanie to przejście z niewiedzy w poznanie, najpiękniejsze, gdy zbiega się z przełomem, jak w „Edypie”.",
+      "miejsce": "rozdz. XI",
+      "cytat": "przejście z niewiedzy w poznanie"
+    },
+    {
+      "motyw": "bohater tragiczny i błąd tragiczny",
+      "przyklad": "Najlepszy bohater tragedii to człowiek ani zupełnie cnotliwy, ani niegodziwy, który przechodzi ze szczęścia w nieszczęście przez błąd wielki, a nie przez niegodziwość; takie przejście budzi litość i trwogę.",
+      "miejsce": "rozdz. XIII",
+      "cytat": "przez błąd wielki człowieka"
+    },
+    {
+      "motyw": "litość i trwoga wywołane samą kompozycją",
+      "przyklad": "Arystoteles uważa za lepsze wywołanie litości i trwogi samym układem zdarzeń niż efektami sceny; tego dozna każdy, słuchając opowieści o Edypie.",
+      "miejsce": "rozdz. XIV"
+    },
+    {
+      "motyw": "charaktery w tragedii",
+      "przyklad": "Charaktery powinny być szlachetne, zgodne z istotą rzeczy, wierne i jednostajne, a bohaterów warto idealizować, jak Homer Achillesa.",
+      "miejsce": "rozdz. XV (streszczenie tłumacza)"
+    },
+    {
+      "motyw": "tragedia wyższa od epopei",
+      "przyklad": "Po porównaniu obu gatunków Arystoteles przyznaje wyższość tragedii.",
+      "miejsce": "rozdz. XXVI"
+    }
   ],
   "utwory": [
-    { "tytul": "Rozdz. I–V: o naśladowaniu i źródłach poezji", "miejsce": "rozdz. I–V", "opis": "Podział poezji według środków (mowa, rytm, melodia), przedmiotu (szlachetniejsze albo pośledniejsze charaktery) i sposobu naśladowania; dwa źródła poezji: instynkt naśladowania i zmysł rytmu; krótka historia rozwoju tragedii i komedii." },
-    { "tytul": "Rozdz. VI: definicja tragedii i jej części", "miejsce": "rozdz. VI", "opis": "Słynna definicja tragedii jako naśladowania poważnej, skończonej akcji budzącej litość i trwogę oraz wyliczenie sześciu części: fabuła, charaktery, sposób rozwijania myśli, wysłowienie, melodia i wystawa sceniczna." },
-    { "tytul": "Rozdz. VII–IX: fabuła, jedność akcji, prawdopodobieństwo", "miejsce": "rozdz. VII–IX", "opis": "Fabuła jako całość z początkiem, środkiem i końcem oraz jednością czynności; opis różnicy między poetą a historykiem (rozdz. IX)." },
-    { "tytul": "Rozdz. X–XI: fabuła prosta i splątana, przełom i rozpoznanie", "miejsce": "rozdz. X–XI", "opis": "Przełom, rozpoznanie i pathos jako elementy fabuły zawikłanej; przykład „Edypa”." },
-    { "tytul": "Rozdz. XIII–XIV: jaki bohater i jakie zdarzenia budzą litość i trwogę", "miejsce": "rozdz. XIII–XIV", "opis": "Najlepszy bohater tragedii: człowiek pośredni, który popełnia wielki błąd; najlepsze efekty osiąga się samą kompozycją, a nie wystawą sceniczną." },
-    { "tytul": "Rozdz. XV–XVIII: charaktery, rodzaje rozpoznania i rady dla poetów", "miejsce": "rozdz. XV–XVIII", "opis": "Wymagania wobec charakterów; w rozdz. XVI rodzaje rozpoznania (ze znamion zewnętrznych, umyślnie stworzone przez poetę, przez wspomnienie, przez rozumowanie, z mylnego wniosku; najlepsze wynika z samych zdarzeń); praktyczne rady: przenosić się w sytuację widzów, najpierw szkicować osnowę, starannie prowadzić zawiązanie i rozwiązanie." },
-    { "tytul": "Rozdz. XIX–XXII: myśl i wysłowienie", "miejsce": "rozdz. XIX–XXII", "opis": "Uwagi o sposobie rozwijania myśli (odesłanie do Retoryki) oraz o wysłowieniu, gramatyce i stylu." },
-    { "tytul": "Rozdz. XXIII–XXVI: epopeja i porównanie z tragedią", "miejsce": "rozdz. XXIII–XXVI", "opis": "Podobieństwa i różnice między epopeją a tragedią, rozwiązania zarzutów wobec poetów i w końcu uznanie wyższości tragedii." }
+    {
+      "tytul": "Rozdz. I–V: o naśladowaniu i źródłach poezji",
+      "miejsce": "rozdz. I–V",
+      "opis": "Podział poezji według środków (mowa, rytm, melodia), przedmiotu (szlachetniejsze albo pośledniejsze charaktery) i sposobu naśladowania; dwa źródła poezji: instynkt naśladowania i zmysł rytmu; krótka historia rozwoju tragedii i komedii."
+    },
+    {
+      "tytul": "Rozdz. VI: definicja tragedii i jej części",
+      "miejsce": "rozdz. VI",
+      "opis": "Słynna definicja tragedii jako naśladowania poważnej, skończonej akcji budzącej litość i trwogę oraz wyliczenie sześciu części: fabuła, charaktery, sposób rozwijania myśli, wysłowienie, melodia i wystawa sceniczna."
+    },
+    {
+      "tytul": "Rozdz. VII–IX: fabuła, jedność akcji, prawdopodobieństwo",
+      "miejsce": "rozdz. VII–IX",
+      "opis": "Fabuła jako całość z początkiem, środkiem i końcem oraz jednością czynności; opis różnicy między poetą a historykiem (rozdz. IX)."
+    },
+    {
+      "tytul": "Rozdz. X–XI: fabuła prosta i splątana, przełom i rozpoznanie",
+      "miejsce": "rozdz. X–XI",
+      "opis": "Przełom, rozpoznanie i pathos jako elementy fabuły zawikłanej; przykład „Edypa”."
+    },
+    {
+      "tytul": "Rozdz. XIII–XIV: jaki bohater i jakie zdarzenia budzą litość i trwogę",
+      "miejsce": "rozdz. XIII–XIV",
+      "opis": "Najlepszy bohater tragedii: człowiek pośredni, który popełnia wielki błąd; najlepsze efekty osiąga się samą kompozycją, a nie wystawą sceniczną."
+    },
+    {
+      "tytul": "Rozdz. XV–XVIII: charaktery, rodzaje rozpoznania i rady dla poetów",
+      "miejsce": "rozdz. XV–XVIII",
+      "opis": "Wymagania wobec charakterów; w rozdz. XVI rodzaje rozpoznania (ze znamion zewnętrznych, umyślnie stworzone przez poetę, przez wspomnienie, przez rozumowanie, z mylnego wniosku; najlepsze wynika z samych zdarzeń); praktyczne rady: przenosić się w sytuację widzów, najpierw szkicować osnowę, starannie prowadzić zawiązanie i rozwiązanie."
+    },
+    {
+      "tytul": "Rozdz. XIX–XXII: myśl i wysłowienie",
+      "miejsce": "rozdz. XIX–XXII",
+      "opis": "Uwagi o sposobie rozwijania myśli (odesłanie do Retoryki) oraz o wysłowieniu, gramatyce i stylu."
+    },
+    {
+      "tytul": "Rozdz. XXIII–XXVI: epopeja i porównanie z tragedią",
+      "miejsce": "rozdz. XXIII–XXVI",
+      "opis": "Podobieństwa i różnice między epopeją a tragedią, rozwiązania zarzutów wobec poetów i w końcu uznanie wyższości tragedii."
+    }
   ],
   "zrodla": [
-    { "url": "https://wolnelektury.pl/katalog/lektura/arystoteles-poetyka/", "rodzaj": "utwór", "co": "Pobrany cały tekst (tłum. Stanisław Siedlecki, domena publiczna według noty WL); przeczytane streszczenie tłumacza, rozdz. VI, IX, XI, XIII, XIV w całości lub w dużej części; cytaty sprawdzone w tekście." }
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/arystoteles-poetyka/",
+      "rodzaj": "utwór",
+      "co": "Pobrany cały tekst (tłum. Stanisław Siedlecki, domena publiczna według noty WL); przeczytane streszczenie tłumacza, rozdz. VI, IX, XI, XIII, XIV w całości lub w dużej części; cytaty sprawdzone w tekście."
+    }
   ],
   "do_weryfikacji": [
     "Katalog podaje „Fragmenty” bez wykazu; zakres wymaganych na maturze rozdziałów nie został sprawdzony w źródle CKE; podano wszystkie rozdziały zachowanego tekstu.",

@@ -1,54 +1,476 @@
 {
   "id": "lilla-weneda",
   "wydarzenia": [
-    { "nr": 1, "miejsce": "akt I, sc. 1", "kto": ["Lech", "Gwinona", "Sygoń", "Gryf", "Derwid", "Lelum", "Polelum"], "gdzie": "pole nad Gopłem", "opis": "Po zwycięstwie Lech bierze do niewoli wenedzkiego króla Derwida z jego złotą harfą i synów Lelum i Polelum; Lech chce ich upokorzyć, a Gwinona uważa harfę za zaczarowaną." },
-    { "nr": 2, "miejsce": "akt I, sc. 2", "kto": ["Święty Gwalbert", "Ślaz"], "gdzie": "cela pustelnika w kształcie czaszki", "opis": "Pustelnik Gwalbert i jego sługa Ślaz rozmawiają w celi; Ślaz podpala ścianę i wychodzi z płonącej celi." },
-    { "nr": 3, "miejsce": "akt I, sc. 3", "kto": ["Lech", "Gwinona"], "gdzie": "sala w Rzymskiej Wieży", "opis": "Lech nie wie, co zrobić z nieugiętymi jeńcami, a Gwinona radzi się ich pozbyć, zarzucając mu, że przez swoją ostrożność dwa razy stracił podbite kraje." },
-    { "nr": 4, "miejsce": "akt II, sc. 1", "kto": ["Roza Weneda", "Ślaz"], "gdzie": "pobojowisko, noc", "opis": "Roza Weneda, wróżka i córka Derwida, pali na pobojowisku kości poległych rycerzy i śpiewa; spotyka ją Ślaz." },
-    { "nr": 5, "miejsce": "akt II, sc. 2", "kto": ["Lech", "Sygoń", "Lilla Weneda"], "gdzie": "sala w zamku Lecha", "opis": "Sygoń opowiada, jak Salmon, syn Lecha, zginął od uderzenia dwunastu złotych harf Wenedów, a Gwinona kazała Derwidowi wyłupić oczy; Lilla Weneda prosi Lecha o litość dla ojca." },
-    { "nr": 6, "miejsce": "akt II, sc. 3", "kto": ["Gwinona", "Krak", "Arfon", "Derwid"], "gdzie": "dziedziniec zamkowy", "opis": "Gwinona uczy własne dzieci okrucieństwa wobec przywiązanego do dębu Derwida." },
-    { "nr": 7, "miejsce": "akt III, sc. 1–2", "kto": ["Lech", "Sygoń", "Gwinona", "Ślaz"], "gdzie": "sala w zamku Lecha, brama zamku", "opis": "Lech wątpi, czy człowiek, który przybył jako rzekomy Salmon (Ślaz), jest synem; po sprawdzeniu (przy uczcie woła o ocet zamiast szabli) przekonuje się, że to oszust." },
-    { "nr": 8, "miejsce": "akt III, sc. 3", "kto": ["Lilla Weneda", "Lelum", "Polelum"], "gdzie": "pole przy lesie", "opis": "Lilla Weneda żegna Lelum i Polelum i obiecuje, że za trzy dni wróci z ojcem; mówi, że jest narzeczoną śmierci." },
-    { "nr": 9, "miejsce": "akt III, sc. 4–6", "kto": ["Gwinona", "Lech", "Derwid", "Ślaz", "Gryf"], "gdzie": "sala w zamku Lecha, dziedziniec", "opis": "Gwinona stawia Derwida przed harfą i chce go złamać; do Lecha dociera wieść, że Wenedzi schwytali jego najstarszego syna Lechona; Ślaz knuje przy bramie." },
-    { "nr": 10, "miejsce": "akt IV, sc. 1", "kto": ["Lilla Weneda", "Gwinona", "Lech", "Gryf"], "gdzie": "sala w zamku Lecha", "opis": "Lilla w „niezawiązanej koszuli” błaga o możliwość zobaczenia ojca, który jest głodzony; Gwinona nie wierzy w jej łzy, ale pozwala ją wpuścić do ciemnicy." },
-    { "nr": 11, "miejsce": "akt IV, sc. 2–3", "kto": ["Lilla Weneda", "Derwid", "Gwinona", "Lech"], "gdzie": "zamek Lecha", "opis": "Lilla karmi ojca liliami wodnymi; Gwinona wymienia harfę (jako zakład) na Lechona, a Lilla obiecuje wrócić po harfę jako niewolnica; Lech przysięga uszanować umowę." },
-    { "nr": 12, "miejsce": "akt IV, sc. 4", "kto": ["Roza Weneda", "Lechon", "Ślaz", "Lelum", "Polelum", "Derwid", "Lilla Weneda"], "gdzie": "grota wróżki", "opis": "Roza Weneda przesłuchuje Ślaza, który mówi, że Lilla i Derwid nie żyją; pojmany Lechon prosi o litość, a Roza wchodzi do lochu z nożem i wychodzi z zakrwawionym ostrzem, mówiąc, że to krew Lechona; Lilla i Derwid przybywają, a Lilla idzie ze Ślazem po harfę." },
-    { "nr": 13, "miejsce": "akt IV, sc. 5 (zakończenie)", "kto": ["Gwinona", "Lilla Weneda", "dziewice"], "gdzie": "sala w zamku Lecha", "opis": "Lilla wraca po harfę, a Gwinona pyta o syna; widząc, że Lilla milczy w rozpaczy, dusi ją pasem i każe wynieść ciało; potem odsyła Derwidowi skrzynię jako „harfę”." },
-    { "nr": 14, "miejsce": "akt V, sc. 1–2", "kto": ["Lech", "Święty Gwalbert", "Gwinona", "Ślaz"], "gdzie": "zamek Lecha, pole przed zamkiem", "opis": "Lech w burzy rusza do walki, Gwalbert obiecuje zwycięstwo w imię krzyża; Gwinona w żałobie zostaje, a Ślaz odbiera od dziewic skrzynię z „harfą” i niesie ją Wenedom." },
-    { "nr": 15, "miejsce": "akt V, sc. 3–4", "kto": ["Lech", "Sygoń"], "gdzie": "pole walki, noc", "opis": "Lech opowiada Sygoniowi o walce w burzy, a po śmierci Sygonia zabija wrogów i walczy dalej." },
-    { "nr": 16, "miejsce": "akt V, sc. 5", "kto": ["Derwid", "Roza Weneda", "Lelum", "Polelum", "harfiarze", "wodzowie"], "gdzie": "monument druidyczny w lesie", "opis": "Wenedzi czekają na harfę; Derwid, otworzywszy skrzynię, zamiast harfy znajduje ciało Lilli; zrozpaczony kończy życie nożem ofiarnym wołając o zemstę na Lechu." },
-    { "nr": 17, "miejsce": "akt V, sc. 6", "kto": ["Lech", "Gwinona", "Święty Gwalbert"], "gdzie": "pole walki, noc, burza", "opis": "Lech widzi, że Wenedzi są złamani; Gwinona w zbroi wychodzi szukać wodza Wenedów." },
-    { "nr": 18, "miejsce": "akt V, sc. 7", "kto": ["Lech", "Gryf"], "gdzie": "pole walki", "opis": "Gryf donosi, że Gwinona zginęła, gdy zbliżała się do stosu: czarni harfiarze zrzucili na nią z góry popielnice z prochami królów." },
-    { "nr": 19, "miejsce": "akt V, sc. 8", "kto": ["Roza Weneda", "Polelum", "Lelum", "Lech", "Święty Gwalbert"], "gdzie": "monument druidyczny, stos", "opis": "Polelum z trupem brata przykutym łańcuchem wchodzi na stos i prosi o piorun; Lech i Gwalbert przybywają z ofertą życia i wiary, a piorun zapala stos, Lelum i Polelum znikają w blasku, ukazuje się postać Bogarodzicy; Roza rzuca Lechowi pusty łańcuch." }
+    {
+      "nr": 1,
+      "miejsce": "akt I, sc. 1",
+      "kto": [
+        "Lech",
+        "Gwinona",
+        "Sygoń",
+        "Gryf",
+        "Derwid",
+        "Lelum",
+        "Polelum"
+      ],
+      "gdzie": "pole nad Gopłem",
+      "opis": "Po zwycięstwie Lech bierze do niewoli wenedzkiego króla Derwida z jego złotą harfą i synów Lelum i Polelum; Lech chce ich upokorzyć, a Gwinona uważa harfę za zaczarowaną."
+    },
+    {
+      "nr": 2,
+      "miejsce": "akt I, sc. 2",
+      "kto": [
+        "Święty Gwalbert",
+        "Ślaz"
+      ],
+      "gdzie": "cela pustelnika w kształcie czaszki",
+      "opis": "Pustelnik Gwalbert i jego sługa Ślaz rozmawiają w celi; Ślaz podpala ścianę i wychodzi z płonącej celi."
+    },
+    {
+      "nr": 3,
+      "miejsce": "akt I, sc. 3",
+      "kto": [
+        "Lech",
+        "Gwinona"
+      ],
+      "gdzie": "sala w Rzymskiej Wieży",
+      "opis": "Lech nie wie, co zrobić z nieugiętymi jeńcami, a Gwinona radzi się ich pozbyć, zarzucając mu, że przez swoją ostrożność dwa razy stracił podbite kraje."
+    },
+    {
+      "nr": 4,
+      "miejsce": "akt II, sc. 1",
+      "kto": [
+        "Roza Weneda",
+        "Ślaz"
+      ],
+      "gdzie": "pobojowisko, noc",
+      "opis": "Roza Weneda, wróżka i córka Derwida, pali na pobojowisku kości poległych rycerzy i śpiewa; spotyka ją Ślaz."
+    },
+    {
+      "nr": 5,
+      "miejsce": "akt II, sc. 2",
+      "kto": [
+        "Lech",
+        "Sygoń",
+        "Lilla Weneda"
+      ],
+      "gdzie": "sala w zamku Lecha",
+      "opis": "Sygoń opowiada, jak Salmon, syn Lecha, zginął od uderzenia dwunastu złotych harf Wenedów, a Gwinona kazała Derwidowi wyłupić oczy; Lilla Weneda prosi Lecha o litość dla ojca."
+    },
+    {
+      "nr": 6,
+      "miejsce": "akt II, sc. 3",
+      "kto": [
+        "Gwinona",
+        "Krak",
+        "Arfon",
+        "Derwid"
+      ],
+      "gdzie": "dziedziniec zamkowy",
+      "opis": "Gwinona uczy własne dzieci okrucieństwa wobec przywiązanego do dębu Derwida."
+    },
+    {
+      "nr": 7,
+      "miejsce": "akt III, sc. 1–2",
+      "kto": [
+        "Lech",
+        "Sygoń",
+        "Gwinona",
+        "Ślaz"
+      ],
+      "gdzie": "sala w zamku Lecha, brama zamku",
+      "opis": "Lech wątpi, czy człowiek, który przybył jako rzekomy Salmon (Ślaz), jest synem; po sprawdzeniu (przy uczcie woła o ocet zamiast szabli) przekonuje się, że to oszust."
+    },
+    {
+      "nr": 8,
+      "miejsce": "akt III, sc. 3",
+      "kto": [
+        "Lilla Weneda",
+        "Lelum",
+        "Polelum"
+      ],
+      "gdzie": "pole przy lesie",
+      "opis": "Lilla Weneda żegna Lelum i Polelum i obiecuje, że za trzy dni wróci z ojcem; mówi, że jest narzeczoną śmierci."
+    },
+    {
+      "nr": 9,
+      "miejsce": "akt III, sc. 4–6",
+      "kto": [
+        "Gwinona",
+        "Lech",
+        "Derwid",
+        "Ślaz",
+        "Gryf"
+      ],
+      "gdzie": "sala w zamku Lecha, dziedziniec",
+      "opis": "Gwinona stawia Derwida przed harfą i chce go złamać; do Lecha dociera wieść, że Wenedzi schwytali jego najstarszego syna Lechona; Ślaz knuje przy bramie."
+    },
+    {
+      "nr": 10,
+      "miejsce": "akt IV, sc. 1",
+      "kto": [
+        "Lilla Weneda",
+        "Gwinona",
+        "Lech",
+        "Gryf"
+      ],
+      "gdzie": "sala w zamku Lecha",
+      "opis": "Lilla w „niezawiązanej koszuli” błaga o możliwość zobaczenia ojca, który jest głodzony; Gwinona nie wierzy w jej łzy, ale pozwala ją wpuścić do ciemnicy."
+    },
+    {
+      "nr": 11,
+      "miejsce": "akt IV, sc. 2–3",
+      "kto": [
+        "Lilla Weneda",
+        "Derwid",
+        "Gwinona",
+        "Lech"
+      ],
+      "gdzie": "zamek Lecha",
+      "opis": "Lilla karmi ojca liliami wodnymi; Gwinona wymienia harfę (jako zakład) na Lechona, a Lilla obiecuje wrócić po harfę jako niewolnica; Lech przysięga uszanować umowę."
+    },
+    {
+      "nr": 12,
+      "miejsce": "akt IV, sc. 4",
+      "kto": [
+        "Roza Weneda",
+        "Lechon",
+        "Ślaz",
+        "Lelum",
+        "Polelum",
+        "Derwid",
+        "Lilla Weneda"
+      ],
+      "gdzie": "grota wróżki",
+      "opis": "Roza Weneda przesłuchuje Ślaza, który mówi, że Lilla i Derwid nie żyją; pojmany Lechon prosi o litość, a Roza wchodzi do lochu z nożem i wychodzi z zakrwawionym ostrzem, mówiąc, że to krew Lechona; Lilla i Derwid przybywają, a Lilla idzie ze Ślazem po harfę."
+    },
+    {
+      "nr": 13,
+      "miejsce": "akt IV, sc. 5 (zakończenie)",
+      "kto": [
+        "Gwinona",
+        "Lilla Weneda",
+        "dziewice"
+      ],
+      "gdzie": "sala w zamku Lecha",
+      "opis": "Lilla wraca po harfę, a Gwinona pyta o syna; widząc, że Lilla milczy w rozpaczy, dusi ją pasem i każe wynieść ciało; potem odsyła Derwidowi skrzynię jako „harfę”."
+    },
+    {
+      "nr": 14,
+      "miejsce": "akt V, sc. 1–2",
+      "kto": [
+        "Lech",
+        "Święty Gwalbert",
+        "Gwinona",
+        "Ślaz"
+      ],
+      "gdzie": "zamek Lecha, pole przed zamkiem",
+      "opis": "Lech w burzy rusza do walki, Gwalbert obiecuje zwycięstwo w imię krzyża; Gwinona w żałobie zostaje, a Ślaz odbiera od dziewic skrzynię z „harfą” i niesie ją Wenedom."
+    },
+    {
+      "nr": 15,
+      "miejsce": "akt V, sc. 3–4",
+      "kto": [
+        "Lech",
+        "Sygoń"
+      ],
+      "gdzie": "pole walki, noc",
+      "opis": "Lech opowiada Sygoniowi o walce w burzy, a po śmierci Sygonia zabija wrogów i walczy dalej."
+    },
+    {
+      "nr": 16,
+      "miejsce": "akt V, sc. 5",
+      "kto": [
+        "Derwid",
+        "Roza Weneda",
+        "Lelum",
+        "Polelum",
+        "harfiarze",
+        "wodzowie"
+      ],
+      "gdzie": "monument druidyczny w lesie",
+      "opis": "Wenedzi czekają na harfę; Derwid, otworzywszy skrzynię, zamiast harfy znajduje ciało Lilli; zrozpaczony kończy życie nożem ofiarnym wołając o zemstę na Lechu."
+    },
+    {
+      "nr": 17,
+      "miejsce": "akt V, sc. 6",
+      "kto": [
+        "Lech",
+        "Gwinona",
+        "Święty Gwalbert"
+      ],
+      "gdzie": "pole walki, noc, burza",
+      "opis": "Lech widzi, że Wenedzi są złamani; Gwinona w zbroi wychodzi szukać wodza Wenedów."
+    },
+    {
+      "nr": 18,
+      "miejsce": "akt V, sc. 7",
+      "kto": [
+        "Lech",
+        "Gryf"
+      ],
+      "gdzie": "pole walki",
+      "opis": "Gryf donosi, że Gwinona zginęła, gdy zbliżała się do stosu: czarni harfiarze zrzucili na nią z góry popielnice z prochami królów."
+    },
+    {
+      "nr": 19,
+      "miejsce": "akt V, sc. 8",
+      "kto": [
+        "Roza Weneda",
+        "Polelum",
+        "Lelum",
+        "Lech",
+        "Święty Gwalbert"
+      ],
+      "gdzie": "monument druidyczny, stos",
+      "opis": "Polelum z trupem brata przykutym łańcuchem wchodzi na stos i prosi o piorun; Lech i Gwalbert przybywają z ofertą życia i wiary, a piorun zapala stos, Lelum i Polelum znikają w blasku, ukazuje się postać Bogarodzicy; Roza rzuca Lechowi pusty łańcuch."
+    }
   ],
   "postacie": [
-    { "imie": "Lilla Weneda", "odmiany": ["Lilli Wenedy", "Lilli Wenedzie", "Lillę Wenedę", "Lillą Wenedą", "Lilla", "Lilli"], "rola": "córka Derwida, delikatna i łagodna harfiarka; poświęca się dla ojca i ginie z rąk Gwinony", "relacje": "córka Derwida, siostra Rozy, narzeczona Lelum (według tekstu)", "miejsca": ["zamek Lecha", "monument druidyczny"] },
-    { "imie": "Roza Weneda", "odmiany": ["Rozy Wenedy", "Rozie Wenedzie", "Rozę Wenedę", "Rozą Wenedą", "Roza", "Rozy"], "rola": "wróżka i córka Derwida, mściwa i bezwzględna; zabija Lechona", "relacje": "córka Derwida, siostra Lilli, Lelum i Polelum", "miejsca": ["pobojowisko", "grota wróżki", "monument druidyczny"] },
-    { "imie": "Derwid", "odmiany": ["Derwida", "Derwidowi", "Derwidem", "Derwidzie"], "rola": "ślepy król Wenedów i harfiarz; ginie po odkryciu ciała córki", "relacje": "ojciec Lilli, Rozy, Lelum i Polelum", "miejsca": ["zamek Lecha", "monument druidyczny"] },
-    { "imie": "Lelum i Polelum", "odmiany": ["Lelum", "Leluma", "Lelumowi", "Lelumem", "Polelum", "Poleluma", "Polelumowi", "Polelumem"], "rola": "synowie Derwida, skuci łańcuchem; giną w ogniu na stosie po uderzeniu pioruna", "relacje": "bracia Lilli i Rozy", "miejsca": ["pole walki", "stos"] },
-    { "imie": "Lech", "odmiany": ["Lecha", "Lechowi", "Lechem", "Lechu"], "rola": "król Lechitów, podbija Wenedów, ale miękki w obliczu litości", "relacje": "mąż Gwinony, ojciec Salmona, Lechona, Kraka i Arfona", "miejsca": ["Gopło", "zamek Lecha"] },
-    { "imie": "Gwinona", "odmiany": ["Gwinony", "Gwinonie", "Gwinoną", "Gwinono"], "rola": "żona Lecha, okrutna i mściwa; dusi Lillę i ginie od popielnic", "relacje": "żona Lecha, matka Lechona, Kraka i Arfona", "miejsca": ["zamek Lecha"] },
-    { "imie": "Lechon", "odmiany": ["Lechona", "Lechonowi", "Lechonem"], "rola": "najstarszy syn Lecha, pojmany przez Wenedów i zabity przez Rozę", "relacje": "syn Lecha i Gwinony", "miejsca": ["loch w grocie"] },
-    { "imie": "Salmon", "odmiany": ["Salmona", "Salmonowi", "Salmonem"], "rola": "syn Lecha, zginął od uderzenia harf; jego imię przyjmuje oszust Ślaz", "relacje": "syn Lecha", "miejsca": ["wzgórze Derwida"] },
-    { "imie": "Sygoń i Gryf", "odmiany": ["Sygonia", "Sygoniowi", "Sygoniem", "Sygoniu", "Gryfa", "Gryfowi", "Gryfem"], "rola": "Lechici, zaufani rycerze Lecha; Sygoń ginie w walce", "relacje": "podwładni Lecha", "miejsca": ["zamek Lecha", "pole walki"] },
-    { "imie": "Święty Gwalbert", "odmiany": ["Gwalberta", "Gwalbertowi", "Gwalbertem"], "rola": "pustelnik-chrześcijanin, zapowiada zwycięstwo w imię krzyża; na koniec wskazuje na ukazanie Bogarodzicy", "relacje": "pan Ślaza", "miejsca": ["cela w kształcie czaszki", "stos"] },
-    { "imie": "Ślaz", "odmiany": ["Ślaza", "Ślazowi", "Ślazem", "Ślazie"], "rola": "sługa Gwalberta, tchórzliwy sprytny oszust; udaje Salmona, przynosi Wenedom skrzynię z ciałem", "relacje": "sługa Gwalberta", "miejsca": ["zamek Lecha", "grota Rozy"] },
-    { "imie": "Krak i Arfon", "odmiany": ["Kraka", "Krakowi", "Arfona", "Arfonowi"], "rola": "młodsi synowie Lecha, wychowywani przez Gwinonę w okrucieństwie", "relacje": "synowie Lecha i Gwinony", "miejsca": ["zamek Lecha"] }
+    {
+      "imie": "Lilla Weneda",
+      "odmiany": [
+        "Lilli Wenedy",
+        "Lilli Wenedzie",
+        "Lillę Wenedę",
+        "Lillą Wenedą",
+        "Lilla",
+        "Lilli"
+      ],
+      "rola": "córka Derwida, delikatna i łagodna harfiarka; poświęca się dla ojca i ginie z rąk Gwinony",
+      "relacje": "córka Derwida, siostra Rozy, narzeczona Lelum (według tekstu)",
+      "miejsca": [
+        "zamek Lecha",
+        "monument druidyczny"
+      ]
+    },
+    {
+      "imie": "Roza Weneda",
+      "odmiany": [
+        "Rozy Wenedy",
+        "Rozie Wenedzie",
+        "Rozę Wenedę",
+        "Rozą Wenedą",
+        "Roza",
+        "Rozy"
+      ],
+      "rola": "wróżka i córka Derwida, mściwa i bezwzględna; zabija Lechona",
+      "relacje": "córka Derwida, siostra Lilli, Lelum i Polelum",
+      "miejsca": [
+        "pobojowisko",
+        "grota wróżki",
+        "monument druidyczny"
+      ]
+    },
+    {
+      "imie": "Derwid",
+      "odmiany": [
+        "Derwida",
+        "Derwidowi",
+        "Derwidem",
+        "Derwidzie"
+      ],
+      "rola": "ślepy król Wenedów i harfiarz; ginie po odkryciu ciała córki",
+      "relacje": "ojciec Lilli, Rozy, Lelum i Polelum",
+      "miejsca": [
+        "zamek Lecha",
+        "monument druidyczny"
+      ]
+    },
+    {
+      "imie": "Lelum i Polelum",
+      "odmiany": [
+        "Lelum",
+        "Leluma",
+        "Lelumowi",
+        "Lelumem",
+        "Polelum",
+        "Poleluma",
+        "Polelumowi",
+        "Polelumem"
+      ],
+      "rola": "synowie Derwida, skuci łańcuchem; giną w ogniu na stosie po uderzeniu pioruna",
+      "relacje": "bracia Lilli i Rozy",
+      "miejsca": [
+        "pole walki",
+        "stos"
+      ]
+    },
+    {
+      "imie": "Lech",
+      "odmiany": [
+        "Lecha",
+        "Lechowi",
+        "Lechem",
+        "Lechu"
+      ],
+      "rola": "król Lechitów, podbija Wenedów, ale miękki w obliczu litości",
+      "relacje": "mąż Gwinony, ojciec Salmona, Lechona, Kraka i Arfona",
+      "miejsca": [
+        "Gopło",
+        "zamek Lecha"
+      ]
+    },
+    {
+      "imie": "Gwinona",
+      "odmiany": [
+        "Gwinony",
+        "Gwinonie",
+        "Gwinoną",
+        "Gwinono"
+      ],
+      "rola": "żona Lecha, okrutna i mściwa; dusi Lillę i ginie od popielnic",
+      "relacje": "żona Lecha, matka Lechona, Kraka i Arfona",
+      "miejsca": [
+        "zamek Lecha"
+      ]
+    },
+    {
+      "imie": "Lechon",
+      "odmiany": [
+        "Lechona",
+        "Lechonowi",
+        "Lechonem"
+      ],
+      "rola": "najstarszy syn Lecha, pojmany przez Wenedów i zabity przez Rozę",
+      "relacje": "syn Lecha i Gwinony",
+      "miejsca": [
+        "loch w grocie"
+      ]
+    },
+    {
+      "imie": "Salmon",
+      "odmiany": [
+        "Salmona",
+        "Salmonowi",
+        "Salmonem"
+      ],
+      "rola": "syn Lecha, zginął od uderzenia harf; jego imię przyjmuje oszust Ślaz",
+      "relacje": "syn Lecha",
+      "miejsca": [
+        "wzgórze Derwida"
+      ]
+    },
+    {
+      "imie": "Sygoń i Gryf",
+      "odmiany": [
+        "Sygonia",
+        "Sygoniowi",
+        "Sygoniem",
+        "Sygoniu",
+        "Gryfa",
+        "Gryfowi",
+        "Gryfem"
+      ],
+      "rola": "Lechici, zaufani rycerze Lecha; Sygoń ginie w walce",
+      "relacje": "podwładni Lecha",
+      "miejsca": [
+        "zamek Lecha",
+        "pole walki"
+      ]
+    },
+    {
+      "imie": "Święty Gwalbert",
+      "odmiany": [
+        "Gwalberta",
+        "Gwalbertowi",
+        "Gwalbertem"
+      ],
+      "rola": "pustelnik-chrześcijanin, zapowiada zwycięstwo w imię krzyża; na koniec wskazuje na ukazanie Bogarodzicy",
+      "relacje": "pan Ślaza",
+      "miejsca": [
+        "cela w kształcie czaszki",
+        "stos"
+      ]
+    },
+    {
+      "imie": "Ślaz",
+      "odmiany": [
+        "Ślaza",
+        "Ślazowi",
+        "Ślazem",
+        "Ślazie"
+      ],
+      "rola": "sługa Gwalberta, tchórzliwy sprytny oszust; udaje Salmona, przynosi Wenedom skrzynię z ciałem",
+      "relacje": "sługa Gwalberta",
+      "miejsca": [
+        "zamek Lecha",
+        "grota Rozy"
+      ]
+    },
+    {
+      "imie": "Krak i Arfon",
+      "odmiany": [
+        "Kraka",
+        "Krakowi",
+        "Arfona",
+        "Arfonowi"
+      ],
+      "rola": "młodsi synowie Lecha, wychowywani przez Gwinonę w okrucieństwie",
+      "relacje": "synowie Lecha i Gwinony",
+      "miejsca": [
+        "zamek Lecha"
+      ]
+    }
   ],
   "motywy": [
-    { "motyw": "poświęcenie i niewinność wobec okrucieństwa", "przyklad": "Lilla karmi ojca liliami wodnymi i wraca do Gwinony, choć grozi jej śmierć; Gwinona dusi ją pasem.", "miejsce": "akt IV, sc. 2–5", "cytat": "Ty wiesz, ja dotąd nigdy nie skłamałam." },
-    { "motyw": "zemsta rodzi zemstę (spirala przemocy)", "przyklad": "Śmierć Salmona rodzi okrucieństwa Gwinony, a te zemstę Rozy; zabójstwo Lechona zostaje wykonane nożem Rozy, a Gwinona ginie od popielnic.", "miejsce": "akt IV, sc. 4; akt V, sc. 7", "cytat": "Czerwieńszą znajdę krew w sercu gołębia." },
-    { "motyw": "dwie siostry – litość i zemsta", "przyklad": "Lilla (łagodna) i Roza (mściwa wróżka) stoją po dwóch stronach postawy wobec wroga: jedna prosi o litość, druga zabija jeńca.", "miejsce": "akt IV, sc. 4", "cytat": "" },
-    { "motyw": "harfa – siła pieśni i narodowej tożsamości", "przyklad": "Wenedzi wierzą, że pieśń Derwida da im zwycięstwo; gdy w skrzyni zamiast harfy znajdują ciało Lilli, ich nadzieja się załamuje.", "miejsce": "akt V, sc. 5", "cytat": "" },
-    { "motyw": "ojciec i córka: ślepy król i dziecko", "przyklad": "Derwid, ślepy i zagłodzony, rozpoznaje dotykiem ciało córki w skrzyni i mówi o niej jako o „gołąbku”.", "miejsce": "akt V, sc. 5", "cytat": "" },
-    { "motyw": "okrucieństwo kobiety-matki (Gwinona)", "przyklad": "Gwinona pod pozorem miłości do syna Lechona dusi Lillę i uczy własne dzieci znęcać się nad Derwidem.", "miejsce": "akt II, sc. 3; akt IV, sc. 5", "cytat": "" },
-    { "motyw": "chrześcijaństwo kontra pogańska wiara Wenedów", "przyklad": "Gwalbert zapowiada zwycięstwo „w imię krzyża”, a Polelum przed śmiercią skarży się Bogu, że dają mu „życie i wiarę” po klęsce; piorun zapala stos i ukazuje się Bogarodzica.", "miejsce": "akt V, sc. 8", "cytat": "Ave, Nieśmiertelna!" },
-    { "motyw": "podstęp i tchórzostwo (Ślaz)", "przyklad": "Ślaz udaje Salmona i, wołając „Octu!” po ciosie talerzem, zdradza oszustwo; później niesie skrzynię z ciałem, nie wiedząc, co niesie.", "miejsce": "akt III, sc. 5; akt V, sc. 2", "cytat": "" },
-    { "motyw": "ofiara bez zwycięstwa (tragedia narodu)", "przyklad": "Mimo przysięgi zemsty Wenedzi giną, a Roza rzuca Lechowi pusty łańcuch jako dowód, że pozostało mu tylko puste zwycięstwo.", "miejsce": "akt V, sc. 8 (zakończenie)", "cytat": "Patrz! co zostało z twoich niewolników!" }
+    {
+      "motyw": "poświęcenie i niewinność wobec okrucieństwa",
+      "przyklad": "Lilla karmi ojca liliami wodnymi i wraca do Gwinony, choć grozi jej śmierć; Gwinona dusi ją pasem.",
+      "miejsce": "akt IV, sc. 2–5",
+      "cytat": "Ty wiesz, ja dotąd nigdy nie skłamałam."
+    },
+    {
+      "motyw": "zemsta rodzi zemstę (spirala przemocy)",
+      "przyklad": "Śmierć Salmona rodzi okrucieństwa Gwinony, a te zemstę Rozy; zabójstwo Lechona zostaje wykonane nożem Rozy, a Gwinona ginie od popielnic.",
+      "miejsce": "akt IV, sc. 4; akt V, sc. 7",
+      "cytat": "Czerwieńszą znajdę krew w sercu gołębia."
+    },
+    {
+      "motyw": "dwie siostry – litość i zemsta",
+      "przyklad": "Lilla (łagodna) i Roza (mściwa wróżka) stoją po dwóch stronach postawy wobec wroga: jedna prosi o litość, druga zabija jeńca.",
+      "miejsce": "akt IV, sc. 4"
+    },
+    {
+      "motyw": "harfa – siła pieśni i narodowej tożsamości",
+      "przyklad": "Wenedzi wierzą, że pieśń Derwida da im zwycięstwo; gdy w skrzyni zamiast harfy znajdują ciało Lilli, ich nadzieja się załamuje.",
+      "miejsce": "akt V, sc. 5"
+    },
+    {
+      "motyw": "ojciec i córka: ślepy król i dziecko",
+      "przyklad": "Derwid, ślepy i zagłodzony, rozpoznaje dotykiem ciało córki w skrzyni i mówi o niej jako o „gołąbku”.",
+      "miejsce": "akt V, sc. 5"
+    },
+    {
+      "motyw": "okrucieństwo kobiety-matki (Gwinona)",
+      "przyklad": "Gwinona pod pozorem miłości do syna Lechona dusi Lillę i uczy własne dzieci znęcać się nad Derwidem.",
+      "miejsce": "akt II, sc. 3; akt IV, sc. 5"
+    },
+    {
+      "motyw": "chrześcijaństwo kontra pogańska wiara Wenedów",
+      "przyklad": "Gwalbert zapowiada zwycięstwo „w imię krzyża”, a Polelum przed śmiercią skarży się Bogu, że dają mu „życie i wiarę” po klęsce; piorun zapala stos i ukazuje się Bogarodzica.",
+      "miejsce": "akt V, sc. 8",
+      "cytat": "Ave, Nieśmiertelna!"
+    },
+    {
+      "motyw": "podstęp i tchórzostwo (Ślaz)",
+      "przyklad": "Ślaz udaje Salmona i, wołając „Octu!” po ciosie talerzem, zdradza oszustwo; później niesie skrzynię z ciałem, nie wiedząc, co niesie.",
+      "miejsce": "akt III, sc. 5; akt V, sc. 2"
+    },
+    {
+      "motyw": "ofiara bez zwycięstwa (tragedia narodu)",
+      "przyklad": "Mimo przysięgi zemsty Wenedzi giną, a Roza rzuca Lechowi pusty łańcuch jako dowód, że pozostało mu tylko puste zwycięstwo.",
+      "miejsce": "akt V, sc. 8 (zakończenie)",
+      "cytat": "Patrz! co zostało z twoich niewolników!"
+    }
   ],
   "utwory": [],
   "zrodla": [
-    { "url": "https://wolnelektury.pl/katalog/lektura/slowacki-lilla-weneda/", "rodzaj": "utwór", "co": "Pobrany cały tekst (domena publiczna); przeczytane osobowe, wszystkie didaskalia miejsc, akt V, sc. 5–8 i kluczowe sceny z aktów I, II, IV, V; cytaty sprawdzone w tekście." }
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/slowacki-lilla-weneda/",
+      "rodzaj": "utwór",
+      "co": "Pobrany cały tekst (domena publiczna); przeczytane osobowe, wszystkie didaskalia miejsc, akt V, sc. 5–8 i kluczowe sceny z aktów I, II, IV, V; cytaty sprawdzone w tekście."
+    }
   ],
   "do_weryfikacji": [
     "Treść sc. 4–6 aktu III oraz sc. 3–4 aktu V przeczytana tylko wyrywkowo; streszczenia tych scen są skrótowe.",

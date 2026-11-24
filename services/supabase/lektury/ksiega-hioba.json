@@ -1,35 +1,202 @@
 {
   "id": "ksiega-hioba",
   "wydarzenia": [
-    {"nr": 1, "miejsce": "Hi 1–2 (prolog)", "kto": ["Hiob", "Bóg", "Szatan"], "gdzie": "ziemia Us; niebiosa", "opis": "Hiob, człowiek sprawiedliwy i bogaty, zostaje poddany próbie: Szatan z dopuszczeniem Boga odbiera mu dzieci, majątek i zdrowie."},
-    {"nr": 2, "miejsce": "Hi 2,11–13", "kto": ["Hiob", "Elifaz", "Bildad", "Sofar"], "gdzie": "ziemia Us", "opis": "Trzej przyjaciele Hioba przychodzą go pocieszyć i siedzą z nim siedem dni w milczeniu."},
-    {"nr": 3, "miejsce": "Hi 3", "kto": ["Hiob"], "gdzie": "ziemia Us", "opis": "Hiob przerywa milczenie i przeklina dzień swoich narodzin."},
-    {"nr": 4, "miejsce": "Hi 4–27", "kto": ["Hiob", "Elifaz", "Bildad", "Sofar"], "gdzie": "ziemia Us", "opis": "Przyjaciele i Hiob wymieniają się mowami: przyjaciele twierdzą, że cierpienie jest karą za grzech, a Hiob broni swojej niewinności."},
-    {"nr": 5, "miejsce": "Hi 32–37", "kto": ["Elihu", "Hiob"], "gdzie": "ziemia Us", "opis": "Młody Elihu przemawia po przyjaciołach Hioba, wskazując na pouczający sens cierpienia."},
-    {"nr": 6, "miejsce": "Hi 38–41", "kto": ["Bóg", "Hiob"], "gdzie": "burza", "opis": "Bóg odpowiada Hiobowi z burzy, pytając go o tajemnice stworzenia, i nie tłumaczy mu przyczyn cierpienia."},
-    {"nr": 7, "miejsce": "Hi 42", "kto": ["Hiob", "Bóg", "przyjaciele"], "gdzie": "ziemia Us", "opis": "Hiob uznaje wielkość Boga, a Bóg go przywraca: odzyskuje zdrowie, majątek i dzieci, a przyjaciele zostają skarceni."}
+    {
+      "nr": 1,
+      "miejsce": "Hi 1–2 (prolog)",
+      "kto": [
+        "Hiob",
+        "Bóg",
+        "Szatan"
+      ],
+      "gdzie": "ziemia Us; niebiosa",
+      "opis": "Hiob, człowiek sprawiedliwy i bogaty, zostaje poddany próbie: Szatan z dopuszczeniem Boga odbiera mu dzieci, majątek i zdrowie."
+    },
+    {
+      "nr": 2,
+      "miejsce": "Hi 2,11–13",
+      "kto": [
+        "Hiob",
+        "Elifaz",
+        "Bildad",
+        "Sofar"
+      ],
+      "gdzie": "ziemia Us",
+      "opis": "Trzej przyjaciele Hioba przychodzą go pocieszyć i siedzą z nim siedem dni w milczeniu."
+    },
+    {
+      "nr": 3,
+      "miejsce": "Hi 3",
+      "kto": [
+        "Hiob"
+      ],
+      "gdzie": "ziemia Us",
+      "opis": "Hiob przerywa milczenie i przeklina dzień swoich narodzin."
+    },
+    {
+      "nr": 4,
+      "miejsce": "Hi 4–27",
+      "kto": [
+        "Hiob",
+        "Elifaz",
+        "Bildad",
+        "Sofar"
+      ],
+      "gdzie": "ziemia Us",
+      "opis": "Przyjaciele i Hiob wymieniają się mowami: przyjaciele twierdzą, że cierpienie jest karą za grzech, a Hiob broni swojej niewinności."
+    },
+    {
+      "nr": 5,
+      "miejsce": "Hi 32–37",
+      "kto": [
+        "Elihu",
+        "Hiob"
+      ],
+      "gdzie": "ziemia Us",
+      "opis": "Młody Elihu przemawia po przyjaciołach Hioba, wskazując na pouczający sens cierpienia."
+    },
+    {
+      "nr": 6,
+      "miejsce": "Hi 38–41",
+      "kto": [
+        "Bóg",
+        "Hiob"
+      ],
+      "gdzie": "burza",
+      "opis": "Bóg odpowiada Hiobowi z burzy, pytając go o tajemnice stworzenia, i nie tłumaczy mu przyczyn cierpienia."
+    },
+    {
+      "nr": 7,
+      "miejsce": "Hi 42",
+      "kto": [
+        "Hiob",
+        "Bóg",
+        "przyjaciele"
+      ],
+      "gdzie": "ziemia Us",
+      "opis": "Hiob uznaje wielkość Boga, a Bóg go przywraca: odzyskuje zdrowie, majątek i dzieci, a przyjaciele zostają skarceni."
+    }
   ],
   "postacie": [
-    {"imie": "Hiob", "odmiany": ["Hiob", "Hioba", "Hiobowi", "Hiobem"], "rola": "człowiek sprawiedliwy, poddany próbie cierpienia", "relacje": "przyjaciel Elifaza, Bildada i Sofara; rozmówca Boga", "miejsca": ["Hi 1–2", "Hi 3", "Hi 42"]},
-    {"imie": "Bóg", "odmiany": ["Bóg", "Boga", "Bogu", "Pan"], "rola": "dopuszcza próbę Hioba i odpowiada mu z burzy", "relacje": "rozmawia z Szatanem i z Hiobem", "miejsca": ["Hi 1", "Hi 38–41"]},
-    {"imie": "Szatan", "odmiany": ["Szatan", "Szatana", "Szatanowi"], "rola": "oskarżyciel, który prosi o pozwolenie na próbę Hioba", "relacje": "rozmawia z Bogiem w prologu", "miejsca": ["Hi 1–2"]},
-    {"imie": "Elifaz, Bildad i Sofar", "odmiany": ["Elifaz", "Elifaza", "Bildad", "Bildada", "Sofar", "Sofara"], "rola": "trzej przyjaciele Hioba, którzy tłumaczą jego cierpienie grzechem", "relacje": "przyjaciele Hioba", "miejsca": ["Hi 2,11–13", "Hi 4–27"]},
-    {"imie": "Elihu", "odmiany": ["Elihu", "Elihua"], "rola": "młodszy rozmówca, który przemawia po przyjaciołach", "relacje": "rozmawia z Hiobem", "miejsca": ["Hi 32–37"]}
+    {
+      "imie": "Hiob",
+      "odmiany": [
+        "Hiob",
+        "Hioba",
+        "Hiobowi",
+        "Hiobem"
+      ],
+      "rola": "człowiek sprawiedliwy, poddany próbie cierpienia",
+      "relacje": "przyjaciel Elifaza, Bildada i Sofara; rozmówca Boga",
+      "miejsca": [
+        "Hi 1–2",
+        "Hi 3",
+        "Hi 42"
+      ]
+    },
+    {
+      "imie": "Bóg",
+      "odmiany": [
+        "Bóg",
+        "Boga",
+        "Bogu",
+        "Pan"
+      ],
+      "rola": "dopuszcza próbę Hioba i odpowiada mu z burzy",
+      "relacje": "rozmawia z Szatanem i z Hiobem",
+      "miejsca": [
+        "Hi 1",
+        "Hi 38–41"
+      ]
+    },
+    {
+      "imie": "Szatan",
+      "odmiany": [
+        "Szatan",
+        "Szatana",
+        "Szatanowi"
+      ],
+      "rola": "oskarżyciel, który prosi o pozwolenie na próbę Hioba",
+      "relacje": "rozmawia z Bogiem w prologu",
+      "miejsca": [
+        "Hi 1–2"
+      ]
+    },
+    {
+      "imie": "Elifaz, Bildad i Sofar",
+      "odmiany": [
+        "Elifaz",
+        "Elifaza",
+        "Bildad",
+        "Bildada",
+        "Sofar",
+        "Sofara"
+      ],
+      "rola": "trzej przyjaciele Hioba, którzy tłumaczą jego cierpienie grzechem",
+      "relacje": "przyjaciele Hioba",
+      "miejsca": [
+        "Hi 2,11–13",
+        "Hi 4–27"
+      ]
+    },
+    {
+      "imie": "Elihu",
+      "odmiany": [
+        "Elihu",
+        "Elihua"
+      ],
+      "rola": "młodszy rozmówca, który przemawia po przyjaciołach",
+      "relacje": "rozmawia z Hiobem",
+      "miejsca": [
+        "Hi 32–37"
+      ]
+    }
   ],
   "motywy": [
-    {"motyw": "cierpienie człowieka niewinnego", "przyklad": "Hiob traci dzieci, majątek i zdrowie, mimo że jest sprawiedliwy.", "miejsce": "Hi 1–2"},
-    {"motyw": "spór o sens cierpienia i teodycea", "przyklad": "Przyjaciele tłumaczą cierpienie grzechem, a Hiob domaga się wyjaśnienia od Boga.", "miejsce": "Hi 4–27"},
-    {"motyw": "samotność i niezrozumienie przez bliskich", "przyklad": "Przyjaciele zamiast pocieszać, oskarżają Hioba o ukrytą winę.", "miejsce": "Hi 4–27"},
-    {"motyw": "tajemnica Bożego planu", "przyklad": "Bóg, odpowiadając z burzy, pyta o stworzenie świata i nie podaje przyczyny cierpienia.", "miejsce": "Hi 38–41"},
-    {"motyw": "pokora i zaufanie wobec Boga", "przyklad": "Hiob uznaje wielkość Boga i zostaje przywrócony do dawnej pozycji.", "miejsce": "Hi 42"},
-    {"motyw": "próba wiary", "przyklad": "Szatan twierdzi, że Hiob jest pobożny tylko dlatego, że mu się dobrze wiedzie, więc Bóg dopuszcza próbę.", "miejsce": "Hi 1–2"}
+    {
+      "motyw": "cierpienie człowieka niewinnego",
+      "przyklad": "Hiob traci dzieci, majątek i zdrowie, mimo że jest sprawiedliwy.",
+      "miejsce": "Hi 1–2"
+    },
+    {
+      "motyw": "spór o sens cierpienia i teodycea",
+      "przyklad": "Przyjaciele tłumaczą cierpienie grzechem, a Hiob domaga się wyjaśnienia od Boga.",
+      "miejsce": "Hi 4–27"
+    },
+    {
+      "motyw": "samotność i niezrozumienie przez bliskich",
+      "przyklad": "Przyjaciele zamiast pocieszać, oskarżają Hioba o ukrytą winę.",
+      "miejsce": "Hi 4–27"
+    },
+    {
+      "motyw": "tajemnica Bożego planu",
+      "przyklad": "Bóg, odpowiadając z burzy, pyta o stworzenie świata i nie podaje przyczyny cierpienia.",
+      "miejsce": "Hi 38–41"
+    },
+    {
+      "motyw": "pokora i zaufanie wobec Boga",
+      "przyklad": "Hiob uznaje wielkość Boga i zostaje przywrócony do dawnej pozycji.",
+      "miejsce": "Hi 42"
+    },
+    {
+      "motyw": "próba wiary",
+      "przyklad": "Szatan twierdzi, że Hiob jest pobożny tylko dlatego, że mu się dobrze wiedzie, więc Bóg dopuszcza próbę.",
+      "miejsce": "Hi 1–2"
+    }
   ],
   "utwory": [],
-  "zrodla": [],
+  "zrodla": [
+    {
+      "url": "https://biblia.deon.pl/",
+      "rodzaj": "utwór",
+      "co": "Biblia Tysiąclecia, tekst do sprawdzenia opisanych fragmentów"
+    }
+  ],
   "do_weryfikacji": [
     "Plik nie był sprawdzany w żadnym źródle online ani w wydaniu Biblii; powstał z ogólnej znajomości Księgi Hioba i wymaga weryfikacji (np. w Biblii Tysiąclecia).",
     "Cytatów nie podano, bo tekst współczesnych polskich wydań Biblii jest objęty prawem autorskim.",
     "Zakres „fragmentów” Księgi Hioba wymaganych na maturze nie jest ustalony w katalogu; w danych ujęto przebieg całej księgi.",
-    "Podział na rozdziały mów (Hi 4–27, Hi 32–37) jest przybliżony."
+    "Podział na rozdziały mów (Hi 4–27, Hi 32–37) jest przybliżony.",
+    "Opis nie został porównany z tekstem Biblii przy zapisie; sprawdzić rozdziały i wersety."
   ]
 }

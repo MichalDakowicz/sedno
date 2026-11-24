@@ -1,46 +1,356 @@
 {
   "id": "chmury",
   "wydarzenia": [
-    { "nr": 1, "miejsce": "prolog, sc. I–III", "kto": ["Wykrętowic (Strepsjades)", "Ksantias", "Odrzykoń (Fidippides)"], "gdzie": "Ateny, plac między domem Wykrętowica a uczelnią Sokratesa", "opis": "O świcie Wykrętowic nie może spać, bo nęka go zbliżający się termin spłaty długów zaciągniętych przez rozrzutność żony i miłość syna do wyścigów konnych." },
-    { "nr": 2, "miejsce": "prolog, sc. III–IV", "kto": ["Wykrętowic", "Odrzykoń"], "gdzie": "Ateny, plac przed domem", "opis": "Wykrętowic namawia syna, żeby wstąpił do szkoły Sokratesa, gdzie nauczy się mówić tak, by wygrywać wszystkie procesy; Odrzykoń odmawia." },
-    { "nr": 3, "miejsce": "sc. V–VI", "kto": ["Wykrętowic", "Uczeń Sokratesa", "Sokrates"], "gdzie": "przed domem Sokratesa (Myślarnia)", "opis": "Wykrętowic sam idzie do „pomysłowni” Sokratesa, rozmawia z uczniem i z Sokratesem, który unosi się w koszu i bada niebo." },
-    { "nr": 4, "miejsce": "sc. VII–IX; parodos", "kto": ["Sokrates", "Wykrętowic", "Chór Chmur"], "gdzie": "przed uczelnią Sokratesa", "opis": "Sokrates wzywa Chmury jako nowych bogów; chór wchodzi na scenę, a Wykrętowic zostaje wprowadzony w naukę o Chmurach zamiast starych bogów." },
-    { "nr": 5, "miejsce": "sc. X–XIII", "kto": ["Sokrates", "Wykrętowic", "Chór Chmur"], "gdzie": "uczelnia Sokratesa", "opis": "Sokrates uczy Wykrętowica, ale stary okazuje się tępy i zbyt zacofany; Sokrates wypędza go ze szkoły." },
-    { "nr": 6, "miejsce": "sc. XIV–XVI", "kto": ["Wykrętowic", "Chór Chmur"], "gdzie": "przed uczelnią", "opis": "Wykrętowic w rozpaczy radzi się Chmur; Arcychmura każe mu zmusić syna do nauki u Sokratesa." },
-    { "nr": 7, "miejsce": "sc. XVI–XVII", "kto": ["Wykrętowic", "Odrzykoń", "Sokrates"], "gdzie": "przed uczelnią", "opis": "Wykrętowic grozi synowi wypędzeniem z domu, więc ten niechętnie idzie do Sokratesa." },
-    { "nr": 8, "miejsce": "sc. XVIII–XIX (agon)", "kto": ["Rzecznik Prawy", "Rzecznik Nieprawy", "Odrzykoń", "Wykrętowic"], "gdzie": "przed uczelnią", "opis": "Stary, „prawy” sposób wychowania (Rzecznik Prawy) spiera się z modnym „nieprawym” (Rzecznik Nieprawy); wygrywa Rzecznik Nieprawy, a Odrzykoń wybiera jego naukę." },
-    { "nr": 9, "miejsce": "sc. XX–XXIII (po parabazie)", "kto": ["Chór", "Sokrates", "Wykrętowic", "Odrzykoń"], "gdzie": "przed uczelnią", "opis": "Odrzykoń uczy się sofistyki, a po jakimś czasie Sokrates oddaje go ojcu jako „wyzwolonego” ucznia." },
-    { "nr": 10, "miejsce": "sc. XXIV–XXVI", "kto": ["Wykrętowic", "Sokrates", "Odrzykoń", "Chór"], "gdzie": "przed uczelnią", "opis": "Wykrętowic wychodzi z domu z workiem mąki dla Sokratesa; Sokrates oddaje mu syna, który wraca brudny, chudy i obdarty (ojciec początkowo go nie poznaje), a Wykrętowic cieszy się, że syn nauczył się sztuki wykrętów." },
-    { "nr": 11, "miejsce": "sc. XXVII–XXIX", "kto": ["Wykrętowic", "Pasjas", "Amynias", "Świadek"], "gdzie": "przed domem Sokratesa", "opis": "Do Wykrętowica przychodzą lichwiarze Pasjas i Amynias z żądaniem spłaty; pewny sztuki syna, odprawia ich batogiem i drwinami." },
-    { "nr": 12, "miejsce": "sc. XXX", "kto": ["Wykrętowic", "Odrzykoń"], "gdzie": "przed domem Wykrętowica", "opis": "Po uczcie wynikła sprzeczka o Eurypidesa, a Odrzykoń bije ojca i dowodzi, że ma do tego prawo; Wykrętowic krzyczy o pomoc." },
-    { "nr": 13, "miejsce": "sc. XXXI–XXXII", "kto": ["Wykrętowic", "Odrzykoń", "Chór"], "gdzie": "przed domem Wykrętowica", "opis": "Odrzykoń przekonuje, że można bić nawet matkę; Wykrętowic uświadamia sobie, że jego plan zawiódł, i obwinia Sokratesa." },
-    { "nr": 14, "miejsce": "sc. XXXIII", "kto": ["Wykrętowic", "Chór", "niewolnicy"], "gdzie": "przed domem Wykrętowica", "opis": "Wykrętowic przeprasza posąg Hermesa, na jego radę postanawia podpalić „gniazdo warchołów” i każe służbie przynieść drabinę i osękę." },
-    { "nr": 15, "miejsce": "sc. XXXIV (exodos)", "kto": ["Wykrętowic", "uczniowie", "Chajrefont", "Sokrates"], "gdzie": "dach uczelni Sokratesa", "opis": "Wykrętowic wchodzi na dach uczelni i podpala ją, a uczniowie, Chajrefont i Sokrates wybiegają lub wołają o ratunek; tak kończy się komedia." }
+    {
+      "nr": 1,
+      "miejsce": "prolog, sc. I–III",
+      "kto": [
+        "Wykrętowic (Strepsjades)",
+        "Ksantias",
+        "Odrzykoń (Fidippides)"
+      ],
+      "gdzie": "Ateny, plac między domem Wykrętowica a uczelnią Sokratesa",
+      "opis": "O świcie Wykrętowic nie może spać, bo nęka go zbliżający się termin spłaty długów zaciągniętych przez rozrzutność żony i miłość syna do wyścigów konnych."
+    },
+    {
+      "nr": 2,
+      "miejsce": "prolog, sc. III–IV",
+      "kto": [
+        "Wykrętowic",
+        "Odrzykoń"
+      ],
+      "gdzie": "Ateny, plac przed domem",
+      "opis": "Wykrętowic namawia syna, żeby wstąpił do szkoły Sokratesa, gdzie nauczy się mówić tak, by wygrywać wszystkie procesy; Odrzykoń odmawia."
+    },
+    {
+      "nr": 3,
+      "miejsce": "sc. V–VI",
+      "kto": [
+        "Wykrętowic",
+        "Uczeń Sokratesa",
+        "Sokrates"
+      ],
+      "gdzie": "przed domem Sokratesa (Myślarnia)",
+      "opis": "Wykrętowic sam idzie do „pomysłowni” Sokratesa, rozmawia z uczniem i z Sokratesem, który unosi się w koszu i bada niebo."
+    },
+    {
+      "nr": 4,
+      "miejsce": "sc. VII–IX; parodos",
+      "kto": [
+        "Sokrates",
+        "Wykrętowic",
+        "Chór Chmur"
+      ],
+      "gdzie": "przed uczelnią Sokratesa",
+      "opis": "Sokrates wzywa Chmury jako nowych bogów; chór wchodzi na scenę, a Wykrętowic zostaje wprowadzony w naukę o Chmurach zamiast starych bogów."
+    },
+    {
+      "nr": 5,
+      "miejsce": "sc. X–XIII",
+      "kto": [
+        "Sokrates",
+        "Wykrętowic",
+        "Chór Chmur"
+      ],
+      "gdzie": "uczelnia Sokratesa",
+      "opis": "Sokrates uczy Wykrętowica, ale stary okazuje się tępy i zbyt zacofany; Sokrates wypędza go ze szkoły."
+    },
+    {
+      "nr": 6,
+      "miejsce": "sc. XIV–XVI",
+      "kto": [
+        "Wykrętowic",
+        "Chór Chmur"
+      ],
+      "gdzie": "przed uczelnią",
+      "opis": "Wykrętowic w rozpaczy radzi się Chmur; Arcychmura każe mu zmusić syna do nauki u Sokratesa."
+    },
+    {
+      "nr": 7,
+      "miejsce": "sc. XVI–XVII",
+      "kto": [
+        "Wykrętowic",
+        "Odrzykoń",
+        "Sokrates"
+      ],
+      "gdzie": "przed uczelnią",
+      "opis": "Wykrętowic grozi synowi wypędzeniem z domu, więc ten niechętnie idzie do Sokratesa."
+    },
+    {
+      "nr": 8,
+      "miejsce": "sc. XVIII–XIX (agon)",
+      "kto": [
+        "Rzecznik Prawy",
+        "Rzecznik Nieprawy",
+        "Odrzykoń",
+        "Wykrętowic"
+      ],
+      "gdzie": "przed uczelnią",
+      "opis": "Stary, „prawy” sposób wychowania (Rzecznik Prawy) spiera się z modnym „nieprawym” (Rzecznik Nieprawy); wygrywa Rzecznik Nieprawy, a Odrzykoń wybiera jego naukę."
+    },
+    {
+      "nr": 9,
+      "miejsce": "sc. XX–XXIII (po parabazie)",
+      "kto": [
+        "Chór",
+        "Sokrates",
+        "Wykrętowic",
+        "Odrzykoń"
+      ],
+      "gdzie": "przed uczelnią",
+      "opis": "Odrzykoń uczy się sofistyki, a po jakimś czasie Sokrates oddaje go ojcu jako „wyzwolonego” ucznia."
+    },
+    {
+      "nr": 10,
+      "miejsce": "sc. XXIV–XXVI",
+      "kto": [
+        "Wykrętowic",
+        "Sokrates",
+        "Odrzykoń",
+        "Chór"
+      ],
+      "gdzie": "przed uczelnią",
+      "opis": "Wykrętowic wychodzi z domu z workiem mąki dla Sokratesa; Sokrates oddaje mu syna, który wraca brudny, chudy i obdarty (ojciec początkowo go nie poznaje), a Wykrętowic cieszy się, że syn nauczył się sztuki wykrętów."
+    },
+    {
+      "nr": 11,
+      "miejsce": "sc. XXVII–XXIX",
+      "kto": [
+        "Wykrętowic",
+        "Pasjas",
+        "Amynias",
+        "Świadek"
+      ],
+      "gdzie": "przed domem Sokratesa",
+      "opis": "Do Wykrętowica przychodzą lichwiarze Pasjas i Amynias z żądaniem spłaty; pewny sztuki syna, odprawia ich batogiem i drwinami."
+    },
+    {
+      "nr": 12,
+      "miejsce": "sc. XXX",
+      "kto": [
+        "Wykrętowic",
+        "Odrzykoń"
+      ],
+      "gdzie": "przed domem Wykrętowica",
+      "opis": "Po uczcie wynikła sprzeczka o Eurypidesa, a Odrzykoń bije ojca i dowodzi, że ma do tego prawo; Wykrętowic krzyczy o pomoc."
+    },
+    {
+      "nr": 13,
+      "miejsce": "sc. XXXI–XXXII",
+      "kto": [
+        "Wykrętowic",
+        "Odrzykoń",
+        "Chór"
+      ],
+      "gdzie": "przed domem Wykrętowica",
+      "opis": "Odrzykoń przekonuje, że można bić nawet matkę; Wykrętowic uświadamia sobie, że jego plan zawiódł, i obwinia Sokratesa."
+    },
+    {
+      "nr": 14,
+      "miejsce": "sc. XXXIII",
+      "kto": [
+        "Wykrętowic",
+        "Chór",
+        "niewolnicy"
+      ],
+      "gdzie": "przed domem Wykrętowica",
+      "opis": "Wykrętowic przeprasza posąg Hermesa, na jego radę postanawia podpalić „gniazdo warchołów” i każe służbie przynieść drabinę i osękę."
+    },
+    {
+      "nr": 15,
+      "miejsce": "sc. XXXIV (exodos)",
+      "kto": [
+        "Wykrętowic",
+        "uczniowie",
+        "Chajrefont",
+        "Sokrates"
+      ],
+      "gdzie": "dach uczelni Sokratesa",
+      "opis": "Wykrętowic wchodzi na dach uczelni i podpala ją, a uczniowie, Chajrefont i Sokrates wybiegają lub wołają o ratunek; tak kończy się komedia."
+    }
   ],
   "postacie": [
-    { "imie": "Wykrętowic (Strepsjades)", "odmiany": ["Wykrętowica", "Wykrętowicowi", "Wykrętowicem", "Wykrętowicu", "Strepsjades", "Strepsjadesa"], "rola": "stary, zadłużony chłop spod Aten, który chce wykręcić się od długów dzięki sofistyce", "relacje": "ojciec Odrzykonia, uczeń i wróg Sokratesa", "miejsca": ["Ateny"] },
-    { "imie": "Odrzykoń (Fidippides)", "odmiany": ["Odrzykonia", "Odrzykoniowi", "Odrzykoniem", "Fidippides", "Fidippidesa"], "rola": "syn Wykrętowica, miłośnik koni; po nauce u Sokratesa bije ojca i dowodzi, że ma do tego prawo", "relacje": "syn Wykrętowica", "miejsca": ["Ateny"] },
-    { "imie": "Sokrates", "odmiany": ["Sokratesa", "Sokratesowi", "Sokratesem", "Sokrata"], "rola": "w komedii sofista z „Myślarni”, bada niebo i uczy sztuki wykrętów", "relacje": "nauczyciel Odrzykonia, przeciwnik Wykrętowica", "miejsca": ["uczelnia Sokratesa"] },
-    { "imie": "Chór Chmur (Arcychmura)", "odmiany": ["Chóru", "Chórowi", "Chórem", "Chmur", "Chmurom", "Arcychmury"], "rola": "bóstwa Sokratesa, komentują wydarzenia i doradzają Wykrętowicowi", "relacje": "patronki sofistów", "miejsca": ["scena"] },
-    { "imie": "Rzecznik Prawy i Rzecznik Nieprawy", "odmiany": ["Rzecznika Prawego", "Rzecznika Nieprawego", "Rzecznikowi Nieprawemu"], "rola": "personifikacje starego i nowego wychowania; Nieprawy wygrywa w agonie", "relacje": "kłócą się o Odrzykonia", "miejsca": ["scena agonu"] },
-    { "imie": "Pasjas", "odmiany": ["Pasjasa", "Pasjasowi", "Pasjasem"], "rola": "lichwiarz ateński, przychodzi po zwrot długu", "relacje": "wierzyciel Wykrętowica", "miejsca": ["Ateny"] },
-    { "imie": "Amynias", "odmiany": ["Amyniasa", "Amyniasowi", "Amyniasem"], "rola": "drugi lichwiarz, odprawiony przez Wykrętowica", "relacje": "wierzyciel Wykrętowica", "miejsca": ["Ateny"] },
-    { "imie": "Chajrefont", "odmiany": ["Chajrefonta", "Chajrefontowi", "Chajrefontem"], "rola": "przyjaciel i uczeń Sokratesa", "relacje": "współpracownik Sokratesa", "miejsca": ["uczelnia Sokratesa"] },
-    { "imie": "Ksantias", "odmiany": ["Ksantiasa", "Ksantiasowi", "Ksantiasem", "pachołek"], "rola": "sługa Wykrętowica", "relacje": "sługa Wykrętowica", "miejsca": ["dom Wykrętowica"] }
+    {
+      "imie": "Wykrętowic (Strepsjades)",
+      "odmiany": [
+        "Wykrętowica",
+        "Wykrętowicowi",
+        "Wykrętowicem",
+        "Wykrętowicu",
+        "Strepsjades",
+        "Strepsjadesa"
+      ],
+      "rola": "stary, zadłużony chłop spod Aten, który chce wykręcić się od długów dzięki sofistyce",
+      "relacje": "ojciec Odrzykonia, uczeń i wróg Sokratesa",
+      "miejsca": [
+        "Ateny"
+      ]
+    },
+    {
+      "imie": "Odrzykoń (Fidippides)",
+      "odmiany": [
+        "Odrzykonia",
+        "Odrzykoniowi",
+        "Odrzykoniem",
+        "Fidippides",
+        "Fidippidesa"
+      ],
+      "rola": "syn Wykrętowica, miłośnik koni; po nauce u Sokratesa bije ojca i dowodzi, że ma do tego prawo",
+      "relacje": "syn Wykrętowica",
+      "miejsca": [
+        "Ateny"
+      ]
+    },
+    {
+      "imie": "Sokrates",
+      "odmiany": [
+        "Sokratesa",
+        "Sokratesowi",
+        "Sokratesem",
+        "Sokrata"
+      ],
+      "rola": "w komedii sofista z „Myślarni”, bada niebo i uczy sztuki wykrętów",
+      "relacje": "nauczyciel Odrzykonia, przeciwnik Wykrętowica",
+      "miejsca": [
+        "uczelnia Sokratesa"
+      ]
+    },
+    {
+      "imie": "Chór Chmur (Arcychmura)",
+      "odmiany": [
+        "Chóru",
+        "Chórowi",
+        "Chórem",
+        "Chmur",
+        "Chmurom",
+        "Arcychmury"
+      ],
+      "rola": "bóstwa Sokratesa, komentują wydarzenia i doradzają Wykrętowicowi",
+      "relacje": "patronki sofistów",
+      "miejsca": [
+        "scena"
+      ]
+    },
+    {
+      "imie": "Rzecznik Prawy i Rzecznik Nieprawy",
+      "odmiany": [
+        "Rzecznika Prawego",
+        "Rzecznika Nieprawego",
+        "Rzecznikowi Nieprawemu"
+      ],
+      "rola": "personifikacje starego i nowego wychowania; Nieprawy wygrywa w agonie",
+      "relacje": "kłócą się o Odrzykonia",
+      "miejsca": [
+        "scena agonu"
+      ]
+    },
+    {
+      "imie": "Pasjas",
+      "odmiany": [
+        "Pasjasa",
+        "Pasjasowi",
+        "Pasjasem"
+      ],
+      "rola": "lichwiarz ateński, przychodzi po zwrot długu",
+      "relacje": "wierzyciel Wykrętowica",
+      "miejsca": [
+        "Ateny"
+      ]
+    },
+    {
+      "imie": "Amynias",
+      "odmiany": [
+        "Amyniasa",
+        "Amyniasowi",
+        "Amyniasem"
+      ],
+      "rola": "drugi lichwiarz, odprawiony przez Wykrętowica",
+      "relacje": "wierzyciel Wykrętowica",
+      "miejsca": [
+        "Ateny"
+      ]
+    },
+    {
+      "imie": "Chajrefont",
+      "odmiany": [
+        "Chajrefonta",
+        "Chajrefontowi",
+        "Chajrefontem"
+      ],
+      "rola": "przyjaciel i uczeń Sokratesa",
+      "relacje": "współpracownik Sokratesa",
+      "miejsca": [
+        "uczelnia Sokratesa"
+      ]
+    },
+    {
+      "imie": "Ksantias",
+      "odmiany": [
+        "Ksantiasa",
+        "Ksantiasowi",
+        "Ksantiasem",
+        "pachołek"
+      ],
+      "rola": "sługa Wykrętowica",
+      "relacje": "sługa Wykrętowica",
+      "miejsca": [
+        "dom Wykrętowica"
+      ]
+    }
   ],
   "motywy": [
-    { "motyw": "konflikt pokoleń i upadek autorytetu ojca", "przyklad": "Syn wykształcony przez sofistów bije ojca i przekonuje go, że ma do tego prawo; ojciec w końcu rozumie, że jego plan okazał się własną pułapką.", "miejsce": "sc. XXX–XXXII", "cytat": "że słusznie biję cię" },
-    { "motyw": "krytyka sofistyki: sztuka wykrętów zamiast prawdy", "przyklad": "Wykrętowic posyła syna do Sokratesa, żeby ten nauczył go wygrywać procesy; wynikiem jest syn, który bije ojca i uzasadnia to wywodem.", "miejsce": "prolog; sc. XXX", "cytat": "" },
-    { "motyw": "stare i nowe wychowanie (agon Prawego i Nieprawego)", "przyklad": "Rzecznik Prawy broni staromodnego wychowania, a Rzecznik Nieprawy pewnie zwycięża, więc Odrzykoń przyjmuje jego naukę.", "miejsce": "sc. XVIII–XIX", "cytat": "" },
-    { "motyw": "zadłużenie i chciwość", "przyklad": "Wykrętowic nie śpi z powodu długów; lichwiarze Pasjas i Amynias przychodzą po pieniądze, ale zostają odprawieni.", "miejsce": "prolog; sc. XXVII–XXIX", "cytat": "" },
-    { "motyw": "nowi bogowie zamiast Zeusa (Chmury, Wir)", "przyklad": "Sokrates uczy, że prawdziwymi bóstwami są Chmury, a nie dawni bogowie; Wykrętowic później kajająco przeprasza Hermesa.", "miejsce": "sc. VII–IX; sc. XXXIII", "cytat": "Wybacz, żem bzika dostał przez warcholstwo!" },
-    { "motyw": "komiczne przedstawienie filozofa „w obłokach”", "przyklad": "Sokrates zawieszony w koszu pod stropem uczelni bada niebo; w finale Wykrętowic, siedząc na dachu, parodiuje go słowami o bujaniu w eterach.", "miejsce": "sc. VI; sc. XXXIV", "cytat": "W eterach bujam, słońca w myślach ważę" },
-    { "motyw": "kara za sofistykę: pożar uczelni", "przyklad": "Wykrętowic wchodzi na dach „pomysłowni” z osęką i głownią i podpala ją; uczniowie wybiegają w panice.", "miejsce": "sc. XXXIII–XXXIV", "cytat": "Dawaj drabinę a przynieś osękę!" },
-    { "motyw": "komedia jako społeczna satyra wartości (interpretacja)", "przyklad": "Tłumacz ocenia, że Arystofanes widział w „postępie” sofistów groźbę dla wartości i dla Aten.", "miejsce": "Wstęp od tłumacza", "cytat": "" }
+    {
+      "motyw": "konflikt pokoleń i upadek autorytetu ojca",
+      "przyklad": "Syn wykształcony przez sofistów bije ojca i przekonuje go, że ma do tego prawo; ojciec w końcu rozumie, że jego plan okazał się własną pułapką.",
+      "miejsce": "sc. XXX–XXXII",
+      "cytat": "że słusznie biję cię"
+    },
+    {
+      "motyw": "krytyka sofistyki: sztuka wykrętów zamiast prawdy",
+      "przyklad": "Wykrętowic posyła syna do Sokratesa, żeby ten nauczył go wygrywać procesy; wynikiem jest syn, który bije ojca i uzasadnia to wywodem.",
+      "miejsce": "prolog; sc. XXX"
+    },
+    {
+      "motyw": "stare i nowe wychowanie (agon Prawego i Nieprawego)",
+      "przyklad": "Rzecznik Prawy broni staromodnego wychowania, a Rzecznik Nieprawy pewnie zwycięża, więc Odrzykoń przyjmuje jego naukę.",
+      "miejsce": "sc. XVIII–XIX"
+    },
+    {
+      "motyw": "zadłużenie i chciwość",
+      "przyklad": "Wykrętowic nie śpi z powodu długów; lichwiarze Pasjas i Amynias przychodzą po pieniądze, ale zostają odprawieni.",
+      "miejsce": "prolog; sc. XXVII–XXIX"
+    },
+    {
+      "motyw": "nowi bogowie zamiast Zeusa (Chmury, Wir)",
+      "przyklad": "Sokrates uczy, że prawdziwymi bóstwami są Chmury, a nie dawni bogowie; Wykrętowic później kajająco przeprasza Hermesa.",
+      "miejsce": "sc. VII–IX; sc. XXXIII",
+      "cytat": "Wybacz, żem bzika dostał przez warcholstwo!"
+    },
+    {
+      "motyw": "komiczne przedstawienie filozofa „w obłokach”",
+      "przyklad": "Sokrates zawieszony w koszu pod stropem uczelni bada niebo; w finale Wykrętowic, siedząc na dachu, parodiuje go słowami o bujaniu w eterach.",
+      "miejsce": "sc. VI; sc. XXXIV",
+      "cytat": "W eterach bujam, słońca w myślach ważę"
+    },
+    {
+      "motyw": "kara za sofistykę: pożar uczelni",
+      "przyklad": "Wykrętowic wchodzi na dach „pomysłowni” z osęką i głownią i podpala ją; uczniowie wybiegają w panice.",
+      "miejsce": "sc. XXXIII–XXXIV",
+      "cytat": "Dawaj drabinę a przynieś osękę!"
+    },
+    {
+      "motyw": "komedia jako społeczna satyra wartości (interpretacja)",
+      "przyklad": "Tłumacz ocenia, że Arystofanes widział w „postępie” sofistów groźbę dla wartości i dla Aten.",
+      "miejsce": "Wstęp od tłumacza"
+    }
   ],
   "utwory": [],
   "zrodla": [
-    { "url": "https://wolnelektury.pl/katalog/lektura/arystofanes-chmury/", "rodzaj": "utwór", "co": "Pobrany cały tekst (tłum. Edmund Cięglewicz, domena publiczna); przeczytane osobowe, streszczenie tłumacza, spis scen, początki wszystkich scen, scena bicia ojca i zakończenie; cytaty sprawdzone w tekście." }
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/arystofanes-chmury/",
+      "rodzaj": "utwór",
+      "co": "Pobrany cały tekst (tłum. Edmund Cięglewicz, domena publiczna); przeczytane osobowe, streszczenie tłumacza, spis scen, początki wszystkich scen, scena bicia ojca i zakończenie; cytaty sprawdzone w tekście."
+    }
   ],
   "do_weryfikacji": [
     "W przekładzie Cięglewicza bohaterowie mają polskie imiona: Wykrętowic (Strepsjades) i Odrzykoń (Fidippides); w innych przekładach imiona różnią się.",

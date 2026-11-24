@@ -2,34 +2,175 @@
   "id": "pamietniki-paska",
   "wydarzenia": [],
   "postacie": [
-    { "imie": "Jan Chryzostom Pasek", "odmiany": ["Paska", "Paskowi", "Paskiem", "Pasku", "pan Pasek"], "rola": "autor i narrator; szlachcic-żołnierz, a potem gospodarz i uczestnik sejmików", "relacje": "żołnierz pod dowództwem Stefana Czarnieckiego, potem szlachcic ziemski w Rawskiem", "miejsca": ["Polska", "Dania", "Rawa"] },
-    { "imie": "Stefan Czarniecki", "odmiany": ["Czarnieckiego", "Czarnieckiemu", "Czarnieckim", "pan Czarniecki"], "rola": "dowódca, pod którego dywizją Pasek walczy w Danii i w Polsce", "relacje": "dowódca Paska", "miejsca": ["Dania", "Polska"] },
-    { "imie": "Jerzy Lubomirski", "odmiany": ["Lubomirskiego", "Lubomirskiemu", "Lubomirskim"], "rola": "dowódca, który po wkroczeniu Rakoczego pali i niszczy jego ziemie; w r. 1666 związany z rokoszem", "relacje": "wódz wojskowy epoki", "miejsca": ["Polska", "Węgry"] },
-    { "imie": "Rakoczy", "odmiany": ["Rakocego", "Rakoczemu", "Rakoczym"], "rola": "książę, który w 1657 najeżdża Polskę z wojskiem węgierskim; porównany przez Paska do Kserksesa", "relacje": "przeciwnik Polski", "miejsca": ["Polska"] },
-    { "imie": "wojewoda rawski (Lipski)", "odmiany": ["wojewodę", "wojewody", "wojewodzie", "Lipskiego", "Lipskim"], "rola": "opiekun Paska w ziemi rawskiej, który widzi w nim talent mówcy na sejmikach", "relacje": "patron Paska", "miejsca": ["Rawa"] }
+    {
+      "imie": "Jan Chryzostom Pasek",
+      "odmiany": [
+        "Paska",
+        "Paskowi",
+        "Paskiem",
+        "Pasku",
+        "pan Pasek"
+      ],
+      "rola": "autor i narrator; szlachcic-żołnierz, a potem gospodarz i uczestnik sejmików",
+      "relacje": "żołnierz pod dowództwem Stefana Czarnieckiego, potem szlachcic ziemski w Rawskiem",
+      "miejsca": [
+        "Polska",
+        "Dania",
+        "Rawa"
+      ]
+    },
+    {
+      "imie": "Stefan Czarniecki",
+      "odmiany": [
+        "Czarnieckiego",
+        "Czarnieckiemu",
+        "Czarnieckim",
+        "pan Czarniecki"
+      ],
+      "rola": "dowódca, pod którego dywizją Pasek walczy w Danii i w Polsce",
+      "relacje": "dowódca Paska",
+      "miejsca": [
+        "Dania",
+        "Polska"
+      ]
+    },
+    {
+      "imie": "Jerzy Lubomirski",
+      "odmiany": [
+        "Lubomirskiego",
+        "Lubomirskiemu",
+        "Lubomirskim"
+      ],
+      "rola": "dowódca, który po wkroczeniu Rakoczego pali i niszczy jego ziemie; w r. 1666 związany z rokoszem",
+      "relacje": "wódz wojskowy epoki",
+      "miejsca": [
+        "Polska",
+        "Węgry"
+      ]
+    },
+    {
+      "imie": "Rakoczy",
+      "odmiany": [
+        "Rakocego",
+        "Rakoczemu",
+        "Rakoczym"
+      ],
+      "rola": "książę, który w 1657 najeżdża Polskę z wojskiem węgierskim; porównany przez Paska do Kserksesa",
+      "relacje": "przeciwnik Polski",
+      "miejsca": [
+        "Polska"
+      ]
+    },
+    {
+      "imie": "wojewoda rawski (Lipski)",
+      "odmiany": [
+        "wojewodę",
+        "wojewody",
+        "wojewodzie",
+        "Lipskiego",
+        "Lipskim"
+      ],
+      "rola": "opiekun Paska w ziemi rawskiej, który widzi w nim talent mówcy na sejmikach",
+      "relacje": "patron Paska",
+      "miejsca": [
+        "Rawa"
+      ]
+    }
   ],
   "motywy": [
-    { "motyw": "życie żołnierskie i wojny polskie XVII w.", "przyklad": "Pasek opisuje kolejne „potrzeby” przeciw Szwedom (pod Gnieznem, Warką, Trzemesznem) oraz wyprawę duńską: zimowanie w Hadersleben i przeszkodę, jaką jest wyspa Alsen.", "miejsce": "rok 1656–1659", "cytat": "Że na mnie wojska sto tysięcy mało" },
-    { "motyw": "przywiązanie do wierzchowca i duma rycerska", "przyklad": "Wiersz „Apostrophe” na początku to zwrot do konia: autor mówi, że siedząc na nim, czuł, że sto tysięcy wojska to dla niego mało.", "miejsce": "rok 1656, Apostrophe", "cytat": "Że na mnie wojska sto tysięcy mało" },
-    { "motyw": "powrót do domu i gościnność szlachecka", "przyklad": "Po wyprawie Pasek wraca do rodziców w Bielinach, gdzie wita go płacz; przywozi „rarytety” i trzewiki drewniane, a potem biesiaduje u sąsiadów.", "miejsce": "rok 1660", "cytat": "" },
-    { "motyw": "sprawy sądowe i wojskowe konfederacje (związek wojska)", "przyklad": "W r. 1661 wojsko tworzy związek, a Pasek z kolegami opiera się, widząc szkodę dla ojczyzny; wojewoda drwi z rywala, że ten pisał „czarnym kałamarzem”, a Pasek „krwią”.", "miejsce": "rok 1661", "cytat": "a pan Pasek tu z nami krwią pisał" },
-    { "motyw": "polityka i sejm: krytyka szlachty (rokosz Lubomirskiego)", "przyklad": "W r. 1666 Pasek jedzie na sejm własnym kosztem i widzi fakcje i krętactwa; zapisuje przestrogę dla młodych, że płomień na dachu trudno zagasić.", "miejsce": "rok 1666", "cytat": "ale trudno to zapał zagasić, kiedy już płomień na dachu" },
-    { "motyw": "sarmatyzm: szlachecki sejmik i instrukcje poselskie", "przyklad": "W r. 1667 w Rawie Pasek odgrywa rolę marszałka na sejmikach, a w zapisie umieszczono instrukcję dla posłów ziemi rawskiej na sejm.", "miejsce": "rok 1667", "cytat": "" },
-    { "motyw": "gospodarz-szlachcic i sąsiedzkie spory", "przyklad": "Pasek dzierżawi i kupuje dobra (Miławczyce, Smogorzów, Skrzypiów, Olszówka), a sąsiedzi traktują go jak obcego z innego województwa i go „posponują”.", "miejsce": "rok 1669–1672", "cytat": "" },
-    { "motyw": "makaronizm języka i barwna narracja", "przyklad": "Narrator miesza polszczyznę z łaciną i zapożyczeniami („ekspedycyja”, „konwersować”, „inkwizycyja”, „komitywa”), co nadaje tekstowi gawędziarski charakter.", "miejsce": "cały tekst", "cytat": "" },
-    { "motyw": "religijność i Opatrzność", "przyklad": "Co roku Pasek zaczyna zapis formułami „daj Boże szczęście” i traktuje zmiany fortuny jako próbę od Boga („dziwnymi Pan Bóg próbował sługę swego”).", "miejsce": "rok 1661 i kolejne", "cytat": "" }
+    {
+      "motyw": "życie żołnierskie i wojny polskie XVII w.",
+      "przyklad": "Pasek opisuje kolejne „potrzeby” przeciw Szwedom (pod Gnieznem, Warką, Trzemesznem) oraz wyprawę duńską: zimowanie w Hadersleben i przeszkodę, jaką jest wyspa Alsen.",
+      "miejsce": "rok 1656–1659",
+      "cytat": "Że na mnie wojska sto tysięcy mało"
+    },
+    {
+      "motyw": "przywiązanie do wierzchowca i duma rycerska",
+      "przyklad": "Wiersz „Apostrophe” na początku to zwrot do konia: autor mówi, że siedząc na nim, czuł, że sto tysięcy wojska to dla niego mało.",
+      "miejsce": "rok 1656, Apostrophe",
+      "cytat": "Że na mnie wojska sto tysięcy mało"
+    },
+    {
+      "motyw": "powrót do domu i gościnność szlachecka",
+      "przyklad": "Po wyprawie Pasek wraca do rodziców w Bielinach, gdzie wita go płacz; przywozi „rarytety” i trzewiki drewniane, a potem biesiaduje u sąsiadów.",
+      "miejsce": "rok 1660"
+    },
+    {
+      "motyw": "sprawy sądowe i wojskowe konfederacje (związek wojska)",
+      "przyklad": "W r. 1661 wojsko tworzy związek, a Pasek z kolegami opiera się, widząc szkodę dla ojczyzny; wojewoda drwi z rywala, że ten pisał „czarnym kałamarzem”, a Pasek „krwią”.",
+      "miejsce": "rok 1661",
+      "cytat": "a pan Pasek tu z nami krwią pisał"
+    },
+    {
+      "motyw": "polityka i sejm: krytyka szlachty (rokosz Lubomirskiego)",
+      "przyklad": "W r. 1666 Pasek jedzie na sejm własnym kosztem i widzi fakcje i krętactwa; zapisuje przestrogę dla młodych, że płomień na dachu trudno zagasić.",
+      "miejsce": "rok 1666",
+      "cytat": "ale trudno to zapał zagasić, kiedy już płomień na dachu"
+    },
+    {
+      "motyw": "sarmatyzm: szlachecki sejmik i instrukcje poselskie",
+      "przyklad": "W r. 1667 w Rawie Pasek odgrywa rolę marszałka na sejmikach, a w zapisie umieszczono instrukcję dla posłów ziemi rawskiej na sejm.",
+      "miejsce": "rok 1667"
+    },
+    {
+      "motyw": "gospodarz-szlachcic i sąsiedzkie spory",
+      "przyklad": "Pasek dzierżawi i kupuje dobra (Miławczyce, Smogorzów, Skrzypiów, Olszówka), a sąsiedzi traktują go jak obcego z innego województwa i go „posponują”.",
+      "miejsce": "rok 1669–1672"
+    },
+    {
+      "motyw": "makaronizm języka i barwna narracja",
+      "przyklad": "Narrator miesza polszczyznę z łaciną i zapożyczeniami („ekspedycyja”, „konwersować”, „inkwizycyja”, „komitywa”), co nadaje tekstowi gawędziarski charakter.",
+      "miejsce": "cały tekst"
+    },
+    {
+      "motyw": "religijność i Opatrzność",
+      "przyklad": "Co roku Pasek zaczyna zapis formułami „daj Boże szczęście” i traktuje zmiany fortuny jako próbę od Boga („dziwnymi Pan Bóg próbował sługę swego”).",
+      "miejsce": "rok 1661 i kolejne"
+    }
   ],
   "utwory": [
-    { "tytul": "Apostrophe (rok 1656): wiersz do konia", "miejsce": "rok 1656", "opis": "Wierszowany zwrot Paska do wierzchowca, któremu przypisuje swoje męstwo w walkach." },
-    { "tytul": "Lata 1656–1658: wojny ze Szwedami i Rakoczym", "miejsce": "rok 1656–1658", "opis": "Pasek wylicza „potrzeby” pod Gnieznem, Warką i Trzemesznem oraz najazd Rakoczego z Węgrami, porównany do wyprawy Kserksesa; Lubomirski pali ziemie Rakoczego." },
-    { "tytul": "Lata 1658–1660: wyprawa duńska", "miejsce": "rok 1658–1660", "opis": "Zimowiska w Hadersleben, zajmowanie wysp (m.in. Alsen), pokój szwedzko-duński, a w 1660 powrót do kraju i odwiedziny u rodziców w Bielinach." },
-    { "tytul": "Rok 1661–1662: inkwizycja i związek wojskowy", "miejsce": "rok 1661–1662", "opis": "Spory o sąd nad Gorzkowskim, wezwania do związku wojska, a w 1662 Pasek spotyka króla w Grodnie i otrzymuje zlecenie od niego." },
-    { "tytul": "Lata 1663–1667: rokosz Lubomirskiego i życie szlacheckie", "miejsce": "rok 1663–1667", "opis": "Rozwiązanie wojska, domowa wojna, sejm w 1666, na którym Pasek obserwuje fakcje; w 1667 wraca do ziemi rawskiej, gdzie zdobywa znaczenie na sejmikach." },
-    { "tytul": "Lata 1668–1685: życie gospodarza", "miejsce": "rok 1668–1685", "opis": "Wynajmowanie i kupowanie dóbr, spory z sąsiadami, sądy kapturowe w czasie bezkrólewia (1674), wzmianki o sejmach i wydarzeniach publicznych, wesele królewskie w Częstochowie." },
-    { "tytul": "Wstawki wierszowane i dokumentalne", "miejsce": "rok 1667 (instrukcja); fragmenty wierszowane o herbach", "opis": "W tekście są wiersze (m.in. o herbach i honorze ojczyzny) oraz instrukcja poselska dla posłów ziemi rawskiej." }
+    {
+      "tytul": "Apostrophe (rok 1656): wiersz do konia",
+      "miejsce": "rok 1656",
+      "opis": "Wierszowany zwrot Paska do wierzchowca, któremu przypisuje swoje męstwo w walkach."
+    },
+    {
+      "tytul": "Lata 1656–1658: wojny ze Szwedami i Rakoczym",
+      "miejsce": "rok 1656–1658",
+      "opis": "Pasek wylicza „potrzeby” pod Gnieznem, Warką i Trzemesznem oraz najazd Rakoczego z Węgrami, porównany do wyprawy Kserksesa; Lubomirski pali ziemie Rakoczego."
+    },
+    {
+      "tytul": "Lata 1658–1660: wyprawa duńska",
+      "miejsce": "rok 1658–1660",
+      "opis": "Zimowiska w Hadersleben, zajmowanie wysp (m.in. Alsen), pokój szwedzko-duński, a w 1660 powrót do kraju i odwiedziny u rodziców w Bielinach."
+    },
+    {
+      "tytul": "Rok 1661–1662: inkwizycja i związek wojskowy",
+      "miejsce": "rok 1661–1662",
+      "opis": "Spory o sąd nad Gorzkowskim, wezwania do związku wojska, a w 1662 Pasek spotyka króla w Grodnie i otrzymuje zlecenie od niego."
+    },
+    {
+      "tytul": "Lata 1663–1667: rokosz Lubomirskiego i życie szlacheckie",
+      "miejsce": "rok 1663–1667",
+      "opis": "Rozwiązanie wojska, domowa wojna, sejm w 1666, na którym Pasek obserwuje fakcje; w 1667 wraca do ziemi rawskiej, gdzie zdobywa znaczenie na sejmikach."
+    },
+    {
+      "tytul": "Lata 1668–1685: życie gospodarza",
+      "miejsce": "rok 1668–1685",
+      "opis": "Wynajmowanie i kupowanie dóbr, spory z sąsiadami, sądy kapturowe w czasie bezkrólewia (1674), wzmianki o sejmach i wydarzeniach publicznych, wesele królewskie w Częstochowie."
+    },
+    {
+      "tytul": "Wstawki wierszowane i dokumentalne",
+      "miejsce": "rok 1667 (instrukcja); fragmenty wierszowane o herbach",
+      "opis": "W tekście są wiersze (m.in. o herbach i honorze ojczyzny) oraz instrukcja poselska dla posłów ziemi rawskiej."
+    }
   ],
   "zrodla": [
-    { "url": "https://wolnelektury.pl/katalog/lektura/pamietniki/", "rodzaj": "utwór", "co": "Pobrany tekst wydania szkolnego (domena publiczna); przeczytane nagłówki lat i wybrane akapity z lat 1656–1672; cytaty sprawdzone w tekście." }
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/pamietniki/",
+      "rodzaj": "utwór",
+      "co": "Pobrany tekst wydania szkolnego (domena publiczna); przeczytane nagłówki lat i wybrane akapity z lat 1656–1672; cytaty sprawdzone w tekście."
+    }
   ],
   "do_weryfikacji": [
     "Katalog podaje „Fragmenty” bez wykazu; nie sprawdzono, które fragmenty zalecają materiały CKE.",
