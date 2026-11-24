@@ -45,15 +45,22 @@ export function OdpowiedzPestki({ tekst, dane, zajeta, wykonaj }: {
       {!!odpowiedz?.zrodla.length && (
         <ul className={styles.zrodla} id={id}>
           {odpowiedz.zrodla.map((z, i) => {
-            const opis = opisKartyZrodla(z);
+            const cele = z.miejsca?.map((m) => ({ ...z, ...m, sekcja: m.miejsce })) ?? [z];
             return (
               <li key={i}>
                 {otwarte && z.twierdzenie && <p>{z.twierdzenie}</p>}
                 {otwarte && z.dowod && <p>„{z.dowod}”</p>}
-                <a href={z.url} target="_blank" rel="noreferrer">
-                  {z.twierdzenie?.match(/^\[\d+\]/)?.[0]} {opis.link}
-                </a>{" "}
-                {opis.miejsce && <span className="muted">· {opis.miejsce}</span>}
+                {cele.map((cel, j) => {
+                  const opis = opisKartyZrodla(cel);
+                  return (
+                    <div key={j}>
+                      <a href={cel.url} target="_blank" rel="noreferrer">
+                        {j === 0 && z.twierdzenie?.match(/^\[\d+\]/)?.[0]} {opis.link}
+                      </a>{" "}
+                      {opis.miejsce && <span className="muted">· {opis.miejsce}</span>}
+                    </div>
+                  );
+                })}
               </li>
             );
           })}

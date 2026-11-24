@@ -19,7 +19,7 @@ import {
 import { FiltrCzatu } from "./odpowiedz-lektury.ts";
 import type { OdpowiedzPestki } from "../_shared/pestka-odpowiedz.ts";
 import type { SzukajRozmow } from "./pamiec.ts";
-import type { SzukajBaza, SzukajElementy, SzukajFragmenty, SzukajFragmentyMiejsca } from "./material-lektury.ts";
+import type { SzukajBaza, SzukajElementy, SzukajFragmenty, SzukajFragmentyMiejsca, SzukajKotwic } from "./material-lektury.ts";
 
 // Osłona transportu dla całego żądania. Historię czatu ogranicza okno dostawcy.
 const MAX_BODY = 8 * 1024 * 1024;
@@ -130,6 +130,7 @@ async function handle(req: Request): Promise<Response> {
     elementy: ((p) => rpc("pestka_lektury_elementy", p)) satisfies SzukajElementy,
     fragmenty: ((p) => rpc("pestka_lektury_fragmenty", p)) satisfies SzukajFragmenty,
     fragmentyMiejsca: ((p) => rpc("pestka_lektury_fragmenty_miejsca", p)) satisfies SzukajFragmentyMiejsca,
+    kotwice: ((p) => rpc("pestka_lektury_kotwice", p)) satisfies SzukajKotwic,
     rozmowy: (async (biezaca, pytanie) => {
       const { data, error } = await admin.rpc("pestka_wyszukaj_rozmowy", {
         p_user: user, p_biezaca: biezaca, p_pytanie: pytanie,

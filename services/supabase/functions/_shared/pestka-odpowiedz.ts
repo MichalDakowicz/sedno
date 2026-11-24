@@ -8,6 +8,7 @@ export const AKCJE = {
 export type AkcjaPestki = keyof typeof AKCJE;
 export const TYPY_ZRODLA = ["karta", "sekcja", "wydarzenie", "postac", "motyw", "utwor", "fragment"] as const;
 export type TypZrodla = typeof TYPY_ZRODLA[number];
+export type MiejsceZrodla = { miejsce: string; url: string };
 export type ZrodloPestki = {
   url: string;
   tytul: string;
@@ -15,6 +16,7 @@ export type ZrodloPestki = {
   sekcja?: string;
   idSekcji?: string;
   miejsce?: string;
+  miejsca?: MiejsceZrodla[];
   twierdzenie?: string;
   dowod?: string;
   /** Identyfikator materiału Sedno, z którego pochodzi odpowiedź, np. W12, P3, M5, F1, S:geneza, K. */
@@ -53,20 +55,31 @@ export function napisPestki(raw: unknown, limit: number): string {
   return typeof raw === "string" && raw.length <= limit ? raw.trim() : "";
 }
 
-export function zrodloPestki(raw: unknown): ZrodloPestki | undefined {
-  const dane = obiektPestki(raw);
-  const url = napisPestki(dane.url, 1000);
-  const tytul = napisPestki(dane.tytul, 240);
-  if (!tytul || (dane.rodzaj !== "utwór" && dane.rodzaj !== "opracowanie")) return;
+function adresZrodla(raw: unknown): string {
+  const url = napisPestki(raw, 1000);
   try {
     const adres = new URL(url);
-    if (adres.protocol !== "https:" || adres.username || adres.password) return;
+    if (adres.protocol === "https:" && !adres.username && !adres.password) return url;
   } catch {
-    return;
+    // Nieprawidłowy adres nie trafia do karty.
   }
+  return "";
+}
+
+export function zrodloPestki(raw: unknown): ZrodloPestki | undefined {
+  const dane = obiektPestki(raw);
+  const miejsca = Array.isArray(dane.miejsca) ? dane.miejsca.slice(0, 16).flatMap((raw) => {
+    const m = obiektPestki(raw);
+    const miejsce = napisPestki(m.miejsce, 240);
+    const url = adresZrodla(m.url);
+    return miejsce && url ? [{ miejsce, url }] : [];
+  }) : [];
+  const url = miejsca[0]?.url ?? adresZrodla(dane.url);
+  const tytul = napisPestki(dane.tytul, 240);
+  if (!url || !tytul || (dane.rodzaj !== "utwór" && dane.rodzaj !== "opracowanie")) return;
   const sekcja = napisPestki(dane.sekcja, 200);
   const idSekcji = napisPestki(dane.idSekcji, 160);
-  const miejsce = napisPestki(dane.miejsce, 240);
+  const miejsce = miejsca[0]?.miejsce ?? napisPestki(dane.miejsce, 240);
   const twierdzenie = napisPestki(dane.twierdzenie, 500);
   const dowod = napisPestki(dane.dowod, 400);
   const id = napisPestki(dane.id, 12);
@@ -74,7 +87,7 @@ export function zrodloPestki(raw: unknown): ZrodloPestki | undefined {
   return {
     url, tytul, rodzaj: dane.rodzaj, ...(sekcja && { sekcja }),
     ...(/^[a-z0-9-]+\/[a-z0-9-]+$/.test(idSekcji) && { idSekcji }),
-    ...(miejsce && { miejsce }), ...(twierdzenie && { twierdzenie }), ...(dowod && { dowod }),
+    ...(miejsce && { miejsce }), ...(miejsca.length && { miejsca }), ...(twierdzenie && { twierdzenie }), ...(dowod && { dowod }),
     ...(/^(?:[WPMUF]\d{1,4}|S:[a-z]+|K)$/.test(id) && { id }), ...(typ && { typ }),
   };
 }

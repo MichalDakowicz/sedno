@@ -3,8 +3,8 @@
 // serwer zamienia identyfikatory na źródła (odpowiedz-lektury.ts). Wyszukiwanie zawsze dotyczy jednego utworu.
 import { napisPestki, obiektPestki, zrodloPestki, type TypZrodla, type ZrodloPestki } from "../_shared/pestka-odpowiedz.ts";
 import type { Utwor } from "./katalog-lektur.ts";
-import { bezAkcentow, normalizuj, SEKCJE, type Sekcja, type TypPytania } from "./lektury.ts";
-import { adresTomu, miejscaWZapytaniu, pasujeMiejsce, TOMY_WL, zapisMiejsca } from "./miejsca-lektur.ts";
+import { bezAkcentow, nazwaPostaciWPytaniu, normalizuj, SEKCJE, type Sekcja, type TypPytania } from "./lektury.ts";
+import { adresTomu, miejscaWZapytaniu, miejsceWydania, pasujeMiejsce, rozbijMiejsca, TOMY_WL, zapisMiejsca } from "./miejsca-lektur.ts";
 
 export type Material = {
   /** W12 wydarzenie, P3 postać, M5 motyw, U2 utwór zbioru, F1 fragment tekstu, S:geneza sekcja, K karta. */
@@ -14,6 +14,8 @@ export type Material = {
   zrodlo?: ZrodloPestki;
   miejsce?: string;
   sekcja?: Sekcja;
+  nazwyPostaci?: string[];
+  miejsca?: string[];
 };
 
 export type SzukajBaza = (p: { p_przedmiot: string; p_utwor: string | null; p_sekcja: Sekcja | null; p_pytanie: string }) => Promise<unknown>;
@@ -22,7 +24,10 @@ export type SzukajElementy = (p: {
 }) => Promise<unknown>;
 export type SzukajFragmenty = (p: { p_utwor: string; p_pytanie: string; p_fraza: string | null; p_limit: number; p_poczatek: boolean }) => Promise<unknown>;
 export type SzukajFragmentyMiejsca = (p: { p_utwor: string; p_miejsce: string; p_limit: number }) => Promise<unknown>;
-export type DostepLektur = { baza: SzukajBaza; elementy?: SzukajElementy; fragmenty?: SzukajFragmenty; fragmentyMiejsca?: SzukajFragmentyMiejsca };
+export type SzukajKotwic = (p: { p_utwor: string; p_miejsca: string[] }) => Promise<unknown>;
+export type DostepLektur = {
+  baza: SzukajBaza; elementy?: SzukajElementy; fragmenty?: SzukajFragmenty; fragmentyMiejsca?: SzukajFragmentyMiejsca; kotwice?: SzukajKotwic;
+};
 
 export type Zebrane = { materialy: Material[]; uwagi: string[]; maWydarzenia: boolean };
 
@@ -94,7 +99,10 @@ function elementy(raw: unknown, utwor: Utwor): Material[] {
     const miejsce = napisPestki(wiersz.miejsce, 240) || undefined;
     const url = typeof wiersz.zrodlo_url === "string" ? wiersz.zrodlo_url : undefined;
     const zrodlo = zrodloMaterialu(utwor, id, rodzaj, url, miejsce);
-    return [{ id, rodzaj, tekst, miejsce, ...(zrodlo && { zrodlo }) }];
+    const nazwyPostaci = rodzaj === "postac" ? [napisPestki(dane.imie, 100), ...lista(dane.odmiany, 60).split(", ")] : undefined;
+    const miejscaZElementu = rodzaj === "postac" && Array.isArray(dane.miejsca) ? dane.miejsca : [miejsce];
+    const miejsca = [...new Set(miejscaZElementu.flatMap((m) => rozbijMiejsca(napisPestki(m, 240))))].slice(0, 16);
+    return [{ id, rodzaj, tekst, miejsce, nazwyPostaci, miejsca, ...(zrodlo && { zrodlo }) }];
   });
 }
 
@@ -228,6 +236,47 @@ function pytanieOMotyw(pytanie: string): string {
     slowa.some((slowo) => slowo.startsWith(normalizuj(haslo).slice(0, 5)))))?.join(" ") ?? pytanie;
 }
 
+const slowaNazwy = (tekst: string) => normalizuj(tekst).split(" ").filter((s) => s.length >= 2);
+
+function dopasujPostacie(postacie: Material[], nazwa: string): Material[] {
+  const szukane = new Set(slowaNazwy(nazwa));
+  const wyniki = postacie.map((p) => {
+    const [imie, ...odmiany] = p.nazwyPostaci ?? [""];
+    const glowne = slowaNazwy(imie);
+    const aliasy = new Set(odmiany.flatMap(slowaNazwy));
+    const trafienia = [...szukane].filter((s) => glowne.includes(s) || aliasy.has(s)).length;
+    return { p, trafienia, glowne: glowne.filter((s) => szukane.has(s)).length };
+  }).filter((w) => w.trafienia > 0).sort((a, b) => b.trafienia - a.trafienia || b.glowne - a.glowne);
+  const najlepszy = wyniki[0];
+  return wyniki.filter((w) => w.trafienia === najlepszy.trafienia && w.glowne === najlepszy.glowne).slice(0, 4).map((w) => w.p);
+}
+
+async function zrodlaZDodatkowymiMiejscami(d: DostepLektur, utwor: Utwor, materialy: Material[]): Promise<Material[]> {
+  const szukane = [...new Set(materialy.flatMap((m) => m.zrodlo && (m.miejsca?.length ?? 0) > 1
+    ? m.miejsca!.map((miejsce) => miejsceWydania(utwor.id, miejsce)) : []))];
+  if (!szukane.length) return materialy;
+  const wiersze = utwor.wl ? await pewnie(d.kotwice?.({ p_utwor: utwor.id, p_miejsca: szukane.slice(0, 200) }), []) : [];
+  const kotwice = new Map<string, string>();
+  if (Array.isArray(wiersze)) for (const raw of wiersze) {
+    const w = obiektPestki(raw);
+    if (typeof w.miejsce === "string" && typeof w.url === "string") kotwice.set(w.miejsce, w.url);
+  }
+  return materialy.map((m) => {
+    if (!m.zrodlo || !m.miejsca || m.miejsca.length < 2) return m;
+    const z = m.zrodlo;
+    const miejsca = m.miejsca.flatMap((miejsce, i) => {
+      const kotwica = kotwice.get(miejsceWydania(utwor.id, miejsce));
+      const url = kotwica ?? (i === 0 ? z.url : z.url.split("#")[0]);
+      const cel = zrodloMaterialu(utwor, m.id, m.rodzaj, url, miejsce)?.url;
+      return cel ? [{ miejsce, url: cel }] : [];
+    });
+    const pierwszy = miejsca[0];
+    if (!pierwszy) return m;
+    const sekcja = z.rodzaj === "utwór" && pierwszy.url.includes("#") ? pierwszy.miejsce : undefined;
+    return { ...m, zrodlo: { ...z, ...pierwszy, sekcja, miejsca } };
+  });
+}
+
 /** Zbiera materiały o utworze zależnie od typu pytania. Karta jest zawsze pierwsza. */
 export async function zbierzMaterialy(
   d: DostepLektur, pytanie: string, utwor: Utwor, typ: TypPytania, opcje: { fraza?: string | null; dlugie?: boolean } = {},
@@ -276,8 +325,24 @@ export async function zbierzMaterialy(
       break;
     }
     case "postac": {
-      const [p, s] = await Promise.all([el(["postac"], 4), sekcje("bohaterowie")]);
-      glowne = [...(p.length ? p : await el(["postac"], 8, { kolejnosc: true })), ...naj(s, "bohaterowie", "streszczenie").slice(0, 2)];
+      const nazwa = nazwaPostaciWPytaniu(pytanie);
+      const [postacie, s] = await Promise.all([el(["postac"], nazwa ? 60 : 8, { kolejnosc: true }), sekcje("bohaterowie")]);
+      const notatki = naj(s, "bohaterowie", "streszczenie");
+      if (!nazwa) {
+        glowne = [...postacie, ...notatki];
+        break;
+      }
+      const p = dopasujPostacie(postacie, nazwa);
+      const hasla = slowaNazwy(nazwa);
+      const pasujaceNotatki = notatki.filter((m) => {
+        const slowa = new Set(slowaNazwy(m.tekst));
+        return hasla.length > 0 && hasla.every((s) => slowa.has(s));
+      });
+      const miejsca = new Set(p.flatMap((m) => m.miejsca ?? []));
+      const zdarzenia = miejsca.size
+        ? (await el(["wydarzenie"], 60, { kolejnosc: true })).filter((m) => miejsca.has(m.miejsce ?? "")).slice(0, 4)
+        : [];
+      glowne = [...p, ...zdarzenia, ...pasujaceNotatki];
       break;
     }
     case "motywy": {
@@ -309,7 +374,7 @@ export async function zbierzMaterialy(
   // Notatka z planem bywa przybliżona; gdy utwór ma wydarzenia z lokalizacją, ona nie wchodzi do kontekstu.
   const bezNotatkiPlanu = maWydarzenia && typ === "streszczenie" ? glowne.filter((m) => m.sekcja !== "wydarzenia") : glowne;
   const materialy = materialyWBudzecie([kartaLektury(utwor), ...bezNotatkiPlanu]);
-  return { materialy, uwagi: await uwagi, maWydarzenia };
+  return { materialy: await zrodlaZDodatkowymiMiejscami(d, utwor, materialy), uwagi: await uwagi, maWydarzenia };
 }
 
 /** Materiały w postaci tekstu dla modelu: „[W12] treść”. */

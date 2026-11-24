@@ -58,7 +58,7 @@ function poczatekStreszczenia(materialy: Material[]): Material[] {
 export function planWydarzen(tytul: string, wydarzenia: Material[], zWolnychLektur: boolean): string {
   const punkty = wydarzenia.map((w, i) => {
     const m = /^(.*?): (.*?)(?: \((?:kto|gdzie):[^)]*\))?$/s.exec(w.tekst);
-    const miejsce = w.zrodlo?.miejsce ?? m?.[1] ?? "";
+    const miejsce = w.miejsce ?? w.zrodlo?.miejsce ?? m?.[1] ?? "";
     const opis = (miejsce && w.tekst.startsWith(`${miejsce}: `) ? w.tekst.slice(miejsce.length + 2) : m?.[2] ?? w.tekst)
       .replace(/ \((?:kto|gdzie):[^)]*\)$/, "");
     return `${i + 1}. **${miejsce}** — ${opis} [${w.id}]`;
@@ -161,6 +161,11 @@ export async function przygotujCzat(messages: Message[], p: Extract<ProsbaPestki
   if (bezSpoilerow) materialy = [...materialy.filter((m) => m.id === "K"), ...poczatekStreszczenia(materialy)];
   const procesor = lektura ? new ProcesorOdpowiedzi(materialy, { pytanie, zapisPriorytetu }) : undefined;
 
+  if (utwor && procesor && typ === "postac" && !zebrane?.materialy.some((m) => m.id !== "K")) {
+    const gotowa = `Sedno nie ma opisu tej postaci w materiałach do lektury „${utwor.tytul}” (${utwor.autor}).`;
+    return { messages, materialy, procesor, gotowa };
+  }
+
   const wydarzenia = materialy.filter((m) => m.rodzaj === "wydarzenie");
   const planZFragmentow = typ === "plan" && materialy.some((m) => m.rodzaj === "fragment");
   const zawezonyPlan = typ === "plan" && miejscaWZapytaniu(pytanie).length > 0;
@@ -187,6 +192,7 @@ export async function przygotujCzat(messages: Message[], p: Extract<ProsbaPestki
         ? `Uczeń pyta o część cyklu, której nie ma w opracowaniu Sedno (autor cyklu: ${czescBezNotatki.autor}). Sedno nie ma o niej materiału.`
         : "Uczeń pyta o lekturę, której nie rozpoznano w opracowaniu Sedno. Jeśli nie podał tytułu lub autora, poproś o niego jednym zdaniem. Sedno nie ma materiału o tej lekturze.",
       ...REGULY_LEKTURY,
+      typ === "postac" ? "Podaj tożsamość i rolę postaci na podstawie dopasowanego opisu. Szczegóły biografii podawaj tylko wtedy, gdy materiały o tej postaci mówią o nich wprost. Zachowaj kolejność zdarzeń, szczególnie przy podawaniu ich przyczyn." : "",
       planZFragmentow ? "Ułóż krótki plan wskazanego miejsca w 3–6 punktach, jeśli tekst daje tyle odrębnych zdarzeń. Pisz w kolejności fabuły. Każdy punkt zakończ identyfikatorem [F…] fragmentu, który go potwierdza." : "",
       typ === "zakonczenie" ? "Odpowiedz wprost, jak kończy się utwór. Opisz końcowe wydarzenia w kolejności fabuły, od najwcześniejszego z nich do ostatniego. Odróżnij fakty od tego, co tekst pozostawia otwarte." : "",
       streszczenie && dlugie ? "Napisz rozwinięte streszczenie na podstawie wydarzeń z materiałów, pogrupowane według tomów, aktów lub części, z miejscem w tekście." : "",
