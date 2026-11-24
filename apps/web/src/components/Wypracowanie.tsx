@@ -66,11 +66,12 @@ export function Wypracowanie(props: Props) {
   const wybrany = tematy.find((t) => t.nr === temat);
   const lista = tematy.length ? (wybrany?.punkty ?? []) : props.punkty;
   const fragment = zaznaczenie.trim();
-  const jedenAkapit = !/\n\s*\n/.test(fragment);
+  // Limit zgodny z serwerem (MAX_FRAGMENT_LEKTURY w services/supabase/functions/ai/pestka.ts).
+  const jedenAkapit = !/\n\s*\n/.test(fragment) && fragment.length <= 4000;
   const instrukcja = aiGotowe === false
     ? "Pestka jest chwilowo niedostępna."
     : fragment && !jedenAkapit
-      ? "Zaznacz fragment jednego akapitu."
+      ? "Zaznacz krótszy fragment jednego akapitu."
       : "Zaznacz w tekście akapit z odwołaniem do lektury.";
 
   return (

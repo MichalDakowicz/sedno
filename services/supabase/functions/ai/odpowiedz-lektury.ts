@@ -250,7 +250,7 @@ export class ProcesorOdpowiedzi {
       const miejsca = miejscaWZdaniu(bezId.replace(CYTAT, ""));
       const materialy = [...zdanie.matchAll(GRUPA_ID)].flatMap((g) => g[1].match(TOKEN) ?? []).flatMap((id) => {
         const m = this.mapa.get(id);
-        const sprawdz = m && (ELEMENTY.has(m.rodzaj) || m.zrodlo?.rodzaj === "opracowanie");
+        const sprawdz = m && (ELEMENTY.has(m.rodzaj) || m.rodzaj === "fragment" || m.zrodlo?.rodzaj === "opracowanie");
         return m && (!sprawdz || materialWspieraZdanie(m, bezId, miejsca)) ? [m] : [];
       });
       const pasujace = miejsca.length > 1 ? materialy.filter((m) => m.zrodlo && miejsca.some((miejsce) => materialWskazuje(m, miejsce))) : materialy;

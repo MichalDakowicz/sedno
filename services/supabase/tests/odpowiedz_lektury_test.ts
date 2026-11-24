@@ -197,3 +197,21 @@ Deno.test("usuwa łączniki między odsyłaczami i domyka zdanie po odrzuceniu i
   assertEquals(zdania[2], "Kolejna informacja kończy się na przykładzie. " + ETYKIETA_OGOLNA);
   assertEquals(zdania[3], "Osobna wzmianka o rozdz. 4–5 [4]. " + ETYKIETA_OGOLNA);
 });
+
+Deno.test("odsyłacz do fragmentu tekstu wymaga zgodnego miejsca albo słów z fragmentu", () => {
+  const fragment: Material = {
+    id: "F2", rodzaj: "fragment", miejsce: "t. II, rozdz. 3",
+    tekst: "Wokulski przyjechał do Paryża i spotkał tam profesora Geista, który opowiadał o swoich wynalazkach.",
+    zrodlo: { id: "F2", miejsce: "t. II, rozdz. 3", tytul: "Lalka", url: "https://wolnelektury.pl/katalog/lektura/lalka/", rodzaj: "utwór" },
+  };
+  const przetworz = (zdanie: string) => {
+    const procesor = new ProcesorOdpowiedzi([fragment], { pytanie: "", zapisPriorytetu: false });
+    const wynik = procesor.dodaj(`${zdanie}\n`) + procesor.zakoncz();
+    return { wynik, zrodla: procesor.zrodla().length };
+  };
+  assertEquals(przetworz("Wokulski spotkał w Paryżu profesora Geista [F2].").zrodla, 1);
+  assertEquals(przetworz("W t. II, rozdz. 3 Wokulski jedzie do Paryża [F2].").zrodla, 1);
+  // Wymyślona scena z prawdziwym identyfikatorem: bez zgodnego miejsca i bez wspólnych słów nie dostaje karty źródła.
+  assertEquals(przetworz("Wokulski toczy pojedynek z baronem na dziedzińcu zamku [F2].").zrodla, 0);
+  assertEquals(przetworz("W t. I, rozdz. 5 Wokulski zabija Rzeckiego [F2].").zrodla, 0);
+});
