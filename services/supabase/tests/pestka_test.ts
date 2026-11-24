@@ -1,12 +1,15 @@
 import { assert, assertEquals, assertStringIncludes } from "jsr:@std/assert";
 import { odczytajOdpowiedzPestki, zatwierdzPowierzchnie } from "../functions/_shared/pestka-odpowiedz.ts";
 import {
-  czyPytanieOLekturze, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosiOZapisPriorytetu, weryfikuj, wydarzeniaZPytania,
+  czyPytanieOLekturze, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosiOZapisPriorytetu, rozpoznajPytanieCzatu, weryfikuj, wydarzeniaZPytania,
 } from "../functions/ai/pestka.ts";
 import { typPytania, utworPytania, zawieraCytat } from "../functions/ai/lektury.ts";
-import { kartaLektury, okno, type Material } from "../functions/ai/material-lektury.ts";
+import { kartaLektury, okno, type Material, type SzukajElementy, type SzukajFragmenty } from "../functions/ai/material-lektury.ts";
 import { BRAK_MATERIALU, ETYKIETA_OGOLNA, FiltrCzatu, POMINIETO, ProcesorOdpowiedzi } from "../functions/ai/odpowiedz-lektury.ts";
 import { KATALOG_LEKTUR } from "../functions/ai/katalog-lektur.ts";
+import type { Message } from "../functions/_shared/llm.ts";
+import { kotwiceZHtml, podzielTekst } from "../lektury/teksty.ts";
+import { wczytajPlikiLektur, wierszeElementow, type PlikLektury } from "../lektury/format.ts";
 
 const fragment = "W Zemście Rejent polecił murarzom naprawić mur, co zaostrza spór między sąsiadami.";
 const dowod = "Na polecenie Rejenta murarze naprawiają mur";
@@ -23,7 +26,8 @@ const werdykt = JSON.stringify({
 const bezSieci = () => { throw new Error("Nieoczekiwane wywołanie modelu"); };
 
 const T1 = "https://wolnelektury.pl/katalog/lektura/lalka-tom-pierwszy.html#wl-e4";
-const T2 = "https://wolnelektury.pl/katalog/lektura/lalka-tom-drugi.html#wl-e100";
+const T2 = "https://wolnelektury.pl/katalog/lektura/lalka-tom-drugi.html#wl-e721";
+const XIV = "https://wolnelektury.pl/katalog/lektura/lalka-tom-drugi.html#wl-e4032";
 const wiersz = (rodzaj: string, nr: number, miejsce: string, dane: Record<string, unknown>, url = T1, utwor = "lalka") =>
   ({ utwor, rodzaj, nr, miejsce, tekst: "", dane, zrodlo_url: url });
 const wyd = (nr: number, miejsce: string, opis: string, url = T1) =>
@@ -31,7 +35,7 @@ const wyd = (nr: number, miejsce: string, opis: string, url = T1) =>
 const WIERSZE = [
   wyd(1, "t. I, rozdz. 1", "Kupcy w jadłodajni spierają się o Wokulskiego, który wyjechał do Bułgarii."),
   wyd(2, "t. II, rozdz. 3", "Wokulski w Paryżu spotyka profesora Geista.", T2),
-  wyd(3, "t. II, rozdz. 14", "Wokulski wysiada w Skierniewicach i rzuca się pod pociąg.", T2),
+  wyd(3, "t. II, rozdz. 14", "Wokulski wysiada w Skierniewicach i rzuca się pod pociąg.", XIV),
   wiersz("postac", 1, "t. I, rozdz. 1", { imie: "Stanisław Wokulski", rola: "Warszawski kupiec.", relacje: "Przyjaciel Rzeckiego.", miejsca: ["t. I, rozdz. 1"] }),
   wiersz("motyw", 1, "t. I, rozdz. 13", { motyw: "miłość jako poświęcenie", przyklad: "Wokulski gotów jest oddać życie.", miejsce: "t. I, rozdz. 13", cytat: "Za takie szczęście oddam życie" }),
 ];
@@ -39,22 +43,27 @@ const sekcjaRow = (sekcja: string, tekst: string, utwor = "lalka") =>
   ({ utwor, sekcja, tekst, tytul: "Lalka", zrodlo_url: "https://wolnelektury.pl/katalog/lektura/lalka/", zrodlo_rodzaj: "utwór" });
 const FRAGMENT_IMPROWIZACJI = {
   utwor: "dziady-iii", nr: 3, czesc: 1, miejsce: "akt I, sc. 2", tytul_czesci: "Improwizacja", trafienie: "slowa",
-  tekst: "KONRAD\n\nSamotność — cóż po ludziach, czym śpiewak dla ludzi?\nNiech się dzieje wola nieba, ja pójdę swoją drogą.\n\n" + "Dalszy tekst sceny. ".repeat(200),
+  tekst: "KONRAD\n\nSamotność — cóż po ludziach, czy-m śpiewak dla ludzi?\nGdzie człowiek, co z mej pieśni całą myśl wysłucha,\n\n" + "Dalszy tekst sceny. ".repeat(200),
   zrodlo_url: "https://wolnelektury.pl/katalog/lektura/dziady-dziady-poema-dziady-czesc-iii.html",
 };
 
-function dostepZ(opcje: { wiersze?: unknown[]; sekcje?: unknown[]; fragmenty?: unknown[] } = {}) {
-  const wywolania = { baza: [] as unknown[], uwagi: 0, elementy: [] as { p_rodzaje: string[]; p_pytanie: string; p_limit: number; p_kolejnosc: boolean; p_utwor: string }[], fragmenty: [] as unknown[] };
+type ParametryElementow = Parameters<SzukajElementy>[0];
+type ParametryFragmentow = Parameters<SzukajFragmenty>[0];
+function dostepZ(opcje: { wiersze?: unknown[]; sekcje?: unknown[]; fragmenty?: unknown[]; szukajElementow?: SzukajElementy; szukajFragmentow?: SzukajFragmenty } = {}) {
+  const wywolania = { baza: [] as unknown[], uwagi: 0, elementy: [] as ParametryElementow[], fragmenty: [] as ParametryFragmentow[] };
   return {
     wywolania,
     dostep: {
       baza: (p: unknown) => { wywolania.baza.push(p); return Promise.resolve(opcje.sekcje ?? []); },
-      elementy: (p: { p_rodzaje: string[]; p_pytanie: string; p_limit: number; p_kolejnosc: boolean; p_utwor: string }) => {
+      elementy: (p: ParametryElementow) => {
         if (p.p_rodzaje[0] === "weryfikacja") wywolania.uwagi++;
         else wywolania.elementy.push(p);
-        return Promise.resolve((opcje.wiersze ?? WIERSZE).filter((w) => p.p_rodzaje.includes((w as { rodzaj: string }).rodzaj)));
+        return opcje.szukajElementow?.(p) ?? Promise.resolve((opcje.wiersze ?? WIERSZE).filter((w) => p.p_rodzaje.includes((w as { rodzaj: string }).rodzaj)));
       },
-      fragmenty: (p: unknown) => { wywolania.fragmenty.push(p); return Promise.resolve(opcje.fragmenty ?? []); },
+      fragmenty: (p: ParametryFragmentow) => {
+        wywolania.fragmenty.push(p);
+        return opcje.szukajFragmentow?.(p) ?? Promise.resolve(opcje.fragmenty ?? []);
+      },
       signal: AbortSignal.timeout(10_000), zapytaj: bezSieci as () => Promise<string>,
     },
   };
@@ -140,6 +149,10 @@ Deno.test("typ pytania wybiera warstwę materiałów", () => {
   assertEquals(typPytania("W którym rozdziale Wokulski jedzie do Paryża?"), "cytat");
   assertEquals(typPytania("Kiedy powstała Lalka?"), "geneza");
   assertEquals(typPytania("Czy Wokulski był w Paryżu?"), "szczegol");
+  for (const pytanie of ["Jak kończy się Lalka?", "Jak się kończy Lalka?", "Opisz zakończenie Lalki", "Co się dzieje w finale Lalki?"]) {
+    assertEquals(typPytania(pytanie), "zakonczenie");
+    assertEquals(utworPytania(pytanie)?.id, "lalka");
+  }
 });
 
 Deno.test("kim jest Wokulski: postacie i sekcja bohaterów, identyfikatory w prompcie", async () => {
@@ -164,12 +177,16 @@ Deno.test("plan wydarzeń składa serwer: kolejność, miejsce w tekście, link 
   assert(krok.gotowa && krok.procesor);
   const tekst = krok.procesor.dodaj(`${krok.gotowa}\n`) + krok.procesor.zakoncz();
   assertStringIncludes(tekst, "Plan wydarzeń „Lalka”");
-  assertStringIncludes(tekst, "1. **t. I, rozdz. 1**. Kupcy w jadłodajni");
-  assertStringIncludes(tekst, "3. **t. II, rozdz. 14**. Wokulski wysiada w Skierniewicach");
+  const [, pusty, ...punkty] = tekst.trimEnd().split("\n");
+  assertEquals(pusty, "");
+  assertEquals(punkty.map((line) => /^(\d+)\. \*\*(t\. \w+, rozdz\. \d+)\*\*/.exec(line)?.slice(1)), [
+    ["1", "t. I, rozdz. 1"], ["2", "t. II, rozdz. 3"], ["3", "t. II, rozdz. 14"],
+  ]);
+  assertStringIncludes(punkty[2], "Wokulski wysiada w Skierniewicach");
   assert(!tekst.includes(ETYKIETA_OGOLNA));
   const zrodla = krok.procesor.zrodla();
   assertEquals(zrodla.map((z) => z.miejsce), ["t. I, rozdz. 1", "t. II, rozdz. 3", "t. II, rozdz. 14"]);
-  assertEquals(zrodla[2].url, T2);
+  assertEquals(zrodla[2].url, XIV);
   assertEquals(zrodla[2].id, "W3");
   assertEquals(odczytajOdpowiedzPestki(metadaneCzatu(tekst, zrodla, false))?.zrodla.length, 3);
 });
@@ -179,6 +196,8 @@ Deno.test("plan zawęża się do miejsca wskazanego w pytaniu", async () => {
   assertEquals(krok.gotowa?.split("\n").filter((w) => /^\d+\. /.test(w)).length, 1);
   const m = krok.materialy.filter((x) => x.rodzaj === "wydarzenie");
   assertEquals(wydarzeniaZPytania("co w rozdziale 3", m).map((w) => w.id), ["W2"]);
+  assertEquals(wydarzeniaZPytania("rozdział XIV", m).map((w) => w.id), ["W3"]);
+  assertEquals(wydarzeniaZPytania("rozdział 99", m), []);
   assertEquals(wydarzeniaZPytania("plan lalki", m).length, 3);
 });
 
@@ -186,7 +205,7 @@ Deno.test("plan bez elementów korzysta z numerowanej notatki, bez zmyślonych k
   const notatka = "1. [Akt I, scena VIII](https://wolnelektury.pl/katalog/lektura/zemsta/#s6) Ludzie Cześnika przerywają naprawę muru.\n2. [Akt IV] Cześnik i Rejent się godzą.";
   const { krok } = await czat("Podaj plan wydarzeń Zemsty", { wiersze: [], sekcje: [sekcjaRow("wydarzenia", notatka, "zemsta")] });
   assert(krok.gotowa);
-  assertStringIncludes(krok.gotowa, "1. **Akt I, scena VIII**. Ludzie Cześnika");
+  assertStringIncludes(krok.gotowa, "1. **Akt I, scena VIII** — Ludzie Cześnika");
   assertEquals(krok.materialy.find((m) => m.id === "W1")?.zrodlo?.url, "https://wolnelektury.pl/katalog/lektura/zemsta/");
 });
 
@@ -208,36 +227,48 @@ Deno.test("czy Wokulski był w Paryżu: weryfikacja szuka w opracowaniu i odpowi
 
 Deno.test("motywy: wszystkie motywy z miejscem i cytatem plus wydarzenia do argumentów", async () => {
   const { krok, wywolania } = await czat("Jakie motywy ma Lalka? Podaj argumenty do rozprawki");
-  assertEquals(wywolania.elementy.map((w) => w.p_rodzaje.join()).sort(), ["motyw", "motyw", "wydarzenie"]);
+  assertEquals(wywolania.elementy.map((w) => w.p_rodzaje.join()).sort(), ["motyw", "wydarzenie", "wydarzenie"]);
   assertStringIncludes(system(krok), "[M1] miłość jako poświęcenie: Wokulski gotów jest oddać życie. (t. I, rozdz. 13) Cytat: „Za takie szczęście oddam życie”");
   assert(krok.materialy.some((m) => m.id === "W1"));
 });
 
-Deno.test("cytat z utworu w domenie publicznej pochodzi z fragmentów tekstu z lokalizacją", async () => {
-  const { krok, wywolania } = await czat("Zacytuj początek Wielkiej Improwizacji", { fragmenty: [FRAGMENT_IMPROWIZACJI], wiersze: [] });
-  assertEquals((wywolania.fragmenty[0] as { p_utwor: string }).p_utwor, "dziady-iii");
-  const f = krok.materialy.find((m) => m.id === "F1");
+Deno.test("początek Wielkiej Improwizacji korzysta z nagłówka sceny II i kotwicy Wolnych Lektur", async () => {
+  const [txt, html] = await Promise.all(["txt", "html"].map((ext) =>
+    Deno.readTextFile(new URL(`fixtures/dziady-improwizacja.${ext}`, import.meta.url))));
+  const fragmenty = podzielTekst(txt, { stronaHtml: FRAGMENT_IMPROWIZACJI.zrodlo_url, kotwice: kotwiceZHtml(html) });
+  assertEquals(fragmenty.map((f) => f.miejsce), ["akt I, sc. 1", "akt I, sc. 2", "akt I, sc. 3"]);
+  const pytanie = "Zacytuj, co mówi Konrad na początku Wielkiej Improwizacji";
+  const { krok, wywolania } = await czat(pytanie, {
+    wiersze: [],
+    szukajFragmentow: (p) => Promise.resolve(
+      (p.p_poczatek ? fragmenty.filter((f) => f.tytulCzesci === "Improwizacja") : fragmenty.slice(0, 1))
+        .map((f) => ({ ...f, utwor: p.p_utwor, tytul_czesci: f.tytulCzesci, zrodlo_url: f.url })),
+    ),
+  });
+  assertEquals(wywolania.fragmenty[0], { p_utwor: "dziady-iii", p_pytanie: pytanie, p_fraza: null, p_limit: 2, p_poczatek: true });
+  const f = krok.materialy.find((m) => m.id === "F2");
   assert(f?.zrodlo);
   assertEquals(f.zrodlo.miejsce, "akt I, sc. 2 (Improwizacja)");
-  assertStringIncludes(f.zrodlo.url, "dziady-dziady-poema-dziady-czesc-iii.html");
+  assertEquals(f.zrodlo.url, `${FRAGMENT_IMPROWIZACJI.zrodlo_url}#s6`);
   assert(f.tekst.startsWith("KONRAD"), "prośba o początek zaczyna wycinek od początku sceny");
   assert(f.tekst.length <= 1400);
+  const cytat = "Samotność — cóż po ludziach, czy-m śpiewak dla ludzi?";
   const { wynik, zrodla } = przez(
     krok.materialy,
-    "Początek Wielkiej Improwizacji (akt I, sc. 2): „Samotność — cóż po ludziach, czym śpiewak dla ludzi?” [F1]",
+    `Początek Wielkiej Improwizacji (akt I, sc. 2): „${cytat}” [F2]`,
   );
   assert(!wynik.includes(POMINIETO));
-  assertStringIncludes(wynik, "„Samotność — cóż po ludziach, czym śpiewak dla ludzi?”");
-  assertEquals(zrodla[0].dowod, "Samotność — cóż po ludziach, czym śpiewak dla ludzi?");
+  assertStringIncludes(wynik, `„${cytat}”`);
+  assertEquals(zrodla[0].dowod, cytat);
   assertEquals(zrodla[0].typ, "fragment");
 });
 
 Deno.test("cytat wymyślony przez model jest usuwany z odpowiedzi", async () => {
   const { krok } = await czat("Zacytuj początek Wielkiej Improwizacji", { fragmenty: [FRAGMENT_IMPROWIZACJI] });
   const { wynik } = przez(krok.materialy, [
-    "Oto początek Wielkiej Improwizacji [F1]:",
-    "„Wolność jest jak ptak, który nigdy nie zna swojej klatki” [F1]",
-    "Konrad zwraca się do Boga [F1].",
+    "Oto początek Wielkiej Improwizacji [F3]:",
+    "„Wolność jest jak ptak, który nigdy nie zna swojej klatki” [F3]",
+    "Konrad zwraca się do Boga [F3].",
   ].join("\n"));
   assert(!wynik.includes("ptak"));
   assertStringIncludes(wynik, "Konrad zwraca się do Boga");
@@ -268,6 +299,126 @@ Deno.test("identyfikatory zamieniają się na źródła, nieznane znikają, resz
   const meta = odczytajOdpowiedzPestki(metadaneCzatu(wynik, zrodla, false));
   assertEquals(meta?.zrodla[0].id, "P1");
   assertEquals(meta?.akcje, ["zrodlo"]);
+});
+
+Deno.test("pytania o przyczynę sprowadzają sekcje trafne i obie sekcje fabularne", async () => {
+  const migracja = await Deno.readTextFile(new URL("../migrations/0040_przywroc_testament_papkina.sql", import.meta.url));
+  const wydarzenie = /\[Akt IV, scena IV–V\] ([^\n\\]+)/.exec(migracja)?.[1];
+  assert(wydarzenie?.includes("Rejent go otruł winem"));
+  for (const pytanie of ["Dlaczego Papkin pisze testament?", "Po co Papkin pisze testament?", "Z jakiego powodu Papkin przygotowuje testament?"]) {
+    const sekcje = [
+      sekcjaRow("motywy", "Komizm postaci.", "zemsta"), sekcjaRow("geneza", "Geneza sporu.", "zemsta"),
+      sekcjaRow("streszczenie", "Spór dotyczy sąsiadów.", "zemsta"),
+      sekcjaRow("bohaterowie", "Papkin jest posłańcem Cześnika.", "zemsta"), sekcjaRow("wydarzenia", wydarzenie!, "zemsta"),
+    ];
+    const { krok } = await czat(pytanie, { sekcje, wiersze: [] });
+    assertEquals(krok.materialy.filter((m) => m.sekcja).map((m) => m.sekcja), ["motywy", "geneza", "streszczenie", "bohaterowie", "wydarzenia"]);
+    assertStringIncludes(system(krok), `[S:wydarzenia] ${wydarzenie}`);
+    assertStringIncludes(system(krok), "nigdy im nie przeczyj");
+    const odp = przez(krok.materialy, "Papkin pisze testament, ponieważ podejrzewa, że Rejent go otruł [S:wydarzenia].");
+    assertEquals(odp.zrodla[0].id, "S:wydarzenia");
+    assert(!odp.wynik.includes(ETYKIETA_OGOLNA));
+  }
+});
+
+Deno.test("nawias z numerem źródła przy poprzednim planie przywraca jego materiały dla dopytania", async () => {
+  const poprzednie = "Podaj plan wydarzeń Lalki";
+  const messages: Message[] = [
+    { role: "user", content: poprzednie },
+    { role: "assistant", content: "1. **t. II, rozdz. 3** — Wokulski spotyka Geista w Paryżu. [1]" },
+    { role: "user", content: "Czy na pewno to było w tym rozdziale?" },
+  ];
+  const { dostep } = dostepZ({
+    szukajElementow: (p) => Promise.resolve(p.p_kolejnosc && p.p_rodzaje.includes("wydarzenie") ? WIERSZE.slice(0, 3) : []),
+  });
+  const krok = await przygotujCzat(messages, { tryb: "czat" }, dostep);
+  assertEquals(rozpoznajPytanieCzatu(messages, {}).poprzednie, [poprzednie]);
+  assertStringIncludes(system(krok), "Nie wycofuj potwierdzonej informacji");
+  assertStringIncludes(system(krok), "[W2] t. II, rozdz. 3: Wokulski w Paryżu spotyka profesora Geista.");
+  assertEquals(przez(krok.materialy, "W tym rozdziale Wokulski spotyka Geista [W2].").zrodla[0].url, T2);
+  const dopytanie = await przygotujCzat([
+    ...messages,
+    { role: "assistant", content: "Tak, spotkanie odbywa się w tym rozdziale. [1]" },
+    { role: "user", content: "A co jeszcze wiemy o tym rozdziale?" },
+  ], { tryb: "czat" }, dostep);
+  assertStringIncludes(system(dopytanie), "[W2] t. II, rozdz. 3");
+});
+
+Deno.test("poprzednie źródło tekstu zachowuje identyfikator w kolejnym pytaniu o scenę", async () => {
+  const poprzednie = "Zacytuj początek Wielkiej Improwizacji";
+  const messages: Message[] = [
+    { role: "user", content: poprzednie },
+    { role: "assistant", content: "„Samotność — cóż po ludziach, czy-m śpiewak dla ludzi?” [1]" },
+    { role: "user", content: "Z jakiej sceny pochodzi ten cytat?" },
+  ];
+  const { dostep } = dostepZ({
+    szukajFragmentow: (p) => Promise.resolve(p.p_poczatek ? [FRAGMENT_IMPROWIZACJI] : []),
+  });
+  const krok = await przygotujCzat(messages, { tryb: "czat" }, dostep);
+  assertStringIncludes(system(krok), "[F3] akt I, sc. 2 (Improwizacja)");
+  assertEquals(przez(krok.materialy, "To słowa Konrada ze sceny drugiej [F3].").zrodla[0].id, "F3");
+});
+
+Deno.test("plan bez tytułu dziedziczy utwór, a zwykłe pytanie i nowy utwór tego nie robią", async () => {
+  const historia: Message[] = [
+    { role: "user", content: "Podaj plan wydarzeń Lalki" },
+    { role: "assistant", content: "Plan wydarzeń Lalki [1]" },
+  ];
+  const rozmowa = (content: string): Message[] => [...historia, { role: "user", content }];
+  const messages = rozmowa("Plan wydarzeń tomu II, rozdział 14");
+  assertEquals(rozpoznajPytanieCzatu(messages, {}).utwor?.id, "lalka");
+  assert(rozpoznajPytanieCzatu(messages, {}).lektura);
+  const krok = await przygotujCzat(messages, { tryb: "czat" }, dostepZ().dostep);
+  assertStringIncludes(krok.gotowa!, "1. **t. II, rozdz. 14**");
+  assert(!krok.gotowa?.includes("rozdz. 3"));
+  assertEquals(rozpoznajPytanieCzatu(rozmowa("Co to jest pochodna?"), {}).utwor, undefined);
+  assertEquals(rozpoznajPytanieCzatu(rozmowa("Jak napisać akt notarialny?"), {}).lektura, false);
+  assertEquals(rozpoznajPytanieCzatu(rozmowa("Plan wydarzeń Zemsty"), {}).utwor?.id, "zemsta");
+  assertEquals(rozpoznajPytanieCzatu(rozmowa("Streść Dziady, część IV"), {}).utwor, undefined);
+  assertEquals(rozpoznajPytanieCzatu(rozmowa("Streść „Nieznany tytuł”"), {}).utwor, undefined);
+  assertEquals(rozpoznajPytanieCzatu([...rozmowa("Streść „Nieznany tytuł”"), {
+    role: "user", content: "Plan wydarzeń pierwszego tomu",
+  }], {}).utwor, undefined);
+  assertEquals(rozpoznajPytanieCzatu(messages, { chronOdpowiedz: true }).lektura, false);
+});
+
+async function elementyLalki() {
+  const { dane } = (await wczytajPlikiLektur()).find((p) => p.nazwa === "lalka")!;
+  return wierszeElementow(dane as PlikLektury);
+}
+
+Deno.test("samotność i jej synonimy dają scenę, miejsce i odsyłacz do źródła rozprawki", async () => {
+  const wiersze = await elementyLalki();
+  for (const temat of ["samotności", "wyobcowaniu", "osamotnieniu"]) {
+    const { krok, wywolania } = await czat(`Pomóż mi z argumentem do rozprawki o ${temat}, z Lalki`, {
+      szukajElementow: (p) => Promise.resolve(wiersze.filter((w) => p.p_rodzaje.includes(w.rodzaj) &&
+        (p.p_kolejnosc || (w.rodzaj === "motyw" && p.p_pytanie.includes("samotność") && w.nr === 7)))),
+    });
+    assertStringIncludes(wywolania.elementy[0].p_pytanie, "wyobcowanie");
+    assertStringIncludes(system(krok), "[M7] samotność i rozpacz");
+    assertStringIncludes(system(krok), "[W32] t. II, rozdz. 14");
+    assertStringIncludes(system(krok), "1–2 konkretnych scenach");
+    const { wynik, zrodla } = przez(krok.materialy, "Załamanie Wokulskiego widać w Skierniewicach (t. II, rozdz. 14) [M7][W32].");
+    assertEquals(zrodla[0].url, XIV);
+    assert(!wynik.includes(ETYKIETA_OGOLNA));
+    assertEquals(Object.keys(metadaneCzatu(wynik, zrodla, false)).sort(), ["akcje", "zrodla"]);
+  }
+});
+
+Deno.test("zakończenie Lalki pobiera ostatnie wydarzenia i streszczenie", async () => {
+  const wiersze = await elementyLalki();
+  const { krok, wywolania } = await czat("Jak kończy się Lalka?", {
+    szukajElementow: (p) => Promise.resolve(
+      p.p_od_konca ? wiersze.filter((w) => w.rodzaj === "wydarzenie").toReversed().slice(0, p.p_limit) : [],
+    ),
+    sekcje: [sekcjaRow("streszczenie", "Los Wokulskiego pozostaje otwarty.")],
+  });
+  assertEquals(wywolania.elementy[0].p_od_konca, true);
+  assertEquals(krok.materialy.map((m) => m.id), ["K", "W34", "W35", "W36", "W37", "W38", "S:streszczenie"]);
+  assertStringIncludes(system(krok), "Rzecki umiera");
+  const { wynik, zrodla } = przez(krok.materialy, "Pod koniec powieści umiera Rzecki [W38]. Los Wokulskiego pozostaje otwarty [S:streszczenie].");
+  assert(!wynik.includes(ETYKIETA_OGOLNA));
+  assertEquals(zrodla.map((z) => z.id), ["W38", "S:streszczenie"]);
 });
 
 Deno.test("to samo miejsce w tekście ma jedno źródło, a wiele identyfikatorów w jednym nawiasie działa", () => {

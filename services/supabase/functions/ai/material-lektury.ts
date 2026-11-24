@@ -15,8 +15,10 @@ export type Material = {
 };
 
 export type SzukajBaza = (p: { p_przedmiot: string; p_utwor: string | null; p_sekcja: Sekcja | null; p_pytanie: string }) => Promise<unknown>;
-export type SzukajElementy = (p: { p_utwor: string; p_rodzaje: string[]; p_pytanie: string; p_limit: number; p_kolejnosc: boolean }) => Promise<unknown>;
-export type SzukajFragmenty = (p: { p_utwor: string; p_pytanie: string; p_fraza: string | null; p_limit: number }) => Promise<unknown>;
+export type SzukajElementy = (p: {
+  p_utwor: string; p_rodzaje: string[]; p_pytanie: string; p_limit: number; p_kolejnosc: boolean; p_od_konca: boolean;
+}) => Promise<unknown>;
+export type SzukajFragmenty = (p: { p_utwor: string; p_pytanie: string; p_fraza: string | null; p_limit: number; p_poczatek: boolean }) => Promise<unknown>;
 export type DostepLektur = { baza: SzukajBaza; elementy?: SzukajElementy; fragmenty?: SzukajFragmenty };
 
 export type Zebrane = { materialy: Material[]; uwagi: string[]; maWydarzenia: boolean };
@@ -179,7 +181,9 @@ function fragmenty(raw: unknown, utwor: Utwor, pytanie: string, fraza: string | 
     const tytulCzesci = napisPestki(wiersz.tytul_czesci, 120);
     const opis = [miejsce, tytulCzesci && `(${tytulCzesci})`].filter(Boolean).join(" ");
     if (!tekst) return [];
-    const id = `F${i + 1}`;
+    // Numer w utworze pozostaje ten sam, gdy fragment wraca w innym wyniku wyszukiwania.
+    const nr = typeof wiersz.nr === "number" && Number.isInteger(wiersz.nr) && wiersz.nr >= 1 ? wiersz.nr : i + 1;
+    const id = `F${nr}`;
     const zrodlo = zrodloMaterialu(utwor, id, "fragment", typeof wiersz.zrodlo_url === "string" ? wiersz.zrodlo_url : undefined, opis || undefined);
     return [{ id, rodzaj: "fragment", tekst, ...(zrodlo && { zrodlo }) }];
   });
@@ -194,46 +198,75 @@ const pewnie = async <T>(p: Promise<T> | undefined, domyslne: T): Promise<T> => 
   }
 };
 
-const unikalne = (m: Material[]) => [...new Map(m.map((x) => [x.id, x])).values()];
+export function materialyWBudzecie(materialy: Material[]): Material[] {
+  let suma = 0;
+  const uzyte = new Set<string>();
+  return materialy.filter((m) => {
+    if (uzyte.has(m.id) || suma + m.tekst.length > LIMIT_ZNAKOW) return false;
+    uzyte.add(m.id);
+    suma += m.tekst.length;
+    return true;
+  });
+}
+
+const SYNONIMY_MOTYWOW = [
+  ["samotność", "wyobcowanie", "osamotnienie", "odosobnienie", "izolacja"],
+];
+
+function pytanieOMotyw(pytanie: string): string {
+  const slowa = normalizuj(pytanie).split(" ");
+  return SYNONIMY_MOTYWOW.find((grupa) => grupa.some((haslo) =>
+    slowa.some((slowo) => slowo.startsWith(normalizuj(haslo).slice(0, 5)))))?.join(" ") ?? pytanie;
+}
 
 /** Zbiera materiały o utworze zależnie od typu pytania. Karta jest zawsze pierwsza. */
 export async function zbierzMaterialy(
   d: DostepLektur, pytanie: string, utwor: Utwor, typ: TypPytania, opcje: { fraza?: string | null; dlugie?: boolean } = {},
 ): Promise<Zebrane> {
-  const el = (rodzaje: string[], limit: number, kolejnosc = false) =>
-    pewnie(d.elementy?.({ p_utwor: utwor.id, p_rodzaje: rodzaje, p_pytanie: pytanie, p_limit: limit, p_kolejnosc: kolejnosc }), []).then((r) => elementy(r, utwor));
+  const el = (rodzaje: string[], limit: number, wybierz: { kolejnosc?: boolean; odKonca?: boolean; szukane?: string } = {}) =>
+    pewnie(d.elementy?.({
+      p_utwor: utwor.id, p_rodzaje: rodzaje, p_pytanie: wybierz.szukane ?? pytanie, p_limit: limit,
+      p_kolejnosc: wybierz.kolejnosc ?? false, p_od_konca: wybierz.odKonca ?? false,
+    }), []).then((r) => elementy(r, utwor));
   const sekcje = (sekcja: Sekcja | null) => pewnie(sekcjeOpracowania(d, pytanie, utwor, sekcja), [] as Material[]);
   const fra = (limit: number) => {
     const fraza = opcje.fraza ?? frazaZPytania(pytanie);
-    return pewnie(d.fragmenty?.({ p_utwor: utwor.id, p_pytanie: pytanie, p_fraza: fraza, p_limit: limit }), []).then((r) => fragmenty(r, utwor, pytanie, fraza));
+    const p_poczatek = PROSI_O_POCZATEK.test(bezAkcentow(pytanie));
+    return pewnie(d.fragmenty?.({ p_utwor: utwor.id, p_pytanie: pytanie, p_fraza: fraza, p_limit: limit, p_poczatek }), []).then((r) => fragmenty(r, utwor, pytanie, fraza));
   };
-  const uwagi = el(["weryfikacja"], 5, true).then((w) => w.map((m) => m.tekst));
+  const uwagi = el(["weryfikacja"], 5, { kolejnosc: true }).then((w) => w.map((m) => m.tekst));
   const naj = (m: Material[], ...sekcje: Sekcja[]) => m.filter((x) => x.sekcja && sekcje.includes(x.sekcja));
 
   let glowne: Material[] = [];
-  let zdarzenia: Material[] = [];
   switch (typ) {
     case "plan": {
-      zdarzenia = await el(["wydarzenie"], 60, true);
-      if (!zdarzenia.length) zdarzenia = (await sekcje("wydarzenia")).flatMap((s) => s.sekcja === "wydarzenia" ? wydarzeniaZNotatki(s, utwor) : []);
-      glowne = zdarzenia;
+      glowne = await el(["wydarzenie"], 60, { kolejnosc: true });
+      if (!glowne.length) glowne = (await sekcje("wydarzenia")).flatMap((s) => s.sekcja === "wydarzenia" ? wydarzeniaZNotatki(s, utwor) : []);
       break;
     }
     case "streszczenie": {
-      const [w, s] = await Promise.all([el(["wydarzenie"], opcje.dlugie ? 60 : 25, true), sekcje("streszczenie")]);
-      zdarzenia = w;
+      const [w, s] = await Promise.all([el(["wydarzenie"], opcje.dlugie ? 60 : 25, { kolejnosc: true }), sekcje("streszczenie")]);
       glowne = [...naj(s, "streszczenie"), ...w, ...naj(s, "bohaterowie"), ...(w.length ? [] : naj(s, "wydarzenia"))];
+      break;
+    }
+    case "zakonczenie": {
+      const [w, s] = await Promise.all([el(["wydarzenie"], 5, { odKonca: true }), sekcje("streszczenie")]);
+      const plan = w.length ? w.toReversed() : naj(s, "wydarzenia").flatMap((m) => wydarzeniaZNotatki(m, utwor)).slice(-5);
+      glowne = [...plan, ...naj(s, "streszczenie"), ...(plan.length ? [] : naj(s, "wydarzenia"))];
       break;
     }
     case "postac": {
       const [p, s] = await Promise.all([el(["postac"], 4), sekcje("bohaterowie")]);
-      glowne = [...(p.length ? p : await el(["postac"], 8, true)), ...naj(s, "bohaterowie", "streszczenie").slice(0, 2)];
+      glowne = [...(p.length ? p : await el(["postac"], 8, { kolejnosc: true })), ...naj(s, "bohaterowie", "streszczenie").slice(0, 2)];
       break;
     }
     case "motywy": {
-      const [m, w, s] = await Promise.all([el(["motyw"], 8), el(["wydarzenie"], 5), sekcje("motywy")]);
-      zdarzenia = w;
-      glowne = [...(m.length >= 3 ? m : unikalne([...m, ...await el(["motyw"], 8, true)])), ...w, ...naj(s, "motywy")];
+      const [m, w, s] = await Promise.all([el(["motyw"], 8, { szukane: pytanieOMotyw(pytanie) }), el(["wydarzenie"], 5), sekcje("motywy")]);
+      const miejsca = new Set(m.flatMap((motyw) => motyw.zrodlo?.miejsce ?? []));
+      const powiazane = [...miejsca].some((miejsce) => !w.some((e) => e.zrodlo?.miejsce === miejsce))
+        ? (await el(["wydarzenie"], 60, { kolejnosc: true })).filter((e) => e.zrodlo?.miejsce && miejsca.has(e.zrodlo.miejsce))
+        : [];
+      glowne = [...(m.length ? m : await el(["motyw"], 8, { kolejnosc: true })), ...powiazane, ...w, ...naj(s, "motywy", "wydarzenia")];
       break;
     }
     case "cytat": {
@@ -248,18 +281,14 @@ export async function zbierzMaterialy(
     }
     default: {
       const [e, s, f] = await Promise.all([el(["wydarzenie", "postac", "motyw", "utwor"], 8), sekcje(null), utwor.wl ? fra(2) : Promise.resolve([] as Material[])]);
-      zdarzenia = e.filter((x) => x.rodzaj === "wydarzenie");
-      glowne = [...e, ...f, ...s.slice(0, 3)];
+      // Baza zwraca sekcje według trafności. Fabuła i bohaterowie są potrzebni także poniżej pierwszej trójki.
+      glowne = [...s.filter((x, i) => i < 3 || x.sekcja === "wydarzenia" || x.sekcja === "bohaterowie"), ...e, ...f];
     }
   }
   const maWydarzenia = glowne.some((m) => m.rodzaj === "wydarzenie");
   // Notatka z planem bywa przybliżona; gdy utwór ma wydarzenia z lokalizacją, ona nie wchodzi do kontekstu.
-  const bezNotatkiPlanu = maWydarzenia ? glowne.filter((m) => m.sekcja !== "wydarzenia") : glowne;
-  let suma = 0;
-  const materialy = [kartaLektury(utwor), ...unikalne(bezNotatkiPlanu)].filter((m) => {
-    suma += m.tekst.length;
-    return m.id === "K" || suma <= LIMIT_ZNAKOW;
-  });
+  const bezNotatkiPlanu = maWydarzenia && typ === "streszczenie" ? glowne.filter((m) => m.sekcja !== "wydarzenia") : glowne;
+  const materialy = materialyWBudzecie([kartaLektury(utwor), ...bezNotatkiPlanu]);
   return { materialy, uwagi: await uwagi, maWydarzenia };
 }
 

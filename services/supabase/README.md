@@ -127,20 +127,24 @@ utwór w pytaniu (tytuł z kontekstem literackim, bohater, autor), pobiera mater
 zawiera jedynie słowo z tytułu lub imię bohatera („wesele kuzynki”, „siostra ma lalkę”, „słodka zemsta za klasówkę”,
 „dżuma w grze”), nie uruchamia lektury: nie ma materiałów, źródeł ani wątków literackich, a model dostaje regułę
 krótkiej, prostej odpowiedzi i powrotu do nauki.
+Pytanie z ramą literacką (np. „plan wydarzeń tomu II”) może odwołać się do ostatniej rozpoznanej lektury
+w tej samej rozmowie. Bramka dla dopytania ponawia wyszukiwanie materiałów z maksymalnie dwóch wcześniejszych
+pytań z odsyłaczami i używa tych samych identyfikatorów materiałów.
 
 Warstwy (szczegóły formatu, walidator, generator i loader tekstów: `lektury/README.md`):
 
 | Warstwa | Źródło | Tabela |
 | --- | --- | --- |
 | Karta `[K]` (autor, epoka, poziom, części, domena publiczna) | katalog w kodzie | brak, zawsze w kontekście |
-| Opracowanie `[S:streszczenie]`, `[S:geneza]`, … | migracje `0027`–`0034` | `private.wiedza_pestki` |
-| Wydarzenia `[W12]`, postacie `[P3]`, motywy `[M5]`, utwory zbioru `[U2]` | `lektury/<id>.json` → migracja `0036_lektury_elementy.sql` | `private.lektury_elementy` |
+| Opracowanie `[S:streszczenie]`, `[S:geneza]`, … | migracje `0027`–`0034`, `0040` | `private.wiedza_pestki` |
+| Wydarzenia `[W12]`, postacie `[P3]`, motywy `[M5]`, utwory zbioru `[U2]` | `lektury/<id>.json` → migracja `0038_lektury_elementy.sql` | `private.lektury_elementy` |
 | Fragmenty tekstu `[F1]` (tylko domena publiczna, poza repozytorium) | `npm run lektury:teksty` | `private.lektury_fragmenty` |
 | Osadzenia (na później) | — | `private.lektury_osadzenia` |
 
 Migracje: `0035` (tabele, funkcje wyszukiwania), `0036` (elementy, generowana), `0037` (usuwa przybliżoną notatkę z
-planem „Lalki”, bo plan jest w elementach). Funkcje `pestka_lektury_elementy` i `pestka_lektury_fragmenty` wywołuje
-wyłącznie rola serwisowa.
+planem „Lalki”, bo plan jest w elementach), `0038` (elementy z kotwicami rozdziałów), `0039` (wyszukiwanie
+początków i zakończeń, uzupełnienie kotwic w załadowanych fragmentach), `0040` (testament Papkina w planie „Zemsty”).
+Funkcje `pestka_lektury_elementy` i `pestka_lektury_fragmenty` wywołuje wyłącznie rola serwisowa.
 
 ### Wybór materiałów według typu pytania
 
@@ -148,11 +152,12 @@ wyłącznie rola serwisowa.
 | --- | --- |
 | plan wydarzeń | wydarzenia utworu w kolejności; odpowiedź składa serwer bez modelu (numerowana lista z miejscem w tekście), zawężona do tomu, rozdziału, aktu lub sceny z pytania |
 | streszczenie | sekcja streszczenia, do 25 wydarzeń (60 przy „szczegółowo”), sekcja bohaterów; „bez spoilerów” daje tylko dwa pierwsze zdania |
+| zakończenie, finał | do pięciu końcowych wydarzeń w kolejności fabuły oraz sekcja streszczenia |
 | kim jest …, bohater, relacje | postacie dopasowane po odmianach imienia (bez dopasowania do 8 postaci), sekcja bohaterów |
-| motywy, rozprawka, argumenty | motywy z miejscem i cytatem, pięć wydarzeń z pytania, sekcja motywów |
-| cytat, „w którym rozdziale” | fragmenty tekstu (dokładna fraza z cudzysłowu albo słowa pytania; „początek” otwiera wycinek od początku), motywy i wydarzenia pasujące do pytania |
+| motywy, rozprawka, argumenty | motywy dopasowane po nazwie i jej synonimach, wydarzenia z odpowiadającego miejsca i trafne wydarzenia z pytania, sekcja motywów |
+| cytat, „w którym rozdziale” | fragmenty tekstu (dokładna fraza albo słowa pytania, a przy prośbie o początek nazwanej sceny pierwsza część pasująca po nagłówku), motywy i wydarzenia pasujące do pytania |
 | geneza, konteksty | sekcje geneza i konteksty |
-| każde inne, w tym „czy …?” | do 8 elementów wszystkich rodzajów dopasowanych do pytania, trzy sekcje opracowania, 2 fragmenty (gdy utwór ma tekst) |
+| każde inne, w tym „czy …?” i „dlaczego …?” | trzy najtrafniejsze sekcje opracowania, uzupełnione o wydarzenia i bohaterów, do 8 elementów oraz 2 fragmenty (gdy utwór ma tekst) |
 
 Do kontekstu trafia najwyżej około 18 tys. znaków materiałów (około 6 tys. tokenów), a karta zawsze. Pełne książki
 nigdy nie trafiają do modelu: fragment jest wycinkiem do 1400 znaków.
@@ -164,9 +169,9 @@ Model cytuje materiały identyfikatorami w nawiasach kwadratowych (`[W12]`, `[P3
 
 - identyfikator z materiałów zamienia się na znacznik `[[zrodlo:N]]` (N to numer pozycji w `zrodla`, od 1), identyfikator
   nieznany znika;
-- wiersz bez żadnego znanego identyfikatora (albo ze znacznikiem `[OW]`) dostaje dopisek
-  `(z ogólnej wiedzy, sprawdź w tekście)`; zwolnione są nagłówki, pytania, wiersze zakończone dwukropkiem, krótkie
-  wiersze (poniżej 5 słów) i uczciwe przyznanie braku materiału („Sedno nie ma …”);
+- zdanie bez znanego identyfikatora dostaje dopisek `(z ogólnej wiedzy, sprawdź w tekście)`; zwolnione są
+  nagłówki, pytania, zdania zakończone dwukropkiem, krótkie zdania bez `[OW]` i przyznanie braku materiału.
+  W zdaniu z prawidłowym identyfikatorem `[OW]` ustępuje źródłu;
 - cytat w cudzysłowie „…” (min. 4 słowa) musi występować w materiałach albo w pytaniu ucznia, inaczej wiersz znika, a na końcu
   pojawia się zdanie o pominiętym fragmencie;
 - bez żadnego wiersza z odpowiedzi serwer zwraca: „Sedno nie ma materiału, który rozstrzyga to pytanie. …”;
@@ -180,7 +185,7 @@ wstecz (stare pola bez zmian, nowe opcjonalne):
 {
   "zrodla": [
     {
-      "url": "https://wolnelektury.pl/katalog/lektura/lalka-tom-drugi.html#wl-e100",
+      "url": "https://wolnelektury.pl/katalog/lektura/lalka-tom-drugi.html#wl-e4032",
       "tytul": "Lalka",
       "rodzaj": "utwór",
       "sekcja": "t. II, rozdz. 14",

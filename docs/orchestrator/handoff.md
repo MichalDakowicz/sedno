@@ -1,27 +1,22 @@
 # Orchestration: handoff
 
-_Updated 2026-11-21_
+_Updated 2026-11-23 21:25_
 
-**State.** Goal 3 („Poprawki od kolegi”, `goal.md`) is active: 8/9 wymagań spełnione, otwarta tylko skrócona runda (nie trafiła się na żywo). PR #88 scalony do `main` (92bde38); frontend wgrany na Firebase Hosting (8604a54 i 8375844). Domyślna trasa AI (Anthropic: `claude-sonnet-5-5` / `claude-haiku-5-5`) wdrożona i zweryfikowana w UI zarówno na stagingu (`localhost:5174`), jak i na produkcji (`https://trafwsedno.web.app`).
+**State.** Goal 4 (`goal.md`) active: all matura subjects, sheet list by session type, drawing on figures with AI check, lektury for Pestka, full-screen chat. Nothing merged to `main` yet; all work on branches, staging (`dev`) has `rysowanie-ai` merged and 361 sheets (115 drawing questions).
 
-**What shipped on the branch.** Server default AI route for accounts without their own key (`SEDNO_AI_KEY`, `SEDNO_AI_MODEL_WAZNE`, `SEDNO_AI_MODEL_LEKKIE`, optional `SEDNO_AI_BASE_URL`, `SEDNO_AI_EFFORT_*`; limits `SEDNO_AI_LIMIT_DZIENNY` 200 / 24 h and `SEDNO_AI_MAX_TOKENS` 4096), readiness via `POST /ai {status:true}`, server-side retry of real upstream errors (client retries removed), clean round instructions (`zdania` / `czyPolecenie` in TrescRundy; DB data was clean), Pestka line for a shortened round, CKE recording notice in every player.
+**Models (owner).** Heavy work gpt-6.2-sol, UI Sonnet 5.5, testers alternate gpt-6.1-terra / Haiku 5.5. Owner allowed Sonnet for lektury so they do not wait for Codex limits.
 
-**Verified.** typecheck, build, 24 Deno tests (`npx -y deno@2 test --no-check=remote -A services/supabase/tests`), `deno check` of ai / nauka-ai / ai-klucz; testy UI przeglądarką: czat Pestki w UI na stagingu (`http://localhost:5174`) oraz na produkcji (`https://trafwsedno.web.app`) na kontach bez własnych kluczy, pełny streaming odpowiedzi, rejestracja zużycia w tabeli `ai_usage`.
+**Branches.**
+- `wszystkie-matury` (importer, 5 commits + uncommitted sol work in worktree t3-b3beb382…): 361 sheets, kontrola 0 problems. Sol resumes at 21:30 (scheduled task): June/August search (only OKE Łomża 2012/2014 without keys so far), drawing marks (false positives), then parser fix round from `notes/qa-arkuszy-cel4.md`.
+- `lista-arkuszy`: 12 subjects, session groups, profile subjects; my CSS fixes (focus, select alignment, math-field overflow). Tested by Terra + Haiku.
+- `czat-caly-ekran` (renamed from `czat-pelny-ekran` after a rebase; old remote branch stale): full-screen chat without top nav; focus fix by me. Tested by Haiku.
+- `rysowanie` → `rysowanie-ai` (on top of `lista-arkuszy`): SVG drawing layer, self-check, AI grading for drawing questions (41 Deno tests). Deployed to staging; UI test with AI not done yet (Haiku hit limit; Terra test scheduled 21:30).
+- `lektury` (+ `lektury-tresc-1/2/3`): catalog of 114 works + six-section notes (sol), Sonnet server builder (layers: wydarzenia/postacie/motywy JSON in `services/supabase/lektury/`, WL fragments loader, FTS, citation ids, keyword-without-lektura rule) and 3 Sonnet content builders. Resumed after Claude limit at 21:20.
 
-**Drobne poprawki (21 listopada, PR #90, gałąź `male-poprawki`).** Zrobione: `?omow=1`, komunikat nagrania przy metadanych, motyw i tekst po wylogowaniu, Pestka nad edytorem SQL, `llm.ts:245` `Array.isArray`, `refreshAiReady(poZmianie)`, runda 375 px, zaznaczenie i ciemne tło w Excalidraw. Sprawdzone typecheck/build/deno check, bez przeglądarki. „Odłóż” w Powtórkach: migracja `0024_odloz_powtorke.sql` (tabela `private.powtorka_odlozona`, RPC `nauka_odloz`, `nauka_powtorki` sortuje odłożone na koniec przez dobę), wgrana na `sedno-dev` i sprawdzona przez API na koncie testowym; na produkcję po scaleniu. Wstrzymane: przełącznik nazw/kodów CKE na mapie (właściciel usunął go w c863a74; łatka w scratchpadzie sesji), potwierdzenie usuwania rundy (nie znaleziono akcji usuwania rundy).
+**Staging changes.** Test account's AI credentials (Ollama, OpenAI) moved to `private.ai_credential_kopia_20261123` on `sedno-dev` so it uses the Claude server route (owner approved).
 
-**Open bars.**
-- Shortened-round line not seen live (tester never reached 4 correct after a mistake). Code reviewed in audits.
+**Baseline lektury tests.** qwen run (invalid, weak model) and Claude run: answers hard to verify (whole-book links), refusals of known facts, vague plans, some false facts. Rzecki does die in „Lalka” (tester was wrong).
 
-**Blocked on the user.**
-- Confirm daily limit (200) and copy „Na dziś wykorzystano limit rozmów z Pestką. Wróć jutro.” (window is rolling 24 h).
-- `.env.staging` and `SEDNO_TEST_*` for the teammate: user hands them over privately.
+**Open questions for the owner.** Sonnet's chat questions (stop button, grouping conversations, keyboard viewport). Production merge/deploy needs the owner's yes.
 
-**Brief.** „ai dla każdego konta” (c56ae715…) zamknięte jako done 21 listopada na polecenie właściciela. „staging dla kolegi” (97e050f2…) is the user's, unclaimed.
-
-**Next.** Przy zmianach w `ai` / `nauka-ai` powtórzyć test na nowym koncie bez klucza (staging, potem produkcja). Then `NASTEPNE.md` section 00: 375 px overflow in rounds, Pestka dock answers with empty English examples on staging (qwen3:8b — model or rendering?), two-column interleave in 2023 podstawowy task 5 text A (parser).
-
-**Housekeeping.**
-- `npm run dev:staging` runs in terminal tab „dev staging” on port 5174 (5173 was taken), from `C:\sedno` on `main`.
-- Staging deploy: merge the branch into `origin/dev` from the detached worktree in the session scratchpad, then push `HEAD:dev` (dev has no own content, only merges).
-- Agent worktrees under `.claude/worktrees/` are left in place (branches `worktree-agent-*`, all merged into `poprawki-od-kolegi`).
+**Next.** Collect builder reports, verify, deploy `lektury` to staging (migrations + `wgraj-teksty`), re-run the lektury test (after), merge order into main via PRs: lista-arkuszy → rysowanie-ai → czat-caly-ekran → wszystkie-matury (data) → lektury.

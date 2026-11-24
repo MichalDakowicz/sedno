@@ -52,7 +52,8 @@ const KONTEKST_LITERACKI = new RegExp([
   "\\bbohater\\w* (?:lektury|powiesci|utworu|dramatu|ksiazki|komedii|noweli)\\b",
   "\\b(?:powiesc|ksiazk|lektur|dramat|komedi)\\w* (?:pt|zatytulowan)\\w*",
 ].join("|"));
-const maKontekstLiteracki = (pytanie: string) => KONTEKST_LITERACKI.test(pytanie);
+const ZAKONCZENIE = /\b(?:jak (?:\w+ ){0,3}konczy(?:\s+sie)?|zakonczeni\w*|final(?:u|em|e|ami|ach)?)\b/;
+const maKontekstLiteracki = (pytanie: string) => KONTEKST_LITERACKI.test(pytanie) || ZAKONCZENIE.test(pytanie);
 
 export function utworPytania(tekst: string, kanoniczny = false): Utwor | undefined {
   const pytanie = bezAkcentow(tekst);
@@ -90,6 +91,9 @@ export const prosiOCytat = (pytanie: string) => /cytat|cytuj|zacytuj|doslown|brz
 export const chceZweryfikowac = (pytanie: string) =>
   /^(?:czy\b|sprawdz|zweryfikuj)|potwierdz|zrodlo (?:na to|dla twierdzenia)/.test(bezAkcentow(pytanie));
 const STRESZCZENIE = /stres(?:zcz|c)|o czym (?:jest|opowiada)|fabul|co to za (?:utwor|ksiazka|powiesc|komedia|dramat)|opowiedz (?:mi )?o /;
+export const nawiazujeDoLektury = (pytanie: string) =>
+  /\b(?:rozdzial\w*|tom(?:u|ie|y|ow|em)?|akt(?:u|y|ow|em|ach)?(?!\s+notarialn)|scen\w*|bohater\w*|cytat\w*|(?:za)?cytuj\w*|plan wydarzen|stres(?:zcz|c)\w*|lektur\w*)\b/
+    .test(bezAkcentow(pytanie)) || pytaOLekture(pytanie) || ZAKONCZENIE.test(bezAkcentow(pytanie));
 
 /** Pytanie wprost o lekturę, bez wskazanego utworu (np. „streść lekturę”, „plan wydarzeń”, „co jest w rozdziale 3”). */
 export const pytaOLekture = (pytanie: string) =>
@@ -113,13 +117,14 @@ export function sekcjaPytania(pytanie: string): Sekcja | null {
   return null;
 }
 
-export type TypPytania = "plan" | "streszczenie" | "postac" | "motywy" | "cytat" | "geneza" | "konteksty" | "szczegol";
+export type TypPytania = "plan" | "streszczenie" | "zakonczenie" | "postac" | "motywy" | "cytat" | "geneza" | "konteksty" | "szczegol";
 
 /** Typ pytania o lekturę decyduje, jakie materiały pobieramy (patrz material-lektury.ts). */
 export function typPytania(pytanie: string): TypPytania {
   const zapis = bezAkcentow(pytanie);
   if (prosiOCytat(pytanie) || /\b(?:w|we) ktor\w+ (?:\w+ ){0,3}(?:rozdzial|scen|akt|ksieg|tom)\w*|\bgdzie (?:\w+ ){0,4}(?:pada|jest mowa|wystepuje)\b/.test(zapis)) return "cytat";
   if (/plan wydarzen|(?:przebieg|kolejnosc) (?:fabuly|wydarzen)|wydarzenia po kolei/.test(zapis)) return "plan";
+  if (ZAKONCZENIE.test(zapis)) return "zakonczenie";
   if (STRESZCZENIE.test(zapis)) return "streszczenie";
   if (/genez|kiedy .{0,18}(wydan|powsta|napisan)|skad .{0,15}tytul/.test(zapis)) return "geneza";
   if (/kontekst|epok/.test(zapis)) return "konteksty";

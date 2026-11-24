@@ -1,5 +1,6 @@
 // Dzielenie tekstu utworu z Wolnych Lektur na fragmenty z lokalizacją (czysta logika, bez sieci).
 // Używa jej wgraj-teksty.ts. Tekstów nie przechowujemy w repozytorium.
+import { rzymskie } from "../functions/_shared/liczby-rzymskie.ts";
 
 export type Fragment = {
   nr: number; czesc: number; miejsce: string; tytulCzesci: string; tekst: string; slowa: number; url: string;
@@ -8,17 +9,6 @@ export type Fragment = {
 export const MAX_SLOW = 800;
 export const CEL_SLOW = 500;
 const MIN_OGON = 150;
-
-const RZYMSKIE: Record<string, number> = { I: 1, V: 5, X: 10, L: 50, C: 100 };
-export function rzymskie(s: string): number | undefined {
-  if (!/^[IVXLC]+$/.test(s)) return;
-  let suma = 0;
-  for (let i = 0; i < s.length; i++) {
-    const v = RZYMSKIE[s[i]], nastepna = RZYMSKIE[s[i + 1]] ?? 0;
-    suma += v < nastepna ? -v : v;
-  }
-  return suma;
-}
 
 const liczbaSlow = (t: string) => t.split(/\s+/).filter(Boolean).length;
 const normTytul = (t: string) => t.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
@@ -33,13 +23,16 @@ export function wytnijTresc(txt: string): string | undefined {
   return t.slice(0, koniec);
 }
 
-/** Mapa „znormalizowany tekst nagłówka → id kotwicy” z HTML wydania (h2–h4 z atrybutem id). */
+/** Nagłówki Wolnych Lektur mają własne id lub bezpośrednio poprzedzającą kotwicę czytnika. */
 export function kotwiceZHtml(html: string): Map<string, string> {
   const mapa = new Map<string, string>();
-  for (const m of html.matchAll(/<h[2-4][^>]*\bid="([A-Za-z0-9_-]+)"[^>]*>([\s\S]*?)<\/h[2-4]>/g)) {
-    if (m[1].startsWith("menu-")) continue;
-    const tekst = normTytul(m[2].replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/g, " "));
-    if (tekst && !mapa.has(tekst)) mapa.set(tekst, m[1]);
+  for (const m of html.matchAll(/(?:<a name="(s\d+)" class="target">\s*<\/a>\s*)?<h([2-4])\b([^>]*)>([\s\S]*?)<\/h\2>/g)) {
+    const id = /\bid="([A-Za-z0-9_-]+)"/.exec(m[3])?.[1];
+    const kotwica = id && !id.startsWith("menu-") ? id : m[1];
+    if (!kotwica) continue;
+    const tekst = normTytul(m[4].replace(/<a\b[^>]*\bclass="annotation"[^>]*>[\s\S]*?<\/a>/g, "")
+      .replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/g, " "));
+    if (tekst && !mapa.has(tekst)) mapa.set(tekst, kotwica);
   }
   return mapa;
 }

@@ -125,8 +125,14 @@ const wspolnyPoczatek = (a: string, b: string) => {
 
 /** Czy wiadomość ucznia zawiera słowo z listy trudnych spraw osobistych (wtedy Pestka pokazuje stałą informację o wsparciu). */
 export function trudnaSprawa(tekst: string): boolean {
-  return slowa(tekst).some((w) => OSOBISTE_PELNE.has(w) || OSOBISTE_PRZEDROSTKI.some((p) => w.startsWith(p)));
+  if (!slowa(tekst).some((w) => OSOBISTE_PELNE.has(w) || OSOBISTE_PRZEDROSTKI.some((p) => w.startsWith(p)))) return false;
+  // „Motyw samotności w Lalce” to zadanie szkolne, nie zwierzenie; słowa o sobie („czuję się”, „mnie”) przywracają informację o wsparciu.
+  const t = bezOgonkow(tekst);
+  return !SZKOLNE.test(t) || O_SOBIE.test(t);
 }
+
+const SZKOLNE = /\b(rozprawk|wypracowan|lektur|motyw|bohater|powiesc|argument|interpretac|wiersz|utwor|dramat|rozdzial|esej|cytat)/;
+const O_SOBIE = /\b(czuje sie|jestem|mnie|nie moge|nie daje rady|nie mam sily|moj|moja|moje|moi|moim|moja mama|moj tata)\b/;
 
 /** Czy znacznik priorytetu wolno zapisać: wynika z ostatniej wiadomości ucznia i nie dotyczy trudnych spraw osobistych. */
 export function priorytetDozwolony(priorytet: string, ostatniaWiadomosc: string): boolean {
