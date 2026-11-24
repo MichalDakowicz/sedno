@@ -10,16 +10,22 @@ export const ETYKIETA_OGOLNA = "(z ogólnej wiedzy, sprawdź w tekście)";
 export const BRAK_MATERIALU = "Sedno nie ma materiału, który rozstrzyga to pytanie. Sprawdź w tekście utworu (Wolne Lektury) albo zapytaj inaczej.";
 export const POMINIETO = "Pominięto fragment odpowiedzi, którego nie da się potwierdzić w materiałach Sedno. Sprawdź go w tekście.";
 
-const GRUPA_ID = /\[\s*((?:(?:[WPMUF]\d{1,4}|S:[a-z]+|K|OW)\s*[,;]?\s*)+)\]/g;
-const TOKEN = /[WPMUF]\d{1,4}|S:[a-z]+|K|OW/g;
+const GRUPA_ID = /\[[ \t]*((?:(?:[WPMUF]\d+|S:[a-z]+|K|OW)[ \t,;]*)+)\]/g;
+const TOKEN = /[WPMUF]\d+|S:[a-z]+|K|OW/g;
+const ID_Z_MIEJSCEM = /\[[ \t]*((?:[WPMUF]\d+|S:[a-z]+)(?:[ \t,;]+(?:[WPMUF]\d+|S:[a-z]+|K|OW))*)[ \t]*(?:[,;:–—-]|\(|[ \t]+(?=(?:akt|sc\.|scen|t\.|tom|rozdz|cz\.|epilog)))[^\]\n]{1,200}\]/g;
+const SAMOTNE_ID = /(?<![\p{L}\p{N}[\]/])\x60?([WPMUF]\d+|S:[a-z]+)\x60?(?![\p{L}\p{N}\]/])(?:[ \t]*\((?=(?:akt|sc\.|scen|t\.|tom|rozdz|cz\.|epilog))[^)\n]{1,200}\))?/gu;
 const POCZATEK_ID = new RegExp(`^(?:${GRUPA_ID.source}[ \\t\\n]*)+`);
 const ZDANIA = new Intl.Segmenter("pl", { granularity: "sentence" });
-const ODSYLACZ = /\[\[\s*zrodlo\s*:\s*[1-9]\d*\s*\]\]|\[[1-9]\d*\]/g;
+const GOTOWY_ODSYLACZ = /\[\[\s*zrodlo\s*:\s*\d+\s*\]\]/g;
+const ODSYLACZ = new RegExp(`${GOTOWY_ODSYLACZ.source}|\\[[1-9]\\d*\\]`, "g");
+const normalizujId = (tekst: string): string => tekst.replace(ID_Z_MIEJSCEM, (zapis, id) =>
+  zapis.match(GRUPA_ID)?.[0] === zapis ? zapis : `[${id}]`).replace(SAMOTNE_ID, "[$1]");
 
 export const maOdsylacz = (tekst: string): boolean => tekst.search(ODSYLACZ) >= 0 ||
-  [...tekst.matchAll(GRUPA_ID)].some((m) => m[1].match(TOKEN)?.some((id) => id !== "OW"));
-export const bezOdsylaczy = (tekst: string): string => tekst
-  .replace(ODSYLACZ, "").replace(GRUPA_ID, "").replace(/[ \t]+(?=[.,;:!?…])/g, "").replace(/[ \t]+$/gm, "").trim();
+  [...normalizujId(tekst).matchAll(GRUPA_ID)].some((m) => m[1].match(TOKEN)?.some((id) => id !== "OW"));
+export const bezOdsylaczy = (tekst: string): string => normalizujId(tekst)
+  .replace(ODSYLACZ, "").replace(GRUPA_ID, "")
+  .replace(/[ \t]+(?=[.,;:!?…])/g, "").replace(/[ \t]+$/gm, "").trim();
 
 const NAGLOWEK = /^\s{0,3}#{1,6}(?:\s|$)/;
 const PODKRESLENIE = /^\s{0,3}(?:=+|-+)\s*$/;
@@ -34,12 +40,14 @@ const OBIETNICA_PRIORYTETU = /\b(?:dodał|dopisał|zapisał|ustawił)(?:am|em|o)
 // Zdanie, w którym Pestka uczciwie mówi o braku materiału, nie wymaga etykiety.
 const PRZYZNANIE_BRAKU = /\bSedno\b[^.\n]{0,60}\b(?:nie ma|brak|ma tylko)|\bnie ma (?:tego |tej |go )?w (?:materiałach|opracowaniu)|z ogólnej wiedzy|\bnie wiem\b|\bnie jestem pewn/i;
 const POLECENIE = /^(?:(?:teraz|na koniec|najpierw|potem|prosze|mozesz|jesli chcesz) )*(?:sprobuj|napisz|zastanow sie|przypomnij sobie|dopisz|wybierz|podaj|wypisz|porownaj|przeczytaj|sprawdz|wskaz|uzasadnij|zapisz|zacytuj|wyjasnij|omow|uzupelnij|rozwaz|zrob|powiedz|zaproponuj|zacznij|zobacz|opisz|odpowiedz|znajdz|zwroc uwage)\b/;
+const PORADA = /^(?:mozesz|w (?:rozprawce|wypracowaniu|argumentacji)|jak (?:to |go |ja )?(?:wyjasnic|ujac|wykorzystac|napisac|sformulowac|uzasadnic|zaczac|rozwinac))\b/;
+const NAGLOWEK_PORAD = /^(?:wskazowki|propozycja argumentu|mozesz|jak (?:to |go |ja )?(?:wyjasnic|ujac|wykorzystac|napisac|sformulowac|uzasadnic|zaczac|rozwinac)|w (?:rozprawce|wypracowaniu|argumentacji))\b/;
 const ELEMENTY = new Set<Material["rodzaj"]>(["wydarzenie", "postac", "motyw", "utwor"]);
 const POMIJANE_SLOWA = new Set(
   "albo bardzo bohater bohaterka czesc dlaczego dlatego dzieki gdzie jest jestes jeszcze jednak kazdy kiedy ktore ktora ktory ktorym lektura miejsce natomiast omawia opis opisuje oraz potem powiesc prawda przed przez przy przyklad raz razem rozdz rozdzial scena takze tego teraz tylko tutaj utwor wedlug wydarzenie wlasnie wtedy zostal zatem swoje swoja swoje swoich temat dzieje chodzi stanowi pojawia osoba imie relacje poznajemy nastepnie".split(" "),
 );
 
-export type OpcjeProcesora = { pytanie: string; zapisPriorytetu: boolean; wstep?: string };
+export type OpcjeProcesora = { pytanie: string; zapisPriorytetu: boolean; wstep?: string; bezEtykiety?: boolean };
 
 const slowa = (t: string) => t.split(/\s+/).filter(Boolean).length;
 const przytnij = (t: string, n: number) => t.length <= n ? t : t.slice(0, n - 1).replace(/\s+\S*$/, "");
@@ -129,6 +137,7 @@ export class ProcesorOdpowiedzi {
   private zamkniecie = "";
   private wyemitowano = 0;
   private ostatniaPusta = true;
+  private listaPorad = false;
   private pominieto = false;
   private wstepWyslany = false;
   private readonly zrodlaOdp: { klucz: string; zrodlo: ZrodloPestki; wiersze: string[]; dowody: string[] }[] = [];
@@ -190,18 +199,24 @@ export class ProcesorOdpowiedzi {
     if (!this.opcje.zapisPriorytetu && OBIETNICA_PRIORYTETU.test(bezPriorytetu)) return "";
 
     if (PODKRESLENIE.test(bezPriorytetu) && this.wiersze.length && !PUNKT.test(this.wiersze[0]) && !BLOK_CYTATU.test(this.wiersze[0])) {
+      this.listaPorad = NAGLOWEK_PORAD.test(normalizuj(this.wiersze[0]));
       this.wiersze.push(bezPriorytetu);
       return this.blok(true);
     }
-    if (NAGLOWEK.test(bezPriorytetu)) {
+    const porada = NAGLOWEK_PORAD.test(normalizuj(bezPriorytetu));
+    const krotkiWstep = bezPriorytetu.length < 100 && !/[.!?…]/.test(bezPriorytetu);
+    if (NAGLOWEK.test(bezPriorytetu) || (porada && (krotkiWstep || /:\s*$/.test(bezPriorytetu) || /^\*\*.*\*\*$/.test(bezPriorytetu)))) {
       const poprzedni = this.blok();
+      this.listaPorad = porada;
       this.wiersze.push(bezPriorytetu);
       return poprzedni + this.blok(true);
     }
     const nowy = PUNKT.test(bezPriorytetu) || (this.wiersze.length > 0 &&
       BLOK_CYTATU.test(bezPriorytetu) !== BLOK_CYTATU.test(this.wiersze[0]) &&
       !!bezOdsylaczy(bezPriorytetu));
-    return (nowy ? this.blok() : "") + this.dopisz(bezPriorytetu);
+    const poprzedni = nowy ? this.blok() : "";
+    if (!this.wiersze.length && !PUNKT.test(bezPriorytetu) && !porada) this.listaPorad = false;
+    return poprzedni + this.dopisz(bezPriorytetu);
   }
 
   private dopisz(linia: string): string {
@@ -212,7 +227,8 @@ export class ProcesorOdpowiedzi {
 
   private blok(naglowek = false): string {
     if (!this.wiersze.length) return "";
-    let surowy = this.wiersze.join("\n").replaceAll(ETYKIETA_OGOLNA, "").replace(CYTAT, (cytat) => {
+    const listaPorad = this.listaPorad && PUNKT.test(this.wiersze[0]);
+    let surowy = normalizujId(this.wiersze.join("\n").replaceAll(ETYKIETA_OGOLNA, "").replace(GOTOWY_ODSYLACZ, "")).replace(CYTAT, (cytat) => {
       const odsylacze = cytat.match(GRUPA_ID);
       return odsylacze ? cytat.replace(GRUPA_ID, "").replace(/[ \t]+(?=[”»"]$)/, "") + " " + odsylacze.join("") : cytat;
     });
@@ -259,10 +275,11 @@ export class ProcesorOdpowiedzi {
       .replace(/[ \t]+([.,;:!?…])/g, "$1").replace(/[ \t]+$/gm, "").trimEnd();
     const bezZnacznikow = wyczyszczony.replace(/\[\[[^\]]*\]\]/g, "").trim();
     const sameCytaty = !bezZnacznikow.replace(CYTAT, "").replace(PUNKT, "").replace(/[\s.,;:!?"…*]+/g, "");
-    const poleceniaLubPytania = zdaniaZOdsylaczami(bezZnacznikow).every((s) =>
+    const poczatek = normalizuj(bezZnacznikow.replace(PUNKT, ""));
+    const poleceniaLubPytania = PORADA.test(poczatek) || zdaniaZOdsylaczami(bezZnacznikow).every((s) =>
       s.trimEnd().endsWith("?") || POLECENIE.test(normalizuj(s.replace(PUNKT, ""))));
-    const zwolniony = naglowek || cytat || sameCytaty || /^(?:\*\*.+\*\*|__.+__)$/.test(bezZnacznikow) ||
-      /:$/.test(bezZnacznikow) || poleceniaLubPytania || PRZYZNANIE_BRAKU.test(bezZnacznikow);
+    const zwolniony = this.opcje.bezEtykiety || naglowek || cytat || sameCytaty || listaPorad ||
+      /^(?:\*\*.+\*\*|__.+__)$/.test(bezZnacznikow) || /:$/.test(bezZnacznikow) || poleceniaLubPytania || PRZYZNANIE_BRAKU.test(bezZnacznikow);
     const dopisek = !maId && !zwolniony ? ` ${ETYKIETA_OGOLNA}` : "";
     return wyczyszczony.replace(PUNKT, "").trim() ? this.emituj(`${wyczyszczony}${dopisek}`) : "";
   }

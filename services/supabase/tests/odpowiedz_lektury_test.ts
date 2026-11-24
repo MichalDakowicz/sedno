@@ -84,6 +84,39 @@ Deno.test("polecenia i pytania do ucznia nie mają etykiety wiedzy ogólnej", ()
   assertEquals(procesor.dodaj(tekst) + procesor.zakoncz(), tekst);
 });
 
+Deno.test("nagłówek porad, lista wskazówek i sugestie do rozprawki nie dostają etykiety", () => {
+  const p = new ProcesorOdpowiedzi([], { pytanie: "", zapisPriorytetu: false });
+  const tekst = [
+    "### Jak to wyjaśnić w rozprawce", "", "1. Teza we wstępie.", "2. Przykład i wniosek w rozwinięciu.", "",
+    "Możesz od razu połączyć przykład z tezą.", "", "W rozprawce warto dodać krótkie wyjaśnienie.", "",
+    "Jak ująć ten argument? Dobrym początkiem będzie wniosek.", "",
+    "Jak to wyjaśnić w rozprawce", "", "- Teza we wstępie.", "",
+    "### Fabuła", "", "1. Wokulski kupił nowy dom.",
+  ].join("\n");
+  assertEquals(p.dodaj(tekst) + p.zakoncz(), tekst + " " + ETYKIETA_OGOLNA);
+});
+
+Deno.test("goły identyfikator i identyfikator z miejscem dają karty, obcy znacznik znika", () => {
+  const p = new ProcesorOdpowiedzi([
+    wydarzenie("W32", "t. II, rozdz. 14", "Wokulski wysiada w Skierniewicach."),
+    { ...wydarzenie("F13", "akt II, sc. 2", "Papkin rozmawia z Klarą."), rodzaj: "fragment" },
+  ], { pytanie: "", zapisPriorytetu: false });
+  const tekst = "Wokulski wysiada w Skierniewicach W32.\n\n" +
+    "Papkin rozmawia z Klarą [F13, akt 2, sc. 2].\n\n" +
+    "Papkin rozmawia z Klarą F13 (akt II, sc. 2).\n\n" +
+    "Zdanie bez materiału [F999, miejsce nieznane] \x60W888\x60 i [F12345]";
+  let wynik = "";
+  for (let i = 0; i < tekst.length; i += 7) wynik += p.dodaj(tekst.slice(i, i + 7));
+  wynik += p.zakoncz();
+  assertEquals(wynik.split("\n\n"), [
+    "Wokulski wysiada w Skierniewicach [[zrodlo:1]].",
+    "Papkin rozmawia z Klarą [[zrodlo:2]].",
+    "Papkin rozmawia z Klarą [[zrodlo:2]].",
+    "Zdanie bez materiału. " + ETYKIETA_OGOLNA,
+  ]);
+  assertEquals(p.zrodla().map((z) => z.miejsce), ["t. II, rozdz. 14", "akt II, sc. 2"]);
+});
+
 Deno.test("zgodność miejsca uwzględnia zakres scen w elemencie", () => {
   const m = wydarzenie("W2", "akt II, sc. 1–3", "Działanie opisane w kilku scenach.");
   const procesor = new ProcesorOdpowiedzi([m], { pytanie: "", zapisPriorytetu: false });
