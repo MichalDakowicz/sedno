@@ -1,5 +1,5 @@
 import { segmenty } from "./tekst.js";
-import { tekstLinii } from "./tresc-pdf.js";
+import { plotno, tekstKomorki, tekstLinii } from "./tresc-pdf.js";
 
 const SYMBOL_MAT = /[\u{1d400}-\u{1d7ff}=+−×·√∑∫≥≤±→^]/u;
 const ZWYKLE_SLOWO = /\p{L}{4,}/u;
@@ -10,7 +10,7 @@ function liniaWzoru(l) {
 }
 
 // Kreska widoczna w renderze rozróżnia ułamek od indeksu i etykiet wykresu.
-export function ulamkiWLinii(s, linie) {
+export function ulamkiWLinii(s, linie, { zapisLiniowy = false } = {}) {
   const zuzyte = new Set();
   const wstaw = new Map();
   for (const [i, l] of linie.entries()) {
@@ -24,7 +24,8 @@ export function ulamkiWLinii(s, linie) {
       const xp = Math.max(a.xp, b.xp);
       if (l.czesci.some((c) => Math.abs(c.y - l.y) < 2.5 && c.x < xp - 1 && c.x + c.w > x + 1)) continue;
       if (!kreskaUlamkowa(s, x, xp, b.y + 3, a.y - 0.8)) continue;
-      const tekst = "\\(\\frac{" + a.tex + "}{" + b.tex + "}\\)";
+      const tekst = zapisLiniowy ? "(" + skladnikLiniowy(a.zapis) + "/" + skladnikLiniowy(b.zapis) + ")"
+        : "\\(\\frac{" + a.tex + "}{" + b.tex + "}\\)";
       for (const c of [...a.cz, ...b.cz]) zuzyte.add(c);
       if (!wstaw.has(l)) wstaw.set(l, []);
       wstaw.get(l).push({ s: tekst, x, y: l.y, w: xp - x, h: 11 });
@@ -35,6 +36,27 @@ export function ulamkiWLinii(s, linie) {
     const czesci = [...l.czesci.filter((c) => !zuzyte.has(c)), ...(wstaw.get(l) ?? [])].sort((a, b) => a.x - b.x);
     return { ...l, czesci, seg: segmenty(czesci), x: czesci[0]?.x };
   }).filter((l) => l.czesci.length);
+}
+
+function skladnikLiniowy(tekst) {
+  return /[\s+−×·]/u.test(tekst.slice(1)) ? "(" + tekst + ")" : tekst;
+}
+
+export async function ulamkiKlucza(pdf, strony) {
+  const wynik = [];
+  for (const [i, linie] of strony.entries()) {
+    if (!linie.some((l) => /^\s*[\d\p{L}]{1,4}\s*$/u.test(l.s))) {
+      wynik.push(linie);
+      continue;
+    }
+    const s = await plotno(pdf, i + 1, new Map());
+    try {
+      wynik.push(ulamkiWLinii(s, linie, { zapisLiniowy: true }));
+    } finally {
+      s.fabryka.destroy(s);
+    }
+  }
+  return wynik;
 }
 
 function skladniki(punkty) {
@@ -58,7 +80,7 @@ function skladniki(punkty) {
     }
     tex = tex.replaceAll("−", "-").replaceAll("·", "\\cdot ").replaceAll("×", "\\times ")
       .replace(/√([A-Za-z0-9]+)/g, "\\sqrt{$1}");
-    return tex.includes("√") ? [] : [{ ...g, srodek: (g.x + g.xp) / 2, tex }];
+    return tex.includes("√") ? [] : [{ ...g, srodek: (g.x + g.xp) / 2, tex, zapis: tekstKomorki({ tekst, formaty }) }];
   });
 }
 

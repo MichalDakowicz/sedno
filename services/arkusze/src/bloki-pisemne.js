@@ -10,8 +10,10 @@ const TRESC_X1 = 530;
 const SKALA = 2;
 const PUSTA_LINIA = /^[\s.…_•–-]+$/;
 const ZRODLO = /^(?:Źródło|Na podstawie|Opracowano na podstawie|Zaczerpnięto z)\s*:/i;
+export const MATERIAL_DO_ZADAN = /^(?:Informacj[ae]|Materiały? źródłow[ye]|Tekst) do zada(?:nia|ń)\s+(\d+)(?:\.(\d+))?/i;
 const TYTUL = /^(?:Tekst|Źródło|Materiał|Temat|Mapa|Ilustracja|Rysunek|Wykres|Tabela|Fotografia|Część)\s+(?:[0-9IVX]+|[A-D])(?:[.:]|\s*$)|^(?:Test historycznoliteracki|Język polski w użyciu)$/i;
 const PODPIS_FIGURY = /^(?:Rysunek|Diagram|Wykres|Mapa|Fotografia)(?:\s+(?:\d+|[A-D]))?\.?$/i;
+const ETYKIETY_FIGURY = /^(?:(?:zestaw|probówka|próba|rysunek|diagram)\s+(?:\d+|[IVX]+)\.?\s*)+$/i;
 const PRZEDMIOTY_Z_WZORAMI = new Set(["matematyka", "fizyka", "chemia", "biologia", "informatyka"]);
 
 export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { przedmiot }) {
@@ -32,7 +34,7 @@ export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { p
       const wytnij = (ramka, nazwa) => zapiszWycinek(s, ramka, katalog, prefiks, f.nr + "-" + (i + 1) + "-" + nazwa + ".webp");
       const czesci = c.linie.flatMap((l) => l.czesci);
       const genealogie = ramkiGenealogii(c);
-      const tabele = tabeleZSiatki(s, c.gora, c.dol, czesci, { odpowiedzi: true })
+      const tabele = tabeleZSiatki(s, c.gora, c.dol, czesci, { odpowiedzi: true, otwartyDol: true })
         .filter((t) => !genealogie.some(([, yd, , yg]) => yd < t.gora && yg > t.dol));
       const elementy = [];
       const pozaTabelami = c.linie.map((l) => ({ ...l, czesci: l.czesci.filter((k) =>
@@ -85,7 +87,7 @@ export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { p
             continue;
           }
         }
-        const typ = ZRODLO.test(l.t.tekst) ? "zrodlo" : TYTUL.test(l.t.tekst) ? "naglowek" : null;
+        const typ = ZRODLO.test(l.t.tekst) ? "zrodlo" : TYTUL.test(l.t.tekst) || MATERIAL_DO_ZADAN.test(l.t.tekst) ? "naglowek" : null;
         elementy.push({ y: l.y, ...(typ ? { blok: { typ, ...l.t } } : { linia: l }) });
       }
       const bufor = [];
@@ -152,6 +154,7 @@ function ramkiRysunkow(s, { gora, dol, linie }, tabele, zajete) {
   for (const t of tabele) zastrzez(X0, t.dol - 2, X1, t.gora + 2);
   for (const [, yd, , yg] of zajete) zastrzez(X0, yd, X1, yg);
   for (const l of linie) {
+    if (MATERIAL_DO_ZADAN.test(l.s)) zastrzez(X0, l.y - 5, X1, l.y + 12);
     for (const c of l.czesci) zastrzez(c.x - 2, c.y - 3, c.x + c.w + 2, c.y + (c.h || 11) + 2);
   }
   const pasy = [];
@@ -208,7 +211,7 @@ function dolaczEtykiety(r, linie, dol, gora) {
   const [x0, y0, x1, y1] = r;
   for (const l of linie) {
     if (l.y < y0 - 26 || l.y > y1 + 18 || ZRODLO.test(l.s)) continue;
-    const podpis = PODPIS_FIGURY.test(l.s);
+    const podpis = PODPIS_FIGURY.test(l.s) || ETYKIETY_FIGURY.test(l.s);
     // Dłuższy wiersz przy marginesie to treść zadania. Etykiety w legendach mogą zawierać kilka słów.
     const etykieta = podpis || l.x >= 86 && l.s.length <= 55 && !/[.!?]$/.test(l.s)
       || l.s.length <= 17 && !/\p{L}{4}/u.test(l.s) || /(?:^|\s)\d+[.,]?\d*(?:\s+\d+[.,]?\d*){3}/.test(l.s);

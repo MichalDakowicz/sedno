@@ -3,7 +3,7 @@ import { OPS } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { kluczMatematyki, powodKadru, zapiszWycinek } from "./matematyka.js";
 import { kluczPisemny, kryteriaWypracowania, NAGLOWEK } from "./klucz-pisemny.js";
 import { czyWypracowanie, numerPolskiego, poczatekWypracowania } from "./polski.js";
-import { trescZFragmentow } from "./bloki-pisemne.js";
+import { MATERIAL_DO_ZADAN, trescZFragmentow } from "./bloki-pisemne.js";
 import { plotno, tekstKomorki } from "./tresc-pdf.js";
 import { segmenty } from "./tekst.js";
 import { odpowiedziZTabeli } from "./matematyka-klucz.js";
@@ -12,9 +12,15 @@ import { oznaczRysowanie } from "./rysowanie.js";
 
 const POLECENIE = /^(?:Na podstawie|Wybierz|Dokończ|Uzupełnij|Oceń|Rozstrzygnij|Wyjaśnij|Uzasadnij|Zaznacz|Wyznacz|Oblicz|Rozwiąż|Podaj|Wskaż|Określ|Zapisz|Napisz|Przetłumacz|Wymień|Sformułuj|Przedstaw|Wykaż|Udowodnij)(?!\p{L})/iu;
 const SZUM = /^Strona\s+\d+\s+z\s+\d+|^[A-Z]{3,4}-[PRD]\d?[-_]\d{3}|^Więcej arkuszy|^©|^Nr strony|^Ciąg dalszy na następnej stronie/i;
-const KONIEC = /^(?:BRUDNOPIS|KARTA ODPOWIEDZI|WYPRACOWANIE|CZYSTOPIS|Koniec arkusza)\s*$/i;
+const KONIEC = /^(?:BRUDNOPIS(?:\s*\(nie podlega ocenie\))?|KARTA ODPOWIEDZI|WYPRACOWANIE|CZYSTOPIS|Koniec arkusza)\s*$/i;
 const POMIN_KONCOWKE = /^(?:Miejsce na (?:obliczenia|zapis|notatki|odpowiedź)|Do oceny oddajesz)\s*[:.]?$/i;
 const WSTEP = /^(?:Przeczytaj (?:uważnie )?(?:(?:podany|poniższy|zamieszczony) )?(?:tekst|fragment|materiał)|Lista lektur obowiązkowych|Język polski w użyciu|Test historycznoliteracki|Tekst [12]\b|Część [12]\b|Materiał źródłowy do)/i;
+
+function dolTresciStrony(linie) {
+  const tabelaEgzaminatora = linie.find((l) => l.y < 190 && /\bNr zadania\b/i.test(l.s)
+    && linie.some((w) => w.y < l.y && l.y - w.y < 60 && /(?:Maks\.|Uzyskana) liczba pkt/i.test(w.s)));
+  return tabelaEgzaminatora ? Math.max(56, tabelaEgzaminatora.y + 15) : 56;
+}
 
 function liniaTresci(l) {
   const czesci = l.czesci.filter((c) => c.x >= 49 && c.x < 539 && (c.x >= 64 || !/^\s*[\d.−–-]+\s*$/.test(c.s)));
@@ -33,10 +39,14 @@ export function fragmentyPisemne(strony, wpis) {
   for (const [n, wiersze] of strony.entries()) {
     if (n === 0) continue;
     let c;
-    for (const l of wiersze.map(liniaTresci).filter(Boolean)) {
+    const linie = wiersze.map(liniaTresci).filter(Boolean);
+    if (linie.some((l) => /^Poziom (?:podstawowy|rozszerzony|dwujęzyczny)$/i.test(l.s))
+      && linie.some((l) => /^Formuła (?:2015|2023)$/i.test(l.s)) && !linie.some((l) => NAGLOWEK.test(l.s))) continue;
+    const dol = dolTresciStrony(linie);
+    for (const l of linie.filter((l) => l.y > dol)) {
       if (/^STRONA (PUSTA|WOLNA)$/i.test(l.s)) break;
       if (KONIEC.test(l.s)) {
-        if (c && !zakonczonaTresc) c.dol = Math.max(56, l.y + 12);
+        if (c && !zakonczonaTresc) c.dol = Math.max(dol, l.y + 12);
         zakonczonaTresc = true;
         if (/^KARTA ODPOWIEDZI|^Koniec arkusza/i.test(l.s)) return fragmenty;
         continue;
@@ -49,12 +59,12 @@ export function fragmentyPisemne(strony, wpis) {
         const nr = wpis.przedmiot === "polski" ? numerPolskiego(numer, wpis) : numer;
         if (rozpoznane.has(nr)) continue;
         rozpoznane.add(nr);
-        if (c && !zakonczonaTresc) c.dol = Math.max(56, l.y + 13);
+        if (c && !zakonczonaTresc) c.dol = Math.max(dol, l.y + 13);
         if (przedZadaniem.at(-1)?.strona === n + 1) przedZadaniem.at(-1).dol = l.y + 13;
         const tytulZPunktami = m?.[3]?.match(/^(.*?)\s*\(0\s*[–−-]\s*(\d+)\)$/);
         const dolaczonyTekst = (tytulZPunktami?.[1] ?? m?.[3])?.replace(new RegExp("^" + nr.replaceAll(".", "\\.") + "\\.?$"), "");
         const punkty = m?.[2] ?? tytulZPunktami?.[2];
-        c = { strona: n + 1, gora: m ? l.y - 4 : l.y + 13, dol: 56, linie: esej ? [l] : [] };
+        c = { strona: n + 1, gora: m ? l.y - 4 : l.y + 13, dol, linie: esej ? [l] : [] };
         akt = { nr, zadanie: Number(nr.match(/^\d+/)[0]), punkty: punkty === undefined ? undefined : Number(punkty), esej, czesci: [c] };
         if (dolaczonyTekst) {
           if (!m[2] && wpis.przedmiot === "informatyka") akt.tytul = dolaczonyTekst;
@@ -68,20 +78,28 @@ export function fragmentyPisemne(strony, wpis) {
         fragmenty.push(akt);
         continue;
       }
-      if (!akt) {
-        if (!przedZadaniem.length && !WSTEP.test(l.s)) continue;
+      const [, numer, podpunkt] = l.s.match(MATERIAL_DO_ZADAN) ?? [];
+      const ostatniPodpunkt = akt?.nr.split(".")[1];
+      const nowyMaterial = Number(numer) > (akt?.zadanie ?? 0)
+        || Number(numer) === akt?.zadanie && Number(podpunkt) > Number(ostatniPodpunkt);
+      if (nowyMaterial && c && !zakonczonaTresc) {
+        c.dol = Math.max(dol, l.y + 13);
+        c = undefined;
+      }
+      if (przedZadaniem.length || nowyMaterial || !akt) {
+        if (!przedZadaniem.length && !nowyMaterial && !WSTEP.test(l.s)) continue;
         const poprzednia = przedZadaniem.at(-1);
         if (poprzednia?.strona === n + 1) poprzednia.linie.push(l);
-        else przedZadaniem.push({ strona: n + 1, gora: l.y + 13, dol: 56, linie: [l], wstep: true });
+        else przedZadaniem.push({ strona: n + 1, gora: l.y + 13, dol, linie: [l], wstep: true });
         continue;
       }
       if (POMIN_KONCOWKE.test(l.s)) {
-        if (c) c.dol = Math.max(56, l.y + 12);
+        if (c) c.dol = Math.max(dol, l.y + 12);
         zakonczonaTresc = true;
       }
       if (zakonczonaTresc) continue;
       if (!c) {
-        c = { strona: n + 1, gora: Math.min(785, l.y + 38), dol: 56, linie: [] };
+        c = { strona: n + 1, gora: Math.min(785, l.y + 38), dol, linie: [] };
         akt.czesci.push(c);
       }
       c.linie.push(l);
@@ -94,7 +112,7 @@ export function fragmentyPisemne(strony, wpis) {
 }
 
 function zDocx(f, d) {
-  if (!d || !d.bloki.some((b) => b.typ === "wzor" || b.tekst?.includes("\\(") || b.tresc?.includes("\\("))) return;
+  if (!d || f.czesci.some((c) => c.wstep) || !d.bloki.some((b) => b.typ === "wzor" || b.tekst?.includes("\\(") || b.tresc?.includes("\\("))) return;
   const rysunki = f.bloki.filter((b) => b.typ === "rysunek");
   const tekstPdf = f.czesci.flatMap((c) => c.linie.map((l) => l.s)).join(" ");
   if (powodKadru({ rysunek: rysunki[0] }, d, tekstPdf)) return;
@@ -172,9 +190,14 @@ function opcjeZNawiasow(bloki, wybory) {
   const litery = "ABCDEFGH";
   const [pierwsze, drugie] = nawiasy;
   if (pierwsze.length > litery.length || drugie.length > 9) return null;
-  for (const b of zdania) b.polecenie = true;
+  for (const b of zdania) {
+    b.tekst = tekstKomorki({ ...b, formaty: b.formaty ?? [] }).replace(/\([^()]+\/[^()]+\)/g, "[…]");
+    delete b.formaty;
+    b.polecenie = true;
+  }
   const strona = zdania.at(-1).strona;
-  bloki.push(
+  // KodZWyborem grupuje opcje literowe i numerowane do najbliższego bloku pytania.
+  bloki.splice(bloki.indexOf(zdania.at(-1)) + 1, 0,
     { typ: "akapit", tekst: "Pierwszy nawias", strona },
     { typ: "opcje", opcje: pierwsze.map((tresc, i) => ({ litera: litery[i], tresc })), strona },
     { typ: "akapit", tekst: "Drugi nawias", strona },
@@ -238,7 +261,7 @@ export function zadaniaPisemne(fragmenty, stronyKlucza, wpis, metadane, docx, da
     if (kluczMat[f.nr]) k = { ...kluczMat[f.nr], ...k };
     if (k && !k.zasady && f.nr.includes(".")) k = { ...k, zasady: klucz[f.nr.split(".")[0]]?.zasady };
     if (k && !k.rozwiazanie && k.kod) k.rozwiazanie = k.kod;
-    const tresc = f.czesci.flatMap((c) => c.linie.map((l) => l.s)).join(" ");
+    const tresc = f.czesci.filter((c) => !c.wstep).flatMap((c) => c.linie.map((l) => l.s)).join(" ");
     if (wpis.przedmiot === "polski" && !czyMaPodpunkty && /Temat [12]\.|wybierz jeden temat/i.test(tresc)) f.esej = true;
     if (f.punkty === undefined && !czyMaPodpunkty) {
       f.punkty = k?.punkty;

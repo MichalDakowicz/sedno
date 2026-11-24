@@ -53,7 +53,7 @@ export function tekstLinii(czesci) {
     // Indeks dolny bywa prawie na linii bazowej (podstawa systemu: 101112₃), więc drobny znak nie wyżej niż ona to indeks.
     const indeks = drobny ? (c.y > bazowa + 1.5 ? "sup" : "sub") : null;
     const przerwa = koniec === null ? 0 : c.x - koniec;
-    const przedrostek = indeks === "sup" && /\p{L}{2,}$/u.test(poprzedni?.s ?? "") && poprzedni.h >= 0.85 * maxH;
+    const przedrostek = indeks === "sup" && /\p{L}{2}$/u.test(tekst) && poprzedni?.h >= 0.85 * maxH;
     if (tekst && przerwa > 1.2 && (!indeks || przedrostek) && !tekst.endsWith(" ") && !s.startsWith(" ")) tekst += " ";
     const od = tekst.length;
     tekst += indeks ? s.trim() : s;
@@ -439,7 +439,7 @@ export function tekstKomorki({ tekst, formaty }) {
  * (między liniami poziomymi), z których każdy ma co najmniej dwie linie pionowe. Każda tabela:
  * wiersze komórek (tekst), rozpiętość komórek w kolumnach, liczba wierszy nagłówka, zakres pionowy.
  */
-export function tabeleZSiatki(s, gora, dol, czesci, { odpowiedzi = false } = {}) {
+export function tabeleZSiatki(s, gora, dol, czesci, { odpowiedzi = false, otwartyDol = false } = {}) {
   const [x0, x1] = KADR_X.map((x) => Math.round(x * SKALA));
   const szer = x1 - x0;
   const py0 = Math.max(0, Math.round((s.wys - gora) * SKALA));
@@ -482,6 +482,28 @@ export function tabeleZSiatki(s, gora, dol, czesci, { odpowiedzi = false } = {})
       if (!akt) tabele.push((akt = []));
       akt.push(p);
     } else akt = null;
+  }
+  if (otwartyDol) {
+    for (const t of tabele) {
+      const w = t.at(-1);
+      if (w.linie.length < 3) continue;
+      const start = Math.ceil(w.dol) + 2;
+      const limit = Math.min(py1 - py0 - 1, start + 100);
+      const konce = w.linie.map((x) => {
+        let ostatni = start - 1;
+        for (let r = start; r <= limit && r - ostatni <= 3; r++) {
+          const k = Math.round(x);
+          if ([k - 1, k, k + 1].some((c) => c >= 0 && c < szer && ciemny(d, (r * szer + c) * 4))) ostatni = r;
+        }
+        return ostatni;
+      });
+      const koniec = Math.min(...konce);
+      if (koniec < start + 14 || Math.max(...konce) - koniec > 4 || koniec + 4 >= limit) continue;
+      const lewy = (x0 + w.linie[0]) / SKALA;
+      const prawy = (x0 + w.linie.at(-1)) / SKALA;
+      if (!czesci.some((c) => c.x >= lewy && c.x + c.w <= prawy && c.y > yPdf(koniec) && c.y < yPdf(start))) continue;
+      t.push({ gora: w.dol, dol: koniec + 1, linie: w.linie });
+    }
   }
   return tabele.filter((t) => t.length >= 2 || t[0].linie.length >= 3).map((t) => zbudujTabele(t, czesci, { x0, yPdf, odpowiedzi })).filter(Boolean);
 }

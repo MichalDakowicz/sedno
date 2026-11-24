@@ -16,6 +16,7 @@ import { importujPisemny } from "./arkusz-pisemny.js";
 import { identyfikator, MIESIACE, terminMiesiaca } from "./sesje.js";
 import { uzupelnijKluczAngielskiego } from "./angielski.js";
 import { oznaczRysowanie } from "./rysowanie.js";
+import { ulamkiKlucza } from "./wzory-pdf.js";
 
 // Fragmenty nagrań dopasowane do pytań (services/arkusze/nagrania/dopasuj.py) leżą osobno,
 // żeby ponowny import ich nie kasował: { "1.1": { od, do, tekst }, … }.
@@ -99,7 +100,16 @@ for (const w of katalog) {
       ostrzezenia = [...(ostrzezenia ?? []), ...wynik.ostrzezenia];
       await osadzObrazy(zadania, KATALOG_ARKUSZY);
     } else if (wspolnyParser) {
-      const stronyKlucza = w.zasady ? await tekstPdf(join(KATALOG_CKE, w.zasady.plik), { fonty: true, naprawKodowanie: true }) : [];
+      const sciezkaKlucza = w.zasady && join(KATALOG_CKE, w.zasady.plik);
+      let stronyKlucza = sciezkaKlucza ? await tekstPdf(sciezkaKlucza, { fonty: true, naprawKodowanie: true }) : [];
+      if (przedmiot === "matematyka" && sciezkaKlucza) {
+        const pdfKlucza = await otworzPdf(sciezkaKlucza);
+        try {
+          stronyKlucza = await ulamkiKlucza(pdfKlucza, stronyKlucza);
+        } finally {
+          await pdfKlucza.destroy();
+        }
+      }
       const docx = w.tresc ? fragmentyDocx(await czytajDocx(join(KATALOG_CKE, w.tresc.plik))) : undefined;
       const pdf = await otworzPdf(sciezka);
       let mapa, kadry;
