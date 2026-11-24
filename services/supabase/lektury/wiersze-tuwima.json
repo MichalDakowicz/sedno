@@ -1,0 +1,49 @@
+{
+ "id": "wiersze-tuwima",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "krytyka propagandy wojennej",
+   "przyklad": "Plakaty „do ludności” i „do żołnierzy” oraz hasła o ojczyźnie, chwale i rubieży mają skłonić ludzi do walki.",
+   "miejsce": "Do prostego człowieka, strofa I–II",
+   "cytat": "Wiedz, że na trwogę biją w dzwony"
+  },
+  {
+   "motyw": "wojna jako interes elit",
+   "przyklad": "Wiersz mówi, że wojna wybucha, bo komuś „nafta z ziemi sikła”, a w bankach „coś nie sztymuje”.",
+   "miejsce": "Do prostego człowieka, strofa III",
+   "cytat": "Twoja jest krew, a ich jest nafta!"
+  },
+  {
+   "motyw": "apel do pokoju i oporu",
+   "przyklad": "Końcowy wers wzywa żołnierza do buntu przeciw rozkazom.",
+   "miejsce": "Do prostego człowieka, strofa III",
+   "cytat": "Rżnij karabinem w bruk ulicy!"
+  },
+  {
+   "motyw": "krytyka patriotycznej retoryki",
+   "przyklad": "Biskup, pastor i rabin błogosławią karabin, a „stado dzikich bab” obrzuca żołnierzy kwiatami; można odczytać to jako krytykę fałszywego patriotyzmu.",
+   "miejsce": "Do prostego człowieka, strofa II"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Do prostego człowieka",
+   "miejsce": "cały wiersz",
+   "opis": "Wiersz-apel antywojenny. Mówiący wylicza, jak władza i prasa przygotowują wojnę (plakaty, hasła, błogosławieństwo duchownych, „kolorowe godło”), po czym zwraca się do „prostego człowieka”: wojna służy interesom „króli z panami brzuchatymi” (nafta, banki, cło). Kończy wezwaniem do oporu."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/tuwim-do-prostego-czlowieka/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst; cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Tuwim zmarł w 1953 r., więc jego utwory weszły do domeny publicznej w 2024 r.; Wolne Lektury udostępniają ten wiersz — sprawdzono wyłącznie ten tekst.",
+  "Data powstania i okoliczności pierwodruku nie zostały sprawdzone — do weryfikacji.",
+  "Wybór wierszy CKE poza przykładem z katalogu nie został sprawdzony."
+ ]
+}

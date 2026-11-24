@@ -1,0 +1,372 @@
+{
+  "id": "ksiega-rodzaju",
+  "wydarzenia": [
+    {
+      "nr": 1,
+      "miejsce": "Rdz 1,1–2,4a",
+      "kto": [
+        "Bóg"
+      ],
+      "gdzie": "początek świata",
+      "opis": "Bóg stwarza świat w sześciu dniach, a w siódmym odpoczywa; człowieka stwarza na swój obraz jako mężczyznę i kobietę."
+    },
+    {
+      "nr": 2,
+      "miejsce": "Rdz 2,4b–25",
+      "kto": [
+        "Bóg",
+        "Adam",
+        "Ewa"
+      ],
+      "gdzie": "ogród Eden",
+      "opis": "Bóg lepi człowieka z prochu ziemi, sadzi ogród w Edenie i z żebra Adama tworzy kobietę."
+    },
+    {
+      "nr": 3,
+      "miejsce": "Rdz 3",
+      "kto": [
+        "Adam",
+        "Ewa",
+        "wąż",
+        "Bóg"
+      ],
+      "gdzie": "ogród Eden",
+      "opis": "Wąż nakłania Ewę do zerwania owocu z zakazanego drzewa poznania dobra i zła; Adam i Ewa jedzą, tracą niewinność i zostają wygnani z raju."
+    },
+    {
+      "nr": 4,
+      "miejsce": "Rdz 4,1–16",
+      "kto": [
+        "Kain",
+        "Abel",
+        "Bóg"
+      ],
+      "gdzie": "okolice Edenu",
+      "opis": "Kain, rolnik, zabija z zazdrości brata Abla, pasterza, którego ofiara została przyjęta; Bóg skazuje Kaina na tułaczkę i oznacza go znakiem."
+    },
+    {
+      "nr": 5,
+      "miejsce": "Rdz 6,5–9,17",
+      "kto": [
+        "Noe",
+        "Bóg",
+        "rodzina Noego"
+      ],
+      "gdzie": "arka, ziemia zalana wodą",
+      "opis": "Bóg postanawia zesłać potop z powodu zła ludzi; Noe buduje arkę, ratuje swoją rodzinę i zwierzęta, a po potopie Bóg zawiera przymierze, którego znakiem jest tęcza."
+    },
+    {
+      "nr": 6,
+      "miejsce": "Rdz 11,1–9",
+      "kto": [
+        "ludzie",
+        "Bóg"
+      ],
+      "gdzie": "Babel (równina Szinear)",
+      "opis": "Ludzie zaczynają budować miasto i wieżę sięgającą nieba; Bóg miesza ich języki i rozprasza ich po ziemi."
+    },
+    {
+      "nr": 7,
+      "miejsce": "Rdz 12,1–9",
+      "kto": [
+        "Abram",
+        "Bóg",
+        "Sara"
+      ],
+      "gdzie": "z Charanu do Kanaanu",
+      "opis": "Bóg powołuje Abrama i obiecuje mu ziemię i liczne potomstwo; Abram opuszcza dom ojca i wyrusza do Kanaanu."
+    },
+    {
+      "nr": 8,
+      "miejsce": "Rdz 18–19",
+      "kto": [
+        "Abraham",
+        "Bóg",
+        "Lot"
+      ],
+      "gdzie": "Mamre, Sodoma",
+      "opis": "Abraham gości trzech posłańców; Bóg zapowiada zagładę Sodomy i Gomory, ratuje Lota z rodziną."
+    },
+    {
+      "nr": 9,
+      "miejsce": "Rdz 21,1–7",
+      "kto": [
+        "Abraham",
+        "Sara",
+        "Izaak"
+      ],
+      "gdzie": "Negeb",
+      "opis": "Sara w podeszłym wieku rodzi Abrahamowi Izaaka, zgodnie z obietnicą."
+    },
+    {
+      "nr": 10,
+      "miejsce": "Rdz 22,1–19",
+      "kto": [
+        "Abraham",
+        "Izaak",
+        "Bóg"
+      ],
+      "gdzie": "góra Moria",
+      "opis": "Bóg wystawia Abrahama na próbę, każąc mu złożyć w ofierze Izaaka; w ostatniej chwili anioł zatrzymuje jego rękę, a zamiast chłopca Abraham składa w ofierze barana."
+    },
+    {
+      "nr": 11,
+      "miejsce": "Rdz 25,19–34; 27",
+      "kto": [
+        "Jakub",
+        "Ezaw",
+        "Izaak",
+        "Rebeka"
+      ],
+      "gdzie": "Kanaan",
+      "opis": "Jakub kupuje od Ezawa pierworództwo za miskę soczewicy, a następnie podstępem uzyskuje od ojca błogosławieństwo należne starszemu bratu."
+    },
+    {
+      "nr": 12,
+      "miejsce": "Rdz 28,10–22; 32,23–33",
+      "kto": [
+        "Jakub",
+        "Bóg"
+      ],
+      "gdzie": "Betel, bród Jabbok",
+      "opis": "Jakub we śnie widzi drabinę sięgającą nieba, a później walczy nad Jabbokiem z tajemniczą postacią i otrzymuje imię Izrael."
+    },
+    {
+      "nr": 13,
+      "miejsce": "Rdz 37; 39–41",
+      "kto": [
+        "Józef",
+        "bracia",
+        "Potifar",
+        "faraon"
+      ],
+      "gdzie": "Kanaan, Egipt",
+      "opis": "Bracia sprzedają Józefa do Egiptu, gdzie po różnych przejściach, dzięki wykładaniu snów, zostaje wysokim urzędnikiem faraona."
+    },
+    {
+      "nr": 14,
+      "miejsce": "Rdz 42–46; 50",
+      "kto": [
+        "Józef",
+        "bracia",
+        "Jakub"
+      ],
+      "gdzie": "Egipt",
+      "opis": "Podczas głodu bracia przybywają po zboże do Egiptu, Józef ujawnia się im i przebacza, a cała rodzina Jakuba osiedla się w Egipcie."
+    }
+  ],
+  "postacie": [
+    {
+      "imie": "Adam",
+      "odmiany": [
+        "Adam",
+        "Adama",
+        "Adamowi",
+        "Adamem"
+      ],
+      "rola": "pierwszy człowiek, stworzony z prochu ziemi",
+      "relacje": "mąż Ewy",
+      "miejsca": [
+        "Rdz 2",
+        "Rdz 3"
+      ]
+    },
+    {
+      "imie": "Ewa",
+      "odmiany": [
+        "Ewa",
+        "Ewy",
+        "Ewie",
+        "Ewę",
+        "Ewą"
+      ],
+      "rola": "pierwsza kobieta, ulega namowie węża",
+      "relacje": "żona Adama",
+      "miejsca": [
+        "Rdz 2",
+        "Rdz 3"
+      ]
+    },
+    {
+      "imie": "Kain",
+      "odmiany": [
+        "Kain",
+        "Kaina",
+        "Kainowi",
+        "Kainem"
+      ],
+      "rola": "pierwszy morderca, rolnik",
+      "relacje": "brat Abla",
+      "miejsca": [
+        "Rdz 4"
+      ]
+    },
+    {
+      "imie": "Abel",
+      "odmiany": [
+        "Abel",
+        "Abla",
+        "Ablowi",
+        "Ablem"
+      ],
+      "rola": "pasterz, zabity przez brata",
+      "relacje": "brat Kaina",
+      "miejsca": [
+        "Rdz 4"
+      ]
+    },
+    {
+      "imie": "Noe",
+      "odmiany": [
+        "Noe",
+        "Noego",
+        "Noemu",
+        "Noem"
+      ],
+      "rola": "sprawiedliwy, budowniczy arki",
+      "relacje": "ojciec Sema, Chama i Jafeta",
+      "miejsca": [
+        "Rdz 6–9"
+      ]
+    },
+    {
+      "imie": "Abraham (Abram)",
+      "odmiany": [
+        "Abraham",
+        "Abrahama",
+        "Abrahamowi",
+        "Abrahamem",
+        "Abram",
+        "Abrama"
+      ],
+      "rola": "praojciec Izraela, wzór wiary",
+      "relacje": "mąż Sary, ojciec Izaaka",
+      "miejsca": [
+        "Rdz 12",
+        "Rdz 22"
+      ]
+    },
+    {
+      "imie": "Sara",
+      "odmiany": [
+        "Sara",
+        "Sary",
+        "Sarze",
+        "Sarę",
+        "Sarą"
+      ],
+      "rola": "żona Abrahama, matka Izaaka",
+      "relacje": "żona Abrahama",
+      "miejsca": [
+        "Rdz 12",
+        "Rdz 21"
+      ]
+    },
+    {
+      "imie": "Izaak",
+      "odmiany": [
+        "Izaak",
+        "Izaaka",
+        "Izaakowi",
+        "Izaakiem"
+      ],
+      "rola": "syn Abrahama, ofiara próby wiary",
+      "relacje": "ojciec Jakuba i Ezawa",
+      "miejsca": [
+        "Rdz 21",
+        "Rdz 22"
+      ]
+    },
+    {
+      "imie": "Jakub (Izrael)",
+      "odmiany": [
+        "Jakub",
+        "Jakuba",
+        "Jakubowi",
+        "Jakubem",
+        "Izrael",
+        "Izraela"
+      ],
+      "rola": "praojciec dwunastu plemion",
+      "relacje": "brat Ezawa, ojciec Józefa",
+      "miejsca": [
+        "Rdz 27",
+        "Rdz 28",
+        "Rdz 32"
+      ]
+    },
+    {
+      "imie": "Józef",
+      "odmiany": [
+        "Józef",
+        "Józefa",
+        "Józefowi",
+        "Józefem"
+      ],
+      "rola": "syn Jakuba, sprzedany do Egiptu, potem zarządca w Egipcie",
+      "relacje": "brat jedenastu braci",
+      "miejsca": [
+        "Rdz 37",
+        "Rdz 41",
+        "Rdz 45"
+      ]
+    }
+  ],
+  "motywy": [
+    {
+      "motyw": "stworzenie świata i człowieka",
+      "przyklad": "Bóg stwarza świat w sześć dni, a człowieka na swój obraz jako mężczyznę i kobietę.",
+      "miejsce": "Rdz 1,1–2,4a"
+    },
+    {
+      "motyw": "grzech pierworodny i utrata raju",
+      "przyklad": "Adam i Ewa jedzą owoc z zakazanego drzewa i zostają wygnani z Edenu.",
+      "miejsce": "Rdz 3"
+    },
+    {
+      "motyw": "bratobójstwo i zazdrość",
+      "przyklad": "Kain zabija Abla, bo Bóg przyjął jego ofiarę, a nie ofiarę Kaina.",
+      "miejsce": "Rdz 4,1–16"
+    },
+    {
+      "motyw": "potop i przymierze",
+      "przyklad": "Bóg zsyła potop, ratuje Noego i zawiera przymierze, którego znakiem jest tęcza.",
+      "miejsce": "Rdz 6,5–9,17"
+    },
+    {
+      "motyw": "pycha i podział ludzi",
+      "przyklad": "Ludzie budują wieżę do nieba, a Bóg miesza ich języki i rozprasza ich po ziemi.",
+      "miejsce": "Rdz 11,1–9"
+    },
+    {
+      "motyw": "wiara i posłuszeństwo wobec Boga",
+      "przyklad": "Abraham opuszcza dom ojca na wezwanie Boga i jest gotów złożyć w ofierze Izaaka.",
+      "miejsce": "Rdz 12,1–9; Rdz 22"
+    },
+    {
+      "motyw": "rywalizacja braci i podstęp",
+      "przyklad": "Jakub zdobywa pierworództwo i błogosławieństwo Ezawa podstępem.",
+      "miejsce": "Rdz 25,29–34; Rdz 27"
+    },
+    {
+      "motyw": "przebaczenie i opatrzność",
+      "przyklad": "Józef, sprzedany przez braci do Egiptu, przebacza im i ratuje rodzinę przed głodem.",
+      "miejsce": "Rdz 37; Rdz 45; Rdz 50"
+    }
+  ],
+  "utwory": [],
+  "zrodla": [
+    {
+      "url": "https://biblia.deon.pl/",
+      "rodzaj": "utwór",
+      "co": "Biblia Tysiąclecia, tekst do sprawdzenia opisanych fragmentów"
+    }
+  ],
+  "do_weryfikacji": [
+    "Plik nie był sprawdzany w żadnym źródle online ani w wydaniu Biblii; powstał z ogólnej znajomości Księgi Rodzaju i wymaga weryfikacji (np. w Biblii Tysiąclecia).",
+    "Cytatów nie podano, bo tekst współczesnych polskich wydań Biblii jest objęty prawem autorskim.",
+    "Zakres „fragmentów” Księgi Rodzaju wymaganych na maturze nie jest ustalony w katalogu; w danych podano najczęściej omawiane epizody.",
+    "Numery wersetów (np. Rdz 2,4a) przyjęto z konwencji spotykanej w opracowaniach; mogą różnić się między wydaniami.",
+    "Opis nie został porównany z tekstem Biblii przy zapisie; sprawdzić rozdziały i wersety."
+  ]
+}

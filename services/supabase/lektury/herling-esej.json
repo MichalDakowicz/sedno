@@ -1,0 +1,28 @@
+{
+  "id": "herling-esej",
+  "wydarzenia": [],
+  "postacie": [],
+  "motywy": [
+    { "motyw": "miejsce ekspozycji a odbiór sztuki", "przyklad": "Herling łączy wrażenie wywołane przez więzienne ryciny ze zwiedzaniem podziemnego korytarza rzymskiego zamku.", "miejsce": "Dziennik pisany nocą 1973–1979, zapis o wystawie w Zamku Anioła" },
+    { "motyw": "światło jako składnik doświadczenia", "przyklad": "Skąpe oświetlenie w korytarzu potęguje w odczuciu pisarza zagadkowość oglądanych rycin.", "miejsce": "Dziennik pisany nocą 1973–1979, zapis o wystawie w Zamku Anioła" },
+    { "motyw": "granice opisu dzieła", "przyklad": "Pisarz daje wyraz przekonaniu, że nadmiar objaśnień mógłby naruszyć siłę przeżycia wywołanego przez grafiki.", "miejsce": "Dziennik pisany nocą 1973–1979, zapis o wystawie w Zamku Anioła" },
+    { "motyw": "więzienie i labirynt", "przyklad": "W odczytaniu Joanny Bielskiej-Krawczyk załamania i urwane schody w wizjach Piranesiego pozwalają odczytać wnętrze jako przestrzeń bez drogi wyjścia.", "miejsce": "Dziennik pisany nocą 1980–1983, fragment o Carceri" },
+    { "motyw": "samotność i skala", "przyklad": "Bielska-Krawczyk interpretuje przytłaczające wnętrza rycin jako obraz zagubienia człowieka w świecie, z którym nie potrafi się porozumieć.", "miejsce": "Dziennik pisany nocą 1980–1983, fragment o Carceri" },
+    { "motyw": "powinowactwo sztuk", "przyklad": "Herling zestawia ryciny Piranesiego z gotycką wyobraźnią Horace’a Walpole’a, co pozwala porównać sposoby budowania grozy w obrazie i literaturze.", "miejsce": "Dziennik pisany nocą 1984–1988, fragment o Piranesim i Walpole’u" }
+  ],
+  "utwory": [
+    { "tytul": "Carceri w Zamku Anioła", "miejsce": "Dziennik pisany nocą 1973–1979, s. 445 wydania cytowanego przez Bibliotekę Narodową", "opis": "Zapis o oglądaniu rycin wiąże ich oddziaływanie z podziemną przestrzenią wystawy, półmrokiem i powściągliwością w komentowaniu." },
+    { "tytul": "Wyobrażone więzienia Piranesiego", "miejsce": "Dziennik pisany nocą 1980–1983, Pisma zebrane, t. 5, s. 292", "opis": "Fragment przywoływany w badaniach jako punkt wyjścia do interpretacji więzienia u Herlinga." },
+    { "tytul": "Piranesi i Horace Walpole", "miejsce": "Dziennik pisany nocą 1984–1988, wyd. Czytelnik 1996, s. 83–84", "opis": "Fragment zestawia grafika z autorem Zamczyska w Otranto; porównanie dotyczy wyobraźni gotyckiej i grozy." }
+  ],
+  "zrodla": [
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Wykaz dopuszcza wybór eseju Herlinga-Grudzińskiego wśród propozycji wskazanych autorów." },
+    { "url": "https://sensualnosc.bn.org.pl/gustaw-herling-grudzinski-wizualnosc-a-sztuka-433/", "rodzaj": "utwór", "co": "Przedruk zapisu z Dziennika o wystawie grafik Piranesiego w Zamku Anioła; sprawdzono miejsce, oświetlenie i reakcję autora." },
+    { "url": "https://www.nexto.pl/upload/sklep/universitas/ebook/swiat_w_sasiedztwie_zaswiatow-bielska_krawczyk_joanna-universitas/public/swiat_w_sasiedztwie_zaswiatow-universitas-demo.pdf", "rodzaj": "opracowanie", "co": "Joanna Bielska-Krawczyk, Świat w sąsiedztwie zaświatów, s. 18, analiza obrazu uwięzienia i odsyłacz do zapisu w Dzienniku 1980–1983." },
+    { "url": "https://www.centropannunzio.it/obj/files/annali/annali%202004-2005.pdf", "rodzaj": "opracowanie", "co": "Studium z odsyłaczem do Dziennika 1984–1988, s. 83–84, o zestawieniu Piranesiego z Walpole’em." }
+  ],
+  "do_weryfikacji": [
+    "Katalog podaje temat szkicu, ale bez tytułu i daty; użyto trzech udokumentowanych zapisów o Piranesim z Dziennika pisanego nocą.",
+    "Daty dzienne zapisów i pełne brzmienie dwóch późniejszych ustępów wymagają sprawdzenia w wydaniu Dziennika."
+  ]
+}

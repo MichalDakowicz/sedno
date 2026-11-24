@@ -1,0 +1,393 @@
+// Materiały Sedno o jednym rozpoznanym utworze: karta, sekcje opracowania, elementy (wydarzenia, postacie,
+// motywy), fragmenty tekstu. Każdy materiał ma krótki identyfikator, który model wpisuje w odpowiedź;
+// serwer zamienia identyfikatory na źródła (odpowiedz-lektury.ts). Wyszukiwanie zawsze dotyczy jednego utworu.
+import { napisPestki, obiektPestki, zrodloPestki, type TypZrodla, type ZrodloPestki } from "../_shared/pestka-odpowiedz.ts";
+import type { Utwor } from "./katalog-lektur.ts";
+import { bezAkcentow, nazwaPostaciWPytaniu, normalizuj, SEKCJE, type Sekcja, type TypPytania } from "./lektury.ts";
+import { adresTomu, miejscaWZapytaniu, miejsceWydania, pasujeMiejsce, rozbijMiejsca, TOMY_WL, zapisMiejsca } from "./miejsca-lektur.ts";
+
+export type Material = {
+  /** W12 wydarzenie, P3 postać, M5 motyw, U2 utwór zbioru, F1 fragment tekstu, S:geneza sekcja, K karta. */
+  id: string;
+  rodzaj: TypZrodla;
+  tekst: string;
+  zrodlo?: ZrodloPestki;
+  miejsce?: string;
+  sekcja?: Sekcja;
+  nazwyPostaci?: string[];
+  miejsca?: string[];
+};
+
+export type SzukajBaza = (p: { p_przedmiot: string; p_utwor: string | null; p_sekcja: Sekcja | null; p_pytanie: string }) => Promise<unknown>;
+export type SzukajElementy = (p: {
+  p_utwor: string; p_rodzaje: string[]; p_pytanie: string; p_limit: number; p_kolejnosc: boolean; p_od_konca: boolean;
+}) => Promise<unknown>;
+export type SzukajFragmenty = (p: { p_utwor: string; p_pytanie: string; p_fraza: string | null; p_limit: number; p_poczatek: boolean }) => Promise<unknown>;
+export type SzukajFragmentyMiejsca = (p: { p_utwor: string; p_miejsce: string; p_limit: number }) => Promise<unknown>;
+export type SzukajKotwic = (p: { p_utwor: string; p_miejsca: string[] }) => Promise<unknown>;
+export type DostepLektur = {
+  baza: SzukajBaza; elementy?: SzukajElementy; fragmenty?: SzukajFragmenty; fragmentyMiejsca?: SzukajFragmentyMiejsca; kotwice?: SzukajKotwic;
+};
+
+export type Zebrane = { materialy: Material[]; uwagi: string[]; maWydarzenia: boolean };
+
+/** Budżet kontekstu: około 6 tys. tokenów materiału. */
+export const LIMIT_ZNAKOW = 18_000;
+const LIMIT_SEKCJI = 2500;
+const LIMIT_FRAGMENTU = 1400;
+
+const przytnij = (tekst: string, limit: number) =>
+  tekst.length <= limit ? tekst : `${tekst.slice(0, limit - 1).replace(/\s+\S*$/, "")}…`;
+
+const adresTekstu = (utwor: Utwor) => utwor.wl ? `https://wolnelektury.pl/katalog/lektura/${utwor.wl}/` : undefined;
+const rodzajAdresu = (url: string | undefined): ZrodloPestki["rodzaj"] =>
+  url && /^https:\/\/(?:wolnelektury\.pl|pl\.wikisource\.org)\//.test(url) ? "utwór" : "opracowanie";
+const stronaBezKotwicy = (url: string) => url.split(/[?#]/)[0].replace(/(?:\.html|\/)$/, "");
+
+function adresOpracowania(utwor: Utwor, id: string, miejsce: string | undefined, url: string | undefined): string | undefined {
+  if (utwor.id !== "inny-swiat") return url;
+  if (miejsce?.toLowerCase() === "epilog" && /^(?:W2[12]|P7|M8)$/.test(id)) return "https://zpe.gov.pl/a/przeczytaj/DYOHC1uNy";
+  // Indeks odziedziczył jeden adres dla wszystkich elementów i drugi dla wszystkich sekcji tej lektury.
+  if (url === "https://zpe.gov.pl/watek/LPFHDLRM4G/318/a/cwiczenia/D6ESU6QNP" && miejsce !== "cz. I, Ręka w ogniu") return;
+  if (url === "https://zpe.gov.pl/a/sprawdz-sie/Dly3K3ja7") return;
+  return url;
+}
+
+function zrodloMaterialu(utwor: Utwor, id: string, rodzaj: TypZrodla, url: string | undefined, miejsce?: string, sekcja?: string): ZrodloPestki | undefined {
+  const tom = miejsce && adresTomu(utwor.id, miejsce);
+  url = adresOpracowania(utwor, id, miejsce, url);
+  const adres = tom && (!url || stronaBezKotwicy(url) !== stronaBezKotwicy(tom)) ? tom : url ?? adresTekstu(utwor);
+  const typAdresu = rodzajAdresu(adres);
+  const z = zrodloPestki({
+    url: adres, tytul: utwor.tytul, rodzaj: typAdresu,
+    sekcja: sekcja ?? (typAdresu === "utwór" && adres?.includes("#") ? miejsce : undefined),
+    miejsce, idSekcji: `${utwor.id}/${id.toLowerCase().replace(":", "-")}`,
+  });
+  return z && { ...z, id, typ: rodzaj };
+}
+
+export function kartaLektury(utwor: Utwor): Material {
+  const tekst = [
+    `Karta lektury: „${utwor.tytul}”, autor: ${utwor.autor}, epoka: ${utwor.epoka}, poziom: ${utwor.poziom}.`,
+    `Wymagane części: ${utwor.czesci}`,
+    utwor.wl ? "Utwór w domenie publicznej, pełny tekst na Wolnych Lekturach." : "Brak pełnego tekstu w indeksie Sedno.",
+    utwor.do_weryfikacji && `Do weryfikacji: ${utwor.do_weryfikacji}`,
+  ].filter(Boolean).join(" ");
+  const url = adresTekstu(utwor);
+  const zrodlo = url ? zrodloPestki({ url, tytul: utwor.tytul, rodzaj: "utwór", sekcja: "Karta lektury Sedno", idSekcji: `${utwor.id}/k` }) : undefined;
+  return { id: "K", rodzaj: "karta", tekst, ...(zrodlo && { zrodlo: { ...zrodlo, id: "K", typ: "karta" as const } }) };
+}
+
+const lista = (x: unknown, limit = 8): string => Array.isArray(x) ? x.filter((t) => typeof t === "string").slice(0, limit).join(", ") : "";
+
+function tekstElementu(rodzaj: string, d: Record<string, unknown>): string {
+  const t = (k: string, n = 700) => napisPestki(d[k], n);
+  if (rodzaj === "wydarzenie") {
+    const kto = lista(d.kto), gdzie = t("gdzie", 200);
+    return `${t("miejsce", 120)}: ${t("opis", 600)}${kto || gdzie ? ` (${[kto && `kto: ${kto}`, gdzie && `gdzie: ${gdzie}`].filter(Boolean).join("; ")})` : ""}`;
+  }
+  if (rodzaj === "postac") return `${t("imie", 100)}. ${t("rola")} Relacje: ${t("relacje")} Pojawia się: ${lista(d.miejsca, 12)}.`;
+  if (rodzaj === "motyw") return `${t("motyw", 160)}: ${t("przyklad")} (${t("miejsce", 120)})${t("cytat", 200) ? ` Cytat: „${t("cytat", 200)}”` : ""}`;
+  return `${t("tytul", 200)}${t("miejsce", 120) ? ` (${t("miejsce", 120)})` : ""}: ${t("opis")}`;
+}
+
+const PREFIKS: Record<string, [string, TypZrodla]> = {
+  wydarzenie: ["W", "wydarzenie"], postac: ["P", "postac"], motyw: ["M", "motyw"], utwor: ["U", "utwor"],
+};
+
+function elementy(raw: unknown, utwor: Utwor): Material[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((w): Material[] => {
+    const wiersz = obiektPestki(w);
+    const [prefiks, rodzaj] = PREFIKS[String(wiersz.rodzaj)] ?? [];
+    const nr = wiersz.nr;
+    if (wiersz.utwor !== utwor.id || !prefiks || typeof nr !== "number" || !Number.isInteger(nr) || nr < 1 || nr > 9999) return [];
+    const dane = obiektPestki(wiersz.dane);
+    const tekst = tekstElementu(String(wiersz.rodzaj), dane).trim();
+    if (!tekst) return [];
+    const id = `${prefiks}${nr}`;
+    const miejsce = napisPestki(wiersz.miejsce, 240) || undefined;
+    const url = typeof wiersz.zrodlo_url === "string" ? wiersz.zrodlo_url : undefined;
+    const zrodlo = zrodloMaterialu(utwor, id, rodzaj, url, miejsce);
+    const nazwyPostaci = rodzaj === "postac" ? [napisPestki(dane.imie, 100), ...lista(dane.odmiany, 60).split(", ")] : undefined;
+    const miejscaZElementu = rodzaj === "postac" && Array.isArray(dane.miejsca) ? dane.miejsca : [miejsce];
+    const miejsca = [...new Set(miejscaZElementu.flatMap((m) => rozbijMiejsca(napisPestki(m, 240))))].slice(0, 16);
+    return [{ id, rodzaj, tekst, miejsce, nazwyPostaci, miejsca, ...(zrodlo && { zrodlo }) }];
+  });
+}
+
+async function sekcjeOpracowania(d: DostepLektur, pytanie: string, utwor: Utwor, sekcja: Sekcja | null): Promise<Material[]> {
+  const raw = await d.baza({ p_przedmiot: "polski", p_utwor: utwor.id, p_sekcja: sekcja, p_pytanie: pytanie });
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((w): Material[] => {
+    if (w?.utwor !== utwor.id || !Object.hasOwn(SEKCJE, w.sekcja)) return [];
+    const typ = w.sekcja as Sekcja;
+    const tekst = przytnij(napisPestki(w.tekst, 7000), LIMIT_SEKCJI);
+    if (!tekst) return [];
+    const id = `S:${typ}`;
+    const url = adresOpracowania(utwor, id, undefined, typeof w.zrodlo_url === "string" ? w.zrodlo_url : undefined);
+    const z = zrodloPestki({
+      url, tytul: utwor.tytul, rodzaj: w.zrodlo_rodzaj, sekcja: `Opracowanie Sedno · ${SEKCJE[typ]}`, idSekcji: `${utwor.id}/s-${typ}`,
+    });
+    return [{ id, rodzaj: "sekcja", sekcja: typ, tekst, ...(z && { zrodlo: { ...z, id, typ: "sekcja" as const } }) }];
+  });
+}
+
+/** Plan z notatki Sedno (numerowane punkty „[miejsce](url) opis”) jako wydarzenia, gdy utwór nie ma elementów. */
+export function wydarzeniaZNotatki(sekcja: Material, utwor: Utwor): Material[] {
+  return sekcja.tekst.split(/\r?\n/).flatMap((wiersz): Material[] => {
+    const m = /^(\d+)\. \[([^\]]+)\](?:\((https:\/\/wolnelektury\.pl\/[^\s)#]+)(?:#[^\s)]*)?\))? (.+)$/.exec(wiersz);
+    if (!m) return [];
+    const id = `W${Number(m[1])}`;
+    const zrodlo = zrodloMaterialu(utwor, id, "wydarzenie", m[3], m[2]);
+    return [{ id, rodzaj: "wydarzenie", miejsce: m[2], tekst: `${m[2]}: ${m[4]}`, ...(zrodlo && { zrodlo }) }];
+  });
+}
+
+/** Tekst i mapa indeksów: znormalizowany ciąg (litery i cyfry) z pozycjami w oryginale. */
+function zMapa(tekst: string): { norm: string; mapa: number[] } {
+  let norm = "";
+  const mapa: number[] = [];
+  let spacja = true;
+  for (let i = 0; i < tekst.length; i++) {
+    const c = bezAkcentow(tekst[i]);
+    if (/^[a-z0-9]$/.test(c)) {
+      norm += c;
+      mapa.push(i);
+      spacja = false;
+    } else if (!spacja) {
+      norm += " ";
+      mapa.push(i);
+      spacja = true;
+    }
+  }
+  return { norm, mapa };
+}
+
+/** Wycinek fragmentu wokół frazy albo najtrafniejszego akapitu; na prośbę o początek zaczyna od początku. */
+export function okno(tekst: string, pytanie: string, fraza: string | null, poczatek: boolean, limit = LIMIT_FRAGMENTU): string {
+  if (tekst.length <= limit) return tekst;
+  // Początek wycinka: najbliższy początek wiersza w pobliżu, a gdy go nie ma, początek słowa.
+  const od = (i: number) => {
+    const nl = tekst.lastIndexOf("\n", i);
+    if (nl >= 0 && i - nl <= 300) return nl + 1;
+    const sp = tekst.indexOf(" ", i);
+    return sp >= 0 && sp - i < 40 ? sp + 1 : i;
+  };
+  const wytnij = (start: number) => przytnij(tekst.slice(start, start + limit + 200), limit).trim();
+  if (poczatek) return wytnij(0);
+  const { norm, mapa } = zMapa(tekst);
+  const szukana = fraza && normalizuj(fraza);
+  const pozycja = szukana && szukana.length >= 8 ? norm.indexOf(szukana) : -1;
+  if (pozycja >= 0) return wytnij(od(Math.max(0, (mapa[pozycja] ?? 0) - 300)));
+  const terminy = [...new Set(normalizuj(pytanie).split(" ").filter((w) => w.length >= 5).map((w) => w.slice(0, 5)))];
+  if (!terminy.length) return wytnij(0);
+  let najlepszy = { start: 0, wynik: -1 };
+  for (const akapit of tekst.matchAll(/[^\n]+(?:\n(?!\n)[^\n]+)*/g)) {
+    const slowa = new Set(normalizuj(akapit[0]).split(" ").map((w) => w.slice(0, 5)));
+    const wynik = terminy.filter((t) => slowa.has(t)).length;
+    if (wynik > najlepszy.wynik) najlepszy = { start: akapit.index ?? 0, wynik };
+  }
+  return wytnij(najlepszy.start);
+}
+
+export const frazaZPytania = (pytanie: string): string | null =>
+  /[„"«“]([^”"»„]{8,300})[”"»“]/.exec(pytanie)?.[1].trim() ?? null;
+
+const PROSI_O_POCZATEK = /\b(?:poczat\w*|na poczatku|otwiera\w*|pierwsz\w+ (?:wers|zdani|slow))/;
+
+function fragmenty(raw: unknown, utwor: Utwor, pytanie: string, fraza: string | null, doPlanu = false): Material[] {
+  if (!Array.isArray(raw)) return [];
+  const poczatek = PROSI_O_POCZATEK.test(bezAkcentow(pytanie));
+  return raw.flatMap((w, i): Material[] => {
+    const wiersz = obiektPestki(w);
+    if (wiersz.utwor !== utwor.id) return [];
+    const tresc = napisPestki(wiersz.tekst, 12000);
+    const tekst = doPlanu ? tresc.slice(0, 2200) : okno(tresc, pytanie, wiersz.trafienie === "fraza" ? fraza : null, poczatek);
+    const miejsce = napisPestki(wiersz.miejsce, 200);
+    const tytulCzesci = napisPestki(wiersz.tytul_czesci, 120);
+    const opis = [miejsce, tytulCzesci && `(${tytulCzesci})`].filter(Boolean).join(" ");
+    if (!tekst) return [];
+    // Numer w utworze pozostaje ten sam, gdy fragment wraca w innym wyniku wyszukiwania.
+    const nr = typeof wiersz.nr === "number" && Number.isInteger(wiersz.nr) && wiersz.nr >= 1 ? wiersz.nr : i + 1;
+    const id = `F${nr}`;
+    const zrodlo = zrodloMaterialu(utwor, id, "fragment", typeof wiersz.zrodlo_url === "string" ? wiersz.zrodlo_url : undefined, opis || undefined);
+    return [{ id, rodzaj: "fragment", tekst, miejsce, ...(zrodlo && { zrodlo }) }];
+  });
+}
+
+const pewnie = async <T>(p: Promise<T> | undefined, domyslne: T): Promise<T> => {
+  try {
+    return (await p) ?? domyslne;
+  } catch {
+    // Brak dostępu do indeksu nie blokuje odpowiedzi; model dostaje wtedy tylko kartę i zasadę etykiety.
+    return domyslne;
+  }
+};
+
+export function materialyWBudzecie(materialy: Material[]): Material[] {
+  let suma = 0;
+  const uzyte = new Set<string>();
+  return materialy.filter((m) => {
+    if (uzyte.has(m.id) || suma + m.tekst.length > LIMIT_ZNAKOW) return false;
+    uzyte.add(m.id);
+    suma += m.tekst.length;
+    return true;
+  });
+}
+
+const SYNONIMY_MOTYWOW = [
+  ["samotność", "wyobcowanie", "osamotnienie", "odosobnienie", "izolacja"],
+];
+
+function pytanieOMotyw(pytanie: string): string {
+  const slowa = normalizuj(pytanie).split(" ");
+  return SYNONIMY_MOTYWOW.find((grupa) => grupa.some((haslo) =>
+    slowa.some((slowo) => slowo.startsWith(normalizuj(haslo).slice(0, 5)))))?.join(" ") ?? pytanie;
+}
+
+const slowaNazwy = (tekst: string) => normalizuj(tekst).split(" ").filter((s) => s.length >= 2);
+
+function dopasujPostacie(postacie: Material[], nazwa: string): Material[] {
+  const szukane = new Set(slowaNazwy(nazwa));
+  const wyniki = postacie.map((p) => {
+    const [imie, ...odmiany] = p.nazwyPostaci ?? [""];
+    const glowne = slowaNazwy(imie);
+    const aliasy = new Set(odmiany.flatMap(slowaNazwy));
+    const trafienia = [...szukane].filter((s) => glowne.includes(s) || aliasy.has(s)).length;
+    return { p, trafienia, glowne: glowne.filter((s) => szukane.has(s)).length };
+  }).filter((w) => w.trafienia > 0).sort((a, b) => b.trafienia - a.trafienia || b.glowne - a.glowne);
+  const najlepszy = wyniki[0];
+  return wyniki.filter((w) => w.trafienia === najlepszy.trafienia && w.glowne === najlepszy.glowne).slice(0, 4).map((w) => w.p);
+}
+
+async function zrodlaZDodatkowymiMiejscami(d: DostepLektur, utwor: Utwor, materialy: Material[]): Promise<Material[]> {
+  const szukane = [...new Set(materialy.flatMap((m) => m.zrodlo && (m.miejsca?.length ?? 0) > 1
+    ? m.miejsca!.map((miejsce) => miejsceWydania(utwor.id, miejsce)) : []))];
+  if (!szukane.length) return materialy;
+  const wiersze = utwor.wl ? await pewnie(d.kotwice?.({ p_utwor: utwor.id, p_miejsca: szukane.slice(0, 200) }), []) : [];
+  const kotwice = new Map<string, string>();
+  if (Array.isArray(wiersze)) for (const raw of wiersze) {
+    const w = obiektPestki(raw);
+    if (typeof w.miejsce === "string" && typeof w.url === "string") kotwice.set(w.miejsce, w.url);
+  }
+  return materialy.map((m) => {
+    if (!m.zrodlo || !m.miejsca || m.miejsca.length < 2) return m;
+    const z = m.zrodlo;
+    const miejsca = m.miejsca.flatMap((miejsce, i) => {
+      const kotwica = kotwice.get(miejsceWydania(utwor.id, miejsce));
+      const url = kotwica ?? (i === 0 ? z.url : z.url.split("#")[0]);
+      const cel = zrodloMaterialu(utwor, m.id, m.rodzaj, url, miejsce)?.url;
+      return cel ? [{ miejsce, url: cel }] : [];
+    });
+    const pierwszy = miejsca[0];
+    if (!pierwszy) return m;
+    const sekcja = z.rodzaj === "utwór" && pierwszy.url.includes("#") ? pierwszy.miejsce : undefined;
+    return { ...m, zrodlo: { ...z, ...pierwszy, sekcja, miejsca } };
+  });
+}
+
+/** Zbiera materiały o utworze zależnie od typu pytania. Karta jest zawsze pierwsza. */
+export async function zbierzMaterialy(
+  d: DostepLektur, pytanie: string, utwor: Utwor, typ: TypPytania, opcje: { fraza?: string | null; dlugie?: boolean } = {},
+): Promise<Zebrane> {
+  const el = (rodzaje: string[], limit: number, wybierz: { kolejnosc?: boolean; odKonca?: boolean; szukane?: string } = {}) =>
+    pewnie(d.elementy?.({
+      p_utwor: utwor.id, p_rodzaje: rodzaje, p_pytanie: wybierz.szukane ?? pytanie, p_limit: limit,
+      p_kolejnosc: wybierz.kolejnosc ?? false, p_od_konca: wybierz.odKonca ?? false,
+    }), []).then((r) => elementy(r, utwor));
+  const sekcje = (sekcja: Sekcja | null) => pewnie(sekcjeOpracowania(d, pytanie, utwor, sekcja), [] as Material[]);
+  const fra = (limit: number) => {
+    const fraza = opcje.fraza ?? frazaZPytania(pytanie);
+    const p_poczatek = PROSI_O_POCZATEK.test(bezAkcentow(pytanie));
+    return pewnie(d.fragmenty?.({ p_utwor: utwor.id, p_pytanie: pytanie, p_fraza: fraza, p_limit: limit, p_poczatek }), []).then((r) => fragmenty(r, utwor, pytanie, fraza));
+  };
+  const uwagi = el(["weryfikacja"], 5, { kolejnosc: true }).then((w) => w.map((m) => m.tekst));
+  const naj = (m: Material[], ...sekcje: Sekcja[]) => m.filter((x) => x.sekcja && sekcje.includes(x.sekcja));
+
+  let glowne: Material[] = [];
+  switch (typ) {
+    case "plan": {
+      glowne = await el(["wydarzenie"], 60, { kolejnosc: true });
+      if (!glowne.length) glowne = (await sekcje("wydarzenia")).flatMap((s) => s.sekcja === "wydarzenia" ? wydarzeniaZNotatki(s, utwor) : []);
+      const miejsca = miejscaWZapytaniu(pytanie);
+      if (!miejsca.length) break;
+      glowne = glowne.filter((m) => pasujeMiejsce(m.miejsce ?? "", miejsca));
+      const rozdzial = miejsca.some((m) => m.rodzaj === "rozdz");
+      const scena = miejsca.some((m) => m.rodzaj === "sc");
+      const niejasnyTom = rozdzial && !!TOMY_WL[utwor.id] && !miejsca.some((m) => m.rodzaj === "t" || m.rodzaj === "cz");
+      if (glowne.length < 3 && utwor.wl && (rozdzial || scena) && !niejasnyTom) {
+        const dane = await pewnie(d.fragmentyMiejsca?.({ p_utwor: utwor.id, p_miejsce: zapisMiejsca(miejsca), p_limit: 7 }), []);
+        const wycinki = fragmenty(dane, utwor, pytanie, null, true).filter((m) => pasujeMiejsce(m.miejsce ?? "", miejsca));
+        glowne = [...glowne, ...wycinki];
+      }
+      break;
+    }
+    case "streszczenie": {
+      const [w, s] = await Promise.all([el(["wydarzenie"], opcje.dlugie ? 60 : 25, { kolejnosc: true }), sekcje("streszczenie")]);
+      glowne = [...naj(s, "streszczenie"), ...w, ...naj(s, "bohaterowie"), ...(w.length ? [] : naj(s, "wydarzenia"))];
+      break;
+    }
+    case "zakonczenie": {
+      const [w, s] = await Promise.all([el(["wydarzenie"], 5, { odKonca: true }), sekcje("streszczenie")]);
+      const plan = w.length ? w.toReversed() : naj(s, "wydarzenia").flatMap((m) => wydarzeniaZNotatki(m, utwor)).slice(-5);
+      glowne = [...plan, ...naj(s, "streszczenie"), ...(plan.length ? [] : naj(s, "wydarzenia"))];
+      break;
+    }
+    case "postac": {
+      const nazwa = nazwaPostaciWPytaniu(pytanie);
+      const [postacie, s] = await Promise.all([el(["postac"], nazwa ? 60 : 8, { kolejnosc: true }), sekcje("bohaterowie")]);
+      const notatki = naj(s, "bohaterowie", "streszczenie");
+      if (!nazwa) {
+        glowne = [...postacie, ...notatki];
+        break;
+      }
+      const p = dopasujPostacie(postacie, nazwa);
+      const hasla = slowaNazwy(nazwa);
+      const pasujaceNotatki = notatki.filter((m) => {
+        const slowa = new Set(slowaNazwy(m.tekst));
+        return hasla.length > 0 && hasla.every((s) => slowa.has(s));
+      });
+      const miejsca = new Set(p.flatMap((m) => m.miejsca ?? []));
+      const zdarzenia = miejsca.size
+        ? (await el(["wydarzenie"], 60, { kolejnosc: true })).filter((m) => miejsca.has(m.miejsce ?? "")).slice(0, 4)
+        : [];
+      glowne = [...p, ...zdarzenia, ...pasujaceNotatki];
+      break;
+    }
+    case "motywy": {
+      const [m, w, s] = await Promise.all([el(["motyw"], 8, { szukane: pytanieOMotyw(pytanie) }), el(["wydarzenie"], 5), sekcje("motywy")]);
+      const miejsca = new Set(m.flatMap((motyw) => motyw.zrodlo?.miejsce ?? []));
+      const powiazane = [...miejsca].some((miejsce) => !w.some((e) => e.zrodlo?.miejsce === miejsce))
+        ? (await el(["wydarzenie"], 60, { kolejnosc: true })).filter((e) => e.zrodlo?.miejsce && miejsca.has(e.zrodlo.miejsce))
+        : [];
+      glowne = [...(m.length ? m : await el(["motyw"], 8, { kolejnosc: true })), ...powiazane, ...w, ...naj(s, "motywy", "wydarzenia")];
+      break;
+    }
+    case "cytat": {
+      const [f, e] = await Promise.all([fra(2), el(["motyw", "wydarzenie"], 4)]);
+      glowne = [...f, ...e];
+      break;
+    }
+    case "geneza":
+    case "konteksty": {
+      glowne = naj(await sekcje(typ), typ).concat(await sekcje(typ === "geneza" ? "konteksty" : "geneza").then((s) => s.slice(0, 1)));
+      break;
+    }
+    default: {
+      const [e, s, f] = await Promise.all([el(["wydarzenie", "postac", "motyw", "utwor"], 8), sekcje(null), utwor.wl ? fra(2) : Promise.resolve([] as Material[])]);
+      // Baza zwraca sekcje według trafności. Fabuła i bohaterowie są potrzebni także poniżej pierwszej trójki.
+      glowne = [...s.filter((x, i) => i < 3 || x.sekcja === "wydarzenia" || x.sekcja === "bohaterowie"), ...e, ...f];
+    }
+  }
+  const maWydarzenia = glowne.some((m) => m.rodzaj === "wydarzenie");
+  // Notatka z planem bywa przybliżona; gdy utwór ma wydarzenia z lokalizacją, ona nie wchodzi do kontekstu.
+  const bezNotatkiPlanu = maWydarzenia && typ === "streszczenie" ? glowne.filter((m) => m.sekcja !== "wydarzenia") : glowne;
+  const materialy = materialyWBudzecie([kartaLektury(utwor), ...bezNotatkiPlanu]);
+  return { materialy: await zrodlaZDodatkowymiMiejscami(d, utwor, materialy), uwagi: await uwagi, maWydarzenia };
+}
+
+/** Materiały w postaci tekstu dla modelu: „[W12] treść”. */
+export function materialyDlaModelu(materialy: Material[]): string {
+  return materialy.map((m) => `[${m.id}] ${m.rodzaj === "fragment" ? `${m.zrodlo?.miejsce ?? m.miejsce ?? "fragment tekstu"}\n${m.tekst}` : m.tekst}`).join("\n");
+}

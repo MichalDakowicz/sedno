@@ -1,0 +1,61 @@
+{
+  "id": "dziady-iii",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "cz. III, Prolog", "kto": ["Więzień", "Anioł Stróż", "Duchy nocne"], "gdzie": "cela więzienna", "opis": "W Prologu śpiący więzień opiera się o okno celi, a Anioł Stróż i duchy nocne zwracają się do niego; w tekście pojawiają się napisy zapowiadające przemianę Gustawa w Konrada."},
+    {"nr": 2, "miejsce": "cz. III, sc. 1", "kto": ["Jakub", "Adolf", "Ks. Lwowicz", "Tomasz", "Sobolewski", "Żegota", "Frejend", "Konrad", "Kapral"], "gdzie": "korytarz więzienia, Wilno", "opis": "Więźniowie, młodzi spiskowcy, rozmawiają na korytarzu pod okiem strażników o aresztowaniach, przesłuchaniach i śledztwie; mowa o Konradzie."},
+    {"nr": 3, "miejsce": "cz. III, sc. 1", "kto": ["Jankowski", "Sobolewski", "Feliks Kołakowski", "Suzin"], "gdzie": "korytarz więzienia", "opis": "Więźniowie opowiadają o losach aresztowanych kolegów i o represjach wobec filomatów i filaretów."},
+    {"nr": 4, "miejsce": "cz. III, sc. 2 (Improwizacja)", "kto": ["Konrad"], "gdzie": "cela Konrada", "opis": "Konrad w samotności wygłasza Wielką Improwizację: mówi o swojej pieśni, o miłości do ojczyzny i o tym, że chce rządu dusz, wyzywa Boga do sporu o władzę nad światem."},
+    {"nr": 5, "miejsce": "cz. III, sc. 2 (Improwizacja)", "kto": ["Konrad", "Diabeł", "Duchy"], "gdzie": "cela Konrada", "opis": "W finale Improwizacji Konrad traci przytomność, w chwili gdy Konrad ma wykrzyknąć, że Bóg nie jest ojcem świata, lecz…, głos Diabła dopowiada „carem”; Konrad pada, a duchy mówią, że omdlał."},
+    {"nr": 6, "miejsce": "cz. III, sc. 3", "kto": ["Ks. Piotr", "Kapral", "Więzień", "Konrad"], "gdzie": "cela Konrada", "opis": "Do celi wchodzą Kapral, braciszek bernardyn Piotr i więzień; ksiądz Piotr modli się nad nieprzytomnym Konradem i z pomocą Archaniołów toczy duchową walkę o jego duszę."},
+    {"nr": 7, "miejsce": "cz. III, sc. 4", "kto": ["Ewa", "Marcelina"], "gdzie": "dom wiejski pod Lwowem", "opis": "Ewa i jej opiekunka Marcelina rozmawiają przed snem; Ewa modli się za ojczyznę i za uwięzionych, o których opowiada przybyły Litwin."},
+    {"nr": 8, "miejsce": "cz. III, sc. 5", "kto": ["Ks. Piotr"], "gdzie": "cela księdza Piotra", "opis": "Ksiądz Piotr modli się, a w widzeniu poznaje losy Polski i polskiego narodu pod rosyjskim panowaniem."},
+    {"nr": 9, "miejsce": "cz. III, sc. 6", "kto": ["Senator", "Diabeł I", "Diabeł II", "Belzebub"], "gdzie": "wspaniały pokój sypialny Senatora", "opis": "Diabły pilnują nad snem Senatora i na rozkaz Belzebuba układają mu sen, w którym oglądają jego życie."},
+    {"nr": 10, "miejsce": "cz. III, sc. 7", "kto": ["Zenon Niemojewski", "Adolf", "Hrabia", "Literaci", "Damy"], "gdzie": "salon warszawski", "opis": "W warszawskim salonie Adolf opowiada o prześladowaniach na Litwie, a otoczenie traktuje to obojętnie i prowadzi towarzyskie rozmowy."},
+    {"nr": 11, "miejsce": "cz. III, sc. 8", "kto": ["Senator", "Szambelan", "Doktor", "Pelikan", "Bajkopisarz", "Sekretarz"], "gdzie": "przedpokój Senatora, Wilno", "opis": "W przedpokoju Senatora w Wilnie gromadzą się urzędnicy i miejscowa śmietanka; Senator rozmawia z gośćmi i przyjmuje interesantów."},
+    {"nr": 12, "miejsce": "cz. III, sc. 8", "kto": ["Pani Rollison", "Rollison", "Senator", "Sekretarz", "Lokaj"], "gdzie": "przedpokój Senatora, Wilno", "opis": "Pan i Pani Rollison zjawiają się u Senatora w sprawie syna; Rollison płacząc wyrzuca z siebie „mój syn”, a później pani Rollison krzyczy za drzwiami, żeby ją puścili, i powstrzymują ją Sekretarz i Lokaj."},
+    {"nr": 13, "miejsce": "cz. III, sc. 8", "kto": ["Bestużew", "Doktor", "Pelikan"], "gdzie": "przedpokój Senatora, Wilno", "opis": "W scenie pojawia się wśród rozmówców Bestużew (postać wymieniona w kilku wypowiedziach)."},
+    {"nr": 14, "miejsce": "cz. III, sc. 9 (Noc Dziadów)", "kto": ["Guślarz", "Kobieta w żałobie"], "gdzie": "cmentarz przy kaplicy", "opis": "Guślarz i Kobieta w żałobie czekają przy kaplicy na zjawę, a w widzeniu przez śnieżycę przejeżdża kilkadziesiąt wozów jadących na północ, na przedzie jeden z mężczyzn w czarnym stroju."}
+  ],
+  "postacie": [
+    {"imie": "Konrad (Gustaw)", "odmiany": ["Konrad", "Konrada", "Konradowi", "Konradem", "Konradzie", "Gustaw", "Gustawa"], "rola": "więzień, poeta, który w celi przechodzi przemianę z Gustawa w Konrada i wygłasza Wielką Improwizację", "relacje": "wokół jego losu gromadzą się współwięźniowie; modli się nad nim ksiądz Piotr", "miejsca": ["cz. III, Prolog", "cz. III, sc. 2"]},
+    {"imie": "Ksiądz Piotr", "odmiany": ["ks. Piotr", "księdza Piotra", "księdzu Piotrowi", "księdzem Piotrem", "braciszek Piotr"], "rola": "bernardyn, modli się nad Konradem i ma widzenie dziejów Polski", "relacje": "opiekuje się nieprzytomnym Konradem; odwiedza go razem z Kapralem", "miejsca": ["cz. III, sc. 3", "cz. III, sc. 5"]},
+    {"imie": "Ewa", "odmiany": ["Ewa", "Ewy", "Ewie", "Ewą"], "rola": "młoda dziewczyna, modli się za ojczyznę i uwięzionych", "relacje": "mieszka pod opieką Marceliny", "miejsca": ["cz. III, sc. 4"]},
+    {"imie": "Marcelina", "odmiany": ["Marcelina", "Marceliny", "Marcelinie", "Marceliną"], "rola": "opiekunka Ewy w domu wiejskim pod Lwowem", "relacje": "rozmawia z Ewą przed snem", "miejsca": ["cz. III, sc. 4"]},
+    {"imie": "Senator (Nowosilcow)", "odmiany": ["Senator", "Senatora", "Senatorowi", "Senatorem", "Nowosilcow", "Nowosilcowa", "Nowosilcowowi"], "rola": "wysoki urzędnik rosyjski w Wilnie, przedstawiony jako symbol zaborczego aparatu władzy", "relacje": "przyjmuje podwładnych i interesantów; nawiedzają go diabły", "miejsca": ["cz. III, sc. 6", "cz. III, sc. 8"]},
+    {"imie": "Pani Rollison", "odmiany": ["Pani Rollison", "Pani Rollisonowa", "Rollisonowej", "Rollisonową", "Rollisonowa"], "rola": "matka uwięzionego chłopca, błaga Senatora o pomoc", "relacje": "występuje u Senatora wraz z mężem Rollisonem", "miejsca": ["cz. III, sc. 8"]},
+    {"imie": "Rollison", "odmiany": ["Rollison", "Rollisona", "Rollisonowi"], "rola": "ojciec uwięzionego chłopca", "relacje": "mąż pani Rollisonowej", "miejsca": ["cz. III, sc. 8"]},
+    {"imie": "Doktor", "odmiany": ["Doktor", "Doktora", "Doktorowi"], "rola": "bywalec salonu Senatora, lekarz", "relacje": "rozmawia z Pelikanem i Senatorem", "miejsca": ["cz. III, sc. 8"]},
+    {"imie": "Pelikan", "odmiany": ["Pelikan", "Pelikana", "Pelikanowi", "Pelikanem"], "rola": "bywalec przedpokoju Senatora w Wilnie", "relacje": "rozmawia z Doktorem i Bestużewem", "miejsca": ["cz. III, sc. 8"]},
+    {"imie": "Adolf", "odmiany": ["Adolf", "Adolfa", "Adolfowi", "Adolfem"], "rola": "więzień, a potem opowiadacz w salonie warszawskim", "relacje": "przyjaciel Jakuba i innych więźniów", "miejsca": ["cz. III, sc. 1", "cz. III, sc. 7"]},
+    {"imie": "Jan Sobolewski", "odmiany": ["Sobolewski", "Sobolewskiego", "Sobolewskiemu", "Sobolewskim", "Jan Sobolewski"], "rola": "więzień, uczestnik rozmów w celi", "relacje": "współwięzień Konrada i Żegoty", "miejsca": ["cz. III, sc. 1"]},
+    {"imie": "Tomasz", "odmiany": ["Tomasz", "Tomasza", "Tomaszowi"], "rola": "więzień na korytarzu", "relacje": "rozmawia z Jakubem i Adolfem", "miejsca": ["cz. III, sc. 1"]},
+    {"imie": "Żegota", "odmiany": ["Żegota", "Żegoty", "Żegocie", "Żegotą"], "rola": "więzień, przyjaciel Konrada", "relacje": "współwięzień Konrada", "miejsca": ["cz. III, sc. 1"]},
+    {"imie": "Frejend", "odmiany": ["Frejend", "Frejenda", "Frejendowi"], "rola": "więzień, uczestnik rozmów", "relacje": "współwięzień", "miejsca": ["cz. III, sc. 1"]},
+    {"imie": "Zenon Niemojewski", "odmiany": ["Niemojewski", "Niemojewskiego", "Niemojewskiemu", "Zenon"], "rola": "warszawski bywalec salonu, rozmówca Adolfa", "relacje": "rozmawia z Adolfem o sytuacji na Litwie", "miejsca": ["cz. III, sc. 7"]},
+    {"imie": "Guślarz", "odmiany": ["Guślarz", "Guślarza", "Guślarzowi", "Guślarzem"], "rola": "przewodnik obrzędu Dziadów, rozmawia z Kobietą", "relacje": "towarzyszy Kobiecie w żałobie", "miejsca": ["cz. III, sc. 9"]},
+    {"imie": "Kapral", "odmiany": ["Kapral", "Kaprala", "Kapralowi"], "rola": "strażnik więzienny, wprowadza księdza Piotra do celi", "relacje": "towarzyszy księdzu Piotrowi", "miejsca": ["cz. III, sc. 1", "cz. III, sc. 3"]}
+  ],
+  "motywy": [
+    {"motyw": "bunt przeciw Bogu i rząd dusz", "przyklad": "Konrad w Wielkiej Improwizacji wyzywa Boga do sporu i domaga się rządu dusz, utożsamiając siebie z ojczyzną.", "miejsce": "cz. III, sc. 2 (Improwizacja)", "cytat": "Ja i ojczyzna to jedno."},
+    {"motyw": "cierpienie narodu i męczeństwo", "przyklad": "Konrad mówi o sobie jako o milionie, bo cierpi za wszystkich Polaków; w Nocy Dziadów przez śnieg jadą wozy na północ.", "miejsce": "cz. III, sc. 2; sc. 9", "cytat": "Nazywam się Milijon — bo za milijony"},
+    {"motyw": "profetyzm i wizja dziejów", "przyklad": "Ksiądz Piotr w widzeniu poznaje los Polski pod zaborem rosyjskim, a nad Konradem toczy się walka duchowa.", "miejsce": "cz. III, sc. 5 (Widzenie)"},
+    {"motyw": "władza i jej służalcy", "przyklad": "W sali Senatora urzędnicy i bywalcy przymilają się do władzy, a matka uwięzionego chłopca jest odprawiana.", "miejsce": "cz. III, sc. 8"},
+    {"motyw": "obojętność salonów wobec cierpienia", "przyklad": "W salonie warszawskim Adolf opowiada o krwawych represjach na Litwie, a goście dalej prowadzą rozmowy towarzyskie.", "miejsce": "cz. III, sc. 7"},
+    {"motyw": "modlitwa i pobożność ludowa", "przyklad": "Ewa modli się za ojczyznę, za rodziców i za uwięzionych, a ksiądz Piotr modli się nad Konradem.", "miejsce": "cz. III, sc. 4; sc. 3"},
+    {"motyw": "walka dobra ze złem", "przyklad": "W Prologu Anioł Stróż i Duchy nocne walczą o duszę więźnia, a diabły pilnują Senatora.", "miejsce": "cz. III, Prolog; sc. 6"},
+    {"motyw": "pamięć o zmarłych i obrzęd Dziadów", "przyklad": "Guślarz i Kobieta w żałobie czekają przy kaplicy na zjawę w noc Dziadów.", "miejsce": "cz. III, sc. 9"},
+    {"motyw": "młodzież, patriotyzm i prześladowania", "przyklad": "Młodzi więźniowie na korytarzu opowiadają o aresztowaniach i przesłuchaniach za działalność niepodległościową.", "miejsce": "cz. III, sc. 1"},
+    {"motyw": "bluźnierstwo wobec Boga", "przyklad": "Konrad zapowiada, że krzyknie na cały świat to, co zniesie Bogu z ojcostwa; Diabeł dopowiada słowo „carem”, i Konrad zasłabuje.", "miejsce": "cz. III, sc. 2 (Improwizacja)", "cytat": "Krzyknę, żeś Ty nie ojcem świata, ale…"},
+    {"motyw": "poeta jako wieszcz", "przyklad": "Konrad w Improwizacji przedstawia swoją pieśń jako moc zdolną dorównać Bogu w tworzeniu.", "miejsce": "cz. III, sc. 2"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/dziady-dziady-poema-dziady-czesc-iii/", "rodzaj": "utwór", "co": "Pobrany tekst część III; podział Prolog + sc. I–IX według Wolnych Lektur (w pliku nagłówek „AKT I” przed sc. I); sprawdzono początki scen, cytaty z Improwizacji i fragmenty sc. 8–9."}
+  ],
+  "do_weryfikacji": [
+    "Opisy wydarzeń oparto o początki scen, listy mówców i wybrane fragmenty (sc. 4, 8, 9); sceny 1, 3, 5–8 nie zostały przeczytane w całości.",
+    "W scenie 8 nie ustalono dokładnie, kim są Bestużew i Pelikan oraz w jakiej sprawie przychodzi pani Rollison; podano tylko to, co widać w fragmentach.",
+    "Brak w danych Ustępu (Droga do Rosji, Pomnik Piotra Wielkiego, Oleszkiewicz, Przyjaciołom Moskalom); w katalogu wskazana jest „Część III”, a w opracowaniach często omawiany jest też Ustęp — do sprawdzenia, czy wchodzi w zakres.",
+    "Prolog ma w wydaniu WL nagłówki w formie napisów na celi; szczegółowy przebieg dialogu aniołów i duchów nieprzeczytany w całości."
+  ]
+}

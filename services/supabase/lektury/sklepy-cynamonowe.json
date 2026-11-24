@@ -1,0 +1,55 @@
+{
+  "id": "sklepy-cynamonowe",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "Ptaki, początek", "kto": ["Jakub", "Adela", "Józef"], "gdzie": "dom rodziny narratora", "opis": "W zimowe dni Jakub nie wychodzi z domu, zajmuje się piecami i z uwagą przygląda się porządkom Adeli." },
+    { "nr": 2, "miejsce": "Ptaki, początek hodowli", "kto": ["Jakub", "Józef"], "gdzie": "dom rodziny narratora", "opis": "Jakub sprowadza zapłodnione jaja egzotycznych ptaków i daje je kurom do wysiedzenia, a Józef obserwuje pisklęta." },
+    { "nr": 3, "miejsce": "Ptaki, rozwój hodowli", "kto": ["Jakub"], "gdzie": "dach i strych domu", "opis": "Jakub zaczyna także kojarzyć ptaki, a na dach zlatują się skrzydlate zwierzęta z okolicy." },
+    { "nr": 4, "miejsce": "Ptaki, przeprowadzka na poddasze", "kto": ["Jakub", "ptaki"], "gdzie": "pokoje na poddaszu", "opis": "Jakub przenosi się z ptakami do dawnych rupieciarni na poddaszu i coraz bardziej oddala się od życia rodziny." },
+    { "nr": 5, "miejsce": "Ptaki, porządki Adeli", "kto": ["Adela", "Jakub", "ptaki"], "gdzie": "poddasze", "opis": "Adela zastaje pomieszczenia zanieczyszczone, otwiera okno i wypędza ptaki szczotką." },
+    { "nr": 6, "miejsce": "Ptaki, zakończenie", "kto": ["Jakub"], "gdzie": "schody na poddasze", "opis": "Po rozpędzeniu stada ojciec schodzi z poddasza, przyrównany przez narratora do pozbawionego władzy króla." },
+    { "nr": 7, "miejsce": "Sklepy cynamonowe, przed przedstawieniem", "kto": ["Józef", "Jakub", "matka"], "gdzie": "teatr", "opis": "Jakub odkrywa brak portfela, więc rodzice wysyłają Józefa do domu po zgubę." },
+    { "nr": 8, "miejsce": "Sklepy cynamonowe, nocna wędrówka", "kto": ["Józef"], "gdzie": "ulice miasta", "opis": "Józef postanawia zboczyć z drogi, żeby zajrzeć do sklepów, które kojarzy z rzadkimi towarami i książkami." },
+    { "nr": 9, "miejsce": "Sklepy cynamonowe, nocna wędrówka", "kto": ["Józef"], "gdzie": "ulice i gmach gimnazjum", "opis": "Józef nie trafia na ulicę sklepów i wchodzi do gimnazjum przez nieznane mu wcześniej wejście." },
+    { "nr": 10, "miejsce": "Sklepy cynamonowe, gimnazjum", "kto": ["Józef", "profesor Arendt"], "gdzie": "gimnazjum, wspomnienie zajęć", "opis": "Chłopiec przypomina sobie wieczorne zajęcia rysunku, na których uczniowie rysowali przy świecach lub zasypiali na ławkach." },
+    { "nr": 11, "miejsce": "Sklepy cynamonowe, skrzydło dyrektora", "kto": ["Józef"], "gdzie": "salon w gimnazjum i plac", "opis": "W nieznanym skrzydle Józef natrafia na reprezentacyjny salon, przez który wydostaje się na plac." },
+    { "nr": 12, "miejsce": "Sklepy cynamonowe, jazda dorożką", "kto": ["Józef", "dorożkarz"], "gdzie": "ulice miasta", "opis": "Józef wsiada do dorożki, lecz woźnica zeskakuje przy szynku, zostawiając chłopcu lejce." },
+    { "nr": 13, "miejsce": "Sklepy cynamonowe, jazda dorożką", "kto": ["Józef", "koń"], "gdzie": "okolice miasta", "opis": "Koń wywozi Józefa poza zwykłe ulice, a chłopiec potem kieruje go z powrotem w stronę miasta." },
+    { "nr": 14, "miejsce": "Sklepy cynamonowe, zakończenie", "kto": ["Józef", "koledzy"], "gdzie": "rynek i stroma ulica", "opis": "Józef spotyka kolegów, którzy za wcześnie wyruszyli do szkoły, i idzie z nimi na spacer w świetle niepewnego świtu." },
+    { "nr": 15, "miejsce": "Ulica Krokodyli, początek", "kto": ["Józef", "Jakub"], "gdzie": "dom rodziny narratora", "opis": "Narrator opisuje przechowywaną przez ojca mapę, na której handlowa dzielnica jest niemal pusta." },
+    { "nr": 16, "miejsce": "Ulica Krokodyli, magazyn konfekcji", "kto": ["narrator", "subiekt", "sklepowe"], "gdzie": "magazyn konfekcji", "opis": "W opisie wizyty w sklepie wybór ubrania ustępuje oglądaniu druków, a narrator i pozostali wychodzą między regałami na ulicę." },
+    { "nr": 17, "miejsce": "Ulica Krokodyli, pociąg", "kto": ["oczekujący", "urzędnicy kolejowi"], "gdzie": "zakręt ulicy i prowizoryczna stacja", "opis": "Zanim kończą się negocjacje z urzędnikami kolejowymi, pociąg odjeżdża sprzed oczekujących." },
+    { "nr": 18, "miejsce": "Ulica Krokodyli, zakończenie", "kto": ["Józef"], "gdzie": "ulica Krokodyli", "opis": "Narrator podważa przypuszczenia o tajemnicach dzielnicy i przedstawia ją jako imitację wielkomiejskiego życia." }
+  ],
+  "postacie": [
+    { "imie": "Józef", "odmiany": ["Józefa", "Józefowi", "Józefem", "narrator", "narratora"], "rola": "chłopiec relacjonujący rodzinne i miejskie wydarzenia", "relacje": "syn Jakuba i matki, uczeń profesora Arendta", "miejsca": ["Ptaki", "Sklepy cynamonowe", "Ulica Krokodyli"] },
+    { "imie": "Jakub", "odmiany": ["Jakuba", "Jakubowi", "Jakubem", "ojciec", "ojca", "ojcu"], "rola": "ojciec narratora, zakłada hodowlę ptaków i przechowuje mapę miasta", "relacje": "mąż matki narratora, przygląda się działaniom Adeli", "miejsca": ["Ptaki", "Sklepy cynamonowe", "Ulica Krokodyli"] },
+    { "imie": "Adela", "odmiany": ["Adeli", "Adelę", "Adelą"], "rola": "służąca prowadząca domowe porządki, wypędza ptaki z poddasza", "relacje": "jej zachowanie silnie oddziałuje na Jakuba", "miejsca": ["Ptaki", "Sklepy cynamonowe, przed przedstawieniem"] },
+    { "imie": "matka", "odmiany": ["matki", "matce", "matkę", "matką"], "rola": "zabiera ojca na wieczorne wyjścia i posyła syna po portfel", "relacje": "żona Jakuba i matka Józefa", "miejsca": ["Ptaki", "Sklepy cynamonowe, przed przedstawieniem"] },
+    { "imie": "profesor Arendt", "odmiany": ["Arendta", "Arendtowi", "Arendtem"], "rola": "nauczyciel prowadzący nadobowiązkowe lekcje rysunku", "relacje": "zapamiętany przez narratora z gimnazjum", "miejsca": ["Sklepy cynamonowe, gimnazjum"] },
+    { "imie": "dorożkarz", "odmiany": ["dorożkarza", "dorożkarzowi", "dorożkarzem", "woźnica", "woźnicy"], "rola": "zabiera chłopca do dorożki i przekazuje mu lejce", "relacje": "przypadkowy uczestnik nocnej wędrówki Józefa", "miejsca": ["Sklepy cynamonowe, jazda dorożką"] }
+  ],
+  "motywy": [
+    { "motyw": "wyobraźnia i codzienność", "przyklad": "Narrator widzi w ptakach Jakuba ożywione barwy i kształty z oglądanych przez niego tablic ornitologicznych.", "miejsce": "Ptaki, rozwój hodowli" },
+    { "motyw": "porządek i wyobraźnia", "przyklad": "Adela otwiera okno i szczotką wypędza ptaki z pomieszczenia, które Jakub zagospodarował na poddaszu.", "miejsce": "Ptaki, porządki Adeli" },
+    { "motyw": "utrata panowania", "przyklad": "Ojciec opuszcza strych po wypędzeniu ptaków, a narrator nadaje jego schodzeniu sens utraty królestwa.", "miejsce": "Ptaki, zakończenie", "cytat": "król-banita, który stracił tron i królowanie" },
+    { "motyw": "miasto jako labirynt", "przyklad": "Józef wybiera trasę do nocnych sklepów, lecz układ ulic prowadzi go pod nieznane wejście do gimnazjum.", "miejsce": "Sklepy cynamonowe, nocna wędrówka" },
+    { "motyw": "czas przeżywany a czas zegarowy", "przyklad": "Blask nocy skłania kolegów do przedwczesnego wyjścia do szkoły, a spacer kończy opowiadanie na granicy nocy i świtu.", "miejsce": "Sklepy cynamonowe, zakończenie" },
+    { "motyw": "fascynacja niedostępnym", "przyklad": "Józef przypomina sobie egzotyczne przedmioty i zakazane druki, lecz podczas wędrówki nie odnajduje upragnionych sklepów.", "miejsce": "Sklepy cynamonowe, nocna wędrówka" },
+    { "motyw": "nowoczesność jako imitacja", "przyklad": "Dzielnica naśladująca wielką metropolię okazuje się w oczach narratora krucha i pozorna.", "miejsce": "Ulica Krokodyli, zakończenie", "cytat": "papierową imitację" },
+    { "motyw": "zawiedzione oczekiwanie", "przyklad": "Podróżni pozostają na ulicy po odjeździe wagonów, podobnie jak w finale pozostaje niespełniona nadzieja na odnalezienie niezwykłego sklepu.", "miejsce": "Ulica Krokodyli, pociąg i zakończenie" }
+  ],
+  "utwory": [
+    { "tytul": "Ptaki", "miejsce": "całe opowiadanie", "opis": "Powstanie hodowli Jakuba i jej kres po interwencji Adeli." },
+    { "tytul": "Sklepy cynamonowe", "miejsce": "całe opowiadanie", "opis": "Wysłany po portfel Józef gubi drogę w nocnym mieście i spotyka kolegów przed świtem." },
+    { "tytul": "Ulica Krokodyli", "miejsce": "całe opowiadanie", "opis": "Opis dzielnicy handlowej ujawnia pozorność miejscowych ambicji wielkomiejskich." }
+  ],
+  "zrodla": [
+    { "url": "https://wolnelektury.pl/katalog/lektura/sklepy-cynamonowe-ptaki/", "rodzaj": "utwór", "co": "TXT Ptaki; sprawdzono przebieg hodowli, porządki Adeli i ostatnie zdanie." },
+    { "url": "https://wolnelektury.pl/katalog/lektura/sklepy-cynamonowe-sklepy-cynamonowe/", "rodzaj": "utwór", "co": "TXT Sklepy cynamonowe; sprawdzono początek w teatrze, epizod gimnazjalny, jazdę i finał." },
+    { "url": "https://wolnelektury.pl/katalog/lektura/sklepy-cynamonowe-ulica-krokodyli/", "rodzaj": "utwór", "co": "TXT Ulica Krokodyli; sprawdzono mapę, epizody ze sklepem i pociągiem oraz ocenę dzielnicy w zakończeniu." },
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE wskazuje wybrane opowiadania Schulza." }
+  ],
+  "do_weryfikacji": [
+    "Informator nie wylicza konkretnych opowiadań; wykorzystano trzy przykłady wskazane w katalogu."
+  ]
+}

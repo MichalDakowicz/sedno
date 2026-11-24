@@ -1,0 +1,234 @@
+{
+  "id": "apokalipsa-sw-jana",
+  "wydarzenia": [
+    {
+      "nr": 1,
+      "miejsce": "Ap 1",
+      "kto": [
+        "Jan",
+        "Chrystus"
+      ],
+      "gdzie": "wyspa Patmos",
+      "opis": "Jan na wyspie Patmos otrzymuje widzenie Chrystusa i polecenie zapisania tego, co zobaczy."
+    },
+    {
+      "nr": 2,
+      "miejsce": "Ap 2–3",
+      "kto": [
+        "Jan",
+        "Chrystus",
+        "siedem Kościołów"
+      ],
+      "gdzie": "Azja Mniejsza",
+      "opis": "Chrystus kieruje listy do siedmiu Kościołów w Azji Mniejszej, chwaląc je i ganiąc."
+    },
+    {
+      "nr": 3,
+      "miejsce": "Ap 4–5",
+      "kto": [
+        "Jan",
+        "Baranek"
+      ],
+      "gdzie": "niebo, przed tronem Boga",
+      "opis": "Jan widzi tron Boga i Baranka, który jako jedyny jest godzien otworzyć księgę zapieczętowaną siedmioma pieczęciami."
+    },
+    {
+      "nr": 4,
+      "miejsce": "Ap 6–8",
+      "kto": [
+        "Baranek",
+        "czterej jeźdźcy"
+      ],
+      "gdzie": "niebo i ziemia",
+      "opis": "Baranek zrywa kolejne pieczęcie, wypuszczając czterech jeźdźców (m.in. wojnę, głód, śmierć); siódma pieczęć otwiera siedem trąb."
+    },
+    {
+      "nr": 5,
+      "miejsce": "Ap 8–11",
+      "kto": [
+        "siedem aniołów",
+        "Jan"
+      ],
+      "gdzie": "ziemia",
+      "opis": "Siedmiu aniołów dmie w trąby, a każde zadęcie przynosi kolejną klęskę."
+    },
+    {
+      "nr": 6,
+      "miejsce": "Ap 12–13",
+      "kto": [
+        "Niewiasta",
+        "Smok",
+        "Bestia"
+      ],
+      "gdzie": "niebo i ziemia",
+      "opis": "Niewiasta obleczona w słońce rodzi syna, a Smok z siedmioma głowami ściga ją; Smok daje władzę Bestii, której oddają cześć ludzie."
+    },
+    {
+      "nr": 7,
+      "miejsce": "Ap 16–19",
+      "kto": [
+        "Babilon",
+        "siedem aniołów"
+      ],
+      "gdzie": "ziemia",
+      "opis": "Siedem czasz gniewu Bożego jest wylanych na ziemię, a wielki Babilon, uosobienie zła, zostaje osądzony."
+    },
+    {
+      "nr": 8,
+      "miejsce": "Ap 20",
+      "kto": [
+        "Smok",
+        "Chrystus"
+      ],
+      "gdzie": "ziemia",
+      "opis": "Szatan zostaje związany na tysiąc lat; po jego krótkim uwolnieniu następuje ostateczna klęska i sąd nad umarłymi."
+    },
+    {
+      "nr": 9,
+      "miejsce": "Ap 21–22",
+      "kto": [
+        "Jan",
+        "Baranek"
+      ],
+      "gdzie": "nowe niebo i nowa ziemia",
+      "opis": "Jan widzi nowe niebo, nową ziemię i Nowe Jeruzalem zstępujące od Boga; Bóg ociera łzy ludzi, a śmierci już nie będzie."
+    }
+  ],
+  "postacie": [
+    {
+      "imie": "Jan",
+      "odmiany": [
+        "Jan",
+        "Jana",
+        "Janowi",
+        "Janem"
+      ],
+      "rola": "autor i świadek widzeń, zesłany na Patmos",
+      "relacje": "przekazuje listy do siedmiu Kościołów",
+      "miejsca": [
+        "Ap 1",
+        "Ap 21–22"
+      ]
+    },
+    {
+      "imie": "Baranek",
+      "odmiany": [
+        "Baranek",
+        "Baranka",
+        "Barankowi",
+        "Barankiem"
+      ],
+      "rola": "symbol Chrystusa, który otwiera pieczęcie",
+      "relacje": "stoi przed tronem Boga",
+      "miejsca": [
+        "Ap 5",
+        "Ap 6",
+        "Ap 21"
+      ]
+    },
+    {
+      "imie": "Smok (Szatan)",
+      "odmiany": [
+        "Smok",
+        "Smoka",
+        "Smokowi",
+        "Smokiem",
+        "Szatan"
+      ],
+      "rola": "siedmiogłowy przeciwnik Niewiasty i uosobienie zła",
+      "relacje": "przekazuje władzę Bestii",
+      "miejsca": [
+        "Ap 12",
+        "Ap 20"
+      ]
+    },
+    {
+      "imie": "Bestia",
+      "odmiany": [
+        "Bestia",
+        "Bestii",
+        "Bestię",
+        "Bestią"
+      ],
+      "rola": "potwór wyłaniający się z morza, któremu ludzie oddają cześć",
+      "relacje": "dostaje władzę od Smoka",
+      "miejsca": [
+        "Ap 13"
+      ]
+    },
+    {
+      "imie": "Niewiasta",
+      "odmiany": [
+        "Niewiasta",
+        "Niewiasty",
+        "Niewieście",
+        "Niewiastę"
+      ],
+      "rola": "kobieta obleczona w słońce, matka dziecka",
+      "relacje": "ścigana przez Smoka",
+      "miejsca": [
+        "Ap 12"
+      ]
+    },
+    {
+      "imie": "Babilon",
+      "odmiany": [
+        "Babilon",
+        "Babilonu",
+        "Babilonowi"
+      ],
+      "rola": "wielkie miasto-symbol zła",
+      "relacje": "osądzony przed ostatecznym zwycięstwem",
+      "miejsca": [
+        "Ap 17–18"
+      ]
+    }
+  ],
+  "motywy": [
+    {
+      "motyw": "koniec świata i sąd ostateczny",
+      "przyklad": "Po klęskach pieczęci, trąb i czasz następuje sąd nad umarłymi i ostateczne zwycięstwo Boga.",
+      "miejsce": "Ap 6–20"
+    },
+    {
+      "motyw": "walka dobra ze złem",
+      "przyklad": "Smok i Bestia występują przeciw Niewieście i wiernym, a Baranek pokonuje zło.",
+      "miejsce": "Ap 12–13; Ap 19–20"
+    },
+    {
+      "motyw": "symbolika liczb i obrazów",
+      "przyklad": "Księga używa siódemek (Kościołów, pieczęci, trąb, czasz) i potworów wyobrażających siły zła.",
+      "miejsce": "Ap 2–3; Ap 6–16"
+    },
+    {
+      "motyw": "nadzieja na nowy świat",
+      "przyklad": "Jan widzi nowe niebo i nową ziemię, gdzie Bóg ociera łzy ludzi, a śmierci już nie będzie.",
+      "miejsce": "Ap 21,1–5"
+    },
+    {
+      "motyw": "prześladowanie i wytrwałość wiernych",
+      "przyklad": "Listy do Kościołów wzywają do wierności mimo trudności, a Bestia prześladuje wiernych.",
+      "miejsce": "Ap 2–3; Ap 13"
+    },
+    {
+      "motyw": "upadek miasta-symbolu",
+      "przyklad": "Babilon, ukazany jako symbol władzy i zepsucia, zostaje osądzony i upada.",
+      "miejsce": "Ap 17–18"
+    }
+  ],
+  "utwory": [],
+  "zrodla": [
+    {
+      "url": "https://biblia.deon.pl/",
+      "rodzaj": "utwór",
+      "co": "Biblia Tysiąclecia, tekst do sprawdzenia opisanych fragmentów"
+    }
+  ],
+  "do_weryfikacji": [
+    "Plik nie był sprawdzany w żadnym źródle online ani w wydaniu Biblii; powstał z ogólnej znajomości Apokalipsy św. Jana i wymaga weryfikacji (np. w Biblii Tysiąclecia).",
+    "Cytatów nie podano, bo tekst współczesnych polskich wydań Biblii jest objęty prawem autorskim.",
+    "Zakres „fragmentów” Apokalipsy wymaganych na maturze nie jest ustalony w katalogu; w danych ujęto najczęściej omawiane wątki.",
+    "Zakresy rozdziałów w wydarzeniach (np. Ap 8–11, Ap 16–19) podano w przybliżeniu.",
+    "Opis nie został porównany z tekstem Biblii przy zapisie; sprawdzić rozdziały i wersety."
+  ]
+}

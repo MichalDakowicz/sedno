@@ -103,11 +103,7 @@ Pilotaż używa 512-wymiarowych wektorów cech słów, liczonych w Postgresie.
 Migracja `0029_szerszy_kontekst_pestki.sql` zwraca trafne sekcje tego samego
 utworu, z sekcją główną na początku. Przykładowo przy streszczeniu do modelu
 mogą trafić także przebieg wydarzeń i opisy bohaterów.
-Weryfikacja poza indeksem pobiera fragmenty z publicznego API Wolnych Lektur.
-Jeśli do środowiska kontenera Edge Functions dodasz `SEDNO_BRAVE_SEARCH_KEY`
-i zrestartujesz funkcje, Pestka będzie mogła przeszukać także ZPE i Culture.pl
-przez Brave Search. Tylko skrócony fakt i tytuł trafiają do wyszukiwarki.
-Cytaty są sprawdzane w dostępnej treści utworu.
+Sprawdzanie odwołań do lektur i odpowiedzi czatu opisuje sekcja „Wiedza Pestki o lekturach” poniżej.
 
 Interfejs pilotażu jest dostępny w czacie Pestki i pod
 `/nauka/wypracowanie`. Drugi przepływ korzysta z ograniczonego katalogu
@@ -123,6 +119,134 @@ w prywatnej tabeli powiązanej z `tutor_chats`. Usunięcie rozmowy usuwa jej
 wektory. Bramka wyszukuje fragmenty z własnego konta, gdy uczeń odwołuje się
 do wcześniejszego czatu. W bieżącej rozmowie model nadal dostaje jej historię.
 Sprawdzanie zaznaczonych akapitów jest pomijane przy indeksowaniu rozmów.
+
+## Wiedza Pestki o lekturach
+
+Wszystko jest kluczowane identyfikatorem utworu z katalogu (`functions/ai/katalog-lektur.ts`). Gdy bramka rozpozna
+utwór w pytaniu (tytuł z kontekstem literackim, bohater, autor), pobiera materiały tylko o nim. Wiadomość, która
+zawiera jedynie słowo z tytułu lub imię bohatera („wesele kuzynki”, „siostra ma lalkę”, „słodka zemsta za klasówkę”,
+„dżuma w grze”), nie uruchamia lektury: nie ma materiałów, źródeł ani wątków literackich, a model dostaje regułę
+krótkiej, prostej odpowiedzi i powrotu do nauki.
+Pytanie z ramą literacką (np. „plan wydarzeń tomu II”) może odwołać się do ostatniej rozpoznanej lektury
+w tej samej rozmowie. Bramka dla dopytania ponawia wyszukiwanie materiałów z maksymalnie dwóch wcześniejszych
+pytań z odsyłaczami i używa tych samych identyfikatorów materiałów. Model dostaje tekst wcześniejszych odpowiedzi bez
+numerów i identyfikatorów źródeł oraz oznaczenie odpowiedzi podpartych źródłami.
+
+Warstwy (szczegóły formatu, walidator, generator i loader tekstów: `lektury/README.md`):
+
+| Warstwa | Źródło | Tabela |
+| --- | --- | --- |
+| Karta `[K]` (autor, epoka, poziom, części, domena publiczna) | katalog w kodzie | brak, zawsze w kontekście |
+| Opracowanie `[S:streszczenie]`, `[S:geneza]`, … | migracje `0027`–`0034`, `0040` | `private.wiedza_pestki` |
+| Wydarzenia `[W12]`, postacie `[P3]`, motywy `[M5]`, utwory zbioru `[U2]` | `lektury/<id>.json` → migracja `0041_lektury_elementy.sql` | `private.lektury_elementy` |
+| Fragmenty tekstu `[F1]` (tylko domena publiczna, poza repozytorium) | `npm run lektury:teksty` | `private.lektury_fragmenty` |
+| Osadzenia (na później) | — | `private.lektury_osadzenia` |
+
+Migracje: `0035` (tabele, funkcje wyszukiwania), `0036` (elementy, generowana), `0037` (usuwa przybliżoną notatkę z
+planem „Lalki”, bo plan jest w elementach), `0038` (elementy z kotwicami rozdziałów), `0039` (wyszukiwanie
+początków i zakończeń, uzupełnienie kotwic w załadowanych fragmentach), `0040` (testament Papkina w planie „Zemsty”),
+`0041` (elementy wszystkich lektur), `0042` (łączenie źródeł po miejscu i pobieranie fragmentów do planu rozdziału),
+`0043` (zbiorcze wyszukiwanie kotwic dla kart z wieloma miejscami).
+Funkcje `pestka_lektury_elementy`, `pestka_lektury_fragmenty`, `pestka_lektury_fragmenty_miejsca` i
+`pestka_lektury_kotwice` wywołuje wyłącznie rola serwisowa.
+
+### Wybór materiałów według typu pytania
+
+| Typ pytania | Materiały |
+| --- | --- |
+| plan wydarzeń | numerowana lista wydarzeń w kolejności fabuły, zawężona do miejsca z pytania. Dla rozdziału lub sceny serwer zwraca najwyżej sześć punktów. Gdy ma mniej niż trzy wydarzenia, dobiera krótkie dosłowne cytaty z tego miejsca z kartami `[F…]` i wstawia wydarzenia Sedno według dopasowania do tekstu, zachowując kolejność numerów wydarzeń. Jeśli punktów nadal jest mniej niż trzy, podaje ich liczbę. |
+| sprawdzenie i poprawa planu | serwer porównuje numerowane punkty poprzedniej odpowiedzi z materiałami dotyczącymi tego samego miejsca i podaje typ źródła oraz lokalizację zgodnych punktów. Prośba o poprawę uruchamia ponownie serwerowy plan. Przy weryfikacji innej odpowiedzi model ma ocenić wyłącznie pewność wskazanego twierdzenia. |
+| streszczenie | sekcja streszczenia, do 25 wydarzeń (60 przy „szczegółowo”), sekcja bohaterów; „bez spoilerów” daje tylko dwa pierwsze zdania |
+| zakończenie, finał | do pięciu końcowych wydarzeń w kolejności fabuły oraz sekcja streszczenia |
+| kim jest …, bohater, relacje | dopasowanie imienia, nazwiska i członów z `odmiany` w obrębie rozpoznanej lektury, także z historii. Do opisu dołączają wydarzenia z miejsc związanych z postacią. Przy braku opisu Pestka podaje tylko dane karty lektury. |
+| motywy, rozprawka, argumenty | motywy dopasowane po nazwie i jej synonimach, wydarzenia z odpowiadającego miejsca i trafne wydarzenia z pytania, sekcja motywów |
+| cytat, „w którym rozdziale” | fragmenty tekstu (dokładna fraza albo słowa pytania, a przy prośbie o początek nazwanej sceny pierwsza część pasująca po nagłówku), motywy i wydarzenia pasujące do pytania |
+| geneza, konteksty | sekcje geneza i konteksty |
+| każde inne, w tym „czy …?” i „dlaczego …?” | trzy najtrafniejsze sekcje opracowania, uzupełnione o wydarzenia i bohaterów, do 8 elementów oraz 2 fragmenty (gdy utwór ma tekst) |
+
+Do kontekstu modelu trafia najwyżej około 18 tys. znaków materiałów (około 6 tys. tokenów), w tym zawsze karta.
+Wycinek używany przez serwer do planu ma do 2200 znaków, a w odpowiedzi modelu do 1400.
+
+### Kontrakt odpowiedzi czatu o lekturze
+
+Model cytuje materiały identyfikatorami w nawiasach kwadratowych (`[W12]`, `[P3][W14]`, `[S:geneza]`, `[K]`), a znacznik
+`[OW]` oznacza wiedzę spoza materiałów. Strumień buforuje akapit lub punkt listy:
+
+- identyfikator z materiałów zamienia się na znacznik `[[zrodlo:N]]` (N to numer pozycji w `zrodla`, od 1). Serwer
+  ujednolica też gołe identyfikatory i dopiski miejsca w znaczniku, np. `W32` i `[F13, akt 2, sc. 2]`.
+  Identyfikator nieznany znika. Serwer porządkuje interpunkcję przy usuwanych znacznikach, usuwa myślniki między odsyłaczami
+  i scala sąsiednie powtórzenia;
+- serwer sprawdza każde zdanie z identyfikatorem elementu. Każde wymienione miejsce musi mieć pokrycie w przypisach
+  tego zdania. Przy braku miejsca serwer wymaga wspólnych rdzeni słów (co najmniej dwóch i co najmniej jednej czwartej
+  znaczących słów zdania). Przy linku do opracowania serwer sprawdza wszystkie znaczące rdzenie, liczby i przeczenia
+  w zdaniu także przy zgodnym miejscu;
+- w odpowiedzi opartej wyłącznie na opracowaniach utworu bez tekstu w Sedno informacja o tym pojawia się raz,
+  na początku odpowiedzi;
+- akapit lub punkt listy bez znanego identyfikatora może dostać jeden dopisek `(z ogólnej wiedzy, sprawdź w tekście)`.
+  Dopisek pomija nagłówki, cytaty, polecenia, pytania do ucznia, listy wskazówek do rozprawki oraz przyznanie braku materiału;
+- cytat w cudzysłowie „…” (min. 4 słowa) musi występować w materiałach albo w pytaniu ucznia. W innym przypadku
+  serwer usuwa cytat razem z jego odsyłaczami i informuje o tym na końcu odpowiedzi;
+- bez żadnego wiersza z odpowiedzi serwer zwraca: „Sedno nie ma materiału, który rozstrzyga to pytanie. …”;
+- znacznik `[[priorytet: …]]` i zdania typu „dodałam do twoich priorytetów” są usuwane z każdej odpowiedzi czatu, chyba że
+  uczeń wyraźnie prosi o zapis priorytetu (np. „Zapisz priorytet: …”).
+
+Ostatnie zdarzenie strumienia (`{"type":"done",…,"pestka":{…}}`) niesie źródła. Karta obejmująca kilka miejsc ma
+opcjonalne `miejsca: [{ miejsce: string, url: string }]` w kolejności materiału. UI pokazuje po jednym linku dla każdego
+miejsca pod jednym numerem przypisu. W takim przypadku `url` i `miejsce` wskazują pierwszy wpis dla starszych klientów.
+Zapis „rozdz. 8 i 10” albo „rozdz. 8, 10” daje po jednym wpisie dla każdego rozdziału. Zakres ma jeden link do
+początku i etykietę, np. „rozdz. 4–5, od początku 4”.
+Przy braku kotwicy wpis prowadzi do właściwego tomu, tekstu lub opracowania, a UI pokazuje miejsce obok linku.
+Każda strona opracowania ma w odpowiedzi najwyżej jeden numer przypisu. Karta zawiera wtedy połączone dowody
+z zatwierdzonych zdań, a miejsce jest pomijane, jeśli materiał dotyczy różnych miejsc w utworze.
+Epilog „Innego świata” używa opracowania opisującego scenę w Rzymie. Ogólne adresy ćwiczeń z indeksu
+są pomijane przy elementach i sekcjach spoza zakresu tych ćwiczeń.
+Karty bez tablicy `miejsca` korzystają z pojedynczego `url`:
+
+```json
+{
+  "zrodla": [
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/lalka-tom-drugi.html#wl-e4032",
+      "tytul": "Lalka",
+      "rodzaj": "utwór",
+      "sekcja": "t. II, rozdz. 14",
+      "miejsce": "t. II, rozdz. 14",
+      "idSekcji": "lalka/w32",
+      "id": "W32",
+      "typ": "wydarzenie",
+      "dowod": "t. II, rozdz. 14: W pociągu do Krakowa Wokulski wysiada w Skierniewicach …",
+      "twierdzenie": "[1] Wokulski wysiada w Skierniewicach i rzuca się pod pociąg."
+    }
+  ],
+  "akcje": ["zrodlo"]
+}
+```
+
+- `miejsce` to lokalizacja w utworze (tom i rozdział, akt i scena, księga i wersy); dla sekcji opracowania go nie ma, a
+  `sekcja` brzmi „Opracowanie Sedno · Motywy”. `sekcja` dla wydarzeń, postaci, motywów i fragmentów powtarza `miejsce`,
+  więc dotychczasowy interfejs („tytuł · sekcja”) pokazuje już lokalizację.
+- `url` prowadzi do rozdziału w czytniku Wolnych Lektur (kotwica `#wl-e…`), gdy miejsce da się dopasować do fragmentu tekstu;
+  w pozostałych przypadkach do strony utworu lub opracowania.
+- `id` (`W12`, `P3`, `M5`, `U2`, `F1`, `S:geneza`, `K`) i `typ` (`karta`, `sekcja`, `wydarzenie`, `postac`, `motyw`, `utwor`,
+  `fragment`) są nowe. `dowod` to „tekst cytowany”: dla cytatu dokładne słowa z tekstu, w pozostałych przypadkach początek
+  materiału (do 400 znaków). To samo miejsce w tekście ma jedną pozycję w `zrodla`.
+- `twierdzenie` zaczyna się od `[N]`, zgodnie z `[[zrodlo:N]]` w tekście (aplikacja zamienia znacznik na ` [N]`).
+- Karta sprawdzania odwołań w wypracowaniu (`pestka.tryb = "lektura"`) bez zmian: `status`, `fragment`, `fakt`, `podstawa`,
+  `teza`, `krok`, a w `zrodla` pojedyncze źródło z `dowod`. Teraz szuka w elementach, opracowaniu i fragmentach tekstu;
+  zewnętrzne wyszukiwarki (Brave) i pobieranie tekstu w czasie zapytania usunięto.
+
+### Poziom modelu
+
+Pytania o lektury (rozpoznany utwór, wyraźne pytanie o lekturę, sprawdzanie odwołań) idą na poziom `wazne`. Przełącznik
+jest w jednym miejscu (`TIER_LEKTUR` w `functions/ai/index.ts`); `SEDNO_TIER_LEKTUR=lekkie` w środowisku funkcji przywraca
+poziom wybrany przez aplikację (wysyła `lekkie`). Poziom `wazne` lepiej trzyma się reguł cytowania identyfikatorami i rzadziej
+zmyśla szczegóły, kosztem wyższej ceny i dłuższej odpowiedzi.
+
+### Osadzenia (embeddingi), później
+
+Jeśli semantyczne wyszukiwanie dojdzie, model to `embeddinggemma` na Ollamie właściciela. Schemat jest gotowy:
+`private.lektury_osadzenia` ma klucz naturalny `(zrodlo, utwor, rodzaj, nr, czesc, model)`, kolumnę `wektor` bez wymiaru
+(wymiar i indeks ANN ustala wdrożenie) oraz `tresc_hash` do wykrywania zmian. Szczegóły w `lektury/README.md`.
 
 ## Aplikacja web
 

@@ -1,0 +1,66 @@
+{
+  "id": "mistrz-i-malgorzata",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "rozdz. 1", "kto": ["Michał Berlioz", "Iwan Bezdomny", "Woland"], "gdzie": "Moskwa, Patriarsze Prudy", "opis": "Woland wdaje się w rozmowę o istnieniu Jezusa i zapowiada Berliozowi śmierć przez dekapitację." },
+    { "nr": 2, "miejsce": "rozdz. 2", "kto": ["Poncjusz Piłat", "Jeszua Ha-Nocri", "Kajfasz"], "gdzie": "Jerozolima, siedziba namiestnika", "opis": "Piłat przesłuchuje Jeszuę i próbuje zapobiec egzekucji, lecz na święto uwolniony ma zostać Barabasz." },
+    { "nr": 3, "miejsce": "rozdz. 3", "kto": ["Michał Berlioz", "Woland", "Iwan Bezdomny"], "gdzie": "Moskwa, okolice Patriarszych Prudów", "opis": "Berlioz upada na tory i ginie pod tramwajem, jak zapowiedział Woland." },
+    { "nr": 4, "miejsce": "rozdz. 4–6", "kto": ["Iwan Bezdomny", "Woland", "świta Wolanda"], "gdzie": "Moskwa i klinika psychiatryczna", "opis": "Iwan próbuje ścigać Wolanda i jego towarzyszy, a gdy opowiada o wydarzeniach literatom, trafia do kliniki." },
+    { "nr": 5, "miejsce": "rozdz. 7", "kto": ["Stiopa Lichodiejew", "Woland", "świta Wolanda"], "gdzie": "mieszkanie nr 50 w Moskwie i Jałta", "opis": "Lichodiejew zastaje Wolanda w mieszkaniu dzielonym z Berliozem, a następnie zostaje przeniesiony do Jałty." },
+    { "nr": 6, "miejsce": "rozdz. 9", "kto": ["Nikanor Bosy", "Korowiow"], "gdzie": "mieszkanie nr 50 i mieszkanie Bosego", "opis": "Korowiow daje Bosemu pieniądze przy załatwianiu sprawy lokalu, a po donosie w mieszkaniu Bosego zostaje znaleziona obca waluta." },
+    { "nr": 7, "miejsce": "rozdz. 12", "kto": ["Woland", "Korowiow", "Behemot", "publiczność"], "gdzie": "teatr Variétés w Moskwie", "opis": "Podczas występu świta Wolanda rozsypuje banknoty i oferuje stroje, po które sięgają widzowie." },
+    { "nr": 8, "miejsce": "rozdz. 13", "kto": ["Mistrz", "Iwan Bezdomny"], "gdzie": "klinika psychiatryczna", "opis": "Mistrz odwiedza Iwana w nocy i opowiada, jak poznał Małgorzatę, pisał o Piłacie i po nagonce spalił rękopis." },
+    { "nr": 9, "miejsce": "rozdz. 16", "kto": ["Jeszua Ha-Nocri", "Mateusz Lewita", "skazańcy"], "gdzie": "miejsce egzekucji pod Jerozolimą", "opis": "Jeszua zostaje stracony z dwoma innymi skazańcami, a Mateusz Lewita obserwuje egzekucję." },
+    { "nr": 10, "miejsce": "rozdz. 19", "kto": ["Małgorzata", "Azazello"], "gdzie": "Moskwa, okolice Kremla", "opis": "Azazello spotyka Małgorzatę i wręcza jej krem, dając jej szansę uzyskania wiadomości o Mistrzu." },
+    { "nr": 11, "miejsce": "rozdz. 20–21", "kto": ["Małgorzata", "krytyk Łatuński"], "gdzie": "dom Małgorzaty i Moskwa", "opis": "Po użyciu kremu Małgorzata zyskuje zdolność lotu i niszczy mieszkanie krytyka, który atakował Mistrza." },
+    { "nr": 12, "miejsce": "rozdz. 22–23", "kto": ["Małgorzata", "Woland", "Korowiow", "Frida"], "gdzie": "mieszkanie nr 50", "opis": "Małgorzata przyjmuje funkcję gospodyni balu Wolanda i wśród gości spotyka Fridę." },
+    { "nr": 13, "miejsce": "rozdz. 24", "kto": ["Małgorzata", "Frida", "Woland"], "gdzie": "mieszkanie nr 50", "opis": "Po balu Małgorzata prosi, by skończyła się kara Fridy, a Woland pozwala jej uwolnić kobietę od kary." },
+    { "nr": 14, "miejsce": "rozdz. 24", "kto": ["Małgorzata", "Mistrz", "Woland", "Behemot"], "gdzie": "mieszkanie nr 50", "opis": "Woland sprowadza Mistrza na prośbę Małgorzaty i oddaje mu rękopis powieści, który Mistrz uważał za spalony." },
+    { "nr": 15, "miejsce": "rozdz. 25–26", "kto": ["Poncjusz Piłat", "Afraniusz", "Juda z Kiriatu"], "gdzie": "Jerozolima i okolice", "opis": "Po egzekucji Jeszui Piłat rozmawia z Afraniuszem o losie Judy, a Juda zostaje zabity poza miastem." },
+    { "nr": 16, "miejsce": "rozdz. 26", "kto": ["Poncjusz Piłat", "Mateusz Lewita"], "gdzie": "siedziba namiestnika", "opis": "Mateusz rozmawia z Piłatem po pogrzebie Jeszui." },
+    { "nr": 17, "miejsce": "rozdz. 27–28", "kto": ["Korowiow", "Behemot", "świta Wolanda"], "gdzie": "Moskwa", "opis": "Interwencja w mieszkaniu nr 50 i późniejsze wystąpienia Korowiowa z Behemotem kończą się pożarami." },
+    { "nr": 18, "miejsce": "rozdz. 29", "kto": ["Mateusz Lewita", "Woland"], "gdzie": "dach w Moskwie", "opis": "Mateusz Lewita przekazuje Wolandowi prośbę Jeszui, aby Mistrz otrzymał spokój." },
+    { "nr": 19, "miejsce": "rozdz. 30", "kto": ["Mistrz", "Małgorzata", "Azazello"], "gdzie": "mieszkanie w suterenie", "opis": "Azazello przynosi Mistrzowi i Małgorzacie wino, po którego wypiciu oboje tracą życie i powracają do innej postaci istnienia." },
+    { "nr": 20, "miejsce": "rozdz. 30", "kto": ["Mistrz", "Małgorzata", "Iwan Bezdomny"], "gdzie": "klinika psychiatryczna", "opis": "Mistrz i Małgorzata odwiedzają Iwana, żeby się z nim pożegnać." },
+    { "nr": 21, "miejsce": "rozdz. 31–32", "kto": ["Woland", "świta Wolanda", "Mistrz", "Małgorzata"], "gdzie": "Worobiowe Góry i przestrzeń poza Moskwą", "opis": "Woland ze świtą zabiera Mistrza i Małgorzatę z Moskwy, a w drodze ukazuje im Piłata." },
+    { "nr": 22, "miejsce": "rozdz. 32", "kto": ["Mistrz", "Poncjusz Piłat", "Woland", "Banga"], "gdzie": "górska przestrzeń poza Moskwą", "opis": "Mistrz wypowiada zakończenie swojej powieści i uwalnia Piłata, który rusza księżycową drogą z psem Bangą." },
+    { "nr": 23, "miejsce": "rozdz. 32", "kto": ["Mistrz", "Małgorzata"], "gdzie": "wieczny dom", "opis": "Po rozstaniu z Wolandem Mistrz i Małgorzata docierają do miejsca przeznaczonego im na odpoczynek." },
+    { "nr": 24, "miejsce": "epilog", "kto": ["Iwan Ponyriow", "Poncjusz Piłat", "Jeszua Ha-Nocri", "Mistrz", "Małgorzata"], "gdzie": "Moskwa, sen Iwana", "opis": "Iwan, już jako profesor, w czasie wiosennej pełni śni o Piłacie, Jeszui, Mistrzu i Małgorzacie, a po śnie odzyskuje spokój do kolejnej pełni." }
+  ],
+  "postacie": [
+    { "imie": "Mistrz", "odmiany": ["Mistrza", "Mistrzowi", "Mistrzem"], "rola": "pisarz, autor powieści o Piłacie, po nagonce trafia do kliniki", "relacje": "ukochany Małgorzaty, rozmówca Iwana, twórca postaci Piłata w powieści wewnętrznej", "miejsca": ["rozdz. 13", "rozdz. 24", "rozdz. 29–32"] },
+    { "imie": "Małgorzata", "odmiany": ["Małgorzaty", "Małgorzacie", "Małgorzatę", "Małgorzatą"], "rola": "zgadza się zostać gospodynią balu, żeby odnaleźć Mistrza", "relacje": "ukochana Mistrza, prosi Wolanda o łaskę dla Fridy", "miejsca": ["rozdz. 13", "rozdz. 19–24", "rozdz. 29–32"] },
+    { "imie": "Woland", "odmiany": ["Wolanda", "Wolandowi", "Wolandem", "Szatan"], "rola": "przybysz przedstawiający się jako specjalista od czarnej magii, organizuje bal i wpływa na los bohaterów", "relacje": "dowodzi świtą, spełnia prośbę Małgorzaty, przyjmuje wiadomość od Mateusza", "miejsca": ["rozdz. 1–3", "rozdz. 7", "rozdz. 12", "rozdz. 22–24", "rozdz. 29–32"] },
+    { "imie": "Iwan Bezdomny", "odmiany": ["Iwana Bezdomnego", "Iwanowi Bezdomnemu", "Iwanem Bezdomnym", "Ponyriow", "Ponyriew", "Ponyriowa"], "rola": "poeta, świadek początku wydarzeń, po latach profesor", "relacje": "rozmawia z Berliozem i Wolandem, poznaje Mistrza w klinice", "miejsca": ["rozdz. 1", "rozdz. 3–6", "rozdz. 13", "epilog"] },
+    { "imie": "Michał Berlioz", "odmiany": ["Berlioza", "Berliozowi", "Berliozem", "Michaił Berlioz"], "rola": "działacz środowiska literackiego, ginie pod tramwajem", "relacje": "rozmówca Iwana i Wolanda, współlokator Lichodiejewa", "miejsca": ["rozdz. 1", "rozdz. 3"] },
+    { "imie": "Poncjusz Piłat", "odmiany": ["Piłata", "Piłatowi", "Piłatem", "Poncjusza Piłata"], "rola": "rzymski namiestnik w wątku jerozolimskim, po egzekucji dręczy go pamięć o Jeszui", "relacje": "przesłuchuje Jeszuę, ma psa Bangę, zostaje uwolniony przez Mistrza", "miejsca": ["rozdz. 2", "rozdz. 25–26", "rozdz. 32"] },
+    { "imie": "Jeszua Ha-Nocri", "odmiany": ["Jeszui", "Jeszuę", "Jeszuą", "Ha-Nocri"], "rola": "wędrowny nauczyciel, którego skazano na śmierć", "relacje": "rozmówca Piłata, nauczyciel Mateusza, za jego pośrednictwem wstawia się za Mistrzem", "miejsca": ["rozdz. 2", "rozdz. 16", "rozdz. 29"] },
+    { "imie": "Mateusz Lewita", "odmiany": ["Mateusza Lewity", "Mateuszowi Lewicie", "Mateuszem Lewitą"], "rola": "uczeń Jeszui, obecny przy wątku egzekucji i decyzji w sprawie Mistrza", "relacje": "towarzysz Jeszui, rozmawia z Piłatem i Wolandem", "miejsca": ["rozdz. 16", "rozdz. 26", "rozdz. 29"] },
+    { "imie": "Azazello", "odmiany": ["Azazella", "Azazellowi", "Azazellem", "Asasello"], "rola": "wysłannik Wolanda, nawiązuje kontakt z Małgorzatą i przynosi wino parze", "relacje": "należy do świty, pośredniczy między Wolandem a parą", "miejsca": ["rozdz. 19", "rozdz. 22–23", "rozdz. 30–32"] },
+    { "imie": "Korowiow", "odmiany": ["Korowiowa", "Korowiowowi", "Korowiowem", "Fagot", "Fagota"], "rola": "członek świty, bierze udział w widowisku i intrydze dotyczącej mieszkania", "relacje": "występuje przy Wolandzie i z Behemotem", "miejsca": ["rozdz. 9", "rozdz. 12", "rozdz. 22–23", "rozdz. 28"] },
+    { "imie": "Behemot", "odmiany": ["Behemota", "Behemotowi", "Behemotem", "kot Behemot"], "rola": "demon występujący m.in. w postaci kota", "relacje": "towarzysz Wolanda i Korowiowa", "miejsca": ["rozdz. 12", "rozdz. 23–24", "rozdz. 27–28"] },
+    { "imie": "Frida", "odmiany": ["Fridy", "Fridzie", "Fridę", "Fridą", "Frieda"], "rola": "uczestniczka balu dręczona karą związaną ze śmiercią jej dziecka", "relacje": "Małgorzata prosi dla niej o łaskę", "miejsca": ["rozdz. 23–24"] },
+    { "imie": "Nikanor Bosy", "odmiany": ["Bosego", "Bosemu", "Bosym", "Nikanora Bosego"], "rola": "zarządca domu, którego dotyczy sprawa waluty", "relacje": "Korowiow nawiązuje z nim kontakt w sprawie mieszkania", "miejsca": ["rozdz. 9", "rozdz. 15"] }
+  ],
+  "motywy": [
+    { "motyw": "system i prawda", "przyklad": "Berlioz oczekuje od Iwana wiersza zgodnego z przyjętą linią, a Mistrz doświadcza nagonki po próbie publikacji powieści o Piłacie.", "miejsce": "rozdz. 1 i 13" },
+    { "motyw": "miłość i działanie", "przyklad": "Małgorzata przyjmuje propozycję Azazella i zostaje gospodynią balu, aby odnaleźć Mistrza.", "miejsce": "rozdz. 19–24" },
+    { "motyw": "tchórzostwo władzy", "przyklad": "Piłat zatwierdza egzekucję Jeszui, a finał pokazuje go po długim oczekiwaniu na dalszą rozmowę ze skazańcem.", "miejsce": "rozdz. 2 i 32" },
+    { "motyw": "trwałość twórczości", "przyklad": "Mistrz opowiada Iwanowi o spaleniu powieści, a Woland oddaje mu rękopis podczas spotkania po balu.", "miejsce": "rozdz. 13 i 24" },
+    { "motyw": "groteska i chciwość", "przyklad": "Widzowie teatru rzucają się po banknoty i przyjmują nowe ubrania podczas występu świty Wolanda.", "miejsce": "rozdz. 12" },
+    { "motyw": "miłosierdzie", "przyklad": "Małgorzata po spotkaniu z Fridą wykorzystuje pierwszą prośbę, by ulżyć jej w cierpieniu.", "miejsce": "rozdz. 23–24" },
+    { "motyw": "dzieło wewnątrz dzieła", "przyklad": "Woland rozpoczyna wątek Piłata, Mistrz przedstawia się jako autor powieści o nim, a w finale sam wypowiada jej zakończenie.", "miejsce": "rozdz. 2, 13 i 32" },
+    { "motyw": "pamięć i księżyc", "przyklad": "Iwan co roku odczuwa niepokój w czasie wiosennej pełni, gdy świat Jerozolimy powraca w jego śnie.", "miejsce": "epilog" }
+  ],
+  "utwory": [],
+  "zrodla": [
+    { "url": "https://hurt.wydawnictwoznak.pl/img/product_media/3001-4000/5_Bulhakow_MistrziMalgorzata_issuu.pdf", "rodzaj": "utwór", "co": "Fragment wydania w przekładzie Lewandowskiej i Dąbrowskiego, początek powieści i spis rozdziałów." },
+    { "url": "https://zpe.gov.pl/a/przeczytaj/DYYYKDl8M", "rodzaj": "opracowanie", "co": "Wątki Mistrza i Małgorzaty, Piłata i Jeszui oraz relacje z tradycją literacką." },
+    { "url": "https://zpe.gov.pl/a/przeczytaj/Dht4b3aOO", "rodzaj": "opracowanie", "co": "Moskwa, świta Wolanda i związek planów fabularnych." },
+    { "url": "https://zpe.gov.pl/a/przeczytaj/Dk4vSNUsV", "rodzaj": "opracowanie", "co": "Historia związku oraz sceny wyborów Małgorzaty." },
+    { "url": "https://ruj.uj.edu.pl/server/api/core/bitstreams/0603d615-842f-49da-ad34-a88304caed29/content", "rodzaj": "opracowanie", "co": "Artykuł o wątku jerozolimskim, przesłuchaniu Jeszui i uwolnieniu Piłata w finale." }
+  ],
+  "do_weryfikacji": [
+    "Szczegóły tytułów rozdziałów i zapisu imion różnią się w polskich przekładach; zastosowano numerację z wydania Znaku i uwzględniono wybrane warianty imion.",
+    "Do sprawdzenia w pełnym wydaniu źródłowym pozostają szczegóły pobocznych wątków moskiewskich."
+  ]
+}

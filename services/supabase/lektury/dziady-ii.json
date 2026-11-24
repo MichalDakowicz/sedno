@@ -1,0 +1,36 @@
+{
+  "id": "dziady-ii",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "cz. II, wstęp i inwokacja", "kto": ["Guślarz", "Starzec", "Chór"], "gdzie": "kaplica, wieczór", "opis": "Guślarz z Chórem wieśniaków rozpoczyna obrzęd Dziadów w kaplicy, wzywając duchy."},
+    {"nr": 2, "miejsce": "cz. II, duchy lekkie", "kto": ["Aniołek (Józio)", "Rózia", "Guślarz", "Chór"], "gdzie": "kaplica", "opis": "Przychodzą duchy dwojga dzieci, Józia i Rózi, które proszą o dwa ziarna gorczycy; mówią, że w raju jest im lepiej niż u mamy, a Guślarz spełnia prośbę i je odprawia."},
+    {"nr": 3, "miejsce": "cz. II, widmo złego pana", "kto": ["Widmo", "Guślarz", "Chór ptaków nocnych", "Kruk", "Sowa"], "gdzie": "kaplica, za oknem", "opis": "Za oknem pojawia się widmo nieboszczyka pana, które mówi, że mija trzeci rok od pogrzebu, że jest w mocy złego ducha i cierpi męczarnie; ptaki nocne rzucają się na nie."},
+    {"nr": 4, "miejsce": "cz. II, Dziewczyna", "kto": ["Guślarz", "Dziewczyna (Zosia)", "Chór"], "gdzie": "kaplica", "opis": "Pojawia się dziewczyna z wiankiem, która mówi, że była Zosią, dziewczyną z tej wioski, i opisuje zabawę z barankiem i motylkiem; Guślarz ją odsyła."},
+    {"nr": 5, "miejsce": "cz. II, pasterka i widmo", "kto": ["Guślarz", "Pasterka", "Widmo", "Chór"], "gdzie": "kaplica", "opis": "Z podłogi powstaje blade widmo młodzieńca z pąsową pręgą na sercu; zwraca się do pasterki w żałobie i nic nie mówi, a Guślarz nie potrafi go odpędzić, co kończy tekst w tej wersji."}
+  ],
+  "postacie": [
+    {"imie": "Guślarz", "odmiany": ["Guślarz", "Guślarza", "Guślarzowi", "Guślarzem"], "rola": "przewodnik obrzędu Dziadów, rozmawia z duchami", "relacje": "prowadzi Chór wieśniaków i Starca", "miejsca": ["cz. II, wstęp", "cz. II, duchy lekkie"]},
+    {"imie": "Chór wieśniaków", "odmiany": ["Chór", "Chóru", "Chórowi", "wieśniacy"], "rola": "zbiorowa postać powtarzająca refren o ciemności i niewiadomej przyszłości", "relacje": "powtarza słowa Guślarza", "miejsca": ["cz. II"]},
+    {"imie": "Józio i Rózia", "odmiany": ["Józio", "Józia", "Rózia", "Rózi", "Aniołek", "Aniołki"], "rola": "duchy dzieci, które nie znały cierpienia", "relacje": "proszą o ziarna gorczycy", "miejsca": ["cz. II, duchy lekkie"]},
+    {"imie": "Widmo złego pana", "odmiany": ["Widmo", "Widma", "Widmu", "Widmem", "nieboszczyk pan"], "rola": "duch okrutnego pana, cierpiący po śmierci", "relacje": "przemawia przez okno do swoich dawnych poddanych", "miejsca": ["cz. II, widmo złego pana"]},
+    {"imie": "Dziewczyna (Zosia)", "odmiany": ["Dziewczyna", "Dziewczyny", "Dziewczynie", "Zosia", "Zosi"], "rola": "duch dziewczyny z wioski, która opowiada o zabawach z barankiem", "relacje": "rozmawia z Guślarzem", "miejsca": ["cz. II, Dziewczyna"]},
+    {"imie": "Pasterka", "odmiany": ["Pasterka", "Pasterki", "Pasterce", "Pasterką"], "rola": "wieśniaczka w żałobie, do której zwraca się widmo", "relacje": "widmo chodzi za nią", "miejsca": ["cz. II, pasterka i widmo"]},
+    {"imie": "Starzec", "odmiany": ["Starzec", "Starca", "Starcowi"], "rola": "pierwszy ze starców w chórze, rozmawia z Guślarzem", "relacje": "pomocnik Guślarza", "miejsca": ["cz. II"]}
+  ],
+  "motywy": [
+    {"motyw": "obrzęd Dziadów i kontakt ze zmarłymi", "przyklad": "Wieśniacy zbierają się w kaplicy w nocy, a Guślarz wzywa duchy i spełnia ich prośby.", "miejsce": "cz. II, wstęp", "cytat": "Ciemno wszędzie, głucho wszędzie,"},
+    {"motyw": "dzieci bez grzechu i raj", "przyklad": "Józio i Rózia mówią, że w raju jest im lepiej niż u matki, i proszą tylko o dwa ziarna gorczycy.", "miejsce": "cz. II, duchy lekkie", "cytat": "Tam nam lepiej niż u mamy."},
+    {"motyw": "kara za okrucieństwo wobec poddanych", "przyklad": "Widmo okrutnego pana cierpi męczarnie, a ptaki nocne rzucają się na nie.", "miejsce": "cz. II, widmo złego pana"},
+    {"motyw": "miłość i śmierć", "przyklad": "Dziewczyna Zosia wspomina swoje zabawy; widmo młodzieńca z raną na sercu idzie za pasterką.", "miejsce": "cz. II, Dziewczyna; pasterka i widmo"},
+    {"motyw": "pokuta i modlitwa za zmarłych", "przyklad": "Guślarz spełnia prośby duchów, mówiąc o jadle, napoju i modlitwie, aby duchy mogły odejść w pokoju.", "miejsce": "cz. II, duchy lekkie"},
+    {"motyw": "wiara ludowa i tajemnica", "przyklad": "Motto z Szekspira o dziwach w niebie i na ziemi zapowiada wątki fantastyczne.", "miejsce": "cz. II, motto"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/dziady-dziady-poema-dziady-czesc-ii/", "rodzaj": "utwór", "co": "Pobrany tekst części II; przeczytano wstęp, scenę z Józiem i Rózią, scenę z widmem pana, fragmenty sceny z Dziewczyną i końcówkę z pasterką; cytaty zweryfikowane. Sekcje nazwane według treści, bo tekst nie ma numeracji scen."}
+  ],
+  "do_weryfikacji": [
+    "Sceny 3–4 opisano na podstawie fragmentów i listy mówców; pełne czytanie potrzebne do potwierdzenia dokładnego przebiegu wizji.",
+    "Zakończenie tekstu (widmo młodzieńca i pasterka) jest opisane według końcówki wersji z Wolnych Lektur; w innych wydaniach część II może mieć dalszy ciąg.",
+    "Przypisanie postaci historycznym osobom (np. Marii Wereszczakównie) nie jest zawarte w danych."
+  ]
+}

@@ -1,0 +1,46 @@
+{
+ "id": "europejska-poezja-romantyczna",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "fantastyka i realizm",
+   "przyklad": "Syn widzi Króla olch w białym płaszczu, a ojciec widzi wyłącznie mgłę, wiatr i szelest olch.",
+   "miejsce": "Król olch"
+  },
+  {
+   "motyw": "noc, las i groza",
+   "przyklad": "Akcja dzieje się nocą w lesie, co buduje atmosferę niepewności i grozy.",
+   "miejsce": "Król olch"
+  },
+  {
+   "motyw": "sen i irracjonalizm",
+   "przyklad": "Ojciec wiąże słowa syna ze snem; spojrzenie dziecka można czytać jako irracjonalizm bliski romantykom.",
+   "miejsce": "Król olch"
+  },
+  {
+   "motyw": "dwie perspektywy poznania",
+   "przyklad": "Ojciec reprezentuje poznanie racjonalne, syn — odczucie i wiarę; zestawienie przypomina spór w „Romantyczności” Mickiewicza.",
+   "miejsce": "Król olch; Romantyczność"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Król olch",
+   "miejsce": "Johann Wolfgang Goethe, ballada z 1782 r. (przykład z ZPE)",
+   "opis": "Ballada o nocnej jeździe ojca z chorym synem przez las. Dziecko słyszy i widzi Króla olch, który je zwabia, a ojciec tłumaczy te zjawy naturalnymi zjawiskami (mgła, wiatr, szelest olch). Zgodnie z materiałami ZPE w utworze współistnieją dwa spojrzenia: realistyczne (ojca) i nadprzyrodzone, bliższe romantykom (syna). Kończy się śmiercią dziecka."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/a/sprawdz-sie/DHGMg506F",
+   "rodzaj": "opracowanie",
+   "co": "Ćwiczenia ZPE „Realizm i fantastyka w balladzie romantycznej” (Ballady i romanse, Król olch): dwie perspektywy ojca i syna, sceneria nocy, mgły i lasu, motyw snu."
+  }
+ ],
+ "do_weryfikacji": [
+  "Tekst Króla olch nie był czytany (tłumaczenia są objęte prawami autorskimi); opis oparty na pytaniach ćwiczeniowych ZPE i powszechnie znanej treści ballady.",
+  "Katalog wymienia Króla olch jako przykład; „europejska poezja romantyczna” obejmuje szerszy wybór (np. Byron, Wordsworth, Hugo) i nie ustalono listy z podstawy — nie opracowano innych utworów.",
+  "Goethe zmarł w 1832 r., ale polskie tłumaczenia mogą być chronione; cytaty nie zostały podane."
+ ]
+}

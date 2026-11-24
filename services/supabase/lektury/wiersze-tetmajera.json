@@ -1,0 +1,48 @@
+{
+ "id": "wiersze-tetmajera",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "pragnienie nirwany i unicestwienia",
+   "przyklad": "Mówiący prosi o oddech nirwany, który ma go unicestwić, i o to, by nie pamiętać, że żył.",
+   "miejsce": "Hymn do Nirwany",
+   "cytat": "Twym unicestwiającym oddechem pierś niech sycę"
+  },
+  {
+   "motyw": "zmęczenie światem i pesymizm",
+   "przyklad": "Wiersz opisuje ludzką podłość, która bryzga „kałem w źrenice”, i dusza ciągle konwulsyjnie się tarza.",
+   "miejsce": "Hymn do Nirwany",
+   "cytat": "Z otchłani klęsk i cierpień podnoszę głos do ciebie,"
+  },
+  {
+   "motyw": "parodia modlitwy",
+   "przyklad": "Fragmenty „Przyjdź twe królestwo jako na ziemi, tak i w niebie” naśladują chrześcijańską modlitwę, adresując ją do Nirwany.",
+   "miejsce": "Hymn do Nirwany",
+   "cytat": "Przyjdź twe królestwo jako na ziemi, tak i w niebie"
+  },
+  {
+   "motyw": "dekadentyzm",
+   "przyklad": "Utwór wyraża postawę typową dla dekadentyzmu: niechęć do życia, ucieczka w nicość.",
+   "miejsce": "Hymn do Nirwany"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Hymn do Nirwany",
+   "miejsce": "cały wiersz",
+   "opis": "Wiersz zbudowany jak modlitwa-parodia „Ojcze nasz”, z refrenem „Nirwano!” po każdym dwuwersie. Mówiący, udręczony ludzką podłością, błaga Nirwanę o zapomnienie, wyzwolenie od pamięci i cierpienia oraz o pochłonięcie w nicość. Typowy utwór dekadentyzmu Młodej Polski."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/hymn-do-nirwany/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst; cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Tetmajer zmarł w 1940 r. (domena publiczna). Wybór wierszy CKE poza przykładem z katalogu nie został sprawdzony (np. „Melodia mgieł nocnych”, „Evviva l’arte”).",
+  "Zaliczenie utworu do dekadentyzmu i buddyjskie pojęcie nirwany są tu opisane z lektury samego tekstu; do potwierdzenia w opracowaniu."
+ ]
+}

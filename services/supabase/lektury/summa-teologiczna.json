@@ -1,0 +1,29 @@
+{
+  "id": "summa-teologiczna",
+  "wydarzenia": [],
+  "postacie": [],
+  "motywy": [
+    { "motyw": "oczywistość i możliwość poznania", "przyklad": "Tomasz odróżnia zdanie oczywiste samo w sobie od zdania oczywistego dla człowieka i do tej pierwszej grupy zalicza twierdzenie o istnieniu Boga.", "miejsce": "cz. I, kwestia 2, art. 1" },
+    { "motyw": "rozumowanie od skutku do przyczyny", "przyklad": "Wychodząc od skutków dostępnych doświadczeniu, można według Tomasza rozumowo dochodzić do istnienia przyczyny.", "miejsce": "cz. I, kwestia 2, art. 2" },
+    { "motyw": "istnienie i istota", "przyklad": "Tomasz odróżnia uzasadnienie tego, że Bóg istnieje, od pełnego poznania Jego istoty, którego skutki dostępne człowiekowi nie zapewniają.", "miejsce": "cz. I, kwestia 2, art. 2" },
+    { "motyw": "ruch i zmiana", "przyklad": "Tomasz rozumie ruch jako przejście z możności do aktu i od zależności kolejnych poruszycieli przechodzi do tezy o pierwszym nieporuszonym poruszycielu.", "miejsce": "cz. I, kwestia 2, art. 3, droga 1" },
+    { "motyw": "przyczyna sprawcza", "przyklad": "Tomasz wyklucza samoprzyczynowanie i w uporządkowanym szeregu przyczyn sprawczych przyjmuje pierwszą przyczynę.", "miejsce": "cz. I, kwestia 2, art. 3, droga 2" },
+    { "motyw": "przygodność i konieczność", "przyklad": "Powstawanie i zanikanie rzeczy stanowi punkt wyjścia do argumentu o bycie koniecznym, którego konieczność nie zależy od innej przyczyny.", "miejsce": "cz. I, kwestia 2, art. 3, droga 3" },
+    { "motyw": "stopnie doskonałości", "przyklad": "Stopniowanie dobra i prawdy prowadzi Tomasza do tezy o tym, co posiada doskonałość w najwyższym stopniu i jest przyczyną doskonałości innych bytów.", "miejsce": "cz. I, kwestia 2, art. 3, droga 4" },
+    { "motyw": "celowość przyrody", "przyklad": "Regularne działanie rzeczy pozbawionych poznania Tomasz traktuje jako przejaw ukierunkowania na cel, które wymaga kierującej inteligencji.", "miejsce": "cz. I, kwestia 2, art. 3, droga 5" },
+    { "motyw": "zło i dobro", "przyklad": "W odpowiedzi na zarzut ze zła Tomasz przywołuje stanowisko Augustyna, według którego Bóg może dopuścić zło i wyprowadzić z niego dobro.", "miejsce": "cz. I, kwestia 2, art. 3, odpowiedź na zarzut 1" }
+  ],
+  "utwory": [
+    { "tytul": "Oczywistość istnienia Boga", "miejsce": "cz. I, kwestia 2, art. 1", "opis": "Tomasz rozróżnia to, co oczywiste w sobie, i to, co dostępne bezpośrednio ludzkiemu poznaniu." },
+    { "tytul": "Możliwość dowodu", "miejsce": "cz. I, kwestia 2, art. 2", "opis": "Za dostępną człowiekowi drogę uznaje wnioskowanie od skutków, które znamy, do istnienia przyczyny." },
+    { "tytul": "Pięć dróg i odpowiedzi na zarzuty", "miejsce": "cz. I, kwestia 2, art. 3", "opis": "Ruch, przyczyny sprawcze, byty przygodne, stopnie doskonałości i celowość są punktami wyjścia pięciu argumentów, po których następują odpowiedzi na zarzuty." }
+  ],
+  "zrodla": [
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator wskazuje fragmenty Summy teologicznej dla zakresu rozszerzonego." },
+    { "url": "https://katedra.uksw.edu.pl/suma/suma_1.pdf", "rodzaj": "utwór", "co": "Polski przekład udostępniony przez UKSW, część I, zagadnienie 2, artykuły 1–3; sprawdzono wszystkie pięć dróg i odpowiedzi na zarzuty." },
+    { "url": "https://zpe.gov.pl/a/przeczytaj/Dzj4Nnv0p", "rodzaj": "opracowanie", "co": "Materiał ZPE o pięciu drogach i relacji między poznaniem rozumowym a prawdami wiary." }
+  ],
+  "do_weryfikacji": [
+    "Informator nie wyznacza listy fragmentów; opracowano kwestię 2 z części pierwszej, wskazaną jako przykład w katalogu."
+  ]
+}

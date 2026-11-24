@@ -1,0 +1,516 @@
+{
+  "id": "nie-boska-komedia",
+  "wydarzenia": [
+    {
+      "nr": 1,
+      "miejsce": "cz. I, wieś, kościół (ślub)",
+      "kto": [
+        "Anioł Stróż",
+        "Mąż",
+        "Panna Młoda",
+        "Ksiądz"
+      ],
+      "gdzie": "wieś, kościół",
+      "opis": "Mąż (poeta, hrabia Henryk) wchodzi w związek małżeński z Panną Młodą; Chór złych duchów zapowiada nieszczęście, a po ślubie Mąż zostaje sam w kościele."
+    },
+    {
+      "nr": 2,
+      "miejsce": "cz. I, bal i noc po ślubie",
+      "kto": [
+        "Mąż",
+        "Żona",
+        "Duch zły (Dziewica)"
+      ],
+      "gdzie": "dom młodych, sypialnia",
+      "opis": "Na balu Żona tańczy, a Mąż z nieufnością patrzy na tłum; w nocy Duch zły pod postacią Dziewicy przelatuje nad ogrodem i cmentarzem i ukazuje się Mężowi we śnie."
+    },
+    {
+      "nr": 3,
+      "miejsce": "cz. I, sypialnia",
+      "kto": [
+        "Mąż",
+        "Dziewica",
+        "Żona"
+      ],
+      "gdzie": "pokój sypialny",
+      "opis": "Mąż śni o idealnej kochance z marzeń, budzi się obok Żony i widzi na jawie Dziewicę, która mówi „Zdradziłeś mnie”; przeklina chwilę, w której pojął żonę."
+    },
+    {
+      "nr": 4,
+      "miejsce": "cz. I, ogród przy kościele",
+      "kto": [
+        "Mąż",
+        "Dziewica",
+        "głosy"
+      ],
+      "gdzie": "ogród przy świetle księżyca",
+      "opis": "Mąż błąka się w nocy po ogrodzie, a Dziewica nadal go kusi; z przyległego domu słychać głos."
+    },
+    {
+      "nr": 5,
+      "miejsce": "cz. I, salon",
+      "kto": [
+        "Mąż",
+        "Żona",
+        "Dziewica",
+        "dziecko"
+      ],
+      "gdzie": "salon",
+      "opis": "Mąż, zatopiony w poezji, zaniedbuje rodzinę; Żona gra na fortepianie, błaga go o miłość i bierze dziecko z kołyski; pojawia się Dziewica, a Żona mdleje z dzieckiem."
+    },
+    {
+      "nr": 6,
+      "miejsce": "cz. I, chrzest",
+      "kto": [
+        "Ojciec Beniamin",
+        "Ojciec Chrzestny",
+        "Matka Chrzestna",
+        "Żona",
+        "goście"
+      ],
+      "gdzie": "salon",
+      "opis": "Podczas chrztu dziecka (Orcia) Ojciec Beniamin kładzie dłonie na głowie niemowlęcia; Żonie robi się słabo i wynoszą ją sługi."
+    },
+    {
+      "nr": 7,
+      "miejsce": "cz. I, góry ponad morzem",
+      "kto": [
+        "Mąż",
+        "głosy z góry"
+      ],
+      "gdzie": "góry i przepaście, burza",
+      "opis": "Mąż wędruje wśród gór i burzy; z góry słychać głos, który każe mu wracać do domu i kochać dziecko."
+    },
+    {
+      "nr": 8,
+      "miejsce": "cz. I, salon i dom obłąkanych",
+      "kto": [
+        "Mąż",
+        "Żona",
+        "Doktor",
+        "Żona Doktora"
+      ],
+      "gdzie": "salon; dom obłąkanych w górach",
+      "opis": "Żona popada w obłęd i trafia do domu obłąkanych; Mąż odwiedza ją, a ona mówi o synu i o poecie, po czym umiera w jego ramionach."
+    },
+    {
+      "nr": 9,
+      "miejsce": "cz. II, cmentarz",
+      "kto": [
+        "Mąż",
+        "Orcio"
+      ],
+      "gdzie": "cmentarz przy grobie Żony",
+      "opis": "Mąż prowadzi syna Orcia do grobu matki; chłopiec zmienia słowa modlitwy na wizje o Maryi i aniołach."
+    },
+    {
+      "nr": 10,
+      "miejsce": "cz. II, spacer",
+      "kto": [
+        "Filozof",
+        "Mąż"
+      ],
+      "gdzie": "miejsce spacerów",
+      "opis": "Filozof zapowiada nadejście czasu wyzwolenia kobiet i Murzynów oraz odrodzenie rodu ludzkiego przez krew i zniszczenie starych form; Mąż mu przytakuje."
+    },
+    {
+      "nr": 11,
+      "miejsce": "cz. II, wąwóz między górami",
+      "kto": [
+        "Mąż",
+        "Anioł Stróż",
+        "Mefisto",
+        "Orzeł"
+      ],
+      "gdzie": "wąwóz",
+      "opis": "Mąż mówi o pustce w sercu; słyszy głos Anioła Stróża każący kochać bliźnich, spotyka Mefista, a potem Orła, który wzywa go, by bił się szablą ojców o ich cześć; Mąż postanawia walczyć."
+    },
+    {
+      "nr": 12,
+      "miejsce": "cz. II, pokój i sypialnia",
+      "kto": [
+        "Mąż",
+        "Lekarz",
+        "Ojciec Chrzestny",
+        "Orcio",
+        "Krewni"
+      ],
+      "gdzie": "dom Męża",
+      "opis": "Mąż prosi lekarza o zbadanie Orcia, który budzi się o północy i mówi przez sen; Ojciec Chrzestny i lekarz zbywają to ironią i uznają go za chorego."
+    },
+    {
+      "nr": 13,
+      "miejsce": "cz. III, obóz rewolucjonistów",
+      "kto": [
+        "Pankracy",
+        "tłum",
+        "Przechrzta",
+        "Leonard"
+      ],
+      "gdzie": "obóz poza murami miasta",
+      "opis": "Tłum nędzarzy czeka na Pankracego, który obiecuje chleb i zarobek; Przechrzta w szałasie z Chórem Przechrztów cieszy się z upadku panów i krzyża."
+    },
+    {
+      "nr": 14,
+      "miejsce": "cz. III, namiot Pankracego",
+      "kto": [
+        "Pankracy",
+        "Leonard",
+        "Przechrzta"
+      ],
+      "gdzie": "namiot",
+      "opis": "Pankracy zleca Przechrzcie, by przekazał Henrykowi zaproszenie na tajne spotkanie w nocy."
+    },
+    {
+      "nr": 15,
+      "miejsce": "cz. III, bór z szubienicą",
+      "kto": [
+        "Mąż",
+        "Przechrzta",
+        "tłum"
+      ],
+      "gdzie": "obóz rewolucjonistów w lesie",
+      "opis": "Mąż przebrany, z czerwoną czapką wolności, ogląda obóz z Przechrztą jako przewodnikiem: wokół szubienicy tańczy lud i śpiewa o chlebie i zarobku."
+    },
+    {
+      "nr": 16,
+      "miejsce": "cz. III, noc, komnata Męża",
+      "kto": [
+        "Mąż",
+        "Pankracy"
+      ],
+      "gdzie": "zamek Męża",
+      "opis": "Pankracy i Mąż spotykają się potajemnie; Pankracy namawia go do przyłączenia się do rewolucji, Mąż odmawia, wygłasza obronę wartości przodków, a rozmowa kończy się wzajemnym przeklęstwem i zapowiedzią spotkania na okopach Świętej Trójcy."
+    },
+    {
+      "nr": 17,
+      "miejsce": "cz. IV, katedra w zamku Świętej Trójcy",
+      "kto": [
+        "Mąż",
+        "Arcybiskup",
+        "hrabiowie",
+        "kapłani"
+      ],
+      "gdzie": "zamek Świętej Trójcy",
+      "opis": "Po ostatnich walkach Mąż klęka przed Arcybiskupem, który po błogosławieństwie mianuje go wodzem zamku; wszyscy przysięgają bronić wiary i czci przodków."
+    },
+    {
+      "nr": 18,
+      "miejsce": "cz. IV, komnata w zamku i lochy",
+      "kto": [
+        "Mąż",
+        "Orcio"
+      ],
+      "gdzie": "zamek Świętej Trójcy",
+      "opis": "Orcio prowadzi ojca do lochów, gdzie ukazuje mu wizję strasznego sądu; chór głosów potępia Męża za to, że nic nie kochał prócz siebie i swoich myśli."
+    },
+    {
+      "nr": 19,
+      "miejsce": "cz. IV, sala zamku",
+      "kto": [
+        "Mąż",
+        "Ojciec Chrzestny",
+        "kobiety",
+        "hrabiowie"
+      ],
+      "gdzie": "zamek Świętej Trójcy",
+      "opis": "Ojciec Chrzestny jako poseł Pankracego proponuje poddanie zamku; zgłodniali i przerażeni obrońcy chcą układów, a Mąż ich ostro odrzuca i wzywa do ostatniej walki."
+    },
+    {
+      "nr": 20,
+      "miejsce": "cz. IV, okopy Świętej Trójcy",
+      "kto": [
+        "Mąż",
+        "Jakub",
+        "Orcio"
+      ],
+      "gdzie": "okopy",
+      "opis": "Obrońcom brakuje amunicji; Mąż żegna się z synem, który słyszy wołanie matki z góry, i Orcio ginie trafiony kulą."
+    },
+    {
+      "nr": 21,
+      "miejsce": "cz. IV, okopy, koniec",
+      "kto": [
+        "Mąż",
+        "Jakub"
+      ],
+      "gdzie": "okopy",
+      "opis": "Jakub umiera, Mąż widzi, że wrogowie wdzierają się na wieże; wypowiada przekleństwo na poezję i skacze w przepaść."
+    },
+    {
+      "nr": 22,
+      "miejsce": "cz. IV, dziedziniec zamkowy",
+      "kto": [
+        "Pankracy",
+        "Leonard",
+        "Bianchetti",
+        "hrabiowie",
+        "Ojciec Chrzestny"
+      ],
+      "gdzie": "zamek Świętej Trójcy",
+      "opis": "Pankracy skazuje pojmanych hrabiów, książąt i barona, nawet starego Ojca Chrzestnego; szuka Henryka i znajduje jego szablę z herbem."
+    },
+    {
+      "nr": 23,
+      "miejsce": "cz. IV, baszta (zakończenie)",
+      "kto": [
+        "Pankracy",
+        "Leonard"
+      ],
+      "gdzie": "baszta",
+      "opis": "Pankracy widzi na chmurze znak, postać z cierniową koroną z piorunów, prosi o ciemność i umiera z okrzykiem „Galilaee, vicisti!”."
+    }
+  ],
+  "postacie": [
+    {
+      "imie": "Mąż (hrabia Henryk)",
+      "odmiany": [
+        "Męża",
+        "Mężowi",
+        "Mężem",
+        "Henryka",
+        "Henrykowi",
+        "Henrykiem",
+        "hrabiego Henryka",
+        "Hrabia"
+      ],
+      "rola": "poeta-arystokrata, ostatni obrońca dawnego świata; zdradza Żonę dla marzenia, a w końcu ginie w okopach",
+      "relacje": "mąż Marii, ojciec Orcia, przeciwnik Pankracego",
+      "miejsca": [
+        "dom",
+        "góry",
+        "zamek Świętej Trójcy"
+      ]
+    },
+    {
+      "imie": "Żona (Maria)",
+      "odmiany": [
+        "Żony",
+        "Żonie",
+        "Żonę",
+        "Żoną",
+        "Marii",
+        "Mario"
+      ],
+      "rola": "zaniedbana żona poety, popada w obłęd i umiera w domu obłąkanych",
+      "relacje": "żona Męża, matka Orcia",
+      "miejsca": [
+        "dom",
+        "dom obłąkanych"
+      ]
+    },
+    {
+      "imie": "Orcio",
+      "odmiany": [
+        "Orcia",
+        "Orciowi",
+        "Orciem",
+        "Jerzy"
+      ],
+      "rola": "ślepy syn Męża, obdarzony wizjami poetycki chłopiec; ginie w okopach",
+      "relacje": "syn Męża i Żony",
+      "miejsca": [
+        "cmentarz",
+        "zamek Świętej Trójcy"
+      ]
+    },
+    {
+      "imie": "Dziewica (Duch zły)",
+      "odmiany": [
+        "Dziewicy",
+        "Dziewicę",
+        "Dziewicą",
+        "Duch zły",
+        "Ducha złego"
+      ],
+      "rola": "widmo poetyckiego ideału, które uwodzi Męża i oskarża go o zdradę",
+      "relacje": "kusicielka Męża",
+      "miejsca": [
+        "sypialnia",
+        "ogród"
+      ]
+    },
+    {
+      "imie": "Pankracy",
+      "odmiany": [
+        "Pankracego",
+        "Pankracemu",
+        "Pankracym",
+        "Pankracy"
+      ],
+      "rola": "wódz rewolucji, ideowy przeciwnik Męża; w końcu umiera z okrzykiem „Galilaee, vicisti!”",
+      "relacje": "przywódca tłumów, przyjaciel Leonarda",
+      "miejsca": [
+        "obóz rewolucjonistów",
+        "zamek Świętej Trójcy"
+      ]
+    },
+    {
+      "imie": "Leonard",
+      "odmiany": [
+        "Leonarda",
+        "Leonardowi",
+        "Leonardem",
+        "Leonardzie"
+      ],
+      "rola": "podwładny i towarzysz Pankracego",
+      "relacje": "bliski współpracownik Pankracego",
+      "miejsca": [
+        "obóz",
+        "baszta"
+      ]
+    },
+    {
+      "imie": "Przechrzta",
+      "odmiany": [
+        "Przechrzty",
+        "Przechrzcie",
+        "Przechrztą",
+        "Przechrztów"
+      ],
+      "rola": "przechrzta, jeden z przywódców rewolucji, przewodnik Męża po obozie",
+      "relacje": "zwolennik Pankracego",
+      "miejsca": [
+        "obóz rewolucjonistów"
+      ]
+    },
+    {
+      "imie": "Jakub",
+      "odmiany": [
+        "Jakuba",
+        "Jakubowi",
+        "Jakubem"
+      ],
+      "rola": "wierny sługa Męża, ginie w okopach",
+      "relacje": "sługa i towarzysz Męża",
+      "miejsca": [
+        "okopy Świętej Trójcy"
+      ]
+    },
+    {
+      "imie": "Ojciec Chrzestny",
+      "odmiany": [
+        "Ojca Chrzestnego",
+        "Ojcu Chrzestnemu",
+        "Ojcem Chrzestnym"
+      ],
+      "rola": "pragmatyczny „doktryner”, poseł Pankracego, mimo to skazany przez niego na śmierć",
+      "relacje": "opiekun dziecka na chrzcie, doradca w dwóch obozach",
+      "miejsca": [
+        "dom Męża",
+        "zamek Świętej Trójcy"
+      ]
+    },
+    {
+      "imie": "Filozof",
+      "odmiany": [
+        "Filozofa",
+        "Filozofowi",
+        "Filozofem"
+      ],
+      "rola": "głosi nadejście rewolucji i odrodzenia przez krew",
+      "relacje": "rozmówca Męża",
+      "miejsca": [
+        "spacer"
+      ]
+    },
+    {
+      "imie": "Arcybiskup",
+      "odmiany": [
+        "Arcybiskupa",
+        "Arcybiskupowi",
+        "Arcybiskupem"
+      ],
+      "rola": "duchowny, który w katedrze zamku powierza Mężowi dowództwo",
+      "relacje": "przywódca obrońców",
+      "miejsca": [
+        "katedra w zamku"
+      ]
+    },
+    {
+      "imie": "Mefisto",
+      "odmiany": [
+        "Mefista",
+        "Mefistowi",
+        "Mefistem"
+      ],
+      "rola": "kusiciel „brzuchomówca” spotkany przez Męża w wąwozie",
+      "relacje": "postać symboliczna",
+      "miejsca": [
+        "wąwóz"
+      ]
+    }
+  ],
+  "motywy": [
+    {
+      "motyw": "poeta wobec rodziny: marzenie zamiast miłości",
+      "przyklad": "Mąż przeklina chwilę, w której pojął kobietę zamiast ideału; Żona błaga go o miłość, a on zostawia ją w obłędzie.",
+      "miejsce": "cz. I, sypialnia i salon",
+      "cytat": "Kto jest poetą, ten nie żyje długo."
+    },
+    {
+      "motyw": "ludzkość podzielona na dwa obozy: arystokracja i rewolucja",
+      "przyklad": "Pankracy z tłumem nędzarzy przeciw hrabiemu Henrykowi i obrońcom zamku Świętej Trójcy; każdy z nich ma rację, ale oba obozy giną.",
+      "miejsce": "cz. III–IV"
+    },
+    {
+      "motyw": "rewolucja i jej hasła",
+      "przyklad": "Tłum woła o chleb i zarobek, a Pankracy szuka we władzy nowej epoki; po zwycięstwie każe zgładzić pojmanych panów.",
+      "miejsce": "cz. III, obóz; cz. IV, dziedziniec",
+      "cytat": "Biada zwyciężonym"
+    },
+    {
+      "motyw": "obrona tradycji i honoru przodków",
+      "przyklad": "Mąż pokazuje Pankracemu portrety przodków i mówi, że to, co w nich było, żyje w nim, a wrogowie nie zrozumieją jego wartości.",
+      "miejsce": "cz. III, rozmowa Męża z Pankracym"
+    },
+    {
+      "motyw": "wina arystokracji i jej zmarnowane życie",
+      "przyklad": "Mąż przed upadkiem zamku wytyka obrońcom, że gnębili poddanych, przepędzali młodość na kartach i podróżach i nie wychowali dzieci na rycerzy.",
+      "miejsce": "cz. IV, sala zamku"
+    },
+    {
+      "motyw": "przekleństwo poezji i klęska idealisty",
+      "przyklad": "Tuż przed skokiem w przepaść Mąż przeklina poezję, widząc przed sobą wieczność bez światła.",
+      "miejsce": "cz. IV, okopy",
+      "cytat": "Poezjo, bądź mi przeklęta, jako ja sam będę na wieki!"
+    },
+    {
+      "motyw": "zwycięstwo Chrystusa i duchowy wymiar historii",
+      "przyklad": "Umierający Pankracy widzi na chmurze znak z cierniową koroną i wypowiada słowa uznania zwycięstwa Galilejczyka.",
+      "miejsce": "cz. IV, baszta",
+      "cytat": "Galilaee, vicisti!"
+    },
+    {
+      "motyw": "dziecko-poeta i ofiara za winy ojca",
+      "przyklad": "Orcio, ślepy i wizjonerski, umiera w okopach, trafiony kulą; Mąż mówi o nim jako o dziecku przeznaczonym wiecznej ślepocie za winy ojca i szał matki.",
+      "miejsce": "cz. II, wąwóz; cz. IV, okopy"
+    },
+    {
+      "motyw": "szaleństwo jako cena poezji",
+      "przyklad": "Żona w domu obłąkanych mówi o synu jako o poecie, któremu przypięła skrzydła; w otoczeniu słychać głosy chorych o Bogu i rewolucji.",
+      "miejsce": "cz. I, dom obłąkanych"
+    },
+    {
+      "motyw": "zagrożenie świata i pesymizm historiozoficzny (interpretacja)",
+      "przyklad": "Obaj przywódcy kończą klęską; narrator epigrafem z Hamleta stawia pytanie o sens istnienia i historii.",
+      "miejsce": "epigraf; zakończenie dramatu",
+      "cytat": "To be, or not to be, that is the question"
+    }
+  ],
+  "utwory": [],
+  "zrodla": [
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/nie-boska-komedia/",
+      "rodzaj": "utwór",
+      "co": "Pobrany cały tekst (domena publiczna); przeczytane w całości zakończenie cz. IV oraz wybrane sceny cz. I–IV (ślub, sypialnia, dom obłąkanych, cmentarz, wąwóz, rozmowa Męża z Pankracym, katedra, lochy, okopy); pozostałe sceny sprawdzone po didaskaliach i fragmentach."
+    }
+  ],
+  "do_weryfikacji": [
+    "Dramat w pobranym tekście nie ma numeracji scen; miejsca opisane są według części i didaskaliów.",
+    "Nie wszystkie sceny cz. I–III przeczytano w całości; zdarzenia 2, 4–6, 12–15 podane skrótowo na podstawie didaskaliów i fragmentów dialogów.",
+    "Imię Żony (Maria) wynika z zwrotu „Mario” w scenie w domu obłąkanych; imię Orcia w tekście pojawia się także jako „Jerzy” w słowach Męża.",
+    "Rola Orła i Mefista (symboliczne czy wizje) oraz dokładna treść głosów z domu obłąkanych wymagają sprawdzenia w opracowaniu.",
+    "Odczytania historiozoficzne (rewolucja, upadek arystokracji) to interpretacje, nie fakty z tekstu."
+  ]
+}

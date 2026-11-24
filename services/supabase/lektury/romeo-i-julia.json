@@ -1,0 +1,608 @@
+{
+  "id": "romeo-i-julia",
+  "wydarzenia": [
+    {
+      "nr": 1,
+      "miejsce": "prolog",
+      "kto": [
+        "chór"
+      ],
+      "gdzie": "Werona",
+      "opis": "Prolog zapowiada, że z dwóch zwaśnionych rodów w Weronie rodzi się dwoje kochanków, których śmierć zakończy wrogość ojców."
+    },
+    {
+      "nr": 2,
+      "miejsce": "akt I, sc. 1",
+      "kto": [
+        "Samson",
+        "Grzegorz",
+        "Abraham",
+        "Benwolio",
+        "Tybalt",
+        "Eskalus"
+      ],
+      "gdzie": "Werona, plac publiczny",
+      "opis": "Słudzy Kapuletów i Montekich zaczepiają się na placu, Benwolio chce ich rozdzielić, ale Tybalt dołącza do bójki; książę Eskalus grozi śmiercią każdemu, kto jeszcze zakłóci spokój."
+    },
+    {
+      "nr": 3,
+      "miejsce": "akt I, sc. 1",
+      "kto": [
+        "Benwolio",
+        "Monteki",
+        "Romeo"
+      ],
+      "gdzie": "Werona",
+      "opis": "Benwolio opowiada Montekiemu o zajściu, a rodzice martwią się smutkiem Romea, który wzdycha do Rozaliny."
+    },
+    {
+      "nr": 4,
+      "miejsce": "akt I, sc. 2",
+      "kto": [
+        "Kapulet",
+        "Parys",
+        "Służący"
+      ],
+      "gdzie": "Werona, ulica",
+      "opis": "Parys prosi Kapuleta o rękę Julii; Kapulet zaprasza go na bal, a służący z listą gości prosi Romea o odczytanie jej."
+    },
+    {
+      "nr": 5,
+      "miejsce": "akt I, sc. 2",
+      "kto": [
+        "Romeo",
+        "Benwolio",
+        "Służący"
+      ],
+      "gdzie": "Werona, ulica",
+      "opis": "Romeo z listy dowiaduje się, że na balu u Kapuletów będzie Rozalina, i postanawia pójść na bal w masce."
+    },
+    {
+      "nr": 6,
+      "miejsce": "akt I, sc. 3",
+      "kto": [
+        "Pani Kapulet",
+        "Marta",
+        "Julia"
+      ],
+      "gdzie": "dom Kapuletów",
+      "opis": "Pani Kapulet rozmawia z Julią o małżeństwie z Parysem, a mamka Marta wspomina dzieciństwo Julii, która ma prawie czternaście lat."
+    },
+    {
+      "nr": 7,
+      "miejsce": "akt I, sc. 4",
+      "kto": [
+        "Romeo",
+        "Merkucjo",
+        "Benwolio"
+      ],
+      "gdzie": "ulica w Weronie",
+      "opis": "Romeo, Merkucjo i Benwolio w maskach idą na bal; Merkucjo opowiada o królowej Mab, a Romeo ma złe przeczucia."
+    },
+    {
+      "nr": 8,
+      "miejsce": "akt I, sc. 5",
+      "kto": [
+        "Romeo",
+        "Julia",
+        "Tybalt",
+        "Kapulet"
+      ],
+      "gdzie": "sala w domu Kapuletów",
+      "opis": "Na balu Romeo widzi Julię i zakochuje się; Tybalt rozpoznaje go po głosie, ale Kapulet zakazuje mu bójki."
+    },
+    {
+      "nr": 9,
+      "miejsce": "akt I, sc. 5",
+      "kto": [
+        "Romeo",
+        "Julia",
+        "Marta"
+      ],
+      "gdzie": "sala w domu Kapuletów",
+      "opis": "Romeo i Julia całują się, a potem oboje dowiadują się od Marty, że są z rodów wrogich."
+    },
+    {
+      "nr": 10,
+      "miejsce": "akt II, sc. 1–2",
+      "kto": [
+        "Romeo",
+        "Julia"
+      ],
+      "gdzie": "ogród Kapuletów",
+      "opis": "Romeo wskakuje do ogrodu i słyszy Julię na balkonie; wyznają sobie miłość, a Julia mówi, że imię nie ma znaczenia, i umawiają się na ślub."
+    },
+    {
+      "nr": 11,
+      "miejsce": "akt II, sc. 3",
+      "kto": [
+        "Romeo",
+        "Ojciec Laurenty"
+      ],
+      "gdzie": "cela Ojca Laurentego",
+      "opis": "Romeo prosi franciszkanina Laurentego o ślub z Julią; Laurenty zgadza się, licząc, że małżeństwo pogodzi oba rody."
+    },
+    {
+      "nr": 12,
+      "miejsce": "akt II, sc. 4–5",
+      "kto": [
+        "Marta",
+        "Romeo",
+        "Julia",
+        "Merkucjo",
+        "Benwolio"
+      ],
+      "gdzie": "ulica i ogród Kapuletów",
+      "opis": "Romeo przez Martę przekazuje Julii, by przyszła do celi Laurentego; Julia niecierpliwie czeka na wieści od mamki."
+    },
+    {
+      "nr": 13,
+      "miejsce": "akt II, sc. 6",
+      "kto": [
+        "Romeo",
+        "Julia",
+        "Ojciec Laurenty"
+      ],
+      "gdzie": "cela Ojca Laurentego",
+      "opis": "Laurenty udziela Romeowi i Julii potajemnego ślubu."
+    },
+    {
+      "nr": 14,
+      "miejsce": "akt III, sc. 1",
+      "kto": [
+        "Merkucjo",
+        "Benwolio",
+        "Tybalt",
+        "Romeo"
+      ],
+      "gdzie": "plac publiczny w Weronie",
+      "opis": "Tybalt prowokuje Romea do pojedynku, ten odmawia; Merkucjo staje do walki; Romeo próbuje ich rozdzielić, a Merkucjo zostaje śmiertelnie raniony pod jego bokiem i umiera."
+    },
+    {
+      "nr": 15,
+      "miejsce": "akt III, sc. 1",
+      "kto": [
+        "Romeo",
+        "Tybalt",
+        "Eskalus",
+        "Benwolio"
+      ],
+      "gdzie": "plac publiczny w Weronie",
+      "opis": "Romeo w gniewie zabija Tybalta; książę Eskalus skazuje go na wygnanie z Werony pod karą śmierci."
+    },
+    {
+      "nr": 16,
+      "miejsce": "akt III, sc. 2",
+      "kto": [
+        "Julia",
+        "Marta"
+      ],
+      "gdzie": "pokój w domu Kapuletów",
+      "opis": "Julia dowiaduje się od Marty o śmierci Tybalta i wygnaniu Romea; po chwili rozpaczy decyduje się trwać przy mężu."
+    },
+    {
+      "nr": 17,
+      "miejsce": "akt III, sc. 3",
+      "kto": [
+        "Romeo",
+        "Ojciec Laurenty",
+        "Marta"
+      ],
+      "gdzie": "cela Ojca Laurentego",
+      "opis": "Romeo rozpacza po wyroku wygnania; Laurenty każe mu spędzić noc z Julią i rano uciec do Mantui, aż sprawa się wyjaśni."
+    },
+    {
+      "nr": 18,
+      "miejsce": "akt III, sc. 4",
+      "kto": [
+        "Kapulet",
+        "Pani Kapulet",
+        "Parys"
+      ],
+      "gdzie": "pokój w domu Kapuletów",
+      "opis": "Kapulet obiecuje Parysowi, że Julia wyjdzie za niego w czwartek."
+    },
+    {
+      "nr": 19,
+      "miejsce": "akt III, sc. 5",
+      "kto": [
+        "Romeo",
+        "Julia"
+      ],
+      "gdzie": "pokój Julii",
+      "opis": "Po wspólnej nocy Romeo o świcie żegna się z Julią i wyjeżdża do Mantui; Julia spiera się z nim, czy to słowik, czy skowronek."
+    },
+    {
+      "nr": 20,
+      "miejsce": "akt III, sc. 5",
+      "kto": [
+        "Julia",
+        "Pani Kapulet",
+        "Kapulet",
+        "Marta"
+      ],
+      "gdzie": "pokój Julii",
+      "opis": "Kapulet z gniewem żąda, by Julia wyszła za Parysa w czwartek, a Marta radzi jej poślubić Parysa mimo ślubu z Romeem, co Julia odrzuca."
+    },
+    {
+      "nr": 21,
+      "miejsce": "akt IV, sc. 1",
+      "kto": [
+        "Julia",
+        "Ojciec Laurenty",
+        "Parys"
+      ],
+      "gdzie": "cela Ojca Laurentego",
+      "opis": "Julia spotyka Parysa u Laurentego, a Laurenty daje jej fiolkę z napojem, po którym na czterdzieści dwie godziny zapadnie w sen podobny do śmierci."
+    },
+    {
+      "nr": 22,
+      "miejsce": "akt IV, sc. 2–3",
+      "kto": [
+        "Julia",
+        "Kapulet",
+        "Pani Kapulet",
+        "Marta"
+      ],
+      "gdzie": "dom Kapuletów",
+      "opis": "Julia udaje posłuszeństwo wobec ojca; w nocy, przerażona, wypija napój."
+    },
+    {
+      "nr": 23,
+      "miejsce": "akt IV, sc. 5",
+      "kto": [
+        "Marta",
+        "Kapulet",
+        "Pani Kapulet",
+        "Parys",
+        "Ojciec Laurenty"
+      ],
+      "gdzie": "pokój Julii",
+      "opis": "Rano Marta znajduje Julię jakby martwą; rodzina i Parys opłakują ją, a Laurenty każe przygotować pogrzeb w rodzinnym grobowcu."
+    },
+    {
+      "nr": 24,
+      "miejsce": "akt V, sc. 1",
+      "kto": [
+        "Romeo",
+        "Baltazar",
+        "Aptekarz"
+      ],
+      "gdzie": "Mantua, ulica",
+      "opis": "Baltazar przynosi Romeowi wiadomość o śmierci Julii; Romeo postanawia umrzeć przy niej i kupuje truciznę od aptekarza."
+    },
+    {
+      "nr": 25,
+      "miejsce": "akt V, sc. 2",
+      "kto": [
+        "Ojciec Laurenty",
+        "Brat Jan"
+      ],
+      "gdzie": "cela Ojca Laurentego",
+      "opis": "Brat Jan zatrzymany w kwarantannie nie zawiózł Romeowi listu Laurentego o planie; Laurenty biegnie do grobowca, by być przy przebudzeniu Julii."
+    },
+    {
+      "nr": 26,
+      "miejsce": "akt V, sc. 3",
+      "kto": [
+        "Parys",
+        "Paź",
+        "Romeo",
+        "Baltazar"
+      ],
+      "gdzie": "cmentarz, grobowiec Kapuletów",
+      "opis": "Parys przychodzi z kwiatami do grobu Julii; Romeo przybywa z Baltazarem i w walce zabija Parysa, który prosi, by złożono go obok Julii."
+    },
+    {
+      "nr": 27,
+      "miejsce": "akt V, sc. 3",
+      "kto": [
+        "Romeo",
+        "Julia"
+      ],
+      "gdzie": "grobowiec Kapuletów",
+      "opis": "Romeo, widząc Julię w grobie, wypija truciznę i umiera."
+    },
+    {
+      "nr": 28,
+      "miejsce": "akt V, sc. 3",
+      "kto": [
+        "Ojciec Laurenty",
+        "Julia"
+      ],
+      "gdzie": "grobowiec Kapuletów",
+      "opis": "Laurenty przybywa, Julia budzi się, widzi martwego Romea; Laurenty ucieka, słysząc zbliżającą się straż, a Julia dobija się sztyletem Romea."
+    },
+    {
+      "nr": 29,
+      "miejsce": "akt V, sc. 3 (zakończenie)",
+      "kto": [
+        "Eskalus",
+        "Kapulet",
+        "Monteki",
+        "Ojciec Laurenty",
+        "Paź",
+        "Baltazar"
+      ],
+      "gdzie": "grobowiec Kapuletów",
+      "opis": "Książę, rodzice i straż zbierają się przy ciałach; Laurenty opowiada całą historię, a Kapulet i Monteki się godzą i obiecują wznieść pomnik z czystego złota dla Julii."
+    }
+  ],
+  "postacie": [
+    {
+      "imie": "Romeo",
+      "odmiany": [
+        "Romea",
+        "Romeowi",
+        "Romeem",
+        "Romeo"
+      ],
+      "rola": "młody Monteki, zakochuje się w Julii, tajnie z nią żeni, zabija Tybalta i ginie w grobowcu",
+      "relacje": "syn Montekiego, mąż Julii, przyjaciel Merkucja i Benwolia",
+      "miejsca": [
+        "Werona",
+        "Mantua"
+      ]
+    },
+    {
+      "imie": "Julia",
+      "odmiany": [
+        "Julii",
+        "Julię",
+        "Julią"
+      ],
+      "rola": "córka Kapuletów, tajna żona Romea; udaje śmierć i kończy życie sztyletem",
+      "relacje": "córka Kapuleta i Pani Kapulet, żona Romea, narzeczona Parysa z woli ojca",
+      "miejsca": [
+        "Werona"
+      ]
+    },
+    {
+      "imie": "Ojciec Laurenty",
+      "odmiany": [
+        "Laurentego",
+        "Laurentemu",
+        "Laurentym",
+        "Laurenty",
+        "zakonnik",
+        "zakonnika"
+      ],
+      "rola": "franciszkanin, udziela ślubu i przygotowuje plan ratunku dla Julii",
+      "relacje": "powiernik Romea i Julii",
+      "miejsca": [
+        "cela Laurentego",
+        "grobowiec"
+      ]
+    },
+    {
+      "imie": "Marta",
+      "odmiany": [
+        "Marty",
+        "Marcie",
+        "Martę",
+        "mamka"
+      ],
+      "rola": "mamka Julii, pośredniczka między nią a Romeem",
+      "relacje": "opiekunka Julii",
+      "miejsca": [
+        "dom Kapuletów"
+      ]
+    },
+    {
+      "imie": "Merkucjo",
+      "odmiany": [
+        "Merkucja",
+        "Merkucjowi",
+        "Merkucjem"
+      ],
+      "rola": "krewny księcia i przyjaciel Romea, ginie w pojedynku z Tybaltem",
+      "relacje": "przyjaciel Romea i Benwolia",
+      "miejsca": [
+        "Werona"
+      ]
+    },
+    {
+      "imie": "Benwolio",
+      "odmiany": [
+        "Benwolia",
+        "Benwoliowi",
+        "Benwoliem"
+      ],
+      "rola": "bratanek Montekiego, rozsądny przyjaciel Romea",
+      "relacje": "kuzyn Romea",
+      "miejsca": [
+        "Werona"
+      ]
+    },
+    {
+      "imie": "Tybalt",
+      "odmiany": [
+        "Tybalta",
+        "Tybaltowi",
+        "Tybaltem"
+      ],
+      "rola": "krewny Pani Kapulet, zadziorny przeciwnik Montekich; ginie z ręki Romea",
+      "relacje": "kuzyn Julii",
+      "miejsca": [
+        "Werona"
+      ]
+    },
+    {
+      "imie": "Kapulet",
+      "odmiany": [
+        "Kapuleta",
+        "Kapuletowi",
+        "Kapuletem",
+        "Kapuleci",
+        "Kapuletów"
+      ],
+      "rola": "ojciec Julii, głowa rodu, wydaje ją za Parysa",
+      "relacje": "ojciec Julii, mąż Pani Kapulet",
+      "miejsca": [
+        "Werona"
+      ]
+    },
+    {
+      "imie": "Pani Kapulet",
+      "odmiany": [
+        "Pani Kapulet",
+        "Pani Kapuletowej"
+      ],
+      "rola": "matka Julii",
+      "relacje": "żona Kapuleta, ciotka Tybalta",
+      "miejsca": [
+        "Werona"
+      ]
+    },
+    {
+      "imie": "Monteki",
+      "odmiany": [
+        "Montekiego",
+        "Montekiemu",
+        "Montekim",
+        "Monteków",
+        "Montekich"
+      ],
+      "rola": "ojciec Romea, głowa rodu Montekich",
+      "relacje": "ojciec Romea, wróg Kapuleta",
+      "miejsca": [
+        "Werona"
+      ]
+    },
+    {
+      "imie": "Parys",
+      "odmiany": [
+        "Parysa",
+        "Parysowi",
+        "Parysem"
+      ],
+      "rola": "młody szlachcic starający się o Julię; ginie z ręki Romea",
+      "relacje": "krewny księcia, kandydat na męża Julii",
+      "miejsca": [
+        "Werona",
+        "grobowiec"
+      ]
+    },
+    {
+      "imie": "Eskalus (Książę)",
+      "odmiany": [
+        "Eskalusa",
+        "Eskalusowi",
+        "Książę",
+        "księcia",
+        "księciu"
+      ],
+      "rola": "władca Werony, wygania Romea i sądzi sprawę po śmierci kochanków",
+      "relacje": "władca Werony",
+      "miejsca": [
+        "Werona"
+      ]
+    },
+    {
+      "imie": "Brat Jan",
+      "odmiany": [
+        "Brata Jana",
+        "Bratu Janowi"
+      ],
+      "rola": "franciszkanin, który nie dostarcza listu Laurentego do Romea",
+      "relacje": "współbrat Laurentego",
+      "miejsca": [
+        "Mantua",
+        "cela Laurentego"
+      ]
+    },
+    {
+      "imie": "Baltazar",
+      "odmiany": [
+        "Baltazara",
+        "Baltazarowi"
+      ],
+      "rola": "sługa Romea, przynosi mu wiadomość o śmierci Julii",
+      "relacje": "sługa Romea",
+      "miejsca": [
+        "Mantua",
+        "cmentarz"
+      ]
+    },
+    {
+      "imie": "Aptekarz",
+      "odmiany": [
+        "aptekarza",
+        "aptekarzowi"
+      ],
+      "rola": "sprzedaje Romeowi truciznę",
+      "relacje": "mieszkaniec Mantui",
+      "miejsca": [
+        "Mantua"
+      ]
+    }
+  ],
+  "motywy": [
+    {
+      "motyw": "wrogość rodów i jej cena",
+      "przyklad": "Bójka sług na początku, śmierć Merkucja i Tybalta oraz śmierć kochanków kończą się dopiero pogodzeniem Kapuleta z Montekim.",
+      "miejsce": "akt I, sc. 1; akt V, sc. 3",
+      "cytat": "Dzieląc za życia, złączmy ich po zgonie."
+    },
+    {
+      "motyw": "miłość od pierwszego wejrzenia",
+      "przyklad": "Romeo na balu zapomina o Rozalinie, gdy widzi Julię, i już w tę noc oboje się całują.",
+      "miejsce": "akt I, sc. 5"
+    },
+    {
+      "motyw": "imię a istota człowieka",
+      "przyklad": "Julia z balkonu mówi, że to, co różą zowiemy, pod inną nazwą tak samo pachnie, i prosi Romea, by wyrzekł się nazwiska.",
+      "miejsce": "akt II, sc. 2 (scena balkonowa)",
+      "cytat": "Czymże jest nazwa? To, co zowiem różą, Pod inną nazwą równie by pachniało"
+    },
+    {
+      "motyw": "pośpiech i los (miłość w cieniu przeznaczenia)",
+      "przyklad": "Prolog mówi o kochankach „pod najstraszliwszą z gwiazd”; ślub, zabójstwo Tybalta i wygnanie następują w ciągu kilku dni.",
+      "miejsce": "prolog; akt II–III",
+      "cytat": "Pod najstraszliwszą z gwiazd, kochanków dwoje"
+    },
+    {
+      "motyw": "konflikt miłości i obowiązku wobec rodziny",
+      "przyklad": "Julia musi wybierać między posłuszeństwem ojcu, który zmusza ją do ślubu z Parysem, a tajnym małżeństwem z Romeem.",
+      "miejsce": "akt III, sc. 5"
+    },
+    {
+      "motyw": "przypadek i nieskuteczna komunikacja",
+      "przyklad": "List Laurentego nie dociera do Romea, bo brat Jan zostaje zatrzymany; Romeo wierzy w śmierć Julii.",
+      "miejsce": "akt V, sc. 2"
+    },
+    {
+      "motyw": "gwałt rodzi gwałt (zemsta i honor)",
+      "przyklad": "Romeo, odmówiwszy walki, po śmierci Merkucja zabija Tybalta w gniewie.",
+      "miejsce": "akt III, sc. 1"
+    },
+    {
+      "motyw": "noc i dzień jako symbol rozstania",
+      "przyklad": "Julia upiera się, że to słowik, a nie skowronek, żeby zatrzymać Romea po nocy poślubnej.",
+      "miejsce": "akt III, sc. 5",
+      "cytat": "Słowik to, a nie skowronek się zrywa"
+    },
+    {
+      "motyw": "wina dorosłych i pojednanie",
+      "przyklad": "Laurenty mówi, że wszyscy zostali ukarani, a Kapulet i Monteki podają sobie rękę nad grobami dzieci.",
+      "miejsce": "akt V, sc. 3 (zakończenie)"
+    },
+    {
+      "motyw": "śmierć i samobójstwo z miłości",
+      "przyklad": "Romeo wypija truciznę przy ciele Julii, a ona po przebudzeniu dobija się sztyletem.",
+      "miejsce": "akt V, sc. 3"
+    }
+  ],
+  "utwory": [],
+  "zrodla": [
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/romeo-i-julia/",
+      "rodzaj": "utwór",
+      "co": "Pobrany cały tekst (tłum. Józef Paszkowski, prolog tłum. Jan Kasprowicz); sprawdzone spis osób, nagłówki scen i miejsca oraz cytaty; przebieg akcji oparty na lekturze nagłówków scen i wyrywkowej weryfikacji kluczowych scen."
+    }
+  ],
+  "do_weryfikacji": [
+    "Przebieg akcji w aktach II–IV podany na podstawie nagłówków scen i znajomości fabuły; nie każda scena została przeczytana w całości w tym przekładzie.",
+    "Szczegóły śmierci Merkucja (kto i jak go rani) opisane skrótowo."
+  ]
+}

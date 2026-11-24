@@ -1,0 +1,30 @@
+{
+  "id": "mrozek-opowiadanie",
+  "wydarzenia": [],
+  "postacie": [
+    { "imie": "dyrektor zoo", "odmiany": ["dyrektora", "dyrektorowi", "dyrektorem", "dyrektora ogrodu zoologicznego"], "rola": "rezygnuje z przydzielonego słonia i proponuje gumową atrapę", "relacje": "pisze do władz i zleca pracownikom przygotowanie eksponatu", "miejsca": ["Słoń, pismo dyrektora"] },
+    { "imie": "pracownicy zoo", "odmiany": ["pracowników zoo", "pracownikom zoo", "pracownikami zoo"], "rola": "próbują napełnić gumową figurę i sięgają po gaz", "relacje": "wykonują polecenie dyrektora", "miejsca": ["Słoń, przygotowanie atrapy"] },
+    { "imie": "uczniowie", "odmiany": ["uczniów", "uczniom", "uczniami", "wycieczka szkolna"], "rola": "widzą unoszącą się figurę i tracą zaufanie do przekazanej wiedzy", "relacje": "oprowadzani przez nauczyciela", "miejsca": ["Słoń, wizyta wycieczki i puenta"] },
+    { "imie": "nauczyciel", "odmiany": ["nauczyciela", "nauczycielowi", "nauczycielem"], "rola": "objaśnia dzieciom cechy słonia przed gumową figurą", "relacje": "oprowadza uczniów", "miejsca": ["Słoń, wizyta wycieczki"] }
+  ],
+  "motywy": [
+    { "motyw": "kariera i pozorna oszczędność", "przyklad": "Dyrektor rezygnuje z przydziału zwierzęcia i wysyła władzom propozycję tańszego zastępstwa. Można ją odczytać jako próbę przypodobania się przełożonym.", "miejsce": "Słoń, pismo dyrektora" },
+    { "motyw": "biurokracja", "przyklad": "Dyrektor przedstawia zastąpienie żywego zwierzęcia atrapą jako osiągnięcie organizacyjne.", "miejsce": "Słoń, pismo dyrektora" },
+    { "motyw": "pozór wykonania zadania", "przyklad": "Pracownicy wypełniają gumową figurę gazem i umieszczają ją jako eksponat w zoo.", "miejsce": "Słoń, przygotowanie atrapy" },
+    { "motyw": "groteska", "przyklad": "Figura unosi się, gdy nauczyciel mówi dzieciom o wielkim ciężarze słonia.", "miejsce": "Słoń, wizyta wycieczki" },
+    { "motyw": "utrata zaufania", "przyklad": "Uczniowie po pokazie przestają wierzyć w słonie, a narrator wiąże z tym ich późniejsze zachowanie.", "miejsce": "Słoń, puenta" },
+    { "motyw": "autorytet i doświadczenie", "przyklad": "Wyjaśnienie nauczyciela rozmija się z tym, co dzieci widzą przy wybiegu, ponieważ pokazano im atrapę.", "miejsce": "Słoń, wizyta wycieczki" }
+  ],
+  "utwory": [
+    { "tytul": "Słoń", "miejsce": "całe opowiadanie", "opis": "Dyrektor zastępuje żywego słonia figurą, która odlatuje w czasie wycieczki szkolnej i podważa zaufanie uczniów; to przykład wskazany w katalogu." }
+  ],
+  "zrodla": [
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE wskazuje jedno opowiadanie Mrożka bez podania tytułu." },
+    { "url": "https://www.womczest.edu.pl/wkp/jezyk-polski-gimnazjum/jezyk-polski-gimnazjum-2012_2013-etap-rejonowy.pdf", "rodzaj": "utwór", "co": "Materiał Wojewódzkiego Konkursu Przedmiotowego zawiera fragment z propozycją zastąpienia słonia." },
+    { "url": "https://www.sjikp.us.edu.pl/wp-content/uploads/2017/05/STR3_Seretny_czytaie_ekstensywne.pdf", "rodzaj": "opracowanie", "co": "Materiał Anny Seretny zawiera ćwiczenie z epizodami od braku słonia do puenty." },
+    { "url": "https://www.polskieradio.pl/8/195/artykul/968329%2Cwspominamy-slawomira-mrozka", "rodzaj": "opracowanie", "co": "Omówienie groteski Mrożka przez Andrzeja Zieniewicza i scena wycieczki szkolnej." }
+  ],
+  "do_weryfikacji": [
+    "CKE nie określa tytułu; Słoń jest przykładem katalogowym."
+  ]
+}

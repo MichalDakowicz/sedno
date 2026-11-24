@@ -1,0 +1,57 @@
+{
+  "id": "balladyna",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "akt I, sc. 1", "kto": ["Kirkor", "Pustelnik"], "gdzie": "las nad jeziorem Gopło, chata pustelnika", "opis": "Kirkor, pan zamku, szuka rady u pustelnika w sprawie swojej przyszłości i wyboru żony."},
+    {"nr": 2, "miejsce": "akt I, sc. 2", "kto": ["Skierka", "Chochlik", "Goplana"], "gdzie": "las nad Gopłem", "opis": "Skierka i Chochlik, duchy służące królowej Goplanie, szukają jej w lesie, a Goplana jest zakochana w pasterzu Filonie."},
+    {"nr": 3, "miejsce": "akt I, sc. 3", "kto": ["Wdowa", "Balladyna", "Alina"], "gdzie": "chata Wdowy", "opis": "Wdowa i jej córki Balladyna i Alina wracają z sierpami z pracy w polu i rozmawiają z matką."},
+    {"nr": 4, "miejsce": "akt II, sc. 1", "kto": ["Balladyna", "Alina", "Grabiec", "Chochlik"], "gdzie": "las przy jeziorze Gopło", "opis": "Siostry zbierają maliny; Balladyna zabija Alinę w lesie, by zająć jej miejsce, a Alina przed śmiercią woła, żeby ją puściła."},
+    {"nr": 5, "miejsce": "akt II, sc. 1", "kto": ["Balladyna", "Pustelnik"], "gdzie": "las przy jeziorze Gopło", "opis": "Pustelnik odgaduje, że Balladyna zabiła siostrę; ona próbuje go przekupić złotem."},
+    {"nr": 6, "miejsce": "akt II, sc. 2", "kto": ["Wdowa", "Kirkor", "Balladyna"], "gdzie": "ganek przed chatą Wdowy", "opis": "Wdowa i Kirkor czekają na powrót córek, a rozmowa dotyczy córek, których nie widać."},
+    {"nr": 7, "miejsce": "akt III, sc. 1", "kto": ["Kobiety", "Starzec", "Dziewczyna", "Grabiec"], "gdzie": "dopalające się pogorzelisko domu Wdowy", "opis": "Wieśniacy komentują spalenie domu Wdowy i zapraszają się na wesele Balladyny; Grabiec biegnie z dziećmi."},
+    {"nr": 8, "miejsce": "akt III, sc. 2", "kto": ["Balladyna"], "gdzie": "sala w zamku Kirkora", "opis": "Balladyna wchodzi zamyślona, w bogatej szacie, do sali w zamku Kirkora."},
+    {"nr": 9, "miejsce": "akt III, sc. 3", "kto": ["Kirkor", "Pustelnik"], "gdzie": "las przed chatą pustelnika", "opis": "Pustelnik wręcza zbrojnemu Kirkorowi złocistą koronę."},
+    {"nr": 10, "miejsce": "akt III, sc. 4–5", "kto": ["Skierka", "Chochlik", "Goplana", "Grabiec", "Kostryn"], "gdzie": "las, potem zamek Kirkora", "opis": "Skierka i Chochlik zabierają porzuconą na kamieniu koronę, a Grabiec znajduje ją na własnej głowie i zostaje królem; w następnej scenie w zamku Kostryn mówi sam do siebie."},
+    {"nr": 11, "miejsce": "akt IV, sc. 1", "kto": ["Grabiec", "Balladyna", "Kostryn", "Gralon", "Wdowa"], "gdzie": "sala uczty w zamku Kirkora", "opis": "Podczas uczty Balladyna opowiada, że jest księżniczką z Trebizonty wygnaną przez wuja; w walce Kostryna z Gralonem Balladyna zachodzi Gralona z tyłu i zabija go mieczem."},
+    {"nr": 12, "miejsce": "akt IV, sc. 1", "kto": ["Wdowa", "Balladyna"], "gdzie": "sala uczty w zamku Kirkora", "opis": "Do sali wchodzi Wdowa, matka Balladyny; Balladyna twierdzi, że jej nie zna, i każe ją wyprowadzić, po czym zasłabnie."},
+    {"nr": 13, "miejsce": "akt IV, sc. 2", "kto": ["Pustelnik", "Kirkor"], "gdzie": "las przed celą pustelnika, burza", "opis": "Kirkor i Pustelnik rozmawiają podczas burzy."},
+    {"nr": 14, "miejsce": "akt IV, sc. 4–5", "kto": ["Balladyna", "Kostryn"], "gdzie": "sala w zamku Kirkora, noc", "opis": "W nocy Balladyna wchodzi z nożem w ręku do ciemnej sali, wychodzi na wieżę i wraca bez korony, a Kostryn wchodzi z koroną."},
+    {"nr": 15, "miejsce": "akt V, sc. 2", "kto": ["Kirkor", "rycerze"], "gdzie": "pod murami Gniezna", "opis": "Kirkor z dobytym mieczem prowadzi rycerzy pod mury Gniezna."},
+    {"nr": 16, "miejsce": "akt V, sc. 3", "kto": ["Kostryn", "Balladyna"], "gdzie": "namiot Balladyny", "opis": "Kostryn i Balladyna w zbrojach naradzają się w namiocie przed bitwą."},
+    {"nr": 17, "miejsce": "akt V, sc. 4", "kto": ["Balladyna", "Kostryn", "Kanclerz", "Filon"], "gdzie": "sala królewska w Gnieźnie", "opis": "Balladyna w koronie i królewskiej szacie rozcina zatrutym nożem chleb i dzieli go z Kostrynem, który chwieje się i pada; pojawia się Filon z nożem i dzbankiem malin."},
+    {"nr": 18, "miejsce": "akt V, sc. 4", "kto": ["Balladyna", "Kanclerz", "lud"], "gdzie": "sala królewska w Gnieźnie", "opis": "Kanclerz zwraca się do Balladyny o osądzenie winnej; ona po długim milczeniu mówi „Winna śmierci!”, a piorun zabija królową."}
+  ],
+  "postacie": [
+    {"imie": "Balladyna", "odmiany": ["Balladyna", "Balladyny", "Balladynie", "Balladynę", "Balladyną"], "rola": "córka Wdowy, morderczyni siostry, a potem królowa Gniezna", "relacje": "siostra Aliny; żona Kirkora; sprzymierzona z Kostrynem", "miejsca": ["akt II, sc. 1", "akt IV, sc. 1", "akt V, sc. 4"]},
+    {"imie": "Alina", "odmiany": ["Alina", "Aliny", "Alinie", "Alinę", "Aliną"], "rola": "siostra Balladyny, łagodna, ginie z jej ręki", "relacje": "siostra Balladyny", "miejsca": ["akt I, sc. 3", "akt II, sc. 1"]},
+    {"imie": "Wdowa (Matka)", "odmiany": ["Wdowa", "Wdowy", "Wdowie", "Wdową", "Matka", "matka"], "rola": "matka Balladyny i Aliny, biedna wdowa", "relacje": "Balladyna wyrzeka się jej na uczcie", "miejsca": ["akt I, sc. 3", "akt IV, sc. 1"]},
+    {"imie": "Kirkor", "odmiany": ["Kirkor", "Kirkora", "Kirkorowi", "Kirkorem"], "rola": "pan zamku, mąż Balladyny", "relacje": "mąż Balladyny; później pretendent przeciw niej", "miejsca": ["akt I, sc. 1", "akt V, sc. 2"]},
+    {"imie": "Pustelnik (Popiel III)", "odmiany": ["Pustelnik", "Pustelnika", "Pustelnikowi", "Pustelnikiem"], "rola": "wygnany król Popiel III, który mieszka jako pustelnik", "relacje": "rozmawia z Kirkorem i z Balladyną", "miejsca": ["akt I, sc. 1", "akt II, sc. 1", "akt III, sc. 3"]},
+    {"imie": "Fon Kostryn", "odmiany": ["Kostryn", "Kostryna", "Kostrynowi", "Kostrynem"], "rola": "naczelnik straży w zamku Kirkora, wspólnik zbrodni Balladyny", "relacje": "sprzymierzeniec Balladyny, który ginie od trucizny", "miejsca": ["akt III, sc. 5", "akt V, sc. 4"]},
+    {"imie": "Goplana", "odmiany": ["Goplana", "Goplany", "Goplanie", "Goplanę", "Goplaną"], "rola": "królowa nimf jeziora Gopło, zakochana w Filonie", "relacje": "władczyni Skierki i Chochlika", "miejsca": ["akt I, sc. 2"]},
+    {"imie": "Grabiec", "odmiany": ["Grabiec", "Grabca", "Grabcowi", "Grabcem"], "rola": "syn zakrystiana, błazen, który znajduje koronę i zostaje królem", "relacje": "związany z lasem i Goplaną", "miejsca": ["akt II, sc. 1", "akt III, sc. 5", "akt IV, sc. 1"]},
+    {"imie": "Skierka i Chochlik", "odmiany": ["Skierka", "Skierki", "Chochlik", "Chochlika"], "rola": "duchy służące Goplanie", "relacje": "szukają Goplany, porywają koronę", "miejsca": ["akt I, sc. 2", "akt III, sc. 4"]},
+    {"imie": "Filon", "odmiany": ["Filon", "Filona", "Filonowi", "Filonem"], "rola": "pasterz, obiekt miłości Goplany", "relacje": "ukochany Goplany", "miejsca": ["akt V, sc. 4"]},
+    {"imie": "Gralon", "odmiany": ["Gralon", "Gralona", "Gralonowi"], "rola": "rycerz Kirkora, ginie zabity przez Balladynę", "relacje": "rycerz w zamku Kirkora", "miejsca": ["akt IV, sc. 1"]},
+    {"imie": "Kanclerz", "odmiany": ["Kanclerz", "Kanclerza", "Kanclerzowi"], "rola": "urzędnik na dworze w Gnieźnie, wzywa Balladynę do sądu", "relacje": "doradca władcy", "miejsca": ["akt V, sc. 4"]}
+  ],
+  "motywy": [
+    {"motyw": "zbrodnia i kara", "przyklad": "Balladyna zabija siostrę i kolejne osoby w drodze do władzy, a na końcu sama wydaje na siebie wyrok „winna śmierci”, po którym piorun ją zabija.", "miejsce": "akt II, sc. 1; akt V, sc. 4", "cytat": "Tyś siostrę zabiła!"},
+    {"motyw": "żądza władzy i ambicja", "przyklad": "Balladyna po zabiciu siostry wychodzi za Kirkora, a potem zdobywa koronę i królewski tron.", "miejsce": "akt II, sc. 2; akt IV, sc. 5; akt V, sc. 4"},
+    {"motyw": "wyparcie się matki", "przyklad": "Na uczcie Balladyna zapiera się własnej matki, każe ją wyprowadzić i oświadcza, że jej nie zna.", "miejsce": "akt IV, sc. 1", "cytat": "Ja ciebie nie znam…"},
+    {"motyw": "świat fantastyczny i realny", "przyklad": "Duchy Skierka i Chochlik oraz królowa Goplana ingerują w losy ludzi, między innymi porywając koronę.", "miejsce": "akt I, sc. 2; akt III, sc. 4"},
+    {"motyw": "sprawiedliwość boska i fatum", "przyklad": "Piorun zabija Balladynę zaraz po jej wyroku nad samą sobą.", "miejsce": "akt V, sc. 4"},
+    {"motyw": "zazdrość między siostrami", "przyklad": "Balladyna, zazdrosna o Alinę, zabija ją w lesie.", "miejsce": "akt II, sc. 1"},
+    {"motyw": "rola przypadku i korony", "przyklad": "Grabiec, który wędruje po lesie, znajduje koronę na własnej głowie i zostaje królem.", "miejsce": "akt III, sc. 4"},
+    {"motyw": "trucizna i podstęp", "przyklad": "Balladyna rozcina chleb nożem zatrutym po jednej stronie, a Kostryn po posiłku chwieje się i pada.", "miejsce": "akt V, sc. 4"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/balladyna/", "rodzaj": "utwór", "co": "Pobrany tekst tragedii; podział na akty i sceny według Wolnych Lektur; sprawdzono listę scen z miejscem akcji, uwagi scenicze (zabójstwa, korona, zatruty nóż, piorun), scenę wyparcia się matki i finał."}
+  ],
+  "do_weryfikacji": [
+    "Rola Wdowy w finale i jej los po scenie uczty (czy ginie) nie zostały sprawdzone; w danych podano tylko zasłabnięcie Balladyny po scenie z matką.",
+    "Przebieg aktu III (sc. 2–5), IV (sc. 2–5) i V (sc. 1–3) oparto o wybrane didaskalia i początki scen; kto dokładnie jest królem w IV–V i jaka jest rola Kirkora w finale wymaga sprawdzenia.",
+    "Znaczenie wątku z Pustelnikiem jako Popielem III i jego zakończenie nie zostały dokładnie sprawdzone.",
+    "Scena zabójstwa Alina: potwierdzone uwagi sceniczne „zabija” i „pada”; kontekst konkursu o maliny i wskazanie Kirkora jako nagrody nie zostały przeczytane w całości."
+  ]
+}

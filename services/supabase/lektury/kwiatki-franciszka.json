@@ -1,0 +1,53 @@
+{
+  "id": "kwiatki-franciszka",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "rozdz. 1", "kto": ["Franciszek", "pierwsi bracia"], "gdzie": "wspólnota franciszkańska", "opis": "Franciszek wybiera dwunastu ubogich towarzyszy, których narrator porównuje z apostołami." },
+    { "nr": 2, "miejsce": "rozdz. 2", "kto": ["Franciszek", "Bernard"], "gdzie": "Asyż, dom Bernarda", "opis": "Bernard przyjmuje Franciszka na noc, żeby przyjrzeć się jego życiu." },
+    { "nr": 3, "miejsce": "rozdz. 2", "kto": ["Franciszek", "Bernard"], "gdzie": "Asyż, dom Bernarda", "opis": "Bernard widzi Franciszka pogrążonego w nocnej modlitwie i postanawia pójść za jego przykładem." },
+    { "nr": 4, "miejsce": "rozdz. 2", "kto": ["Franciszek", "Bernard"], "gdzie": "Asyż", "opis": "Bernard oddaje majątek ubogim i przyłącza się do braci mniejszych." },
+    { "nr": 5, "miejsce": "rozdz. 16", "kto": ["Franciszek", "Maciej", "Klara", "Sylwester"], "gdzie": "wspólnota franciszkańska", "opis": "Franciszek wysyła Macieja do Klary i Sylwestra z prośbą o modlitwę w sprawie wyboru między kontemplacją a głoszeniem kazań." },
+    { "nr": 6, "miejsce": "rozdz. 16", "kto": ["Franciszek", "Maciej"], "gdzie": "wspólnota franciszkańska", "opis": "Maciej przynosi odpowiedź, że Franciszek ma głosić kazania." },
+    { "nr": 7, "miejsce": "rozdz. 16", "kto": ["Franciszek", "ptaki"], "gdzie": "w drodze między Cannarą a Bevagną", "opis": "Franciszek przemawia do stada ptaków i przypomina im, że pokarm i schronienie zawdzięczają Bogu." },
+    { "nr": 8, "miejsce": "rozdz. 16", "kto": ["Franciszek", "ptaki"], "gdzie": "w drodze między Cannarą a Bevagną", "opis": "Ptaki słuchają kazania i odlatują po błogosławieństwie Franciszka." },
+    { "nr": 9, "miejsce": "rozdz. 21", "kto": ["wilk z Gubbio", "mieszkańcy Gubbio"], "gdzie": "Gubbio i okolica", "opis": "Wilk atakuje zwierzęta i ludzi, przez co mieszkańcy boją się wychodzić poza miasto." },
+    { "nr": 10, "miejsce": "rozdz. 21", "kto": ["Franciszek", "wilk z Gubbio"], "gdzie": "poza murami Gubbio", "opis": "Franciszek wychodzi wilkowi naprzeciw i znakiem krzyża powstrzymuje jego atak." },
+    { "nr": 11, "miejsce": "rozdz. 21", "kto": ["Franciszek", "wilk z Gubbio"], "gdzie": "poza murami Gubbio", "opis": "Franciszek proponuje wilkowi, że mieszkańcy będą go żywić, jeżeli przestanie ich krzywdzić." },
+    { "nr": 12, "miejsce": "rozdz. 21", "kto": ["Franciszek", "wilk z Gubbio"], "gdzie": "poza murami Gubbio", "opis": "Wilk okazuje zgodę i kładzie łapę w dłoni Franciszka." },
+    { "nr": 13, "miejsce": "rozdz. 21", "kto": ["Franciszek", "wilk z Gubbio", "mieszkańcy Gubbio"], "gdzie": "plac w Gubbio", "opis": "Franciszek przedstawia warunki ugody zgromadzonym mieszkańcom, którzy obiecują zapewnić wilkowi pożywienie." },
+    { "nr": 14, "miejsce": "rozdz. 21", "kto": ["Franciszek", "wilk z Gubbio", "mieszkańcy Gubbio"], "gdzie": "plac w Gubbio", "opis": "Wilk ponawia przy mieszkańcach gest złożenia łapy w dłoni Franciszka." },
+    { "nr": 15, "miejsce": "rozdz. 21", "kto": ["wilk z Gubbio", "mieszkańcy Gubbio"], "gdzie": "Gubbio", "opis": "Wilk przez dwa lata żyje w mieście, a po jego śmierci mieszkańcy żałują go, bo przypominał im o Franciszku." }
+  ],
+  "postacie": [
+    { "imie": "Franciszek z Asyżu", "odmiany": ["Franciszek", "Franciszka", "Franciszkowi", "Franciszkiem", "Franciszku"], "rola": "założyciel zakonu i kaznodzieja, w opowieściach dokonuje cudów", "relacje": "przyjmuje Bernarda do wspólnoty, prosi Klarę i Sylwestra o pomoc, pośredniczy w ugodzie z wilkiem", "miejsca": ["rozdz. 1–2", "rozdz. 16", "rozdz. 21"] },
+    { "imie": "Bernard", "odmiany": ["Bernarda", "Bernardowi", "Bernardem", "Bernardzie"], "rola": "pierwszy towarzysz Franciszka, rozdaje dobytek ubogim", "relacje": "gospodarz, a następnie naśladowca Franciszka", "miejsca": ["rozdz. 2"] },
+    { "imie": "Maciej", "odmiany": ["Macieja", "Maciejowi", "Maciejem", "Macieju"], "rola": "brat wysłany do Klary i Sylwestra", "relacje": "towarzysz i posłaniec Franciszka", "miejsca": ["rozdz. 16"] },
+    { "imie": "Klara", "odmiany": ["Klary", "Klarze", "Klarę", "Klarą"], "rola": "modli się o wskazanie drogi Franciszkowi", "relacje": "Franciszek zwraca się do niej przez Macieja", "miejsca": ["rozdz. 16"] },
+    { "imie": "Sylwester", "odmiany": ["Sylwestra", "Sylwestrowi", "Sylwestrem", "Sylwestrze"], "rola": "brat, którego Franciszek prosi o modlitwę", "relacje": "towarzysz Franciszka", "miejsca": ["rozdz. 16"] },
+    { "imie": "wilk z Gubbio", "odmiany": ["wilka z Gubbio", "wilkowi z Gubbio", "wilkiem z Gubbio"], "rola": "zwierzę siejące strach, po ugodzie żyje wśród ludzi", "relacje": "Franciszek zawiera z nim układ w imieniu mieszkańców", "miejsca": ["rozdz. 21"] }
+  ],
+  "motywy": [
+    { "motyw": "naśladowanie Chrystusa", "przyklad": "Narrator zestawia dwunastu towarzyszy Franciszka z apostołami i wskazuje ubóstwo jako cechę obu wspólnot.", "miejsce": "rozdz. 1" },
+    { "motyw": "dobrowolne ubóstwo", "przyklad": "Bernard po spotkaniu z Franciszkiem rozdaje dobytek potrzebującym i zostaje bratem mniejszym.", "miejsce": "rozdz. 2" },
+    { "motyw": "pokora i rozeznanie", "przyklad": "Franciszek przez Macieja prosi Klarę i Sylwestra o modlitwę, gdy szuka odpowiedzi na pytanie, czy głosić kazania.", "miejsce": "rozdz. 16" },
+    { "motyw": "braterstwo stworzeń", "przyklad": "W kazaniu do ptaków Franciszek wymienia dobra, które otrzymują od Boga, i zachęca je do wdzięczności.", "miejsce": "rozdz. 16" },
+    { "motyw": "przemiana i przebaczenie", "przyklad": "Wilk, którego do tej pory obawiali się mieszkańcy, przypieczętowuje ugodę gestem podania łapy.", "miejsce": "rozdz. 21" },
+    { "motyw": "pokój i odpowiedzialność wspólnoty", "przyklad": "Mieszkańcy przyjmują zobowiązanie do karmienia wilka, który ma zaprzestać napaści.", "miejsce": "rozdz. 21" }
+  ],
+  "utwory": [
+    { "tytul": "Pierwsi towarzysze Franciszka", "miejsce": "rozdz. 1", "opis": "Założenie wspólnoty przedstawione na wzór powołania apostołów." },
+    { "tytul": "Przyłączenie się Bernarda", "miejsce": "rozdz. 2", "opis": "Nocna modlitwa Franciszka skłania Bernarda do zmiany życia." },
+    { "tytul": "Rada Klary i Sylwestra oraz kazanie do ptaków", "miejsce": "rozdz. 16", "opis": "Franciszek rozstrzyga wątpliwości co do działalności kaznodziejskiej i zwraca się do ptaków." },
+    { "tytul": "Wilk z Gubbio", "miejsce": "rozdz. 21", "opis": "Franciszek pośredniczy między mieszkańcami a groźnym zwierzęciem." }
+  ],
+  "zrodla": [
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE wskazuje fragmenty jako pozycję przejściową na lata 2025–2028." },
+    { "url": "https://opoka.org.pl/biblioteka/T/TS/swieci/jednosc_kwiatki_fr_z_asyzu.html", "rodzaj": "utwór", "co": "Rozdział I w przekładzie Leopolda Staffa, porównanie wspólnoty i apostołów." },
+    { "url": "https://zpe.gov.pl/a/sprawdz-sie/DuoSxB6ku", "rodzaj": "utwór", "co": "Fragmenty o Bernardzie i o postawie franciszkańskiej w materiale edukacyjnym." },
+    { "url": "https://streszczenia.pl/lektura/kwiatki-swietego-franciszka/tresc_lektury/", "rodzaj": "utwór", "co": "Tekst przekładu Leopolda Staffa, rozdziały XVI i XXI." },
+    { "url": "https://zpe.gov.pl/a/prezentacja-multimedialna/DoKPcZZmj", "rodzaj": "utwór", "co": "Kazanie do ptaków w przekładzie Staffa." },
+    { "url": "https://sbc.org.pl/Content/312768/40A.pdf", "rodzaj": "utwór", "co": "Rozdział XXI, przebieg i zakończenie opowieści o wilku." }
+  ],
+  "do_weryfikacji": [
+    "Informator nie wylicza poszczególnych fragmentów; poza wskazanym w katalogu wilkiem z Gubbio przyjęto wybór rozdziałów I, II i XVI."
+  ]
+}

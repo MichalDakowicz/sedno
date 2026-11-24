@@ -1,0 +1,770 @@
+{
+ "id": "hamlet",
+ "wydarzenia": [
+  {
+   "nr": 1,
+   "miejsce": "akt I, sc. 1",
+   "kto": [
+    "Francisko",
+    "Bernardo",
+    "Marcellus",
+    "Horacy",
+    "Duch"
+   ],
+   "gdzie": "taras przed zamkiem w Elsynorze",
+   "opis": "Nocą na tarasie żołnierze i Horacy widzą Ducha, który wygląda jak zmarły król."
+  },
+  {
+   "nr": 2,
+   "miejsce": "akt I, sc. 2",
+   "kto": [
+    "Klaudiusz",
+    "Gertruda",
+    "Hamlet",
+    "Laertes",
+    "Poloniusz"
+   ],
+   "gdzie": "sala audiencjonalna w zamku",
+   "opis": "Król Klaudiusz, który po śmierci brata ożenił się z jego wdową Gertrudą, zezwala Laertesowi na wyjazd do Francji i prosi Hamleta, by został w Danii."
+  },
+  {
+   "nr": 3,
+   "miejsce": "akt I, sc. 2",
+   "kto": [
+    "Hamlet"
+   ],
+   "gdzie": "sala audiencjonalna w zamku",
+   "opis": "Po wyjściu dworu Hamlet w monologu skarży się na pośpieszne małżeństwo matki."
+  },
+  {
+   "nr": 4,
+   "miejsce": "akt I, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Horacy",
+    "Marcellus",
+    "Bernardo"
+   ],
+   "gdzie": "sala audiencjonalna w zamku",
+   "opis": "Horacy opowiada Hamletowi o Duchu, a Hamlet postanawia czuwać następnej nocy."
+  },
+  {
+   "nr": 5,
+   "miejsce": "akt I, sc. 3",
+   "kto": [
+    "Laertes",
+    "Ofelia",
+    "Poloniusz"
+   ],
+   "gdzie": "pokój w domu Poloniusza",
+   "opis": "Laertes przed wyjazdem przestrzega Ofelię przed uczuciem Hamleta, a Poloniusz każe jej odtąd unikać księcia."
+  },
+  {
+   "nr": 6,
+   "miejsce": "akt I, sc. 4",
+   "kto": [
+    "Hamlet",
+    "Horacy",
+    "Marcellus",
+    "Duch"
+   ],
+   "gdzie": "taras zamkowy",
+   "opis": "Duch pojawia się Hamletowi i skinieniem wzywa go na bok, a Hamlet idzie za nim mimo ostrzeżeń przyjaciół."
+  },
+  {
+   "nr": 7,
+   "miejsce": "akt I, sc. 5",
+   "kto": [
+    "Hamlet",
+    "Duch"
+   ],
+   "gdzie": "oddalona część tarasu",
+   "opis": "Duch mówi Hamletowi, że został otruty przez Klaudiusza, i żąda zemsty, oszczędzając jednak Gertrudę."
+  },
+  {
+   "nr": 8,
+   "miejsce": "akt I, sc. 5",
+   "kto": [
+    "Hamlet",
+    "Horacy",
+    "Marcellus"
+   ],
+   "gdzie": "oddalona część tarasu",
+   "opis": "Hamlet każe przyjaciołom przysiąc milczenie i zapowiada, że będzie udawał szaleńca."
+  },
+  {
+   "nr": 9,
+   "miejsce": "akt II, sc. 1",
+   "kto": [
+    "Poloniusz",
+    "Rajnold",
+    "Ofelia"
+   ],
+   "gdzie": "pokój w domu Poloniusza",
+   "opis": "Poloniusz wysyła Rajnolda, by szpiegował Laertesa w Paryżu, a Ofelia opowiada o dziwnej wizycie Hamleta w jej pokoju."
+  },
+  {
+   "nr": 10,
+   "miejsce": "akt II, sc. 2",
+   "kto": [
+    "Klaudiusz",
+    "Gertruda",
+    "Rozenkranc",
+    "Gildenstern"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "Król i królowa wzywają dawnych kolegów Hamleta, Rozenkranca i Gildensterna, żeby go wybadali."
+  },
+  {
+   "nr": 11,
+   "miejsce": "akt II, sc. 2",
+   "kto": [
+    "Poloniusz",
+    "Klaudiusz",
+    "Gertruda"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "Poloniusz przedstawia teorię, że Hamlet oszalał z miłości do Ofelii, i proponuje podsłuchać ich rozmowę."
+  },
+  {
+   "nr": 12,
+   "miejsce": "akt II, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Poloniusz"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "Hamlet udaje szaleńca w rozmowie z Poloniuszem, odpowiadając dwuznacznie, w tym słowami „Słowa, słowa, słowa”."
+  },
+  {
+   "nr": 13,
+   "miejsce": "akt II, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Rozenkranc",
+    "Gildenstern"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "Hamlet domyśla się, że dawni koledzy zostali przysłani przez króla, i wyznaje im przygnębienie."
+  },
+  {
+   "nr": 14,
+   "miejsce": "akt II, sc. 2",
+   "kto": [
+    "Hamlet",
+    "aktorzy"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "Przybywają wędrowni aktorzy; Hamlet prosi ich o odegranie sztuki z dodanymi przez siebie wersami i planuje użyć jej, by sprawdzić winę króla."
+  },
+  {
+   "nr": 15,
+   "miejsce": "akt III, sc. 1",
+   "kto": [
+    "Klaudiusz",
+    "Gertruda",
+    "Rozenkranc",
+    "Gildenstern"
+   ],
+   "gdzie": "pokój w zamku",
+   "opis": "Rozenkranc i Gildenstern donoszą, że nie wydobyli z Hamleta przyczyny jego zachowania."
+  },
+  {
+   "nr": 16,
+   "miejsce": "akt III, sc. 1",
+   "kto": [
+    "Hamlet"
+   ],
+   "gdzie": "pokój w zamku",
+   "opis": "Hamlet wygłasza monolog „Być albo nie być”, rozważając sens życia i lęk przed tym, co po śmierci."
+  },
+  {
+   "nr": 17,
+   "miejsce": "akt III, sc. 1",
+   "kto": [
+    "Hamlet",
+    "Ofelia",
+    "Klaudiusz",
+    "Poloniusz"
+   ],
+   "gdzie": "pokój w zamku",
+   "opis": "Hamlet w obecności ukrytych króla i Poloniusza oschle rozmawia z Ofelią i każe jej iść do klasztoru; król uznaje, że to nie jest szaleństwo z miłości, i postanawia wysłać Hamleta do Anglii."
+  },
+  {
+   "nr": 18,
+   "miejsce": "akt III, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Horacy"
+   ],
+   "gdzie": "wielka sala w zamku",
+   "opis": "Przed przedstawieniem Hamlet prosi Horacego, by obserwował króla."
+  },
+  {
+   "nr": 19,
+   "miejsce": "akt III, sc. 2",
+   "kto": [
+    "aktorzy",
+    "Klaudiusz",
+    "Gertruda",
+    "Hamlet",
+    "Ofelia"
+   ],
+   "gdzie": "wielka sala w zamku",
+   "opis": "Wędrowni aktorzy grają sztukę o zamordowaniu księcia Gonzago trucizną wlaną do ucha, a Klaudiusz przerywa spektakl i wychodzi."
+  },
+  {
+   "nr": 20,
+   "miejsce": "akt III, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Horacy"
+   ],
+   "gdzie": "wielka sala w zamku",
+   "opis": "Hamlet i Horacy są przekonani, że reakcja króla potwierdza słowa Ducha."
+  },
+  {
+   "nr": 21,
+   "miejsce": "akt III, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Rozenkranc",
+    "Gildenstern",
+    "Poloniusz"
+   ],
+   "gdzie": "wielka sala w zamku",
+   "opis": "Rozenkranc, Gildenstern i Poloniusz przekazują wezwanie matki, a Hamlet postanawia pójść do niej."
+  },
+  {
+   "nr": 22,
+   "miejsce": "akt III, sc. 3",
+   "kto": [
+    "Klaudiusz",
+    "Rozenkranc",
+    "Gildenstern"
+   ],
+   "gdzie": "pokój w zamku",
+   "opis": "Król postanawia wysłać Hamleta do Anglii w towarzystwie Rozenkranca i Gildensterna."
+  },
+  {
+   "nr": 23,
+   "miejsce": "akt III, sc. 3",
+   "kto": [
+    "Klaudiusz",
+    "Hamlet"
+   ],
+   "gdzie": "pokój w zamku",
+   "opis": "Klaudiusz klęka do modlitwy i przyznaje się do zbrodni; Hamlet widzi go, ale nie zabija, myśląc, że modlący się trafiłby do nieba."
+  },
+  {
+   "nr": 24,
+   "miejsce": "akt III, sc. 4",
+   "kto": [
+    "Gertruda",
+    "Poloniusz",
+    "Hamlet"
+   ],
+   "gdzie": "pokój królowej",
+   "opis": "W pokoju Gertrudy Hamlet usłyszawszy szmer za arrasem dźga go szpadą i zabija ukrytego Poloniusza."
+  },
+  {
+   "nr": 25,
+   "miejsce": "akt III, sc. 4",
+   "kto": [
+    "Hamlet",
+    "Gertruda",
+    "Duch"
+   ],
+   "gdzie": "pokój królowej",
+   "opis": "Hamlet wyrzuca matce małżeństwo z Klaudiuszem; wtedy pojawia się Duch, którego widzi tylko Hamlet, i przypomina o zemście."
+  },
+  {
+   "nr": 26,
+   "miejsce": "akt IV, sc. 1",
+   "kto": [
+    "Gertruda",
+    "Klaudiusz",
+    "Rozenkranc",
+    "Gildenstern"
+   ],
+   "gdzie": "pokój w zamku",
+   "opis": "Gertruda opowiada królowi o zabiciu Poloniusza, a król każe Rozenkrancowi i Gildensternowi odnaleźć Hamleta."
+  },
+  {
+   "nr": 27,
+   "miejsce": "akt IV, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Rozenkranc",
+    "Gildenstern"
+   ],
+   "gdzie": "inny pokój w zamku",
+   "opis": "Hamlet odmawia wydania ciała Poloniusza i drwi z Rozenkranca i Gildensterna."
+  },
+  {
+   "nr": 28,
+   "miejsce": "akt IV, sc. 3",
+   "kto": [
+    "Klaudiusz",
+    "Hamlet"
+   ],
+   "gdzie": "inny pokój w zamku",
+   "opis": "Hamlet wskazuje, gdzie ukrył ciało, a król wysyła go natychmiast do Anglii."
+  },
+  {
+   "nr": 29,
+   "miejsce": "akt IV, sc. 4",
+   "kto": [
+    "Fortynbras",
+    "Hamlet",
+    "Rozenkranc",
+    "Gildenstern"
+   ],
+   "gdzie": "równina w Danii",
+   "opis": "Hamlet widzi wojsko Fortynbrasa idące walczyć o nieistotny skrawek ziemi i porównuje je z własną bezczynnością."
+  },
+  {
+   "nr": 30,
+   "miejsce": "akt IV, sc. 5",
+   "kto": [
+    "Ofelia",
+    "Gertruda",
+    "Klaudiusz"
+   ],
+   "gdzie": "Elsynor, pokój w zamku",
+   "opis": "Ofelia, pozbawiona zmysłów po śmierci ojca, śpiewa dziwne piosenki i rozdaje kwiaty."
+  },
+  {
+   "nr": 31,
+   "miejsce": "akt IV, sc. 5",
+   "kto": [
+    "Laertes",
+    "Klaudiusz",
+    "Gertruda"
+   ],
+   "gdzie": "Elsynor, pokój w zamku",
+   "opis": "Laertes wraca z Francji z buntowniczym tłumem i żąda wyjaśnień w sprawie śmierci ojca; król obiecuje wyjaśnić sprawę."
+  },
+  {
+   "nr": 32,
+   "miejsce": "akt IV, sc. 6",
+   "kto": [
+    "Horacy"
+   ],
+   "gdzie": "inny pokój w zamku",
+   "opis": "Horacy dostaje list od Hamleta: jego statek został napadnięty przez piratów, a on wrócił do Danii."
+  },
+  {
+   "nr": 33,
+   "miejsce": "akt IV, sc. 7",
+   "kto": [
+    "Klaudiusz",
+    "Laertes"
+   ],
+   "gdzie": "inny pokój w zamku",
+   "opis": "Klaudiusz i Laertes układają plan pojedynku, w którym Laertes użyje zatrutej szpady, a król przygotuje zatrute wino."
+  },
+  {
+   "nr": 34,
+   "miejsce": "akt IV, sc. 7",
+   "kto": [
+    "Gertruda",
+    "Laertes",
+    "Klaudiusz"
+   ],
+   "gdzie": "inny pokój w zamku",
+   "opis": "Gertruda przynosi wiadomość, że Ofelia utonęła w strumieniu."
+  },
+  {
+   "nr": 35,
+   "miejsce": "akt V, sc. 1",
+   "kto": [
+    "Hamlet",
+    "Horacy",
+    "dwaj grabarze"
+   ],
+   "gdzie": "cmentarz",
+   "opis": "Hamlet rozmawia z grabarzami przy kopaniu grobu i rozważa przemijanie, trzymając czaszkę błazna Yoricka."
+  },
+  {
+   "nr": 36,
+   "miejsce": "akt V, sc. 1",
+   "kto": [
+    "Laertes",
+    "Hamlet",
+    "Gertruda",
+    "Klaudiusz"
+   ],
+   "gdzie": "cmentarz",
+   "opis": "Podczas pogrzebu Ofelii Laertes wskakuje do grobu, a Hamlet ujawnia się i wdaje z nim w szamotaninę."
+  },
+  {
+   "nr": 37,
+   "miejsce": "akt V, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Horacy"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "Hamlet opowiada Horacemu, jak odkrył list z rozkazem swojej śmierci i podmienił go na rozkaz stracenia Rozenkranca i Gildensterna."
+  },
+  {
+   "nr": 38,
+   "miejsce": "akt V, sc. 2",
+   "kto": [
+    "Ozryk",
+    "Hamlet"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "Dworak Ozryk przynosi propozycję pojedynku Hamleta z Laertesem, a Hamlet ją przyjmuje."
+  },
+  {
+   "nr": 39,
+   "miejsce": "akt V, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Laertes",
+    "Klaudiusz",
+    "Gertruda"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "W czasie pojedynku Gertruda wypija zatrute wino przeznaczone dla Hamleta, a Laertes rani Hamleta zatrutą szpadą."
+  },
+  {
+   "nr": 40,
+   "miejsce": "akt V, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Laertes",
+    "Klaudiusz",
+    "Gertruda"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "Szpady zostają zamienione, Hamlet rani Laertesa, Gertruda umiera, a Laertes wyznacza króla jako winnego."
+  },
+  {
+   "nr": 41,
+   "miejsce": "akt V, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Klaudiusz",
+    "Laertes",
+    "Horacy"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "Hamlet przebija Klaudiusza i zmusza go do wypicia zatrutego kielicha; Laertes umiera, przebaczywszy Hamletowi."
+  },
+  {
+   "nr": 42,
+   "miejsce": "akt V, sc. 2",
+   "kto": [
+    "Hamlet",
+    "Horacy",
+    "Fortynbras"
+   ],
+   "gdzie": "sala w zamku",
+   "opis": "Umierający Hamlet prosi Horacego, by opowiedział prawdę o wydarzeniach, i wskazuje Fortynbrasa jako następcę tronu; Hamlet umiera."
+  }
+ ],
+ "postacie": [
+  {
+   "imie": "Hamlet",
+   "odmiany": [
+    "Hamlet",
+    "Hamleta",
+    "Hamletowi",
+    "Hamletem",
+    "Hamlecie",
+    "Hamleci"
+   ],
+   "rola": "książę duński, syn zmarłego króla i Gertrudy, student z Wittenbergi",
+   "relacje": "bratanek i pasierb Klaudiusza, syn Gertrudy, kochanek (lub były kochanek) Ofelii, przyjaciel Horacego",
+   "miejsca": [
+    "akt I, sc. 2",
+    "akt III, sc. 1",
+    "akt V, sc. 2"
+   ]
+  },
+  {
+   "imie": "Klaudiusz",
+   "odmiany": [
+    "Klaudiusz",
+    "Klaudiusza",
+    "Klaudiuszowi",
+    "Klaudiuszem",
+    "Klaudiuszu"
+   ],
+   "rola": "król Danii, brat zmarłego króla, mąż Gertrudy; zabójca brata",
+   "relacje": "stryj i ojczym Hamleta, mąż Gertrudy, sprzymierzeniec Poloniusza i Laertesa w spisku przeciw Hamletowi",
+   "miejsca": [
+    "akt I, sc. 2",
+    "akt III, sc. 3",
+    "akt V, sc. 2"
+   ]
+  },
+  {
+   "imie": "Gertruda",
+   "odmiany": [
+    "Gertruda",
+    "Gertrudy",
+    "Gertrudzie",
+    "Gertrudę",
+    "Gertrudą"
+   ],
+   "rola": "królowa Danii, matka Hamleta, wdowa po poprzednim królu i żona Klaudiusza",
+   "relacje": "matka Hamleta, żona Klaudiusza",
+   "miejsca": [
+    "akt I, sc. 2",
+    "akt III, sc. 4",
+    "akt V, sc. 2"
+   ]
+  },
+  {
+   "imie": "Poloniusz",
+   "odmiany": [
+    "Poloniusz",
+    "Poloniusza",
+    "Poloniuszowi",
+    "Poloniuszem",
+    "Poloniuszu"
+   ],
+   "rola": "szambelan króla, ojciec Ofelii i Laertesa, doradca dworu",
+   "relacje": "ojciec Laertesa i Ofelii, sługa Klaudiusza, zabity przez Hamleta",
+   "miejsca": [
+    "akt I, sc. 3",
+    "akt II, sc. 2",
+    "akt III, sc. 4"
+   ]
+  },
+  {
+   "imie": "Ofelia",
+   "odmiany": [
+    "Ofelia",
+    "Ofelii",
+    "Ofelię",
+    "Ofelią"
+   ],
+   "rola": "córka Poloniusza, ukochana Hamleta",
+   "relacje": "córka Poloniusza, siostra Laertesa, kochana przez Hamleta",
+   "miejsca": [
+    "akt I, sc. 3",
+    "akt III, sc. 1",
+    "akt IV, sc. 5",
+    "akt IV, sc. 7"
+   ]
+  },
+  {
+   "imie": "Laertes",
+   "odmiany": [
+    "Laertes",
+    "Laertesa",
+    "Laertesowi",
+    "Laertesem",
+    "Laertesie"
+   ],
+   "rola": "syn Poloniusza, brat Ofelii, uczy się we Francji",
+   "relacje": "brat Ofelii, syn Poloniusza, ostatecznie przeciwnik Hamleta w pojedynku",
+   "miejsca": [
+    "akt I, sc. 3",
+    "akt IV, sc. 5",
+    "akt V, sc. 2"
+   ]
+  },
+  {
+   "imie": "Horacy",
+   "odmiany": [
+    "Horacy",
+    "Horacego",
+    "Horacemu",
+    "Horacym",
+    "Horacym"
+   ],
+   "rola": "przyjaciel Hamleta z Wittenbergi, uczony",
+   "relacje": "przyjaciel Hamleta, świadek jego tajemnic i wydarzeń końcowych",
+   "miejsca": [
+    "akt I, sc. 1",
+    "akt V, sc. 2"
+   ]
+  },
+  {
+   "imie": "Duch",
+   "odmiany": [
+    "Duch",
+    "Ducha",
+    "Duchowi",
+    "Duchem",
+    "Duchu"
+   ],
+   "rola": "zjawa przypominająca zmarłego króla, ojca Hamleta",
+   "relacje": "ojciec Hamleta, mąż Gertrudy, brat Klaudiusza",
+   "miejsca": [
+    "akt I, sc. 1",
+    "akt I, sc. 5",
+    "akt III, sc. 4"
+   ]
+  },
+  {
+   "imie": "Rozenkranc",
+   "odmiany": [
+    "Rozenkranc",
+    "Rozenkranca",
+    "Rozenkrancowi",
+    "Rozenkrancem"
+   ],
+   "rola": "dworzanin, dawny kolega Hamleta",
+   "relacje": "przyjaciel Gildensterna, służy królowi jako szpieg, ginie w Anglii",
+   "miejsca": [
+    "akt II, sc. 2",
+    "akt III, sc. 3",
+    "akt V, sc. 2"
+   ]
+  },
+  {
+   "imie": "Gildenstern",
+   "odmiany": [
+    "Gildenstern",
+    "Gildensterna",
+    "Gildensternowi",
+    "Gildensternem"
+   ],
+   "rola": "dworzanin, dawny kolega Hamleta",
+   "relacje": "przyjaciel Rozenkranca, razem z nim szpieguje Hamleta i ginie w Anglii",
+   "miejsca": [
+    "akt II, sc. 2",
+    "akt III, sc. 3",
+    "akt V, sc. 2"
+   ]
+  },
+  {
+   "imie": "Fortynbras",
+   "odmiany": [
+    "Fortynbras",
+    "Fortynbrasa",
+    "Fortynbrasowi",
+    "Fortynbrasem"
+   ],
+   "rola": "książę norweski, którego ojca zabił ojciec Hamleta",
+   "relacje": "rywal polityczny Danii, na końcu obejmuje tron",
+   "miejsca": [
+    "akt I, sc. 1",
+    "akt IV, sc. 4",
+    "akt V, sc. 2"
+   ]
+  },
+  {
+   "imie": "Ozryk",
+   "odmiany": [
+    "Ozryk",
+    "Ozryka",
+    "Ozrykowi",
+    "Ozrykiem"
+   ],
+   "rola": "dworak, przynosi propozycję pojedynku",
+   "relacje": "podwładny króla Klaudiusza",
+   "miejsca": [
+    "akt V, sc. 2"
+   ]
+  },
+  {
+   "imie": "Grabarz",
+   "odmiany": [
+    "grabarz",
+    "grabarza",
+    "grabarzowi",
+    "grabarze",
+    "grabarzy"
+   ],
+   "rola": "dwaj grabarze kopiący grób Ofelii, rozmawiają z Hamletem",
+   "relacje": "bohaterowie sceny cmentarnej, w której Hamlet rozmyśla o śmierci",
+   "miejsca": [
+    "akt V, sc. 1"
+   ]
+  },
+  {
+   "imie": "Yorick",
+   "odmiany": [
+    "Yorick",
+    "Yoryk",
+    "Yoryka",
+    "Yorykowi",
+    "Yoryku"
+   ],
+   "rola": "nieżyjący błazen dworski, którego czaszkę znajduje Hamlet na cmentarzu",
+   "relacje": "opiekował się Hamletem w dzieciństwie",
+   "miejsca": [
+    "akt V, sc. 1"
+   ]
+  }
+ ],
+ "motywy": [
+  {
+   "motyw": "szaleństwo prawdziwe i udawane",
+   "przyklad": "Hamlet zapowiada przyjaciołom, że będzie udawał szaleńca, i rzeczywiście w rozmowach z Poloniuszem i Rozenkrancem mówi dwuznacznie. Ofelia po śmierci ojca naprawdę traci rozum i śpiewa bezładne piosenki.",
+   "miejsce": "akt I, sc. 5; akt II, sc. 2; akt IV, sc. 5",
+   "cytat": "Słowa, słowa, słowa."
+  },
+  {
+   "motyw": "zemsta i wahanie",
+   "przyklad": "Hamlet obiecuje Duchowi pomstę, ale nie zabija Klaudiusza, gdy widzi go klęczącego w modlitwie. Interpretacje mogą wiązać to z rozterką moralną, strachem lub planowaniem skuteczniejszej zemsty.",
+   "miejsce": "akt III, sc. 3"
+  },
+  {
+   "motyw": "teatr w teatrze",
+   "przyklad": "Hamlet każe wędrownym aktorom zagrać sztukę podobną do zbrodni Klaudiusza i obserwuje, jak król reaguje. Sztuka pełni rolę próby prawdy.",
+   "miejsce": "akt III, sc. 2",
+   "cytat": "Łapka na myszy"
+  },
+  {
+   "motyw": "władza i zbrodnia",
+   "przyklad": "Klaudiusz zdobył tron przez zabójstwo brata i małżeństwo z jego wdową; sam przyznaje się do winy w monologu przy modlitwie.",
+   "miejsce": "akt III, sc. 3"
+  },
+  {
+   "motyw": "życie, śmierć i przemijanie",
+   "przyklad": "Hamlet w monologu rozważa, czy lepiej znosić cierpienia życia, czy je zakończyć. Na cmentarzu trzyma czaszkę błazna Yoricka i widzi w niej los wszystkich ludzi.",
+   "miejsce": "akt III, sc. 1; akt V, sc. 1",
+   "cytat": "Być albo nie być to wielkie pytanie."
+  },
+  {
+   "motyw": "zgnilizna moralna dworu",
+   "przyklad": "Marcellus mówi, że w Danii dzieje się coś niedobrego, co można czytać jako obraz upadku całego państwa po zbrodni króla.",
+   "miejsce": "akt I, sc. 4",
+   "cytat": "Jest coś chorobliwego w państwie duńskim."
+  },
+  {
+   "motyw": "kobieta i słabość",
+   "przyklad": "Hamlet po szybkim ponownym zamążpójściu matki mówi o słabości kobiet, co kształtuje później jego stosunek do Ofelii i Gertrudy.",
+   "miejsce": "akt I, sc. 2",
+   "cytat": "Słabości, nazwisko Twoje: kobieta"
+  },
+  {
+   "motyw": "miłość i odrzucenie",
+   "przyklad": "Hamlet w rozmowie z Ofelią ostro ją odtrąca i radzi jej klasztor, co można odczytać jako część jego udawanego szaleństwa albo jako gniew po zdradzie matki.",
+   "miejsce": "akt III, sc. 1",
+   "cytat": "Idź prosto do klasztoru."
+  },
+  {
+   "motyw": "zdrada i szpiegowanie przyjaciół",
+   "przyklad": "Rozenkranc i Gildenstern, dawni koledzy, wyruszają z Hamletem do Anglii, wioząc list z rozkazem jego śmierci. Hamlet odkrywa to i zmienia treść listu.",
+   "miejsce": "akt III, sc. 3; akt V, sc. 2"
+  },
+  {
+   "motyw": "milczenie i prawda o wydarzeniach",
+   "przyklad": "Umierający Hamlet prosi Horacego, by opowiedział światu prawdę, a przed śmiercią mówi o tym, co zostaje niewypowiedziane.",
+   "miejsce": "akt V, sc. 2",
+   "cytat": "Reszta jest milczeniem."
+  }
+ ],
+ "utwory": [],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/hamlet/",
+   "rodzaj": "utwór",
+   "co": "Tekst w tłumaczeniu Józefa Paszkowskiego: kolejność scen, miejsca akcji (didaskalia), przebieg wydarzeń i dosłowne cytaty sprawdzone na tekście."
+  }
+ ],
+ "do_weryfikacji": [
+  "Cytaty pochodzą z tłumaczenia Paszkowskiego z Wolnych Lektur; inne tłumaczenia (np. Barańczaka, Słomczyńskiego) brzmią inaczej, a numeracja wersów może się różnić.",
+  "Numeracja scen i aktów jak w wydaniu Wolnych Lektur; niektóre wydania łączą lub dzielą sceny inaczej (zwłaszcza akt IV)."
+ ]
+}

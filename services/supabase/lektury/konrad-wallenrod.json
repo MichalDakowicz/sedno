@@ -1,0 +1,473 @@
+{
+  "id": "konrad-wallenrod",
+  "wydarzenia": [
+    {
+      "nr": 1,
+      "miejsce": "Wstęp",
+      "kto": [
+        "narrator"
+      ],
+      "gdzie": "brzegi Niemna, granica Litwy i państwa krzyżackiego",
+      "opis": "Narrator opisuje Niemen jako granicę między Litwinami a Zakonem Krzyżowym; po obu stronach stoją straże, a przez rzekę przechodzą tylko chmiel, słowiki i miłość; zapowiada opowieść o dwojgu ludzi."
+    },
+    {
+      "nr": 2,
+      "miejsce": "cz. I (Obiór)",
+      "kto": [
+        "komturowie",
+        "Konrad Wallenrod"
+      ],
+      "gdzie": "Malbork (Maryjenburg)",
+      "opis": "Komturowie zjeżdżają do stolicy Zakonu na wybór wielkiego mistrza i po naradach największe poparcie ma cudzoziemiec Konrad Wallenrod, sławny z wypraw przeciwko Maurom i Turkom oraz z ubóstwa i pogardy dla świata."
+    },
+    {
+      "nr": 3,
+      "miejsce": "cz. I (Obiór)",
+      "kto": [
+        "Konrad Wallenrod",
+        "Halban"
+      ],
+      "gdzie": "Malbork",
+      "opis": "Narrator pokazuje Wallenroda jako człowieka ponurego, wrażliwego na słowa „ojczyzna”, „powinność”, „Litwa”, który zwierza się tylko mnichowi Halbanowi, a samotnie pije i śpiewa ponure pieśni w obcym języku."
+    },
+    {
+      "nr": 4,
+      "miejsce": "cz. II (Hymn)",
+      "kto": [
+        "kapituła",
+        "arcykomtur Konrad",
+        "Halban"
+      ],
+      "gdzie": "Malbork, kaplica i okolice zamku",
+      "opis": "Zakon śpiewa w kaplicy hymn do Ducha Świętego, po czym Konrad z Halbanem i braćmi wychodzi na równinę i słyszy głos pustelnicy z narożnej wieży."
+    },
+    {
+      "nr": 5,
+      "miejsce": "cz. II (opis pustelnicy)",
+      "kto": [
+        "pustelnica (Aldona)"
+      ],
+      "gdzie": "wieża pod Malborkiem",
+      "opis": "Narrator opowiada, że od dziesięciu lat w wieży mieszka tajemnicza kobieta, zamurowana na własną prośbę; Konrad kieruje ku wieży swoje śpiewy."
+    },
+    {
+      "nr": 6,
+      "miejsce": "cz. III (początek)",
+      "kto": [
+        "Konrad Wallenrod",
+        "komtur"
+      ],
+      "gdzie": "Malbork",
+      "opis": "Konrad przyjmuje od komtura miecz i krzyż jako wielki mistrz i wszyscy oczekują wojny z Litwą."
+    },
+    {
+      "nr": 7,
+      "miejsce": "cz. III",
+      "kto": [
+        "Konrad Wallenrod"
+      ],
+      "gdzie": "Malbork",
+      "opis": "Mija rok bez wojny; Konrad nie prowadzi wojsk i zaostrza dyscyplinę w zakonie, narzuca posty, pokuty i kary, a Litwini coraz śmielej napadają na pogranicze."
+    },
+    {
+      "nr": 8,
+      "miejsce": "cz. III",
+      "kto": [
+        "Witołd",
+        "Zakon"
+      ],
+      "gdzie": "Malbork",
+      "opis": "Witołd, wygnany z tronu litewskiego, szuka u Zakonu poparcia, ale nie dostaje wsparcia; bracia szemrzą i szukają mistrza."
+    },
+    {
+      "nr": 9,
+      "miejsce": "cz. III (Pieśń z wieży, rozmowa Konrada z pustelnicą)",
+      "kto": [
+        "Konrad Wallenrod",
+        "Aldona (głos z wieży)"
+      ],
+      "gdzie": "wieża pod Malborkiem, nad jeziorem",
+      "opis": "Co wieczór Konrad chodzi nad jezioro pod wieżę; z wieży Aldona śpiewa i rozmawia z nim; ona opowiada, jak weszła do pustelni, by zobaczyć go raz jeszcze, a on mówi o zemście i o cierpieniu."
+    },
+    {
+      "nr": 10,
+      "miejsce": "cz. III (zakończenie)",
+      "kto": [
+        "Konrad Wallenrod"
+      ],
+      "gdzie": "okolice wieży",
+      "opis": "O świcie Konrad żegna pustelnicę i znika w krzakach; narrator porównuje go do ducha piekielnego uciekającego na dźwięk dzwonu."
+    },
+    {
+      "nr": 11,
+      "miejsce": "cz. IV (Uczta)",
+      "kto": [
+        "Konrad Wallenrod",
+        "Witołd",
+        "komturowie",
+        "bracia"
+      ],
+      "gdzie": "Malbork",
+      "opis": "W dzień patrona Konrad wydaje ucztę dla stu braci i księcia Witołda ze świtą; jest niezadowolony z głośnej biesiady i żąda innego śpiewaka niż Włoch i trubadur."
+    },
+    {
+      "nr": 12,
+      "miejsce": "cz. IV (Uczta, Pieśń Wajdeloty)",
+      "kto": [
+        "Halban (wajdelota)",
+        "Konrad Wallenrod",
+        "Witołd"
+      ],
+      "gdzie": "Malbork, sala uczty",
+      "opis": "Do śpiewu zgłasza się stary wajdelota (to Halban w przebraniu); śpiewa o zarazie, o upadku Litwy i o zdrajcach, a Witołd blednie z gniewu i wstydu."
+    },
+    {
+      "nr": 13,
+      "miejsce": "cz. IV (Powieść Wajdeloty)",
+      "kto": [
+        "Walter Alf",
+        "Winrych",
+        "wajdelota",
+        "Kiejstut"
+      ],
+      "gdzie": "Prusy i Litwa",
+      "opis": "W powieści młodzieniec Walter Alf, porwany z Litwy jako dziecko i wychowany przez wielkiego mistrza Winrycha, ucieka z wajdelotą do Litwinów, bo wajdelota podsycał w nim tęsknotę za ojczyzną; książę Kiejstut przyjmuje ich do Kowna."
+    },
+    {
+      "nr": 14,
+      "miejsce": "cz. IV (Powieść Wajdeloty)",
+      "kto": [
+        "Walter Alf",
+        "Aldona",
+        "Kiejstut"
+      ],
+      "gdzie": "Kowno",
+      "opis": "Walter i córka Kiejstuta, Aldona, zakochują się; Kiejstut wydaje córkę za Waltera, bo jest mu potrzebny dla Litwy."
+    },
+    {
+      "nr": 15,
+      "miejsce": "cz. IV (Powieść Wajdeloty)",
+      "kto": [
+        "Walter Alf",
+        "Kiejstut",
+        "Aldona",
+        "Krzyżacy"
+      ],
+      "gdzie": "Kowno, Kiejdany, Rudawa",
+      "opis": "Krzyżacy zdobywają Kowno i Kiejdany, a bitwa na błoniach Rudawy kończy się klęską Litwinów; Walter, znając potęgę Zakonu, mówi Aldonie, że jedyna droga ocalenia to zdrada i zemsta."
+    },
+    {
+      "nr": 16,
+      "miejsce": "cz. IV (Powieść Wajdeloty)",
+      "kto": [
+        "Walter Alf",
+        "wajdelota",
+        "Aldona"
+      ],
+      "gdzie": "okolice Kowna",
+      "opis": "Walter z wajdelotą wyjeżdża, by wstąpić do Zakonu i go zniszczyć od środka; w dolinie żegna się z Aldoną, która wybiera klasztorną wieżę."
+    },
+    {
+      "nr": 17,
+      "miejsce": "cz. IV (Alpuhara)",
+      "kto": [
+        "Konrad Wallenrod",
+        "Almanzor"
+      ],
+      "gdzie": "Malbork, sala uczty",
+      "opis": "Wstrząśnięty powieścią Konrad pije, bierze lutnię i śpiewa balladę o Almanzorze z Alpuhary, który mścił się na Hiszpanach, zarażając ich dżumą; potem Konrad zasypia pijany, a Witołd opuszcza ucztę."
+    },
+    {
+      "nr": 18,
+      "miejsce": "cz. V (Wojna)",
+      "kto": [
+        "Witołd",
+        "Konrad Wallenrod",
+        "Zakon"
+      ],
+      "gdzie": "Malbork, Litwa",
+      "opis": "Witołd po uczcie zdradza Zakon i wraz z Litwinami niszczy krzyżackie zamki; Zakon ogłasza krucjatę, a Konrad niechętnie prowadzi wielkie wojsko na Litwę."
+    },
+    {
+      "nr": 19,
+      "miejsce": "cz. V (Wojna)",
+      "kto": [
+        "Konrad Wallenrod",
+        "wojska krzyżackie"
+      ],
+      "gdzie": "Wilno i Litwa, zima",
+      "opis": "Konrad bezczynnie oblega Wilno, nie słucha wodzów, a głód i Witołd niszczą wojsko; Wallenrod pierwszy ucieka z pola bitwy, a do Malborka wracają niedobitki."
+    },
+    {
+      "nr": 20,
+      "miejsce": "cz. V (trybunał tajemny)",
+      "kto": [
+        "dwunastu sędziów",
+        "oskarżyciel"
+      ],
+      "gdzie": "loch w Malborku",
+      "opis": "Tajny trybunał dwunastu sędziów w maskach słucha oskarżenia: Konrad nie jest prawdziwym Wallenrodem, był jego giermkiem, spotykał się z Witołdem i rozmawiał z pustelnicą po litewsku; sędziowie jednogłośnie skazują go na śmierć słowem „biada”."
+    },
+    {
+      "nr": 21,
+      "miejsce": "cz. VI (Pożegnanie)",
+      "kto": [
+        "Konrad (Alf)",
+        "Aldona"
+      ],
+      "gdzie": "wieża pod Malborkiem",
+      "opis": "Konrad przybiega do wieży i mówi, że dopełnił przysięgi: zniszczył siłę Zakonu; proponuje Aldonie ucieczkę na Litwę, ale ona odmawia, bo przysięgła nie opuścić wieży."
+    },
+    {
+      "nr": 22,
+      "miejsce": "cz. VI (Pożegnanie)",
+      "kto": [
+        "Konrad (Alf)",
+        "Aldona"
+      ],
+      "gdzie": "wieża i przedmieście Malborka",
+      "opis": "Alf prosi Aldonę o pamiątkę, ustala znaki (czarna chustka i lampa) i zapowiada, że wkrótce zginie."
+    },
+    {
+      "nr": 23,
+      "miejsce": "cz. VI (Pożegnanie)",
+      "kto": [
+        "Konrad (Alf)",
+        "Halban",
+        "rycerze (trybunał)"
+      ],
+      "gdzie": "strzelnica na przedmieściu Malborka",
+      "opis": "Alf pożegnawszy się z Halbanem, słyszy kołatanie do bramy; wypija truciznę z czarki, mówi Halbanowi, by żył i głosił jego sławę w pieśniach."
+    },
+    {
+      "nr": 24,
+      "miejsce": "cz. VI (Pożegnanie)",
+      "kto": [
+        "Konrad (Alf)",
+        "Halban",
+        "rycerze (trybunał)"
+      ],
+      "gdzie": "Malbork",
+      "opis": "Rycerze wpadają, wołają o zdradzie, a Konrad depcze godło mistrza i mówi, że to on zniszczył Zakon; umiera, ciskając lampę."
+    },
+    {
+      "nr": 25,
+      "miejsce": "cz. VI (zakończenie)",
+      "kto": [
+        "Aldona"
+      ],
+      "gdzie": "wieża pod Malborkiem",
+      "opis": "W chwili jego śmierci z wieży rozlega się krzyk Aldony, po którym narrator mówi, że z takiej piersi nie wyjdzie już żaden głos."
+    }
+  ],
+  "postacie": [
+    {
+      "imie": "Konrad Wallenrod (Walter Alf)",
+      "odmiany": [
+        "Konrada",
+        "Konradowi",
+        "Konradem",
+        "Wallenroda",
+        "Wallenrodowi",
+        "Wallenrodem",
+        "Waltera",
+        "Alfa",
+        "Alfowi",
+        "Alfem",
+        "Alf",
+        "Walter",
+        "Mistrza"
+      ],
+      "rola": "Litwin wychowany przez Krzyżaków, który jako wielki mistrz niszczy Zakon od środka",
+      "relacje": "mąż Aldony, zięć Kiejstuta, wychowanek Winrycha, uczeń Halbana",
+      "miejsca": [
+        "Malbork",
+        "Litwa",
+        "wieża Aldony"
+      ]
+    },
+    {
+      "imie": "Aldona",
+      "odmiany": [
+        "Aldony",
+        "Aldonie",
+        "Aldonę",
+        "Aldoną",
+        "pustelnica",
+        "pustelnicy",
+        "pustelnicę"
+      ],
+      "rola": "córka Kiejstuta i żona Alfa, która zamyka się w wieży pustelni",
+      "relacje": "córka Kiejstuta, żona Waltera Alfa",
+      "miejsca": [
+        "Kowno",
+        "wieża pod Malborkiem"
+      ]
+    },
+    {
+      "imie": "Halban",
+      "odmiany": [
+        "Halbana",
+        "Halbanowi",
+        "Halbanem",
+        "wajdelota",
+        "wajdeloty",
+        "wajdelotę",
+        "wajdelotą"
+      ],
+      "rola": "litewski wajdelota, nauczyciel i towarzysz Alfa, pieśniarz, który ma utrwalić pamięć o jego czynie",
+      "relacje": "mentor i przyjaciel Konrada",
+      "miejsca": [
+        "Malbork",
+        "Litwa"
+      ]
+    },
+    {
+      "imie": "Witołd",
+      "odmiany": [
+        "Witołda",
+        "Witołdowi",
+        "Witołdem",
+        "Witołdzie"
+      ],
+      "rola": "książę litewski, który szuka pomocy u Zakonu, potem zdradza Krzyżaków",
+      "relacje": "sojusznik, potem wróg Zakonu, gość na uczcie",
+      "miejsca": [
+        "Malbork",
+        "Litwa"
+      ]
+    },
+    {
+      "imie": "Kiejstut",
+      "odmiany": [
+        "Kiejstuta",
+        "Kiejstutowi",
+        "Kiejstutem"
+      ],
+      "rola": "książę litewski, ojciec Aldony, teść Alfa",
+      "relacje": "ojciec Aldony, teść Waltera",
+      "miejsca": [
+        "Kowno"
+      ]
+    },
+    {
+      "imie": "Winrych",
+      "odmiany": [
+        "Winrycha",
+        "Winrychowi",
+        "Winrychem"
+      ],
+      "rola": "wielki mistrz krzyżacki, który wychował Alfa",
+      "relacje": "opiekun i ojciec chrzestny Alfa",
+      "miejsca": [
+        "Prusy"
+      ]
+    },
+    {
+      "imie": "Almanzor",
+      "odmiany": [
+        "Almanzora",
+        "Almanzorowi"
+      ],
+      "rola": "bohater ballady Alpuhara, mauretański wódz mszczący się dżumą",
+      "relacje": "postać z ballady Konrada",
+      "miejsca": [
+        "Alpuhara (Grenada)"
+      ]
+    },
+    {
+      "imie": "dwunastu sędziów (trybunał tajemny)",
+      "odmiany": [
+        "sędziów",
+        "sędziowie",
+        "trybunał",
+        "trybunału"
+      ],
+      "rola": "tajne grono sędziów Zakonu, które wydaje wyrok na Konrada",
+      "relacje": "przeciwnicy Konrada w Zakonie",
+      "miejsca": [
+        "loch w Malborku"
+      ]
+    },
+    {
+      "imie": "komtur",
+      "odmiany": [
+        "komtura",
+        "komturowie",
+        "komturów"
+      ],
+      "rola": "dostojnicy zakonu krzyżackiego, którzy wybierają i obserwują mistrza",
+      "relacje": "podwładni wielkiego mistrza",
+      "miejsca": [
+        "Malbork"
+      ]
+    }
+  ],
+  "motywy": [
+    {
+      "motyw": "zemsta i cel uświęcający środki (wallenrodyzm)",
+      "przyklad": "Alf, wychowany przez Krzyżaków, wstępuje do Zakonu, by doprowadzić go do klęski; epigraf z Machiavellego zapowiada zasadę, że trzeba być lisem i lwem.",
+      "miejsce": "epigraf; cz. IV (Powieść Wajdeloty); cz. V",
+      "cytat": "bisogna essere volpe e leone"
+    },
+    {
+      "motyw": "zdrada i podstęp jako broń słabszego",
+      "przyklad": "Wajdelota mówi młodemu Alfowi, że niewolnik nie może walczyć uczciwie, więc jego jedyną bronią jest zdrada.",
+      "miejsce": "cz. IV (Powieść Wajdeloty)",
+      "cytat": "jedyna broń niewolników jest zdrada"
+    },
+    {
+      "motyw": "miłość a obowiązek wobec ojczyzny",
+      "przyklad": "Alf poświęca szczęście z Aldoną, a ona zostaje w wieży pustelnicy zamiast uciec z nim na Litwę.",
+      "miejsce": "cz. IV (rozstanie); cz. VI (Pożegnanie)"
+    },
+    {
+      "motyw": "pieśń gminna jako strażniczka narodowej pamięci",
+      "przyklad": "Wajdelota w pieśni mówi, że pieśń ujdzie cało i będzie chronić narodową pamięć, a w końcu Halban przeżywa Alfa po to, by głosić jego czyn.",
+      "miejsce": "cz. IV (Pieśń Wajdeloty); cz. VI",
+      "cytat": "Pieśń ujdzie cało!"
+    },
+    {
+      "motyw": "wychowanie i tożsamość: obce imię, litewska dusza",
+      "przyklad": "Alf przez dzieciństwo żyje jako Walter w Prusach, ale zachowuje „duszę litewską”.",
+      "miejsce": "cz. IV (Powieść Wajdeloty)",
+      "cytat": "Imię było niemieckie, dusza litewska została"
+    },
+    {
+      "motyw": "samotność i tajemnica bohatera",
+      "przyklad": "Wallenrod unika ludzi, pije w samotności, zwierza się tylko Halbanowi i nocą chodzi do pustelnicy.",
+      "miejsce": "cz. I; cz. III"
+    },
+    {
+      "motyw": "wojna i okrucieństwo",
+      "przyklad": "Narrator opisuje krucjatę na Litwę jako „rzeź, grabież, pożogę”, a wojsko Zakonu ginie w śniegu.",
+      "miejsce": "cz. V (Wojna)"
+    },
+    {
+      "motyw": "cena zemsty i moralna ambiwalencja (interpretacja)",
+      "przyklad": "Konrad mówi Aldonie, że zemsta jest dopełniona, ale „Niemcy są ludzie”, i umiera, cierpiąc za swoje czyny.",
+      "miejsce": "cz. VI (Pożegnanie)",
+      "cytat": "Straszniejszej zemsty nie wymyśli piekło!"
+    },
+    {
+      "motyw": "ballada Alpuhara – zemsta przez zarazę",
+      "przyklad": "Konrad śpiewa balladę o Almanzorze, który zostawia Hiszpanom dżumę w zdobytej twierdzy, i w ten sposób pośrednio zdradza swój zamiar.",
+      "miejsce": "cz. IV (Alpuhara)"
+    }
+  ],
+  "utwory": [],
+  "zrodla": [
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/konrad-wallenrod/",
+      "rodzaj": "utwór",
+      "co": "Przeczytane: Wstęp, cz. I–III w przeglądzie, cz. IV (Uczta, Pieśń i Powieść Wajdeloty, Alpuhara), cz. V i VI w całości; cytaty sprawdzone w pobranym tekście (domena publiczna)."
+    }
+  ],
+  "do_weryfikacji": [
+    "Cz. II i III w tekście nie mają tytułów (podtytuły to Hymn i Pieśń z wieży); numeracja cz. I–VI według układu pobranego tekstu.",
+    "Tożsamość „Litwina” żegnającego pustelnicę na końcu cz. II (zapewne Konrad) i dokładny przebieg dialogu Konrada z Aldoną w cz. III podane skrótowo, bo przeczytano je tylko we fragmentach.",
+    "Czy Halban jest wajdelotą ze sceny uczty, wynika z tekstu pośrednio (wersja: Halban przebrany); epilog uczty mówi o tym jako o pogłosce.",
+    "Dokładny los Aldony (śmierć) jest w tekście tylko zasugerowany krzykiem z wieży.",
+    "Tło historyczne (Witold, Kiejstut, Zakon) wiedza ogólna, nie sprawdzona w osobnym źródle."
+  ]
+}

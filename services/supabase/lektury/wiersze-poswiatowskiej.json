@@ -1,0 +1,46 @@
+{
+ "id": "wiersze-poswiatowskiej",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "miłość z perspektywy kobiety",
+   "przyklad": "ZPE zestawia wiersz z tematem Julii i kobiecego spojrzenia na miłość.",
+   "miejsce": "*** (jestem Julią)"
+  },
+  {
+   "motyw": "literacka aluzja do Julii",
+   "przyklad": "Tytułowa tożsamość „Julii” nawiązuje do bohaterki Szekspira (według ZPE).",
+   "miejsce": "*** (jestem Julią)"
+  },
+  {
+   "motyw": "piętno choroby i krótkiego życia",
+   "przyklad": "Materiały podkreślają, że autorka zmarła w wieku 32 lat, a jej liryka ma tragiczne piętno choroby.",
+   "miejsce": "*** (jestem Julią)"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "*** (jestem Julią)",
+   "miejsce": "wiersz „(jestem Julią)”",
+   "opis": "Według ZPE wiersz jest używany obok tekstów o Szekspirowskiej Julii i kobiecym spojrzeniu na miłość; materiały zestawiają go m.in. z wierszem Pawlikowskiej-Jasnorzewskiej „Ofelia” i z wierszem Szymborskiej „Reszta”. Ostatnie słowa wiersza zawierają „odwieczną prawdę” o kobietach i miłości."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/a/wprowadzanie/DQwna5d4Y",
+   "rodzaj": "opracowanie",
+   "co": "Wprowadzenie ZPE „Jak Halina Poświatowska postrzega miłość?”."
+  },
+  {
+   "url": "https://zpe.gov.pl/a/milosc-poza-grob-romeo-i-julia---najslynniejsi-kochankowie-swiata/D7KoH4RZN",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE „Miłość poza grób… Romeo i Julia” z odniesieniem do wiersza."
+  }
+ ],
+ "do_weryfikacji": [
+  "Utwory autora są chronione prawem autorskim (zmarł w 1967 r.), więc nie podano tekstu ani cytatów; opis opiera się na materiałach ZPE (wyniki wyszukiwania i streszczenia stron, nie pełne lektury).",
+  "Wybór wierszy w wymaganiach CKE poza przykładem z katalogu nie został sprawdzony; nie opracowano innych utworów.",
+  "Treść wiersza nie była czytana; opis wynika z opisów lekcji ZPE."
+ ]
+}

@@ -1,0 +1,41 @@
+{
+ "id": "wiersze-przybosia",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "śmierć w górach i żałoba",
+   "przyklad": "Wiersz powstał po śmierci ukochanej poety w Tatrach; w dedykacji jest mowa o taterniczce, która zginęła na Zamarłej Turni.",
+   "miejsce": "Z Tatr"
+  },
+  {
+   "motyw": "awangarda i poetyka obrazu",
+   "przyklad": "Wiersz łączy autorskie podejście do gór z poetyką awangardy (według ZPE).",
+   "miejsce": "Z Tatr"
+  },
+  {
+   "motyw": "zmiana podejścia do gór",
+   "przyklad": "W manifeście z 1926 r. Przyboś pisał o górze jako o „twórczym” przedmiocie dla turysty, inżyniera czy poety; po tragedii spojrzenie ma się zmienić (opis ZPE).",
+   "miejsce": "Z Tatr"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Z Tatr",
+   "miejsce": "przykład z katalogu; wiersz poświęcony taterniczce",
+   "opis": "Wiersz poświęcony pamięci taterniczki, która zginęła na Zamarłej Turni; według ZPE chodzi o Marzenę Skotnicównę, ukochaną poety, która zginęła z siostrą na południowej ścianie Zamarłej Turni. Wiersz jest przykładem poetyki awangardowej, a materiał ZPE omawia w nim m.in. „ekwiwalentyzację uczuć” (wyrażanie uczuć przez obrazy). Treść wiersza nie została tu sprawdzona."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/a/wprowadzenie/D6SdYAytN",
+   "rodzaj": "opracowanie",
+   "co": "Wprowadzenie ZPE do wiersza „Z Tatr”: okoliczności powstania (śmierć taterniczki), cele lekcji (poetyka awangardowa, ekwiwalentyzacja uczuć)."
+  }
+ ],
+ "do_weryfikacji": [
+  "Przyboś zmarł w 1970 r., jego wiersze są chronione prawem autorskim; tekstu i cytatów nie podano, treść wiersza opisano tylko ogólnie na podstawie wprowadzenia ZPE.",
+  "Imię i okoliczności śmierci taterniczki (Marzena Skotnicówna, Zamarła Turnia) pochodzą ze wprowadzenia ZPE i nie były sprawdzane gdzie indziej.",
+  "Wybór wierszy CKE poza przykładem z katalogu nie został sprawdzony."
+ ]
+}

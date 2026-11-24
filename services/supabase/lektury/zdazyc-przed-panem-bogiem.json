@@ -1,0 +1,60 @@
+{
+  "id": "zdazyc-przed-panem-bogiem",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "początek, rozmowa o 19 kwietnia", "kto": ["Hanna Krall", "Marek Edelman"], "gdzie": "rozmowa o getcie warszawskim", "opis": "Krall pyta Edelmana o początek powstania, a on przypomina czerwony sweter i uzbrojenie, które miał tego dnia przy sobie."},
+    {"nr": 2, "miejsce": "początek, relacja o naradzie sztabu", "kto": ["Marek Edelman", "Mordechaj Anielewicz", "sztab ŻOB"], "gdzie": "getto warszawskie, miejsce narady", "opis": "Edelman wspomina wieczór 18 kwietnia, gdy pięciu członków sztabu spotyka się po otrzymaniu wiadomości o nadchodzącej likwidacji getta."},
+    {"nr": 3, "miejsce": "początek, relacja o pierwszych walkach", "kto": ["Marek Edelman", "bojowcy ŻOB", "niemieccy żołnierze"], "gdzie": "getto warszawskie, teren fabryki szczotek", "opis": "Edelman opowiada o wysadzeniu bramy na terenie fabryki i przyznaje, że nie pamięta dokładnie liczby zabitych."},
+    {"nr": 4, "miejsce": "początek, wspomnienie Anielewicza", "kto": ["Marek Edelman", "Mordechaj Anielewicz"], "gdzie": "wspomnienie przedwojennej Warszawy i getta", "opis": "Edelman wspomina przedwojenną biedę Anielewicza i jego pracę przy sprzedaży ryb."},
+    {"nr": 5, "miejsce": "relacja o Miłej 18", "kto": ["Marek Edelman", "Mordechaj Anielewicz", "Ruth", "bojowcy ŻOB"], "gdzie": "getto warszawskie, bunkier przy Miłej 18", "opis": "Edelman opowiada o samobójstwie Anielewicza i innych powstańców w otoczonym bunkrze."},
+    {"nr": 6, "miejsce": "rozmowa o wyborze sposobu śmierci", "kto": ["Hanna Krall", "Marek Edelman"], "gdzie": "rozmowa o getcie warszawskim", "opis": "Na pytanie o samobójstwo własnego oddziału Edelman odpowiada, że należało walczyć o życie, dopóki istniała na to szansa."},
+    {"nr": 7, "miejsce": "wspomnienie pracy gońca", "kto": ["Marek Edelman", "członkowie podziemia", "deportowani"], "gdzie": "Warszawa, brama przy Umschlagplatzu", "opis": "Jako goniec szpitalny Edelman wyprowadza z miejsca zbiórki ludzi wcześniej wytypowanych przez organizację do ocalenia."},
+    {"nr": 8, "miejsce": "wspomnienie o Zosi", "kto": ["Marek Edelman", "Zosia"], "gdzie": "Warszawa, Umschlagplatz", "opis": "Edelman kilkakrotnie wyprowadza z placu Zosię, łączniczkę podziemia, którą ponownie ujmują Niemcy."},
+    {"nr": 9, "miejsce": "wspomnienie o numerkach życia", "kto": ["Marek Edelman", "mieszkańcy getta"], "gdzie": "getto warszawskie", "opis": "Edelman opowiada o numerkach, które miały chronić przed deportacją, i o tym, że później zabrano również ich posiadaczy."},
+    {"nr": 10, "miejsce": "wspomnienie o żywności i transportach", "kto": ["Marek Edelman", "deportowani"], "gdzie": "Warszawa, Umschlagplatz", "opis": "Edelman wspomina, że głodujących mieszkańców getta skłaniano do zgłoszenia się na transport obietnicą chleba i marmolady."},
+    {"nr": 11, "miejsce": "wspomnienie o Poli Lifszyc", "kto": ["Pola Lifszyc", "matka Poli"], "gdzie": "Warszawa, od Leszna do Stawek", "opis": "Pola biegnie za kolumną, w której prowadzono jej matkę, i dołącza do niej przed odjazdem transportu."},
+    {"nr": 12, "miejsce": "rozmowa o Adamie Czerniakowie", "kto": ["Marek Edelman", "Adam Czerniaków"], "gdzie": "getto warszawskie", "opis": "Edelman komentuje samobójstwo Czerniakowa i mówi, że przewodniczący Judenratu mógł przed śmiercią wezwać ludzi do oporu."},
+    {"nr": 13, "miejsce": "relacja o niemieckich parlamentariuszach", "kto": ["Marek Edelman", "Zygmunt Frydrych", "niemieccy wysłannicy"], "gdzie": "getto warszawskie", "opis": "Edelman relacjonuje ostrzelanie niemieckich wysłanników i odmawia traktowania ich jak neutralnych uczestników pertraktacji."},
+    {"nr": 14, "miejsce": "wspomnienie o raportach z getta", "kto": ["Marek Edelman", "Henryk Woliński"], "gdzie": "Warszawa, getto i polskie podziemie", "opis": "Reportaż przedstawia Wolińskiego przekazującego wiadomości o wywózkach z getta i o obozie w Treblince."},
+    {"nr": 15, "miejsce": "relacja o wyjściu z getta", "kto": ["Marek Edelman", "powstańcy"], "gdzie": "Warszawa, kanały", "opis": "Edelman i część powstańców wydostają się z getta przez kanały."},
+    {"nr": 16, "miejsce": "powojenna konfrontacja ze Stroopem", "kto": ["Marek Edelman", "Jürgen Stroop", "przedstawiciele prokuratury i komisji"], "gdzie": "Warszawa, spotkanie po wojnie", "opis": "Edelman uczestniczy w konfrontacji ze Stroopem, która ma pomóc ustalić szczegóły związane z topografią getta."},
+    {"nr": 17, "miejsce": "reakcja na pierwszą rozmowę", "kto": ["Hanna Krall", "Marek Edelman", "odbiorcy reportażu"], "gdzie": "opowieść o powojennych rozmowach", "opis": "Pozbawiona patosu relacja Edelmana o dowódcy i powstańcach budzi sprzeciw części odbiorców."},
+    {"nr": 18, "miejsce": "wątek badań nad chorobą głodową", "kto": ["Teodozja Goliborska", "lekarze i pacjenci"], "gdzie": "getto warszawskie, szpital", "opis": "Reportaż przywołuje badania nad zmianami zachodzącymi w organizmach głodujących pacjentów prowadzone przez lekarzy getta."},
+    {"nr": 19, "miejsce": "wątek medyczny, współpraca Edelmana i Molla", "kto": ["Marek Edelman", "Jan Moll", "pacjenci"], "gdzie": "Łódź, szpital", "opis": "Krall opisuje współpracę Edelmana z profesorem Mollem przy szukaniu sposobów ratowania ciężko chorych pacjentów kardiologicznych."},
+    {"nr": 20, "miejsce": "rozmowa o decyzjach w szpitalu", "kto": ["Marek Edelman", "Hanna Krall"], "gdzie": "rozmowa o getcie i powojennej pracy lekarza", "opis": "Edelman zestawia walkę w getcie z odpowiedzialnością lekarza, którego decyzja może zmienić los pacjenta."},
+    {"nr": 21, "miejsce": "końcowa rozmowa o pracy lekarza", "kto": ["Marek Edelman", "Hanna Krall"], "gdzie": "rozmowa o ratowaniu pacjentów", "opis": "Edelman porównuje pracę lekarza do osłaniania gasnącego płomienia, by dać człowiekowi jeszcze trochę życia."}
+  ],
+  "postacie": [
+    {"imie": "Marek Edelman", "odmiany": ["Marek", "Marka", "Markowi", "Markiem", "Edelman", "Edelmana", "Edelmanem"], "rola": "członek sztabu powstania w getcie, po wojnie lekarz", "relacje": "rozmówca Krall, współpracownik Molla", "miejsca": ["początek, rozmowa o 19 kwietnia", "wspomnienie pracy gońca", "końcowa rozmowa o pracy lekarza"]},
+    {"imie": "Hanna Krall", "odmiany": ["Hanna", "Hanny", "Hannę", "Hanną", "Hanna Krall", "Hanny Krall"], "rola": "reporterka, zadaje pytania i uzupełnia relację rozmówcy", "relacje": "rozmawia z Edelmanem o getcie i pracy lekarza", "miejsca": ["początek, rozmowa o 19 kwietnia", "powojenna konfrontacja ze Stroopem"]},
+    {"imie": "Mordechaj Anielewicz", "odmiany": ["Mordechaj", "Mordechaja", "Anielewicz", "Anielewicza", "Anielewiczowi", "Anielewiczem"], "rola": "dowódca ŻOB, ginie w bunkrze przy Miłej", "relacje": "kolega Edelmana ze sztabu", "miejsca": ["początek, relacja o naradzie sztabu", "relacja o Miłej 18"]},
+    {"imie": "Jan Moll", "odmiany": ["Jan Moll", "Jana Molla", "Mollowi", "Mollem", "profesor Moll", "profesor Mol"], "rola": "kardiochirurg przedstawiony w powojennym wątku", "relacje": "współpracuje z Edelmanem przy ratowaniu pacjentów", "miejsca": ["wątek medyczny, współpraca Edelmana i Molla"]},
+    {"imie": "Pola Lifszyc", "odmiany": ["Pola", "Poli", "Polę", "Polą", "Pola Lifszyc", "Poli Lifszyc"], "rola": "młoda Żydówka dołączająca do kolumny deportowanych", "relacje": "wybiera pozostanie przy matce", "miejsca": ["wspomnienie o Poli Lifszyc"]},
+    {"imie": "Adam Czerniaków", "odmiany": ["Czerniaków", "Czerniakowa", "Czerniakowowi", "Czerniakowem", "Adam Czerniaków"], "rola": "przewodniczący Judenratu", "relacje": "Edelman ocenia jego decyzję o samobójstwie", "miejsca": ["rozmowa o Adamie Czerniakowie"]},
+    {"imie": "Teodozja Goliborska", "odmiany": ["Teodozja", "Teodozji", "Goliborska", "Goliborskiej", "Goliborską"], "rola": "lekarka biorąca udział w badaniach nad chorobą głodową", "relacje": "pracuje z innymi lekarzami w getcie", "miejsca": ["wątek badań nad chorobą głodową"]},
+    {"imie": "Henryk Woliński", "odmiany": ["Henryk Woliński", "Wolińskiego", "Wolińskiemu", "Wolińskim", "Wacław"], "rola": "kierownik referatu żydowskiego Komendy Głównej AK", "relacje": "przekazuje wiadomości napływające z getta", "miejsca": ["wspomnienie o raportach z getta"]},
+    {"imie": "Jürgen Stroop", "odmiany": ["Jürgen Stroop", "Stroop", "Stroopa", "Stroopowi", "Stroopem"], "rola": "niemiecki dowódca odpowiedzialny za stłumienie powstania", "relacje": "konfrontowany z Edelmanem po wojnie", "miejsca": ["powojenna konfrontacja ze Stroopem"]}
+  ],
+  "motywy": [
+    {"motyw": "pamięć bez patosu", "przyklad": "Edelman opisuje ubranie, które miał pierwszego dnia walk, i wspomina pracę Anielewicza przy sprzedaży ryb. Takie szczegóły pokazują powstańców jako ludzi z własną przeszłością.", "miejsce": "początek, rozmowa o 19 kwietnia i wspomnienie Anielewicza"},
+    {"motyw": "heroizm cywilny i bliskość", "przyklad": "Pola dołącza do matki prowadzonej na transport. Jej gest można odczytać jako odwagę i wierność bliskiej osobie.", "miejsce": "wspomnienie o Poli Lifszyc"},
+    {"motyw": "głód jako narzędzie deportacji", "przyklad": "Obietnica chleba i marmolady przyciąga głodujących ludzi na plac, z którego odchodzą pociągi do Treblinki.", "miejsce": "wspomnienie o żywności i transportach"},
+    {"motyw": "wybór, kogo ratować", "przyklad": "Edelman może wyprowadzić tylko część ludzi i wybiera Zosię, potrzebną organizacji jako łączniczka.", "miejsce": "wspomnienie pracy gońca i wspomnienie o Zosi"},
+    {"motyw": "wybór sposobu śmierci", "przyklad": "Rozmówcy wracają do samobójstwa w bunkrze i do samobójstwa Czerniakowa. Edelman osobno rozważa skutki każdego z tych wyborów dla pozostałych ludzi.", "miejsce": "relacja o Miłej 18 i rozmowa o Adamie Czerniakowie"},
+    {"motyw": "świadectwo i zawodność pamięci", "przyklad": "Opowiadając o starciu przy fabryce szczotek, Edelman zastrzega, że liczbę poległych należałoby sprawdzić.", "miejsce": "początek, relacja o pierwszych walkach"},
+    {"motyw": "odpowiedzialność lekarza", "przyklad": "Edelman porównuje doświadczenie getta z sytuacją w szpitalu, gdzie jego decyzje mogą wpłynąć na życie chorego.", "miejsce": "rozmowa o decyzjach w szpitalu"},
+    {"motyw": "życie jako płomień", "przyklad": "Edelman opisuje ratowanie pacjenta przez obraz osłaniania płomienia, któremu grozi zgaśnięcie.", "miejsce": "końcowa rozmowa o pracy lekarza"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://zpe.gov.pl/a/sami-przeciw-wszystkim/D1GWCpuAQ", "rodzaj": "utwór", "co": "Początek reportażu w wydaniu z 2006 r.: pierwsze walki, Anielewicz, Miła, praca gońca, deportacje, Czerniaków i powojenna konfrontacja ze Stroopem."},
+    {"url": "https://zpe.gov.pl/a/przeczytaj/DDZ48IvV0", "rodzaj": "opracowanie", "co": "Przebieg powstania, droga wyjścia z getta i okoliczności powstania reportażu."},
+    {"url": "https://polin.pl/pl/aktualnosci/2022/04/14/poznaj-bohaterki-i-bohaterow-muralu?type_content=event", "rodzaj": "utwór", "co": "Fragment przytoczony przez Muzeum POLIN o Poli Lifszyc i jej decyzji, by dołączyć do matki."},
+    {"url": "https://bckuip.eduportal.bielsko.pl/storage/bckuipbielsko/filemanager/files/shares/zdalne2021/gzajac/21_12_2020/III_As_lekcja_33.pdf", "rodzaj": "opracowanie", "co": "Szkolne opracowanie dwóch wątków, badań Goliborskiej i współpracy Edelmana z Mollem."},
+    {"url": "https://wydawnictwoakcent.pl/ksiazka/zdazyc-przed-panem-bogiem-2/", "rodzaj": "opracowanie", "co": "Nota wydawcy o konstrukcji reportażu i postaci profesora Molla."},
+    {"url": "https://zpe.gov.pl/a/sami-przeciw-wszystkim/D15bqVrlk", "rodzaj": "opracowanie", "co": "Odbiór relacji Edelmana oraz metafora osłaniania płomienia."},
+    {"url": "https://zpe.gov.pl/pdf/Pp0jquZ5p", "rodzaj": "utwór", "co": "Fragment zestawiający doświadczenie powstania i odpowiedzialność lekarza za decyzje w szpitalu."}
+  ],
+  "do_weryfikacji": [
+    "Reportaż przeplata wspomnienia i rozmowy. Dokładne przyporządkowanie wszystkich scen wątku szpitalnego do nienumerowanych części wymaga porównania z pełnym wydaniem."
+  ]
+}
