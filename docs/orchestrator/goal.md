@@ -24,6 +24,7 @@ _Set 2026-11-23 · status: active_
 - [ ] Existing 47 sheets keep their ids and content quality (no regression in English, math, informatics) · proof:
 - [ ] Sheets uploaded to staging; a sheet of every subject opens, takes answers and checks them · proof:
 - [ ] Drawing tasks („narysuj”, „zaznacz na mapie”, „uzupełnij wykres”): importer marks them with `rysowanie: { obraz, polecenie? }`; the student draws on that figure in the sheet; AI checks the drawing against the marking rule when the account has AI, otherwise self-check · proof:
+- [ ] Lektury: Pestka has the official list of required readings for the Polish matura (sources, „do weryfikacji” where unconfirmed) and authored notes (six sections) for every work; detection without false positives; tested on staging before/after · proof:
 - [ ] Sheet list: tab per subject, groups Termin główny · Termin dodatkowy · Termin poprawkowy · Próbne (and formuła where both exist); student can pick the new subjects in onboarding and profile · proof:
 
 ### Looks
@@ -43,5 +44,6 @@ _Set 2026-11-23 · status: active_
 - Nothing.
 
 ## Changes
+- 2026-11-23: owner: Pestka test on lektury + full reading list with summaries as AI context
 - 2026-11-23: owner: drawing on figures with AI check added; June/August sheets: find official CKE/OKE copies (not on CKE „arkusze” pages)
 - 2026-11-23: goal set (approved by the user): full text, not page crops; formuła 2015 included

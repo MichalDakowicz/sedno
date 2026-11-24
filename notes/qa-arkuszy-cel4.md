@@ -14,3 +14,11 @@ Robocza lista błędów z dwóch testów (Terra, Haiku) gałęzi `wszystkie-matu
 ## Niesprawdzone dogłębnie
 
 WOS, łacina, geografia 2024 f2015, biologia 2024 f2015 (zad. 16), polski cz. 1, chemia 2024 f2015.
+
+## Z testu UI (Haiku, staging)
+
+7. **Pytania zamknięte bez wyboru.** Chemia 2025 zad. 2.2 („Zaznacz jedną odpowiedź”: opcje w tekście, pole tekstowe, samoocena zamiast oceny automatycznej). Biologia 2025 zad. 1.1 tabela P/F jako zwykłe komórki i pole tekstowe; informatyka ma już przełączniki P/F z tabeli, użyć tego samego. Major.
+8. Indeksy górne i dolne w chemii 2025 zad. 2.1–2.2 sklejone z tekstem („jąder235U powstają92Kr”). Minor/major.
+9. Polski 2025 cz. 1: pusta odpowiedź do wypracowania i tak pokazuje „Do oceny przy pytaniu: 1”. Minor (aplikacja).
+10. **Arkusze nowych przedmiotów na 375 px wystają w bok** (biologia 2022 grudzień próbna: 583 px, biologia 2015 maj po sprawdzeniu: 638 px). Pasek rysowania i figura mieszczą się; winna jest inna treść (tabele, kadry?). Do znalezienia elementu i poprawki w aplikacji lub imporcie.
+11. Ocena rysunku przez Pestkę działa na stagingu (biologia 2015 9.1: 0/2 z rzeczowym uzasadnieniem w ~11 s). Pusty rysunek nie ma przycisku oceny (pokazuje „Brak odpowiedzi”), to zamierzone.
