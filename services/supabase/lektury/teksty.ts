@@ -1,6 +1,7 @@
 // Dzielenie tekstu utworu z Wolnych Lektur na fragmenty z lokalizacją (czysta logika, bez sieci).
 // Używa jej wgraj-teksty.ts. Tekstów nie przechowujemy w repozytorium.
 import { rzymskie } from "../functions/_shared/liczby-rzymskie.ts";
+import { liczbaMiejsca } from "../functions/ai/miejsca-lektur.ts";
 
 export type Fragment = {
   nr: number; czesc: number; miejsce: string; tytulCzesci: string; tekst: string; slowa: number; url: string;
@@ -26,13 +27,23 @@ export function wytnijTresc(txt: string): string | undefined {
 /** Nagłówki Wolnych Lektur mają własne id lub bezpośrednio poprzedzającą kotwicę czytnika. */
 export function kotwiceZHtml(html: string): Map<string, string> {
   const mapa = new Map<string, string>();
+  const powtorzone = new Set<string>();
+  let akt: string | undefined;
   for (const m of html.matchAll(/(?:<a name="(s\d+)" class="target">\s*<\/a>\s*)?<h([2-4])\b([^>]*)>([\s\S]*?)<\/h\2>/g)) {
     const id = /\bid="([A-Za-z0-9_-]+)"/.exec(m[3])?.[1];
     const kotwica = id && !id.startsWith("menu-") ? id : m[1];
     if (!kotwica) continue;
-    const tekst = normTytul(m[4].replace(/<a\b[^>]*\bclass="annotation"[^>]*>[\s\S]*?<\/a>/g, "")
-      .replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/g, " "));
-    if (tekst && !mapa.has(tekst)) mapa.set(tekst, kotwica);
+    const tekst = m[4].replace(/<a\b[^>]*\bclass="(?:annotation|theme-begin|theme-end)"[^>]*>[\s\S]*?<\/a>/g, "")
+      .replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/g, " ").trim();
+    const h = naglowek(tekst);
+    if (h?.poziom === "akt") akt = h.etykieta;
+    const klucz = normTytul(tekst);
+    if (!klucz) continue;
+    if (akt && h?.etykieta.startsWith("sc.")) mapa.set(`${akt}/${klucz}`, kotwica);
+    if (mapa.has(klucz)) {
+      mapa.delete(klucz);
+      powtorzone.add(klucz);
+    } else if (!powtorzone.has(klucz)) mapa.set(klucz, kotwica);
   }
   return mapa;
 }
@@ -44,34 +55,35 @@ type Naglowek = { poziom: Poziom; etykieta: string; tytul: string };
 const arabska = (s: string) => String(rzymskie(s) ?? s);
 
 /** Rozpoznaje linię nagłówka strukturalnego; null, gdy to zwykły tekst. */
-export function naglowek(linia: string): Naglowek | null {
+export function naglowek(linia: string, rozdzialyRzymskie = false): Naglowek | null {
   const l = linia.trim();
   if (!l || l.length > 140) return null;
   let m = /^Tom ([IVX]+)$/.exec(l);
   if (m) return { poziom: "tom", etykieta: `t. ${m[1]}`, tytul: "" };
-  m = /^(?:CZĘŚĆ|Część) ([IVXL]+)\.?\s*(.*)$/.exec(l);
-  if (m) return { poziom: "czesc", etykieta: `cz. ${m[1]}`, tytul: m[2] };
+  m = /^część\s+(\p{L}+|\d+)[. —–-]*\s*(.*)$/iu.exec(l);
+  if (m && liczbaMiejsca(m[1])) return { poziom: "czesc", etykieta: `cz. ${rzymskie(m[1]) ? m[1] : liczbaMiejsca(m[1])}`, tytul: m[2] };
   m = /^(?:KSIĘGA|Księga) ([IVXL]+|[\p{L}]+)\.?\s*(.*)$/u.exec(l);
   if (m) return { poziom: "ksiega", etykieta: `ks. ${m[1].toUpperCase() === m[1] || rzymskie(m[1]) ? m[1] : zdanie(m[1])}`, tytul: m[2] };
-  m = /^(?:AKT|Akt) ([IVXL]+)\.?$/.exec(l);
-  if (m) return { poziom: "akt", etykieta: `akt ${m[1]}`, tytul: "" };
-  m = /^(?:SCENA|Scena) ([IVXL]+|[\p{Lu}]{3,})\.?\s*(.*)$/u.exec(l);
-  if (m) return { poziom: "lisc", etykieta: `sc. ${rzymskie(m[1]) ? arabska(m[1]) : m[1].toLowerCase()}`, tytul: zdanie(m[2].replace(/^[.\s—-]+/, "")) };
+  m = /^(?:AKT|Akt) ([\p{Lu}]+|\d+)\.?$/u.exec(l);
+  if (m && liczbaMiejsca(m[1])) return { poziom: "akt", etykieta: `akt ${rzymskie(m[1]) ? m[1] : liczbaMiejsca(m[1])}`, tytul: "" };
+  m = /^(?:SCENA|Scena) ([\p{Lu}]+|\d+)\.?\s*(.*)$/u.exec(l);
+  if (m) return { poziom: "lisc", etykieta: `sc. ${liczbaMiejsca(m[1]) ?? m[1].toLowerCase()}`, tytul: zdanie(m[2].replace(/^[.\s—-]+/, "")) };
   m = /^(?:ROZDZIAŁ|Rozdział) ([IVXL]+|\d+)\.?\s*(.*)$/.exec(l);
   if (m) return { poziom: "lisc", etykieta: `rozdz. ${/^\d+$/.test(m[1]) ? m[1] : arabska(m[1])}`, tytul: m[2] };
   m = /^(PROLOG|USTĘP|EPILOG|WSTĘP|Prolog|Ustęp|Epilog|Wstęp)\.?$/.exec(l);
   if (m) return { poziom: "akt", etykieta: m[1].toLowerCase(), tytul: "" };
   m = /^([IVXLC]{1,7})\. (\S.{1,120})$/.exec(l);
   if (m && rzymskie(m[1])) return { poziom: "lisc", etykieta: `rozdz. ${arabska(m[1])}`, tytul: m[2] };
+  if (rozdzialyRzymskie && rzymskie(l)) return { poziom: "lisc", etykieta: `rozdz. ${arabska(l)}`, tytul: "" };
   return null;
 }
 
 type Sekcja = { sciezka: Partial<Record<Poziom, string>>; naglowek: string; tytul: string; akapity: string[][] };
 
-function sekcje(tresc: string, tomPoczatkowy?: string): Sekcja[] {
+function sekcje(tresc: string, opcje: OpcjeDzielenia): Sekcja[] {
   const linie = tresc.split("\n");
   const wynik: Sekcja[] = [];
-  const sciezka: Partial<Record<Poziom, string>> = tomPoczatkowy ? { tom: tomPoczatkowy } : {};
+  const sciezka: Partial<Record<Poziom, string>> = { tom: opcje.tom, czesc: opcje.czesc };
   let biezaca: Sekcja | undefined;
   let akapit: string[] = [];
   const zamknijAkapit = () => {
@@ -80,7 +92,7 @@ function sekcje(tresc: string, tomPoczatkowy?: string): Sekcja[] {
   };
   linie.forEach((linia, i) => {
     const poprzedniaPusta = i === 0 || !linie[i - 1].trim();
-    const h = poprzedniaPusta ? naglowek(linia) : null;
+    const h = poprzedniaPusta ? naglowek(linia, opcje.rozdzialyRzymskie) : null;
     if (h) {
       zamknijAkapit();
       KOLEJNOSC.slice(KOLEJNOSC.indexOf(h.poziom)).forEach((p) => delete sciezka[p]);
@@ -131,10 +143,14 @@ export type OpcjeDzielenia = {
   odNr?: number;
   /** Tom, gdy sam tekst nie ma nagłówka „Tom …”. */
   tom?: string;
+  /** Część rozpoznana z adresu wydania, gdy nagłówek jest połączony z tytułem. */
+  czesc?: string;
+  /** Rozdział może mieć jako cały nagłówek sam numer rzymski (np. „Chłopi”). */
+  rozdzialyRzymskie?: boolean;
 };
 
 export function podzielTekst(tresc: string, opcje: OpcjeDzielenia): Fragment[] {
-  let lista = sekcje(tresc, opcje.tom);
+  let lista = sekcje(tresc, opcje);
   if (!lista.length) {
     // Tekst bez nagłówków (np. krótki wiersz): jedna sekcja z całej treści.
     const akapity = tresc.split(/\n\s*\n/).map((a) => a.split("\n").map((l) => l.trim()).filter(Boolean)).filter((a) => a.length);
@@ -174,7 +190,10 @@ export function podzielTekst(tresc: string, opcje: OpcjeDzielenia): Fragment[] {
       kawalki.pop();
     }
     const baza = nazwaMiejsca(s) || "fragment";
-    const kotwica = opcje.kotwice?.get(normTytul(s.naglowek));
+    const klucz = normTytul(s.naglowek);
+    const kotwicaSceny = s.sciezka.akt && s.sciezka.lisc?.startsWith("sc.")
+      ? opcje.kotwice?.get(`${s.sciezka.akt}/${klucz}`) : undefined;
+    const kotwica = kotwicaSceny ?? opcje.kotwice?.get(klucz);
     const url = `${opcje.stronaHtml}${kotwica ? `#${kotwica}` : ""}`;
     kawalki.forEach((k, i) => {
       fragmenty.push({
