@@ -4,7 +4,7 @@ import {
   czyPytanieOLekturze, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosiOZapisPriorytetu, rozpoznajPytanieCzatu, weryfikuj,
 } from "../functions/ai/pestka.ts";
 import { typPytania, utworPytania, zawieraCytat } from "../functions/ai/lektury.ts";
-import { kartaLektury, okno, type Material, type SzukajElementy, type SzukajFragmenty, type SzukajFragmentyMiejsca } from "../functions/ai/material-lektury.ts";
+import { kartaLektury, okno, type Material, type SzukajElementy, type SzukajFragmenty, type SzukajFragmentyMiejsca, type SzukajKotwic } from "../functions/ai/material-lektury.ts";
 import { BRAK_MATERIALU, ETYKIETA_OGOLNA, FiltrCzatu, POMINIETO, ProcesorOdpowiedzi } from "../functions/ai/odpowiedz-lektury.ts";
 import { KATALOG_LEKTUR } from "../functions/ai/katalog-lektur.ts";
 import type { Message } from "../functions/_shared/llm.ts";
@@ -51,7 +51,7 @@ type ParametryElementow = Parameters<SzukajElementy>[0];
 type ParametryFragmentow = Parameters<SzukajFragmenty>[0];
 function dostepZ(opcje: {
   wiersze?: unknown[]; sekcje?: unknown[]; fragmenty?: unknown[];
-  szukajElementow?: SzukajElementy; szukajFragmentow?: SzukajFragmenty; fragmentyMiejsca?: SzukajFragmentyMiejsca;
+  szukajElementow?: SzukajElementy; szukajFragmentow?: SzukajFragmenty; fragmentyMiejsca?: SzukajFragmentyMiejsca; kotwice?: SzukajKotwic;
 } = {}) {
   const wywolania = { baza: [] as unknown[], uwagi: 0, elementy: [] as ParametryElementow[], fragmenty: [] as ParametryFragmentow[] };
   return {
@@ -68,6 +68,7 @@ function dostepZ(opcje: {
         return opcje.szukajFragmentow?.(p) ?? Promise.resolve(opcje.fragmenty ?? []);
       },
       fragmentyMiejsca: opcje.fragmentyMiejsca,
+      kotwice: opcje.kotwice,
       signal: AbortSignal.timeout(10_000), zapytaj: bezSieci as () => Promise<string>,
     },
   };
@@ -164,7 +165,7 @@ Deno.test("kim jest Wokulski: postacie i sekcja bohaterów, identyfikatory w pro
   assertEquals(wywolania.elementy[0].p_rodzaje, ["postac"]);
   assertEquals(wywolania.elementy[0].p_utwor, "lalka");
   assertEquals(wywolania.baza[0], { p_przedmiot: "polski", p_utwor: "lalka", p_sekcja: "bohaterowie", p_pytanie: "Kim jest Wokulski?" });
-  assertEquals(krok.materialy.map((m) => m.id), ["K", "P1", "S:bohaterowie"]);
+  assertEquals(krok.materialy.map((m) => m.id), ["K", "P1", "W1", "S:bohaterowie"]);
   assertStringIncludes(system(krok), "[P1] Stanisław Wokulski.");
   assertStringIncludes(system(krok), "[K] Karta lektury: „Lalka”, autor: Bolesław Prus");
   const { wynik, zrodla } = przez(krok.materialy, "Wokulski to warszawski kupiec [P1].");
@@ -193,6 +194,41 @@ Deno.test("plan wydarzeń składa serwer: kolejność, miejsce w tekście, link 
   assertEquals(zrodla[2].url, XIV);
   assertEquals(zrodla[2].id, "W3");
   assertEquals(odczytajOdpowiedzPestki(metadaneCzatu(tekst, zrodla, false))?.zrodla.length, 3);
+});
+
+Deno.test("Sonia, Marmieładow i Rodion trafiają do właściwej postaci z historii Zbrodni i kary", async () => {
+  const { dane } = (await wczytajPlikiLektur()).find((p) => p.nazwa === "zbrodnia-i-kara")!;
+  const wiersze = wierszeElementow(dane as PlikLektury);
+  const historia: Message[] = [
+    { role: "user", content: "Podaj plan wydarzeń Zbrodni i kary." },
+    { role: "assistant", content: "Plan Zbrodni i kary. [1]" },
+  ];
+  for (const [nazwa, id, twierdzenie] of [
+    ["Sonia", "P2", "Sonia jest córką Marmieładowa."],
+    ["Zosia", "P2", "Sonia jest pasierbicą Katarzyny."],
+    ["Marmieładow", "P10", "Marmieładow jest urzędnikiem i ojcem Soni."],
+    ["Rodion", "P1", "Rodion Raskolnikow jest byłym studentem."],
+  ]) {
+    const messages: Message[] = [...historia, { role: "user", content: `Kim jest ${nazwa}?` }];
+    const { dostep } = dostepZ({ szukajElementow: (p) => Promise.resolve(
+      p.p_kolejnosc ? wiersze.filter((w) => w.utwor === p.p_utwor && p.p_rodzaje.includes(w.rodzaj)) : [],
+    ) });
+    assertEquals(rozpoznajPytanieCzatu(messages, {}).utwor?.id, "zbrodnia-i-kara");
+    const krok = await przygotujCzat(messages, { tryb: "czat" }, dostep);
+    assertEquals(krok.gotowa, undefined);
+    assertEquals(krok.materialy.find((m) => m.rodzaj === "postac")?.id, id);
+    const odp = przez(krok.materialy, `${twierdzenie} [${id}]`);
+    assertEquals(odp.zrodla[0]?.id, id, odp.wynik);
+    if (id === "P2") {
+      assertStringIncludes(system(krok), "[W2] cz. I, rozdz. 2: Marmieładow opowiada o swoim pijaństwie i pracy Soni");
+      assertStringIncludes(system(krok), "Zachowaj kolejność zdarzeń");
+    }
+  }
+
+  const krok = await przygotujCzat([...historia, { role: "user", content: "Kim jest Alfred?" }], { tryb: "czat" }, dostepZ({ wiersze }).dostep);
+  assertStringIncludes(krok.gotowa!, "Sedno nie ma opisu tej postaci");
+  assertStringIncludes(krok.gotowa!, "Zbrodnia i kara");
+  assert(!przez(krok.materialy, krok.gotowa!).wynik.includes(ETYKIETA_OGOLNA));
 });
 
 Deno.test("plan zawęża się do miejsca wskazanego w pytaniu", async () => {
@@ -475,6 +511,40 @@ Deno.test("karty wskazują właściwy tom, a miejsce bez kotwicy jest osobnym te
     assertEquals(opisKartyZrodla(z).miejsce, undefined);
     assertStringIncludes(opisKartyZrodla(z).link, miejsce);
   }
+});
+
+Deno.test("karta zachowuje osobny odsyłacz do każdej sceny albo części", async () => {
+  const wl = "https://wolnelektury.pl/katalog/lektura/";
+  const cases = [
+    ["makbet", "Podaj plan wydarzeń Makbeta", "akt II, sc. 1; akt V, sc. 5",
+      ["akt II, sc. 1", "akt V, sc. 5"], ["akt II, sc. 1", "akt V, sc. 5"],
+      [wl + "makbet.html#s10", wl + "makbet.html#s30"]],
+    ["chlopi", "Podaj plan wydarzeń Chłopów", "Zima XIII; Wiosna XI",
+      ["Zima XIII", "Wiosna XI"], ["cz. 2, rozdz. 13", "cz. 3, rozdz. 11"],
+      [wl + "reymont-chlopi-zima.html#s13", wl + "chlopi-czesc-trzecia-wiosna.html#s11"]],
+  ] as const;
+  for (const [utwor, pytanie, miejsce, napisy, klucze, url] of cases) {
+    const { krok } = await czat(pytanie, {
+      wiersze: [wiersz("wydarzenie", 1, miejsce, { miejsce, opis: "Postać przeżywa dwa ważne wydarzenia." }, wl + utwor + "/", utwor)],
+      kotwice: (p) => {
+        assertEquals(p, { p_utwor: utwor, p_miejsca: [...klucze] });
+        return Promise.resolve(klucze.map((miejsce, i) => ({ miejsce, url: url[i] })));
+      },
+    });
+    assertStringIncludes(krok.gotowa!, miejsce);
+    const odp = przez(krok.materialy, krok.gotowa!);
+    const meta = odczytajOdpowiedzPestki(JSON.parse(JSON.stringify(metadaneCzatu(odp.wynik, odp.zrodla, false))));
+    assertEquals(meta?.zrodla[0]?.url, url[0]);
+    assertEquals(meta?.zrodla[0]?.miejsce, napisy[0]);
+    assertEquals(meta?.zrodla[0]?.miejsca, napisy.map((miejsce, i) => ({ miejsce, url: url[i] })));
+  }
+
+  const { krok } = await czat("Podaj plan wydarzeń Makbeta", {
+    wiersze: [wiersz("wydarzenie", 1, "akt II, sc. 1; akt V, sc. 5",
+      { miejsce: "akt II, sc. 1; akt V, sc. 5", opis: "Postać przeżywa dwa wydarzenia." }, wl + "makbet.html#s10", "makbet")],
+    kotwice: () => Promise.resolve([]),
+  });
+  assertEquals(krok.materialy.find((m) => m.id === "W1")?.zrodlo?.miejsca?.map((m) => m.url), [wl + "makbet.html#s10", wl + "makbet.html"]);
 });
 
 async function elementyLalki() {

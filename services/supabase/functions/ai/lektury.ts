@@ -91,9 +91,14 @@ export const prosiOCytat = (pytanie: string) => /cytat|cytuj|zacytuj|doslown|brz
 export const chceZweryfikowac = (pytanie: string) =>
   /^(?:czy\b|sprawdz|zweryfikuj)|potwierdz|zrodlo (?:na to|dla twierdzenia)/.test(bezAkcentow(pytanie));
 const STRESZCZENIE = /stres(?:zcz|c)|o czym (?:jest|opowiada)|fabul|co to za (?:utwor|ksiazka|powiesc|komedia|dramat)|opowiedz (?:mi )?o /;
+export function nazwaPostaciWPytaniu(pytanie: string): string {
+  return /\b(?:kim (?:jest|byl|byla)|kto to|(?:opisz|scharakteryzuj|przedstaw) (?:postac|bohatera|bohaterke))\s+([^?!.:\n]+)/
+    .exec(bezAkcentow(pytanie))?.[1].split(/\s+(?:w|we|z|ze)\s+/)[0].trim() ?? "";
+}
+
 export const nawiazujeDoLektury = (pytanie: string) =>
   /\b(?:rozdzial\w*|tom(?:u|ie|y|ow|em)?|akt(?:u|y|ow|em|ach)?(?!\s+notarialn)|scen\w*|bohater\w*|cytat\w*|(?:za)?cytuj\w*|plan wydarzen|stres(?:zcz|c)\w*|lektur\w*)\b/
-    .test(bezAkcentow(pytanie)) || pytaOLekture(pytanie) || ZAKONCZENIE.test(bezAkcentow(pytanie));
+    .test(bezAkcentow(pytanie)) || !!nazwaPostaciWPytaniu(pytanie) || pytaOLekture(pytanie) || ZAKONCZENIE.test(bezAkcentow(pytanie));
 
 /** Pytanie wprost o lekturę, bez wskazanego utworu (np. „streść lekturę”, „plan wydarzeń”, „co jest w rozdziale 3”). */
 export const pytaOLekture = (pytanie: string) =>
