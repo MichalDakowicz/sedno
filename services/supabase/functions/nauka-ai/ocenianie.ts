@@ -167,11 +167,19 @@ function zKlucza(p: Obiekt, a: Odpowiedz, maks: number, tresc: string): Ocena | 
   return null;
 }
 
-async function sprawdzArkusz(cel: Extract<Zrodlo, { arkusz: string }>, a: Odpowiedz, zapytaj: Zapytaj): Promise<Ocena> {
+const INSTRUKCJA_RYSUNKU = [
+  "Obraz to rysunek z arkusza z nałożonym rysunkiem ucznia (kreski ciemne, pomarańczowe, niebieskie lub zielone). Ocenia się to, co uczeń narysował lub zaznaczył na figurze, zgodnie z polem rysunek.polecenie i kryteriami CKE.",
+  "Oceniaj surowo wedle schematu punktowania CKE (kryteriaCke) i przykładowego rozwiązania (przykladZKlucza). Punkty przyznawaj w granicach maksPunktow.",
+  'Jeśli rysunek ucznia jest pusty, nieczytelny albo nie da się odróżnić kresek ucznia od figury, zwróć status "ocenione", punkty 0 i napisz w opisie, że rysunku nie widać. Niczego nie dopowiadaj ani nie zgaduj. Ta zasada zastępuje regułę o do-weryfikacji dla nieczytelnej pracy.',
+  "W opisie wskaż krótko, co uczeń narysował poprawnie, a czego brakuje. Pole fragment może zostać puste, gdy odpowiedź nie ma tekstu.",
+].join("\n");
+
+export async function sprawdzArkusz(cel: Extract<Zrodlo, { arkusz: string }>, a: Odpowiedz, zapytaj: Zapytaj): Promise<Ocena> {
   const z = obiekt(await rpc("nauka_pytanie_do_oceny", { p_arkusz: cel.arkusz, p_pytanie: cel.pytanie }));
   const p = obiekt(z?.pytanie);
   if (!z || !p) throw new BladApi(404, "question_not_found");
-  if (!["matematyka", "informatyka"].includes(String(z.przedmiot)) || p.typ !== "otwarte") {
+  const rysowanie = obiekt(p.rysowanie);
+  if ((!rysowanie && !["matematyka", "informatyka"].includes(String(z.przedmiot))) || p.typ !== "otwarte") {
     throw new BladApi(422, "unsupported_question");
   }
   const maks = p.punkty;
@@ -193,6 +201,7 @@ async function sprawdzArkusz(cel: Extract<Zrodlo, { arkusz: string }>, a: Odpowi
   const material = {
     przedmiot: z.przedmiot, numer: cel.pytanie, zadanie: tresc,
     maksPunktow: maks, kryteriaCke,
+    ...(rysowanie && { rysunek: { polecenie: tekst(rysowanie.polecenie, 2000) } }),
     przykladZKlucza: tekst(p.rozwiazanie, 6500) ?? rubrykaPdf?.rozwiazanie,
     odpowiedziZKlucza: listy(p.oczekiwane),
     praca: { tekst: a.tekst, jezyk: a.jezyk, kod: a.kod, wynik: a.wynik, pola: a.pola },
@@ -200,13 +209,14 @@ async function sprawdzArkusz(cel: Extract<Zrodlo, { arkusz: string }>, a: Odpowi
   const wynik = await zapytaj(
     "nauka-ocen-rozwiazanie", "wazne",
     [
-      "Oceń ćwiczebnie podany podpunkt z matematyki lub informatyki na podstawie dołączonej oficjalnej punktacji CKE.",
+      `Oceń ćwiczebnie podany podpunkt ${rysowanie ? "z arkusza maturalnego" : "z matematyki lub informatyki"} na podstawie dołączonej oficjalnej punktacji CKE.`,
       "Przyznawaj punkty zgodnie z progami CKE, w tym punkty częściowe. Poprawne rozwiązania alternatywne są dopuszczalne. Nie traktuj przykładu z klucza jako jedynego sposobu.",
       "Oceń rozumowanie, gdy punktacja go wymaga. Sam wynik nie dowodzi, że uczeń wykonał wymagane kroki. Odpowiedź tekstowa, zdjęcie, kod i wynik należą do jednego zgłoszenia. Oceniaj wyłącznie wskazany numer pytania.",
       "Kod, pseudokod i SQL analizuj na podstawie ich działania i podanych danych. Nie twierdź, że zostały uruchomione. Jeśli brakuje danych, rysunku lub nie da się wiarygodnie ocenić działania, wskaż potrzebę weryfikacji.",
       "Nie obniżaj punktacji na podstawie własnej wiedzy, niewiarygodnego źródła lub wątpliwości spoza schematu CKE. Jeśli nie można pewnie odczytać pracy albo przydzielić progu punktacji, zwróć status do-weryfikacji i punkty null.",
       "Wskaż krótki, dosłowny fragment próby i wyjaśnij, dlaczego jest poprawny lub wymaga poprawy. Podaj dosłowny fragment dołączonego schematu CKE, na którym opierasz punkty, oraz oddzielnie jeden następny krok. Pisz po polsku.",
       'Format {"status":"ocenione" lub "do-weryfikacji","punkty":liczba całkowita albo null,"opis":"krótkie uzasadnienie","fragment":"fragment odpowiedzi","kryterium":"fragment kryteriów CKE","krok":"jedna sugestia"}.',
+      ...(rysowanie ? [INSTRUKCJA_RYSUNKU] : []),
     ].join("\n"),
     material,
     3400,

@@ -18,18 +18,18 @@ import { Pigulki } from "../../components/Pigulki";
 import { StanPestki } from "../../components/StanPestki";
 import { useTutor } from "../../components/TutorContext";
 import { SubjectIcon } from "../../components/icons";
-import { przedmiot as daneP, PRZEDMIOTY, type PrzedmiotId } from "../../konto/przedmioty";
+import { przedmiot as daneP, type PrzedmiotId } from "../../konto/przedmioty";
 import { naukaAi } from "../../nauka/ai";
 import { usePoziomNauki, useZapytanie, useZapytanieNauki } from "../../nauka/stan";
 import {
-  BladWiedzy, doPolaczen, dodajNotatke, LIMIT_ETYKIETY, LIMIT_TRESCI, LIMIT_TYTULU, pobierzMape, polaczNotatki, przyjmijPolaczenie, przypnijDoUmiejetnosci,
+  BladWiedzy, czyMapaWiedzy, doPolaczen, dodajNotatke, LIMIT_ETYKIETY, LIMIT_TRESCI, LIMIT_TYTULU, pobierzMape, polaczNotatki, PRZEDMIOTY_MAPY_WIEDZY, przyjmijPolaczenie, przypnijDoUmiejetnosci,
   usunNotatke, usunPolaczenie, zmienNotatke,
   type MapaWiedzy as Mapa, type Notatka, type Polaczenie,
 } from "../../nauka/wiedza";
 import s from "./SzybkaRunda.module.css";
 import m from "./MapaWiedzy.module.css";
 
-const czyPrzedmiot = (w: unknown): w is PrzedmiotId => PRZEDMIOTY.some((p) => p.id === w);
+const czyPrzedmiot = (w: unknown): w is PrzedmiotId => typeof w === "string" && czyMapaWiedzy(w);
 const komunikat = (e: unknown) => (e instanceof BladWiedzy ? e.message : "Coś poszło nie tak. Spróbuj ponownie.");
 const notatki = (n: number) => (n === 1 ? "notatka" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "notatki" : "notatek");
 const polaczen = (n: number) => (n === 1 ? "połączenie" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "połączenia" : "połączeń");
@@ -38,7 +38,7 @@ export function MapaWiedzy() {
   const [params, ustawParams] = useSearchParams();
   const profil = useProfil();
   const moje = (profil?.subjects ?? []).map((p) => p.id).filter(czyPrzedmiot);
-  const lista = moje.length ? moje : PRZEDMIOTY.map((p) => p.id);
+  const lista = moje.length ? moje : PRZEDMIOTY_MAPY_WIEDZY;
   const zParametru = params.get("przedmiot");
   const przedmiot: PrzedmiotId = czyPrzedmiot(zParametru) ? zParametru : lista[0]!;
   const mapa = useZapytanieNauki(`wiedza:${przedmiot}`, (signal) => pobierzMape(przedmiot, signal));

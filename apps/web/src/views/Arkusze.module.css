@@ -5,21 +5,17 @@
   padding-bottom: var(--zapas-pestki);
 }
 
-.levels {
-  position: relative;
-  display: flex;
-  gap: var(--s-2);
-  overflow-x: auto;
-  margin: calc(-1 * var(--s-2));
-  padding: var(--s-2);
-  scrollbar-width: none;
+/* Przełączniki przedmiotu, poziomu i formuły: pigułki zawijają się, więc dwanaście przedmiotów nie wypycha ekranu. */
+.filtry {
+  display: grid;
+  gap: var(--s-3);
 }
 
-/* Zakładki przedmiotu i poziomu: te same pigułki co poziom matury na Nauce, w Powtórkach i na mapie. */
-.level {
-  composes: pigulka from global;
-  flex-shrink: 0;
-  font-family: inherit;
+/* Poziom i formuła obok siebie, na telefonie jedna pod drugą. */
+.opcje {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3) var(--s-5);
 }
 
 .levelCount {
@@ -35,9 +31,14 @@
   gap: var(--s-1);
 }
 
+.grupy {
+  display: grid;
+  gap: var(--s-7);
+}
+
 .group {
   display: grid;
-  gap: var(--s-3);
+  gap: var(--s-4);
 }
 
 .groupHead {
@@ -45,46 +46,45 @@
   gap: var(--s-1);
 }
 
+/* Kolumna stanu: pierścień wyniku albo „nierozwiązany” na jednej osi we wszystkich wierszach. */
 .list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(204px, 1fr));
-  gap: var(--s-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  --wiersz-wartosc: 8rem;
 }
 
-/* Karta roku: wspólna .karta, ciaśniej, bo stoi w siatce kilku obok siebie. */
-.card {
-  composes: karta from global;
-  display: grid;
-  gap: var(--s-1);
-  height: 100%;
-  padding: var(--s-4);
+/* Sesja z rokiem i część w jednej linii, żeby na telefonie wiersz miał dwie linie, nie trzy. */
+.nazwa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--s-3);
 }
 
-.card:hover .action {
-  border-color: var(--primary);
-  color: var(--primary-text);
-}
-
-.year {
-  font-size: calc(32px * var(--skala-tekstu, 1));
-  letter-spacing: -0.03em;
-}
-
-.status {
-  margin: var(--s-2) 0 var(--s-3);
-}
-
-.score {
-  font-size: var(--t-md);
+/* Lista „Inne przedmioty” stoi w rzędzie pigułek i ma ich wysokość. */
+.inne {
+  width: auto;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 40px 0 16px;
+  /* Wysokość linii = wysokość pola bez ramek: tekst stoi na środku jak w pigułkach. */
+  line-height: 38px;
+  background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%;
+  color: var(--muted);
+  font-size: var(--t-sm);
   font-weight: 500;
 }
 
-.action {
-  justify-self: start;
-  margin-top: auto;
+.inne[data-wybrany="true"] {
+  border-color: var(--primary);
+  background-color: var(--primary-soft);
+  color: var(--primary-text);
+}
+
+@media (pointer: coarse) {
+  .inne {
+    height: 44px;
+    min-height: 44px;
+    line-height: 42px;
+  }
 }
 
 .empty {

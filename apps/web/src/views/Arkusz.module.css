@@ -59,8 +59,15 @@
 .summary {
   composes: karta from global;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-3);
   justify-items: start;
+  overflow-wrap: anywhere;
+}
+
+.summary > button {
+  white-space: normal;
+  text-align: left;
 }
 
 .bigScore {
@@ -85,7 +92,9 @@
 /* Granica między zadaniami jest mocniejsza niż linie w środku zadania. */
 .task {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-4);
+  overflow-wrap: anywhere;
   padding-top: var(--s-6);
   border-top: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
   scroll-margin-top: 96px;
@@ -114,6 +123,7 @@
 
 .content {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-6);
   padding-top: var(--s-2);
 }
@@ -121,6 +131,7 @@
 /* Część zadania: ciąg treści albo ciąg pytań. */
 .part {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-4);
 }
 
@@ -145,6 +156,7 @@
 /* Informacja wspólna dla kilku podpunktów: linia z lewej w kolorze akcentu i podpis z zakresem. */
 .grupa {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-4);
   padding-left: var(--s-4);
   border-left: 2px solid var(--accent);
@@ -294,6 +306,7 @@
 
 .question {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-3);
   padding: var(--s-2) 0;
 }
@@ -781,6 +794,7 @@
 
 .inlineGap {
   display: inline-flex;
+  max-width: calc(100% - 4px);
   align-items: baseline;
   gap: var(--s-1);
   margin: 0 2px;
@@ -803,6 +817,10 @@
   font-size: var(--t-sm);
   line-height: 1.6;
   transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.inlineGap input {
+  min-width: 0;
 }
 
 .blockGap input {
@@ -993,6 +1011,7 @@
 
 .essay {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-2);
 }
 
@@ -1000,6 +1019,7 @@
 
 .feedback {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-2);
   font-size: var(--t-sm);
 }
@@ -1031,6 +1051,7 @@
 
 .key {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-2);
   padding: var(--s-3) var(--s-4);
   border-radius: var(--r-sm);
@@ -1058,6 +1079,7 @@
 
 .keyList {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-4);
   padding: var(--s-4);
   border-radius: var(--r-md);
@@ -1108,6 +1130,7 @@
 
 /* Tabela danych w treści zadania (np. wyniki sprawdzianu). */
 .dataTableWrap {
+  max-width: 100%;
   overflow-x: auto;
 }
 
@@ -1960,4 +1983,29 @@
 
 .zrodlo {
   margin-top: var(--s-5);
+}
+
+/* Zadanie z rysowaniem na figurze: figura jest polem odpowiedzi, pod nią krótka odpowiedź słowami. */
+.rysowanie {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.opisRysunku {
+  display: block;
+  width: 100%;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.opisRysunku:focus {
+  outline: none;
+  border-color: var(--primary);
 }

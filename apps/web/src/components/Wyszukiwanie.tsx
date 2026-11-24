@@ -141,7 +141,7 @@ function Okno({ zamknij }: { zamknij: () => void }) {
     const moje = new Set<string>(profil?.subjects.map((s) => s.id));
     const sheety = (arkusze ?? []).map<Wynik>((a) => {
       const nazwa = przedmiot(a.przedmiot)?.nazwa ?? a.przedmiot;
-      const tytul = `${nazwa} ${nazwaPoziomu[a.poziom]}, ${a.sesja} ${a.rok}`;
+      const tytul = `${nazwa} ${nazwaPoziomu[a.poziom]}, ${a.termin === "probny" ? "próbna " : ""}${a.sesja} ${a.rok}${a.czesc ? `, ${a.czesc.toLowerCase()}` : ""}`;
       return {
         id: `arkusz:${a.id}`,
         rodzaj: "arkusz",

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import type { ArkuszWpis } from "../../arkusze/typy";
+import { nazwaSesji, type ArkuszWpis } from "../../arkusze/typy";
 import type { Wynik } from "../../konto/wyniki";
 import styles from "../Dashboard.module.css";
 
@@ -13,7 +13,7 @@ export function Kicker({ icon: Icon, children }: { icon: LucideIcon; children: R
   );
 }
 
-export const tytul = (a: ArkuszWpis) => `Matura ${a.sesja} ${a.rok}`;
+export const tytul = (a: ArkuszWpis) => nazwaSesji(a);
 // Arkusz bez punktów do zdobycia (same wypowiedzi pisemne) nie daje „NaN%”.
 export const procent = (w: Pick<Wynik, "zdobyte" | "mozliwe">) => (w.mozliwe > 0 ? Math.round((w.zdobyte / w.mozliwe) * 100) : 0);
 

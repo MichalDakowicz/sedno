@@ -171,6 +171,9 @@ export function Umiejetnosci() {
       )}
       {angielski && <div className={s.filtry}><WyborPoziomuNauki poziom={poziom} ustawPoziom={ustawPoziom} /></div>}
       {!angielski && maMapeZArkuszy(wybranyPrzedmiot) && <MapaPrzedmiotu przedmiot={wybranyPrzedmiot} poziom={poziomPrzedmiotu} id={parametry.get("umiejetnosc")} />}
+      {!angielski && !maMapeZArkuszy(wybranyPrzedmiot) && (
+        <StanPestki tekst={wybierz(glos.puste.mapaDzialow, 0)} akcja={{ etykieta: "Zobacz arkusze", do: `/arkusze?przedmiot=${wybranyPrzedmiot}` }} />
+      )}
       {mapa.stan === "ladowanie" && <Ladowanie wysokosc={[514, 1440]} etykieta="Wczytuję mapę umiejętności" />}
       {mapa.stan === "blad" && <Blad tekst="Nie udało się wczytać mapy umiejętności." ponow={mapa.ponow} />}
       {angielski && umiejetnosci && (

@@ -6,11 +6,13 @@ import { useArkusz } from "../arkusze/dane";
 import { pustyPostep, usePostep, type Brudnopis as ZapisBrudnopisu, type Czas, type Postep, type Warsztat as ZapisWarsztatu } from "../arkusze/postep";
 import { celPrzedmiotu, useUczenie } from "../konto/profilUcznia";
 import { opisOceny, stanOdpowiedzi, WSKAZOWKI, wskazowkaPodAkapitem, type RodzajWskazowki } from "../arkusze/oddawanie";
-import { liczOdpowiedzi, policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
+import { czytajRysunek, kluczOpisu, kluczRysunku, odpowiedziRysunku, OCENA_RYSUNKOW_AI, type Kreska } from "../arkusze/rysunek";
+import { liczOdpowiedzi, odpowiedzDoOceny, policz, policzPytania, punktyZSamooceny, werdykt, zakresSlow, type Werdykt } from "../arkusze/sprawdz";
 import {
   nazwaPoziomu,
   adresObrazu,
   nazwaPrzedmiotu,
+  nazwaSesji,
   nazwaZadaniaCke,
   type Arkusz as ArkuszDane,
   type Blok,
@@ -23,6 +25,8 @@ import {
   type Wypowiedz,
   type Zadanie,
 } from "../arkusze/typy";
+import { OcenaRysunku } from "../components/OcenaRysunku";
+import { RysunekNaFigurze } from "../components/RysunekNaFigurze";
 import { Brudnopis, otworzNaPelnymEkranie, PokazDodatkoweRysunki, ZDARZENIE_PELNY } from "../components/Brudnopis";
 import { rozgrzejWzory, TekstMat, WzorMat } from "../components/TekstMat";
 import { Nagranie } from "../components/Nagranie";
@@ -52,6 +56,7 @@ type Kontekst = {
   arkusz: ArkuszDane;
   postep: Postep;
   ustaw: (nr: string, wartosc: string) => void;
+  ustawRysunek: (nr: string, kreski: Kreska[], opis: string) => void;
   ocen: (nr: string, ocena: boolean | number) => void;
   ustawBrudnopis: (zadanie: number, zapis: ZapisBrudnopisu | null) => void;
   ustawWarsztat: (zadanie: number, zapis: ZapisWarsztatu) => void;
@@ -384,6 +389,12 @@ export function Arkusz() {
           p.sprawdzony || p.sprawdzoneZadania.includes(nrZadania(nr)) ? p : dodajCzas({ ...p, odpowiedzi: { ...p.odpowiedzi, [nr]: wartosc } }, nrZadania(nr), ms),
         );
       },
+      ustawRysunek: (nr, kreski, opis) => {
+        const ms = odmierz(ciszaTezLiczy);
+        zmien((p) =>
+          p.sprawdzony || p.sprawdzoneZadania.includes(nrZadania(nr)) ? p : dodajCzas({ ...p, odpowiedzi: { ...p.odpowiedzi, ...odpowiedziRysunku(nr, kreski, opis) } }, nrZadania(nr), ms),
+        );
+      },
       ocen: (nr, ocena) => zmien((p) => ({ ...p, samoocena: { ...p.samoocena, [nr]: ocena } })),
       // Brudnopis to pomoc, więc działa także po sprawdzeniu zadania.
       ustawBrudnopis: (zadanie, zapis) => {
@@ -502,7 +513,7 @@ export function Arkusz() {
   const listaOmowien = postep.sprawdzony ? doOmowienia(dane, postep) : [];
   const omawiane = omawiany !== null ? listaOmowien[omawiany] : undefined;
 
-  const odpowiedziane = liczOdpowiedzi(postep.odpowiedzi, kontekst.pytania.keys());
+  const odpowiedziane = liczOdpowiedzi(postep.odpowiedzi, kontekst.pytania.values());
 
   const zadanieMaterialow = materialy ? dane.zadania.find((z) => z.nr === materialy.nr) : undefined;
   // Panel obok treści odsuwa arkusz od swojej krawędzi; na wąskim ekranie przykrywa go w całości.
@@ -745,7 +756,7 @@ function Naglowek({ arkusz, onNaCzas, onCofnijNaCzas, zwiniety, wStronach }: {
       </span>
       {!zwiniety && (
       <h1 className="h1">
-        Matura {arkusz.sesja} {arkusz.rok}
+        {nazwaSesji(arkusz)}
       </h1>
       )}
       {!zwiniety && <p className="muted">{[arkusz.data, arkusz.czas && `${arkusz.czas} minut`, `${arkusz.punkty} pkt`].filter(Boolean).join(" · ")}</p>}
@@ -975,22 +986,22 @@ function SpisZadan() {
   const [otwarty, setOtwarty] = useState(false);
   const numery = useMemo(() => arkusz.zadania.map((z) => z.nr), [arkusz]);
   const aktualne = useAktualneZadanie(numery);
-  const maOdpowiedz = (nr: string) => liczOdpowiedzi(postep.odpowiedzi, [nr]) > 0;
+  const maOdpowiedz = (p: Pytanie) => !!odpowiedzDoOceny(p, postep.odpowiedzi[p.nr]);
   const wiersze = arkusz.zadania.map((z) => {
     const pytania = z.pytania.filter((p) => p.typ !== "wypowiedz");
-    const ile = liczOdpowiedzi(postep.odpowiedzi, z.pytania.map((p) => p.nr));
+    const ile = liczOdpowiedzi(postep.odpowiedzi, z.pytania);
     return { z, pytania, ile, wszystkich: z.pytania.length };
   });
   // Ta sama miara co w stopce arkusza i na pulpicie: pytania z odpowiedzią, nie całe zadania.
-  const nrPytan = arkusz.zadania.flatMap((z) => z.pytania.map((p) => p.nr));
-  const odpowiedziane = liczOdpowiedzi(postep.odpowiedzi, nrPytan);
+  const pytaniaArkusza = arkusz.zadania.flatMap((z) => z.pytania);
+  const odpowiedziane = liczOdpowiedzi(postep.odpowiedzi, pytaniaArkusza);
   return (
     <nav className={styles.spis} aria-label="Spis zadań">
       <button type="button" className={styles.spisPrzycisk} aria-expanded={otwarty} aria-controls="spis-zadan" onClick={() => setOtwarty(!otwarty)}>
         <List size={16} aria-hidden="true" />
         <span>Spis zadań</span>
         <span className="small muted">
-          {odpowiedziane} z {nrPytan.length} odpowiedzi
+          {odpowiedziane} z {pytaniaArkusza.length} odpowiedzi
         </span>
         <ChevronDown size={16} aria-hidden="true" className={otwarty ? styles.spisStrzalkaOtwarta : undefined} />
       </button>
@@ -1018,8 +1029,8 @@ function SpisZadan() {
                       <li key={p.nr}>
                         <button
                           type="button"
-                          data-stan={maOdpowiedz(p.nr) ? "jest" : "brak"}
-                          aria-label={`Zadanie ${p.nr}, ${maOdpowiedz(p.nr) ? "jest odpowiedź" : "bez odpowiedzi"}`}
+                          data-stan={maOdpowiedz(p) ? "jest" : "brak"}
+                          aria-label={`Zadanie ${p.nr}, ${maOdpowiedz(p) ? "jest odpowiedź" : "bez odpowiedzi"}`}
                           onClick={() => idzDoPytania(p.nr)}
                         >
                           {p.nr}
@@ -1111,7 +1122,7 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
       data-tutor={pierwsza ? `zadanie-${zadanie.nr}` : undefined}
       data-tutor-kontekst={kontekst}
       data-tutor-przedmiot={arkusz.przedmiot}
-      data-tutor-proba={zadanie.pytania.some((p) => !!postep.odpowiedzi[p.nr]?.trim()) ? "tak" : undefined}
+      data-tutor-proba={zadanie.pytania.some((p) => odpowiedzDoOceny(p, postep.odpowiedzi[p.nr])) ? "tak" : undefined}
       data-tutor-chron={gotowe ? undefined : "tak"}
       data-tutor-klucz={`arkusz:${arkusz.id}:${zadanie.nr}`}
       data-tutor-tytul={nazwaZadaniaCke(arkusz.id, String(zadanie.nr))}
@@ -2408,7 +2419,8 @@ function PytanieWidok({ pytanie: p }: { pytanie: Pytanie }) {
       {p.typ === "otwarte" && dwie.has(p.nr) && <WyborKilku pytanie={p} wybor={dwie.get(p.nr)!} />}
       {p.typ === "otwarte" && tabele.has(p.nr) && <TabelaDopasowaniaWidok pytanie={p} tabela={tabele.get(p.nr)!} />}
       {obliczenia.has(p.nr) && <p className="small muted">Rozwiązanie zapisz w brudnopisie.</p>}
-      {p.typ === "otwarte" && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && !wTabeli.has(p.nr) && (
+      {p.typ === "otwarte" && p.rysowanie && <PoleRysunku pytanie={p} />}
+      {p.typ === "otwarte" && !p.rysowanie && !p.tresc.includes(`{{${p.nr}}}`) && !wLukach.has(p.nr) && !obliczenia.has(p.nr) && !kody.has(p.nr) && !pf.has(p.nr) && !dwie.has(p.nr) && !tabele.has(p.nr) && !wTabeli.has(p.nr) && (
         <LukaTekst pytanie={p} blok placeholder={p.kod ? "kod odpowiedzi z liter i cyfr" : p.zasadyStrona ? "wynik albo krótka odpowiedź" : undefined} />
       )}
       {!kompakt && <ZnacznikOdpowiedzi p={p} />}
@@ -3349,7 +3361,71 @@ function WypowiedzWidok({ pytanie: p, pisanie }: { pytanie: Wypowiedz; pisanie: 
         onTemat={(n) => ustaw(klucz("temat"), String(n))}
         onOdhacz={(i) => ustaw(klucz("lista"), (odhaczone.includes(i) ? odhaczone.filter((x) => x !== i) : [...odhaczone, i]).join(","))}
       />
+      <Informacja pytanie={p} />
     </div>
+  );
+}
+
+// Zadanie „narysuj”, „dorysuj”, „zaznacz na mapie”: uczeń rysuje na figurze, a opis słowami zostaje dla tych,
+// którzy nie mogą rysować. Po sprawdzeniu rysunek pokazuje Informacja, obok zasad CKE.
+function PoleRysunku({ pytanie: p }: { pytanie: PytanieOtwarte }) {
+  const { postep, ustawRysunek, sprawdzone } = useCtx();
+  const r = p.rysowanie!;
+  const zapis = postep.odpowiedzi[kluczRysunku(p.nr)];
+  const kreski = useMemo(() => czytajRysunek(zapis), [zapis]);
+  if (sprawdzone(p.nr)) return null;
+  const opis = postep.odpowiedzi[kluczOpisu(p.nr)] ?? "";
+  const polecenie = r.polecenie && !p.tresc.includes(r.polecenie) ? r.polecenie : null;
+  return (
+    <div className={styles.rysowanie}>
+      {polecenie && (
+        <p className={styles.instruction}>
+          <Tekst tekst={polecenie} />
+        </p>
+      )}
+      <RysunekNaFigurze obraz={r.obraz} kreski={kreski} etykieta={`pytanie ${p.nr}`} onZmiana={(k) => ustawRysunek(p.nr, k, opis)} />
+      <textarea
+        className={styles.opisRysunku}
+        value={opis}
+        rows={2}
+        autoComplete="off"
+        onChange={(e) => ustawRysunek(p.nr, kreski, e.target.value)}
+        placeholder="Odpowiedź słowami (opcjonalnie)"
+        aria-label={`Odpowiedź słowami, pytanie ${p.nr}`}
+      />
+    </div>
+  );
+}
+
+// Po sprawdzeniu: rysunek ucznia na figurze i jego opis, żeby porównać z zasadami CKE pod spodem.
+function RysunekPoSprawdzeniu({ pytanie: p }: { pytanie: PytanieOtwarte }) {
+  const { postep } = useCtx();
+  const kreski = useMemo(() => czytajRysunek(postep.odpowiedzi[kluczRysunku(p.nr)]), [postep.odpowiedzi, p.nr]);
+  const opis = postep.odpowiedzi[kluczOpisu(p.nr)]?.trim();
+  return (
+    <div className={styles.rysowanie}>
+      {kreski.length > 0 && <RysunekNaFigurze obraz={p.rysowanie!.obraz} kreski={kreski} etykieta={`pytanie ${p.nr}`} tylkoOdczyt />}
+      {opis && <p className="small">{opis}</p>}
+    </div>
+  );
+}
+
+// Sprawdzenie rysunku przez Pestkę, gdy konto ma AI (a serwer umie ocenić rysunki: OCENA_RYSUNKOW_AI).
+function OcenaRysunkuPestki({ pytanie: p }: { pytanie: PytanieOtwarte }) {
+  const { arkusz, postep, ocen } = useCtx();
+  const session = useSession();
+  const ai = useAiReady(session ? session.user.id : null) === true;
+  if (!OCENA_RYSUNKOW_AI || !ai || !p.rysowanie) return null;
+  return (
+    <OcenaRysunku
+      arkusz={arkusz.id}
+      pytanie={p.nr}
+      obraz={p.rysowanie.obraz}
+      kreski={czytajRysunek(postep.odpowiedzi[kluczRysunku(p.nr)])}
+      opis={postep.odpowiedzi[kluczOpisu(p.nr)] ?? ""}
+      maks={p.punkty}
+      onPrzyjmij={(punkty) => ocen(p.nr, p.punkty > 1 ? punkty : punkty > 0)}
+    />
   );
 }
 
@@ -3362,10 +3438,17 @@ function opisSamooceny(p: Pytanie, ocena: boolean | number | undefined, zLista: 
 // Informacja zwrotna pod pytaniem po sprawdzeniu.
 function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boolean }) {
   const { arkusz, postep, ocen, sprawdzone, opcjeDla } = useCtx();
-  if (!sprawdzone(p.nr) || p.typ === "wypowiedz") return null;
-  const surowy = werdykt(p, postep.odpowiedzi[p.nr]);
+  if (!sprawdzone(p.nr)) return null;
+  const odp = odpowiedzDoOceny(p, postep.odpowiedzi[p.nr]);
+  if (p.typ === "wypowiedz") {
+    return odp ? null : (
+      <div className={styles.feedback} data-werdykt="pusto">
+        <p className={styles.feedbackHead}>Brak odpowiedzi</p>
+      </div>
+    );
+  }
+  const surowy = werdykt(p, odp);
   const w = werdyktPytania(p, postep);
-  const odp = postep.odpowiedzi[p.nr]?.trim();
   const nr: ReactNode = zNumerem ? <strong>{p.nr}. </strong> : null;
   const schemat = p.zasadyStrona && arkusz.pdf?.zasady ? `${arkusz.pdf.zasady}#page=${p.zasadyStrona}` : null;
 
@@ -3395,6 +3478,7 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
         {surowy === "do-oceny" && opisSamooceny(p, postep.samoocena[p.nr], !!(p.oczekiwane?.length || p.akceptowane?.length))}
       </p>
       {p.fragment && arkusz.nagranie && <FragmentNagrania src={arkusz.nagranie} fragment={p.fragment} />}
+      {p.rysowanie && <RysunekPoSprawdzeniu pytanie={p} />}
       {surowy !== "dobrze" && (
         <div className={styles.key}>
           {schemat && (
@@ -3404,7 +3488,23 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
               </a>
             </p>
           )}
-          {p.rozwiazanie ? (
+          {p.rysowanie ? (
+            // Rysunek: zasady oceniania CKE widać od razu, bo uczeń ocenia z nimi rysunek.
+            <>
+              {p.zasady && (
+                <>
+                  <span className="label">Zasady oceniania CKE</span>
+                  <p className={`small ${styles.keyRules}`}>{p.zasady}</p>
+                </>
+              )}
+              {p.rozwiazanie && (
+                <>
+                  <span className="label">Rozwiązanie CKE</span>
+                  <p className={`small ${styles.keyRules}`}>{p.rozwiazanie}</p>
+                </>
+              )}
+            </>
+          ) : p.rozwiazanie ? (
             // Informatyka: rozwiązanie z klucza w układzie z klucza (wiersze wyniku, wcięcia pseudokodu).
             <>
               <span className="label">Rozwiązanie CKE</span>
@@ -3435,6 +3535,7 @@ function Informacja({ pytanie: p, zNumerem }: { pytanie: Pytanie; zNumerem?: boo
           ) : null}
         </div>
       )}
+      {surowy === "do-oceny" && p.rysowanie && <OcenaRysunkuPestki pytanie={p} />}
       {surowy === "do-oceny" &&
         (p.punkty > 1 ? (
           // Zadanie wielopunktowe: uczeń przyznaje sobie punkty według schematu.

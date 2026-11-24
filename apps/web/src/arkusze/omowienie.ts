@@ -3,7 +3,7 @@
 import { askAi, type AiMessage, type Tier } from "../ai";
 import { promptPestki } from "../pestka";
 import type { Postep } from "./postep";
-import { liczSlowa, policzPytania, werdykt, zakresSlow } from "./sprawdz";
+import { liczSlowa, odpowiedzDoOceny, policzPytania, werdykt, zakresSlow } from "./sprawdz";
 import { nazwaPrzedmiotu, type Arkusz, type Pytanie, type Zadanie } from "./typy";
 
 /** pusty: zadanie bez żadnej odpowiedzi, które Pestka proponuje przejść razem po błędach. */
@@ -16,7 +16,7 @@ export type DoOmowienia = { zadanie: Zadanie; wypracowanie: boolean; pusty?: boo
 export function doOmowienia(a: Arkusz, p: Postep): DoOmowienia[] {
   const puste: DoOmowienia[] = [];
   const bledy = a.zadania.flatMap((z): DoOmowienia[] => {
-    const odpowiedziane = z.pytania.filter((q) => p.odpowiedzi[q.nr]?.trim());
+    const odpowiedziane = z.pytania.filter((q) => odpowiedzDoOceny(q, p.odpowiedzi[q.nr]));
     const wypracowanie = z.pytania.some((q) => q.typ === "wypowiedz");
     if (!odpowiedziane.length) {
       if (!wypracowanie && z.pytania.length) puste.push({ zadanie: z, wypracowanie: false, pusty: true });
@@ -38,7 +38,7 @@ export function policzBledy(a: Arkusz, p: Postep): { bledne: number; bezOdpowied
   let bledne = 0;
   let bezOdpowiedzi = 0;
   for (const q of pytania) {
-    if (!p.odpowiedzi[q.nr]?.trim()) bezOdpowiedzi++;
+    if (!odpowiedzDoOceny(q, p.odpowiedzi[q.nr])) bezOdpowiedzi++;
     else if (q.typ !== "wypowiedz") {
       const w = policzPytania([q], p.odpowiedzi, p.samoocena);
       if (w.doOceny === 0 && w.zdobyte < w.mozliwe) bledne++;
