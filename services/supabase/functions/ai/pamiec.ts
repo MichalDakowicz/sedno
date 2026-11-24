@@ -1,5 +1,6 @@
 import { napisPestki, obiektPestki } from "../_shared/pestka-odpowiedz.ts";
 import { bezAkcentow } from "./lektury.ts";
+import { bezOdsylaczy } from "./odpowiedz-lektury.ts";
 
 type Fragment = { od: "student" | "tutor"; tekst: string };
 export type SzukajRozmow = (biezaca: string, pytanie: string | null) => Promise<unknown>;
@@ -28,7 +29,8 @@ export async function pamiecRozmow(pytanie: string, biezaca: string | undefined,
   }
   const fragmenty = Array.isArray(dane) ? dane.flatMap((raw): Fragment[] => {
     const wpis = obiektPestki(raw);
-    const tekst = napisPestki(wpis.tekst, 1800);
+    const surowy = napisPestki(wpis.tekst, 1800);
+    const tekst = wpis.od === "tutor" ? bezOdsylaczy(surowy) : surowy;
     return tekst && (wpis.od === "student" || wpis.od === "tutor") ? [{ od: wpis.od, tekst }] : [];
   }) : [];
   if (fragmenty.length === 0) {

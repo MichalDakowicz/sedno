@@ -284,8 +284,8 @@ Deno.test("identyfikatory zamieniają się na źródła, nieznane znikają, resz
     "Prus wydał ją w odcinkach [OW].",
     "Tego nie ma w materiałach Sedno, sprawdź w tekście.",
     "Jaki fragment cię interesuje?",
-  ].join("\n"), "Kim jest Wokulski?");
-  const linie = wynik.split("\n");
+  ].join("\n\n"), "Kim jest Wokulski?");
+  const linie = wynik.split("\n\n");
   assertEquals(linie[0], "Wokulski jest warszawskim kupcem [[zrodlo:1]].");
   assertEquals(linie[1], `Mieszkał podobno w kamienicy na Powiślu. ${ETYKIETA_OGOLNA}`);
   assertEquals(linie[2], `Lalka powstała w drugiej połowie XIX wieku. ${ETYKIETA_OGOLNA}`);
@@ -434,8 +434,8 @@ Deno.test("to samo miejsce w tekście ma jedno źródło, a wiele identyfikator�
 Deno.test("pusta odpowiedź albo wyłącznie niepotwierdzone zdania daje komunikat braku materiału", () => {
   assertEquals(przez([], "").wynik, BRAK_MATERIALU);
   const p = new ProcesorOdpowiedzi([], { pytanie: "", zapisPriorytetu: false });
-  assertEquals(p.dodaj("Tak, Wokulski był w Paryżu i rozmawiał tam z Geistem.\n"), `Tak, Wokulski był w Paryżu i rozmawiał tam z Geistem. ${ETYKIETA_OGOLNA}\n`);
-  assertEquals(p.zakoncz(), "");
+  assertEquals(p.dodaj("Tak, Wokulski był w Paryżu i rozmawiał tam z Geistem.\n"), "");
+  assertEquals(p.zakoncz(), `Tak, Wokulski był w Paryżu i rozmawiał tam z Geistem. ${ETYKIETA_OGOLNA}`);
 });
 
 Deno.test("zapis priorytetu tylko na prośbę ucznia: znacznik i obietnica znikają z odpowiedzi", () => {
