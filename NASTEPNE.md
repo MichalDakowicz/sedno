@@ -15,7 +15,7 @@ Otwarte:
 - **Lektury, karty:** część kart obejmuje szersze zdanie niż potwierdza źródło (epilog „Innego świata”, kilka punktów „Zbrodni i kary”, letarg Wokulskiego z kartą t. II rozdz. 14 zamiast 16). Kontrola zgodności karty i zdania jest leksykalna.
 - **Lektury, utwory chronione:** źródłem jest opracowanie (ZPE), nie tekst; słabo potwierdza szczegóły.
 - **Lektury, do weryfikacji:** opisy „Pani Bovary”, „Martwych dusz”, „Klubu Pickwicka” z pamięci modelu i krótkiego streszczenia; pięć ksiąg biblijnych bez porównania z tekstem; niektóre utwory w tekstach WL bez podziału na rozdziały („Nie-Boska komedia”, „Noc listopadowa”, „Gloria victis”); w „Dziadach cz. III” na WL brak „Ustępu”. Wpisy `do_weryfikacji` w `services/supabase/lektury/*.json`.
-- **Lektury, koszt:** pytania o lektury idą na poziom `wazne` (Sonnet); porównać z `lekkie` (Haiku) na tych samych pytaniach (`SEDNO_TIER_LEKTUR`).
+- **Lektury, model:** porównanie 24 listopada: Haiku trzyma się kart (plan rozdziału, cytaty, Papkin, Geist), ale w przeglądach bez kart dopowiada szczegóły i podał pewnie fałsz (Sonia „w częściach I, IV i epilogu”, „Inny świat” ~25 punktów bez źródeł). Zostaje Sonnet (`wazne`). Do rozważenia: Haiku tylko dla pytań o cytat i plan, jeśli router je rozróżni.
 - **Rysowanie:** niesprawdzone na prawdziwym dotyku i rysiku; gumka, kolory i ponów tylko w kodzie; ocena AI sensownego wykresu niesprawdzona.
 - **Czat:** pytania do decyzji: przycisk „Zatrzymaj odpowiedź”, grupowanie rozmów (dziś, wczoraj, starsze), pole nad klawiaturą na telefonie (`interactive-widget`).
 - **Staging:** klucze AI konta testowego są w `private.ai_credential_kopia_20261123` na `sedno-dev` (konto idzie trasą serwera).
