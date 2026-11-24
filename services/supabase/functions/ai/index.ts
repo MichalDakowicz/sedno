@@ -25,6 +25,8 @@ import type { SzukajBaza, SzukajElementy, SzukajFragmenty, SzukajFragmentyMiejsc
 const MAX_BODY = 8 * 1024 * 1024;
 const TIERS = new Set(["wazne", "lekkie"]);
 const ROLES = new Set(["system", "user", "assistant"]);
+// Sufit długości odpowiedzi czatu Pestki, gdy klient poda własny max_tokens.
+const MAX_TOKENS_CZATU = 4096;
 
 // Poziom modelu dla pytań o lektury (rozpoznany utwór, pytanie o lekturę, sprawdzanie odwołań w wypracowaniu).
 // To jedyny przełącznik: SEDNO_TIER_LEKTUR=lekkie przywraca poziom wybrany przez aplikację.
@@ -92,7 +94,7 @@ async function handle(req: Request): Promise<Response> {
   if (limited) return limited;
   const limitNarzedzia = requested === undefined ? undefined : Math.min(requested, 8192);
   const maxTokens = czatPestki
-    ? requested
+    ? requested === undefined ? undefined : Math.min(requested, MAX_TOKENS_CZATU)
     : route.provider === SEDNO ? ograniczTokeny(limitNarzedzia) : limitNarzedzia;
   // Komunikat dostawcy może zawierać fragment klucza serwera albo dane organizacji.
   const detailOf = (e: unknown) => (e instanceof LlmError && route.provider !== SEDNO ? e.detail : undefined);
@@ -139,6 +141,8 @@ async function handle(req: Request): Promise<Response> {
       return data;
     }) satisfies SzukajRozmow,
     zapytaj: async (messages: Message[]) => {
+      // Sprawdzenie lektury to dwa wywołania modelu; limit dzienny liczy każde z nich, a wynik pierwszego jest już w ai_usage.
+      if (await limitDzienny(user, route)) throw new LlmError(429, "daily_limit");
       const start = Date.now();
       const out = await chatRetry(route, { messages, maxTokens: ograniczTokeny(2700), signal }, { fallback });
       await logAiUsage({

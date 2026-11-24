@@ -1,7 +1,7 @@
 import { assert, assertEquals, assertStringIncludes } from "jsr:@std/assert";
 import { odczytajOdpowiedzPestki, opisKartyZrodla, zatwierdzPowierzchnie } from "../functions/_shared/pestka-odpowiedz.ts";
 import {
-  czyPytanieOLekturze, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosiOZapisPriorytetu, rozpoznajPytanieCzatu, weryfikuj,
+  czyPytanieOLekturze, MAX_FRAGMENT_LEKTURY, metadaneCzatu, odpowiedzWeryfikacji, przygotujCzat, prosbaPestki, prosiOZapisPriorytetu, rozpoznajPytanieCzatu, weryfikuj,
 } from "../functions/ai/pestka.ts";
 import { typPytania, utworPytania, zawieraCytat } from "../functions/ai/lektury.ts";
 import { kartaLektury, okno, type Material, type SzukajElementy, type SzukajFragmenty, type SzukajFragmentyMiejsca, type SzukajKotwic } from "../functions/ai/material-lektury.ts";
@@ -373,7 +373,7 @@ Deno.test("nawias z numerem źródła przy poprzednim planie przywraca jego mate
   });
   const krok = await przygotujCzat(messages, { tryb: "czat" }, dostep);
   assertEquals(rozpoznajPytanieCzatu(messages, {}).poprzednie, [poprzednie]);
-  assertStringIncludes(system(krok), "Nie wycofuj potwierdzonej informacji");
+  assertStringIncludes(system(krok), "tylko historią");
   assertStringIncludes(system(krok), "[W2] t. II, rozdz. 3: Wokulski w Paryżu spotyka profesora Geista.");
   assertEquals(przez(krok.materialy, "W tym rozdziale Wokulski spotyka Geista [W2].").zrodla[0].url, T2);
   const dopytanie = await przygotujCzat([
@@ -411,8 +411,9 @@ Deno.test("odsyłacze z wcześniejszej odpowiedzi nie są widoczne dla modelu", 
     ];
     const krok = await przygotujCzat(messages, { tryb: "czat" }, dostepZ({ wiersze: [] }).dostep);
     const historia = krok.messages.find((m) => m.role === "assistant")?.content ?? "";
-    assertStringIncludes(historia, "Potwierdzona odpowiedź Sedno");
+    assert(!historia.includes("Potwierdzona"));
     assert(!historia.includes("["));
+    assertStringIncludes(system(krok), "tylko historią");
     assertEquals(krok.messages.at(-1)?.content, messages.at(-1)?.content);
     assertEquals(messages[1].content, odpowiedz);
     assertStringIncludes(system(krok), "Nie komentuj numeracji źródeł");
@@ -837,4 +838,11 @@ Deno.test("cytat musi występować dosłownie, z tolerancją odstępów", () => 
   assert(zawieraCytat("Niech się dzieje\n wola nieba,", "Niech się dzieje wola nieba"));
   assert(!zawieraCytat("Niech się dzieje wola nieba", "Niech sie dzieje wola nieba"));
   assert(!zawieraCytat("Niech się dzieje wola nieba", "Niech się dzieje wola nieb"));
+});
+
+Deno.test("prośba o sprawdzenie lektury ma limit fragmentu, a temat jest przycinany", () => {
+  assertEquals(prosbaPestki({ tryb: "lektura", fragment: "a".repeat(MAX_FRAGMENT_LEKTURY + 1) }), undefined);
+  const ok = prosbaPestki({ tryb: "lektura", fragment: "a".repeat(MAX_FRAGMENT_LEKTURY), temat: "t".repeat(1000) });
+  assertEquals(ok?.tryb === "lektura" && ok.fragment.length, MAX_FRAGMENT_LEKTURY);
+  assertEquals(ok?.tryb === "lektura" && ok.temat?.length, 300);
 });
