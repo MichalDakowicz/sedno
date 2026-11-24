@@ -2,6 +2,7 @@ import { assert, assertEquals, assertStringIncludes } from "jsr:@std/assert";
 import { migracjaElementow, sprawdzPlikLektury, wczytajPlikiLektur, wierszeElementow, type PlikLektury } from "../lektury/format.ts";
 import { ostatniaWygenerowana, wygenerowane } from "../lektury/generuj.ts";
 import { kotwiceZHtml, naglowek, podzielTekst, wytnijTresc } from "../lektury/teksty.ts";
+import { kotwicaLalki } from "../lektury/kotwice-lalki.ts";
 
 const poprawny = (): PlikLektury => ({
   id: "lalka",
@@ -114,4 +115,31 @@ Deno.test("loader: wiersze dostają zakres wersów w obrębie księgi", () => {
   const f = podzielTekst(ksiega, { stronaHtml: "https://wolnelektury.pl/katalog/lektura/z.html" });
   assertEquals(f.length, 1);
   assertEquals(f[0].miejsce, "ks. I, w. 1–30");
+});
+
+Deno.test("wszystkie 38 rozdziałów Lalki ma zgodną kotwicę w generatorze i loaderze", async () => {
+  const { dane } = (await wczytajPlikiLektur()).find((p) => p.nazwa === "lalka")!;
+  const adresy = new Map<string, string>();
+  for (const [tom, nazwa, liczba] of [["I", "pierwszy", 20], ["II", "drugi", 18]] as const) {
+    const slug = "lalka-tom-" + nazwa;
+    const [html, txt] = await Promise.all(["html", "txt"].map((rozszerzenie) =>
+      Deno.readTextFile(new URL(`fixtures/${slug}.${rozszerzenie}`, import.meta.url))));
+    const stronaHtml = `https://wolnelektury.pl/katalog/lektura/${slug}.html`;
+    const fragmenty = podzielTekst(txt, { stronaHtml, kotwice: kotwiceZHtml(html), tom: `t. ${tom}` });
+    assertEquals(fragmenty.length, liczba);
+    const idZHtml = [...html.matchAll(/<h3 id="(wl-e\d+)"/g)].map((m) => m[1]);
+    for (const [i, fragment] of fragmenty.entries()) {
+      const miejsce = `t. ${tom}, rozdz. ${i + 1}`;
+      const url = `${stronaHtml}#${idZHtml[i]}`;
+      assertEquals(fragment.miejsce, miejsce);
+      assertEquals(fragment.url, url, miejsce);
+      assertEquals(kotwicaLalki(miejsce), url, miejsce);
+      adresy.set(miejsce, url);
+    }
+  }
+  assertStringIncludes(adresy.get("t. II, rozdz. 14")!, "#wl-e4032");
+  for (const w of wierszeElementow(dane as PlikLektury).filter((w) => w.miejsce)) {
+    assert(adresy.has(w.miejsce), w.miejsce);
+    assertEquals(w.zrodlo_url, adresy.get(w.miejsce), w.miejsce);
+  }
 });

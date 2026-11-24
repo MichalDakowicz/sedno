@@ -1,6 +1,6 @@
 // Zamienia lektury/*.json na idempotentną migrację SQL (tabela private.lektury_elementy).
 // Użycie: deno run -A services/supabase/lektury/generuj.ts [numer] [--nadpisz]
-// Bez numeru: 0036. Migracja już wdrożona zostaje nietknięta: nowa treść dostaje kolejny numer,
+// Bez numeru: sprawdzenie najnowszej migracji. Nowa treść dostaje kolejny numer,
 // a --nadpisz pozwala przegenerować plik, który jeszcze nie trafił na serwer.
 import { migracjaElementow, sprawdzPlikLektury, wczytajPlikiLektur, type PlikLektury } from "./format.ts";
 
@@ -26,13 +26,13 @@ export async function ostatniaWygenerowana(): Promise<{ nazwa: string; tresc: st
 
 if (import.meta.main) {
   const nadpisz = Deno.args.includes("--nadpisz");
-  const numer = Deno.args.find((a) => /^\d{4}$/.test(a)) ?? "0036";
+  const numer = Deno.args.find((a) => /^\d{4}$/.test(a)) ?? (await ostatniaWygenerowana())?.nazwa.slice(0, 4) ?? "0036";
   const tresc = await wygenerowane();
   const nazwa = `${numer}_lektury_elementy.sql`;
   const cel = new URL(nazwa, MIGRACJE);
   const istnieje = await Deno.stat(cel).then(() => true, () => false);
   if (istnieje && !nadpisz) {
-    if (await Deno.readTextFile(cel) === tresc) console.log(`${nazwa} jest aktualna.`);
+    if ((await Deno.readTextFile(cel)).replaceAll("\r\n", "\n") === tresc) console.log(`${nazwa} jest aktualna.`);
     else throw new Error(`${nazwa} już istnieje i różni się od wyniku. Podaj nowy numer migracji albo użyj --nadpisz (tylko gdy plik nie trafił jeszcze na serwer).`);
   } else {
     await Deno.writeTextFile(cel, tresc);

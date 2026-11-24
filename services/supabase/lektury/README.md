@@ -49,14 +49,16 @@ Ta sama notacja jest w plikach i we fragmentach tekstu, dzięki czemu wydarzenie
 `t. I, rozdz. 7` · `akt II, sc. 3` · `cz. III, sc. 2` · `ks. IV, w. 120–180` · `prolog`.
 Tomy i księgi pisze się cyframi rzymskimi, rozdziały i sceny arabskimi. Numery wersów (`, w. …`) przy łączeniu
 z fragmentem są pomijane. Numerację bierzemy z wydania Wolnych Lektur (inne wydania numerują inaczej).
+Generator przypisuje elementom „Lalki” kotwice rozdziałów z obu tomów. Test porównuje mapę i wynik loadera
+z zapisanymi nagłówkami czytnika.
 
 ## Walidacja i generator
 
 ```bash
 npx -y deno@2 test --no-check=remote -A services/supabase/tests/lektury_test.ts   # walidator + zgodność migracji z JSON
-npm run lektury:generuj            # zapisuje migrations/0036_lektury_elementy.sql
-npm run lektury:generuj -- 0040    # nowa treść po wdrożeniu poprzedniej migracji dostaje nowy numer
-npm run lektury:generuj -- 0036 --nadpisz   # tylko gdy plik jeszcze nie trafił na serwer
+npm run lektury:generuj            # sprawdza najnowszą wygenerowaną migrację
+npm run lektury:generuj -- 0041    # nowa treść po wdrożeniu poprzedniej migracji dostaje nowy numer
+npm run lektury:generuj -- 0041 --nadpisz   # tylko gdy plik jeszcze nie trafił na serwer
 ```
 
 Migracja zawiera wszystkie utwory (dla każdego `delete` + `insert`), więc jest idempotentna i najnowsza wygenerowana
@@ -72,7 +74,7 @@ SEDNO_DB=sb-sedno-dev-db npm run lektury:teksty   # staging
 
 Skrypt pobiera tekst z API Wolnych Lektur, wymaga stopki „Ten utwór jest w domenie publicznej”, dzieli według
 struktury (tom, część, księga, akt, scena, rozdział, prolog) na fragmenty do 800 słów i zapisuje je razem z lokalizacją
-i adresem strony w czytniku (z kotwicą nagłówka `#wl-e…`, gdy HTML ją ma). Wiersze dostają zakres wersów w obrębie
+i adresem strony w czytniku (z kotwicą nagłówka `#wl-e…` lub `#s…`, gdy HTML ją ma). Wiersze dostają zakres wersów w obrębie
 księgi. Załadunek jest idempotentny (dla utworu `delete` + `insert` w jednej transakcji). Host ssh: `SEDNO_SSH`.
 
 ## Wyszukiwanie

@@ -1,6 +1,7 @@
 // Format plików lektury (services/supabase/lektury/<id>.json): walidacja i rozłożenie na wiersze tabeli
 // private.lektury_elementy. Opis formatu jest w README.md w tym katalogu.
 import { KATALOG_LEKTUR, type Utwor } from "../functions/ai/katalog-lektur.ts";
+import { kotwicaLalki } from "./kotwice-lalki.ts";
 
 export type Wydarzenie = { nr: number; miejsce: string; kto: string[]; gdzie: string; opis: string };
 export type Postac = { imie: string; odmiany: string[]; rola: string; relacje: string; miejsca: string[] };
@@ -139,7 +140,8 @@ export function sprawdzPlikLektury(raw: unknown, nazwa: string): string[] {
 /** Rozkłada poprawny plik na wiersze private.lektury_elementy. */
 export function wierszeElementow(p: PlikLektury): WierszElementu[] {
   const domyslny = (p.zrodla.find((z) => z.rodzaj === "utwór") ?? p.zrodla[0])?.url ?? null;
-  const wiersz = (rodzaj: WierszElementu["rodzaj"], nr: number, miejsce: string, opis: string, dane: unknown, url = domyslny): WierszElementu =>
+  const wiersz = (rodzaj: WierszElementu["rodzaj"], nr: number, miejsce: string, opis: string, dane: unknown,
+    url = (p.id === "lalka" && kotwicaLalki(miejsce)) || domyslny): WierszElementu =>
     ({ utwor: p.id, rodzaj, nr, miejsce, tekst: opis.slice(0, 4000), dane, zrodlo_url: url });
   return [
     ...p.wydarzenia.map((w) => wiersz("wydarzenie", w.nr, w.miejsce, `${w.miejsce}. ${w.kto.join(", ")}. ${w.gdzie}. ${w.opis}`, w)),
