@@ -1,0 +1,63 @@
+{
+  "id": "makbet",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "akt I, sc. 1", "kto": ["Trzy Czarownice"], "gdzie": "otwarte pole, grzmoty i błyskawice", "opis": "Trzy Czarownice umawiają się na kolejne spotkanie z Makbetem po bitwie."},
+    {"nr": 2, "miejsce": "akt I, sc. 2", "kto": ["Król Dunkan", "Malkolm", "Żołnierz", "Lennox"], "gdzie": "obóz pod Forres", "opis": "Ranny żołnierz relacjonuje królowi przebieg bitwy i męstwo Makbeta; Dunkan nagradza go tytułem tana Kawdoru."},
+    {"nr": 3, "miejsce": "akt I, sc. 3", "kto": ["Makbet", "Banko", "Trzy Czarownice"], "gdzie": "step", "opis": "Czarownice witają Makbeta jako tana Glamis, tana Kawdoru i przyszłego króla, a Bankowi zapowiadają, że spłodzi królów; nadchodzą posłańcy z nadaniem tytułu Kawdoru."},
+    {"nr": 4, "miejsce": "akt I, sc. 4", "kto": ["Król Dunkan", "Malkolm", "Makbet", "Banko"], "gdzie": "pałac w Forres", "opis": "Dunkan dziękuje Makbetowi za zwycięstwo i ogłasza Malkolma następcą tronu; Makbet zauważa, że Malkolm stoi mu na drodze."},
+    {"nr": 5, "miejsce": "akt I, sc. 5", "kto": ["Lady Makbet", "Makbet"], "gdzie": "zamek Makbeta w Inverness", "opis": "Lady Makbet czyta list męża o przepowiedni i zachęca go do zamordowania Dunkana podczas jego wizyty w zamku."},
+    {"nr": 6, "miejsce": "akt I, sc. 7", "kto": ["Makbet", "Lady Makbet"], "gdzie": "sala w zamku w Inverness", "opis": "Makbet waha się przed zbrodnią, ale Lady Makbet przekonuje go do wykonania planu."},
+    {"nr": 7, "miejsce": "akt II, sc. 1", "kto": ["Makbet", "Banko", "Fleance"], "gdzie": "dziedziniec zamkowy", "opis": "Makbet po rozmowie z Bankiem widzi przed sobą zjawę sztyletu i idzie do komnaty Dunkana."},
+    {"nr": 8, "miejsce": "akt II, sc. 2", "kto": ["Makbet", "Lady Makbet"], "gdzie": "zamek w Inverness", "opis": "Makbet po zabiciu Dunkana wraca z zakrwawionymi sztyletami; Lady Makbet zanosi je z powrotem, by obciążyć śpiących sług."},
+    {"nr": 9, "miejsce": "akt II, sc. 3", "kto": ["Odźwierny", "Makduf", "Lennox", "Makbet"], "gdzie": "zamek w Inverness", "opis": "Makduf odkrywa zbrodnię; Makbet zabija sługi i oświadcza, że zrobił to w uniesieniu, a Malkolm i Donalbein uciekają z kraju."},
+    {"nr": 10, "miejsce": "akt II, sc. 4", "kto": ["Ross", "Starzec"], "gdzie": "przed zamkiem", "opis": "Ross i Starzec rozmawiają o niezwykłych znakach na niebie i o tym, że Makbet ma być koronowany w Scone."},
+    {"nr": 11, "miejsce": "akt III, sc. 1", "kto": ["Banko", "Makbet", "Mordercy"], "gdzie": "pałac w Forres", "opis": "Banko podejrzewa Makbeta; Makbet jako król zleca zamordowanie Banka i jego syna Fleance'a."},
+    {"nr": 12, "miejsce": "akt III, sc. 3", "kto": ["Trzej Mordercy", "Banko", "Fleance"], "gdzie": "park przy pałacu w Forres", "opis": "Mordercy zabijają Banka, a Fleance ucieka."},
+    {"nr": 13, "miejsce": "akt III, sc. 4", "kto": ["Makbet", "Lady Makbet", "Ross", "Lennox"], "gdzie": "sala uczty w pałacu", "opis": "Podczas uczty Makbet widzi zjawę Banka i zdradza swój niepokój; Lady Makbet tłumaczy gościom, że to choroba męża, i uczta kończy się w zamieszaniu."},
+    {"nr": 14, "miejsce": "akt IV, sc. 1", "kto": ["Makbet", "Trzy Czarownice"], "gdzie": "ciemna jaskinia z wrzącym kotłem", "opis": "Czarownice wywołują zjawy, które ostrzegają Makbeta przed Makdufem i obiecują, że nie zginie z ręki zrodzonego z kobiety, dopóki las birnamski nie ruszy na Dunsinane."},
+    {"nr": 15, "miejsce": "akt IV, sc. 2", "kto": ["Lady Makduf", "Jej Syn", "Ross"], "gdzie": "zamek Makdufa w Fife", "opis": "Lady Makduf rozmawia z synem; do zamku docierają mordercy Makbeta i zabijają rodzinę Makdufa."},
+    {"nr": 16, "miejsce": "akt IV, sc. 3", "kto": ["Malkolm", "Makduf", "Ross"], "gdzie": "pałac królewski w Anglii", "opis": "Malkolm sprawdza lojalność Makdufa, a ten dowiaduje się od Rossa o śmierci żony i dzieci; obaj postanawiają wystąpić zbrojnie przeciw Makbetowi."},
+    {"nr": 17, "miejsce": "akt V, sc. 1", "kto": ["Doktor", "Dama pałacowa", "Lady Makbet"], "gdzie": "Dunsinane", "opis": "Doktor obserwuje lunatykującą Lady Makbet, która ciągle trze ręce i mówi o krwi, której nie da się zmyć."},
+    {"nr": 18, "miejsce": "akt V, sc. 2–4", "kto": ["Menteith", "Caithness", "Malkolm", "Siward", "Makduf"], "gdzie": "okolica Dunsinane, las birnamski", "opis": "Szkoccy panowie dołączają do wojsk angielskich; żołnierze ścinają gałęzie w lesie birnamskim, by kryć swoją liczbę."},
+    {"nr": 19, "miejsce": "akt V, sc. 5", "kto": ["Makbet", "Seyton"], "gdzie": "zamek w Dunsinane", "opis": "Makbet dowiaduje się od Seytona, że królowa umarła, i mówi o życiu jako o cieniu."},
+    {"nr": 20, "miejsce": "akt V, sc. 5", "kto": ["Makbet", "Posłaniec"], "gdzie": "zamek w Dunsinane", "opis": "Posłaniec melduje, że las birnamski idzie na Dunsinane, więc Makbet widzi spełnienie jednej z przepowiedni."},
+    {"nr": 21, "miejsce": "akt V, sc. 7", "kto": ["Makbet", "Makduf"], "gdzie": "pole przed Dunsinane", "opis": "Makduf wyzywa Makbeta i ujawnia, że został wycięty z łona matki przed czasem; Makbet przestaje wierzyć wróżbom, ale decyduje się walczyć dalej."},
+    {"nr": 22, "miejsce": "akt V, sc. 7–8", "kto": ["Malkolm", "Siward", "Ross", "Makduf"], "gdzie": "pole przed Dunsinane", "opis": "Po walce Malkolm i Siward dowiadują się o stratach, między innymi o poległym synu Siwarda; zwycięstwo należy do wojsk Malkolma."}
+  ],
+  "postacie": [
+    {"imie": "Makbet", "odmiany": ["Makbet", "Makbeta", "Makbetowi", "Makbetem", "Makbecie"], "rola": "tan Glamis, potem Kawdoru, uzurpator tronu szkockiego", "relacje": "mąż Lady Makbet; zabija Dunkana i zleca zamordowanie Banka", "miejsca": ["akt I, sc. 3", "akt II, sc. 2", "akt V, sc. 7"]},
+    {"imie": "Lady Makbet", "odmiany": ["Lady Makbet", "Lady Makbet", "lady Makbet", "Lady Makbet", "Lady"], "rola": "żona Makbeta, namawia go do zbrodni, potem popada w obłęd", "relacje": "żona Makbeta", "miejsca": ["akt I, sc. 5", "akt V, sc. 1"]},
+    {"imie": "Banko", "odmiany": ["Banko", "Banka", "Bankowi", "Bankiem"], "rola": "towarzysz Makbeta, któremu przepowiedziano rodzenie królów", "relacje": "ojciec Fleance'a, zamordowany z rozkazu Makbeta", "miejsca": ["akt I, sc. 3", "akt III, sc. 3"]},
+    {"imie": "Fleance", "odmiany": ["Fleance", "Fleance'a", "Fleance'owi"], "rola": "syn Banka, ucieka przed mordercami", "relacje": "syn Banka", "miejsca": ["akt II, sc. 1", "akt III, sc. 3"]},
+    {"imie": "Król Dunkan", "odmiany": ["Dunkan", "Dunkana", "Dunkanowi", "król Dunkan", "Duncan"], "rola": "król Szkocji, ofiara Makbeta", "relacje": "ojciec Malkolma i Donalbeina", "miejsca": ["akt I, sc. 2", "akt II, sc. 2"]},
+    {"imie": "Malkolm", "odmiany": ["Malkolm", "Malkolma", "Malkolmowi", "Malkolmem"], "rola": "starszy syn Dunkana, prawowity następca tronu", "relacje": "brat Donalbeina; sojusznik Makdufa", "miejsca": ["akt I, sc. 4", "akt IV, sc. 3", "akt V, sc. 7"]},
+    {"imie": "Donalbein", "odmiany": ["Donalbein", "Donalbeina", "Donalbeinowi"], "rola": "młodszy syn Dunkana, ucieka po zabójstwie ojca", "relacje": "brat Malkolma", "miejsca": ["akt II, sc. 3"]},
+    {"imie": "Makduf", "odmiany": ["Makduf", "Makdufa", "Makdufowi", "Makdufem", "Macduf"], "rola": "tan Fife, przeciwnik Makbeta, zabija go w pojedynku", "relacje": "mąż Lady Makduf, ojciec zabitego syna", "miejsca": ["akt II, sc. 3", "akt IV, sc. 3", "akt V, sc. 7"]},
+    {"imie": "Lady Makduf", "odmiany": ["Lady Makduf", "Lady Makduf"], "rola": "żona Makdufa, ginie z rąk morderców Makbeta", "relacje": "matka zamordowanego chłopca", "miejsca": ["akt IV, sc. 2"]},
+    {"imie": "Trzy Czarownice", "odmiany": ["Czarownice", "Czarownic", "Czarownicom", "Czarownicami"], "rola": "wróżebne siostry, wygłaszają przepowiednie Makbetowi", "relacje": "wywołują zjawy w jaskini", "miejsca": ["akt I, sc. 1", "akt I, sc. 3", "akt IV, sc. 1"]},
+    {"imie": "Siward", "odmiany": ["Siward", "Siwarda", "Siwardowi"], "rola": "dowódca angielski wspierający Malkolma", "relacje": "ojciec poległego młodego Siwarda", "miejsca": ["akt V, sc. 7"]},
+    {"imie": "Ross", "odmiany": ["Ross", "Rossa", "Rossowi"], "rola": "szkocki pan, posłaniec złych wiadomości", "relacje": "przekazuje wieści o śmierci rodziny Makdufa", "miejsca": ["akt II, sc. 4", "akt IV, sc. 3"]},
+    {"imie": "Lennox", "odmiany": ["Lennox", "Lennoxa", "Lennoxowi"], "rola": "szkocki pan, świadek wydarzeń", "relacje": "dworzanin Dunkana, potem Makbeta", "miejsca": ["akt I, sc. 2", "akt III, sc. 6"]},
+    {"imie": "Seyton", "odmiany": ["Seyton", "Seytona", "Seytonowi"], "rola": "oficer Makbeta, zawiadamia o śmierci królowej", "relacje": "podwładny Makbeta", "miejsca": ["akt V, sc. 5"]},
+    {"imie": "Doktor", "odmiany": ["Doktor", "Doktora", "Doktorowi"], "rola": "obserwuje lunatyczny sen Lady Makbet", "relacje": "rozmawia z Damą pałacową i z Makbetem", "miejsca": ["akt V, sc. 1", "akt V, sc. 3"]}
+  ],
+  "motywy": [
+    {"motyw": "żądza władzy i ambicja", "przyklad": "Makbet po przepowiedni czarownic i namowach żony zabija Dunkana, a potem eliminuje Banka, by utrzymać koronę.", "miejsce": "akt II, sc. 2; akt III, sc. 1"},
+    {"motyw": "wyrzuty sumienia i obłęd", "przyklad": "Lady Makbet we śnie trze ręce, jakby chciała zmyć krew, a Makbet widzi zjawę sztyletu i ducha Banka.", "miejsce": "akt V, sc. 1; akt II, sc. 1; akt III, sc. 4", "cytat": "Nigdyż te ręce nie będą czyste?"},
+    {"motyw": "przepowiednia i los", "przyklad": "Czarownice zapowiadają Makbetowi koronę i zdradliwie dwuznacznie obiecują mu bezpieczeństwo.", "miejsce": "akt I, sc. 3; akt IV, sc. 1"},
+    {"motyw": "zjawa sztyletu", "przyklad": "Przed zabójstwem Dunkana Makbet widzi przed sobą sztylet kierujący go do komnaty króla.", "miejsce": "akt II, sc. 1", "cytat": "Czy to jest sztylet, co przede mną błyszczy,"},
+    {"motyw": "zbrodnia pociąga kolejne zbrodnie", "przyklad": "Po zamordowaniu Dunkana Makbet zabija sługi, zleca zabójstwo Banka i morduje rodzinę Makdufa.", "miejsce": "akt II, sc. 3; akt III, sc. 3; akt IV, sc. 2"},
+    {"motyw": "dwuznaczność wróżb", "przyklad": "Makbet liczy, że nikt zrodzony z kobiety go nie pokona, ale Makduf został wycięty z łona matki przed czasem.", "miejsce": "akt V, sc. 7", "cytat": "Niechaj nikt piekła szalbierstwom nie wierzy,"},
+    {"motyw": "przemijanie i marność życia", "przyklad": "Po wiadomości o śmierci królowej Makbet mówi, że życie jest tylko cieniem przelotnym i nędznym aktorem na scenie świata.", "miejsce": "akt V, sc. 5", "cytat": "To życie tylko cieniem jest przelotnym,"},
+    {"motyw": "tyrania i sprawiedliwa kara", "przyklad": "Makbet jako król rządzi strachem i mordem, a Malkolm i Makduf zbierają wojska, by go obalić.", "miejsce": "akt IV, sc. 3; akt V, sc. 7"},
+    {"motyw": "zło ukryte pod pozorami", "przyklad": "Lady Makbet radzi mężowi wyglądać jak niewinny kwiat, a pod nim być żmiją, i przyjmuje Dunkana w zamku.", "miejsce": "akt I, sc. 5; akt I, sc. 6"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/makbet/", "rodzaj": "utwór", "co": "Pobrany tekst w przekładzie Leona Ulricha; podział na akty i sceny według Wolnych Lektur; sprawdzono listę scen i miejsc akcji oraz cytaty (akt II sc. 1, akt V sc. 1, 5, 7)."}
+  ],
+  "do_weryfikacji": [
+    "Opisy scen opierają się na liście scen z miejscem akcji, wypowiedziach kluczowych (akt IV sc. 1, akt V sc. 1, 5, 7) i znajomości fabuły; sceny niezweryfikowane w tekście: akt I sc. 6, akt III sc. 6, akt IV sc. 3, akt V sc. 2–4 i 6.",
+    "Nazwy własne w przekładzie Ulricha (m.in. Kawdor, Makduf, Dunkan, Dunsinane) różnią się od oryginału i innych tłumaczeń; w notatkach użyto form z przekładu WL."
+  ]
+}

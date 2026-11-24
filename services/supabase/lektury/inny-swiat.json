@@ -1,0 +1,60 @@
+{
+  "id": "inny-swiat",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "cz. I, Witebsk – Leningrad – Wołogda", "kto": ["Gustaw Herling-Grudziński"], "gdzie": "więzienie w Witebsku", "opis": "Narrator opisuje śledztwo po próbie przekroczenia granicy litewskiej i wyrok pięciu lat obozu."},
+    {"nr": 2, "miejsce": "cz. I, Witebsk – Leningrad – Wołogda", "kto": ["Gustaw Herling-Grudziński", "więźniowie"], "gdzie": "Witebsk, Leningrad i Wołogda", "opis": "Narrator przechodzi przez kolejne więzienia i transporty, zanim dociera do Jercewa."},
+    {"nr": 3, "miejsce": "cz. I, Nocne łowy", "kto": ["Gustaw Herling-Grudziński", "urkowie", "więźniowie polityczni"], "gdzie": "Jercewo", "opis": "Narrator przedstawia zależności w obozie, w którym więźniowie kryminalni mają przewagę nad politycznymi."},
+    {"nr": 4, "miejsce": "cz. I, Nocne łowy", "kto": ["Marusia", "Kowal", "urkowie"], "gdzie": "Jercewo, przestrzeń między barakami", "opis": "Narrator przytacza historię Marusi, która pada ofiarą gwałtu dokonanego przez grupę urków."},
+    {"nr": 5, "miejsce": "cz. I, Praca – Dzień po dniu", "kto": ["Gustaw Herling-Grudziński", "więźniowie"], "gdzie": "Jercewo, baza żywnościowa i las", "opis": "Więźniowie pracują w brygadach, a wykonanie normy określa wielkość przysługującej im racji żywności."},
+    {"nr": 6, "miejsce": "cz. I, Drei Kameraden", "kto": ["Gustaw Herling-Grudziński", "niemieccy komuniści"], "gdzie": "Jercewo", "opis": "Narrator przedstawia trzech niemieckich więźniów, których wcześniejsze zaangażowanie komunistyczne nie ochroniło przed represjami."},
+    {"nr": 7, "miejsce": "cz. I, Ręka w ogniu", "kto": ["Michaił Kostylew"], "gdzie": "ZSRR, wspomnienia Kostylewa", "opis": "Lektura francuskich powieści budzi w Kostylewie zainteresowanie życiem poza ZSRR i osłabia jego zaufanie do obrazu Zachodu poznanego wcześniej."},
+    {"nr": 8, "miejsce": "cz. I, Ręka w ogniu", "kto": ["Michaił Kostylew", "śledczy"], "gdzie": "więzienie", "opis": "Kostylew jest wybudzany i przesłuchiwany o różnych porach oraz pozbawiany możliwości odpoczynku."},
+    {"nr": 9, "miejsce": "cz. I, Ręka w ogniu", "kto": ["Michaił Kostylew", "Gustaw Herling-Grudziński"], "gdzie": "Jercewo", "opis": "Kostylew celowo utrzymuje ranę ręki, by uchylać się od pracy na rzecz władz obozu."},
+    {"nr": 10, "miejsce": "cz. I, Dom Swidanij", "kto": ["więźniowie i ich bliscy"], "gdzie": "Jercewo, dom widzeń", "opis": "Narrator opisuje dom widzeń, w którym wybrani więźniowie mogą na krótko spotkać się z rodzinami."},
+    {"nr": 11, "miejsce": "cz. I, Zmartwychwstanie", "kto": ["więźniowie", "personel szpitalny"], "gdzie": "Jercewo, szpital obozowy", "opis": "Narrator przedstawia pobyt w szpitalu jako szansę na odpoczynek od pracy i odzyskanie sił."},
+    {"nr": 12, "miejsce": "cz. I, Wychodnoj dień", "kto": ["Rusto Karinen"], "gdzie": "okolice obozu w Jercewie", "opis": "Rusto opowiada o nieudanej próbie ucieczki, po której wraca do obozu."},
+    {"nr": 13, "miejsce": "cz. II, Głód", "kto": ["więźniarki", "narrator"], "gdzie": "Jercewo", "opis": "Narrator pokazuje, jak niedożywienie stawia więźniarki w sytuacji zależności od osób mogących zapewnić im żywność."},
+    {"nr": 14, "miejsce": "cz. II, Krzyki nocne", "kto": ["Gustaw Herling-Grudziński", "więźniowie"], "gdzie": "Jercewo, barak", "opis": "W nocy w baraku rozlegają się jęki i krzyki więźniów, którzy wyczerpani po całym dniu próbują zasnąć."},
+    {"nr": 15, "miejsce": "cz. II, Zapiski z martwego domu", "kto": ["Gustaw Herling-Grudziński", "Natalia Lwowna"], "gdzie": "Jercewo", "opis": "Narrator czyta Dostojewskiego i rozmawia o doświadczeniu niewoli z Natalią Lwowną."},
+    {"nr": 16, "miejsce": "cz. II, Zapiski z martwego domu", "kto": ["Natalia Lwowna", "Gustaw Herling-Grudziński"], "gdzie": "Jercewo", "opis": "Natalia Lwowna postrzega kraj poza obozem jako dalszy ciąg uwięzienia i podejmuje próbę samobójczą."},
+    {"nr": 17, "miejsce": "cz. II, Na tyłach otieczestwiennoj wojny", "kto": ["Gustaw Herling-Grudziński", "polscy więźniowie"], "gdzie": "Jercewo", "opis": "Wieści o wojnie niemiecko-sowieckiej budzą wśród polskich więźniów nadzieję na zwolnienie."},
+    {"nr": 18, "miejsce": "cz. II, Męka za wiarę", "kto": ["Gustaw Herling-Grudziński", "polscy więźniowie"], "gdzie": "Jercewo", "opis": "Narrator podejmuje głodówkę, aby zaprotestować przeciw dalszemu przetrzymywaniu polskich więźniów w łagrze."},
+    {"nr": 19, "miejsce": "cz. II, Trupiarnia", "kto": ["Gustaw Herling-Grudziński", "wycieńczeni więźniowie"], "gdzie": "Jercewo, barak dla niezdolnych do pracy", "opis": "Narrator trafia do baraku zajmowanego przez więźniów wyniszczonych głodem i pracą."},
+    {"nr": 20, "miejsce": "cz. II, Ural 1942", "kto": ["Gustaw Herling-Grudziński"], "gdzie": "Jercewo, droga do polskiego wojska i wyjazd z ZSRR", "opis": "Po zwolnieniu z obozu narrator dociera do polskiego wojska i opuszcza Związek Sowiecki."},
+    {"nr": 21, "miejsce": "epilog", "kto": ["Gustaw Herling-Grudziński", "dawny współwięzień"], "gdzie": "Rzym", "opis": "Były więzień wyjawia narratorowi, że jego fałszywe zeznanie w obozie doprowadziło do śmierci czterech ludzi."},
+    {"nr": 22, "miejsce": "epilog", "kto": ["Gustaw Herling-Grudziński", "dawny współwięzień"], "gdzie": "Rzym", "opis": "Rozmówca chce usłyszeć, że narrator rozumie jego decyzję, ale narrator pozostaje milczący."}
+  ],
+  "postacie": [
+    {"imie": "Gustaw Herling-Grudziński", "odmiany": ["Gustaw", "Gustawa", "Herling-Grudziński", "Herlinga-Grudzińskiego", "Herlingiem-Grudzińskim"], "rola": "autor, narrator i bohater, więzień sowiecki", "relacje": "współwięzień Kostylewa i Natalii Lwowny, rozmówca byłego więźnia w Rzymie", "miejsca": ["cz. I, Witebsk – Leningrad – Wołogda", "cz. II, Męka za wiarę", "epilog"]},
+    {"imie": "Michaił Kostylew", "odmiany": ["Michaił", "Michaiła", "Kostylew", "Kostylewa", "Kostylewowi", "Kostylewem"], "rola": "więzień, który po odkryciu literatury francuskiej zmienia stosunek do sowieckiego systemu", "relacje": "opowiada narratorowi o swoim życiu, odmawia pracy przez samookaleczenie", "miejsca": ["cz. I, Ręka w ogniu"]},
+    {"imie": "Natalia Lwowna", "odmiany": ["Natalia", "Natalii", "Natalię", "Natalią", "Lwowna", "Lwowny", "Lwowną"], "rola": "więźniarka, pomaga innym więźniom i podejmuje próbę samobójczą", "relacje": "rozmówczyni narratora o Dostojewskim i życiu w niewoli", "miejsca": ["cz. II, Zapiski z martwego domu"]},
+    {"imie": "Marusia", "odmiany": ["Marusia", "Marusi", "Marusię", "Marusią"], "rola": "więźniarka, doświadcza przemocy ze strony urków", "relacje": "jej los przedstawia narrator w rozdziale o nocnych napaściach", "miejsca": ["cz. I, Nocne łowy"]},
+    {"imie": "Kowal", "odmiany": ["Kowal", "Kowala", "Kowalowi", "Kowalem"], "rola": "urak stojący na czele grupy atakującej Marusię", "relacje": "napastnik Marusi, współwięzień narratora", "miejsca": ["cz. I, Nocne łowy"]},
+    {"imie": "Rusto Karinen", "odmiany": ["Rusto", "Rusta", "Rustowi", "Rustem", "Karinen", "Karinena", "Karinenem"], "rola": "fiński więzień, podejmuje próbę ucieczki", "relacje": "narrator przytacza jego doświadczenie", "miejsca": ["cz. I, Wychodnoj dień"]},
+    {"imie": "Dawny współwięzień z epilogu", "odmiany": ["współwięzień", "współwięźnia", "współwięźniem", "Jewriej", "Jewrieja"], "rola": "były więzień, przyznaje, że obciążył niewinnych ludzi", "relacje": "szuka zrozumienia u narratora, który również przeżył obóz", "miejsca": ["epilog"]}
+  ],
+  "motywy": [
+    {"motyw": "praca przymusowa i głód", "przyklad": "Wielkość racji zależy od wykonania normy. Więzień osłabiony głodem ma mniej sił do pracy potrzebnej, by dostać więcej jedzenia.", "miejsce": "cz. I, Praca – Dzień po dniu"},
+    {"motyw": "przemoc i hierarchia obozowa", "przyklad": "Gwałt na Marusi pokazuje, jak przewaga urków nad innymi więźniami sprzyja przemocy.", "miejsce": "cz. I, Nocne łowy"},
+    {"motyw": "śledztwo jako łamanie człowieka", "przyklad": "Śledczy pozbawiają Kostylewa snu i utrudniają mu zaspokojenie podstawowych potrzeb, aby osłabić jego opór.", "miejsce": "cz. I, Ręka w ogniu"},
+    {"motyw": "bunt i godność", "przyklad": "Kostylew wybiera okaleczanie własnej ręki, aby odmówić pracy obozowej. Jego postawę można odczytać jako próbę zachowania wpływu na własne decyzje.", "miejsce": "cz. I, Ręka w ogniu"},
+    {"motyw": "rodzina i krucha więź ze światem poza łagrem", "przyklad": "Dom widzeń umożliwia więźniom spotkanie z bliskimi po długim rozdzieleniu, pod warunkiem uzyskania zgody władz.", "miejsce": "cz. I, Dom Swidanij"},
+    {"motyw": "lektura i język opisu niewoli", "przyklad": "Rozmowy o Dostojewskim prowadzą narratora i Natalię do porównania doświadczeń dawnej katorgi z własnym uwięzieniem.", "miejsce": "cz. II, Zapiski z martwego domu"},
+    {"motyw": "walka o wolność", "przyklad": "Gustaw podejmuje głodówkę, gdy nadal jest więziony mimo nadziei związanej ze zwolnieniem Polaków.", "miejsce": "cz. II, Męka za wiarę"},
+    {"motyw": "granice moralnego osądu", "przyklad": "Były więzień prosi o zrozumienie swego fałszywego zeznania. Milczenie narratora można odczytać jako odmowę zaakceptowania czynu wymuszonego przez warunki obozu.", "miejsce": "epilog"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://zpe.gov.pl/a/prezentacja-multimedialna/DOPFL0ddG", "rodzaj": "opracowanie", "co": "Aresztowanie i wyrok narratora, praca przymusowa, miejsce trupiarni w obrazie Jercewa."},
+    {"url": "https://www.ahe.lodz.pl/strefa-wiedzy/inny-swiat", "rodzaj": "opracowanie", "co": "Droga do Jercewa, praca, racje, przywileje urków, napaść na Marusię, wiadomości z frontu i los narratora po zwolnieniu."},
+    {"url": "https://zpe.gov.pl/watek/LPFHDLRM4G/318/a/cwiczenia/D6ESU6QNP", "rodzaj": "utwór", "co": "Fragment rozdziału Ręka w ogniu oraz ćwiczenia o lekturach Kostylewa, jego buncie i próbie ucieczki Karinena."},
+    {"url": "https://www.8los.pl/wp-content/uploads/2025/11/inny-swiat-2019.pdf", "rodzaj": "opracowanie", "co": "Materiał liceum z fragmentami tekstu: zasady widzeń, obozowy szpital i rządy urków."},
+    {"url": "https://bazhum.muzhp.pl/media/files/Postscriptum/Postscriptum-r2006-t-n2%2852%29/Postscriptum-r2006-t-n2%2852%29-s93-108/Postscriptum-r2006-t-n2%2852%29-s93-108.pdf", "rodzaj": "opracowanie", "co": "Odniesienia do Dostojewskiego oraz sposób, w jaki Natalia Lwowna mówi o niewoli."},
+    {"url": "https://zpe.gov.pl/a/sprawdz-sie/DWPH8jNuW", "rodzaj": "opracowanie", "co": "Losy Karinena i Marusi, protest głodowy oraz wyznanie byłego więźnia z epilogu."},
+    {"url": "https://zpe.gov.pl/a/przeczytaj/DYOHC1uNy", "rodzaj": "opracowanie", "co": "Rozmowa w Rzymie, los czterech ludzi i reakcja narratora."}
+  ],
+  "do_weryfikacji": [
+    "Katalog podaje fragmenty bez zamkniętej listy miejsc w tekście.",
+    "Pełny przebieg losów Gorcewa, Pamfiłowa i dalsze okoliczności śmierci Kostylewa wymagają sprawdzenia w wydaniu książkowym."
+  ]
+}

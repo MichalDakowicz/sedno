@@ -1,0 +1,28 @@
+{
+  "id": "polikarp",
+  "wydarzenia": [],
+  "postacie": [
+    {"imie": "Mistrz Polikarp", "odmiany": ["Polikarp", "Polikarpa", "Polikarpowi", "Polikarpem", "mistrz", "mistrza"], "rola": "uczony mistrz, który prosi Boga o ujrzenie śmierci", "relacje": "rozmawia ze Śmiercią i przeraża się jej widoku", "miejsca": ["prolog", "ukazanie się Śmierci", "rozmowa ze Śmiercią"]},
+    {"imie": "Śmierć", "odmiany": ["Śmierć", "Śmierci", "Śmiercią", "Śmirci"], "rola": "postać alegoryczna ukazana jako nagi, chudy, blady szkielet z kosą", "relacje": "rozmawia z Polikarpem i zapowiada, że zbawi życia wszystkich", "miejsca": ["ukazanie się Śmierci", "mowa Śmierci"]},
+    {"imie": "Bóg", "odmiany": ["Bóg", "Boga", "Bogu", "Gospodzin"], "rola": "adresat prologu i prośby Polikarpa", "relacje": "zgadza się, by Śmierć ukazała się mistrzowi", "miejsca": ["prolog"]}
+  ],
+  "motywy": [
+    {"motyw": "śmierć nie omija nikogo", "przyklad": "Prolog mówi, że żaden człowiek, stary ani młody, nie ujdzie śmiertelnej szkody, a Śmierć mówi, że przed jej kosą nikt nie uciecze.", "miejsce": "prolog; mowa Śmierci", "cytat": "Kogo koli śmierć udusi,"},
+    {"motyw": "memento mori i okrutność śmierci", "przyklad": "Śmierć ukazuje się jako chuda, blada postać z kosą, bez warg, z odsłoniętymi zębami, i przeraża Polikarpa tak, że ten pada na ziemię.", "miejsce": "ukazanie się Śmierci"},
+    {"motyw": "śmierć i godności ziemskie", "przyklad": "Śmierć zapowiada, że z króla zdejmie koronę, a jej kosa siecze doktorów i mistrzów.", "miejsce": "mowa Śmierci", "cytat": "Siekę doktory i mistrze,"},
+    {"motyw": "pochodzenie śmierci i grzech pierworodny", "przyklad": "Śmierć opowiada, że Bóg stworzył człowieka, aby żył wiecznie, ale zakazał mu jedzenia z drzewa; po upadku Adama pojawiła się śmierć.", "miejsce": "rozmowa ze Śmiercią (o pochodzeniu)"},
+    {"motyw": "lęk i bezradność człowieka wobec śmierci", "przyklad": "Mistrz drży i błaga Śmierć, żeby odłożyła kosę, ale ona odmawia.", "miejsce": "rozmowa ze Śmiercią", "cytat": "Ma kosa wisz, trawę siecze,"},
+    {"motyw": "krytyka stanów i grzechów", "przyklad": "Śmierć wymienia, kogo będzie karać, między innymi karczmarzy, którzy źle nalewają piwo.", "miejsce": "mowa Śmierci"},
+    {"motyw": "alegoria i dialog ze Śmiercią", "przyklad": "Utwór ma formę rozmowy mistrza i Śmierci, każdą wypowiedź poprzedzają łacińskie wskazania mówiącego (Mors dicit, Magister dicit).", "miejsce": "cały utwór"}
+  ],
+  "utwory": [
+    {"tytul": "Rozmowa Mistrza Polikarpa ze Śmiercią", "miejsce": "cały utwór (kilkaset wersów)", "opis": "Średniowieczny dialog, w którym mistrz Polikarp prosi Boga o ujrzenie śmierci; ukazuje się mu odrażająca postać, a rozmowa dotyczy pochodzenia i mocy Śmierci, która pozbawia życia przedstawicieli wszystkich stanów."}
+  ],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/rozmowa-mistrza-polikarpa-ze-smiercia/", "rodzaj": "utwór", "co": "Pobrany tekst; przeczytano prolog, opis Śmierci, początek rozmowy i fragmenty mowy Śmierci; reszta przejrzana po nagłówkach mówców."}
+  ],
+  "do_weryfikacji": [
+    "Dalsze części rozmowy (od ok. połowy utworu) przejrzano tylko po nagłówkach i wybranych fragmentach; pełny wykaz stanów, które Śmierć wymienia, nie został spisany.",
+    "Katalog wskazuje „fragmenty” bez zamkniętego wykazu; nie wiadomo, które części są wymagane."
+  ]
+}

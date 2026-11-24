@@ -1,0 +1,66 @@
+{
+  "id": "ferdydurke",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "rozdz. 1", "kto": ["Józio Kowalski"], "gdzie": "pokój Józia", "opis": "Trzydziestoletni Józio budzi się po śnie, w którym widział siebie jako nastolatka."},
+    {"nr": 2, "miejsce": "rozdz. 1", "kto": ["Józio Kowalski", "profesor Pimko"], "gdzie": "pokój Józia", "opis": "Józio siada do pisania, gdy do mieszkania przychodzi profesor Pimko."},
+    {"nr": 3, "miejsce": "rozdz. 1", "kto": ["Józio Kowalski", "profesor Pimko"], "gdzie": "pokój Józia i droga do szkoły", "opis": "Pimko traktuje dorosłego Józia jak ucznia i zabiera go do szkoły."},
+    {"nr": 4, "miejsce": "rozdz. 2", "kto": ["Józio Kowalski", "Miętus", "Syfon"], "gdzie": "szkoła", "opis": "Józio poznaje dwie grupy uczniów skupione wokół Miętusa i Syfona."},
+    {"nr": 5, "miejsce": "rozdz. 2", "kto": ["Bladaczka", "Gałkiewicz", "Józio Kowalski"], "gdzie": "szkoła, sala lekcyjna", "opis": "Bladaczka domaga się od uczniów uznania wielkości Słowackiego, a Gałkiewicz przyznaje, że poezja go nie zachwyca."},
+    {"nr": 6, "miejsce": "rozdz. 2", "kto": ["Bladaczka", "Gałkiewicz", "Syfon"], "gdzie": "szkoła, sala lekcyjna", "opis": "Bladaczka zwraca się do Syfona, żeby przez recytację wykazał wartość poezji Słowackiego."},
+    {"nr": 7, "miejsce": "rozdz. 3", "kto": ["Józio Kowalski", "Miętus", "Syfon", "Pyzo"], "gdzie": "szkoła, zamknięta klasa", "opis": "Pyzo ogłasza zasady pojedynku, w którym Miętus ma odpowiadać na miny Syfona."},
+    {"nr": 8, "miejsce": "rozdz. 3", "kto": ["Miętus", "Syfon"], "gdzie": "szkoła, zamknięta klasa", "opis": "Syfon wygrywa pojedynek na miny, utrzymując uniesiony palec mimo prób ośmieszenia tego gestu przez Miętusa."},
+    {"nr": 9, "miejsce": "rozdz. 3", "kto": ["Miętus", "Syfon"], "gdzie": "szkoła, zamknięta klasa", "opis": "Miętus i jego stronnicy przechodzą od min do przemocy, a Miętus próbuje narzucić Syfonowi swoje wyobrażenie o świecie."},
+    {"nr": 10, "miejsce": "rozdziały o Filidorze", "kto": ["narrator", "Filidor"], "gdzie": "dygresja i opowieść wtrącona", "opis": "Narrator przerywa historię Józia przedmową o formie i opowieścią o Filidorze."},
+    {"nr": 11, "miejsce": "stancja u Młodziaków, przybycie", "kto": ["Józio Kowalski", "profesor Pimko", "Młodziakowie", "Zuta Młodziakówna"], "gdzie": "mieszkanie Młodziaków", "opis": "Pimko umieszcza Józia na stancji u rodziny, która przedstawia się jako nowoczesna."},
+    {"nr": 12, "miejsce": "stancja u Młodziaków, rozmowa przy stole", "kto": ["Zuta Młodziakówna", "Młodziakowa", "Młodziak"], "gdzie": "mieszkanie Młodziaków", "opis": "Matka i ojciec Zuty deklarują swobodę obyczajową, kiedy mowa o chłopcu, z którym Zuta wracała ze szkoły."},
+    {"nr": 13, "miejsce": "stancja u Młodziaków, fascynacja Zutą", "kto": ["Józio Kowalski", "Zuta Młodziakówna"], "gdzie": "mieszkanie Młodziaków", "opis": "Józio przygląda się Zucie i podziwia pewność, z jaką odgrywa rolę nowoczesnej dziewczyny."},
+    {"nr": 14, "miejsce": "stancja u Młodziaków, prowokacje", "kto": ["Józio Kowalski", "Zuta Młodziakówna"], "gdzie": "mieszkanie Młodziaków", "opis": "Próbując zakłócić starannie utrzymywany styl Zuty, Józio wkłada do jej buta okaleczoną muchę."},
+    {"nr": 15, "miejsce": "stancja u Młodziaków, nocna schadzka", "kto": ["Józio Kowalski", "Zuta Młodziakówna", "Kopyrda", "profesor Pimko"], "gdzie": "mieszkanie Młodziaków, pokój Zuty", "opis": "Józio doprowadza do tego, że Kopyrda i Pimko zjawiają się nocą w pokoju Zuty."},
+    {"nr": 16, "miejsce": "stancja u Młodziaków, nocna schadzka", "kto": ["Młodziakowa", "Młodziak", "Zuta Młodziakówna", "profesor Pimko", "Kopyrda"], "gdzie": "mieszkanie Młodziaków, pokój Zuty", "opis": "Młodziakowie zastają w pokoju córki Pimkę i Kopyrdę, a spotkanie kończy się awanturą."},
+    {"nr": 17, "miejsce": "stancja u Młodziaków, ucieczka", "kto": ["Józio Kowalski"], "gdzie": "mieszkanie Młodziaków", "opis": "Podczas zamieszania Józio pakuje podręczną walizkę i opuszcza stancję."},
+    {"nr": 18, "miejsce": "rozdziały o Filibercie", "kto": ["narrator", "Filibert"], "gdzie": "dygresja i opowieść wtrącona", "opis": "W toku historii Józia pojawia się druga przedmowa i opowieść o Filibercie."},
+    {"nr": 19, "miejsce": "pobyt u Hurleckich, przybycie", "kto": ["Józio Kowalski", "Miętus", "Hurleccy"], "gdzie": "dwór Hurleckich", "opis": "Józio i Miętus trafiają do dworu krewnych Józia, w którym obowiązują ziemiańskie obyczaje."},
+    {"nr": 20, "miejsce": "pobyt u Hurleckich, bratanie się z parobkiem", "kto": ["Miętus", "Walek", "Konstanty Hurlecki"], "gdzie": "dwór Hurleckich", "opis": "Miętus próbuje nawiązać z parobkiem Walkiem stosunki na równych prawach, wywołując niepokój gospodarzy."},
+    {"nr": 21, "miejsce": "pobyt u Hurleckich, załamanie porządku", "kto": ["Miętus", "Walek", "Hurleccy"], "gdzie": "dwór Hurleckich", "opis": "Próba zatarcia podziału na państwo i służbę przeradza się w chaos we dworze."},
+    {"nr": 22, "miejsce": "finał, ucieczka z Zosią", "kto": ["Józio Kowalski", "Zosia"], "gdzie": "dwór Hurleckich i droga", "opis": "Józio ucieka z kuzynką Zosią, podejmując wobec niej rolę porywacza."},
+    {"nr": 23, "miejsce": "zakończenie", "kto": ["Józio Kowalski"], "gdzie": "wypowiedź narratora", "opis": "Po ucieczce z Zosią narracja kończy się rymowaną formułą skierowaną do czytelnika."}
+  ],
+  "postacie": [
+    {"imie": "Józio Kowalski", "odmiany": ["Józio", "Józia", "Józiowi", "Józiem", "Kowalski", "Kowalskiego"], "rola": "trzydziestoletni pisarz i narrator, przymusowo wprowadzony w rolę ucznia", "relacje": "podopieczny Pimki i lokator Młodziaków, znajomy Miętusa, kuzyn Zosi", "miejsca": ["rozdz. 1", "stancja u Młodziaków", "finał, ucieczka z Zosią"]},
+    {"imie": "Profesor Pimko", "odmiany": ["Pimko", "Pimki", "Pimce", "Pimkę", "Pimką", "profesor Pimko"], "rola": "nauczyciel, narzuca Józiowi rolę niedojrzałego ucznia", "relacje": "zabiera Józia do szkoły i umieszcza go u Młodziaków", "miejsca": ["rozdz. 1", "stancja u Młodziaków, nocna schadzka"]},
+    {"imie": "Miętus (Miętalski)", "odmiany": ["Miętus", "Miętusa", "Miętusowi", "Miętusem", "Miętalski", "Miętalskiego"], "rola": "uczeń buntujący się przeciw szkolnej wizji niewinności", "relacje": "przeciwnik Syfona, towarzysz Józia i inicjator bratania się z Walkiem", "miejsca": ["rozdz. 3", "pobyt u Hurleckich"]},
+    {"imie": "Syfon (Pylaszczkiewicz)", "odmiany": ["Syfon", "Syfona", "Syfonowi", "Syfonem", "Pylaszczkiewicz", "Pylaszczkiewicza"], "rola": "uczeń wierny szkolnym ideałom", "relacje": "przeciwnik Miętusa, recytuje na polecenie Bladaczki", "miejsca": ["rozdz. 2–3"]},
+    {"imie": "Bladaczka", "odmiany": ["Bladaczka", "Bladaczki", "Bladaczce", "Bladaczkę", "Bladaczką"], "rola": "polonista", "relacje": "uczy Józia, Gałkiewicza i Syfona", "miejsca": ["rozdz. 2"]},
+    {"imie": "Gałkiewicz", "odmiany": ["Gałkiewicz", "Gałkiewicza", "Gałkiewiczowi", "Gałkiewiczem"], "rola": "uczeń kwestionujący narzuconą ocenę poezji", "relacje": "uczeń Bladaczki", "miejsca": ["rozdz. 2"]},
+    {"imie": "Zuta Młodziakówna", "odmiany": ["Zuta", "Zuty", "Zucie", "Zutę", "Zutą", "Młodziakówna", "Młodziakówny"], "rola": "nowoczesna pensjonarka", "relacje": "córka Młodziaków, wzbudza zainteresowanie Józia i Kopyrdy", "miejsca": ["stancja u Młodziaków, rozmowa przy stole", "stancja u Młodziaków, nocna schadzka"]},
+    {"imie": "Młodziakowa", "odmiany": ["Młodziakowa", "Młodziakowej", "Młodziakową"], "rola": "gospodyni stancji Józia, deklaruje nowoczesne podejście do wychowania", "relacje": "żona Młodziaka i matka Zuty", "miejsca": ["stancja u Młodziaków, rozmowa przy stole", "stancja u Młodziaków, nocna schadzka"]},
+    {"imie": "Młodziak", "odmiany": ["Młodziak", "Młodziaka", "Młodziakowi", "Młodziakiem"], "rola": "inżynier, ojciec rodziny deklarującej swobodę obyczajową", "relacje": "mąż Młodziakowej, ojciec Zuty", "miejsca": ["stancja u Młodziaków, rozmowa przy stole", "stancja u Młodziaków, nocna schadzka"]},
+    {"imie": "Kopyrda", "odmiany": ["Kopyrda", "Kopyrdy", "Kopyrdzie", "Kopyrdę", "Kopyrdą"], "rola": "chłopak, który przychodzi nocą do pokoju Zuty", "relacje": "rywal Józia w wątku Zuty", "miejsca": ["stancja u Młodziaków, nocna schadzka"]},
+    {"imie": "Walek", "odmiany": ["Walek", "Walka", "Walkowi", "Walkiem"], "rola": "parobek u Hurleckich", "relacje": "Miętus próbuje się z nim bratać", "miejsca": ["pobyt u Hurleckich, bratanie się z parobkiem"]},
+    {"imie": "Zosia", "odmiany": ["Zosia", "Zosi", "Zosię", "Zosią"], "rola": "młoda mieszkanka dworu", "relacje": "kuzynka Józia, z którą ucieka z dworu", "miejsca": ["finał, ucieczka z Zosią"]}
+  ],
+  "motywy": [
+    {"motyw": "upupianie i infantylizacja", "przyklad": "Pimko odbiera dorosłemu Józiowi samodzielność, traktując go jak chłopca i prowadząc do szkoły.", "miejsce": "rozdz. 1"},
+    {"motyw": "przymus w edukacji", "przyklad": "Gałkiewicz mówi, że poezja Słowackiego go nie zachwyca, a Bladaczka próbuje skorygować jego reakcję recytacją Syfona.", "miejsce": "rozdz. 2"},
+    {"motyw": "gęba i narzucanie roli", "przyklad": "Syfon próbuje wyrazić miną szkolne ideały, a Miętus usiłuje mu narzucić własną wizję przez ośmieszanie gestów i użycie siły.", "miejsce": "rozdz. 3"},
+    {"motyw": "łydka i kult młodości", "przyklad": "Józio przygląda się Zucie, której pewność siebie i fizyczna sprawność stają się dla niego znakiem nowoczesności.", "miejsce": "stancja u Młodziaków, fascynacja Zutą"},
+    {"motyw": "swoboda obyczajowa jako poza", "przyklad": "Rodzice Zuty deklarują, że przyjmą jej samodzielne wybory, lecz nocna obecność Pimki i Kopyrdy w jej pokoju wywołuje awanturę.", "miejsce": "stancja u Młodziaków, rozmowa przy stole i nocna schadzka"},
+    {"motyw": "nierówność społeczna", "przyklad": "Miętus chce traktować Walka jak równego sobie, co podważa zasady obowiązujące we dworze.", "miejsce": "pobyt u Hurleckich, bratanie się z parobkiem"},
+    {"motyw": "ucieczka w nową formę", "przyklad": "Józio wydostaje się z dworu, uprowadzając Zosię. Można odczytać ten gest jako przyjęcie nowej roli w relacji z kuzynką.", "miejsce": "finał, ucieczka z Zosią"},
+    {"motyw": "groteska", "przyklad": "Uczniowie rozgrywają konflikt za pomocą przesadnych min i gestów, aż pojedynek przemienia się w bójkę.", "miejsce": "rozdz. 3"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://www.wydawnictwoliterackie.pl/index.php/produkt/4203/ferdydurke", "rodzaj": "utwór", "co": "Fragment na stronie wydawcy: początek powieści, sen, pisanie i wizyta Pimki."},
+    {"url": "https://zpe.gov.pl/a/dowiedz-sie/DARUUU57H", "rodzaj": "opracowanie", "co": "Lekcja polskiego, grupy uczniów, odwiedziny w trzech środowiskach i próba bratania się w dworze."},
+    {"url": "https://zpe.gov.pl/a/przeczytaj/D19M5VBTG", "rodzaj": "utwór", "co": "Fragment rozdziału 3 zamieszczony w ZPE: uczestnicy, przebieg i zakończenie pojedynku."},
+    {"url": "https://zpe.gov.pl/a/przeczytaj/D7T140V98", "rodzaj": "opracowanie", "co": "Deklaracje Młodziaków, nocna awantura i wyprowadzka Józia."},
+    {"url": "https://zpe.gov.pl/a/audiobook/D1Gm59mrA", "rodzaj": "opracowanie", "co": "Prowokacje Józia na stancji, w tym mucha, oraz urządzenie podwójnej schadzki."},
+    {"url": "https://zpe.gov.pl/pdf/P1GukTl7S", "rodzaj": "utwór", "co": "Fragment z wizyty u Hurleckich, skarga sługi na porozumienie Miętusa z Walkiem."},
+    {"url": "https://zpe.gov.pl/a/przeczytaj/DGMYQE3bE", "rodzaj": "opracowanie", "co": "Konstrukcja od przybycia Pimki do uprowadzenia Zosi i groteska pojedynku."},
+    {"url": "https://zpe.gov.pl/a/multimedia/DBH5FONEV", "rodzaj": "opracowanie", "co": "Dygresje o Filidorze i Filibercie oraz forma rymowanego zakończenia."}
+  ],
+  "do_weryfikacji": [
+    "Zakres wymaganych fragmentów nie ma zamkniętej listy w katalogu. Dla scen poza szkołą użyto nazw epizodów, ponieważ źródła przytaczają fragmenty bez zgodnej numeracji rozdziałów."
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "tango",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "akt I", "kto": ["Eugenia", "Eugeniusz", "Edek"], "gdzie": "mieszkanie Stomila i Eleonory, duży pokój", "opis": "Eugenia, Eugeniusz i Edek grają w karty przy stole zastawionym niepasującymi do siebie przedmiotami."},
+    {"nr": 2, "miejsce": "akt I", "kto": ["Artur", "Eugenia", "Eugeniusz", "Edek"], "gdzie": "duży pokój", "opis": "Artur wraca z wykładów, przygląda się grze i żąda wyjaśnienia, kim jest Edek."},
+    {"nr": 3, "miejsce": "akt I", "kto": ["Artur", "Stomil", "Eleonora"], "gdzie": "duży pokój", "opis": "Artur wypomina rodzicom, że ich obyczajowy bunt doprowadził do zaniku zasad w domu."},
+    {"nr": 4, "miejsce": "akt I", "kto": ["Stomil", "Eleonora", "Artur"], "gdzie": "duży pokój", "opis": "Stomil broni swobody zdobytej przez swoje pokolenie i traktuje doświadczenia artystyczne jako sposób jej wykorzystania."},
+    {"nr": 5, "miejsce": "akt I", "kto": ["Stomil", "Eleonora", "Eugenia", "Eugeniusz", "Artur", "Edek"], "gdzie": "duży pokój", "opis": "Stomil urządza pokaz na temat Adama i Ewy, w którym gasi światło i strzela z rewolweru."},
+    {"nr": 6, "miejsce": "akt I", "kto": ["Stomil", "Eugeniusz", "Edek"], "gdzie": "duży pokój", "opis": "Po pokazie Eugeniusz pyta o związek eksperymentu z jego tematem, a Edek mówi, że woli kino."},
+    {"nr": 7, "miejsce": "akt II", "kto": ["Artur", "Eugeniusz"], "gdzie": "mieszkanie Stomila i Eleonory", "opis": "Artur zyskuje poparcie Eugeniusza dla próby przywrócenia tradycyjnego porządku."},
+    {"nr": 8, "miejsce": "akt II", "kto": ["Artur", "Stomil", "Eleonora", "Edek"], "gdzie": "mieszkanie Stomila i Eleonory", "opis": "Artur nakłania ojca do przeciwstawienia się Edkowi z powodu jego związku z Eleonorą, ale Stomil nie przyjmuje rozwiązania proponowanego przez syna."},
+    {"nr": 9, "miejsce": "akt II", "kto": ["Artur", "Ala"], "gdzie": "mieszkanie Stomila i Eleonory", "opis": "Artur planuje tradycyjny ślub z Alą jako pierwszy krok do przywrócenia zasad w domu."},
+    {"nr": 10, "miejsce": "akt II", "kto": ["Artur", "Ala", "Eugenia", "rodzina"], "gdzie": "mieszkanie Stomila i Eleonory", "opis": "Artur ogłasza zaręczyny z Alą i prosi Eugenię o błogosławieństwo."},
+    {"nr": 11, "miejsce": "akt III", "kto": ["Ala", "Eleonora", "Stomil", "Eugenia", "Eugeniusz"], "gdzie": "posprzątowany duży pokój", "opis": "Rodzina w odświętnych strojach oczekuje ślubu w urządzonym na nowo mieszkaniu."},
+    {"nr": 12, "miejsce": "akt III", "kto": ["Artur", "Ala", "rodzina"], "gdzie": "duży pokój", "opis": "Artur wraca pijany i oznajmia, że rezygnuje z projektu opartego wyłącznie na przywróceniu dawnych form."},
+    {"nr": 13, "miejsce": "akt III", "kto": ["Artur", "Eugeniusz", "Stomil", "Eleonora", "Edek"], "gdzie": "duży pokój", "opis": "Artur szuka idei, która mogłaby nadać sens nowemu porządkowi, i odrzuca kolejne propozycje domowników."},
+    {"nr": 14, "miejsce": "akt III", "kto": ["Eugenia", "Artur", "rodzina"], "gdzie": "duży pokój, katafalk", "opis": "Eugenia kładzie się na katafalku i umiera."},
+    {"nr": 15, "miejsce": "akt III", "kto": ["Artur", "Edek", "rodzina"], "gdzie": "duży pokój", "opis": "Artur uznaje władzę nad życiem i śmiercią za zasadę, której szukał, i zamierza oprzeć ją na sile Edka."},
+    {"nr": 16, "miejsce": "akt III", "kto": ["Ala", "Artur", "Edek"], "gdzie": "duży pokój", "opis": "Ala wyjawia Arturowi, że zdradziła go z Edkiem."},
+    {"nr": 17, "miejsce": "akt III", "kto": ["Artur", "Edek"], "gdzie": "duży pokój", "opis": "Artur rzuca się przeciw Edkowi, który go zabija."},
+    {"nr": 18, "miejsce": "akt III", "kto": ["Edek", "Eugeniusz", "rodzina"], "gdzie": "duży pokój", "opis": "Edek przejmuje władzę w domu i uzależnia łagodne traktowanie domowników od ich posłuszeństwa."},
+    {"nr": 19, "miejsce": "akt III", "kto": ["Edek", "Eugeniusz"], "gdzie": "duży pokój", "opis": "Edek wkłada marynarkę Artura i poleca Eugeniuszowi zdjąć mu buty."},
+    {"nr": 20, "miejsce": "akt III", "kto": ["Edek", "Eugeniusz"], "gdzie": "duży pokój", "opis": "Edek i Eugeniusz tańczą tango do zapadnięcia kurtyny, a muzyka gra jeszcze przez chwilę po jej opuszczeniu."}
+  ],
+  "postacie": [
+    {"imie": "Artur", "odmiany": ["Artur", "Artura", "Arturowi", "Arturem"], "rola": "student, próbuje wprowadzić zasady do życia rodzinnego", "relacje": "syn Stomila i Eleonory, zaręcza się z Alą, ginie z ręki Edka", "miejsca": ["akt I", "akt II", "akt III"]},
+    {"imie": "Edek", "odmiany": ["Edek", "Edka", "Edkowi", "Edkiem", "Partner z Wąsikiem"], "rola": "uczestniczy w życiu rodziny i przejmuje nad nią władzę", "relacje": "kochanek Eleonory, zdradza z Alą narzeczonego, zabija Artura", "miejsca": ["akt I", "akt III"]},
+    {"imie": "Stomil", "odmiany": ["Stomil", "Stomila", "Stomilowi", "Stomilem"], "rola": "artysta zainteresowany eksperymentem, broni obyczajowej swobody", "relacje": "mąż Eleonory i ojciec Artura", "miejsca": ["akt I", "akt II", "akt III"]},
+    {"imie": "Eleonora", "odmiany": ["Eleonora", "Eleonory", "Eleonorę", "Eleonorą"], "rola": "uczestniczka dawnego buntu obyczajowego, popiera eksperymenty męża", "relacje": "żona Stomila, matka Artura, związana z Edkiem", "miejsca": ["akt I", "akt III"]},
+    {"imie": "Ala", "odmiany": ["Ala", "Ali", "Alę", "Alą"], "rola": "młoda kobieta, przyjmuje plan ślubu i wyznaje zdradę", "relacje": "kuzynka i narzeczona Artura, wiąże się z Edkiem", "miejsca": ["akt II", "akt III"]},
+    {"imie": "Eugenia", "odmiany": ["Eugenia", "Eugenii", "Eugenię", "Eugenią", "Babcia"], "rola": "starsza domowniczka, gra w karty i umiera w ostatnim akcie", "relacje": "babcia Artura, siostra Eugeniusza", "miejsca": ["akt I", "akt II", "akt III"]},
+    {"imie": "Eugeniusz", "odmiany": ["Eugeniusz", "Eugeniusza", "Eugeniuszowi", "Eugeniuszem", "Starszy Partner"], "rola": "starszy domownik, sprzyja projektowi Artura i podporządkowuje się Edkowi", "relacje": "brat Eugenii, wuj Artura, partner Edka w końcowym tangu", "miejsca": ["akt I", "akt II", "akt III"]}
+  ],
+  "motywy": [
+    {"motyw": "konflikt pokoleń", "przyklad": "Artur żąda od rodziców zasad, które ich pokolenie odrzuciło. Różnica między nimi polega na odmiennym rozumieniu wolności.", "miejsce": "akt I"},
+    {"motyw": "chaos i obyczaj", "przyklad": "Na początku rodzinny pokój jest pełen nieuporządkowanych przedmiotów i strojów, a przygotowania do ślubu przynoszą zmianę wystroju i ubioru domowników.", "miejsce": "akt I i akt III"},
+    {"motyw": "eksperyment artystyczny", "przyklad": "Stomil wykorzystuje ciemność i strzał, aby wstrząsnąć publicznością, lecz po pokazie Eugeniusz nie widzi związku z tematem, a Edek woli kino.", "miejsce": "akt I"},
+    {"motyw": "tradycja i forma", "przyklad": "Artur próbuje posłużyć się tradycyjnym ślubem, żeby odnowić reguły życia w domu. Przed ceremonią odrzuca ten plan, gdy nie potrafi wskazać stojącej za nim idei.", "miejsce": "akt II–III"},
+    {"motyw": "śmierć i władza", "przyklad": "Śmierć Eugenii na katafalku poprzedza decyzję Artura, by nadać nowemu porządkowi oparcie w prawie decydowania o życiu innych.", "miejsce": "akt III"},
+    {"motyw": "przemoc i podporządkowanie", "przyklad": "Po zabiciu Artura Edek wydaje polecenia rodzinie. Scenę można odczytać jako przejęcie władzy przez tego, kto dysponuje siłą.", "miejsce": "akt III"},
+    {"motyw": "zdrada i zazdrość", "przyklad": "Ala wyznaje Arturowi, że zdradziła go z Edkiem, co prowadzi do osobistego starcia obu mężczyzn.", "miejsce": "akt III"},
+    {"motyw": "taniec i triumf Edka", "przyklad": "Edek prowadzi Eugeniusza w tangu, które zamyka akcję. Można odczytać ten taniec jako wymuszoną zgodę na przywództwo Edka.", "miejsce": "akt III, finał"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://www.wydawnictwoliterackie.pl/produkt/5112/tango", "rodzaj": "utwór", "co": "Autoryzowany fragment EPUB dostępny na stronie wydawcy: lista postaci, podział na trzy akty i scenografia oraz gra w karty na początku."},
+    {"url": "https://zpe.gov.pl/watek/LPDHCLV14X/34/a/dowiedz-sie/D7ZX368RZ", "rodzaj": "utwór", "co": "Fragment aktu I w ZPE: eksperyment teatralny Stomila i reakcje rodziny."},
+    {"url": "https://zpe.gov.pl/a/przeczytaj/DYOHC1uNy", "rodzaj": "opracowanie", "co": "Przebieg każdego aktu, zaręczyny, śmierć Eugenii, zabójstwo Artura i przejęcie władzy przez Edka."},
+    {"url": "https://zpe.gov.pl/watek/LPDHCLV14X/35/a/dowiedz-sie/D7CJ1Z2RN", "rodzaj": "utwór", "co": "Fragment aktu III i końcowe didaskalia dotyczące tanga oraz muzyki po zapadnięciu kurtyny."}
+  ],
+  "do_weryfikacji": []
+}

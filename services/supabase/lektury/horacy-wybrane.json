@@ -1,0 +1,29 @@
+{
+  "id": "horacy-wybrane",
+  "wydarzenia": [],
+  "postacie": [
+    {"imie": "Leukonoe", "odmiany": ["Leukonoe"], "rola": "adresatka pieśni I 11, wyobrażona młoda kobieta", "relacje": "mówiący radzi jej przestać wróżyć o przyszłości", "miejsca": ["Pieśń I, 11"]},
+    {"imie": "Melpomena", "odmiany": ["Melpomena", "Melpomeny", "Melpomenie", "Melpomeno"], "rola": "muza, adresatka pieśni III 30", "relacje": "podmiot prosi ją o uwieńczenie wawrzynem", "miejsca": ["Pieśń III, 30"]}
+  ],
+  "motywy": [
+    {"motyw": "carpe diem", "przyklad": "Podmiot radzi Leukonoe, by nie badała przyszłości, lecz korzystała z chwili, bo czas ucieka.", "miejsce": "Pieśń I, 11", "cytat": "korzystaj z obecnej doby, nie wierząc następnej!"},
+    {"motyw": "przemijanie czasu", "przyklad": "Podmiot mówi, że czas nam ucieka zazdrosny w ciągu rozmów.", "miejsce": "Pieśń I, 11", "cytat": "Czas nam ucieka zazdrosny"},
+    {"motyw": "umiar i spokój wobec losu", "przyklad": "Zamiast badać wyroki bogów i liczby babilońskie, mówiący radzi wycierpieć, co przyniesie los, i obciąć długie nadzieje krótką miarą.", "miejsce": "Pieśń I, 11"},
+    {"motyw": "nieśmiertelność poety (exegi monumentum)", "przyklad": "Poeta mówi, że ukończył pomnik trwalszy od spiżu i piramid, bo część jego pozostanie po śmierci.", "miejsce": "Pieśń III, 30", "cytat": "Nie umrę ja cały;"},
+    {"motyw": "trwałość poezji ponad dziełami materialnymi", "przyklad": "Pomnik poety nie ulegnie deszczom, wichrom ani upływowi lat.", "miejsce": "Pieśń III, 30", "cytat": "Ukończyłem już pomnik ten trwalszy od spiżu,"},
+    {"motyw": "pochodzenie i zasługa poety", "przyklad": "Poeta podkreśla, że jest synem gminu, a najpierwszy zaszczepił italskie dźwięki w pieśniach eolskich.", "miejsce": "Pieśń III, 30"},
+    {"motyw": "apostrofa do muzy", "przyklad": "Na końcu pieśni III 30 poeta prosi Melpomenę o uwieńczenie delfickim wawrzynem.", "miejsce": "Pieśń III, 30"}
+  ],
+  "utwory": [
+    {"tytul": "Pieśń I, 11 (Do Leukonoe)", "miejsce": "Pieśń I, 11", "opis": "Rada skierowana do Leukonoe, by nie dochodziła, jaki koniec bogowie im przeznaczyli, i nie badała liczb babilońskich; pieśń kończy się wezwaniem do korzystania z chwili."},
+    {"tytul": "Pieśń III, 30 (Do Melpomeny, Exegi monumentum)", "miejsce": "Pieśń III, 30", "opis": "Poeta mówi o ukończeniu pomnika trwalszego od spiżu, o własnej nieśmiertelności dzięki poezji i prosi Melpomenę o uwieńczenie wawrzynem."}
+  ],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/horacy-wybrane-utwory/", "rodzaj": "utwór", "co": "Pobrane i przeczytane Pieśń I 11 i Pieśń III 30 w tłumaczeniu Marcelego Mottego (domena publiczna); sprawdzono listę dostępnych utworów w zbiorze WL."}
+  ],
+  "do_weryfikacji": [
+    "Katalog wymienia jako przykłady Pieśń I 11 i III 30; pełna lista wymaganych utworów Horacego (np. inne pieśni, Ars poetica, satyry) nie jest ustalona i nie została opisana.",
+    "Cytaty pochodzą z przekładu Marcelego Mottego z WL; w szkołach często używane są inne tłumaczenia (np. Leopolda Staffa), więc brzmienie cytatów może się różnić.",
+    "Biografia Horacego i historyczne tło pieśni nie zostały sprawdzone w źródłach."
+  ]
+}

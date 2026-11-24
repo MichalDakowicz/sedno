@@ -1,0 +1,50 @@
+{
+  "id": "podroze-z-herodotem",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "rozdz. Przekroczyć granicę", "kto": ["Ryszard Kapuściński", "Iza Bieżuńska-Małowist", "Herodot"], "gdzie": "Uniwersytet Warszawski", "opis": "Kapuściński wspomina, że po raz pierwszy zetknął się z nazwiskiem Herodota na wykładzie z historii starożytnej."},
+    {"nr": 2, "miejsce": "rozdz. Przekroczyć granicę", "kto": ["Ryszard Kapuściński", "Irena Tarłowska"], "gdzie": "redakcja „Sztandaru Młodych” w Warszawie", "opis": "Jako reporter krajowy Kapuściński mówi redaktor naczelnej o swoim pragnieniu wyjazdu za granicę."},
+    {"nr": 3, "miejsce": "rozdz. Przekroczyć granicę", "kto": ["Ryszard Kapuściński", "Irena Tarłowska"], "gdzie": "redakcja „Sztandaru Młodych” w Warszawie", "opis": "Tarłowska zawiadamia reportera o wyjeździe do Indii i wręcza mu Dzieje Herodota."},
+    {"nr": 4, "miejsce": "rozdz. Skazany na Indie", "kto": ["Ryszard Kapuściński"], "gdzie": "Delhi", "opis": "Reporter uczy się angielskiego w mieście, zapisując między innymi słowa z szyldów, przystanków i ekranów kinowych."},
+    {"nr": 5, "miejsce": "rozdz. Sto kwiatów przewodniczącego Mao", "kto": ["Ryszard Kapuściński"], "gdzie": "granica między Hongkongiem a Chinami", "opis": "Kapuściński przechodzi przez most pieszo i okazuje paszport strażnikom po chińskiej stronie granicy."},
+    {"nr": 6, "miejsce": "rozdz. Sto kwiatów przewodniczącego Mao", "kto": ["Ryszard Kapuściński"], "gdzie": "pociąg w Chinach", "opis": "W drodze do Pekinu reporter obserwuje, jak kobieta w mundurze zwraca się do pasażerów, którym jej pomocnicy rozdają herbatę."},
+    {"nr": 7, "miejsce": "rozdz. Sto kwiatów przewodniczącego Mao", "kto": ["Ryszard Kapuściński", "Dziennikarze „Czungkuo”"], "gdzie": "dworzec w Pekinie", "opis": "Na dworcu dwóch chińskich dziennikarzy wita Kapuścińskiego jako korespondenta „Sztandaru Młodych”."},
+    {"nr": 8, "miejsce": "rozdz. Sto kwiatów przewodniczącego Mao", "kto": ["Ryszard Kapuściński", "Li"], "gdzie": "miejsce zakwaterowania w Pekinie", "opis": "Reporter zauważa, że drzwi jego pokoju i pokoju Li po drugiej stronie korytarza pozostają otwarte."},
+    {"nr": 9, "miejsce": "rozdz. Sto kwiatów przewodniczącego Mao", "kto": ["Ryszard Kapuściński", "Li"], "gdzie": "Wielki Mur Chiński", "opis": "Podczas wizyty przy Wielkim Murze narrator rozważa, co wielowiekowy wysiłek włożony w budowę umocnień mówi o potrzebie odgradzania się."},
+    {"nr": 10, "miejsce": "rozdz. Odkrycie Herodota", "kto": ["Ryszard Kapuściński", "Jarda"], "gdzie": "Dakar i wyspa Gorée", "opis": "Kapuściński i Jarda oglądają sztukę afrykańską na festiwalu w Dakarze, a podczas późniejszej rozmowy na Gorée omawiają trudność opisania jej własnymi pojęciami."},
+    {"nr": 11, "miejsce": "rozdz. Odkrycie Herodota", "kto": ["Ryszard Kapuściński", "Jarda", "Herodot"], "gdzie": "wyspa Gorée", "opis": "Kapuściński opowiada Jardzie, jak wyjazdy reporterskie zaczął łączyć ze śledzeniem podróży Herodota w jego książce."},
+    {"nr": 12, "miejsce": "rozdz. Odkrycie Herodota", "kto": ["Ryszard Kapuściński", "Jarda", "Herodot"], "gdzie": "wyspa Gorée", "opis": "Reporter jako przykład warsztatu Herodota przywołuje zestawienie relacji Persów i Fenicjan bez ostatecznego rozstrzygnięcia między nimi."},
+    {"nr": 13, "miejsce": "rozdz. Stoimy w ciemności, otoczeni światłem", "kto": ["Ryszard Kapuściński"], "gdzie": "nabrzeże dawnego Halikarnasu", "opis": "Kapuściński obserwuje na brzegu zatoki rybaków sprzedających i sprawiających ryby."},
+    {"nr": 14, "miejsce": "rozdz. Stoimy w ciemności, otoczeni światłem", "kto": ["Ryszard Kapuściński", "Kustosz muzeum"], "gdzie": "Muzeum Archeologii Podwodnej w dawnym Halikarnasie", "opis": "W sali z podświetlonymi szklanymi naczyniami reporter wyobraża sobie podwodną ucztę Posejdona."},
+    {"nr": 15, "miejsce": "rozdz. Stoimy w ciemności, otoczeni światłem, zakończenie", "kto": ["Ryszard Kapuściński", "Recepcjonistka"], "gdzie": "hotel w dawnym Halikarnasie", "opis": "Po powrocie do hotelu Kapuściński przygląda się wyrazowi twarzy młodej tureckiej recepcjonistki."}
+  ],
+  "postacie": [
+    {"imie": "Ryszard Kapuściński", "odmiany": ["Ryszarda Kapuścińskiego", "Ryszardowi Kapuścińskiemu", "Ryszardem Kapuścińskim", "Kapuścińskiego", "Kapuścińskim"], "rola": "Reporter i pierwszoosobowy narrator książki, opowiadający po latach o własnych podróżach i lekturach.", "relacje": "Otrzymuje Dzieje od Ireny Tarłowskiej i przygląda się pracy Herodota przez pryzmat własnych doświadczeń.", "miejsca": ["Warszawa", "Indie", "Chiny", "Senegal", "dawny Halikarnas"]},
+    {"imie": "Herodot", "odmiany": ["Herodota", "Herodotowi", "Herodotem", "Herodocie"], "rola": "Grecki autor Dziejów obecny w książce dzięki lekturze i rozważaniom Kapuścińskiego.", "relacje": "Kapuściński odnajduje w jego dociekliwości i praktyce zbierania relacji wzór dla reportera.", "miejsca": ["rozdz. Przekroczyć granicę", "rozdz. Odkrycie Herodota"]},
+    {"imie": "Iza Bieżuńska-Małowist", "odmiany": ["Izy Bieżuńskiej-Małowist", "Izę Bieżuńską-Małowist", "Izą Bieżuńską-Małowist"], "rola": "Wykładowczyni historii starożytnej.", "relacje": "Kapuściński wspomina jej wykład jako moment pierwszego spotkania z nazwiskiem Herodota.", "miejsca": ["Uniwersytet Warszawski"]},
+    {"imie": "Irena Tarłowska", "odmiany": ["Ireny Tarłowskiej", "Irenie Tarłowskiej", "Irenę Tarłowską", "Ireną Tarłowską"], "rola": "Redaktor naczelna „Sztandaru Młodych”.", "relacje": "Wysyła Kapuścińskiego do Indii i daje mu egzemplarz Dziejów.", "miejsca": ["redakcja „Sztandaru Młodych” w Warszawie"]},
+    {"imie": "Li", "odmiany": ["kolega Li", "kolegi Li", "koledze Li", "z kolegą Li"], "rola": "Chiński opiekun polskiego korespondenta podczas pobytu w Pekinie.", "relacje": "Zajmuje pokój naprzeciw pokoju Kapuścińskiego oraz prowadzi go do redakcji „Czungkuo”.", "miejsca": ["Pekin", "Wielki Mur Chiński"]},
+    {"imie": "Jarda", "odmiany": ["Jardy", "Jardzie", "Jardę", "Jardą"], "rola": "Czeski korespondent, którego narrator poznał w Kairze.", "relacje": "Ogląda z Kapuścińskim sztukę afrykańską i rozmawia z nim o trudnościach jej opisu oraz o Herodocie.", "miejsca": ["Kair, wspomnienie", "Dakar", "wyspa Gorée"]},
+    {"imie": "Recepcjonistka", "odmiany": ["recepcjonistki", "recepcjonistkę", "recepcjonistką"], "rola": "Młoda Turczynka pojawiająca się w ostatniej scenie.", "relacje": "Kapuściński obserwuje jej reakcję, gdy wraca do hotelu.", "miejsca": ["hotel w dawnym Halikarnasie"]}
+  ],
+  "motywy": [
+    {"motyw": "Podróż i przekraczanie granic", "przyklad": "Krajowy reporter zwierza się przełożonej z pragnienia wyjazdu. Otrzymuje zadanie w Indiach, znacznie dalej od Polski, niż początkowo sobie wyobrażał.", "miejsce": "rozdz. Przekroczyć granicę"},
+    {"motyw": "Książka jako towarzysz podróży", "przyklad": "Przed wyjazdem Tarłowska daje reporterowi Dzieje. W rozmowie z Jardą Kapuściński opisuje podróż służbową i lekturę starożytnego autora jako dwie równoległe wędrówki.", "miejsce": "rozdz. Przekroczyć granicę / rozdz. Odkrycie Herodota"},
+    {"motyw": "Język jako narzędzie poznania", "przyklad": "W Delhi reporter notuje zasłyszane i przeczytane słowa. Po powrocie do hotelu uświadamia sobie, że łatwiej przypomina sobie te elementy otoczenia, które potrafi nazwać.", "miejsce": "rozdz. Skazany na Indie"},
+    {"motyw": "Mur i oddzielenie", "przyklad": "Wizyta przy Wielkim Murze prowadzi narratora do pytania o wysiłek potrzebny do oddzielenia ludzi od siebie. Budowlę można odczytać jako obraz trudności w nawiązaniu kontaktu, których sam doświadcza w Chinach.", "miejsce": "rozdz. Sto kwiatów przewodniczącego Mao"},
+    {"motyw": "Spotkanie z inną kulturą", "przyklad": "Po obejrzeniu rzeźb i masek Kapuściński i Jarda rozmawiają o tym, jak trudno oddać ich sens w artykule posługującym się znanymi im pojęciami.", "miejsce": "rozdz. Odkrycie Herodota"},
+    {"motyw": "Wielogłos w reportażu", "przyklad": "Rozmawiając z Jardą, Kapuściński przywołuje dwie relacje, które Herodot przypisuje Persom i Fenicjanom. Przykład pokazuje, jak autor Dziejów pozwala czytelnikowi poznać różne świadectwa.", "miejsce": "rozdz. Odkrycie Herodota"},
+    {"motyw": "Podróż w czasie", "przyklad": "W dawnym Halikarnasie szklane przedmioty wydobyte z morza pobudzają wyobraźnię narratora. Wizję podwodnego świata można odczytać jako próbę zbliżenia się do epoki Herodota.", "miejsce": "rozdz. Stoimy w ciemności, otoczeni światłem"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://www.polityka.pl/tygodnikpolityka/kultura/ksiazki/207700,1,fragment-ksiazki-podroze-z-herodotem.read", "rodzaj": "utwór", "co": "Fragment początkowego rozdziału, wykład, rozmowa w redakcji i dar Tarłowskiej."},
+    {"url": "https://zpe.gov.pl/a/wszedzie-dobrze-ale-w-domu-najlepiej---podroze-bliskie-i-dalekie/DkGdinxch", "rodzaj": "utwór", "co": "Fragment o nauce języka i poznawaniu Indii."},
+    {"url": "https://zpe.gov.pl/watek/LPFHDLRM4G/404/a/cwiczenia/D2BHOX49Q", "rodzaj": "utwór", "co": "Fragment o przekroczeniu granicy z Chinami, podróży do Pekinu, Li i Wielkim Murze."},
+    {"url": "https://zpe.gov.pl/a/sprawdz-sie/DdgelqOJE", "rodzaj": "utwór", "co": "Fragment o spotkaniu z Jardą i odczytaniu metody Herodota."},
+    {"url": "https://ro.czasopisma.pan.pl/Content/138020/PDF/8_RUCH_LITERACKI_2_2008_HORODECKA_Narracyjne.pdf?handler=pdf", "rodzaj": "opracowanie", "co": "Artykuł Magdaleny Horodeckiej, kompozycja narracji i końcowe sceny w Halikarnasie."},
+    {"url": "https://www.znak.com.pl/p/podroze-z-herodotem-ryszard-kapuscinski-582", "rodzaj": "opracowanie", "co": "Opis pierwszego wydania, układ wspomnień reporterskich i odniesień do Dziejów."}
+  ],
+  "do_weryfikacji": [
+    "Katalog wskazuje fragmenty bez wykazu rozdziałów, dlatego zakres wpisu obejmuje udokumentowany wybór z różnych części książki."
+  ]
+}

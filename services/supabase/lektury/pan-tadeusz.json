@@ -1,0 +1,67 @@
+{
+  "id": "pan-tadeusz",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "ks. I (Gospodarstwo), Inwokacja", "kto": ["narrator"], "gdzie": "Litwa, wspomnienie narratora", "opis": "Epopeja zaczyna się inwokacją do Litwy i Matki Bożej, w której narrator tęskni za ojczyzną i prosi o powrót do niej choćby w opisie."},
+    {"nr": 2, "miejsce": "ks. I (Gospodarstwo)", "kto": ["Tadeusz", "Sędzia", "Wojski", "Podkomorzy"], "gdzie": "Soplicowo, dwór Sędziego", "opis": "Tadeusz Soplica wraca ze szkół w Wilnie do dworu stryja Sędziego w Soplicowie i jest witany przez domowników."},
+    {"nr": 3, "miejsce": "ks. I (Gospodarstwo)", "kto": ["Tadeusz", "Telimena", "Zosia"], "gdzie": "pokój w Soplicowie", "opis": "Według argumentu księgi Tadeusz ma pierwsze spotkanie w pokoiku, a drugie przy stole, gdzie poznaje domowników."},
+    {"nr": 4, "miejsce": "ks. I (Gospodarstwo)", "kto": ["Sędzia", "Podkomorzy", "Wojski", "Protazy"], "gdzie": "dwór w Soplicowie", "opis": "Przy stole rozmawia się o grzeczności i modach; zaczyna się spór o dwa charty, Kusego i Sokoła, a Wojski rozprawia o dawnych czasach."},
+    {"nr": 5, "miejsce": "ks. II (Zamek)", "kto": ["Gerwazy", "Hrabia", "Wojski", "Robak"], "gdzie": "okolice zamku Horeszków", "opis": "Polowanie z chartami prowadzi do zamku Horeszków; Gerwazy, ostatni dworzanin, opowiada historię ostatniego Horeszki i jego sporu z Soplicami."},
+    {"nr": 6, "miejsce": "ks. II (Zamek)", "kto": ["Zosia", "Telimena", "Sędzia", "Robak"], "gdzie": "sad w Soplicowie", "opis": "Pojawia się dziewczyna w ogórkach, przy śniadaniu Telimena opowiada anegdotę petersburską, a spór o charty rozgorzał na nowo; wtrąca się Robak, a Wojski opowiada o zakładzie."},
+    {"nr": 7, "miejsce": "ks. III (Umizgi)", "kto": ["Hrabia", "Telimena", "Tadeusz", "Zosia"], "gdzie": "sad i świątynia dumania", "opis": "Hrabia wyprawia się do sadu, towarzystwo wybiera się na grzyby, Telimena przesiaduje w świątyni dumania, a Hrabia maluje pejzaż i zabiega o względy."},
+    {"nr": 8, "miejsce": "ks. IV (Dyplomatyka i łowy)", "kto": ["Tadeusz", "Hrabia", "Jankiel", "Robak", "Wojski"], "gdzie": "karczma i matecznik", "opis": "Rano Tadeusza budzi zjawisko w papilotach, a on zbyt późno dostrzega pomyłkę; w karczmie pojawia się emisariusz, a następnie szlachta jedzie na łowy do matecznika, gdzie Tadeusza i Hrabiego zagraża niedźwiedź."},
+    {"nr": 9, "miejsce": "ks. IV (Dyplomatyka i łowy)", "kto": ["Tadeusz", "Hrabia", "Wojski"], "gdzie": "matecznik", "opis": "Trzy strzały rozstrzygają łowy, a spór o dwie strzelby, Sagalasówkę i Sanguszkówkę, zostaje rozstrzygnięty."},
+    {"nr": 10, "miejsce": "ks. V (Kłótnia)", "kto": ["Telimena", "Zosia", "Tadeusz", "Wojski"], "gdzie": "Soplicowo, świątynia dumania", "opis": "Telimena i Tadeusz spotykają się powtórnie, zgodę ułatwiają mrówki, a przy stole Wojski opowiada o Rejtanie i księciu Denassów; spór o psy przeradza się w kłótnię."},
+    {"nr": 11, "miejsce": "ks. VI (Zaścianek)", "kto": ["Protazy", "Robak", "Sędzia", "Maciej Dobrzyński"], "gdzie": "zaścianek Dobrzyn", "opis": "Protazy wyrusza z posłannictwem, Robak radzi z Sędzią, a narrator opisuje zaścianek Dobrzyn i dom Maćka Dobrzyńskiego."},
+    {"nr": 12, "miejsce": "ks. VII (Rada)", "kto": ["Bartek Prusak", "Maciek Chrzciciel", "Buchman", "Jankiel", "Gerwazy"], "gdzie": "zaścianek Dobrzyn", "opis": "Szlachta zaściankowa radzi o zajeździe; Jankiel zabiega o zgodę, ale jego zgodę przerywa Scyzoryk; Gerwazy wygłasza mowę, stary Maciek składa protestację, a naradę przerywa nagłe przybycie posiłków wojennych."},
+    {"nr": 13, "miejsce": "ks. VIII (Zajazd)", "kto": ["Wojski", "Podkomorzy", "Tadeusz", "Hrabia", "Gerwazy"], "gdzie": "Soplicowo", "opis": "Hrabia ze szlachtą dokonuje zajazdu na Soplicowo, Gerwazy zostaje piwniczym, a po szturmie odbywa się uczta zajazdowa."},
+    {"nr": 14, "miejsce": "ks. IX (Bitwa)", "kto": ["Płut", "Robak", "Tadeusz", "Hrabia", "Kropiciel", "Gerwazy"], "gdzie": "Soplicowo", "opis": "Szlachta w obozie zostaje zaskoczona, odsiecz przychodzi niespodzianie, a major Płut ściąga na siebie burzę zalotnością; wystrzał z krócicy daje hasło do boju, w którym walczą m.in. Kropiciel i Maciej."},
+    {"nr": 15, "miejsce": "ks. X (Emigracja. Jacek)", "kto": ["Robak", "Gerwazy", "Ryków"], "gdzie": "Soplicowo", "opis": "Po bitwie toczy się narada o zabezpieczeniu losu zwycięzców i układy z Rykowem; po pożegnaniu następuje ważne odkrycie: Robak ujawnia, że jest Jackiem Soplicą."},
+    {"nr": 16, "miejsce": "ks. X (Emigracja. Jacek)", "kto": ["Robak (Jacek Soplica)", "Gerwazy"], "gdzie": "Soplicowo", "opis": "Jacek zwierza się Gerwazemu ze swojej przeszłości i śmierci Stolnika Horeszki, prosi o przebaczenie i wspomina swoje lata poświęcone sprawie Polski; Gerwazy opowiada o znaku krzyża Stolnika, który uznaje za przebaczenie."},
+    {"nr": 17, "miejsce": "ks. X (Emigracja. Jacek)", "kto": ["Jacek Soplica"], "gdzie": "Soplicowo", "opis": "Do chorego dociera list z wiadomością o rozpoczęciu wojny Napoleona; Jacek dziękuje Bogu, a zbliżają się ostatnie sakramenty."},
+    {"nr": 18, "miejsce": "ks. XI (Rok 1812)", "kto": ["Gerwazy", "Protazy", "Tadeusz", "Zosia", "Sędzia"], "gdzie": "Soplicowo", "opis": "Wiosną 1812 roku do Litwy wkraczają wojska polskie i francuskie; odbywa się nabożeństwo, urzędowo przywracane jest dobre imię Jacka Soplicy, a spór o charty zostaje rozstrzygnięty."},
+    {"nr": 19, "miejsce": "ks. XI (Rok 1812)", "kto": ["Tadeusz", "Zosia", "Telimena"], "gdzie": "Soplicowo", "opis": "Ułan Tadeusz zabiega o względy dziewczyny, goście zbierają się na biesiadę, a wodzowie są przedstawiani szlachcie."},
+    {"nr": 20, "miejsce": "ks. XII (Kochajmy się)", "kto": ["Tadeusz", "Zosia", "Sędzia", "Gerwazy", "Dąbrowski", "Kniaziewicz"], "gdzie": "Soplicowo", "opis": "Ostatnia uczta staropolska z arcy-serwisem; Dąbrowski i Kniaziewicz zostają obdarowani, a Tadeusz jako dziedzic uwalnia chłopów."},
+    {"nr": 21, "miejsce": "ks. XII (Kochajmy się)", "kto": ["Jankiel", "goście"], "gdzie": "Soplicowo", "opis": "Jankiel gra koncert nad koncertami na cymbałach, po którym następuje polonez i zaręczyny par."},
+    {"nr": 22, "miejsce": "ks. XII (Kochajmy się)", "kto": ["Tadeusz", "Zosia", "Sędzia", "Rejent", "Wojszczanka"], "gdzie": "Soplicowo", "opis": "Odbywa się wesele Tadeusza i Zosi oraz dwóch innych par; trzecia para spóźnia się, bo Rejent szukał pierścionka, a jego dama kończyła toaletę."}
+  ],
+  "postacie": [
+    {"imie": "Tadeusz Soplica", "odmiany": ["Tadeusz", "Tadeusza", "Tadeuszowi", "Tadeuszem", "Soplica", "panicz"], "rola": "młody Soplica wracający ze szkół, bohater tytułowy", "relacje": "bratanek Sędziego; zakochany w Zosi; syn Jacka", "miejsca": ["ks. I", "ks. IX", "ks. XII"]},
+    {"imie": "Zosia", "odmiany": ["Zosia", "Zosi", "Zosię", "Zosią"], "rola": "młoda dziewczyna wychowywana w Soplicowie, ukochana Tadeusza", "relacje": "podopieczna Telimeny", "miejsca": ["ks. II", "ks. V", "ks. XII"]},
+    {"imie": "Telimena", "odmiany": ["Telimena", "Telimeny", "Telimenie", "Telimeną"], "rola": "dama z Petersburga, opiekunka Zosi, zalotna", "relacje": "opiekunka Zosi; wiąże się z nią flirt Tadeusza i Hrabiego", "miejsca": ["ks. II", "ks. III", "ks. V"]},
+    {"imie": "Sędzia Soplica", "odmiany": ["Sędzia", "Sędziego", "Sędziemu", "Sędzią"], "rola": "gospodarz Soplicowa, stryj Tadeusza", "relacje": "stryj Tadeusza; w sporze z Hrabią", "miejsca": ["ks. I", "ks. VI"]},
+    {"imie": "Jacek Soplica (ksiądz Robak)", "odmiany": ["Robak", "Robaka", "Robakowi", "Robakiem", "Jacek", "Jacka", "Jackowi", "Jackiem", "Soplica"], "rola": "bernardyn emisariusz, w rzeczywistości Jacek Soplica, który zabił Stolnika Horeszkę", "relacje": "ojciec Tadeusza; brat Sędziego", "miejsca": ["ks. II", "ks. X"]},
+    {"imie": "Gerwazy Rębajło", "odmiany": ["Gerwazy", "Gerwazego", "Gerwazemu", "Gerwazym", "Klucznik", "Rębajło"], "rola": "klucznik z zamku Horeszków, mściciel Stolnika", "relacje": "wierny dawnemu panu Horeszce; w sporze z Soplicami", "miejsca": ["ks. II", "ks. VII", "ks. X"]},
+    {"imie": "Hrabia", "odmiany": ["Hrabia", "Hrabiego", "Hrabiemu", "Hrabią"], "rola": "szlachcic z sąsiedztwa, amator pejzażu, prowadzi zajazd", "relacje": "rywal Tadeusza w uczuciach; sojusznik Gerwazego", "miejsca": ["ks. III", "ks. VIII"]},
+    {"imie": "Wojski Hreczecha", "odmiany": ["Wojski", "Wojskiego", "Wojskiemu", "Wojskim", "Hreczecha"], "rola": "dworzanin Sędziego, mistrz łowów i opowieści", "relacje": "przyjaciel Sędziego", "miejsca": ["ks. I", "ks. IV", "ks. V"]},
+    {"imie": "Jankiel", "odmiany": ["Jankiel", "Jankiela", "Jankielowi", "Jankielem"], "rola": "żydowski karczmarz i cymbalista", "relacje": "pośredniczy w sporze; gra koncert", "miejsca": ["ks. VII", "ks. XII"]},
+    {"imie": "Protazy", "odmiany": ["Protazy", "Protazego", "Protazemu"], "rola": "Woźny Trybunału, stary wyjadacz sądowy", "relacje": "pomocnik Gerwazego i Sędziego", "miejsca": ["ks. I", "ks. VI"]},
+    {"imie": "Maciej Dobrzyński", "odmiany": ["Maciej", "Maćka", "Maćkowi", "Maćkiem", "Dobrzyński"], "rola": "szlachcic z zaścianka Dobrzyn, stary żołnierz", "relacje": "przywódca szlachty zaściankowej", "miejsca": ["ks. VI", "ks. VII"]},
+    {"imie": "Płut", "odmiany": ["Płut", "Płuta", "Płutowi", "Płutem", "major Płut"], "rola": "major rosyjski, ściąga na siebie burzę zalotnością", "relacje": "dowodzi oddziałem rosyjskim w bitwie", "miejsca": ["ks. IX"]},
+    {"imie": "Podkomorzy", "odmiany": ["Podkomorzy", "Podkomorzego", "Podkomorzemu", "Podkomorzym"], "rola": "poważny sędzia ziemski, porusza sprawy polityczne", "relacje": "przyjaciel Sędziego", "miejsca": ["ks. I", "ks. VIII"]},
+    {"imie": "Ryków", "odmiany": ["Ryków", "Rykowa", "Rykowi", "Rykowem"], "rola": "rosyjski kapitan, prowadzi układy po bitwie", "relacje": "przeciwnik w walce, rozmówca w układach", "miejsca": ["ks. IX", "ks. X"]}
+  ],
+  "motywy": [
+    {"motyw": "tęsknota za ojczyzną", "przyklad": "Narrator pisze z emigracji, wspominając Litwę jak coś, co docenia się dopiero po utracie.", "miejsce": "ks. I, Inwokacja", "cytat": "Litwo! Ojczyzno moja! ty jesteś jak zdrowie;"},
+    {"motyw": "spór sąsiedzki i jego pojednanie", "przyklad": "Spór Soplic z Horeszkami o zamek i o psy narasta do zajazdu, a kończy się ślubem Tadeusza i Zosi.", "miejsce": "ks. II; ks. VIII; ks. XII"},
+    {"motyw": "grzech, pokuta i przebaczenie", "przyklad": "Jacek Soplica, który zabił Stolnika, żyje jako ksiądz Robak i na łożu śmierci prosi Gerwazego o przebaczenie.", "miejsce": "ks. X (Emigracja. Jacek)", "cytat": "Kto umierającego smuci, wiem, że grzeszy."},
+    {"motyw": "obyczaje szlachty i tradycja", "przyklad": "Ostatnia uczta staropolska, polonez i koncert Jankiela zamykają obraz szlacheckiej Litwy.", "miejsce": "ks. XII (Kochajmy się)"},
+    {"motyw": "historia i nadzieja niepodległości", "przyklad": "Rok 1812 przynosi wejście wojsk polskich i francuskich na Litwę, co szlachta wita z nadzieją.", "miejsce": "ks. XI (Rok 1812)", "cytat": "O roku ów! kto ciebie widział w naszym kraju!"},
+    {"motyw": "miłość młodych i swatanie", "przyklad": "Tadeusz zakochuje się w Zosi, choć bywa kuszony przez Telimenę, a w finale odbywają się trzy wesela.", "miejsce": "ks. III; ks. V; ks. XII"},
+    {"motyw": "przyroda i obraz Litwy", "przyklad": "Grzybobranie, matecznik, sad i łowy są pokazane jako część sielskiego obrazu krainy.", "miejsce": "ks. II; ks. III; ks. IV"},
+    {"motyw": "poświęcenie dla sprawy narodowej", "przyklad": "Jacek wyznaje, że pracował dla kraju jako emisariusz, ryzykując więzienie i zsyłkę.", "miejsce": "ks. X (Emigracja. Jacek)", "cytat": "Jam jest Jacek Soplica…"},
+    {"motyw": "swoi i obcy, zaborcy", "przyklad": "Oddział rosyjski majora Płuta włącza się do sporu szlachty, a szlachta rozprawia się z nim i z Rykowem.", "miejsce": "ks. IX; ks. X"},
+    {"motyw": "rola Żyda w świecie szlachty", "przyklad": "Jankiel radzi ku zgodzie w kłótni zaściankowej i gra koncert, dając wyraz uczuciom narodowym.", "miejsce": "ks. VII; ks. XII"},
+    {"motyw": "uwłaszczenie chłopów", "przyklad": "Pierwszym aktem urzędowym Tadeusza po objęciu dziedzictwa jest uwolnienie chłopów.", "miejsce": "ks. XII (Kochajmy się)"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/pan-tadeusz/", "rodzaj": "utwór", "co": "Pobrany tekst epopei; sprawdzono argumenty (streszczenia) wszystkich ksiąg, Inwokację, scenę ujawnienia się Jacka (ks. X), zakończenie ks. XII i cytaty; w miejscu podano numer księgi i tytuł, bez numeracji wersów (liczenie wersów z pliku nie odpowiada klasycznej numeracji)."}
+  ],
+  "do_weryfikacji": [
+    "Numeracja wersów nie została podana, bo tekst z Wolnych Lektur zawiera nagłówki i argumenty, które zaburzają zliczanie; w miejscu użyto tylko księgi i jej tytułu.",
+    "Wydarzenia ksiąg III, V–IX opisano na podstawie argumentów (streszczeń) ksiąg i znajomości fabuły; sceny nie zostały przeczytane w całości.",
+    "Śmierć Jacka Soplicy: w ks. X widać jego ostatnie sakramenty i dalsze wzmianki o „śp. Jacku” w ks. XI; sam moment śmierci nie został wyszukany w tekście.",
+    "Szczegóły o przebiegu zajazdu (szturm, kto zginął) i bitwy w ks. IX nie były czytane; nie podano strat.",
+    "Zakres wymagany przez CKE: ks. I, II, IV, X, XI, XII (do 2028 w wypracowaniu cały utwór) — wg opisu w katalogu; w danych ujęto całość."
+  ]
+}

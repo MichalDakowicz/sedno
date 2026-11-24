@@ -1,0 +1,36 @@
+{
+  "id": "miejsce",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "początek, teren po rozbiórce", "kto": ["narrator"], "gdzie": "beskidzka wieś, plac po cerkwi", "opis": "Narrator opisuje otwarty plac, który pozostał po rozebraniu cerkwi."},
+    {"nr": 2, "miejsce": "początek, rozmowa z turystą", "kto": ["narrator", "turysta"], "gdzie": "plac po cerkwi", "opis": "Turysta pyta o to, co tu stało, a narrator odpowiada, że cerkiew rozebrano i zabrano do muzeum."},
+    {"nr": 3, "miejsce": "początek, fotografia", "kto": ["turysta", "narrator"], "gdzie": "plac po cerkwi", "opis": "Turysta fotografuje oświetloną część placu, a narrator rozpoznaje w niej obszar dawnego prezbiterium i ikonostasu."},
+    {"nr": 4, "miejsce": "wyobrażona budowa świątyni", "kto": ["narrator", "budowniczowie"], "gdzie": "las i miejsce przyszłej cerkwi", "opis": "Narrator wyobraża sobie wyrąb i transport drewna oraz wysiłek ludzi wznoszących świątynię."},
+    {"nr": 5, "miejsce": "wspomnienie o świetle", "kto": ["narrator"], "gdzie": "cerkiew, nawa i ikonostas", "opis": "Narrator przypomina chwile, gdy światło zachodu na krótko wydobywało barwy niszczejących ikon."},
+    {"nr": 6, "miejsce": "rozmowa o odbudowie", "kto": ["narrator", "turysta"], "gdzie": "plac po cerkwi", "opis": "Na pytanie turysty o ponowne złożenie cerkwi narrator odpowiada, że wiadomo mu o takim zamiarze."},
+    {"nr": 7, "miejsce": "wspomnienie odwiedzin po wysiedleniach", "kto": ["powracające kobiety", "narrator"], "gdzie": "cerkiew, nawa", "opis": "Po otwarciu wschodniej granicy kobiety związane z wysiedloną wspólnotą przychodzą do zniszczonej cerkwi, klękają na glinianym klepisku i modlą się."},
+    {"nr": 8, "miejsce": "wspomnienie wizyty starca", "kto": ["starzec", "krewni starca", "narrator"], "gdzie": "cerkiew i droga przez dawną wieś", "opis": "Rodzina wnosi sparaliżowanego starca do cerkwi, w której go ochrzczono, a później pokazuje on narratorowi miejsca po domach i wspomina ludzi."},
+    {"nr": 9, "miejsce": "finał, namysł nad przeniesieniem", "kto": ["narrator"], "gdzie": "plac po cerkwi i wyobrażenie muzeum", "opis": "Narrator zastanawia się, czy świątynię z jej historią da się przenieść tak, jak przeniesiono budynek."},
+    {"nr": 10, "miejsce": "finał, pytanie o próg", "kto": ["turysta", "narrator"], "gdzie": "dawne wejście do świątyni", "opis": "Turysta pyta, gdzie było wejście, a narrator odpowiada, że rozmówca stoi właśnie na jego progu."}
+  ],
+  "postacie": [
+    {"imie": "Narrator", "odmiany": ["narrator", "narratora", "narratorowi", "narratorem"], "rola": "opowiada o losach cerkwi poprzez wspomnienia, obserwacje i wyobrażenia", "relacje": "odpowiada na pytania turysty i słucha relacji byłego mieszkańca", "miejsca": ["początek, rozmowa z turystą", "wyobrażona budowa świątyni", "finał, pytanie o próg"]},
+    {"imie": "Turysta", "odmiany": ["turysta", "turysty", "turyście", "turystę", "turystą", "mężczyzna z aparatem"], "rola": "odwiedza plac po cerkwi i fotografuje go", "relacje": "pyta narratora o świątynię, odbudowę i położenie wejścia", "miejsca": ["początek, fotografia", "rozmowa o odbudowie", "finał, pytanie o próg"]},
+    {"imie": "Starzec", "odmiany": ["starzec", "starca", "starcowi", "starcem", "stary człowiek"], "rola": "paraliż uniemożliwia mu samodzielne wejście do świątyni, ale pamięta dawną wieś", "relacje": "krewni przywożą go do cerkwi, opowiada narratorowi o własnym chrzcie i dawnych mieszkańcach", "miejsca": ["wspomnienie wizyty starca"]},
+    {"imie": "Budowniczowie cerkwi", "odmiany": ["budowniczowie", "budowniczych", "budowniczym", "budowniczymi"], "rola": "w odtwarzanym przez narratora obrazie pozyskują drewno i stawiają świątynię", "relacje": "ich potomkowie odwiedzają wieś po latach wysiedlenia", "miejsca": ["wyobrażona budowa świątyni", "wspomnienie odwiedzin po wysiedleniach"]},
+    {"imie": "Powracające kobiety", "odmiany": ["kobiety", "kobiet", "kobietom", "kobietami", "stare kobiety"], "rola": "wracają do cerkwi, w której modlą się mimo zniszczeń", "relacje": "należą do wspólnoty związanej z dawną wsią", "miejsca": ["wspomnienie odwiedzin po wysiedleniach"]}
+  ],
+  "motywy": [
+    {"motyw": "pamięć miejsca", "przyklad": "Starzec jadący przez wieś potrafi wskazać domy i przywołać imiona ludzi, choć część zabudowy już nie istnieje.", "miejsce": "wspomnienie wizyty starca"},
+    {"motyw": "wysiedlenie i powrót", "przyklad": "Po ponownym otwarciu granicy ludzie związani z wysiedloną wsią odwiedzają dawną świątynię.", "miejsce": "wspomnienie odwiedzin po wysiedleniach"},
+    {"motyw": "trwanie sacrum", "przyklad": "Kobiety klękają w zrujnowanym wnętrzu, mimo że brakuje podłogi i części ikon. Można odczytać tę scenę jako wyraz więzi ze świątynią zachowanej przez wspólnotę.", "miejsce": "wspomnienie odwiedzin po wysiedleniach"},
+    {"motyw": "wyobraźnia i odtwarzanie przeszłości", "przyklad": "Stojąc w miejscu po cerkwi, narrator wyobraża sobie dawnych budowniczych, ich pracę w lesie i wznoszenie budowli.", "miejsce": "wyobrażona budowa świątyni"},
+    {"motyw": "przemijanie i światło", "przyklad": "O zachodzie słońca na krótko wraca blask wyblakłych ikon, a po zmroku wnętrze znowu ciemnieje.", "miejsce": "wspomnienie o świetle"},
+    {"motyw": "budynek i miejsce", "przyklad": "Narrator wątpi, czy przy odtworzeniu cerkwi w muzeum odtworzy się także jej związek z dawną wsią. Turysta staje na progu, choć wokół nie ma ścian.", "miejsce": "finał, namysł nad przeniesieniem i pytanie o próg"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://zpe.gov.pl/watek/LP491JJ1BM/476/a/audiobook/D86RNDV97", "rodzaj": "utwór", "co": "Fragmenty opowiadania Stasiuka w ZPE, s. 38–47 wydania z 2012 r.: rozmowa na placu, ikonostas, wizyty dawnych mieszkańców i finał."},
+    {"url": "https://repozytorium.uwb.edu.pl/jspui/bitstream/11320/11425/1/S_Trusewicz_Nieobecne_opowiedziane.pdf", "rodzaj": "opracowanie", "co": "Dwa plany narracji, wyobrażona budowa świątyni i rozróżnienie między cerkwią opisaną w utworze a jej historycznym pierwowzorem."}
+  ],
+  "do_weryfikacji": []
+}
