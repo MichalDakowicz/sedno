@@ -25,6 +25,21 @@
   box-shadow: var(--shadow-float);
 }
 
+/* Nav dociśnięty do boku (sterKsztaltu.ts): ramkę ustawia kształt, a tło i cień rysuje jego warstwa (Ksztalt.tsx).
+   Treść zostaje wyśrodkowana w pionie, więc gdy pasek rośnie w górę do krawędzi, przesuwa się razem z nim. */
+.wrap[data-przyklejony] {
+  background: none;
+}
+
+.nav[data-przyklejony] {
+  position: fixed;
+  z-index: 1;
+  margin: 0;
+  max-width: none;
+  background: transparent;
+  box-shadow: none;
+}
+
 .logo {
   font-size: var(--t-lg);
   font-weight: 700;

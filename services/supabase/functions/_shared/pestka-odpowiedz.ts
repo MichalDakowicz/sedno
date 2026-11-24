@@ -40,9 +40,10 @@ export type OdpowiedzPestki = {
 };
 
 export function opisKartyZrodla(z: ZrodloPestki): { link: string; miejsce?: string } {
-  const trafiaWMiejsce = z.rodzaj === "utwór" && !!z.miejsce && z.sekcja === z.miejsce &&
-    /#[^#]+$/.test(z.url) && !/\d\s*[–—-]\s*\d/.test(z.miejsce);
-  const sekcja = trafiaWMiejsce || z.sekcja !== z.miejsce ? z.sekcja : undefined;
+  const trafiaWMiejsce = z.rodzaj === "utwór" && !!z.miejsce && z.sekcja === z.miejsce && /#[^#]+$/.test(z.url);
+  const poczatekZakresu = trafiaWMiejsce ? /\b(\d+|[IVXLC]+)\s*[–—-]\s*(?:\d+|[IVXLC]+)\b/.exec(z.miejsce ?? "")?.[1] : undefined;
+  const sekcja = poczatekZakresu ? `${z.miejsce}, od początku ${poczatekZakresu}`
+    : trafiaWMiejsce || z.sekcja !== z.miejsce ? z.sekcja : undefined;
   const link = [z.tytul, z.rodzaj === "opracowanie" && "źródło opracowania", sekcja].filter(Boolean).join(" · ");
   return { link, miejsce: trafiaWMiejsce ? undefined : z.miejsce };
 }

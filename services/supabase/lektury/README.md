@@ -85,7 +85,8 @@ Funkcje `public.pestka_lektury_elementy` i `public.pestka_lektury_fragmenty` (ty
 utworze. Wyszukiwanie to Postgres full-text z konfiguracją `simple` na tekście bez polskich znaków (`unaccent`)
 i prefiksami 5 liter (znoszą fleksję), a dla dosłownego cytatu `pg_trgm` na tekście znormalizowanym do liter i cyfr.
 Odsyłacze do elementów korzystają z kotwic fragmentów dopasowanych po miejscu. Dla zakresu link może prowadzić do początku,
-a zakres pozostaje opisem tekstowym. Karta bez kotwicy oddziela miejsce w utworze od linku do tomu, całego utworu lub opracowania.
+a listy rozdziałów zapisane z „i” albo przecinkiem mają osobne linki. Zakres daje jeden link opisany jako odsyłacz do
+początku zakresu. Karta bez kotwicy oddziela miejsce w utworze od linku do tomu, całego utworu lub opracowania.
 Funkcja `public.pestka_lektury_fragmenty_miejsca` pobiera fragmenty z wybranego miejsca w kolejności tekstu.
 
 ## Osadzenia (embeddingi) — później, bez przebudowy schematu

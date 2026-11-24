@@ -90,3 +90,77 @@ Deno.test("zgodność miejsca uwzględnia zakres scen w elemencie", () => {
   const tekst = procesor.dodaj("Scena ta przypada na akt II, sc. 3 [W2].") + procesor.zakoncz();
   assertEquals(tekst, "Scena ta przypada na akt II, sc. 3 [[zrodlo:1]].");
 });
+
+Deno.test("zdanie o pamiętniku Rzeckiego potrzebuje zgodnego materiału dla każdego rozdziału", () => {
+  const materialy = [
+    wydarzenie("W1", "t. I, rozdz. 3", "Pamiętnik starego subiekta."),
+    wydarzenie("W2", "t. I, rozdz. 10", "Pamiętnik starego subiekta."),
+    wydarzenie("W3", "t. II, rozdz. 15", "Pamiętnik starego subiekta."),
+  ];
+  const zdanie = "Pamiętnik Rzeckiego pojawia się w tomie I, rozdz. 3 i 10 oraz w tomie II, rozdz. 15";
+  const p = new ProcesorOdpowiedzi(materialy, { pytanie: "", zapisPriorytetu: false });
+  const odpowiedz = p.dodaj(zdanie + " [W1].\n\n" + zdanie + " [W1][W2][W3].") + p.zakoncz();
+  assertEquals(odpowiedz.split("\n\n"), [
+    zdanie + ". " + ETYKIETA_OGOLNA,
+    zdanie + " [[zrodlo:1]][[zrodlo:2]][[zrodlo:3]].",
+  ]);
+  assertEquals(p.zrodla().map((z) => z.id), ["W1", "W2", "W3"]);
+
+  const odwrocony = new ProcesorOdpowiedzi(materialy, { pytanie: "", zapisPriorytetu: false });
+  const tylkoPierwszyTom = "Pamiętnik Rzeckiego pojawia się w rozdz. 3 i 10 tomu I";
+  const zlyTom = "Pamiętnik Rzeckiego pojawia się w rozdz. 3 i 10 tomu II";
+  const wynik = odwrocony.dodaj(tylkoPierwszyTom + " [W1][W2].\n\n" + zlyTom + " [W1][W2][W3].") + odwrocony.zakoncz();
+  assertEquals(wynik.split("\n\n"), [
+    tylkoPierwszyTom + " [[zrodlo:1]][[zrodlo:2]].",
+    zlyTom + ". " + ETYKIETA_OGOLNA,
+  ]);
+});
+
+Deno.test("jedna karta dla strony opracowania zachowuje dowody wyłącznie dla wspartych zdań", () => {
+  const url = "https://zpe.gov.pl/a/prezentacja-multimedialna/DOPFL0ddG";
+  const materialy = [
+    wydarzenie("W1", "cz. I, Praca", "Więźniowie pracują przy wyrębie lasu."),
+    wydarzenie("W2", "cz. II, Głód", "Narrator opisuje niedożywienie więźniów."),
+  ];
+  materialy.forEach((m, i) => {
+    m.zrodlo = { ...m.zrodlo!, rodzaj: "opracowanie", url: i ? url + "/?tryb=cwiczenia#glod" : url };
+  });
+  const p = new ProcesorOdpowiedzi(materialy, { pytanie: "", zapisPriorytetu: false });
+  const odpowiedz = p.dodaj(
+    "Więźniowie pracują przy wyrębie lasu [W1].\n\nNarrator opisuje niedożywienie więźniów [W2].\n\n" +
+    "Narrator opisuje niedożywienie więźniów w 1947 roku [W2].\n\n" +
+    "Narrator opisuje niedożywienie więźniów i ucieka łodzią [W2].\n\n" +
+    "Narrator nie opisuje niedożywienia więźniów [W2].",
+  ) + p.zakoncz();
+  assertEquals(odpowiedz.split("\n\n"), [
+    "Więźniowie pracują przy wyrębie lasu [[zrodlo:1]].",
+    "Narrator opisuje niedożywienie więźniów [[zrodlo:1]].",
+    "Narrator opisuje niedożywienie więźniów w 1947 roku. " + ETYKIETA_OGOLNA,
+    "Narrator opisuje niedożywienie więźniów i ucieka łodzią. " + ETYKIETA_OGOLNA,
+    "Narrator nie opisuje niedożywienia więźniów. " + ETYKIETA_OGOLNA,
+  ]);
+  assertEquals(p.zrodla().length, 1);
+  const [karta] = p.zrodla();
+  assertEquals([karta.url, karta.miejsce], [url, undefined]);
+  assertStringIncludes(karta.dowod!, materialy[1].tekst);
+  assert(!karta.twierdzenie?.includes("1947"));
+  assert(!karta.twierdzenie?.includes("ucieka"));
+  assert(!karta.twierdzenie?.includes("nie opisuje"));
+});
+
+Deno.test("usuwa łączniki między odsyłaczami i domyka zdanie po odrzuceniu identyfikatora", () => {
+  const p = new ProcesorOdpowiedzi([
+    wydarzenie("W1", "t. I, rozdz. 1", "Kupcy rozmawiają w jadłodajni."),
+  ], { pytanie: "", zapisPriorytetu: false });
+  const odpowiedz = p.dodaj(
+    "Kupcy rozmawiają w jadłodajni [W1]– [W1].\n\n" +
+    "Kupcy rozmawiają w jadłodajni [W1] – [W99].\n\n" +
+    "Kolejna informacja kończy się na przykładzie – [W999]\n\n" +
+    "Osobna wzmianka o rozdz. 4–5 [4]– [4].",
+  ) + p.zakoncz();
+  const zdania = odpowiedz.split("\n\n");
+  assertEquals(zdania[0], "Kupcy rozmawiają w jadłodajni [[zrodlo:1]].");
+  assertEquals(zdania[1], "Kupcy rozmawiają w jadłodajni [[zrodlo:1]].");
+  assertEquals(zdania[2], "Kolejna informacja kończy się na przykładzie. " + ETYKIETA_OGOLNA);
+  assertEquals(zdania[3], "Osobna wzmianka o rozdz. 4–5 [4]. " + ETYKIETA_OGOLNA);
+});

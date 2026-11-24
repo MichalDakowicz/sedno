@@ -60,7 +60,7 @@ export function kartaLektury(utwor: Utwor): Material {
   const tekst = [
     `Karta lektury: „${utwor.tytul}”, autor: ${utwor.autor}, epoka: ${utwor.epoka}, poziom: ${utwor.poziom}.`,
     `Wymagane części: ${utwor.czesci}`,
-    utwor.wl ? "Utwór w domenie publicznej, pełny tekst na Wolnych Lekturach." : "Brak pełnego tekstu w Sedno (prawa autorskie).",
+    utwor.wl ? "Utwór w domenie publicznej, pełny tekst na Wolnych Lekturach." : "Brak pełnego tekstu w indeksie Sedno.",
     utwor.do_weryfikacji && `Do weryfikacji: ${utwor.do_weryfikacji}`,
   ].filter(Boolean).join(" ");
   const url = adresTekstu(utwor);
@@ -193,7 +193,7 @@ function fragmenty(raw: unknown, utwor: Utwor, pytanie: string, fraza: string | 
     const wiersz = obiektPestki(w);
     if (wiersz.utwor !== utwor.id) return [];
     const tresc = napisPestki(wiersz.tekst, 12000);
-    const tekst = doPlanu ? przytnij(tresc, 2200) : okno(tresc, pytanie, wiersz.trafienie === "fraza" ? fraza : null, poczatek);
+    const tekst = doPlanu ? tresc.slice(0, 2200) : okno(tresc, pytanie, wiersz.trafienie === "fraza" ? fraza : null, poczatek);
     const miejsce = napisPestki(wiersz.miejsce, 200);
     const tytulCzesci = napisPestki(wiersz.tytul_czesci, 120);
     const opis = [miejsce, tytulCzesci && `(${tytulCzesci})`].filter(Boolean).join(" ");
@@ -309,7 +309,7 @@ export async function zbierzMaterialy(
       if (glowne.length < 3 && utwor.wl && (rozdzial || scena) && !niejasnyTom) {
         const dane = await pewnie(d.fragmentyMiejsca?.({ p_utwor: utwor.id, p_miejsce: zapisMiejsca(miejsca), p_limit: 7 }), []);
         const wycinki = fragmenty(dane, utwor, pytanie, null, true).filter((m) => pasujeMiejsce(m.miejsce ?? "", miejsca));
-        if (wycinki.length) glowne = wycinki;
+        glowne = [...glowne, ...wycinki];
       }
       break;
     }

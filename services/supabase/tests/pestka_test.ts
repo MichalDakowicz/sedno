@@ -444,43 +444,52 @@ Deno.test("plan bez tytułu dziedziczy utwór, a zwykłe pytanie i nowy utwór t
   assertEquals(rozpoznajPytanieCzatu(messages, { chronOdpowiedz: true }).lektura, false);
 });
 
-Deno.test("ubogi plan tomu II, rozdziału 14 jest układany tylko z fragmentów tego rozdziału", async () => {
+Deno.test("serwer uzupełnia plan tomu II, rozdziału 14 dosłownymi cytatami z tego rozdziału", async () => {
   let wywolania = 0;
-  const tekst = ["Izabela i Starski rozmawiają w pociągu.", "Wokulski wysiada w Skierniewicach.", "Dróżnik Wysocki ratuje Wokulskiego."];
+  const plik = new URL("./fixtures/lalka-tom-ii-rozdz-14.txt", import.meta.url);
+  const tekst = (await Deno.readTextFile(plik)).trim().split(/\r?\n\r?\n/);
   const krok = await przygotujCzat([
     { role: "user", content: "Podaj plan wydarzeń Lalki" },
     { role: "assistant", content: "Oto plan lektury. [35]" },
     { role: "user", content: "Plan wydarzeń tomu II, rozdział 14" },
   ], { tryb: "czat" }, dostepZ({
+    wiersze: await elementyLalki(),
     fragmentyMiejsca: (p) => {
       wywolania++;
       assertEquals(p, { p_utwor: "lalka", p_miejsce: "t. 2, rozdz. 14", p_limit: 7 });
       return Promise.resolve([
-        { utwor: "lalka", nr: 9, miejsce: "t. I, rozdz. 14", tekst: "Inny tom." },
+        { utwor: "lalka", nr: 9, miejsce: "t. I, rozdz. 14", tekst: "Starski grał w karty przez całą noc." },
         ...tekst.map((tekst, i) => ({ utwor: "lalka", nr: 150 + i, miejsce: "t. II, rozdz. 14", tekst, zrodlo_url: XIV })),
-        { utwor: "lalka", nr: 160, miejsce: "t. II, rozdz. 15", tekst: "Kolejny rozdział." },
+        { utwor: "lalka", nr: 160, miejsce: "t. II, rozdz. 15", tekst: "Starski wspomniał o całonocnej grze." },
       ]);
     },
   }).dostep);
   assertEquals(wywolania, 1);
-  assertEquals(krok.gotowa, undefined);
-  assertEquals(krok.materialy.map((m) => m.id), ["K", "F150", "F151", "F152"]);
-  assertStringIncludes(system(krok), "3–6 punktach");
-  assertStringIncludes(system(krok), "Każdy punkt zakończ identyfikatorem [F…]");
-  const odp = przez(krok.materialy, tekst.map((zdanie, i) => `${i + 1}. ${zdanie} [F${150 + i}]`).join("\n"));
-  assertEquals(odp.zrodla[0].url, XIV);
-  assertEquals(odp.wynik.split("\n").length, 3);
+  assert(krok.gotowa);
+  assertStringIncludes(krok.gotowa.split("\n").find((w) => w.startsWith("1."))!, "[W32]");
+  for (const [i, zdanie] of tekst.entries()) assertStringIncludes(krok.gotowa, `„${zdanie}” [F${150 + i}]`);
+  const odp = przez(krok.materialy, krok.gotowa);
+  const punkty = odp.wynik.split("\n").filter((w) => /^\d+\./.test(w));
+  assert(punkty.length >= 3 && punkty.length <= 6);
+  for (const wiersz of punkty) {
+    const karta = wiersz.match(/\[\[zrodlo:(\d+)\]\]/);
+    assert(karta);
+    assertEquals(odp.zrodla[Number(karta[1]) - 1].url, XIV);
+  }
+  assertEquals(odp.zrodla.filter((z) => z.id?.startsWith("F")).map((z) => z.dowod), tekst);
+  assert(!/całonocn|całą noc/i.test(odp.wynik));
   assert(!odp.wynik.includes(ETYKIETA_OGOLNA));
 });
 
-Deno.test("plan z trzema wydarzeniami w rozdziale nie pobiera fragmentów", async () => {
+Deno.test("plan z wieloma wydarzeniami w rozdziale ma sześć punktów i nie pobiera fragmentów", async () => {
   let wywolania = 0;
   const { krok } = await czat("Plan wydarzeń Lalki, tom II, rozdział 14", {
-    wiersze: [1, 2, 3].map((nr) => wyd(nr, "t. II, rozdz. 14", "Zdarzenie w rozdziale.", XIV)),
+    wiersze: Array.from({ length: 8 }, (_, i) => wyd(i + 1, "t. II, rozdz. 14", "Zdarzenie w rozdziale.", XIV)),
     fragmentyMiejsca: () => { wywolania++; return Promise.resolve([]); },
   });
   assertEquals(wywolania, 0);
-  assertStringIncludes(krok.gotowa!, "3. **t. II, rozdz. 14**");
+  assertEquals(krok.gotowa!.split("\n").filter((w) => /^\d+\./.test(w)).length, 6);
+  assertStringIncludes(krok.gotowa!, "6. **t. II, rozdz. 14**");
 });
 
 Deno.test("karty wskazują właściwy tom, a miejsce bez kotwicy jest osobnym tekstem", async () => {
@@ -545,6 +554,55 @@ Deno.test("karta zachowuje osobny odsyłacz do każdej sceny albo części", asy
     kotwice: () => Promise.resolve([]),
   });
   assertEquals(krok.materialy.find((m) => m.id === "W1")?.zrodlo?.miejsca?.map((m) => m.url), [wl + "makbet.html#s10", wl + "makbet.html"]);
+});
+
+Deno.test("karty Chłopów rozwijają listy, a zakresy prowadzą do pierwszego rozdziału", async () => {
+  const url = "https://wolnelektury.pl/katalog/lektura/chlopi-czesc-pierwsza-jesien.html";
+  for (const lista of ["8 i 10", "8, 10"]) {
+    const miejsce = `cz. I, rozdz. ${lista}`;
+    const miejsca = ["cz. I, rozdz. 8", "cz. I, rozdz. 10"];
+    const { krok } = await czat("Podaj plan wydarzeń Chłopów", {
+      wiersze: [wiersz("wydarzenie", 1, miejsce, { miejsce, opis: "Opis wydarzenia." }, url + "#s8", "chlopi")],
+      kotwice: (p) => {
+        assertEquals(p.p_miejsca, miejsca);
+        return Promise.resolve(miejsca.map((miejsce, i) => ({ miejsce, url: url + (i ? "#s10" : "#s8") })));
+      },
+    });
+    const [karta] = przez(krok.materialy, krok.gotowa!).zrodla;
+    assertEquals(karta.url, url + "#s8");
+    assertEquals(karta.miejsca, [{ miejsce: miejsca[0], url: url + "#s8" }, { miejsce: miejsca[1], url: url + "#s10" }]);
+  }
+  for (const nr of [2, 4]) {
+    const miejsce = `cz. I, rozdz. ${nr}–5`;
+    const cel = `${url}#s${nr}`;
+    const { krok } = await czat("Podaj plan wydarzeń Chłopów", {
+      wiersze: [wiersz("wydarzenie", 1, miejsce, { miejsce, opis: "Opis wydarzenia." }, cel, "chlopi")],
+    });
+    const [karta] = przez(krok.materialy, krok.gotowa!).zrodla;
+    assertEquals([karta.miejsca, karta.url], [undefined, cel]);
+    assertEquals(opisKartyZrodla(karta), { link: `Chłopi · ${miejsce}, od początku ${nr}`, miejsce: undefined });
+  }
+});
+
+Deno.test("odpowiedź o Innym świecie raz wyjaśnia dostępność tekstu i zwraca jedną kartę dla strony", async () => {
+  const url = "https://zpe.gov.pl/a/prezentacja-multimedialna/DOPFL0ddG";
+  const { krok } = await czat("Podaj plan wydarzeń Innego świata", {
+    wiersze: [
+      wiersz("wydarzenie", 1, "cz. I, Praca", {
+        miejsce: "cz. I, Praca", opis: "Więźniowie pracują przy wyrębie lasu.",
+      }, url, "inny-swiat"),
+      wiersz("wydarzenie", 2, "cz. II, Głód", {
+        miejsce: "cz. II, Głód", opis: "Narrator opisuje niedożywienie więźniów.",
+      }, url, "inny-swiat"),
+    ],
+  });
+  const p = krok.procesor!;
+  const tekst = p.dodaj(krok.gotowa!) + p.zakoncz();
+  const wstep = "Sedno nie ma tekstu tego utworu i opiera się na opracowaniu.";
+  assert(tekst.startsWith(wstep + "\n\n"));
+  assertEquals(tekst.split(wstep).length, 2);
+  assertEquals(tekst.match(/\[\[zrodlo:1\]\]/g)?.length, 2);
+  assertEquals(p.zrodla().map((z) => [z.rodzaj, z.url, z.miejsce]), [["opracowanie", url, undefined]]);
 });
 
 async function elementyLalki() {

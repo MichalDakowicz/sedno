@@ -154,7 +154,7 @@ Funkcje `pestka_lektury_elementy`, `pestka_lektury_fragmenty`, `pestka_lektury_f
 
 | Typ pytania | Materiały |
 | --- | --- |
-| plan wydarzeń | numerowana lista z wydarzeń w kolejności fabuły, zawężona do miejsca z pytania. Jeśli dla rozdziału lub sceny są mniej niż trzy wydarzenia, model dostaje wycinki z tego miejsca do ułożenia planu i cytuje ich identyfikatory `[F…]`. Przy braku tekstu zostają dostępne punkty z informacją o zakresie materiału. |
+| plan wydarzeń | numerowana lista wydarzeń w kolejności fabuły, zawężona do miejsca z pytania. Dla rozdziału lub sceny serwer zwraca najwyżej sześć punktów. Gdy ma mniej niż trzy wydarzenia, po nich podaje krótkie dosłowne cytaty z tego miejsca, w kolejności tekstu, z kartami `[F…]`. Jeśli punktów nadal jest mniej niż trzy, podaje ich liczbę. |
 | streszczenie | sekcja streszczenia, do 25 wydarzeń (60 przy „szczegółowo”), sekcja bohaterów; „bez spoilerów” daje tylko dwa pierwsze zdania |
 | zakończenie, finał | do pięciu końcowych wydarzeń w kolejności fabuły oraz sekcja streszczenia |
 | kim jest …, bohater, relacje | dopasowanie imienia, nazwiska i członów z `odmiany` w obrębie rozpoznanej lektury, także z historii. Do opisu dołączają wydarzenia z miejsc związanych z postacią. Przy braku opisu Pestka podaje tylko dane karty lektury. |
@@ -163,8 +163,8 @@ Funkcje `pestka_lektury_elementy`, `pestka_lektury_fragmenty`, `pestka_lektury_f
 | geneza, konteksty | sekcje geneza i konteksty |
 | każde inne, w tym „czy …?” i „dlaczego …?” | trzy najtrafniejsze sekcje opracowania, uzupełnione o wydarzenia i bohaterów, do 8 elementów oraz 2 fragmenty (gdy utwór ma tekst) |
 
-Do kontekstu trafia najwyżej około 18 tys. znaków materiałów (około 6 tys. tokenów), a karta zawsze. Pełne książki
-nigdy nie trafiają do modelu: wycinek do planu ma do 2200 znaków, a w pozostałych odpowiedziach do 1400.
+Do kontekstu modelu trafia najwyżej około 18 tys. znaków materiałów (około 6 tys. tokenów), w tym zawsze karta.
+Wycinek używany przez serwer do planu ma do 2200 znaków, a w odpowiedzi modelu do 1400.
 
 ### Kontrakt odpowiedzi czatu o lekturze
 
@@ -172,10 +172,14 @@ Model cytuje materiały identyfikatorami w nawiasach kwadratowych (`[W12]`, `[P3
 `[OW]` oznacza wiedzę spoza materiałów. Strumień buforuje akapit lub punkt listy:
 
 - identyfikator z materiałów zamienia się na znacznik `[[zrodlo:N]]` (N to numer pozycji w `zrodla`, od 1), identyfikator
-  nieznany znika, a sąsiednie odsyłacze do tego samego miejsca są scalane;
-- serwer sprawdza każde zdanie z identyfikatorem elementu. Jawne miejsce musi pasować do materiału. Przy braku miejsca
-  serwer wymaga wspólnych rdzeni słów (co najmniej dwóch i co najmniej jednej czwartej znaczących słów zdania).
-  Przy linku do opracowania sprawdzenie tekstu elementu jest wymagane także przy zgodnym miejscu;
+  nieznany znika. Serwer porządkuje interpunkcję przy usuwanych znacznikach, usuwa myślniki między odsyłaczami
+  i scala sąsiednie powtórzenia;
+- serwer sprawdza każde zdanie z identyfikatorem elementu. Każde wymienione miejsce musi mieć pokrycie w przypisach
+  tego zdania. Przy braku miejsca serwer wymaga wspólnych rdzeni słów (co najmniej dwóch i co najmniej jednej czwartej
+  znaczących słów zdania). Przy linku do opracowania serwer sprawdza wszystkie znaczące rdzenie, liczby i przeczenia
+  w zdaniu także przy zgodnym miejscu;
+- w odpowiedzi opartej wyłącznie na opracowaniach utworu bez tekstu w Sedno informacja o tym pojawia się raz,
+  na początku odpowiedzi;
 - akapit lub punkt listy bez znanego identyfikatora może dostać jeden dopisek `(z ogólnej wiedzy, sprawdź w tekście)`.
   Dopisek pomija nagłówki, cytaty, polecenia i pytania do ucznia oraz przyznanie braku materiału;
 - cytat w cudzysłowie „…” (min. 4 słowa) musi występować w materiałach albo w pytaniu ucznia. W innym przypadku
@@ -187,7 +191,11 @@ Model cytuje materiały identyfikatorami w nawiasach kwadratowych (`[W12]`, `[P3
 Ostatnie zdarzenie strumienia (`{"type":"done",…,"pestka":{…}}`) niesie źródła. Karta obejmująca kilka miejsc ma
 opcjonalne `miejsca: [{ miejsce: string, url: string }]` w kolejności materiału. UI pokazuje po jednym linku dla każdego
 miejsca pod jednym numerem przypisu. W takim przypadku `url` i `miejsce` wskazują pierwszy wpis dla starszych klientów.
+Zapis „rozdz. 8 i 10” albo „rozdz. 8, 10” daje po jednym wpisie dla każdego rozdziału. Zakres ma jeden link do
+początku i etykietę, np. „rozdz. 4–5, od początku 4”.
 Przy braku kotwicy wpis prowadzi do właściwego tomu, tekstu lub opracowania, a UI pokazuje miejsce obok linku.
+Każda strona opracowania ma w odpowiedzi najwyżej jeden numer przypisu. Karta zawiera wtedy połączone dowody
+z zatwierdzonych zdań, a miejsce jest pomijane, jeśli materiał dotyczy różnych miejsc w utworze.
 Karty bez tablicy `miejsca` korzystają z pojedynczego `url`:
 
 ```json

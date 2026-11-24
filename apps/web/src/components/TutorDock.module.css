@@ -1,45 +1,23 @@
-.panel::backdrop {
-  background: var(--scrim);
-  animation: fade var(--ruch-zwykly) var(--ruch-krzywa);
-}
-
+/* Ramka panelu to dolna część kształtu nawigacji (sterKsztaltu.ts): pod przyklejonym navem przy prawej krawędzi.
+   Tło rysuje warstwa kształtu, a treść wylewa się razem z nim (maska --wylew). */
 .panel {
   position: fixed;
-  top: 16px;
-  right: 16px;
-  bottom: 16px;
-  left: auto;
-  width: min(420px, calc(100vw - 32px));
-  height: auto;
-  max-width: none;
-  max-height: none;
-  margin: 0;
-  border: 0;
-  padding: 0;
-  color: var(--fg);
-}
-
-.panel[open] {
+  z-index: 31;
+  top: var(--ksztalt-dol-paska);
+  right: 0;
+  bottom: 0;
+  width: var(--ksztalt-szer-panelu);
   display: flex;
   flex-direction: column;
-  border-radius: var(--r-lg);
-  background: var(--bg);
-  box-shadow: var(--shadow-float);
-  overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom);
+  color: var(--fg);
   outline: none;
-  animation: slide-in var(--ruch-zwykly) var(--ruch-krzywa);
+  mask-image: linear-gradient(to bottom, #000 calc(var(--wylew) - 15%), transparent var(--wylew));
 }
 
-@keyframes slide-in {
-  from {
-    transform: translateX(calc(100% + 32px));
-  }
-}
-
-@keyframes fade {
-  from {
-    opacity: 0;
-  }
+/* Poza panelem i jego przejściem treść znika od razu, zanim panel zejdzie z drzewa. */
+:global(html:not([data-ksztalt-panel])) .panel {
+  visibility: hidden;
 }
 
 .header {
@@ -81,17 +59,6 @@
 }
 
 .iconBtn:hover {
-  background: var(--surface);
+  background: var(--bg);
   color: var(--fg);
-}
-
-@media (max-width: 640px) {
-  .panel {
-    inset: 0;
-    width: 100%;
-  }
-
-  .panel[open] {
-    border-radius: 0;
-  }
 }

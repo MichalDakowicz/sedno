@@ -79,8 +79,8 @@ export function TopNav() {
   }
 
   return (
-    <div className={styles.wrap}>
-      <nav className={styles.nav} aria-label="Główna">
+    <div className={styles.wrap} data-ksztalt="wrap">
+      <nav className={styles.nav} aria-label="Główna" data-ksztalt="nav">
         <Link to="/" className={styles.logo} aria-label="Sedno, pulpit">
           <Znak />
         </Link>
