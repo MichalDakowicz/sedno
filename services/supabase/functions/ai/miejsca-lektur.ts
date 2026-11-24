@@ -13,6 +13,9 @@ const RODZAJE = {
 type RodzajMiejsca = typeof RODZAJE[keyof typeof RODZAJE];
 type Miejsce = { rodzaj: RodzajMiejsca; nr: number; doNumeru?: number };
 const PREFIKSY_MIEJSC = (Object.keys(RODZAJE) as (keyof typeof RODZAJE)[]).sort((a, b) => b.length - a.length);
+const POZIOMY: RodzajMiejsca[] = ["t", "cz", "ks", "akt", "rozdz", "sc"];
+const SKLADNIK = /\b((tom\w*|t(?=\.)|czesc\w*|cz(?=\.)|rozdzial\w*|rozdz(?=\.)|akt\w*|scen\w*|sc(?=\.)|ksieg\w*|ks(?=\.))(?:\.\s*|\s+))(\w+)\b(?:\s*[–—-]\s*([ivxlc]+|\d+)\b)?/g;
+const NASTEPNY_NUMER = /^(?:[ \t]*,[ \t]*|[ \t]+(?:i|oraz)[ \t]+)((?:\d+|[IVXLC]+)(?![\p{L}\d])(?:[ \t]*[–—-][ \t]*(?:\d+|[IVXLC]+)(?![\p{L}\d]))?)/u;
 
 const PORZADKOWE = [
   "pierwsz", "drug", "trzec", "czwart", "piat", "szost", "siodm", "osm",
@@ -28,16 +31,63 @@ export function liczbaMiejsca(s: string): number | undefined {
   return i < 0 ? undefined : i + 1;
 }
 
+function skladniki(tekst: string) {
+  return [...bezAkcentow(tekst).matchAll(SKLADNIK)].flatMap((m) => {
+    const [fraza, prefiks, typ, liczba, koniec] = m;
+    const klucz = PREFIKSY_MIEJSC.find((k) => typ.startsWith(k));
+    const nr = liczbaMiejsca(liczba);
+    if (!klucz || !nr) return [];
+    const rodzaj = RODZAJE[klucz];
+    const od = m.index + prefiks.length;
+    let doZnaku = m.index + fraza.length;
+    const liczby = [tekst.slice(od, doZnaku)];
+    const miejsca: Miejsce[] = [{ rodzaj, nr, doNumeru: koniec ? liczbaMiejsca(koniec) : undefined }];
+    for (let dalszy = NASTEPNY_NUMER.exec(tekst.slice(doZnaku)); dalszy; dalszy = NASTEPNY_NUMER.exec(tekst.slice(doZnaku))) {
+      const [poczatek, koniec] = dalszy[1].split(/[–—-]/).map((x) => x.trim());
+      const nr = liczbaMiejsca(poczatek);
+      if (!nr) break;
+      miejsca.push({ rodzaj, nr, doNumeru: koniec ? liczbaMiejsca(koniec) : undefined });
+      liczby.push(dalszy[1]);
+      doZnaku += dalszy[0].length;
+    }
+    return [{ poczatek: m.index, od, doZnaku, liczby, miejsca }];
+  });
+}
+
 export function miejscaWZapytaniu(tekst: string): Miejsce[] {
   const miejsca = new Map<RodzajMiejsca, Miejsce>();
-  for (const [, typ, liczba, koniec] of bezAkcentow(tekst).matchAll(/\b(tom\w*|t(?=\.)|czesc\w*|cz(?=\.)|rozdzial\w*|rozdz(?=\.)|akt\w*|scen\w*|sc(?=\.)|ksieg\w*|ks(?=\.))(?:\.\s*|\s+)(\w+)\b(?:\s*[–—-]\s*([ivxlc]+|\d+)\b)?/g)) {
-    const klucz = PREFIKSY_MIEJSC.find((k) => typ.startsWith(k));
-    if (!klucz) continue;
-    const rodzaj = RODZAJE[klucz];
-    const nr = liczbaMiejsca(liczba);
-    if (nr && !miejsca.has(rodzaj)) miejsca.set(rodzaj, { rodzaj, nr, doNumeru: koniec ? liczbaMiejsca(koniec) : undefined });
+  for (const { miejsca: [pierwsze] } of skladniki(tekst.normalize("NFC"))) {
+    if (!miejsca.has(pierwsze.rodzaj)) miejsca.set(pierwsze.rodzaj, pierwsze);
   }
   return [...miejsca.values()];
+}
+
+/** Każde wymienione miejsce z nadrzędnym tomem, częścią lub aktem. */
+export function miejscaWZdaniu(tekst: string): Miejsce[][] {
+  tekst = tekst.normalize("NFC");
+  const skladnikiZdania = skladniki(tekst);
+  const kolejnosc: Miejsce[] = [];
+  for (let i = 0; i < skladnikiZdania.length; i++) {
+    const biezacy = skladnikiZdania[i];
+    const nastepny = skladnikiZdania[i + 1];
+    // W zapisie „rozdz. 3 i 10 tomu II” tom określa oba rozdziały.
+    if (nastepny && POZIOMY.indexOf(nastepny.miejsca[0].rodzaj) < POZIOMY.indexOf(biezacy.miejsca[0].rodzaj) &&
+      /^\s+(?:w\s+)?$/i.test(tekst.slice(biezacy.doZnaku, nastepny.poczatek))) {
+      kolejnosc.push(...nastepny.miejsca);
+      i++;
+    }
+    kolejnosc.push(...biezacy.miejsca);
+  }
+  const wynik: Miejsce[][] = [];
+  let biezace: Miejsce[] = [];
+  for (const m of kolejnosc) {
+    const poziom = POZIOMY.indexOf(m.rodzaj);
+    const zachowaj = biezace.filter((w) => POZIOMY.indexOf(w.rodzaj) < poziom);
+    if (zachowaj.length < biezace.length) wynik.push(biezace);
+    biezace = [...zachowaj, m];
+  }
+  if (biezace.length) wynik.push(biezace);
+  return wynik;
 }
 
 export function pasujeMiejsce(miejsce: string, szukane: Miejsce[]): boolean {
@@ -50,8 +100,11 @@ export const zapisMiejsca = (miejsca: Miejsce[]) =>
   miejsca.map(({ rodzaj, nr }) => `${rodzaj === "akt" ? "akt" : rodzaj + "."} ${nr}`).join(", ");
 
 export function rozbijMiejsca(miejsce: string): string[] {
-  return miejsce.split(/;|\s+(?:i|[–—-])\s+(?=(?:akt\b|(?:t|cz|sc|ks|rozdz)\.|epilog\b|prolog\b|Jesień\b|Zima\b|Wiosna\b|Lato\b))/i)
-    .map((m) => m.trim()).filter(Boolean);
+  return miejsce.normalize("NFC").split(/;|\s+(?:i|[–—-])\s+(?=(?:akt\b|(?:t|cz|sc|ks|rozdz)\.|epilog\b|prolog\b|Jesień\b|Zima\b|Wiosna\b|Lato\b))/i)
+    .map((m) => m.trim()).filter(Boolean).flatMap((m) => {
+      const lista = skladniki(m).findLast((s) => s.liczby.length > 1);
+      return lista ? lista.liczby.map((nr) => m.slice(0, lista.od) + nr + m.slice(lista.doZnaku)) : [m];
+    });
 }
 
 export function miejsceWydania(utwor: string, miejsce: string): string {
