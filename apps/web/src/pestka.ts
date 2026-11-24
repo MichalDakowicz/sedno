@@ -114,7 +114,7 @@ const slowa = (s: string) => bezOgonkow(s).split(/[^a-z0-9]+/).filter(Boolean);
 // Trudne sprawy osobiste ucznia nie są priorytetem w nauce, a lekki model potrafi dopisać znacznik także wtedy.
 // Lista jest krótka i celowo ostrożna: przy takim słowie w ostatniej wiadomości znacznika nie zapisujemy.
 // Wyrazy krótkie i częste w nauce (dom, lek, mam) są tu tylko w pełnych formach, żeby nie łapać „pracy domowej”, „lekcji” ani „mam zadanie”.
-const OSOBISTE_PRZEDROSTKI = ["rodzic", "mama", "mame", "mamy", "mamie", "tata", "tate", "tato", "tatus", "rozwod", "boje", "boja", "boj", "strach", "smut", "placz", "depres", "samotn", "chor", "krzycz", "krzyk", "przemoc", "klotn", "alkohol", "umar", "zmarl", "nienawid", "skrzywdz", "rozstan"];
+const OSOBISTE_PRZEDROSTKI = ["rodzic", "mama", "mame", "mamy", "mamie", "tata", "tate", "tato", "tatus", "rozwod", "boje", "boja", "boj", "strach", "smut", "placz", "depres", "samotn", "chor", "krzycz", "krzyk", "przemoc", "klotn", "alkohol", "umar", "umrz", "zmarl", "nienawid", "skrzywdz", "rozstan", "samob", "okalecz", "zabij"];
 const OSOBISTE_PELNE = new Set(["dom", "domu", "domem", "domie", "lek", "leku", "lekiem", "bije", "bija", "bity", "bic"]);
 
 const wspolnyPoczatek = (a: string, b: string) => {
@@ -123,16 +123,24 @@ const wspolnyPoczatek = (a: string, b: string) => {
   return i;
 };
 
-/** Czy wiadomość ucznia zawiera słowo z listy trudnych spraw osobistych (wtedy Pestka pokazuje stałą informację o wsparciu). */
+/** Czy wiadomość ucznia zawiera słowo z listy trudnych spraw osobistych (wtedy Pestka zawsze pokazuje stałą informację o wsparciu). */
 export function trudnaSprawa(tekst: string): boolean {
-  if (!slowa(tekst).some((w) => OSOBISTE_PELNE.has(w) || OSOBISTE_PRZEDROSTKI.some((p) => w.startsWith(p)))) return false;
-  // „Motyw samotności w Lalce” to zadanie szkolne, nie zwierzenie; słowa o sobie („czuję się”, „mnie”) przywracają informację o wsparciu.
-  const t = bezOgonkow(tekst);
-  return !SZKOLNE.test(t) || O_SOBIE.test(t);
+  return slowa(tekst).some((w) => OSOBISTE_PELNE.has(w) || OSOBISTE_PRZEDROSTKI.some((p) => w.startsWith(p)));
 }
 
-const SZKOLNE = /\b(rozprawk|wypracowan|lektur|motyw|bohater|powiesc|argument|interpretac|wiersz|utwor|dramat|rozdzial|esej|cytat)/;
-const O_SOBIE = /\b(czuje sie|jestem|mnie|nie moge|nie daje rady|nie mam sily|moj|moja|moje|moi|moim|moja mama|moj tata)\b/;
+// „Motyw samotności w Lalce” to zadanie szkolne: wtedy pytanie może iść ścieżką lektur. Informacja o wsparciu i tak się pokazuje.
+const SZKOLNE = ["rozprawk", "wypracowan", "lektur", "motyw", "bohater", "powiesc", "argument", "interpretac", "wiersz", "utwor", "dramat", "rozdzial", "esej", "cytat"];
+const O_SOBIE = new Set(["ja", "mnie", "mna", "sobie", "jestem", "czuje", "chce", "moge", "moj", "moja", "moje", "moi", "moim", "mojej", "mojego", "wiem"]);
+const CIEZKIE = ["przemoc", "bije", "bija", "bity", "bic", "umrz", "samob", "skrzywdz", "okalecz", "alkohol", "depres"];
+
+/** Trudne słowo w szkolnym pytaniu o lekturę, bez mówienia o sobie i bez ciężkich spraw: nie blokuje ścieżki lektur. */
+export function szkolnePytanie(tekst: string): boolean {
+  const w = slowa(tekst);
+  if (w.some((x) => O_SOBIE.has(x) || CIEZKIE.some((c) => x.startsWith(c)))) return false;
+  // „Makbet zabija Duncana” to pytanie o lekturę, „zabiję się” już nie.
+  if (w.some((x) => x.startsWith("zabij")) && w.includes("sie")) return false;
+  return w.some((x) => SZKOLNE.some((s) => x.startsWith(s)) && !x.startsWith("motywac"));
+}
 
 /** Czy znacznik priorytetu wolno zapisać: wynika z ostatniej wiadomości ucznia i nie dotyczy trudnych spraw osobistych. */
 export function priorytetDozwolony(priorytet: string, ostatniaWiadomosc: string): boolean {
