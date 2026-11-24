@@ -2,10 +2,10 @@
 // Tekstów nie ma w repozytorium: skrypt pobiera je z API Wolnych Lektur i dzieli według struktury (teksty.ts).
 //
 // Użycie (z katalogu głównego repozytorium):
-//   npm run lektury:teksty -- [prefiks-id] [--sucho]
-//   SEDNO_DB=sb-sedno-dev-db npm run lektury:teksty        # staging
+//   SEDNO_DB=sb-sedno-dev-db npm run lektury:teksty -- [prefiks-id] [--sucho]   # staging
+//   SEDNO_DB=sb-sedno-db npm run lektury:teksty -- [prefiks-id]                 # produkcja
 // Prefiks (np. "lalka", "dziady") ogranicza listę utworów. --sucho tylko pobiera i liczy, niczego nie wysyła.
-// Host ssh w SEDNO_SSH (domyślnie michu@192.168.100.6), kontener bazy w SEDNO_DB (domyślnie sb-sedno-db).
+// Host ssh w SEDNO_SSH (domyślnie michu@192.168.100.6), kontener bazy w SEDNO_DB (wymagany poza --sucho, bez wartości domyślnej).
 import { KATALOG_LEKTUR } from "../functions/ai/katalog-lektur.ts";
 import { TOMY_WL } from "../functions/ai/miejsca-lektur.ts";
 import { czyDomena } from "./format.ts";
@@ -95,8 +95,10 @@ if (import.meta.main) {
   const sucho = Deno.args.includes("--sucho");
   const prefiks = Deno.args.find((a) => !a.startsWith("--"));
   const host = Deno.env.get("SEDNO_SSH") ?? "michu@192.168.100.6";
-  const kontener = Deno.env.get("SEDNO_DB") ?? "sb-sedno-db";
-  if (!/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/.test(kontener)) throw new Error("Nieprawidłowa nazwa kontenera SEDNO_DB.");
+  // Bez domyślnej wartości: pominięty SEDNO_DB nie może po cichu wgrać tekstów na produkcję. --sucho nie łączy się z bazą.
+  const kontener = Deno.env.get("SEDNO_DB") ?? "";
+  if (!sucho && !kontener) throw new Error("Ustaw SEDNO_DB: sb-sedno-dev-db (staging) albo sb-sedno-db (produkcja).");
+  if (kontener && !/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/.test(kontener)) throw new Error("Nieprawidłowa nazwa kontenera SEDNO_DB.");
   if (!/^[A-Za-z0-9_.@-]+$/.test(host)) throw new Error("Nieprawidłowy host SEDNO_SSH.");
   const utwory = KATALOG_LEKTUR.filter((u) => u.wl && czyDomena(u) && (!prefiks || u.id.startsWith(prefiks)));
   if (!utwory.length) throw new Error(`Brak utworów z Wolnych Lektur dla prefiksu „${prefiks ?? ""}”.`);

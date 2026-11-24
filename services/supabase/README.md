@@ -139,7 +139,7 @@ Warstwy (szczegóły formatu, walidator, generator i loader tekstów: `lektury/R
 | Karta `[K]` (autor, epoka, poziom, części, domena publiczna) | katalog w kodzie | brak, zawsze w kontekście |
 | Opracowanie `[S:streszczenie]`, `[S:geneza]`, … | migracje `0027`–`0034`, `0040` | `private.wiedza_pestki` |
 | Wydarzenia `[W12]`, postacie `[P3]`, motywy `[M5]`, utwory zbioru `[U2]` | `lektury/<id>.json` → migracja `0041_lektury_elementy.sql` | `private.lektury_elementy` |
-| Fragmenty tekstu `[F1]` (tylko domena publiczna, poza repozytorium) | `npm run lektury:teksty` | `private.lektury_fragmenty` |
+| Fragmenty tekstu `[F1]` (tylko domena publiczna, poza repozytorium) | `SEDNO_DB=sb-sedno-dev-db npm run lektury:teksty` (produkcja: `sb-sedno-db`; zmienna wymagana) | `private.lektury_fragmenty` |
 | Osadzenia (na później) | — | `private.lektury_osadzenia` |
 
 Migracje: `0035` (tabele, funkcje wyszukiwania), `0036` (elementy, generowana), `0037` (usuwa przybliżoną notatkę z

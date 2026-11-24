@@ -68,14 +68,14 @@ migracja zawsze zawiera pełny stan. Test sprawdza, że najnowsza wygenerowana m
 
 ```bash
 npm run lektury:teksty -- lalka --sucho        # pobiera, dzieli, liczy; niczego nie wysyła
-npm run lektury:teksty -- lalka                # produkcja (SEDNO_DB domyślnie sb-sedno-db)
-SEDNO_DB=sb-sedno-dev-db npm run lektury:teksty   # staging
+SEDNO_DB=sb-sedno-db npm run lektury:teksty -- lalka       # produkcja
+SEDNO_DB=sb-sedno-dev-db npm run lektury:teksty -- lalka   # staging
 ```
 
 Skrypt pobiera tekst z API Wolnych Lektur, wymaga stopki „Ten utwór jest w domenie publicznej”, dzieli według
 struktury (tom, część, księga, akt, scena, rozdział, prolog) na fragmenty do 800 słów i zapisuje je razem z lokalizacją
 i adresem strony w czytniku (z kotwicą nagłówka `#wl-e…` lub `#s…`, gdy HTML ją ma). Wiersze dostają zakres wersów w obrębie
-księgi. Załadunek jest idempotentny (dla utworu `delete` + `insert` w jednej transakcji). Host ssh: `SEDNO_SSH`.
+księgi. Załadunek jest idempotentny (dla utworu `delete` + `insert` w jednej transakcji). Host ssh: `SEDNO_SSH`. `SEDNO_DB` (kontener bazy: `sb-sedno-dev-db` dla stagingu, `sb-sedno-db` dla produkcji) jest wymagany i nie ma wartości domyślnej, żeby pominięcie go nie wgrało tekstów na produkcję; `--sucho` go nie potrzebuje.
 Loader zachowuje kolejność tomów „Lalki” i części „Chłopów”, rozpoznaje akty i sceny zapisane słownie oraz samodzielne
 cyfry rzymskie w nagłówkach rozdziałów „Chłopów”. Ponowne wgranie tekstu „Chłopów” uzupełnia miejsca i kotwice rozdziałów.
 
