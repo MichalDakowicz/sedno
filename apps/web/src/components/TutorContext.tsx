@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { AvatarState } from "./TutorAvatar";
 import { aiErrorText, AiError, streamAi, type ProsbaPestki } from "../ai";
 import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA_ROZMOW, type Rozmowa, type WiadomoscRozmowy } from "../konto/rozmowy";
-import { bezEmoji, pokazTekstCzatu, powtarzaTutora, priorytetDozwolony, rozmowa, trudnaSprawa, wytnijPriorytety } from "../pestka";
+import { bezEmoji, pokazTekstCzatu, powtarzaTutora, priorytetDozwolony, rozmowa, szkolnePytanie, trudnaSprawa, wytnijPriorytety } from "../pestka";
 import { dodajPriorytet, listaPelna, opisProfilu, usunPriorytet } from "../konto/profilUcznia";
 import { useUstawienia } from "../konto/ustawienia";
 import { glos } from "../pestka/glos";
@@ -262,7 +262,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
         {
           tier: "lekkie",
           task: weryfikacja ? "pestka-sprawdz-lekture" : "pestka-czat",
-          pestka: opcje.pestka ?? (!wsparcie && !k?.sokratejski ? {
+          pestka: opcje.pestka ?? ((!wsparcie || szkolnePytanie(ostatniaUcznia)) && !k?.sokratejski ? {
             tryb: "czat", przedmiot: k?.przedmiot ?? opcje.przedmiot,
             rozmowa: biezacaRef.current,
             chronOdpowiedz: k?.chronOdpowiedz,
