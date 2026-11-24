@@ -44,8 +44,18 @@ const rodzajAdresu = (url: string | undefined): ZrodloPestki["rodzaj"] =>
   url && /^https:\/\/(?:wolnelektury\.pl|pl\.wikisource\.org)\//.test(url) ? "utwór" : "opracowanie";
 const stronaBezKotwicy = (url: string) => url.split(/[?#]/)[0].replace(/(?:\.html|\/)$/, "");
 
+function adresOpracowania(utwor: Utwor, id: string, miejsce: string | undefined, url: string | undefined): string | undefined {
+  if (utwor.id !== "inny-swiat") return url;
+  if (miejsce?.toLowerCase() === "epilog" && /^(?:W2[12]|P7|M8)$/.test(id)) return "https://zpe.gov.pl/a/przeczytaj/DYOHC1uNy";
+  // Indeks odziedziczył jeden adres dla wszystkich elementów i drugi dla wszystkich sekcji tej lektury.
+  if (url === "https://zpe.gov.pl/watek/LPFHDLRM4G/318/a/cwiczenia/D6ESU6QNP" && miejsce !== "cz. I, Ręka w ogniu") return;
+  if (url === "https://zpe.gov.pl/a/sprawdz-sie/Dly3K3ja7") return;
+  return url;
+}
+
 function zrodloMaterialu(utwor: Utwor, id: string, rodzaj: TypZrodla, url: string | undefined, miejsce?: string, sekcja?: string): ZrodloPestki | undefined {
   const tom = miejsce && adresTomu(utwor.id, miejsce);
+  url = adresOpracowania(utwor, id, miejsce, url);
   const adres = tom && (!url || stronaBezKotwicy(url) !== stronaBezKotwicy(tom)) ? tom : url ?? adresTekstu(utwor);
   const typAdresu = rodzajAdresu(adres);
   const z = zrodloPestki({
@@ -115,7 +125,7 @@ async function sekcjeOpracowania(d: DostepLektur, pytanie: string, utwor: Utwor,
     const tekst = przytnij(napisPestki(w.tekst, 7000), LIMIT_SEKCJI);
     if (!tekst) return [];
     const id = `S:${typ}`;
-    const url = typeof w.zrodlo_url === "string" ? w.zrodlo_url : undefined;
+    const url = adresOpracowania(utwor, id, undefined, typeof w.zrodlo_url === "string" ? w.zrodlo_url : undefined);
     const z = zrodloPestki({
       url, tytul: utwor.tytul, rodzaj: w.zrodlo_rodzaj, sekcja: `Opracowanie Sedno · ${SEKCJE[typ]}`, idSekcji: `${utwor.id}/s-${typ}`,
     });

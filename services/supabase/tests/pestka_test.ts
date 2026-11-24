@@ -605,6 +605,28 @@ Deno.test("odpowiedź o Innym świecie raz wyjaśnia dostępność tekstu i zwra
   assertEquals(p.zrodla().map((z) => [z.rodzaj, z.url, z.miejsce]), [["opracowanie", url, undefined]]);
 });
 
+Deno.test("epilog Innego świata ma stronę opisującą epilog, a karta zostaje przy wspartym zdaniu", async () => {
+  const { dane } = (await wczytajPlikiLektur()).find((p) => p.nazwa === "inny-swiat")!;
+  const wiersze = wierszeElementow(dane as PlikLektury);
+  const stareCwiczenia = "https://zpe.gov.pl/watek/LPFHDLRM4G/318/a/cwiczenia/D6ESU6QNP";
+  const epilog = "https://zpe.gov.pl/a/przeczytaj/DYOHC1uNy";
+  assertEquals(wiersze.find((w) => w.rodzaj === "wydarzenie" && w.nr === 22)?.zrodlo_url, stareCwiczenia);
+  const { krok } = await czat("Jak kończy się Inny świat?", {
+    wiersze: wiersze.filter((w) => w.rodzaj === "wydarzenie").reverse().slice(0, 5),
+    sekcje: [{
+      ...sekcjaRow("streszczenie", "Narrator podaje rozmówcy rękę.", "inny-swiat"),
+      zrodlo_url: "https://zpe.gov.pl/a/sprawdz-sie/Dly3K3ja7", zrodlo_rodzaj: "opracowanie",
+    }],
+  });
+  const zgodne = "Rozmówca chce usłyszeć, że narrator rozumie jego decyzję, ale narrator pozostaje milczący.";
+  assertEquals(krok.materialy.find((m) => m.id === "W22")?.zrodlo?.url, epilog);
+  assertEquals(krok.materialy.find((m) => m.id === "W20")?.zrodlo, undefined);
+  const p = krok.procesor!;
+  const tekst = p.dodaj(zgodne + " [W22] Narrator podaje rozmówcy rękę [W22][S:streszczenie] [[zrodlo:1]].") + p.zakoncz();
+  assertStringIncludes(tekst, zgodne + " [[zrodlo:1]] Narrator podaje rozmówcy rękę.");
+  assertEquals(p.zrodla().map((z) => [z.url, z.twierdzenie]), [[epilog, "[1] " + zgodne]]);
+});
+
 async function elementyLalki() {
   const { dane } = (await wczytajPlikiLektur()).find((p) => p.nazwa === "lalka")!;
   return wierszeElementow(dane as PlikLektury);
