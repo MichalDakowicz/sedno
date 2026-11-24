@@ -1,0 +1,85 @@
+{
+ "id": "ballady-mickiewicza",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "człowiek i zjawy",
+   "przyklad": "Karusia widzi ducha Jasieńka, a narrator mówi, że czucie i wiara silniej niż mędrca szkiełko i oko prowadzą do prawdy.",
+   "miejsce": "Romantyczność",
+   "cytat": "Czucie i wiara silniej mówi do mnie, Niż mędrca szkiełko i oko."
+  },
+  {
+   "motyw": "czucie i wiara wobec rozumu",
+   "przyklad": "Starzec z „szkiełkiem i okiem” uważa duchy za wymysły gawiedzi, a mówiący odpowiada, że znajomość „martwych prawd” nie pozwala zobaczyć cudu.",
+   "miejsce": "Romantyczność",
+   "cytat": "Miej serce i patrzaj w serce!"
+  },
+  {
+   "motyw": "ludowość i wierzenia gminu",
+   "przyklad": "W „Romantyczności” prostota mówi pacierze, bo wierzy w obecność duszy, a w „Lilijach” historia pochodzi „z pieśni gminnej”.",
+   "miejsce": "Romantyczność; Lilije"
+  },
+  {
+   "motyw": "kara za złamanie przysięgi",
+   "przyklad": "Strzelec łamie przysięgę wierności i traci życie przez nimfę..",
+   "miejsce": "Świtezianka",
+   "cytat": "I biada jego złej duszy!"
+  },
+  {
+   "motyw": "zbrodnia i kara nadprzyrodzona",
+   "przyklad": "W „Lilijach” zbrodnia męża-zabójczyni wychodzi na jaw przez lilie wyrosłe na grobie i widmo, które pojawia się przy ślubie.",
+   "miejsce": "Lilije",
+   "cytat": "Zbrodnia to niesłychana, Pani zabija pana."
+  },
+  {
+   "motyw": "nieszczęśliwa miłość",
+   "przyklad": "Karusia nie chce żyć bez Jasieńka i prosi go: „Weź mię, ja umrę przy tobie”.",
+   "miejsce": "Romantyczność"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Romantyczność",
+   "miejsce": "Ballady i romanse",
+   "opis": "Ballada o Karusi, która widzi zmarłego ukochanego Jasieńka. Tłum wierzy jej, że to duch, a „starzec” z „szkiełkiem i okiem” przekonuje, że duchów nie ma. Odpowiedź mówiącego (czucie i wiara kontra rozum) bywa czytana jako manifest romantyzmu. Motto z „Hamleta” wprowadza temat widzenia duszą."
+  },
+  {
+   "tytul": "Świtezianka",
+   "miejsce": "Ballady i romanse",
+   "opis": "Ballada o młodzieńcu-strzelcu, który przysięga wierność dziewczynie spod lasu, a potem zdradza ją dla pięknej nimfy z jeziora Świteź. Zjawa wciąga go w głąb jeziora; po śmierci młodzieniec jęczy pod modrzewiem. Utwór kończy powtórzone pytanie narratora, kto to był."
+  },
+  {
+   "tytul": "Lilije",
+   "miejsce": "Ballady i romanse",
+   "opis": "Ballada „z pieśni gminnej” o kobiecie, która zabija męża i zasiewa lilie na jego grobie. Wychodzi powtórnie za mąż, lecz podczas wesela lilije z grobu stają się znakiem zemsty: mąż wraca jako upiór, a cerkiew zapada się pod ziemię. Na końcu rosną na tym miejscu lilie."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/ballady-i-romanse/",
+   "rodzaj": "utwór",
+   "co": "Spis ballad i romansów (Romantyczność, Świtezianka, Lilije, Pani Twardowska i inne)."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/ballady-i-romanse-romantycznosc/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst Romantyczności: przebieg, cytaty."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/ballady-i-romanse-switezianka/",
+   "rodzaj": "utwór",
+   "co": "Tekst Świtezianki: przebieg akcji."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/ballady-i-romanse-lilje/",
+   "rodzaj": "utwór",
+   "co": "Tekst Lilii: przebieg akcji i zakończenie."
+  }
+ ],
+ "do_weryfikacji": [
+  "Katalog podaje „obowiązkowo Romantyczność”; dalsze ballady (Świtezianka, Lilije) są przykładami — wybór CKE nie został sprawdzony w informatorze.",
+  "W Lilijach tekst jest długi, opis oparty na przeczytanych fragmentach i początkach strof; szczegóły dialogów z pustelnikiem nie zostały sprawdzone w całości.",
+  "Ballady „Rybka”, „Pani Twardowska” i inne z tomu Ballady i romanse nie zostały opracowane."
+ ]
+}

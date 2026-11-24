@@ -1,0 +1,91 @@
+{
+ "id": "piesni-kochanowskiego",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "stoicyzm i umiar",
+   "przyklad": "Pieśń IX zachęca, by szafować gotowym bacznie i znosić szczęście i nieszczęście z jednakowym spokojem; Pieśń V mówi, że bogaty jest ten, kto poprzestaje na swoim.",
+   "miejsce": "Pieśni, ks. I, IX; ks. I, V",
+   "cytat": "Kto ma swego chleba, Ile człeku trzeba, Może nic nie dbać o wielkie dochody"
+  },
+  {
+   "motyw": "carpe diem i radość życia",
+   "przyklad": "Pieśń IX zaczyna się od zaproszenia na wino i muzykę, bo nikt nie zna jutra.",
+   "miejsce": "Pieśni, ks. I, IX",
+   "cytat": "Chcemy sobie być radzi? Rozkaż, panie, czeladzi,"
+  },
+  {
+   "motyw": "Fortuna i niepewność losu",
+   "przyklad": "Fortuna szybko podnosi i obala ludzi, dlatego człowiek nie powinien się wynosić w szczęściu.",
+   "miejsce": "Pieśni, ks. I, IX"
+  },
+  {
+   "motyw": "Bóg i niepoznawalność przyszłości",
+   "przyklad": "Sam Bóg zna przyszłość, a człowiek, który zbytnio się troszczy, budzi jego śmiech.",
+   "miejsce": "Pieśni, ks. I, IX",
+   "cytat": "Sam Bóg wie przyszłe rzeczy, a śmieje sie z nieba,"
+  },
+  {
+   "motyw": "chciwość i marność bogactw",
+   "przyklad": "Śmierć dosięga bogatych jak ubogich, a majątek zostanie po śmierci komuś innemu.",
+   "miejsce": "Pieśni, ks. I, V"
+  },
+  {
+   "motyw": "patriotyzm i odpowiedzialność za kraj",
+   "przyklad": "Pieśń o spustoszeniu Podola wzywa Polaków, by przeznaczyli środki na wojsko i nie czekali na nieszczęście.",
+   "miejsce": "Pieśni, ks. II, V",
+   "cytat": "Wieczna sromota i nienagrodzona Szkoda, Polaku: ziemia spustoszona"
+  },
+  {
+   "motyw": "krytyka narodowej bierności",
+   "przyklad": "Poeta cytuje przysłowie o mądrości po szkodzie i kończy gorzkim wnioskiem o głupocie Polaków.",
+   "miejsce": "Pieśni, ks. II, V",
+   "cytat": "Cieszy mię ten rym: «Polak mądr po szkodzie»"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Pieśń IX (Księgi pierwsze)",
+   "miejsce": "Pieśni, ks. I, IX (wymagana w podstawie)",
+   "opis": "Pieśń „Chcemy sobie być radzi?”: zachęta, by przy winie i muzyce korzystać z teraźniejszości, bo przyszłość zna tylko Bóg. Kochanowski radzi stoicko znosić szczęście i nieszczęście, chwali stały spokój i niezależność od Fortuny. Końcowy obraz: ja płynę „bezpiecznym sercem” przez morskie rozruchy."
+  },
+  {
+   "tytul": "Pieśń V (Księgi pierwsze)",
+   "miejsce": "Pieśni, ks. I, V",
+   "opis": "Pieśń „Kto ma swego chleba”: pochwała umiaru; panem jest ten, kto poprzestaje na swoim, a chciwość i bogactwo nie ochronią przed śmiercią. Przykład Aleksandra Wielkiego."
+  },
+  {
+   "tytul": "Pieśń o spustoszeniu Podola",
+   "miejsce": "Pieśni, ks. II, V (wymagana w podstawie)",
+   "opis": "Pieśń patriotyczno-polityczna: opisuje najazd tatarski i tureckie spustoszenie Podola, krytykuje bierność Polaków i wzywa do ofiar na obronę kraju. Zakończenie powtarza przysłowie „Polak mądr po szkodzie” i dodaje, że Polak jest głupi i przed szkodą, i po szkodzie."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/piesni/",
+   "rodzaj": "utwór",
+   "co": "Podział na księgi pierwsze i wtóre."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/piesni-ksiegi-pierwsze-piesn-ix/",
+   "rodzaj": "utwór",
+   "co": "Tekst Pieśni IX z Ksiąg pierwszych."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/piesni-ksiegi-pierwsze-piesn-v/",
+   "rodzaj": "utwór",
+   "co": "Tekst Pieśni V z Ksiąg pierwszych."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/piesni-ksiegi-wtore-piesn-v/",
+   "rodzaj": "utwór",
+   "co": "Tekst Pieśni V z Ksiąg wtórych (Pieśń o spustoszeniu Podola)."
+  }
+ ],
+ "do_weryfikacji": [
+  "Podstawa wymienia Pieśń IX z Ksiąg pierwszych i Pieśń V z Ksiąg wtórych; Pieśń V z Ksiąg pierwszych jest dodana jako dodatkowy przykład, nie wymagana.",
+  "Okoliczności historyczne najazdu na Podole (rok, wydarzenie) nie zostały sprawdzone w źródle — do weryfikacji.",
+  "Numeracja i tytuły według Wolnych Lektur; inne wydania mogą numerować pieśni inaczej."
+ ]
+}

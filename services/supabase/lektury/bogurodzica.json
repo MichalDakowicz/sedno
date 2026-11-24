@@ -1,0 +1,50 @@
+{
+ "id": "bogurodzica",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "Maryja jako pośredniczka",
+   "przyklad": "Pierwsza zwrotka zwraca się do Matki Bożej, a prośba „Zyszczy nam, spuści nam” wskazuje, że Maryja ma wyjednać u Syna łaskę dla wiernych.",
+   "miejsce": "Bogurodzica, zwrotka I",
+   "cytat": "Bogurodzica dziewica, Bogiem sławiena Maryja"
+  },
+  {
+   "motyw": "prośba o szczęście na ziemi i zbawienie po śmierci",
+   "przyklad": "Druga zwrotka prosi o dobre życie na świecie i raj po śmierci.",
+   "miejsce": "Bogurodzica, zwrotka II",
+   "cytat": "A na świecie zbożny pobyt, Po żywocie rajski przebyt."
+  },
+  {
+   "motyw": "odkupienie i męka Chrystusa",
+   "przyklad": "Dalsze części mówią, że Bóg nie odkupił ludzi srebrem ani złotem, tylko własną męką, i przypominają zmartwychwstanie.",
+   "miejsce": "Bogurodzica, części dalsze",
+   "cytat": "Ni śrebrem, ni złotem nas diabłu odkupił"
+  },
+  {
+   "motyw": "zwrot do wiernego człowieka",
+   "przyklad": "Powtarza się apel „Wierzyż w to, człowiecze zbożny”, który zachęca słuchacza do wiary.",
+   "miejsce": "Bogurodzica, części dalsze",
+   "cytat": "Wierzyż w to, człowiecze zbożny"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Bogurodzica",
+   "miejsce": "całość (dwie zwrotki wstępne i dalsze części)",
+   "opis": "Średniowieczna pieśń religijna do Matki Boskiej, zbudowana jako prośba (deesis): Maryja ma wstawiać się u Syna za ludźmi. Zwrotki kończy refren „Kyrieleison”. Dalsze części w wydaniu mówią o odkupieniu przez Chrystusa, zmartwychwstaniu i nagrodzie w raju."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/bogurodzica/",
+   "rodzaj": "utwór",
+   "co": "Tekst pieśni w zapisie z Wolnych Lektur: podział na zwrotki, refren, cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Autorstwo, czas powstania i najstarszy zapis nie zostały sprawdzone w źródle w tej sesji; podawane tradycyjnie, wymagają potwierdzenia (np. w opracowaniu ZPE lub informatorze CKE).",
+  "Które dokładnie zwrotki uznaje się za pierwotną „dwuzwrotkową” część utworu — do potwierdzenia w opracowaniu naukowym; opis opiera się na tekście z Wolnych Lektur.",
+  "Wolne Lektury podają tekst w pisowni zachowującej staropolskie formy; cytaty w danych są dosłowne z tego wydania."
+ ]
+}

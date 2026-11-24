@@ -1,0 +1,42 @@
+{
+ "id": "wiersze-norwida",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "miłość silniejsza niż rody",
+   "przyklad": "Nad domami zwaśnionych Kapuletich i Montekich spada łza z nieba dla Julii i Romea.",
+   "miejsce": "Nad grobem Julii Capuletti w Weronie, strofa I",
+   "cytat": "Cyprysy mówią, że to dla Juliety,"
+  },
+  {
+   "motyw": "sprzeczne wyjaśnienia świata",
+   "przyklad": "Cyprysy widzą łzę, a ludzie wyjaśniają, że to kamienie; można odczytać to jako spór poetyckiego odczytania z naukowym.",
+   "miejsce": "Nad grobem Julii Capuletti w Weronie, strofa II",
+   "cytat": "Że to nie łzy są, ale że kamienie"
+  },
+  {
+   "motyw": "przemijanie i ruina",
+   "przyklad": "Mowa o gruzach „nieprzyjaznych grodów” i o wywróconych bramach do ogrodów.",
+   "miejsce": "Nad grobem Julii Capuletti w Weronie, strofa I"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Nad grobem Julii Capuletti w Weronie",
+   "miejsce": "cały wiersz",
+   "opis": "Dwie strofy sześciowersowe. Nad ruinami domów Kapuletich i Montekich „oko błękitu” zrzuca gwiazdę. Cyprysy mówią, że to łza dla Julii i Romea, a „ludzie” — że to kamienie i nikt na nie nie czeka. Wiersz zestawia poetycką i „uczoną” interpretację zjawiska i można go odczytać jako polemikę wrażliwości z rozumem."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/norwid-nad-grobem-julii-capulleti-w-weronie/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst; cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Norwid zmarł w 1883 r. (domena publiczna). Wybór wierszy CKE poza przykładem z katalogu nie został sprawdzony; inne wiersze (np. „Moja piosnka (II)”, „Bema pamięci żałobny rapsod”) nie zostały opracowane.",
+  "Wolne Lektury podają wiersz bez daty; datowanie nie zostało sprawdzone."
+ ]
+}

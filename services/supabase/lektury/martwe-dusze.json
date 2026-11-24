@@ -1,0 +1,288 @@
+{
+ "id": "martwe-dusze",
+ "wydarzenia": [
+  {
+   "nr": 1,
+   "miejsce": "t. I, rozdz. 1",
+   "kto": [
+    "Cziczikow",
+    "Selifan",
+    "Piotruszka"
+   ],
+   "gdzie": "miasto gubernialne N.",
+   "opis": "Paweł Iwanowicz Cziczikow przyjeżdża do miasta N. i składa wizyty urzędnikom, zyskując ich sympatię."
+  },
+  {
+   "nr": 2,
+   "miejsce": "t. I, rozdz. 2",
+   "kto": [
+    "Cziczikow",
+    "Maniłow"
+   ],
+   "gdzie": "majątek Maniłowa",
+   "opis": "Maniłow, sentymentalny marzyciel, zgadza się oddać martwe dusze za darmo."
+  },
+  {
+   "nr": 3,
+   "miejsce": "t. I, rozdz. 3",
+   "kto": [
+    "Cziczikow",
+    "Koroboczka"
+   ],
+   "gdzie": "majątek Korobiczki",
+   "opis": "Skąpa i nieufna Korobiczka niepewnie sprzedaje martwe dusze, obawiając się, że straci okazję."
+  },
+  {
+   "nr": 4,
+   "miejsce": "t. I, rozdz. 4",
+   "kto": [
+    "Cziczikow",
+    "Nozdriow"
+   ],
+   "gdzie": "karczma i majątek Nozdriowa",
+   "opis": "Nozdriow, awanturnik i hazardzista, odmawia sprzedaży i próbuje wciągnąć gościa w grę, kończąc awanturą."
+  },
+  {
+   "nr": 5,
+   "miejsce": "t. I, rozdz. 5",
+   "kto": [
+    "Cziczikow",
+    "Sobakiewicz"
+   ],
+   "gdzie": "majątek Sobakiewicza",
+   "opis": "Sobakiewicz, twardy i chciwy, targuje się o cenę martwych dusz i zgadza się sprzedać."
+  },
+  {
+   "nr": 6,
+   "miejsce": "t. I, rozdz. 6",
+   "kto": [
+    "Cziczikow",
+    "Pluszkin"
+   ],
+   "gdzie": "majątek Pluszkina",
+   "opis": "Cziczikow odwiedza Pluszkina, skąpca żyjącego w ruinie, który chętnie oddaje martwe dusze."
+  },
+  {
+   "nr": 7,
+   "miejsce": "t. I, rozdz. 7",
+   "kto": [
+    "Cziczikow",
+    "Sobakiewicz",
+    "przewodniczący izby"
+   ],
+   "gdzie": "izba cywilna",
+   "opis": "Cziczikow załatwia formalności (akty kupna) w izbie cywilnej przy pomocy łapówek i znajomości."
+  },
+  {
+   "nr": 8,
+   "miejsce": "t. I, rozdz. 8",
+   "kto": [
+    "Cziczikow",
+    "Nozdriow",
+    "gubernator"
+   ],
+   "gdzie": "bal u gubernatora",
+   "opis": "Na balu Cziczikow zwraca uwagę córki gubernatora, ale Nozdriow publicznie zdradza, że kupuje martwe dusze."
+  },
+  {
+   "nr": 9,
+   "miejsce": "t. I, rozdz. 9–10",
+   "kto": [
+    "mieszkańcy miasta"
+   ],
+   "gdzie": "miasto N.",
+   "opis": "W mieście krążą plotki: że Cziczikow chce porwać córkę gubernatora, że jest fałszerzem lub przebranym Napoleonem."
+  },
+  {
+   "nr": 10,
+   "miejsce": "t. I, rozdz. 10",
+   "kto": [
+    "prokurator"
+   ],
+   "gdzie": "miasto N.",
+   "opis": "Strach przed rewizją i plotki prowadzą do śmierci prokuratora."
+  },
+  {
+   "nr": 11,
+   "miejsce": "t. I, rozdz. 11",
+   "kto": [
+    "Cziczikow"
+   ],
+   "gdzie": "miasto N.; droga",
+   "opis": "Cziczikow opuszcza miasto, a narrator opowiada jego biografię: dążenie do majątku przez oszustwa i drobne intrygi."
+  }
+ ],
+ "postacie": [
+  {
+   "imie": "Paweł Iwanowicz Cziczikow",
+   "odmiany": [
+    "Cziczikow",
+    "Cziczikowa",
+    "Cziczikowowi",
+    "Cziczikowem"
+   ],
+   "rola": "bohater, urzędnik-oszust skupujący „martwe dusze” (zmarłych chłopów figurujących w spisach)",
+   "relacje": "gość kolejnych właścicieli ziemskich, bohater plotek w mieście",
+   "miejsca": [
+    "t. I, rozdz. 1–11"
+   ]
+  },
+  {
+   "imie": "Maniłow",
+   "odmiany": [
+    "Maniłow",
+    "Maniłowa",
+    "Maniłowowi",
+    "Maniłowem"
+   ],
+   "rola": "ziemianin-marzyciel, słodki i bierny",
+   "relacje": "pierwszy z odwiedzanych właścicieli",
+   "miejsca": [
+    "t. I, rozdz. 2"
+   ]
+  },
+  {
+   "imie": "Korobiczka",
+   "odmiany": [
+    "Korobiczka",
+    "Korobiczki",
+    "Korobiczce",
+    "Korobiczkę"
+   ],
+   "rola": "wdowa-ziemianka, skąpa i nieufna",
+   "relacje": "jedna z sprzedających",
+   "miejsca": [
+    "t. I, rozdz. 3"
+   ]
+  },
+  {
+   "imie": "Nozdriow",
+   "odmiany": [
+    "Nozdriow",
+    "Nozdriowa",
+    "Nozdriowowi",
+    "Nozdriowem"
+   ],
+   "rola": "awanturnik, kłamca i hazardzista",
+   "relacje": "kolega Cziczikowa, który zdradza jego plany",
+   "miejsca": [
+    "t. I, rozdz. 4",
+    "rozdz. 8"
+   ]
+  },
+  {
+   "imie": "Sobakiewicz",
+   "odmiany": [
+    "Sobakiewicz",
+    "Sobakiewicza",
+    "Sobakiewiczowi",
+    "Sobakiewiczem"
+   ],
+   "rola": "twardy, chciwy ziemianin",
+   "relacje": "targuje się i sprzedaje martwe dusze",
+   "miejsca": [
+    "t. I, rozdz. 5",
+    "rozdz. 7"
+   ]
+  },
+  {
+   "imie": "Pluszkin",
+   "odmiany": [
+    "Pluszkin",
+    "Pluszkina",
+    "Pluszkinowi",
+    "Pluszkinem"
+   ],
+   "rola": "skąpiec żyjący w ruinie majątku",
+   "relacje": "ostatni z odwiedzanych właścicieli",
+   "miejsca": [
+    "t. I, rozdz. 6"
+   ]
+  },
+  {
+   "imie": "Selifan",
+   "odmiany": [
+    "Selifan",
+    "Selifana",
+    "Selifanowi"
+   ],
+   "rola": "stangret Cziczikowa",
+   "relacje": "sługa bohatera",
+   "miejsca": [
+    "t. I, rozdz. 1–11"
+   ]
+  },
+  {
+   "imie": "Piotruszka",
+   "odmiany": [
+    "Piotruszka",
+    "Piotruszki",
+    "Piotruszce"
+   ],
+   "rola": "lokaj Cziczikowa",
+   "relacje": "sługa bohatera",
+   "miejsca": [
+    "t. I, rozdz. 1–11"
+   ]
+  },
+  {
+   "imie": "gubernator",
+   "odmiany": [
+    "gubernator",
+    "gubernatora",
+    "gubernatorowi"
+   ],
+   "rola": "naczelnik guberni, gospodarz balu",
+   "relacje": "polityczny przedstawiciel miasta",
+   "miejsca": [
+    "t. I, rozdz. 8"
+   ]
+  }
+ ],
+ "motywy": [
+  {
+   "motyw": "oszustwo i obłuda",
+   "przyklad": "Cziczikow skupuje martwe dusze, by zastawić je w banku i wzbogacić się, sprawiając wrażenie uczciwego obywatela.",
+   "miejsce": "t. I, rozdz. 1–11"
+  },
+  {
+   "motyw": "galeria typów ludzkich",
+   "przyklad": "Maniłow, Korobiczka, Nozdriow, Sobakiewicz i Pluszkin pokazują różne wady: marzycielstwo, skąpstwo, bezwstyd, chciwość.",
+   "miejsce": "t. I, rozdz. 2–6"
+  },
+  {
+   "motyw": "krytyka biurokracji i łapówkarstwa",
+   "przyklad": "Załatwienie aktów kupna w izbie cywilnej wymaga łapówek i znajomości.",
+   "miejsce": "t. I, rozdz. 7"
+  },
+  {
+   "motyw": "plotka i opinia publiczna",
+   "przyklad": "Na balu wybucha plotka, że Cziczikow jest fałszerzem, Napoleonem lub porywaczem; w mieście narasta histeria.",
+   "miejsce": "t. I, rozdz. 8–10"
+  },
+  {
+   "motyw": "martwota moralna",
+   "przyklad": "Tytuł odnosi się zarówno do zmarłych chłopów, jak i duchowo martwych bohaterów, w tym samego Cziczikowa.",
+   "miejsce": "całość"
+  },
+  {
+   "motyw": "podróż i droga",
+   "przyklad": "Powieść ma budowę drogi: bohater jedzie od majątku do majątku, a w końcu opuszcza miasto.",
+   "miejsce": "t. I"
+  }
+ ],
+ "utwory": [],
+ "zrodla": [
+  {
+   "url": "https://pl.wikipedia.org/wiki/Martwe_dusze",
+   "rodzaj": "opracowanie",
+   "co": "Zarys fabuły (przyjazd Cziczikowa do miasta N., cel zakupu martwych dusz, plotka o porwaniu córki gubernatora) i fakt, że powieść jest niedokończona."
+  }
+ ],
+ "do_weryfikacji": [
+  "Tekst powieści nie był czytany (Project Gutenberg niedostępny, brak polskiego tekstu); fabuła i numeracja rozdziałów tomu I opierają się na znajomości powieści i krótkim streszczeniu.",
+  "Powieść jest niedokończona (zachowany tom I, fragmenty II); wymagane fragmenty w CKE nie zostały sprawdzone.",
+  "Pisownia imion zależy od przekładu (Cziczikow/Czyczykow, Maniłow, Pliuszkin); podano warianty.",
+  "Brak cytatów, bo nie sprawdzono dosłownego tekstu."
+ ]
+}

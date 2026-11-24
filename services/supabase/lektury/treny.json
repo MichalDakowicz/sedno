@@ -1,0 +1,132 @@
+{
+ "id": "treny",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "żałoba po stracie dziecka",
+   "przyklad": "Poeta po śmierci córki Orszulki opisuje pustkę w domu i rzeczy po dziecku, które przypominają o jej śmierci.",
+   "miejsce": "Tren VII; Tren VIII",
+   "cytat": "Wielkieś mi uczyniła pustki w domu moim,"
+  },
+  {
+   "motyw": "rozpacz i pytanie o los zmarłej",
+   "przyklad": "Poeta pyta córkę, gdzie jest, i prosi, by pojawiła się choćby we śnie lub jako cień.",
+   "miejsce": "Tren X",
+   "cytat": "Orszulo moja wdzięczna, gdzieś mi sie podziała?"
+  },
+  {
+   "motyw": "kryzys wiary w mądrość stoicką",
+   "przyklad": "Poeta wymienia, co obiecuje mądrość stoicka, i przyznaje, że sam został z niej wytrącony.",
+   "miejsce": "Tren IX",
+   "cytat": "Kupić by cię, mądrości, za drogie pieniądze,"
+  },
+  {
+   "motyw": "niemoc rozumu i cnoty",
+   "przyklad": "Powtarzając słowa Brutusa, poeta uznaje cnotę za „fraszkę”, bo nie chroni przed nieszczęściem.",
+   "miejsce": "Tren XI",
+   "cytat": "«Fraszka cnota», powiedział Brutus porażony."
+  },
+  {
+   "motyw": "śmierć przedwczesna jak ścięta roślina",
+   "przyklad": "Orszulka porównana do młodej oliwki podciętej przez sadownika.",
+   "miejsce": "Tren V",
+   "cytat": "Jako oliwka mała pod wysokim sadem"
+  },
+  {
+   "motyw": "sen i pocieszenie",
+   "przyklad": "We śnie matka poety przychodzi z Orszulką i tłumaczy, że dziecko jest szczęśliwe w niebie; poeta odzyskuje wewnętrzny spokój.",
+   "miejsce": "Tren XIX",
+   "cytat": "Żałość moja długo w noc oczu mi nie dała"
+  },
+  {
+   "motyw": "łączenie wątków antycznych i chrześcijańskich",
+   "przyklad": "W Trenie X obok nieba i czyśćca pojawiają się Charon i Wyspy Szczęśliwe; w Trenie V — Persefona.",
+   "miejsce": "Tren V; Tren X"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Tren V",
+   "miejsce": "Treny, V",
+   "opis": "Obraz małej Orszulki jako młodej oliwki pod wysokim sadem: sadownik przycina ją, a ona mdleje i pada u stóp matki. Poeta porównuje do niej córkę, którą śmierć ścięła przed oczami rodziców. Pojawia się wezwanie do Persefony, boginii zmarłych."
+  },
+  {
+   "tytul": "Tren VII",
+   "miejsce": "Treny, VII",
+   "opis": "Poeta patrzy na ubiory, pasek i inne rzeczy po zmarłej córce. Mówi, że nie jest już nadziei, a matczyne dary „płone”. Ubogi wiano zastępuje dla niej grób."
+  },
+  {
+   "tytul": "Tren VIII",
+   "miejsce": "Treny, VIII",
+   "opis": "Opis pustki w domu po śmierci Orszulki. Dziecko wypełniało dom głosem i śmiechem, a po jego odejściu „pełno nas, a jakoby nikogo nie było”. Ton jest osobisty i prosty."
+  },
+  {
+   "tytul": "Tren IX",
+   "miejsce": "Treny, IX (wymagany w podstawie)",
+   "opis": "Zwrot do mądrości (stoickiej), którą poeta chciałby kupić za drogie pieniądze. Przypisuje jej, że uczy obojętności wobec szczęścia i śmierci, po czym przyznaje, że sam zrzucony „z stopniów ostatnich” nie umie z niej skorzystać. Można odczytać jako rozczarowanie stoicyzmem."
+  },
+  {
+   "tytul": "Tren X",
+   "miejsce": "Treny, X (wymagany w podstawie)",
+   "opis": "Poeta pyta córkę, gdzie jest: czy w niebie, w raju, na Wyspach Szczęśliwych, czy w czyśćcu. Prosi, by przybyła choćby we śnie lub jako cień. Obraz odwołuje się jednocześnie do wyobrażeń chrześcijańskich i antycznych."
+  },
+  {
+   "tytul": "Tren XI",
+   "miejsce": "Treny, XI (wymagany w podstawie)",
+   "opis": "Rozważanie o cnocie jako „fraszce” (słowa Brutusa) i o niemocy ludzkiego rozumu. Poeta pyta, kogo uratowała pobożność, i kończy lękiem, że straci „pociechę” i „baczenie”. Zwykle czytany jako punkt kulminacyjny kryzysu poety."
+  },
+  {
+   "tytul": "Tren XIX albo Sen",
+   "miejsce": "Treny, XIX",
+   "opis": "We śnie poeta widzi matkę z maleńką Orszulką na ręku. Matka pociesza go, że dziecko jest w niebie i nie zaznało cierpień życia. Ten tren zamyka cykl i przynosi pocieszenie."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/treny/",
+   "rodzaj": "utwór",
+   "co": "Wykaz trenów i podział utworu; potwierdzenie, że to cykl 19 trenów."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/treny-tren-ix/",
+   "rodzaj": "utwór",
+   "co": "Tekst Trenu IX."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/treny-tren-x/",
+   "rodzaj": "utwór",
+   "co": "Tekst Trenu X."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/treny-tren-xi/",
+   "rodzaj": "utwór",
+   "co": "Tekst Trenu XI."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/treny-tren-v/",
+   "rodzaj": "utwór",
+   "co": "Tekst Trenu V."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/treny-tren-vii/",
+   "rodzaj": "utwór",
+   "co": "Tekst Trenu VII."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/treny-tren-viii/",
+   "rodzaj": "utwór",
+   "co": "Tekst Trenu VIII."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/treny-tren-xix-albo-sen/",
+   "rodzaj": "utwór",
+   "co": "Tekst Trenu XIX albo Snu (czytany wyrywkowo)."
+  }
+ ],
+ "do_weryfikacji": [
+  "Okoliczności biograficzne (śmierć Orszulki, data, wiek dziecka) nie zostały sprawdzone w źródle w tej sesji — do weryfikacji w opracowaniu.",
+  "Podstawowy zakres Trenów: IX, X, XI (wg katalogu); inne treny są opisane dodatkowo. Treny I–IV, VI, XII–XVIII nie zostały opracowane.",
+  "Pisownia Wolnych Lektur zachowuje staropolskie formy (np. „sie”, „szcześliwy”); cytaty dosłowne z tego wydania."
+ ]
+}

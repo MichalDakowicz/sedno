@@ -1,0 +1,46 @@
+{
+ "id": "traktat-moralny",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "odpowiedzialność twórcy i inteligencji",
+   "przyklad": "Poemat zwraca się do twórców i inteligencji żyjących w czasie powojennym.",
+   "miejsce": "Traktat moralny"
+  },
+  {
+   "motyw": "moralność w czasach niemoralnych",
+   "przyklad": "Lekcja ZPE o „moralności w czasach niemoralnych” wskazuje, że utwór jest rozmową o etyce wobec systemu totalitarnego.",
+   "miejsce": "Traktat moralny"
+  },
+  {
+   "motyw": "dystans wobec systemów opartych na przemocy",
+   "przyklad": "Poeta obserwował z dystansu system komunistyczny i dostrzegał jego podobieństwo do innych systemów terroru.",
+   "miejsce": "Traktat moralny"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Traktat moralny (fragmenty)",
+   "miejsce": "poemat, USA, 1947",
+   "opis": "Poemat Czesława Miłosza napisany w 1947 r. w Stanach Zjednoczonych i opublikowany w „Twórczości”. Zwraca się do twórców, inteligencji i wszystkich ludzi żyjących w czasie powojennym; autor z dystansu obserwował system komunistyczny w Polsce i dostrzegał jego bliskość do innych systemów opartych na braku wolności i terrorze (według ZPE)."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/watek/LP491JJ1BM/431/a/dowiedz-sie/D2JLVBXM7",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE „O moralności w czasach niemoralnych – Traktat moralny Czesława Miłosza”: okoliczności powstania."
+  },
+  {
+   "url": "https://zpe.gov.pl/watek/LP491JJ1BM/431/a/cwiczenia/D1HLNV3QC",
+   "rodzaj": "opracowanie",
+   "co": "Ćwiczenia ZPE do Traktatu moralnego (fragmenty z zadaniami; widoczne w wynikach wyszukiwania)."
+  }
+ ],
+ "do_weryfikacji": [
+  "Utwory autora są chronione prawem autorskim (zmarł w 2004 r.), więc nie podano tekstu ani cytatów; opis opiera się na materiałach ZPE (wyniki wyszukiwania i streszczenia stron, nie pełne lektury).",
+  "Podstawa wymienia fragmenty bez zamkniętego wykazu miejsc; nie ustalono, które części wymaga CKE (np. fragmenty z ćwiczeń ZPE).",
+  "Opis okoliczności powstania z podsumowania wyników wyszukiwania; treść nie była czytana."
+ ]
+}

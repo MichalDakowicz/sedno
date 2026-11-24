@@ -1,0 +1,65 @@
+{
+ "id": "poezja-baroku",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "przemijanie i krótkość życia",
+   "przyklad": "Naborowski zestawia życie ludzkie z dźwiękiem, cieniem, dymem, wiatrem i błyskiem; wiele ludzi ma kolebkę równą grobowi.",
+   "miejsce": "Krótkość żywota",
+   "cytat": "Dźwięk, cień, dym, wiatr, błysk, głos, punkt, żywot ludzki słynie."
+  },
+  {
+   "motyw": "upływ czasu",
+   "przyklad": "Pierwszy wers wprowadza obraz godzin, które nieustannie mijają, a po nich przychodzi kolejne pokolenie.",
+   "miejsce": "Krótkość żywota",
+   "cytat": "Godzina za godziną niepojęcie chodzi:"
+  },
+  {
+   "motyw": "śmierć miłosna i paradoks",
+   "przyklad": "Mówiący utożsamia się z trupem, bo „zabity” jest strzałą miłości, a nie śmierci.",
+   "miejsce": "Do trupa",
+   "cytat": "Leżysz zabity i jam też zabity,"
+  },
+  {
+   "motyw": "antyteza i koncept",
+   "przyklad": "Cały sonet buduje przeciwstawienia: strzała śmierci — strzała miłości, lód — piekielna śreżoga, proch — popiół.",
+   "miejsce": "Do trupa",
+   "cytat": "Ty — strzałą śmierci, ja — strzałą miłości,"
+  },
+  {
+   "motyw": "miłość jako cierpienie",
+   "przyklad": "Cierpienie zakochanego jest dłuższe niż śmierć, bo ogień miłości nie pozwala rozsypać się w popiół.",
+   "miejsce": "Do trupa"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Krótkość żywota",
+   "miejsce": "Daniel Naborowski, Krótkość żywota",
+   "opis": "Dwunastowersowy wiersz o przemijaniu: godzina za godziną mija, życie ludzkie porównane jest do dźwięku, cienia, dymu, wiatru. Między narodzinami a śmiercią mieści się ledwie czwarta część mgnienia, a wielu ludzi miało kolebkę równą grobowi. Typowy barokowy motyw vanitas i krótkości życia."
+  },
+  {
+   "tytul": "Do trupa",
+   "miejsce": "Jan Andrzej Morsztyn, Do trupa",
+   "opis": "Sonet z konceptem: mówiący zestawia siebie, zabitego strzałą miłości, z trupem, zabitym strzałą śmierci. Wylicza podobieństwa i różnice (płomień skryty — świece jawne, rozum w łańcuchu — związane ręce) i kończy, że trup się rozsypie prochem, a on sam, „stawszy się żywiołem”, nie może rozsypać się popiołem. Utwór pokazuje barokową grę paradoksów i hiperbol."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/naborowski-krotkosc-zywota/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst wiersza; cytaty sprawdzone."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/do-trupa/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst sonetu; cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Katalog podaje dwa wiersze jako przykłady (Naborowski, Krótkość żywota; Morsztyn, Do trupa); brak listy wymaganych utworów w podstawie z 2024 r. — nie opracowano innych (np. Sęp Szarzyński, Hieronim Morsztyn).",
+  "Gatunek („Do trupa” jako sonet) wynika z układu tekstu (14 wersów); zaliczenie do konceptyzmu i vanitas to interpretacja, nie sprawdzona w opracowaniu.",
+  "Autorstwo i data powstania obu wierszy nie były sprawdzane w źródle poza nagłówkami Wolnych Lektur."
+ ]
+}

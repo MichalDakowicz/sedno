@@ -1,0 +1,48 @@
+{
+ "id": "wiersze-czechowicza",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "katastrofizm",
+   "przyklad": "Obrazy płomieni, głodnych ludów i wieczoru „świata tego” układają się w zapowiedź zagłady.",
+   "miejsce": "Żal",
+   "cytat": "zniża się wieczór świata tego"
+  },
+  {
+   "motyw": "wielość ofiar i identyfikacja",
+   "przyklad": "Mówiący wymienia siebie w roli oracza, jurysty, dziecka w pochodni i powieszonego podpalacza, co można odczytać jako utożsamienie z wieloma ofiarami.",
+   "miejsce": "Żal"
+  },
+  {
+   "motyw": "zniszczenie świętych miejsc",
+   "przyklad": "Obraz „roztrzaskanych szybek synagog” łączy zagładę cywilizacji ze zniszczeniem miejsc kultu.",
+   "miejsce": "Żal",
+   "cytat": "roztrzaskane szybki synagog"
+  },
+  {
+   "motyw": "nakaz iść dalej",
+   "przyklad": "Wiersz kończy się dwukrotnym wezwaniem do dalszej drogi mimo grozy.",
+   "miejsce": "Żal",
+   "cytat": "idźże idź dalej"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Żal",
+   "miejsce": "cały wiersz",
+   "opis": "Wiersz bez interpunkcji i dużych liter, w którym mówiący zapisuje obrazy wojennej grozy i świata ogarniętego przemocą: płonące statki, bombę, głodne ludy i „roztrzaskane szybki synagog”. Powtarza się refren-zaklęcie „idźże idź dalej”. Można go odczytać jako wiersz katastroficzny o zbliżającej się wojnie."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/nuta-czlowiecza-zal/",
+   "rodzaj": "utwór",
+   "co": "Tekst wiersza „Żal” z tomu „Nuta człowiecza”; cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Czechowicz zmarł w 1939 r. (domena publiczna). Wybór wierszy w wymaganiach CKE nie został sprawdzony; poza „Żalem” nie opracowano innych.",
+  "Datowanie wiersza i tomu („nuta człowiecza”, 1939) podano z tytułu w Wolnych Lekturach; nie sprawdzono tego w opracowaniu naukowym."
+ ]
+}

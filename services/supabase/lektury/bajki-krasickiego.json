@@ -1,0 +1,63 @@
+{
+ "id": "bajki-krasickiego",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "wolność i niewola",
+   "przyklad": "Stary ptak płacze w klatce, bo pamięta wolność, a młody, urodzony w klatce, uważa ją za wygodę.",
+   "miejsce": "Ptaszki w klatce",
+   "cytat": "Jam był wolny, dziś w klatce — i dlatego płaczę"
+  },
+  {
+   "motyw": "prawo silniejszego",
+   "przyklad": "Wilki nie szukają prawdziwego uzasadnienia: wystarczy, że jagnię jest „smaczne, słabe i w lesie”.",
+   "miejsce": "Jagnię i wilcy",
+   "cytat": "Zawżdy znajdzie przyczynę, kto zdobyczy pragnie."
+  },
+  {
+   "motyw": "krytyka przemocy i nadużycia władzy",
+   "przyklad": "Bajka pokazuje, że silniejszy zawsze znajdzie pretekst, by skrzywdzić słabszego; można odczytać ją jako uwagę o niesprawiedliwych rządach.",
+   "miejsce": "Jagnię i wilcy"
+  },
+  {
+   "motyw": "alegoria zwierzęca",
+   "przyklad": "Obie bajki używają zwierząt jako postaci reprezentujących typy ludzkie i postawy polityczne.",
+   "miejsce": "Ptaszki w klatce; Jagnię i wilcy"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Ptaszki w klatce",
+   "miejsce": "Bajki i przypowieści",
+   "opis": "Czterowersowa bajka: młody czyżyk pyta płaczącego starego ptaka, czemu płacze, skoro w klatce ma lepiej niż w polu. Stary odpowiada, że młodzik urodził się w klatce, a on był wolny, dlatego płacze. Bajka o wolności i o tym, że ocena niewoli zależy od doświadczenia."
+  },
+  {
+   "tytul": "Jagnię i wilcy",
+   "miejsce": "Bajki i przypowieści",
+   "opis": "Czterowersowa bajka: dwa wilki znalazły w lesie jagnię i chcą je rozerwać; jagnię pyta, jakim prawem. Wilki odpowiadają, że jest smaczne, słabe i w lesie, i je zjadają. Morał w pierwszym wersie: „Zawżdy znajdzie przyczynę, kto zdobyczy pragnie.”"
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/bajki-i-przypowiesci/",
+   "rodzaj": "utwór",
+   "co": "Lista bajek w zbiorze (118 pozycji); sprawdzono, że są Ptaszki w klatce i Jagnię i wilcy."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/ptaszki-w-klatce/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/jagnie-i-wilcy/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst."
+  }
+ ],
+ "do_weryfikacji": [
+  "„Kruk i lis” (przykład z katalogu) nie został znaleziony w spisie Wolnych Lektur („Bajki i przypowieści”); może być w innym zbiorze — nie opracowano go.",
+  "CKE odsyła do bajek Krasickiego bez zamkniętej listy; opisano dwie przykładowe.",
+  "Rok wydania zbioru nie został sprawdzony."
+ ]
+}
