@@ -1,0 +1,44 @@
+{
+  "id": "profesor-andrews",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "początek, wylot", "kto": ["Profesor Andrews"], "gdzie": "Londyn, lotnisko Heathrow", "opis": "Przed podróżą do Polski Andrews rozmyśla o zaplanowanych spotkaniach i o śnie, w którym pojawiła się wrona."},
+    {"nr": 2, "miejsce": "początek, przylot", "kto": ["Profesor Andrews", "Gosha"], "gdzie": "lotnisko w Warszawie", "opis": "Gosha wita profesora po przylocie, a on po wyjeździe z lotniska orientuje się, że zapomniał odebrać bagaż."},
+    {"nr": 3, "miejsce": "początek, wieczór po przylocie", "kto": ["Profesor Andrews", "Gosha", "Narzeczony Goshy"], "gdzie": "Warszawa", "opis": "Po bezskutecznej próbie odzyskania bagażu i wspólnej kolacji Gosha i jej narzeczony odwożą Andrewsa do mieszkania."},
+    {"nr": 4, "miejsce": "pierwszy poranek, niedziałający telefon", "kto": ["Profesor Andrews"], "gdzie": "mieszkanie w bloku", "opis": "Andrews budzi się późno, zastaje niedziałający telefon i widzi czołg z okna mieszkania."},
+    {"nr": 5, "miejsce": "pierwszy dzień, poszukiwanie telefonu", "kto": ["Profesor Andrews"], "gdzie": "warszawskie osiedle", "opis": "Profesor wychodzi, by się skontaktować z Goshą, a po błądzeniu po okolicy trafia z powrotem do mieszkania."},
+    {"nr": 6, "miejsce": "drugi dzień, bar mleczny", "kto": ["Profesor Andrews", "Obsługa baru mlecznego"], "gdzie": "warszawski bar mleczny", "opis": "Andrews zamawia jedzenie za pomocą gestów."},
+    {"nr": 7, "miejsce": "drugi dzień, przejazd autobusem", "kto": ["Profesor Andrews"], "gdzie": "autobus i most w Warszawie", "opis": "Profesor jedzie w inną stronę, niż zamierzał, po czym wraca pieszo przez most."},
+    {"nr": 8, "miejsce": "drugi dzień, wystawa Pewexu", "kto": ["Profesor Andrews"], "gdzie": "ulica przy Pewexie", "opis": "Andrews ogląda towary za kratą w zamkniętym sklepie."},
+    {"nr": 9, "miejsce": "trzeci dzień, osiedlowy sklep", "kto": ["Profesor Andrews"], "gdzie": "warszawski sklep spożywczy", "opis": "Andrews kupuje chleb i butelkę octu, którą bierze za wódkę."},
+    {"nr": 10, "miejsce": "trzeci dzień, sprzedaż karpi", "kto": ["Profesor Andrews", "Sprzedawczyni karpi"], "gdzie": "warszawski punkt sprzedaży karpi", "opis": "Profesor obserwuje kolejkę po karpie i sposób, w jaki sprzedawczyni obsługuje klientów."},
+    {"nr": 11, "miejsce": "trzeci dzień, zakup choinki", "kto": ["Profesor Andrews"], "gdzie": "warszawska ulica", "opis": "Andrews kupuje choinkę i zanosi ją do mieszkania."},
+    {"nr": 12, "miejsce": "trzeci dzień, decyzja o wyjściu", "kto": ["Profesor Andrews"], "gdzie": "mieszkanie w bloku", "opis": "Po powrocie profesor wątpi w to, czy właściwie ocenia swoje położenie, i postanawia szukać pomocy w ambasadzie."},
+    {"nr": 13, "miejsce": "końcowe sceny, wizyta u nieznajomego", "kto": ["Profesor Andrews", "Nieznajomy mężczyzna"], "gdzie": "mieszkanie nieznajomego", "opis": "Nieznajomy przyjmuje Andrewsa u siebie i częstuje go kiełbasą oraz wódką."},
+    {"nr": 14, "miejsce": "końcowe sceny, karp w wannie", "kto": ["Profesor Andrews"], "gdzie": "łazienka nieznajomego", "opis": "Andrews przygląda się żywemu karpiowi pływającemu w wannie."},
+    {"nr": 15, "miejsce": "zakończenie, pożegnanie przy ambasadzie", "kto": ["Profesor Andrews", "Nieznajomy mężczyzna"], "gdzie": "przed ambasadą", "opis": "Nieznajomy odwozi profesora do ambasady, gdzie żegnają się zwrotem, który Andrews zapamiętał ze sprzedaży karpi."}
+  ],
+  "postacie": [
+    {"imie": "Profesor Andrews", "odmiany": ["profesora Andrewsa", "profesorowi Andrewsowi", "z profesorem Andrewsem", "o profesorze Andrewsie", "Andrews"], "rola": "Angielski psycholog przyjeżdżający do Polski w sprawach zawodowych.", "relacje": "Po utracie kontaktu z Goshą sam szuka pomocy i ostatecznie trafia pod opiekę nieznajomego.", "miejsca": ["lotniska w Londynie i Warszawie", "mieszkanie w bloku", "warszawskie ulice", "ambasada"]},
+    {"imie": "Gosha", "odmiany": ["Goshy", "Goshę", "Goshą", "Gosia", "Gosi"], "rola": "Kobieta wyznaczona do opieki nad profesorem w Warszawie.", "relacje": "Odbiera Andrewsa na lotnisku i razem z narzeczonym odwozi go do mieszkania.", "miejsca": ["lotnisko w Warszawie", "mieszkanie w bloku"]},
+    {"imie": "Narzeczony Goshy", "odmiany": ["narzeczonego Goshy", "narzeczonemu Goshy", "z narzeczonym Goshy"], "rola": "Towarzysz Goshy w wieczór przyjazdu profesora.", "relacje": "Je kolację z Goshą i Andrewsem i uczestniczy w odprowadzeniu go na miejsce zakwaterowania.", "miejsca": ["Warszawa"]},
+    {"imie": "Obsługa baru mlecznego", "odmiany": ["obsługi baru mlecznego", "obsłudze baru mlecznego", "z obsługą baru mlecznego"], "rola": "Pracownicy lokalu, w którym profesor szuka posiłku.", "relacje": "Andrews komunikuje się z nimi gestami.", "miejsca": ["bar mleczny"]},
+    {"imie": "Sprzedawczyni karpi", "odmiany": ["sprzedawczynię karpi", "sprzedawczynią karpi", "o sprzedawczyni karpi"], "rola": "Kobieta obsługująca kolejkę po karpie.", "relacje": "Andrews przygląda się jej pracy i zapamiętuje zasłyszany przy sprzedaży zwrot.", "miejsca": ["punkt sprzedaży karpi"]},
+    {"imie": "Nieznajomy mężczyzna", "odmiany": ["nieznajomego mężczyzny", "nieznajomemu mężczyźnie", "z nieznajomym mężczyzną"], "rola": "Warszawiak, który udziela profesorowi pomocy.", "relacje": "Przyjmuje Andrewsa w mieszkaniu i odwozi go do ambasady.", "miejsca": ["mieszkanie nieznajomego", "ambasada"]}
+  ],
+  "motywy": [
+    {"motyw": "Stan wojenny", "przyklad": "Andrews nie może dodzwonić się do opiekunki i widzi czołg pod blokiem. Zestawienie tych szczegółów pozwala rozpoznać początek stanu wojennego z perspektywy cudzoziemca.", "miejsce": "pierwszy poranek, niedziałający telefon"},
+    {"motyw": "Bariera językowa", "przyklad": "W barze profesor wskazuje na usta, żeby zamówić jedzenie. Podstawowa czynność wymaga od niego porozumienia się gestem.", "miejsce": "drugi dzień, bar mleczny"},
+    {"motyw": "Miasto jako labirynt", "przyklad": "Andrews wychodzi z bloku, by skorzystać z telefonu, gubi się wśród budynków i przypadkiem odnajduje drogę do mieszkania.", "miejsce": "pierwszy dzień, poszukiwanie telefonu"},
+    {"motyw": "Obyczaj widziany z zewnątrz", "przyklad": "Profesor przygląda się kolejce po żywe ryby i temu, jak sprzedawczyni zabija karpia na życzenie klienta. Odczytuje nieznany mu zwyczaj w kategoriach rytuału.", "miejsce": "trzeci dzień, sprzedaż karpi"},
+    {"motyw": "Utrata poczucia kontroli", "przyklad": "Andrews zaczyna podejrzewać, że to jego stan psychiczny tłumaczy niezrozumiałe wydarzenia wokół niego.", "miejsce": "trzeci dzień, decyzja o wyjściu"},
+    {"motyw": "Gościnność", "przyklad": "Mężczyzna daje zagubionemu profesorowi jedzenie i pomaga mu dotrzeć do ambasady.", "miejsce": "końcowe sceny, wizyta u nieznajomego"},
+    {"motyw": "Wyobcowanie", "przyklad": "Profesor przez dłuższą chwilę patrzy na rybę uwięzioną w wannie. Scenę można odczytać jako rozpoznanie własnego osamotnienia w położeniu innej istoty.", "miejsce": "końcowe sceny, karp w wannie"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://zpe.gov.pl/a/przeczytaj/D9wew8XpF", "rodzaj": "utwór", "co": "Fragment opowiadania, początek wyjazdu, działalność profesora i realia historyczne opisane w materiale dydaktycznym."},
+    {"url": "https://repozytorium.uwb.edu.pl/jspui/bitstream/11320/11140/1/A_Larenta_Stan_wojenny_w_doswiadczeniu_Anglika.pdf", "rodzaj": "opracowanie", "co": "Analiza Anny Larenty, błądzenie, karp, pomoc warszawiaka i zakończenie."},
+    {"url": "https://czasopisma.uni.lodz.pl/kpc/article/download/22920/23925?inline=1", "rodzaj": "opracowanie", "co": "Studium Grażyny Zarzyckiej, kolejność scen i kulturowe tło opowiadania."}
+  ],
+  "do_weryfikacji": []
+}

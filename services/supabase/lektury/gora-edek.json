@@ -1,0 +1,29 @@
+{
+  "id": "gora-edek",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "początek, skojarzenie z Tangiem", "kto": ["narrator"], "gdzie": "Warszawa, ruchliwa ulica w centrum", "opis": "Narrator przywołuje Edka z dramatu Mrożka i łączy go ze sceną, którą obserwował na zatłoczonej ulicy."},
+    {"nr": 2, "miejsce": "zwolnienie miejsca parkingowego", "kto": ["kierowca fiata", "kierowca forda"], "gdzie": "ulica, rząd zaparkowanych samochodów", "opis": "Kierowca małego fiata podjeżdża pierwszy do wolnego miejsca, lecz wysuwa się na tyle daleko, że kierowca forda może je zablokować."},
+    {"nr": 3, "miejsce": "spór o pierwszeństwo", "kto": ["kierowca fiata", "kierowca forda", "inni kierowcy"], "gdzie": "ulica, przy miejscu parkingowym", "opis": "Kierowca fiata sygnalizuje pierwszeństwo klaksonem i gestami, a pozostali kierowcy trąbią, ponieważ samochody blokują przejazd."},
+    {"nr": 4, "miejsce": "zajęcie miejsca", "kto": ["kierowca fiata", "kierowca forda"], "gdzie": "ulica, miejsce parkingowe", "opis": "Kierowca fiata ustępuje i podjeżdża do przodu, po czym ford zajmuje miejsce."},
+    {"nr": 5, "miejsce": "rozmowa po zaparkowaniu", "kto": ["kierowca fiata", "kierowca forda", "narrator"], "gdzie": "ulica, obok zaparkowanego forda", "opis": "Obaj kierowcy wysiadają, a właściciel fiata próbuje zaprotestować przeciw temu, co się stało."},
+    {"nr": 6, "miejsce": "finał, odejście kierowcy forda", "kto": ["kierowca forda", "kierowca fiata", "narrator"], "gdzie": "ulica, brama przy tabliczkach firm", "opis": "Mężczyzna określony przez narratora jako Edek mija protestującego bez reakcji i znika w bramie."}
+  ],
+  "postacie": [
+    {"imie": "Narrator", "odmiany": ["narrator", "narratora", "narratorowi", "narratorem", "obserwator"], "rola": "obserwuje zdarzenie z niewielkiej odległości", "relacje": "zestawia zachowanie kierowcy forda z postacią z Tanga", "miejsca": ["początek, skojarzenie z Tangiem", "finał, odejście kierowcy forda"]},
+    {"imie": "Kierowca małego fiata", "odmiany": ["kierowca fiata", "kierowcy fiata", "kierowcę fiata", "kierowcą fiata", "kierowca malucha"], "rola": "drobny mężczyzna w okularach, pierwszy podjeżdża do miejsca", "relacje": "ustępuje kierowcy forda, po czym próbuje zwrócić mu uwagę", "miejsca": ["zwolnienie miejsca parkingowego", "rozmowa po zaparkowaniu"]},
+    {"imie": "Kierowca forda (Edek)", "odmiany": ["kierowca forda", "kierowcy forda", "kierowcę forda", "kierowcą forda", "Edek", "Edka", "Edkiem"], "rola": "właściciel dużego samochodu, wymusza ustąpienie drugiego kierowcy", "relacje": "narrator widzi w nim odpowiednik Edka z Tanga", "miejsca": ["spór o pierwszeństwo", "finał, odejście kierowcy forda"]}
+  ],
+  "motywy": [
+    {"motyw": "przewaga silniejszego", "przyklad": "Kierowca forda zajmuje miejsce, do którego pierwszy podjechał fiat, ponieważ może wywierać presję i nie reaguje na protest.", "miejsce": "spór o pierwszeństwo i zajęcie miejsca"},
+    {"motyw": "bezsilność sprzeciwu", "przyklad": "Kierowca fiata wysiada, żeby upomnieć się o swoje, a kierowca forda go mija.", "miejsce": "rozmowa po zaparkowaniu"},
+    {"motyw": "kontrast postaci i przedmiotów", "przyklad": "Mały fiat i duży ford, a potem postury obu kierowców, podkreślają różnicę sił w sporze.", "miejsce": "zwolnienie miejsca parkingowego i rozmowa po zaparkowaniu"},
+    {"motyw": "aluzja literacka", "przyklad": "Narrator przywołuje Edka z Tanga, a kierowca forda swoim zachowaniem daje mu powód do powtórzenia skojarzenia.", "miejsce": "początek i finał"},
+    {"motyw": "codzienność miasta", "przyklad": "Zwykłe poszukiwanie miejsca przy zatłoczonej ulicy przeradza się w konflikt, w który klaksonami włączają się inni kierowcy.", "miejsce": "początek i spór o pierwszeństwo"},
+    {"motyw": "status i dominacja", "przyklad": "Właściciel dużego forda znika w bramie oznaczonej tablicami firm. Połączenie marki samochodu, sposobu parkowania i otoczenia można odczytać jako obraz przewagi w nowych warunkach gospodarczych.", "miejsce": "finał, odejście kierowcy forda"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://zpe.gov.pl/watek/LPDHCLV14X/71/a/dowiedz-sie/DF6BHUF4D", "rodzaj": "utwór", "co": "Tekst Nowakowskiego zamieszczony w ZPE: nawiązanie do Tanga, kolejność zdarzeń na ulicy, zachowanie kierowców i zakończenie przy bramie."}
+  ],
+  "do_weryfikacji": []
+}
