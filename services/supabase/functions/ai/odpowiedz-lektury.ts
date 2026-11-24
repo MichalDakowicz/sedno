@@ -4,6 +4,7 @@
 import type { ZrodloPestki } from "../_shared/pestka-odpowiedz.ts";
 import { normalizuj } from "./lektury.ts";
 import type { Material } from "./material-lektury.ts";
+import { miejscaWZapytaniu, miejsceWydania, pasujeMiejsce, rozbijMiejsca } from "./miejsca-lektur.ts";
 
 export const ETYKIETA_OGOLNA = "(z ogólnej wiedzy, sprawdź w tekście)";
 export const BRAK_MATERIALU = "Sedno nie ma materiału, który rozstrzyga to pytanie. Sprawdź w tekście utworu (Wolne Lektury) albo zapytaj inaczej.";
@@ -11,6 +12,8 @@ export const POMINIETO = "Pominięto fragment odpowiedzi, którego nie da się p
 
 const GRUPA_ID = /\[\s*((?:(?:[WPMUF]\d{1,4}|S:[a-z]+|K|OW)\s*[,;]?\s*)+)\]/g;
 const TOKEN = /[WPMUF]\d{1,4}|S:[a-z]+|K|OW/g;
+const POCZATEK_ID = new RegExp(`^(?:${GRUPA_ID.source}[ \\t\\n]*)+`);
+const ZDANIA = new Intl.Segmenter("pl", { granularity: "sentence" });
 const ODSYLACZ = /\[\[\s*zrodlo\s*:\s*[1-9]\d*\s*\]\]|\[[1-9]\d*\]/g;
 
 export const maOdsylacz = (tekst: string): boolean => tekst.search(ODSYLACZ) >= 0 ||
@@ -30,6 +33,11 @@ const ZNACZNIK_PRIORYTETU = /\[\[\s*priorytet\s*:[^\]]*\]\]/gi;
 const OBIETNICA_PRIORYTETU = /\b(?:dodał|dopisał|zapisał|ustawił)(?:am|em|o)\b[^.!?\n]{0,80}\bpriorytet|\bdo (?:twoich|Twoich) priorytet/i;
 // Zdanie, w którym Pestka uczciwie mówi o braku materiału, nie wymaga etykiety.
 const PRZYZNANIE_BRAKU = /\bSedno\b[^.\n]{0,60}\b(?:nie ma|brak|ma tylko)|\bnie ma (?:tego |tej |go )?w (?:materiałach|opracowaniu)|z ogólnej wiedzy|\bnie wiem\b|\bnie jestem pewn/i;
+const POLECENIE = /^(?:(?:teraz|na koniec|najpierw|potem|prosze|mozesz|jesli chcesz) )*(?:sprobuj|napisz|zastanow sie|przypomnij sobie|dopisz|wybierz|podaj|wypisz|porownaj|przeczytaj|sprawdz|wskaz|uzasadnij|zapisz|zacytuj|wyjasnij|omow|uzupelnij|rozwaz|zrob|powiedz|zaproponuj|zacznij|zobacz|opisz|odpowiedz|znajdz|zwroc uwage)\b/;
+const ELEMENTY = new Set<Material["rodzaj"]>(["wydarzenie", "postac", "motyw", "utwor"]);
+const POMIJANE_SLOWA = new Set(
+  "albo bardzo bohater bohaterka czesc dlaczego dlatego dzieki gdzie jest jestes jeszcze jednak kazdy kiedy ktore ktora ktory ktorym lektura miejsce natomiast omawia opis opisuje oraz potem powiesc prawda przed przez przy przyklad raz razem rozdz rozdzial scena takze tego teraz tylko tutaj utwor wedlug wydarzenie wlasnie wtedy zostal zatem swoje swoja swoje swoich temat dzieje chodzi stanowi pojawia osoba imie relacje poznajemy nastepnie".split(" "),
+);
 
 export type OpcjeProcesora = { pytanie: string; zapisPriorytetu: boolean };
 
@@ -44,6 +52,47 @@ function koniecCudzyslowu(wiersz: string, zamkniecie: string): string {
     else zamkniecie = CUDZYSLOW[znak] ?? "";
   }
   return zamkniecie;
+}
+
+function zdaniaZOdsylaczami(tekst: string): string[] {
+  // Zachowaj pozycje znaków przy skrótach, łamaniu wiersza i w obrębie cytatu.
+  const maska = tekst.replace(/\n/g, " ").replace(/^(\s*\d+)\.(?= )|\b(t|rozdz|cz|ks|sc|w)\.(?=\s|\d)/g, "$1$2_")
+    .replace(CYTAT, (cytat) => cytat.replace(/[.!?…]/g, "_"));
+  const zdania: string[] = [];
+  for (const { index, segment } of ZDANIA.segment(maska)) {
+    let zdanie = tekst.slice(index, index + segment.length);
+    const odsylacze = POCZATEK_ID.exec(zdanie)?.[0];
+    if (odsylacze && zdania.length) {
+      zdania[zdania.length - 1] += odsylacze;
+      zdanie = zdanie.slice(odsylacze.length);
+    }
+    if (zdanie) zdania.push(zdanie);
+  }
+  return zdania;
+}
+
+function rdzenie(tekst: string): Set<string> {
+  return new Set(normalizuj(tekst).split(" ").filter((s) =>
+    /^[a-z]{4,}$/.test(s) && !POMIJANE_SLOWA.has(s)).map((s) => s.slice(0, 5)));
+}
+
+function elementWspieraZdanie(m: Material, zdanie: string): boolean {
+  const slowaZrodla = rdzenie([m.tekst, ...(m.nazwyPostaci ?? [])].join(" "));
+  const nazwyZrodla = [...slowaZrodla, ...rdzenie(m.zrodlo?.tytul ?? "")];
+  for (const [, nazwa] of zdanie.matchAll(/\b(?:z|ze)\s+(\p{Lu}[\p{L}]{3,})/gu)) {
+    const poczatek = normalizuj(nazwa).slice(0, 4);
+    if (!nazwyZrodla.some((s) => s.startsWith(poczatek))) return false;
+  }
+  const szukane = miejscaWZapytaniu(zdanie);
+  if (szukane.length) {
+    const miejsca = m.miejsca ?? rozbijMiejsca(m.miejsce ?? m.zrodlo?.miejsce ?? m.tekst.split(": ")[0]);
+    const utwor = m.zrodlo?.idSekcji?.split("/")[0] ?? "";
+    if (!miejsca.some((miejsce) => pasujeMiejsce(miejsceWydania(utwor, miejsce), szukane))) return false;
+    if (m.zrodlo?.rodzaj === "utwór") return true;
+  }
+  const slowaZdania = rdzenie(zdanie);
+  const wspolne = [...slowaZdania].filter((s) => slowaZrodla.has(s)).length;
+  return wspolne >= Math.max(2, Math.ceil(slowaZdania.size / 4));
 }
 
 export class ProcesorOdpowiedzi {
@@ -142,14 +191,15 @@ export class ProcesorOdpowiedzi {
     });
     if (usunietoCytat) surowy = surowy.split("\n").filter((w) => w.trim()).join("\n");
     let maId = false;
-    const tekst = surowy.replace(GRUPA_ID, (_, grupa: string) => {
+    const tekst = zdaniaZOdsylaczami(surowy).map((zdanie) => zdanie.replace(GRUPA_ID, (_, grupa: string) => {
       return (grupa.match(TOKEN) ?? []).map((id) => {
         const m = this.mapa.get(id);
-        if (m) maId = true;
-        const numer = m?.zrodlo && this.zarejestruj(m, surowy);
+        if (!m || (ELEMENTY.has(m.rodzaj) && !elementWspieraZdanie(m, bezOdsylaczy(zdanie)))) return "";
+        maId = true;
+        const numer = m.zrodlo && this.zarejestruj(m, zdanie);
         return numer ? `[[zrodlo:${numer}]]` : "";
       }).join("");
-    });
+    })).join("");
 
     const wyczyszczony = tekst
       .replace(/\[(\d+)\](?:[ \t]*\[\1\])*[ \t]*(?=\[\[zrodlo:\1\]\])/g, "")
@@ -158,8 +208,10 @@ export class ProcesorOdpowiedzi {
       .replace(/[ \t]+([.,;:!?…])/g, "$1").replace(/[ \t]+$/gm, "").trimEnd();
     const bezZnacznikow = wyczyszczony.replace(/\[\[[^\]]*\]\]/g, "").trim();
     const sameCytaty = !bezZnacznikow.replace(CYTAT, "").replace(PUNKT, "").replace(/[\s.,;:!?"…*]+/g, "");
+    const poleceniaLubPytania = zdaniaZOdsylaczami(bezZnacznikow).every((s) =>
+      s.trimEnd().endsWith("?") || POLECENIE.test(normalizuj(s.replace(PUNKT, ""))));
     const zwolniony = naglowek || cytat || sameCytaty || /^(?:\*\*.+\*\*|__.+__)$/.test(bezZnacznikow) ||
-      /[:?]$/.test(bezZnacznikow) || PRZYZNANIE_BRAKU.test(bezZnacznikow);
+      /:$/.test(bezZnacznikow) || poleceniaLubPytania || PRZYZNANIE_BRAKU.test(bezZnacznikow);
     const dopisek = !maId && !zwolniony ? ` ${ETYKIETA_OGOLNA}` : "";
     return wyczyszczony.replace(PUNKT, "").trim() ? this.emituj(`${wyczyszczony}${dopisek}`) : "";
   }
@@ -167,7 +219,8 @@ export class ProcesorOdpowiedzi {
   /** Numer źródła w odpowiedzi (od 1); to samo miejsce w utworze ma jeden numer. */
   private zarejestruj(m: Material, linia: string): number {
     const z = m.zrodlo!;
-    const klucz = `${m.rodzaj === "karta" ? "k" : ""}|${z.url}|${z.miejsce ?? z.sekcja ?? ""}`;
+    const miejsca = z.miejsca?.map((m) => `${m.miejsce}|${m.url}`).join("|") ?? z.miejsce ?? z.sekcja ?? "";
+    const klucz = `${m.rodzaj === "karta" ? "k" : ""}|${z.url}|${miejsca}`;
     const opis = linia.replace(GRUPA_ID, "").replaceAll(ETYKIETA_OGOLNA, "").replace(/\[\[[^\]]*\]\]/g, "")
       .replace(/\s+/g, " ").replace(/\s+([.,;:!?…])/g, "$1").trim();
     let zapis = this.zrodlaOdp.find((x) => x.klucz === klucz);

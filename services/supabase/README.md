@@ -145,8 +145,10 @@ Warstwy (szczegóły formatu, walidator, generator i loader tekstów: `lektury/R
 Migracje: `0035` (tabele, funkcje wyszukiwania), `0036` (elementy, generowana), `0037` (usuwa przybliżoną notatkę z
 planem „Lalki”, bo plan jest w elementach), `0038` (elementy z kotwicami rozdziałów), `0039` (wyszukiwanie
 początków i zakończeń, uzupełnienie kotwic w załadowanych fragmentach), `0040` (testament Papkina w planie „Zemsty”),
-`0041` (elementy wszystkich lektur), `0042` (łączenie źródeł po miejscu i pobieranie fragmentów do planu rozdziału).
-Funkcje `pestka_lektury_elementy`, `pestka_lektury_fragmenty` i `pestka_lektury_fragmenty_miejsca` wywołuje wyłącznie rola serwisowa.
+`0041` (elementy wszystkich lektur), `0042` (łączenie źródeł po miejscu i pobieranie fragmentów do planu rozdziału),
+`0043` (zbiorcze wyszukiwanie kotwic dla kart z wieloma miejscami).
+Funkcje `pestka_lektury_elementy`, `pestka_lektury_fragmenty`, `pestka_lektury_fragmenty_miejsca` i
+`pestka_lektury_kotwice` wywołuje wyłącznie rola serwisowa.
 
 ### Wybór materiałów według typu pytania
 
@@ -155,7 +157,7 @@ Funkcje `pestka_lektury_elementy`, `pestka_lektury_fragmenty` i `pestka_lektury_
 | plan wydarzeń | numerowana lista z wydarzeń w kolejności fabuły, zawężona do miejsca z pytania. Jeśli dla rozdziału lub sceny są mniej niż trzy wydarzenia, model dostaje wycinki z tego miejsca do ułożenia planu i cytuje ich identyfikatory `[F…]`. Przy braku tekstu zostają dostępne punkty z informacją o zakresie materiału. |
 | streszczenie | sekcja streszczenia, do 25 wydarzeń (60 przy „szczegółowo”), sekcja bohaterów; „bez spoilerów” daje tylko dwa pierwsze zdania |
 | zakończenie, finał | do pięciu końcowych wydarzeń w kolejności fabuły oraz sekcja streszczenia |
-| kim jest …, bohater, relacje | postacie dopasowane po odmianach imienia (bez dopasowania do 8 postaci), sekcja bohaterów |
+| kim jest …, bohater, relacje | dopasowanie imienia, nazwiska i członów z `odmiany` w obrębie rozpoznanej lektury, także z historii. Do opisu dołączają wydarzenia z miejsc związanych z postacią. Przy braku opisu Pestka podaje tylko dane karty lektury. |
 | motywy, rozprawka, argumenty | motywy dopasowane po nazwie i jej synonimach, wydarzenia z odpowiadającego miejsca i trafne wydarzenia z pytania, sekcja motywów |
 | cytat, „w którym rozdziale” | fragmenty tekstu (dokładna fraza albo słowa pytania, a przy prośbie o początek nazwanej sceny pierwsza część pasująca po nagłówku), motywy i wydarzenia pasujące do pytania |
 | geneza, konteksty | sekcje geneza i konteksty |
@@ -171,16 +173,22 @@ Model cytuje materiały identyfikatorami w nawiasach kwadratowych (`[W12]`, `[P3
 
 - identyfikator z materiałów zamienia się na znacznik `[[zrodlo:N]]` (N to numer pozycji w `zrodla`, od 1), identyfikator
   nieznany znika, a sąsiednie odsyłacze do tego samego miejsca są scalane;
+- serwer sprawdza każde zdanie z identyfikatorem elementu. Jawne miejsce musi pasować do materiału. Przy braku miejsca
+  serwer wymaga wspólnych rdzeni słów (co najmniej dwóch i co najmniej jednej czwartej znaczących słów zdania).
+  Przy linku do opracowania sprawdzenie tekstu elementu jest wymagane także przy zgodnym miejscu;
 - akapit lub punkt listy bez znanego identyfikatora może dostać jeden dopisek `(z ogólnej wiedzy, sprawdź w tekście)`.
-  Dopisek pomija nagłówki, cytaty oraz przyznanie braku materiału;
+  Dopisek pomija nagłówki, cytaty, polecenia i pytania do ucznia oraz przyznanie braku materiału;
 - cytat w cudzysłowie „…” (min. 4 słowa) musi występować w materiałach albo w pytaniu ucznia. W innym przypadku
   serwer usuwa cytat razem z jego odsyłaczami i informuje o tym na końcu odpowiedzi;
 - bez żadnego wiersza z odpowiedzi serwer zwraca: „Sedno nie ma materiału, który rozstrzyga to pytanie. …”;
 - znacznik `[[priorytet: …]]` i zdania typu „dodałam do twoich priorytetów” są usuwane z każdej odpowiedzi czatu, chyba że
   uczeń wyraźnie prosi o zapis priorytetu (np. „Zapisz priorytet: …”).
 
-Ostatnie zdarzenie strumienia (`{"type":"done",…,"pestka":{…}}`) niesie źródła. `ZrodloPestki` jest rozszerzone zgodnie
-wstecz (stare pola bez zmian, nowe opcjonalne):
+Ostatnie zdarzenie strumienia (`{"type":"done",…,"pestka":{…}}`) niesie źródła. Karta obejmująca kilka miejsc ma
+opcjonalne `miejsca: [{ miejsce: string, url: string }]` w kolejności materiału. UI pokazuje po jednym linku dla każdego
+miejsca pod jednym numerem przypisu. W takim przypadku `url` i `miejsce` wskazują pierwszy wpis dla starszych klientów.
+Przy braku kotwicy wpis prowadzi do właściwego tomu, tekstu lub opracowania, a UI pokazuje miejsce obok linku.
+Karty bez tablicy `miejsca` korzystają z pojedynczego `url`:
 
 ```json
 {
