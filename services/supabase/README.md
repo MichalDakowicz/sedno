@@ -154,7 +154,8 @@ Funkcje `pestka_lektury_elementy`, `pestka_lektury_fragmenty`, `pestka_lektury_f
 
 | Typ pytania | Materiały |
 | --- | --- |
-| plan wydarzeń | numerowana lista wydarzeń w kolejności fabuły, zawężona do miejsca z pytania. Dla rozdziału lub sceny serwer zwraca najwyżej sześć punktów. Gdy ma mniej niż trzy wydarzenia, po nich podaje krótkie dosłowne cytaty z tego miejsca, w kolejności tekstu, z kartami `[F…]`. Jeśli punktów nadal jest mniej niż trzy, podaje ich liczbę. |
+| plan wydarzeń | numerowana lista wydarzeń w kolejności fabuły, zawężona do miejsca z pytania. Dla rozdziału lub sceny serwer zwraca najwyżej sześć punktów. Gdy ma mniej niż trzy wydarzenia, dobiera krótkie dosłowne cytaty z tego miejsca z kartami `[F…]` i wstawia wydarzenia Sedno według dopasowania do tekstu, zachowując kolejność numerów wydarzeń. Jeśli punktów nadal jest mniej niż trzy, podaje ich liczbę. |
+| sprawdzenie i poprawa planu | serwer porównuje numerowane punkty poprzedniej odpowiedzi z materiałami dotyczącymi tego samego miejsca i podaje typ źródła oraz lokalizację zgodnych punktów. Prośba o poprawę uruchamia ponownie serwerowy plan. Przy weryfikacji innej odpowiedzi model ma ocenić wyłącznie pewność wskazanego twierdzenia. |
 | streszczenie | sekcja streszczenia, do 25 wydarzeń (60 przy „szczegółowo”), sekcja bohaterów; „bez spoilerów” daje tylko dwa pierwsze zdania |
 | zakończenie, finał | do pięciu końcowych wydarzeń w kolejności fabuły oraz sekcja streszczenia |
 | kim jest …, bohater, relacje | dopasowanie imienia, nazwiska i członów z `odmiany` w obrębie rozpoznanej lektury, także z historii. Do opisu dołączają wydarzenia z miejsc związanych z postacią. Przy braku opisu Pestka podaje tylko dane karty lektury. |
@@ -171,8 +172,9 @@ Wycinek używany przez serwer do planu ma do 2200 znaków, a w odpowiedzi modelu
 Model cytuje materiały identyfikatorami w nawiasach kwadratowych (`[W12]`, `[P3][W14]`, `[S:geneza]`, `[K]`), a znacznik
 `[OW]` oznacza wiedzę spoza materiałów. Strumień buforuje akapit lub punkt listy:
 
-- identyfikator z materiałów zamienia się na znacznik `[[zrodlo:N]]` (N to numer pozycji w `zrodla`, od 1), identyfikator
-  nieznany znika. Serwer porządkuje interpunkcję przy usuwanych znacznikach, usuwa myślniki między odsyłaczami
+- identyfikator z materiałów zamienia się na znacznik `[[zrodlo:N]]` (N to numer pozycji w `zrodla`, od 1). Serwer
+  ujednolica też gołe identyfikatory i dopiski miejsca w znaczniku, np. `W32` i `[F13, akt 2, sc. 2]`.
+  Identyfikator nieznany znika. Serwer porządkuje interpunkcję przy usuwanych znacznikach, usuwa myślniki między odsyłaczami
   i scala sąsiednie powtórzenia;
 - serwer sprawdza każde zdanie z identyfikatorem elementu. Każde wymienione miejsce musi mieć pokrycie w przypisach
   tego zdania. Przy braku miejsca serwer wymaga wspólnych rdzeni słów (co najmniej dwóch i co najmniej jednej czwartej
@@ -181,7 +183,7 @@ Model cytuje materiały identyfikatorami w nawiasach kwadratowych (`[W12]`, `[P3
 - w odpowiedzi opartej wyłącznie na opracowaniach utworu bez tekstu w Sedno informacja o tym pojawia się raz,
   na początku odpowiedzi;
 - akapit lub punkt listy bez znanego identyfikatora może dostać jeden dopisek `(z ogólnej wiedzy, sprawdź w tekście)`.
-  Dopisek pomija nagłówki, cytaty, polecenia i pytania do ucznia oraz przyznanie braku materiału;
+  Dopisek pomija nagłówki, cytaty, polecenia, pytania do ucznia, listy wskazówek do rozprawki oraz przyznanie braku materiału;
 - cytat w cudzysłowie „…” (min. 4 słowa) musi występować w materiałach albo w pytaniu ucznia. W innym przypadku
   serwer usuwa cytat razem z jego odsyłaczami i informuje o tym na końcu odpowiedzi;
 - bez żadnego wiersza z odpowiedzi serwer zwraca: „Sedno nie ma materiału, który rozstrzyga to pytanie. …”;
@@ -196,6 +198,8 @@ początku i etykietę, np. „rozdz. 4–5, od początku 4”.
 Przy braku kotwicy wpis prowadzi do właściwego tomu, tekstu lub opracowania, a UI pokazuje miejsce obok linku.
 Każda strona opracowania ma w odpowiedzi najwyżej jeden numer przypisu. Karta zawiera wtedy połączone dowody
 z zatwierdzonych zdań, a miejsce jest pomijane, jeśli materiał dotyczy różnych miejsc w utworze.
+Epilog „Innego świata” używa opracowania opisującego scenę w Rzymie. Ogólne adresy ćwiczeń z indeksu
+są pomijane przy elementach i sekcjach spoza zakresu tych ćwiczeń.
 Karty bez tablicy `miejsca` korzystają z pojedynczego `url`:
 
 ```json

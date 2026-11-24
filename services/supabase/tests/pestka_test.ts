@@ -366,7 +366,7 @@ Deno.test("nawias z numerem źródła przy poprzednim planie przywraca jego mate
   const messages: Message[] = [
     { role: "user", content: poprzednie },
     { role: "assistant", content: "1. **t. II, rozdz. 3** — Wokulski spotyka Geista w Paryżu. [1]" },
-    { role: "user", content: "Czy na pewno to było w tym rozdziale?" },
+    { role: "user", content: "A co jeszcze wiemy o tym rozdziale?" },
   ];
   const { dostep } = dostepZ({
     szukajElementow: (p) => Promise.resolve(p.p_kolejnosc && p.p_rodzaje.includes("wydarzenie") ? WIERSZE.slice(0, 3) : []),
@@ -401,7 +401,6 @@ Deno.test("poprzednie źródło tekstu zachowuje identyfikator w kolejnym pytani
 
 Deno.test("odsyłacze z wcześniejszej odpowiedzi nie są widoczne dla modelu", async () => {
   for (const [pierwsze, odpowiedz, dopytanie] of [
-    ["Podaj plan wydarzeń Lalki", "Wokulski spotyka Geista w Paryżu. [35] [35]", "Czy te rozdziały w planie są pewne?"],
     ["Co robi Sonia w Zbrodni i karze?", "Sonia spotyka Raskolnikowa [[zrodlo:1]] i rozmawia z nim [W12, OW][P3].", "Czy postać Soni miała źródło?"],
     ["Co robi Makbet w akcie II?", "Makbet zabija króla [S:wydarzenia, W12]. W akcie II [K].", "Czy scena w akcie II jest pewna?"],
   ]) {
@@ -417,6 +416,7 @@ Deno.test("odsyłacze z wcześniejszej odpowiedzi nie są widoczne dla modelu", 
     assertEquals(krok.messages.at(-1)?.content, messages.at(-1)?.content);
     assertEquals(messages[1].content, odpowiedz);
     assertStringIncludes(system(krok), "Nie komentuj numeracji źródeł");
+    assertStringIncludes(system(krok), "Oceń tylko pewność wskazanego twierdzenia");
   }
 });
 
@@ -444,30 +444,32 @@ Deno.test("plan bez tytułu dziedziczy utwór, a zwykłe pytanie i nowy utwór t
   assertEquals(rozpoznajPytanieCzatu(messages, { chronOdpowiedz: true }).lektura, false);
 });
 
-Deno.test("serwer uzupełnia plan tomu II, rozdziału 14 dosłownymi cytatami z tego rozdziału", async () => {
+Deno.test("plan rozdziału i jego weryfikacja zachowują tekst, miejsca i kolejność bez modelu", async () => {
   let wywolania = 0;
   const plik = new URL("./fixtures/lalka-tom-ii-rozdz-14.txt", import.meta.url);
   const tekst = (await Deno.readTextFile(plik)).trim().split(/\r?\n\r?\n/);
-  const krok = await przygotujCzat([
+  const rozmowa: Message[] = [
     { role: "user", content: "Podaj plan wydarzeń Lalki" },
     { role: "assistant", content: "Oto plan lektury. [35]" },
     { role: "user", content: "Plan wydarzeń tomu II, rozdział 14" },
-  ], { tryb: "czat" }, dostepZ({
+  ];
+  const { dostep } = dostepZ({
     wiersze: await elementyLalki(),
     fragmentyMiejsca: (p) => {
       wywolania++;
       assertEquals(p, { p_utwor: "lalka", p_miejsce: "t. 2, rozdz. 14", p_limit: 7 });
       return Promise.resolve([
         { utwor: "lalka", nr: 9, miejsce: "t. I, rozdz. 14", tekst: "Starski grał w karty przez całą noc." },
-        ...tekst.map((tekst, i) => ({ utwor: "lalka", nr: 150 + i, miejsce: "t. II, rozdz. 14", tekst, zrodlo_url: XIV })),
+        ...tekst.map((tekst, i) => ({ utwor: "lalka", nr: 150 + i, miejsce: "t. II, rozdz. 14", tekst, zrodlo_url: XIV })).reverse(),
         { utwor: "lalka", nr: 160, miejsce: "t. II, rozdz. 15", tekst: "Starski wspomniał o całonocnej grze." },
       ]);
     },
-  }).dostep);
+  });
+  const krok = await przygotujCzat(rozmowa, { tryb: "czat" }, dostep);
   assertEquals(wywolania, 1);
   assert(krok.gotowa);
-  assertStringIncludes(krok.gotowa.split("\n").find((w) => w.startsWith("1."))!, "[W32]");
-  for (const [i, zdanie] of tekst.entries()) assertStringIncludes(krok.gotowa, `„${zdanie}” [F${150 + i}]`);
+  const cytaty = tekst.filter((_, i) => i !== 3);
+  for (const zdanie of cytaty) assertStringIncludes(krok.gotowa, `„${zdanie}” [F`);
   const odp = przez(krok.materialy, krok.gotowa);
   const punkty = odp.wynik.split("\n").filter((w) => /^\d+\./.test(w));
   assert(punkty.length >= 3 && punkty.length <= 6);
@@ -476,9 +478,42 @@ Deno.test("serwer uzupełnia plan tomu II, rozdziału 14 dosłownymi cytatami z 
     assert(karta);
     assertEquals(odp.zrodla[Number(karta[1]) - 1].url, XIV);
   }
-  assertEquals(odp.zrodla.filter((z) => z.id?.startsWith("F")).map((z) => z.dowod), tekst);
+  assertEquals(odp.zrodla.map((z) => z.id), ["F150", "F151", "F152", "W32", "F154"]);
+  assertEquals(odp.zrodla.filter((z) => z.id?.startsWith("F")).map((z) => z.dowod), cytaty);
   assert(!/całonocn|całą noc/i.test(odp.wynik));
   assert(!odp.wynik.includes(ETYKIETA_OGOLNA));
+
+  const poPlanie: Message[] = [...rozmowa, { role: "assistant", content: odp.wynik }];
+  const pytanieOPlan: Message = { role: "user", content: "Czy te rozdziały w planie są pewne?" };
+  const sprawdzenie = await przygotujCzat([...poPlanie, pytanieOPlan], { tryb: "czat" }, dostep);
+  const wychodzi = sprawdzenie.procesor!.dodaj(sprawdzenie.gotowa! + "\n") + sprawdzenie.procesor!.zakoncz();
+  assertStringIncludes(wychodzi, "Punkt 1** — dosłowny cytat z tekstu, t. II, rozdz. 14");
+  assertStringIncludes(wychodzi, "Punkt 4** — wydarzenie z materiałów Sedno, t. II, rozdz. 14");
+  assert(!/Maruszewicz|Starski|Skierniewic|W32|całonocn|z ogólnej wiedzy/i.test(wychodzi));
+
+  const zmieniony = await przygotujCzat([
+    ...rozmowa, { role: "assistant", content: odp.wynik.replace(tekst[0], "Starski nie zdążył na pociąg.") }, pytanieOPlan,
+  ], { tryb: "czat" }, dostep);
+  assertStringIncludes(zmieniony.gotowa!, "Punkt 1** — Sedno nie ma zgodnego punktu");
+  assert(!zmieniony.gotowa!.includes("nie zdążył"));
+
+  const poprawiony = await przygotujCzat([
+    ...poPlanie, pytanieOPlan, { role: "assistant", content: wychodzi },
+    { role: "user", content: "Popraw ten plan." },
+  ], { tryb: "czat" }, dostep);
+  assertEquals(poprawiony.gotowa, krok.gotowa);
+  const sprawdzPoprawiony = await przygotujCzat([
+    ...poPlanie, { role: "user", content: "Sprawdź i popraw ten plan." },
+    { role: "assistant", content: przez(poprawiony.materialy, poprawiony.gotowa!).wynik },
+    { role: "user", content: "Na pewno?" },
+  ], { tryb: "czat" }, dostep);
+  assertStringIncludes(sprawdzPoprawiony.gotowa!, "Punkt 4** — wydarzenie z materiałów Sedno");
+});
+
+Deno.test("sprawdzenie planu nie tworzy nowej listy, gdy w rozmowie nie ma planu", async () => {
+  const { krok, wywolania } = await czat("Sprawdź plan wydarzeń Lalki");
+  assertEquals(krok.gotowa, "Wklej plan, który mam sprawdzić.");
+  assertEquals(wywolania.elementy, []);
 });
 
 Deno.test("plan z wieloma wydarzeniami w rozdziale ma sześć punktów i nie pobiera fragmentów", async () => {
@@ -603,6 +638,28 @@ Deno.test("odpowiedź o Innym świecie raz wyjaśnia dostępność tekstu i zwra
   assertEquals(tekst.split(wstep).length, 2);
   assertEquals(tekst.match(/\[\[zrodlo:1\]\]/g)?.length, 2);
   assertEquals(p.zrodla().map((z) => [z.rodzaj, z.url, z.miejsce]), [["opracowanie", url, undefined]]);
+});
+
+Deno.test("epilog Innego świata ma stronę opisującą epilog, a karta zostaje przy wspartym zdaniu", async () => {
+  const { dane } = (await wczytajPlikiLektur()).find((p) => p.nazwa === "inny-swiat")!;
+  const wiersze = wierszeElementow(dane as PlikLektury);
+  const stareCwiczenia = "https://zpe.gov.pl/watek/LPFHDLRM4G/318/a/cwiczenia/D6ESU6QNP";
+  const epilog = "https://zpe.gov.pl/a/przeczytaj/DYOHC1uNy";
+  assertEquals(wiersze.find((w) => w.rodzaj === "wydarzenie" && w.nr === 22)?.zrodlo_url, stareCwiczenia);
+  const { krok } = await czat("Jak kończy się Inny świat?", {
+    wiersze: wiersze.filter((w) => w.rodzaj === "wydarzenie").reverse().slice(0, 5),
+    sekcje: [{
+      ...sekcjaRow("streszczenie", "Narrator podaje rozmówcy rękę.", "inny-swiat"),
+      zrodlo_url: "https://zpe.gov.pl/a/sprawdz-sie/Dly3K3ja7", zrodlo_rodzaj: "opracowanie",
+    }],
+  });
+  const zgodne = "Rozmówca chce usłyszeć, że narrator rozumie jego decyzję, ale narrator pozostaje milczący.";
+  assertEquals(krok.materialy.find((m) => m.id === "W22")?.zrodlo?.url, epilog);
+  assertEquals(krok.materialy.find((m) => m.id === "W20")?.zrodlo, undefined);
+  const p = krok.procesor!;
+  const tekst = p.dodaj(zgodne + " [W22] Narrator podaje rozmówcy rękę [W22][S:streszczenie] [[zrodlo:1]].") + p.zakoncz();
+  assertStringIncludes(tekst, zgodne + " [[zrodlo:1]] Narrator podaje rozmówcy rękę.");
+  assertEquals(p.zrodla().map((z) => [z.url, z.twierdzenie]), [[epilog, "[1] " + zgodne]]);
 });
 
 async function elementyLalki() {

@@ -164,7 +164,7 @@ async function handle(req: Request): Promise<Response> {
     }
     const czat = pestka?.tryb === "czat" ? await przygotujCzat(messages, pestka, dostep) : undefined;
     const procesor = czat?.procesor;
-    // Plan wydarzeń złożony przez serwer: bez wywołania modelu.
+    // Gotowa odpowiedź serwera, np. plan albo sprawdzenie jego punktów.
     if (czat?.gotowa !== undefined && procesor) {
       const tekst = procesor.dodaj(`${czat.gotowa}\n`) + procesor.zakoncz();
       metadane = metadaneCzatu(tekst, procesor.zrodla(), pestka?.tryb === "czat" && pestka.maProbe === true);

@@ -4,7 +4,7 @@ import {
   napisPestki, obiektPestki, powierzchniaLektury,
 } from "../_shared/pestka-odpowiedz.ts";
 import {
-  bezAkcentow, czyWyszukacLekture, nawiazujeDoLektury, nierozpoznanaCzesc, prosiOCytat, pytaOLekture, typPytania,
+  bezAkcentow, chceZweryfikowac, czyWyszukacLekture, nawiazujeDoLektury, nierozpoznanaCzesc, normalizuj, prosiOCytat, pytaOLekture, typPytania,
   utworPytania, zawieraCytat, type TypPytania,
 } from "./lektury.ts";
 import {
@@ -56,36 +56,71 @@ function poczatekStreszczenia(materialy: Material[]): Material[] {
 
 /** Plan wydarzeń złożony bez modelu: każdy punkt ma miejsce w utworze i identyfikator materiału. */
 export function planWydarzen(tytul: string, wydarzenia: Material[], zWolnychLektur: boolean): string {
-  const punkty = wydarzenia.map((w, i) => {
-    if (w.rodzaj === "fragment") return `${i + 1}. **${w.miejsce ?? w.zrodlo?.miejsce}** — „${w.tekst}” [${w.id}]`;
-    const m = /^(.*?): (.*?)(?: \((?:kto|gdzie):[^)]*\))?$/s.exec(w.tekst);
-    const miejsce = w.miejsce ?? w.zrodlo?.miejsce ?? m?.[1] ?? "";
-    const opis = (miejsce && w.tekst.startsWith(`${miejsce}: `) ? w.tekst.slice(miejsce.length + 2) : m?.[2] ?? w.tekst)
-      .replace(/ \((?:kto|gdzie):[^)]*\)$/, "");
-    return `${i + 1}. **${miejsce}** — ${opis} [${w.id}]`;
-  });
+  const punkty = wydarzenia.map((w, i) => `${i + 1}. ${punktPlanu(w)} [${w.id}]`);
   return [`### Plan wydarzeń „${tytul}”${zWolnychLektur ? " (numeracja według wydania Wolnych Lektur)" : ""}`, "", ...punkty].join("\n");
+}
+
+function opisWydarzenia(w: Material): string {
+  const bezMiejsca = w.miejsce && w.tekst.startsWith(`${w.miejsce}: `) ? w.tekst.slice(w.miejsce.length + 2) : w.tekst;
+  return bezMiejsca.replace(/ \((?:kto|gdzie):[^)]*\)$/, "");
+}
+
+function punktPlanu(w: Material): string {
+  const opis = w.rodzaj === "fragment" ? `„${w.tekst}”` : opisWydarzenia(w);
+  return `**${w.miejsce ?? w.zrodlo?.miejsce ?? ""}** — ${opis}`;
 }
 
 const AKCJA_W_TEKSCIE = /\b(?:przyjech|odjech|wyjech|szedl|szla|poszed|przyszed|wszed|weszl|wyszed|wyszl|wsiad|wysiad|usiad|ruszyl|biegl|wybiegl|jechal|odszed|spotkal|ukazal|wprowadzi|zawolal|powiedzial|rzekl|odparl|zapytal|spytal|rozmawia|wyznal|gral|zagral|rzucil|uratowal|podniosl|otworzyl|oddal)\w*/g;
 const LIMIT_PUNKTOW_ROZDZIALU = 6;
 
-function cytatyDoPlanu(materialy: Material[], limit: number): Material[] {
-  const kandydaci = materialy.filter((m) => m.rodzaj === "fragment" && m.zrodlo && m.miejsce).flatMap((m, fragment) =>
-    [...zdania.segment(m.tekst)].flatMap(({ segment, index }) => {
-      const tekst = segment.trim().replace(/\s+/g, " ");
-      if (tekst.length < 13 || tekst.length > 210 || !/[.!?…]$/.test(tekst) || /[„”"[\\\]]/.test(tekst)) return [];
-      const ruch = [...bezAkcentow(tekst).matchAll(AKCJA_W_TEKSCIE)].length;
-      const nazwa = /\s\p{Lu}[\p{Ll}]{3,}/u.test(tekst);
-      return ruch ? [{ material: { ...m, tekst }, fragment, index, ocena: Math.min(ruch, 3) + Number(nazwa) }] : [];
-    })
+function planRozdzialuZTekstem(wydarzenia: Material[], materialy: Material[]): Material[] {
+  const naNumer = (m: Material) => Number(m.id.slice(1));
+  const podstawowe = wydarzenia.filter((m) => m.zrodlo).sort((a, b) => naNumer(a) - naNumer(b)).slice(0, LIMIT_PUNKTOW_ROZDZIALU);
+  if (podstawowe.length >= 3) return podstawowe;
+
+  const fragmenty = materialy.filter((m) => m.rodzaj === "fragment" && m.zrodlo && m.miejsce)
+    .sort((a, b) => naNumer(a) - naNumer(b));
+  const zdaniaRozdzialu = fragmenty.flatMap((m, fragment) =>
+    [...zdania.segment(m.tekst)].map(({ segment, index }) => ({ m, tekst: segment.trim().replace(/\s+/g, " "), fragment, index }))
   );
+  const kandydaci = zdaniaRozdzialu.flatMap(({ m, tekst, fragment, index }) => {
+    if (tekst.length < 13 || tekst.length > 210 || !/[.!?…]$/.test(tekst) || /[„”"[\\\]]/.test(tekst)) return [];
+    const ruch = [...bezAkcentow(tekst).matchAll(AKCJA_W_TEKSCIE)].length;
+    const nazwa = /\s\p{Lu}[\p{Ll}]{3,}/u.test(tekst);
+    return ruch ? [{ material: { ...m, tekst }, fragment, index, ocena: Math.min(ruch, 3) + Number(nazwa) }] : [];
+  });
   const widziane = new Set<string>();
   const wybrane = kandydaci.sort((a, b) => b.ocena - a.ocena).filter(({ material }) => {
     if (widziane.has(material.tekst)) return false;
     widziane.add(material.tekst);
     return true;
-  }).slice(0, limit);
+  }).slice(0, LIMIT_PUNKTOW_ROZDZIALU - podstawowe.length);
+
+  // Punkt Sedno może streszczać kilka zdań. Dopasuj go do wspólnego okna i zachowaj kolejność numerów wydarzeń.
+  const rdzenie = (s: string) => new Set(normalizuj(s).split(" ").filter((w) => w.length >= 5).map((w) => w.slice(0, 5)));
+  const okna = zdaniaRozdzialu.map((zdanie, i) => ({
+    ...zdanie, slowa: rdzenie(zdaniaRozdzialu.slice(Math.max(0, i - 1), i + 2).filter((s) => s.fragment === zdanie.fragment)
+      .map((s) => s.tekst).join(" ")),
+  }));
+  let od = 0;
+  const pozycje = podstawowe.map((material) => {
+    const opis = opisWydarzenia(material);
+    const slowa = [...rdzenie(opis)];
+    const koniec = [...rdzenie(opis.split(/[,;]/).at(-1) ?? "")];
+    const trafienia = okna.slice(od).flatMap((okno, i) => {
+      const wspolne = slowa.filter((s) => okno.slowa.has(s)).length;
+      const wspolneNaKoncu = koniec.filter((s) => okno.slowa.has(s)).length;
+      return wspolne >= 3 ? [{ ...okno, i: od + i, wynik: wspolne + 2 * wspolneNaKoncu }] : [];
+    });
+    const trafienie = trafienia.sort((a, b) => b.wynik - a.wynik)[0];
+    if (trafienie) od = trafienie.i;
+    return { material, fragment: trafienie?.fragment, index: trafienie?.index };
+  });
+  for (const [i, pozycja] of pozycje.entries()) {
+    const nastepna = pozycje.slice(i + 1).find((p) => p.fragment !== undefined);
+    wybrane.push({ material: pozycja.material, fragment: pozycja.fragment ?? nastepna?.fragment ?? fragmenty.length,
+      index: pozycja.index ?? nastepna?.index ?? 0, ocena: 0 });
+  }
   return wybrane.sort((a, b) => a.fragment - b.fragment || a.index - b.index).map((w) => w.material);
 }
 
@@ -103,6 +138,18 @@ const REGULY_LEKTURY = [
 
 const REGULA_WCZESNIEJSZYCH_ZRODEL =
   "Odpowiedzi oznaczone „Potwierdzona odpowiedź Sedno” traktuj jako potwierdzone źródłami. Nie wycofuj potwierdzonej informacji tylko dlatego, że najnowsze wyszukiwanie jej nie zwróciło. Skoryguj ją wyłącznie wtedy, gdy możesz wskazać konkretny materiał, który jej przeczy. Nie komentuj numeracji źródeł z wcześniejszych odpowiedzi ani nie proponuj jej zmiany. W bieżącej odpowiedzi używaj wyłącznie identyfikatorów z MATERIAŁÓW.";
+
+const POPRAWA_PLANU = /\b(?:popraw(?:ic|isz)?|skoryguj\w*|przepisz\w*|od nowa|ponownie|jeszcze raz)\b|\b(?:podaj|pokaz|napisz|uloz|zrob)\b[^.!?\n]*\bpoprawion\w*/;
+const NAWIAZANIE_DO_PLANU = /\b(?:plan(?:u|ie|em)?|punkt\w*|rozdzial\w*)\b/;
+const PLAN = /\bplan(?:u|ie|em)?\b/;
+
+function pytanieOSprawdzenie(pytanie: string): boolean {
+  const zapis = bezAkcentow(pytanie).trim();
+  return /^(?:na pewno\b|czy (?:to (?:prawda|na pewno|jest pewne)(?=\s*[.?!]|$)|to\s*[?!]|na pewno\b|jestes pewn\w*\b|mamy pewn\w*\b))/.test(zapis) ||
+    (chceZweryfikowac(pytanie) &&
+      /\b(?:pewn\w*|poprawn\w*|prawdziw\w*|zgadz\w*|potwierdz\w*|sprawdz\w*|zweryfikuj\w*|zrodl\w*)\b/.test(zapis) &&
+      /\b(?:te|ten|tym|tamte|t[ao]|poprzedni\w*|odpowiedz\w*|plan\w*|punkt\w*|rozdzial\w*|scen\w*|zrodl\w*)\b/.test(zapis));
+}
 
 const REGULA_SLOW_KLUCZY =
   "Jeśli wiadomość tylko zawiera słowo kojarzące się z lekturą (tytuł, imię bohatera), a nie pyta o lekturę (np. „wesele kuzynki”, „siostra ma lalkę”, „słodka zemsta za klasówkę”, „dżuma w grze”), nie wspominaj o lekturze i nie dołączaj wątków literackich. Odpowiedz krótko, ciepło i po prostu, może z lekkim humorem, a potem zaproponuj powrót do nauki jako system do nauki, bez wciskania treści.";
@@ -132,23 +179,62 @@ export function rozpoznajPytanieCzatu(messages: Message[], p: { przedmiot?: stri
   const pytanie = ostatniePytanie(messages);
   let utwor: ReturnType<typeof utworPytania>;
   let poprzedniePytanie = "";
+  let pytanieOPlan = "";
+  let plan: { pytanie: string; odpowiedz: string } | undefined;
+  let ostatniaOdpowiedzOLekturze = false;
   const pytaniaZeZrodlami = new Set<string>();
   if (!p.chronOdpowiedz && ostatni > 0) {
     for (const m of messages.slice(Math.max(0, ostatni - 12), ostatni)) {
       if (m.role === "user" && typeof m.content === "string") {
         const { utwor: nowy, czescBezNotatki, nieznanyTytul } = czyPytanieOLekturze(m.content, p, utwor);
-        if ((nowy && nowy.id !== utwor?.id) || czescBezNotatki || nieznanyTytul) pytaniaZeZrodlami.clear();
+        if ((nowy && nowy.id !== utwor?.id) || czescBezNotatki || nieznanyTytul) {
+          pytaniaZeZrodlami.clear();
+          plan = undefined;
+        }
         if (nowy || czescBezNotatki || nieznanyTytul) utwor = nowy;
         poprzedniePytanie = nowy ? m.content : "";
-      } else if (m.role === "assistant" && poprzedniePytanie && maOdsylacz(m.content ?? "")) {
-        pytaniaZeZrodlami.delete(poprzedniePytanie);
-        pytaniaZeZrodlami.add(poprzedniePytanie);
+        const zapis = bezAkcentow(m.content);
+        const korekta = POPRAWA_PLANU.test(zapis) && NAWIAZANIE_DO_PLANU.test(zapis);
+        pytanieOPlan = nowy && typPytania(m.content) === "plan" && !pytanieOSprawdzenie(m.content) ? m.content
+          : korekta && (plan || nowy && PLAN.test(zapis))
+          ? plan && !miejscaWZapytaniu(m.content).length ? plan.pytanie : m.content
+          : "";
+      } else if (m.role === "assistant" && typeof m.content === "string") {
+        ostatniaOdpowiedzOLekturze = !!(poprzedniePytanie || pytanieOPlan);
+        if (pytanieOPlan) plan = { pytanie: pytanieOPlan, odpowiedz: m.content };
+        if (poprzedniePytanie && maOdsylacz(m.content)) {
+          pytaniaZeZrodlami.delete(poprzedniePytanie);
+          pytaniaZeZrodlami.add(poprzedniePytanie);
+        }
       }
     }
   }
   const temat = czyPytanieOLekturze(pytanie, p, utwor);
-  const poprzednie = temat.lektura && temat.utwor?.id === utwor?.id ? [...pytaniaZeZrodlami].reverse().slice(0, 2) : [];
-  return { ...temat, poprzednie };
+  const tenSamUtwor = !!utwor && !temat.czescBezNotatki && !temat.nieznanyTytul && (!temat.utwor || temat.utwor.id === utwor.id);
+  const zapis = bezAkcentow(pytanie);
+  const dotyczyPlanu = NAWIAZANIE_DO_PLANU.test(zapis);
+  const poprawPlan = !p.chronOdpowiedz && POPRAWA_PLANU.test(zapis) &&
+    (tenSamUtwor && !!plan && dotyczyPlanu || !!temat.utwor && PLAN.test(zapis));
+  const sprawdz = !poprawPlan && !p.chronOdpowiedz && pytanieOSprawdzenie(pytanie) &&
+    (tenSamUtwor && (dotyczyPlanu && !!plan || ostatniaOdpowiedzOLekturze) || temat.lektura && PLAN.test(zapis));
+  const sprawdzPlan = sprawdz && (PLAN.test(zapis) || tenSamUtwor && plan?.odpowiedz === messages[ostatni - 1]?.content);
+  const wynik = poprawPlan || sprawdz ? { ...temat, utwor: temat.utwor ?? utwor, lektura: true } : temat;
+  const poprzednie = wynik.lektura && wynik.utwor?.id === utwor?.id ? [...pytaniaZeZrodlami].reverse().slice(0, 2) : [];
+  return { ...wynik, poprzednie, sprawdz, sprawdzPlan, poprawPlan, plan: tenSamUtwor ? plan : undefined };
+}
+
+function pewnoscPlanu(odpowiedz: string, punkty: Material[]): string {
+  const materialy = new Map(punkty.filter((m) => m.zrodlo).map((m) => [normalizuj(punktPlanu(m)), m]));
+  const wiersze = odpowiedz.split("\n").flatMap((wiersz) => {
+    const punkt = /^\s*(\d+)[.)]\s+(.+)$/.exec(wiersz);
+    if (!punkt) return [];
+    const m = maOdsylacz(punkt[2]) ? materialy.get(normalizuj(bezOdsylaczy(punkt[2]))) : undefined;
+    const wynik = m ? `${m.rodzaj === "fragment" ? "dosłowny cytat z tekstu" : "wydarzenie z materiałów Sedno"}, ${m.miejsce ?? m.zrodlo?.miejsce}`
+      : "Sedno nie ma zgodnego punktu w obecnych materiałach";
+    return [`- **Punkt ${punkt[1]}** — ${wynik}.`];
+  });
+  return wiersze.length ? ["### Sprawdzenie planu", "", ...wiersze].join("\n")
+    : "Sedno nie ma numerowanych punktów poprzedniego planu do sprawdzenia.";
 }
 
 function historiaBezOdsylaczy(messages: Message[]): Message[] {
@@ -162,16 +248,22 @@ function historiaBezOdsylaczy(messages: Message[]): Message[] {
 export async function przygotujCzat(messages: Message[], p: Extract<ProsbaPestki, { tryb: "czat" }>, d: Dostep): Promise<KrokCzatu> {
   const pytanie = ostatniePytanie(messages);
   const zapisPriorytetu = prosiOZapisPriorytetu(pytanie);
-  const { utwor, czescBezNotatki, lektura, poprzednie } = rozpoznajPytanieCzatu(messages, p);
-  const typ: TypPytania = typPytania(pytanie);
+  const { utwor, czescBezNotatki, lektura, poprzednie, sprawdz, sprawdzPlan, poprawPlan, plan: poprzedniPlan } = rozpoznajPytanieCzatu(messages, p);
+  const ponowPlan = poprzedniPlan && (sprawdzPlan || poprawPlan && !miejscaWZapytaniu(pytanie).length);
+  const pytanieOMaterial = ponowPlan ? poprzedniPlan.pytanie : pytanie;
+  const typ: TypPytania = sprawdzPlan || poprawPlan ? "plan" : sprawdz ? "szczegol" : typPytania(pytanie);
+  if (sprawdzPlan && !poprzedniPlan) {
+    const procesor = new ProcesorOdpowiedzi([], { pytanie, zapisPriorytetu });
+    return { messages, materialy: [], procesor, gotowa: "Wklej plan, który mam sprawdzić." };
+  }
   const streszczenie = typ === "streszczenie";
   const bezSpoilerow = streszczenie && /\bbez (?:spoiler|zdradz)|\bnie zdradz/.test(bezAkcentow(pytanie));
   const dlugie = streszczenie && !bezSpoilerow &&
     /szczegolow|dokladn|dluzsz|rozbudowan|rozszerzon|pelne|na (?:tomy|akty|czesci|rozdzialy)|kazd\w+ (?:tom|akt|czesc|rozdzial|ksieg)|\b(?:tom|akt|czesc|rozdzial|ksieg)\w* (?:[ivx]+|\d+)\b/.test(bezAkcentow(pytanie));
 
   const [zebrane, pamiec, czas, wczesniejsze] = await Promise.all([
-    lektura && utwor ? zbierzMaterialy(d, pytanie, utwor, typ, { dlugie }).catch(() => undefined) : undefined,
-    p.chronOdpowiedz || bezSpoilerow ? "" : pamiecRozmow(pytanie, p.rozmowa, d.rozmowy),
+    lektura && utwor ? zbierzMaterialy(d, pytanieOMaterial, utwor, typ, { dlugie }).catch(() => undefined) : undefined,
+    p.chronOdpowiedz || bezSpoilerow || sprawdzPlan || poprawPlan ? "" : pamiecRozmow(pytanie, p.rozmowa, d.rozmowy),
     !lektura && pytaOCzasNauki(pytanie) ? d.czasZProfilu?.().catch(() => undefined) : undefined,
     utwor && !bezSpoilerow && typ !== "plan" ? Promise.all(poprzednie.filter((p) => p !== pytanie).map(async (p) => {
       const typ = typPytania(p);
@@ -182,10 +274,10 @@ export async function przygotujCzat(messages: Message[], p: Extract<ProsbaPestki
   ]);
   let materialy = materialyWBudzecie([...(zebrane?.materialy ?? []), ...wczesniejsze.flat()]);
   if (bezSpoilerow) materialy = [...materialy.filter((m) => m.id === "K"), ...poczatekStreszczenia(materialy)];
-  const tylkoOpracowania = utwor && !utwor.wl && materialy.some((m) => m.zrodlo?.rodzaj === "opracowanie") &&
+  const tylkoOpracowania = utwor && !utwor.wl && materialy.some((m) => m.id !== "K") &&
     !materialy.some((m) => m.zrodlo?.rodzaj === "utwór");
   const wstep = tylkoOpracowania ? "Sedno nie ma tekstu tego utworu i opiera się na opracowaniu." : undefined;
-  const procesor = lektura ? new ProcesorOdpowiedzi(materialy, { pytanie, zapisPriorytetu, wstep }) : undefined;
+  const procesor = lektura ? new ProcesorOdpowiedzi(materialy, { pytanie, zapisPriorytetu, wstep, bezEtykiety: sprawdzPlan }) : undefined;
 
   if (utwor && procesor && typ === "postac" && !zebrane?.materialy.some((m) => m.id !== "K")) {
     const gotowa = `Sedno nie ma opisu tej postaci w materiałach do lektury „${utwor.tytul}” (${utwor.autor}).`;
@@ -193,14 +285,12 @@ export async function przygotujCzat(messages: Message[], p: Extract<ProsbaPestki
   }
 
   const wydarzenia = materialy.filter((m) => m.rodzaj === "wydarzenie");
-  const miejscaPlanu = typ === "plan" ? miejscaWZapytaniu(pytanie) : [];
+  const miejscaPlanu = typ === "plan" ? miejscaWZapytaniu(pytanieOMaterial) : [];
   const planRozdzialu = miejscaPlanu.some((m) => m.rodzaj === "rozdz" || m.rodzaj === "sc");
-  if (utwor && procesor && typ === "plan" && (wydarzenia.length || miejscaPlanu.length)) {
-    const podstawowe = planRozdzialu ? wydarzenia.filter((m) => m.zrodlo).slice(0, LIMIT_PUNKTOW_ROZDZIALU) : wydarzenia;
-    const cytaty = planRozdzialu && podstawowe.length < 3
-      ? cytatyDoPlanu(materialy, LIMIT_PUNKTOW_ROZDZIALU - podstawowe.length) : [];
-    const punkty = [...podstawowe, ...cytaty];
-    const ograniczenie = miejscaPlanu.length && punkty.length < 3
+  if (utwor && procesor && typ === "plan" && (wydarzenia.length || miejscaPlanu.length || sprawdzPlan || poprawPlan)) {
+    const punkty = planRozdzialu ? planRozdzialuZTekstem(wydarzenia, materialy) : wydarzenia;
+    if (sprawdzPlan && poprzedniPlan) return { messages, materialy, procesor, gotowa: pewnoscPlanu(poprzedniPlan.odpowiedz, punkty) };
+    const ograniczenie = (miejscaPlanu.length || !punkty.length) && punkty.length < 3
       ? ["Sedno nie ma punktów planu dla wskazanego miejsca.", "Sedno ma tylko jeden punkt planu dla wskazanego miejsca.", "Sedno ma tylko dwa punkty planu dla wskazanego miejsca."][punkty.length]
       : "";
     const plan = punkty.length ? planWydarzen(utwor.tytul, punkty, !!utwor.wl) : "";
@@ -222,6 +312,7 @@ export async function przygotujCzat(messages: Message[], p: Extract<ProsbaPestki
         ? `Uczeń pyta o część cyklu, której nie ma w opracowaniu Sedno (autor cyklu: ${czescBezNotatki.autor}). Sedno nie ma o niej materiału.`
         : "Uczeń pyta o lekturę, której nie rozpoznano w opracowaniu Sedno. Jeśli nie podał tytułu lub autora, poproś o niego jednym zdaniem. Sedno nie ma materiału o tej lekturze.",
       ...REGULY_LEKTURY,
+      sprawdz ? "Oceń tylko pewność wskazanego twierdzenia w poprzedniej odpowiedzi. Nie powtarzaj ani nie poprawiaj treści odpowiedzi lub planu, nie twórz nowej listy wydarzeń i nie dodawaj szczegółów fabuły. Wskaż krótko, co materiały potwierdzają." : "",
       typ === "postac" ? "Podaj tożsamość i rolę postaci na podstawie dopasowanego opisu. Szczegóły biografii podawaj tylko wtedy, gdy materiały o tej postaci mówią o nich wprost. Zachowaj kolejność zdarzeń, szczególnie przy podawaniu ich przyczyn." : "",
       typ === "zakonczenie" ? "Odpowiedz wprost, jak kończy się utwór. Opisz końcowe wydarzenia w kolejności fabuły, od najwcześniejszego z nich do ostatniego. Odróżnij fakty od tego, co tekst pozostawia otwarte." : "",
       streszczenie && dlugie ? "Napisz rozwinięte streszczenie na podstawie wydarzeń z materiałów, pogrupowane według tomów, aktów lub części, z miejscem w tekście." : "",
