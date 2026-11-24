@@ -1,82 +1,92 @@
-// Rozpoznaje pliki CKE po nazwie: język angielski (wszystkie poziomy),
-// matematyka na poziomie podstawowym i informatyka (formuła 2023).
-//
-// Matematyka: MMAP-P0-100-2305.pdf (2023), od 2024 MMAP-P0-100-A-2405-arkusz.pdf
-// i MMAP-P0-100-2405-zasady.pdf. Z dwóch wersji arkusza bierzemy wersję A.
-//
-// Nazewnictwo angielskiego zmieniało się między latami:
-//   formuła 2023:        MJAP-P0-100-A-2505-arkusz.pdf, MJAP-P0-100-…-2505-zasady.pdf
-//   formuła 2015 od 2021: EJAP-P0-100-2105.pdf, EJAP-P0-100-2105-zasady.pdf
-//   formuła 2015 do 2020: MJA-P1_1P-192.pdf, MJA-P1-192-zasady_oceniania.pdf,
-//                         dwujęzyczny MAD-R1_1A-192.pdf, w latach 2015–2017 klucz
-//                         MJA-PP-162n_zasady_oceniania.pdf
-// Bierzemy tylko podstawową formę arkusza (100 / _1P / _1A), bez dostosowań.
+import { ascii, MIESIACE, terminMiesiaca } from "./sesje.js";
 
+const PRZEDMIOT = {
+  JA: "angielski", JAP: "angielski", JAA: "angielski", AD: "angielski",
+  MA: "matematyka", MAP: "matematyka", IN: "informatyka", INP: "informatyka",
+  PO: "polski", POP: "polski", BI: "biologia", BIP: "biologia",
+  CH: "chemia", CHP: "chemia", FA: "fizyka", FAP: "fizyka",
+  GE: "geografia", GEP: "geografia", HI: "historia", HIP: "historia",
+  WO: "wos", WOP: "wos", FI: "filozofia", FIP: "filozofia", KL: "lacina", JLP: "lacina",
+};
 const POZIOM = { P: "podstawowy", R: "rozszerzony", D: "dwujezyczny" };
 
-export function klasyfikuj(nazwa) {
-  const k = matematyka(nazwa) ?? informatyka(nazwa) ?? angielski(nazwa);
-  return k && { przedmiot: "angielski", ...k };
+export function klasyfikuj(nazwa, strona, etykieta) {
+  const opis = ascii(etykieta);
+  const plik = ascii(nazwa).replace(/(\d{4})\s+(?=zasady)/g, "$1-").replace(/\s+/g, "");
+  if (/karta odpowiedzi|transkrypcj|sciezka dla/.test(opis) || /[-_]karta|transkrypcj/.test(plik)) return null;
+  const wynik = nowaNazwa(plik, strona) ?? staraNazwa(plik, strona) ?? dodatkowyPlik(plik, strona);
+  if (!wynik) return null;
+  // CKE opublikowała pokazową historię z marca 2022 pod nazwą z kodem 2305.
+  const pokazowaHistoria = strona.termin === "probny" && strona.rok === 2022 && strona.miesiac === 3
+    && /^mhip-r0-(?:100|660)-2305\.(?:pdf|docx)$/.test(plik);
+  const rok = pokazowaHistoria ? strona.rok : wynik.rok ?? strona.rok;
+  const miesiac = strona.termin === "probny" ? (strona.miesiac ?? wynik.miesiac) : (wynik.miesiac ?? strona.miesiac ?? 5);
+  const termin = strona.termin ?? terminMiesiaca(rok, miesiac);
+  const sesja = MIESIACE[(rok === 2020 && termin === "glowny" ? 6 : miesiac) - 1];
+  return rok && termin && sesja ? { ...wynik, formula: strona.formula, rok, termin, sesja } : null;
 }
 
-// Informatyka (tylko poziom rozszerzony, formuła 2023): MINP-R0-100-2305.pdf (2023),
-// od 2024 MINP-R0-100-A-2405-arkusz.pdf; klucz MINP-R0-100-2405-zasady.pdf;
-// pliki danych do zadań praktycznych w Dane_2305.zip, od 2024 Dane-NF-2405.zip.
-function informatyka(nazwa) {
-  const baza = { przedmiot: "informatyka", formula: "2023", poziom: POZIOM.R };
-  let m;
-  if ((m = nazwa.match(/^MINP-R0-100(?:-A)?-(\d{2})(\d{2})(?:-arkusz)?\.pdf$/))) return { typ: "arkusz", ...baza, rok: 2000 + Number(m[1]), miesiac: m[2] };
-  if ((m = nazwa.match(/^MINP-R0-100-(\d{2})\d{2}-zasady\.pdf$/))) return { typ: "zasady", ...baza, rok: 2000 + Number(m[1]) };
-  // Zipy formuły 2015 (Dane_2205.zip) mają tę samą nazwę, ale inne arkusze.
-  if ((m = nazwa.match(/^Dane(?:_|-NF-)(\d{2})05\.zip$/)) && Number(m[1]) >= 23) return { typ: "dane", ...baza, rok: 2000 + Number(m[1]) };
+function nowaNazwa(plik, { formula }) {
+  const m = plik.match(/^([me])([a-z]{2,3})[-_]([prd])([012]?)(?:[-_]?[pr][12])?[-_]([^.]*)\.(pdf|docx|mp3)$/);
+  if (!m || !PRZEDMIOT[m[2].toUpperCase()] || m[1] !== (formula === "2023" ? "m" : "e")) return null;
+  const [, , kod, poziom, numer, opis, format] = m;
+  const przedmiot = PRZEDMIOT[kod.toUpperCase()];
+  const data = opis.match(/(?:^|[-_])(\d{2})(0[1-9]|1[0-2])(?=[-_]|$)/);
+  if (!data) return null;
+  const [, rok, miesiac] = data;
+  const baza = { przedmiot, poziom: POZIOM[poziom.toUpperCase()], rok: 2000 + Number(rok), miesiac: Number(miesiac) };
+  const czesc = (przedmiot === "polski" || przedmiot === "informatyka") && /^[12]$/.test(numer) ? Number(numer) : undefined;
+  if (format === "mp3" && przedmiot === "angielski" && /^100-(?:z00-)?\d{4}(?:_|$)/.test(opis)) return { ...baza, typ: "nagranie" };
+  if (format === "docx" && /^660(?:-a)?[-_]\d{4}(?:-arkusz)?$/.test(opis)) return { ...baza, typ: "tresc", czesc };
+  if (format !== "pdf") return null;
+  if (/^100(?:-a)?[-_]\d{4}(?:-arkusz)?$/.test(opis)) return { ...baza, typ: "arkusz", czesc };
+  if (/^100[-_]\d{4}[-_](?:mapa|zalacznik)$/.test(opis)) return { ...baza, typ: "mapa" };
+  if (/^(?:100[-_].*|\d{4})[-_]zasady(?:_oceniania)?$/.test(opis)) {
+    const wspolny = /-[pr]1[-_]?[pr]2[-_]/.test(plik);
+    return { ...baza, typ: "zasady", czesc: wspolny ? undefined : czesc };
+  }
   return null;
 }
 
-function matematyka(nazwa) {
-  let m;
-  if ((m = nazwa.match(/^MMAP-P0-100(?:-A)?-(\d{2})(\d{2})(?:-arkusz)?\.pdf$/))) {
-    return { typ: "arkusz", przedmiot: "matematyka", formula: "2023", poziom: POZIOM.P, rok: 2000 + Number(m[1]), miesiac: m[2] };
+function staraNazwa(plik, { formula }) {
+  if (formula !== "2015") return null;
+  const m = plik.match(/^m([a-z]{2})-([pr])([12pr])(?:[-_]1[pa])?((?:-\d{3}[np]?)?)(.*)\.(pdf|mp3)$/);
+  if (!m) {
+    const audio = plik.match(/^m(ja|ad)-1([pr])-\d{3}p?\.mp3$/);
+    if (audio) return { przedmiot: "angielski", poziom: audio[1] === "ad" ? POZIOM.D : POZIOM[audio[2].toUpperCase()], typ: "nagranie" };
+    return null;
   }
-  if ((m = nazwa.match(/^MMAP-P0-100-(\d{2})\d{2}-zasady\.pdf$/))) {
-    return { typ: "zasady", przedmiot: "matematyka", formula: "2023", poziom: POZIOM.P, rok: 2000 + Number(m[1]) };
-  }
-  // Forma 660 (dla osób niewidomych) w DOCX: te same zadania, wzory jako równania Office.
-  if ((m = nazwa.match(/^MMAP-P0-660(?:-A)?-(\d{2})\d{2}(?:-arkusz)?\.docx$/))) {
-    return { typ: "tresc", przedmiot: "matematyka", formula: "2023", poziom: POZIOM.P, rok: 2000 + Number(m[1]) };
-  }
+  const [, kod, poziom, numer, , koncowka, format] = m;
+  const przedmiot = PRZEDMIOT[kod.toUpperCase()];
+  if (!przedmiot) return null;
+  const litera = /^[pr]$/.test(numer) ? numer : poziom;
+  const baza = { przedmiot, poziom: kod === "ad" ? POZIOM.D : POZIOM[litera.toUpperCase()] };
+  const czesc = przedmiot === "informatyka" ? Number(numer) || undefined : undefined;
+  if (format === "mp3" && przedmiot === "angielski" && !koncowka) return { ...baza, typ: "nagranie" };
+  if (format === "pdf" && /^(?:[-_](?:zasady(?:_oceniania)?|model|n))?$/.test(koncowka) &&
+    (koncowka || !/[-_]1[pa]\b/.test(plik))) return { ...baza, typ: "zasady" };
+  if (format === "pdf" && /[-_]1[pa]\b/.test(plik) && /^(?:-a)?$/.test(koncowka)) return { ...baza, typ: "arkusz", czesc };
   return null;
 }
 
-function angielski(nazwa) {
-  let m;
-
-  // Formuła 2023 (MJAP/MJAA) i formuła 2015 w nowym nazewnictwie (EJAP/EJAA).
-  if ((m = nazwa.match(/^([ME])JA[PA]-([PRD])0-100(?:-A)?-(\d{2})(\d{2})(?:-arkusz)?\.pdf$/))) {
-    return { typ: "arkusz", formula: m[1] === "M" ? "2023" : "2015", poziom: POZIOM[m[2]], rok: 2000 + Number(m[3]), miesiac: m[4] };
+function dodatkowyPlik(plik, strona) {
+  if (/^dane(?:_pr2?|[-_](?:(?:nf|sf)-)?\d{4})\.zip$/.test(plik)) {
+    if (/^dane-nf/.test(plik) && strona.formula !== "2023" || /^dane-sf/.test(plik) && strona.formula !== "2015") return null;
+    const data = plik.match(/(\d{2})(\d{2})\.zip$/);
+    return { przedmiot: "informatyka", poziom: POZIOM.R, typ: "dane", ...(data && { rok: 2000 + Number(data[1]), miesiac: Number(data[2]) }) };
   }
-  if ((m = nazwa.match(/^([ME])JA[PA]-([PRD])0-100[-\w]*?-(\d{2})(\d{2})(?:_[-\w]+)?-zasady\.pdf$/))) {
-    return { typ: "zasady", formula: m[1] === "M" ? "2023" : "2015", poziom: POZIOM[m[2]], rok: 2000 + Number(m[3]) };
+  if (/^(?:a1barwny_zalacznik_pr|mapa(?:-100(?:-200-300-700|-\d{4}))?|zalacznik|mge-r1_1p-zalacznik_a1_a7)\.pdf$/.test(plik)) {
+    return { przedmiot: "geografia", poziom: POZIOM.R, typ: "mapa" };
   }
-  if ((m = nazwa.match(/^EJA[PA]-([PRD])0-100-(\d{2})\d{2}\.mp3$/))) {
-    return { typ: "nagranie", formula: "2015", poziom: POZIOM[m[1]], rok: 2000 + Number(m[2]) };
-  }
-  // Nagrania formuły 2023 nie mają roku w stałym miejscu; rok bierzemy ze strony.
-  if ((m = nazwa.match(/^MJA[PA]?-([PRD])0?-100[-\w]*\.mp3$/))) {
-    return { typ: "nagranie", formula: "2023", poziom: POZIOM[m[1]] };
-  }
-
-  // Formuła 2015, nazewnictwo z lat 2015–2020. Ostatnia cyfra kodu sesji
-  // to termin (2 = maj), dwie pierwsze to rok.
-  if ((m = nazwa.match(/^(MJA|MAD)-([PR])1_1[PA]-(\d{2})2(?:-A)?\.pdf$/))) {
-    return { typ: "arkusz", formula: "2015", poziom: m[1] === "MAD" ? POZIOM.D : POZIOM[m[2]], rok: 2000 + Number(m[3]), miesiac: "05" };
-  }
-  // Klucz: MJA-P1-…, w latach 2015–2017 MJA-PP-… (podstawowy) i MJA-PR-… (rozszerzony).
-  if ((m = nazwa.match(/^(MJA|MAD)-(P1|R1|PP|PR)-(\d{2})2n?(?:[-_]zasady(?:_oceniania)?)?\.pdf$/))) {
-    const poziom = m[1] === "MAD" ? POZIOM.D : m[2] === "P1" || m[2] === "PP" ? POZIOM.P : POZIOM.R;
-    return { typ: "zasady", formula: "2015", poziom, rok: 2000 + Number(m[3]) };
-  }
-  if ((m = nazwa.match(/^(MJA|MAD)-(P1|R1|1P|1R)-(\d{2})2\.mp3$/))) {
-    return { typ: "nagranie", formula: "2015", poziom: m[1] === "MAD" ? POZIOM.D : m[2].includes("P") ? POZIOM.P : POZIOM.R, rok: 2000 + Number(m[3]) };
-  }
+  if (strona.rok !== 2014 || !strona.przedmiot || !/_(pp|pr|dj)[._]|^model_a1\.pdf$|^schemat_oceniania_matematykapp_/.test(plik)) return null;
+  const poziom = plik.includes("_pp") || /^(?:model_a1|schemat_oceniania_matematykapp)/.test(plik) ? "P" : plik.includes("_dj") ? "D" : "R";
+  const baza = { przedmiot: strona.przedmiot, poziom: POZIOM[poziom] };
+  if (/^a1(?!a).+_arkusz\.pdf$/.test(plik)) return { ...baza, typ: "arkusz" };
+  if (/^a1informatyka_pr_czesc_(i|ii)\.pdf$/.test(plik)) return { ...baza, typ: "arkusz", czesc: plik.endsWith("ii.pdf") ? 2 : 1 };
+  if (/^a1[^_]+.*_nagrania\.mp3$/.test(plik)) return { ...baza, typ: "nagranie" };
+  const czesc = plik.match(/^a1(?:a[23467])*informatyka_pr_czesc_(i|ii)_model_odpowiedzi\.pdf$/)?.[1];
+  if (czesc) return { ...baza, typ: "zasady", czesc: czesc === "i" ? 1 : 2 };
+  if (/^(?:(?:a1(?:a[23467])*)?|schemat_oceniania_)[^0-9]*.*(?:model_odpowiedzi|schemat_oceniania)|^model_a1\.pdf$|^schemat_oceniania_/.test(plik) &&
+    !/^a[2-9]/.test(plik)) return { ...baza, typ: "zasady" };
   return null;
 }

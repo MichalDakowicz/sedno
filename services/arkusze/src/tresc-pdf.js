@@ -38,6 +38,7 @@ export function tekstLinii(czesci) {
   let tekst = "";
   const formaty = [];
   let koniec = null;
+  let poprzedni;
   // Linia bazowa: położenie kawałków pełnej wielkości. Drobniejszy kawałek wyżej to wykładnik (m³, 2¹⁰⁰),
   // niżej to indeks (s₁, (2011)₃).
   const maxH = Math.max(...czesci.map((c) => c.h || 0));
@@ -52,7 +53,8 @@ export function tekstLinii(czesci) {
     // Indeks dolny bywa prawie na linii bazowej (podstawa systemu: 101112₃), więc drobny znak nie wyżej niż ona to indeks.
     const indeks = drobny ? (c.y > bazowa + 1.5 ? "sup" : "sub") : null;
     const przerwa = koniec === null ? 0 : c.x - koniec;
-    if (tekst && przerwa > 1.2 && !indeks && !tekst.endsWith(" ") && !s.startsWith(" ")) tekst += " ";
+    const przedrostek = indeks === "sup" && /\p{L}{2}$/u.test(tekst) && poprzedni?.h >= 0.85 * maxH;
+    if (tekst && przerwa > 1.2 && (!indeks || przedrostek) && !tekst.endsWith(" ") && !s.startsWith(" ")) tekst += " ";
     const od = tekst.length;
     tekst += indeks ? s.trim() : s;
     const kroj = indeks ?? (c.f === "b" || c.f === "i" || c.f === "m" ? c.f : null);
@@ -63,12 +65,13 @@ export function tekstLinii(czesci) {
       else formaty.push([od, tekst.length, kroj]);
     }
     koniec = c.x + c.w;
+    poprzedni = c;
   }
   const lead = tekst.length - tekst.trimStart().length;
   return { tekst: tekst.trim(), formaty: formaty.map(([a, b, f]) => [Math.max(0, a - lead), Math.min(tekst.trim().length, b - lead), f]).filter(([a, b]) => b > a) };
 }
 
-function rodzaj(l, lewa) {
+export function rodzaj(l, lewa) {
   const { tekst } = l.t;
   // Miejsce na odpowiedź (same kropki albo podkreślenia) pomijamy; linia z treścią i kropkami do uzupełnienia
   // („1201₃ + 2102₉ = ……”) zostaje.
@@ -104,13 +107,13 @@ function rodzaj(l, lewa) {
 // Krótki napis bez słów; między wycinkami należy do rysunku (oś wykresu przy marginesie).
 const krotki = (l) => l.t.tekst.length < 18 && !/[a-ząćęłńóśźż]{4,}/i.test(l.t.tekst);
 
-async function plotno(doc, n, cache) {
+export async function plotno(doc, n, cache, rotation) {
   if (!cache.has(n)) {
     const page = await doc.getPage(n);
-    const viewport = page.getViewport({ scale: SKALA });
+    const viewport = page.getViewport({ scale: SKALA, rotation });
     const c = doc.canvasFactory.create(viewport.width, viewport.height);
     await page.render({ canvasContext: c.context, viewport }).promise;
-    cache.set(n, { ...c, wys: page.view[3], fabryka: doc.canvasFactory });
+    cache.set(n, { ...c, wys: viewport.height / SKALA, fabryka: doc.canvasFactory });
   }
   return cache.get(n);
 }
@@ -354,7 +357,7 @@ export async function skladajTresc(doc, fragmenty, { katalog, prefiks }) {
 
 // Linie tekstu w akapity: nowy akapit po większej przerwie, po krótkiej linii (koniec akapitu
 // w arkuszu), przy punktorze, numeracji i podpunkcie „a)”, przy wcięciu.
-function akapity(linie) {
+export function akapity(linie) {
   const wynik = [];
   let akt = null;
   let poprz = null;
@@ -417,7 +420,7 @@ function sklej(pozycje) {
 const SUP = { 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹", "-": "⁻", "+": "⁺" };
 const SUB = { 0: "₀", 1: "₁", 2: "₂", 3: "₃", 4: "₄", 5: "₅", 6: "₆", 7: "₇", 8: "₈", 9: "₉" };
 // W komórce tabeli wykładniki i indeksy z cyfr zapisujemy znakami Unicode (10⁶, s₁).
-function tekstKomorki({ tekst, formaty }) {
+export function tekstKomorki({ tekst, formaty }) {
   let wynik = "";
   let poz = 0;
   for (const [od, do_, k] of formaty) {
@@ -436,7 +439,7 @@ function tekstKomorki({ tekst, formaty }) {
  * (między liniami poziomymi), z których każdy ma co najmniej dwie linie pionowe. Każda tabela:
  * wiersze komórek (tekst), rozpiętość komórek w kolumnach, liczba wierszy nagłówka, zakres pionowy.
  */
-export function tabeleZSiatki(s, gora, dol, czesci) {
+export function tabeleZSiatki(s, gora, dol, czesci, { odpowiedzi = false, otwartyDol = false } = {}) {
   const [x0, x1] = KADR_X.map((x) => Math.round(x * SKALA));
   const szer = x1 - x0;
   const py0 = Math.max(0, Math.round((s.wys - gora) * SKALA));
@@ -480,10 +483,32 @@ export function tabeleZSiatki(s, gora, dol, czesci) {
       akt.push(p);
     } else akt = null;
   }
-  return tabele.filter((t) => t.length >= 2 || t[0].linie.length >= 3).map((t) => zbudujTabele(t, czesci, { x0, yPdf })).filter(Boolean);
+  if (otwartyDol) {
+    for (const t of tabele) {
+      const w = t.at(-1);
+      if (w.linie.length < 3) continue;
+      const start = Math.ceil(w.dol) + 2;
+      const limit = Math.min(py1 - py0 - 1, start + 100);
+      const konce = w.linie.map((x) => {
+        let ostatni = start - 1;
+        for (let r = start; r <= limit && r - ostatni <= 3; r++) {
+          const k = Math.round(x);
+          if ([k - 1, k, k + 1].some((c) => c >= 0 && c < szer && ciemny(d, (r * szer + c) * 4))) ostatni = r;
+        }
+        return ostatni;
+      });
+      const koniec = Math.min(...konce);
+      if (koniec < start + 14 || Math.max(...konce) - koniec > 4 || koniec + 4 >= limit) continue;
+      const lewy = (x0 + w.linie[0]) / SKALA;
+      const prawy = (x0 + w.linie.at(-1)) / SKALA;
+      if (!czesci.some((c) => c.x >= lewy && c.x + c.w <= prawy && c.y > yPdf(koniec) && c.y < yPdf(start))) continue;
+      t.push({ gora: w.dol, dol: koniec + 1, linie: w.linie });
+    }
+  }
+  return tabele.filter((t) => t.length >= 2 || t[0].linie.length >= 3).map((t) => zbudujTabele(t, czesci, { x0, yPdf, odpowiedzi })).filter(Boolean);
 }
 
-function zbudujTabele(pasy, czesci, { x0, yPdf }) {
+function zbudujTabele(pasy, czesci, { x0, yPdf, odpowiedzi }) {
   const granice = sklej([...new Set(pasy.flatMap((w) => w.linie.map(Math.round)))].sort((a, b) => a - b));
   const wynik = pasy.map((w) => {
     const yGora = yPdf(w.gora);
@@ -544,7 +569,9 @@ function zbudujTabele(pasy, czesci, { x0, yPdf }) {
   const szerokosci = new Set(wynik.map((w) => w.reduce((n, k) => n + k.zakres, 0)));
   // Wiersz krótszy o jedną komórkę (np. ostatni wiersz bez kolumny, której w nim nie wypełnia się) jest w porządku.
   const rozrzut = Math.max(...szerokosci) - Math.min(...szerokosci);
-  if (puste > 0.6 || rozrzut > 1 || Math.max(...wynik.map((w) => w.length)) < 2) return null;
+  const niepelnyOstatni = odpowiedzi && wynik.length > 2 && puste < 0.25 && szerokosci.size === 2
+    && new Set(wynik.slice(0, -1).map((w) => w.reduce((n, k) => n + k.zakres, 0))).size === 1;
+  if (puste > (odpowiedzi ? 0.8 : 0.6) || rozrzut > 1 && !niepelnyOstatni || Math.max(...wynik.map((w) => w.length)) < 2) return null;
 
   // Nagłówek: początkowe wiersze bez pustych komórek i bez przełączników P / F, pogrubione albo
   // opisowe nad wierszem z liczbami.

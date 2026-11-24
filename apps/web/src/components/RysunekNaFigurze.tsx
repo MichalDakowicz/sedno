@@ -79,7 +79,9 @@ export function RysunekNaFigurze({
       return;
     }
     setZaDuzy(false);
-    setWstecz((w) => [...w.slice(-(WYCOFANIA - 1)), kreskiTeraz.current]);
+    // Stan sprzed zmiany czytamy tu, nie w updaterze: ref zmienia się w renderze, a StrictMode wywołuje updater dwa razy.
+    const przed = kreskiTeraz.current;
+    setWstecz((w) => [...w.slice(-(WYCOFANIA - 1)), przed]);
     setNaprzod([]);
     onZmiana?.(nowe);
   };

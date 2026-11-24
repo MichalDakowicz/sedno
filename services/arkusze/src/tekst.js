@@ -9,26 +9,37 @@ const PRZERWA_KOLUMNY = 12;
 // fonty: każdy surowy kawałek dostaje krój `f`: b (pogrubiony), i (kursywa), m (stała szerokość,
 // np. Courier z nazwami plików), s (symbole, np. strzałka przypisania), "" (zwykły). Wymaga listy
 // operacji strony, więc jest wolniejsze i włączane tylko tam, gdzie potrzebne (informatyka).
-export async function tekstPdf(sciezka, { fonty = false } = {}) {
+export async function tekstPdf(sciezka, opcje = {}) {
   const data = new Uint8Array(await readFile(sciezka));
   const doc = await getDocument({ data, useSystemFonts: true, verbosity: 0 }).promise;
+  try {
+    return await tekstDokumentu(doc, opcje);
+  } finally {
+    await doc.destroy();
+  }
+}
+
+async function tekstDokumentu(doc, { fonty = false, naprawKodowanie = false }) {
   const strony = [];
   for (let n = 1; n <= doc.numPages; n++) {
     const strona = await doc.getPage(n);
     if (fonty) await strona.getOperatorList();
     const { items } = await strona.getTextContent();
+    const przesuniete = naprawKodowanie && items.some((it) => /=DGDQLH\x03|6WURQD\x03/.test(it.str ?? ""));
     const kroje = {};
     const wiersze = [];
     for (const it of items) {
-      if (!it.str || !it.str.trim()) continue;
+      const s = przesuniete ? dekodujGlify(it.str ?? "") : it.str;
+      if (!s || !s.trim()) continue;
       const y = it.transform[5];
       let w = wiersze.find((r) => Math.abs(r.y - y) <= 2.5);
       if (!w) wiersze.push((w = { y, czesci: [] }));
-      const czesc = { x: it.transform[4], y, s: it.str, w: it.width, h: it.height };
+      const czesc = { x: it.transform[4], y, s, w: it.width, h: it.height };
       if (fonty) czesc.f = kroje[it.fontName] ??= kroj(strona, it.fontName);
       w.czesci.push(czesc);
     }
     dolaczIndeksyGorne(wiersze);
+    if (naprawKodowanie) dolaczIndeksyDolne(wiersze);
     const linie = wiersze
       .sort((a, b) => b.y - a.y)
       .map((w) => {
@@ -40,6 +51,16 @@ export async function tekstPdf(sciezka, { fonty = false } = {}) {
     strony.push(linie);
   }
   return strony;
+}
+
+const GLIFY = { y: "ó", Ï: "Ó", ü: "ć", Ċ: "ę", Ę: "Ę",
+  á: "ł", à: "Ł", Ĕ: "ń", ē: "Ń", Ğ: "ś", ĝ: "Ś", Ĩ: "ź", Ī: "ż", ĩ: "Ż", "±": "–" };
+
+// Brak mapy ToUnicode w części stron CKE: glify podstawowe mają numery
+// o 29 niższe od ASCII, a polskie litery zachowały osobne kody fontu.
+function dekodujGlify(s) {
+  return [...s].map((z) => GLIFY[z] ?? (/[\x03-\x5d]/.test(z) && z !== " "
+    ? String.fromCharCode(z.charCodeAt(0) + 29) : z)).join("");
 }
 
 function kroj(strona, fontName) {
@@ -72,7 +93,26 @@ function dolaczIndeksyGorne(wiersze) {
   }
 }
 
-function segmenty(czesci) {
+function dolaczIndeksyDolne(wiersze) {
+  for (const w of [...wiersze]) {
+    const przeniesione = new Set();
+    for (const c of w.czesci) {
+      if (c.h > 10 || !/^[\p{L}\d+−-]{1,3}$/u.test(c.s.normalize("NFKC"))) continue;
+      const cel = wiersze.find((v) => v !== w && v.y - c.y >= 2.5 && v.y - c.y <= 6.5
+        && v.czesci.some((p) => p.h >= c.h * 1.23 && /^[\p{L}\d]{1,2}$/u.test(p.s.normalize("NFKC"))
+          && (c.x >= p.x + p.w * 0.5 && c.x <= p.x + p.w + 1.2
+            || c.x <= p.x + 1 && c.x + c.w >= p.x - 1.5 && v.czesci.some((g) => g.y > v.y + 3
+              && g.x <= c.x + 2 && g.x + g.w >= c.x + c.w - 2))));
+      if (!cel) continue;
+      cel.czesci.push(c);
+      przeniesione.add(c);
+    }
+    w.czesci = w.czesci.filter((c) => !przeniesione.has(c));
+  }
+  for (let i = wiersze.length - 1; i >= 0; i--) if (!wiersze[i].czesci.length) wiersze.splice(i, 1);
+}
+
+export function segmenty(czesci) {
   const wynik = [];
   let akt = null;
   let koniec = null;

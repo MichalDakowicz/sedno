@@ -77,6 +77,7 @@ function wyczysc(tex) {
     // Przecinek dziesiętny („2,25”) bez odstępu po nim. Ze spacją („1, 3”) to współrzędne.
     .replace(/(\d),(?=\d)/g, "$1{,}")
     .replace(/\s+/g, " ")
+    .replace(/(?:\\ )+$/, "")
     .trim();
 }
 
@@ -122,7 +123,7 @@ function wezel(n, ctx) {
     case "m:rad": {
       const ukryty = ["1", "on", "true"].includes(wartosc(n, ["m:radPr", "m:degHide"]) ?? "");
       const st = dziecko(n, "m:deg");
-      const stopien = st ? lista(st, ctx).trim() : "";
+      const stopien = st ? lista(st, ctx).replace(/(?:\\ )+$/, "").trim() : "";
       return ukryty || !stopien ? `\\sqrt${grupa(dziecko(n, "m:e"), ctx)}` : `\\sqrt[${stopien}]${grupa(dziecko(n, "m:e"), ctx)}`;
     }
     case "m:d": {

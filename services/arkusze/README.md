@@ -1,71 +1,81 @@
 # arkusze
 
-Import arkuszy maturalnych CKE do JSON dla aplikacji: język angielski (formuła 2015 i 2023, wszystkie lata dostępne na stronie CKE), matematyka na poziomie podstawowym i informatyka (formuła 2023). Na razie bez AI: parser oparty na regułach i układzie tekstu w PDF.
+Importer pobiera standardowe pisemne arkusze CKE i zasady oceniania obu formuł, a następnie składa JSON czytany przez aplikację. Gdy standardowy arkusz ma wersje A i B, importujemy wersję A. Katalog rejestruje osobne zeszyty polskiego i informatyki w sesjach, w których CKE je opublikowała.
 
-Pliki CKE i wynikowe JSON-y lądują w `data/` w katalogu głównym, który jest w `.gitignore`. Materiały CKE mają prawa autorskie i nie trafiają do repozytorium, dopóki nie ustalimy warunków użycia.
+## Uruchomienie
 
-## Użycie
+Z katalogu głównego repozytorium:
 
-Z katalogu głównego repo:
+~~~bash
+npm install
+npm run pobierz
+npm run importuj
+npm run kontrola
+~~~
 
-```bash
-npm run pobierz    # PDF-y ze strony CKE do data/cke/<rok>/
-npm run importuj   # JSON-y do data/arkusze/
-npm run kontrola   # spójność danych: klucze, luki, punkty
-npm run wgraj      # data/arkusze/ do tabeli sheets w Supabase (ssh na serwer)
-```
+Pliki CKE i wyniki pozostają w ignorowanym przez Git katalogu `data/`. W worktree na Windows można współdzielić wejście przez junction `data/cke` do `C:\sedno\data\cke`. Wyjście `data/arkusze` należy do bieżącego worktree. Nagrania angielskiego zostają pod oficjalnymi adresami CKE. W przypadku informatyki ZIP z danymi jest rozpakowywany do pola `dane.pliki`.
 
-Na staging: `SEDNO_DB=sb-sedno-dev-db npm run wgraj`. Z prefiksem (`npm run wgraj -- informatyka`) wgrywa tylko pasujące arkusze i nie usuwa pozostałych z bazy.
+Do kontroli wybranych arkuszy służą prefiksy identyfikatora lub formuły, np. `npm run importuj -- biologia-2023 polski-podstawowy-2026-maj`. Import z prefiksami aktualizuje wyłącznie pasujące wpisy indeksu. Wczytywanie do Supabase to osobna operacja opisana na końcu.
 
-Aplikacja webowa czyta arkusze z tabeli `sheets` w Supabase (tylko zalogowani), więc po każdym imporcie trzeba je wgrać (`wgraj.js`). Na hosting nie trafiają. Nagrań nie pobieramy: JSON ma adres pliku mp3 na stronie CKE.
+## Katalog i terminy
 
-## Jak to działa
+| Pole | Znaczenie |
+| --- | --- |
+| termin | glowny, dodatkowy, poprawkowy lub probny |
+| sesja | Rzeczywisty miesiąc, np. maj, czerwiec, sierpień lub grudzień |
+| czesc | Etykieta osobnego zeszytu, np. Część 2 |
+| id | przedmiot-poziom-rok-miesiac[-czesc-N][-probna][-formula-2015] |
 
-- `pobierz.js` przechodzi po stronach lat obu formuł, `pliki.js` rozpoznaje pliki po nazwie (nazewnictwo zmieniało się trzy razy, opis w pliku). Wynik to `data/cke/katalog.json`: formuła, rok, poziom, arkusz, klucz i adres nagrania.
-- `tekst.js` wyciąga tekst przez pdfjs. Linia to fragmenty o tym samym `y`; fragmenty oddzielone dużą przerwą są osobnymi segmentami (kolumny tabel).
-- `arkusz.js` dzieli arkusz na zadania („Zadanie N. (0–X)” / „TASK N.”), a zadanie na bloki w kolejności z arkusza: akapit, nagłówek, źródło, opcje, pytanie, tabela odpowiedzi. Luki w tekście zamienia na znaczniki `{{3.1}}`. Akapity rozpoznaje po odstępach w pionie.
-- `klucz.js` czyta zasady oceniania: litery z kolumny „Poprawna odpowiedź” (przy dwóch wersjach arkusza bierze wersję A) oraz listy odpowiedzi oczekiwanych, akceptowanych i niepoprawnych dla zadań otwartych. Zapis typu `healthy food / dishes` rozwija na warianty.
-- `wymagania.js` przypisuje `pytanie.wymagania` w angielskiej Formule 2023. W słuchaniu i czytaniu dopasowuje podpunkt do komórki tabeli na podstawie obramowania, także gdy jeden kod obejmuje kilka wierszy. Pierwszy kod dotyczy rozumienia, kolejne wskazują m.in. przetwarzanie wypowiedzi. Środki językowe dostają kod sekcji `I`, a wypowiedź pisemna `V` oraz kody szczegółowe z tematów podanych w kluczu. Import wypisuje pokrycie i numery podpunktów bez przypisania.
-- `scal.js` łączy jedno z drugim: pytanie z literą w kluczu jest zamknięte, reszta otwarta, zadanie bez etykiet pytań to wypowiedź pisemna.
-- `importuj.js` zapisuje `<id>.json` i `index.json`, a w polu `ostrzezenia` notuje rozjazdy (pytanie bez klucza, suma punktów różna od podanej na arkuszu).
+Identyfikatory trzech arkuszy angielskiego z czerwca 2020 zachowują końcówkę maj-formula-2015 na potrzeby zapisanych postępów. Ich pole sesja ma wartość czerwiec. Formuła 2023 zachowuje identyfikatory bez sufiksu formuły.
 
-Podgląd przy poprawianiu parsera:
+`pobierz.js` czyta wykazy lat, archiwum i materiały dodatkowe na cke.gov.pl. Rozpoznaje linki według nazw plików i opisów, dopasowuje formę 100 lub historyczny odpowiednik A1 oraz łączy zeszyty ze wspólnym kluczem. Próby obejmują również publikacje diagnostyczne, m.in. materiały z marca, września i grudnia 2022. Samodzielny załącznik mapy i ZIP są kojarzone z właściwą sesją.
 
-```bash
-node src/podglad.js ../../data/cke/2025/MJAP-P0-100-A-2505-arkusz.pdf [nr zadania]
-node src/podglad-klucz.js ../../data/cke/2025/MJAP-R0-100-200-660-2505-zasady.pdf
-node src/zrzut.js <plik.pdf>   # surowe linie z pozycjami do pliku .pdfjs.txt
-```
+Raport `data/cke/braki.json` zawiera niedostępne strony, nieudane pobrania, niekompletne wpisy i terminy bez linków. W sprawdzonych publicznych wykazach CKE i OKE nie potwierdzono arkuszy terminów dodatkowych i poprawkowych w Formule 2015 ani 2023. W [katalogu Komisji Egzaminacyjnych](https://egzaminy.gov.pl/cke/materialy-egzaminacyjne/egzamin-maturalny) parametry czerwca i sierpnia zwracały domyślny maj. Próby zmiany kodu sesji w adresach plików z terminów głównych nie dały PDF-ów tych terminów.
 
-## Matematyka
+OKE Łomża publikuje trzy archiwalne zestawy sprzed Formuły 2015. Pobranie PDF i treść pierwszych stron potwierdzają poniższe sesje. Wszystkim wymienionym arkuszom brakuje zweryfikowanych oficjalnych zasad oceniania.
 
-Tekst z PDF gubi ułamki, potęgi i pierwiastki. Treść ze wzorami bierzemy więc z formy 660 arkusza (DOCX dla osób niewidomych, `MMAP-P0-660-…docx`), w której wzory są równaniami Office (OMML). Z PDF bierzemy numerację, punkty, figury i klucz wersji A.
+- [Czerwiec 2012](https://oke.lomza.pl/aktualnosci/arkusze-egzaminu-maturalnego-czerwiec-2012-r/) obejmuje 20 zeszytów z angielskiego, biologii, chemii, francuskiego, geografii, historii, matematyki, polskiego i WOS-u.
+- [Sierpień 2012](https://oke.lomza.pl/aktualnosci/arkusze-egzaminu-maturalnego-sierpie-2012-r/) obejmuje 4 arkusze podstawowe z angielskiego, matematyki, niemieckiego i polskiego.
+- [Sierpień 2014](https://oke.lomza.pl/aktualnosci/arkusze-z-egzaminu-poprawkowego-w-2014-r/) obejmuje 3 arkusze podstawowe z angielskiego, matematyki i polskiego.
 
-- `docx.js`: fragmenty „Zadanie N.” z blokami `akapit` (wzory inline w `\( … \)`), `wzor` (osobna linia), `opcja`, `tabelaTresci`, `miejsceRysunku`. Polecenia „Zapisz właściwą odpowiedź” zamienia na „Wybierz…”, a legendę kolumn („Oc – ocena”) wstawia z powrotem do nagłówka tabeli.
-- `omml.js`: OMML na LaTeX (ułamki, potęgi i indeksy, pierwiastki, nawiasy, funkcje, układy w klamrze, akcenty). Zmienne idą kursywą mimo stylu „plain” w Wordzie, słowa („dla”) jako `\text`, przecinek dziesiętny jako `{,}`.
-- `matematyka.js`, PDF: fragment to nagłówek „Zadanie N.” albo „Zadanie N.M.” z treścią do następnego nagłówka lub etykiety „Brudnopis”, z częściami na kolejnych stronach. Każdy fragment ma kadr, czyli wycinek wyrenderowanej strony (pdfjs + `@napi-rs/canvas`, 2 px na punkt, `data/arkusze/obrazy/<id>/<nr>.png`). Na koniec `osadzObrazy` wstawia PNG-i do JSON-a jako data URL, bo arkusz trafia do bazy (`npm run wgraj`) jako jeden wiersz; matematyka waży przez to 0,5–1,2 MB na arkusz.
-- Składanie (`zadaniaMatematyki`): treść z DOCX, gdy zgadza się z PDF (podobieństwo 2·LCS/(|a|+|b|) ≥ 0,8 na samych literach i cyfrach; dla tabel także udział wspólnych znaków ≥ 0,9). Inaczej blok `kadr`, bo forma 660 bywa przerobiona (inne opcje, opis zamiast figury). Import wypisuje kadry z powodem. Podpunkty dostają nagłówek, zdania-polecenia flagę `polecenie`.
-- Rysunek bazowy (`<nr>-rysunek.png`, pole `rysunek` zadania i blok `rysunek` w miejscu rysunku z DOCX) to najwyższy pas tuszu bez linii akapitu, co najmniej 70 × 80 pt, a 20 pt tam, gdzie DOCX ma rysunek. Tabele „A albo B oraz 1–3” pomijamy. Ramkę poprawia się ręcznie w `rysunki.json`: `{ "<id arkusza>": { "<nr>": null | { "strona": n, "ramka": [x0, y0, x1, y1] } } }` (punkty PDF, początek w lewym dolnym rogu; `null` wyłącza rysunek).
-- Klucz (`kluczMatematyki`): kolumna „Wersja A” tabeli rozwiązań. Pojedyncza litera A–D przy zadaniu „Wybierz właściwą odpowiedź” daje pytanie zamknięte (z opcjami z DOCX); kod (PF, A2, CE) albo krótki wynik daje pytanie otwarte z `oczekiwane`; resztę uczeń ocenia według schematu ze strony `zasadyStrona` w PDF zasad.
-- `kontrola` renderuje każdy wzór przez KaTeX. Podgląd DOCX: `node src/podglad-docx.js <plik.docx> [numery]`.
-- Import tylko matematyki: `node src/importuj.js matematyka`.
+Czerwiec 2020 w katalogu był terminem głównym przesuniętym z maja.
 
-## Informatyka
+## Parsery
 
-Arkusz nie ma formy DOCX, więc treść składamy z PDF razem z krojami pisma (`tekstPdf(…, { fonty: true })`: pogrubienie, kursywa, Courier, Symbol). `informatyka-tresc.js` dzieli linie fragmentu na akapity z zakresami `formaty`, bloki `kod` (pseudokod po strzałce i słowach „jeżeli”, „dopóki”…, dane Courierem, wiersze liczb; wcięcia z położenia linii), tabele o równej liczbie kolumn i wycinki (wykresy, rysunki, wzory z drobnym pismem albo nieznanym znakiem z fontu Symbol). Fragment z co najmniej dwoma wycinkami albo z wycinkami na ponad 60% wysokości zostaje jednym kadrem (WebP). Akapity „A.–D.” przy pytaniu zamkniętym stają się opcjami. Wykładniki i indeksy (drobne pismo nad linią bazową albo na niej) to zakresy `sup` i `sub`.
-- Tabele (`tabeleZSiatki`): linie siatki szukane na wyrenderowanej stronie, poziome na całej szerokości, pionowe w każdym wierszu osobno (scalone komórki nagłówka). Tekst trafia do komórki ze środkiem kawałka, wykładniki w komórkach jako znaki Unicode, ułamek piętrowy jako `a/b`, komórka z klamrą jako wycinek. Odrzucamy rysunki z linii (ponad 60% pustych komórek, wiersze różnej szerokości, jedna kolumna). Tabela z pustymi komórkami w podpunkcie dostaje `pytanie` (komórki do wpisania, pytanie `tabela: true`), a tabela z kolumnami P i F przy kluczu P/F to przełączniki.
+| Przedmiot | Treść i klucz |
+| --- | --- |
+| Angielski | Istniejący parser bloków, luk i słuchania. W nowych sesjach uzupełniamy brakujące odpowiedzi opisowe tekstem i stroną zasad. |
+| Matematyka | Cztery istniejące arkusze podstawowe Formuły 2023 używają dotychczasowego składania DOCX z PDF. Pozostałe poziomy i sesje używają parsera wspólnego z równaniami DOCX, gdy treść pasuje do wersji standardowej. Starsze klucze zamknięte mogą mieć odpowiedzi w jednym wierszu tabeli. |
+| Informatyka | Zachowana ścieżka czterech arkuszy głównych Formuły 2023. Pozostałe arkusze używają wspólnego parsera, z pseudokodem jako kod i plikami przypisanymi do zadań. W Formule 2015 część praktyczna może być osobnym zeszytem. |
+| Polski | Parser wspólny plus wykrywanie testu i wypracowania, również przy dwóch tematach w jednym zadaniu. Wypracowanie ma jedno pole otwarte i kryteria CKE, a osobny zeszyt zachowuje drukowaną punktację. |
+| Biologia, chemia, fizyka | Parser wspólny. Zachowuje akapity, tabele, indeksy i rysunki. Wykorzystuje równania z DOCX, jeżeli forma 660 ma zgodną treść. |
+| Geografia | Parser wspólny. Zewnętrzna mapa CKE jest pierwszą ilustracją arkusza. |
+| Historia, WOS, filozofia, łacina | Parser wspólny. Źródła, nagłówki, tabele i ilustracje pozostają w kolejności z arkusza. Zadania argumentacyjne i tłumaczenia zachowują zasady i przykłady z klucza. |
 
-- `informatyka.js`, PDF: fragment to „Zadanie N. Tytuł” (wstęp, tytuł trafia do pola `tytul`), „Zadanie N.M. (0–X)” albo „Informacja do zadań …” (osobny fragment bez punktów przed pierwszym z podpunktów). Tabelka egzaminatora stoi na marginesie raz z lewej, raz z prawej. Fragment kończą „Miejsce na obliczenia / zapis algorytmu / zapis zapytania”, „Do oceny oddajesz” i „BRUDNOPIS”.
-- Klucz (`kluczInformatyki`): przy każdym podpunkcie tekst po „Zasady oceniania” i po nagłówku rozwiązania („Rozwiązanie”, „Poprawna odpowiedź”, „Przykładowe rozwiązanie” itd.). Wcięcia pseudokodu odtwarzamy z położenia linii, „•” zamieniamy na „←”. Przypis z podstawą prawną kończy stronę.
-- Typ pytania z rozwiązania: litera A–D przy „Zaznacz właściwą odpowiedź” to pytanie zamknięte, ciąg P/F to kod, krótki wynik (do 8 wierszy, bez pseudokodu i SQL) to `oczekiwane` z `wynik: true` (aplikacja porównuje bez spacji, jednostek i formatu liczb), reszta to samoocena z rozwiązaniem obok.
-- Pliki danych: zip z CKE (`Dane_2305.zip`, od 2024 `Dane-NF-<sesja>.zip`) rozpakowany do pola `dane.pliki` arkusza (UTF-8, w razie błędu Windows-1250). Zadanie dostaje listę plików, o których mówi treść (`pliki`), oraz flagi `program` i `sql`.
-- Import tylko informatyki: `node src/importuj.js informatyka`.
+`tresc-pdf.js`, `bloki-pisemne.js` i `arkusz-pisemny.js` składają tekst z położeń i krojów czcionek w PDF. Siatka z renderu wyznacza komórki tabeli. Grafiki wykrywamy po tuszu poza obwiedniami tekstu i tabel. Fragment z nierozpoznanymi znakami może zostać blokiem kadr, a import podaje numer zadania, stronę i powód. Tryb starszych arkuszy zachowuje wcześniej zapisywane bloki i kadry.
 
-## Znane ograniczenia
+W formie 660 równania Office zamieniamy na LaTeX. Porównanie treści formy 660 z arkuszem standardowym opiera się na wspólnych literach i cyfrach. Parser wspólny wybiera zgodny wariant DOCX, jeżeli KaTeX może wyrenderować jego wzory. Ułożony piętrowo wzór z PDF można osadzić jako osobny wycinek między akapitami. Jasna kratka do obliczeń jest pomijana przy wykrywaniu ilustracji.
 
-- Wszystkie 47 arkuszy w bazie (39 z angielskiego, 4 z matematyki, 4 z informatyki; stan z 19 listopada 2026) mają import bez ostrzeżeń. Zgodność sumy punktów z arkuszem sprawdziliśmy dla angielskiego; dla matematyki i informatyki do weryfikacji. Wyjątek znany ręcznie: w dwujęzycznym 2018 klucz pytania 3.4 skleja kilka krótkich odpowiedzi z sąsiednich komórek; uczeń ocenia je sam.
-- Tabele kluczy mają różne układy: etykieta pytania na środku komórki (granice liczone w `granice()`) albo u góry; nagłówek „Inne akceptowane odpowiedzi:” w środku komórki; odpowiedzi w punktach; odpowiedzi pełnymi zdaniami łamanymi w kolumnie. Nowy rocznik warto sprawdzić skanem jakości (długie wpisy, polski tekst w odpowiedziach).
-- Import części katalogu do testów: `node src/importuj.js 2015` (prefiks formuła-rok-poziom albo przedmiot-formuła-rok-poziom, np. `matematyka-2023`).
+W angielskiej Formule 2023 `wymagania.js` przypisuje kody wymagań z tabel w kluczu. Fragmenty nagrania wcześniej dopasowane przez `nagrania/dopasuj.py` pochodzą z plików `data/nagrania/<id>-fragmenty.json`, więc ponowny import może je dołączyć.
 
-- Teksty w kilku kolumnach (np. ulotka w zadaniu 6 rozszerzenia 2025) wychodzą jako wymieszane linie.
-- Klucz zadań otwartych bywa przypisany do sąsiedniego pytania na granicy wierszy tabeli. Sprawdzanie w aplikacji traktuje go jako pomoc: pewne „dobrze” tylko przy zgodności z listą, poza nią uczeń porównuje sam.
+Klucz pojedynczego wyboru daje przyciski i poprawną literę. P/F i inne jednoznaczne kody używają pola odpowiedzi z kodem, a pewne krótkie odpowiedzi trafiają do `oczekiwane`. Przy odpowiedziach opisowych pola zasady, rozwiazanie i `zasadyStrona` pozwalają porównać odpowiedź z kluczem CKE. Punkty pochodzą z arkusza, a rozbieżności z kluczem i stroną tytułową trafiają do `ostrzezenia`.
+
+## Kontrola i ograniczenia
+
+- `npm run kontrola` sprawdza zgodność indeksu z arkuszami, punkty, odsyłacze do pytań i kluczy, zakresy krojów, obrazy i wzory KaTeX. Ostrzeżenia importu oraz podejrzanie długie odpowiedzi są liczone obok błędów.
+- Tabele w źródłach, wielokolumnowe teksty i zapis matematyczny w PDF bywają niejednoznaczne. Rozwiązanie do samooceny może wtedy wymagać otwarcia wskazanej strony klucza, np. gdy klucz pokazuje wykres albo wzór strukturalny.
+- Podpunkt z odpowiedzią rysunkową zawiera `rysowanie: { obraz: { src, szer, wys } }`. Analizujemy polecenie i położenie figury w PDF. Przy tworzeniu nowego wykresu szukamy osi lub siatki za poleceniem. Płótno zastępuje wykorzystany blok rysunku we własnym podpunkcie, a figury źródłowe pozostają dostępne w treści. `rysowanie.json` pozwala wybrać ręcznie sprawdzone wycinki w punktach PDF `[lewo, dół, prawo, góra]` lub figurę innego fragmentu. `kontrola` dekoduje osadzone PNG/WebP, porównuje wymiary i sprawdza kontrast. Klucz pytania służy nadal do oceny.
+- Regresję należy porównać z kopią `data/arkusze-przed`. Dane z kodem sprzed rozszerzenia i dane po rozszerzeniu powinny mieć takie same identyfikatory, zadania, pytania i klucze dla wcześniejszych 47 arkuszy.
+
+## Podgląd importu i wgrywanie
+
+Polecenia do podglądu, uruchamiane z katalogu głównego:
+
+~~~bash
+node services/arkusze/src/podglad.js <plik.pdf> [numer-zadania]
+node services/arkusze/src/podglad-klucz.js <plik.pdf>
+node services/arkusze/src/podglad-docx.js <plik.docx> [numery-zadań]
+node services/arkusze/src/zrzut.js <plik.pdf>
+~~~
+
+`npm run wgraj` wczytuje wygenerowany indeks i pliki JSON do tabeli sheets. Dla stagingu ustaw `SEDNO_DB=sb-sedno-dev-db`. `npm run wgraj -- informatyka` ogranicza wgrywanie do pasujących arkuszy.
