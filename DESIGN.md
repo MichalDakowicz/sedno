@@ -257,7 +257,7 @@ Krótko, spokojnie i nigdy kosztem działania. Tokeny w `tokens.css` (`--ruch-*`
 | `--ruch-krzywa` | `cubic-bezier(0.2, 0, 0, 1)` | zwykła zmiana stanu |
 | `--ruch-sprezyna` | `linear()` sprężyny (tłumienie 0,62, ok. 8% przestrzelenia); zapas `cubic-bezier(0.3, 1.35, 0.5, 1)` | to, co „ląduje”: zaznaczenie, gałka, kafel po werdykcie |
 
-- Do ok. 400 ms. Wyjątki tylko dla Pestki: skok (0,7 s), szarpanie w „o” (0,65 s) i krople (0,75 s).
+- Do ok. 400 ms. Wyjątki tylko dla Pestki: skok (0,7 s), szarpanie w „o” (0,65 s) i krople (0,75 s), oraz kształt nawigacji (niżej): ok. 1,6 s na otwarcie panelu, bo ma być widać, jak pasek dociska się do boku i się rozlewa.
 - Tylko `transform` i `opacity`, gdzie się da.
 - Kliknięcie działa od razu. Ruch nigdy nie opóźnia działania.
 - Każdy ruch ma wersję bez ruchu. Decyduje jedno miejsce, `mniejRuchu()`: ustawienie „Mniej ruchu” (`data-mniej-ruchu` na `<html>`), a bez niego `prefers-reduced-motion`; w React `useMniejRuchu()`. `global.css` wyłącza wtedy wszystkie animacje i przejścia.
@@ -270,6 +270,7 @@ Wzorce:
 - **Wciśnięcie:** przyciski, pigułki i kafle odpowiedzi zmniejszają się (0,96 / 0,98) i wracają sprężyną.
 - **Zaznaczenie:** gałka przełącznika i zaznaczenie pigułek oraz menu (`Plywak`) przesuwają się sprężyną.
 - **Werdykt w rundzie:** układ pytania zostaje, kafle zmieniają stan w miejscu (dobry podskakuje, zły drży), werdykt i Pestka wsuwają się pod spodem; następne pytanie wjeżdża.
+- **Kształt nawigacji:** panel boczny nie jest osobnym pudełkiem, tylko wylewa się z paska nawigacji (`components/sterKsztaltu.ts`, warstwa `Ksztalt.tsx`). Pasek w całości jedzie do boku ekranu, rozlewa się w górę do krawędzi i w tej samej chwili spływa z niego w dół panel; na stykach z krawędzią i z panelem są wklęsłe zaokrąglenia, całość ma jeden cień. Panel Pestki wylewa się z prawej i na szerokim ekranie (od 1100 px) rozsuwa stronę, która dalej działa; węższy przykrywa ją zasłoną. Pełny ekran rozmowy: panel rozlewa się na całą stronę, pasek przelewa się po górnej krawędzi na lewo i wylewa kolumnę historii (od 900 px). Zamknięcie pełnego ekranu idzie prosto do zamkniętego: historia wsiąka w pasek, rozmowa kurczy się w niego, pasek wraca na środek. Makieta: `notes/makieta-nav-sidebar.html`.
 - **Rozwinięcie:** `details` animuje wysokość przez `::details-content`, gdzie przeglądarka to umie.
 - **Przeciąganie:** w układzie pulpitu (`views/UkladPulpitu.tsx`) widget idzie za wskaźnikiem, sąsiedzi przesuwają się (FLIP), po puszczeniu dociąga z prędkością rzutu. Suwak liter w arkuszu da się przeciągnąć i dociąga do najbliższej litery.
 
