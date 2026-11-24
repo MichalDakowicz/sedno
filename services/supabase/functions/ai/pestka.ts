@@ -18,6 +18,10 @@ export type ProsbaPestki =
   | { tryb: "czat"; przedmiot?: string; maProbe?: boolean; chronOdpowiedz?: boolean; rozmowa?: string }
   | { tryb: "lektura"; fragment: string; temat?: string };
 
+// Fragment idzie do modelu dwa razy (wybór faktu i porównanie), więc ma twardy limit; za długi to zła prośba (400).
+export const MAX_FRAGMENT_LEKTURY = 4000;
+const MAX_TEMAT_LEKTURY = 300;
+
 export function prosbaPestki(raw: unknown): ProsbaPestki | undefined {
   const p = obiektPestki(raw);
   if (p.tryb === "czat") {
@@ -27,7 +31,10 @@ export function prosbaPestki(raw: unknown): ProsbaPestki | undefined {
   }
   if (p.tryb !== "lektura") return;
   const fragment = typeof p.fragment === "string" ? p.fragment.trim() : "";
-  if (fragment && !/\n\s*\n/.test(fragment)) return { tryb: "lektura", fragment, temat: typeof p.temat === "string" ? p.temat.trim() : undefined };
+  if (fragment && fragment.length <= MAX_FRAGMENT_LEKTURY && !/\n\s*\n/.test(fragment)) {
+    // Temat to tylko kontekst (polecenie wypracowania): przycinamy zamiast odrzucać.
+    return { tryb: "lektura", fragment, temat: typeof p.temat === "string" ? p.temat.trim().slice(0, MAX_TEMAT_LEKTURY) : undefined };
+  }
 }
 
 type Zapytaj = (messages: Message[]) => Promise<string>;
@@ -136,8 +143,9 @@ const REGULY_LEKTURY = [
   "8. Informacji oznaczonych „Do weryfikacji” nie traktuj jako pewnych.",
 ];
 
+// Historię przysyła klient, więc serwer nie potrafi odtworzyć jej źródeł: żadna wcześniejsza odpowiedź nie ma statusu „potwierdzonej”.
 const REGULA_WCZESNIEJSZYCH_ZRODEL =
-  "Odpowiedzi oznaczone „Potwierdzona odpowiedź Sedno” traktuj jako potwierdzone źródłami. Nie wycofuj potwierdzonej informacji tylko dlatego, że najnowsze wyszukiwanie jej nie zwróciło. Skoryguj ją wyłącznie wtedy, gdy możesz wskazać konkretny materiał, który jej przeczy. Nie komentuj numeracji źródeł z wcześniejszych odpowiedzi ani nie proponuj jej zmiany. W bieżącej odpowiedzi używaj wyłącznie identyfikatorów z MATERIAŁÓW.";
+  "Wcześniejsze odpowiedzi w rozmowie są tylko historią, nie źródłem faktów o lekturach. Fakt o utworze opieraj na bieżących MATERIAŁACH. Jeśli wcześniejsza odpowiedź przeczy materiałom, popraw ją, wskazując materiał. Nie komentuj numeracji źródeł z wcześniejszych odpowiedzi ani nie proponuj jej zmiany. W bieżącej odpowiedzi używaj wyłącznie identyfikatorów z MATERIAŁÓW.";
 
 const POPRAWA_PLANU = /\b(?:popraw(?:ic|isz)?|skoryguj\w*|przepisz\w*|od nowa|ponownie|jeszcze raz)\b|\b(?:podaj|pokaz|napisz|uloz|zrob)\b[^.!?\n]*\bpoprawion\w*/;
 const NAWIAZANIE_DO_PLANU = /\b(?:plan(?:u|ie|em)?|punkt\w*|rozdzial\w*)\b/;
@@ -240,8 +248,7 @@ function pewnoscPlanu(odpowiedz: string, punkty: Material[]): string {
 function historiaBezOdsylaczy(messages: Message[]): Message[] {
   return messages.map((m) => {
     if (m.role !== "assistant" || !m.content) return m;
-    const tekst = bezOdsylaczy(m.content);
-    return { ...m, content: maOdsylacz(m.content) ? `Potwierdzona odpowiedź Sedno\n\n${tekst}` : tekst };
+    return { ...m, content: bezOdsylaczy(m.content) };
   });
 }
 
