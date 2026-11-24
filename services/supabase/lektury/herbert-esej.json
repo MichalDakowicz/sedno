@@ -1,0 +1,25 @@
+{
+  "id": "herbert-esej",
+  "wydarzenia": [],
+  "postacie": [],
+  "motywy": [
+    { "motyw": "podróż do początków sztuki", "przyklad": "Herbert przedstawia wejście do groty i oczekiwanie w ciemności przed pierwszym ujrzeniem malowideł.", "miejsce": "Lascaux, wejście do jaskini" },
+    { "motyw": "obserwacja i wyobraźnia", "przyklad": "Elektryczne oświetlenie skłania eseistę do wyobrażenia sobie, jak płomień mógł zmieniać odbiór sylwetek zwierząt.", "miejsce": "Lascaux, opis oświetlenia" },
+    { "motyw": "ruch w obrazie", "przyklad": "Herbert opisuje zwierzęta ukazane w biegu i zestawia układ obrazów ze zmianami planu w filmie.", "miejsce": "Lascaux, opis malowideł" },
+    { "motyw": "barwa i tworzywo", "przyklad": "Autor zwraca uwagę na ziemiste barwy, biel wapienia i trwałość malowideł, które zestawia z późniejszym malarstwem.", "miejsce": "Lascaux, opis malowideł" },
+    { "motyw": "perspektywa myśliwych", "przyklad": "Herbert łączy energię scen zwierzęcych z doświadczeniem ludzi polujących i zestawia je z obrazami spokojnego życia pasterskiego.", "miejsce": "Lascaux, opis Sali Byków" },
+    { "motyw": "dziedzictwo i pamięć", "przyklad": "Po wyjściu z groty Herbert odnosi swoje poczucie dziedziczenia kultury do czasów znacznie wcześniejszych od Grecji i Rzymu.", "miejsce": "Lascaux, po wyjściu z jaskini" }
+  ],
+  "utwory": [
+    { "tytul": "Lascaux", "miejsce": "Barbarzyńca w ogrodzie, esej Lascaux", "opis": "Relacja z wizyty w jaskini łączy opis prehistorycznego malarstwa z refleksją nad tym, jak daleko sięga dziedzictwo współczesnego odbiorcy." }
+  ],
+  "zrodla": [
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE pozostawia wybór eseju w grupie wskazanych autorów." },
+    { "url": "https://www.podn.slupsk.pl/files/userfiles/Anna%20Kreft/Zadania%20etap%20kwalifikacyjny/Zadania%20PG/PG_kompetencje_spo%C5%82eczne_zadania_19_20.pdf", "rodzaj": "utwór", "co": "Materiał ODN w Słupsku przytacza fragment Lascaux z opisem Sali Byków, barw i światła." },
+    { "url": "https://journals.pan.pl/Content/133131/PDF/6_RUCH_LITERACKI_1_2003_Kozicka_NADE.pdf", "rodzaj": "opracowanie", "co": "Dorota Kozicka omawia wejście do groty oraz refleksję o dziedzictwie po wyjściu." },
+    { "url": "https://zpe.gov.pl/pdf/PIMOTxkcS", "rodzaj": "opracowanie", "co": "Materiał edukacyjny wskazuje Lascaux w tomie Barbarzyńca w ogrodzie i wiąże eseje z tradycją europejską." }
+  ],
+  "do_weryfikacji": [
+    "Lascaux jest przykładem katalogowym; dokument CKE nie wskazuje obowiązkowego tytułu eseju Herberta."
+  ]
+}

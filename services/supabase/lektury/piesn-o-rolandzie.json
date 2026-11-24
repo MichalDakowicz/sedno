@@ -1,0 +1,66 @@
+{
+  "id": "piesn-o-rolandzie",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "strofy I–II", "kto": ["Karol Wielki", "Marsyl"], "gdzie": "Hiszpania, Saragossa", "opis": "Po latach podbojów Karola Wielkiego Saragossa pozostaje w rękach króla Marsyla."},
+    {"nr": 2, "miejsce": "strofy III–VII", "kto": ["Marsyl", "Blankandryn", "posłowie"], "gdzie": "Saragossa", "opis": "Za radą Blankandryna Marsyl posyła do Karola poselstwo z darami i zwodniczą obietnicą podporządkowania."},
+    {"nr": 3, "miejsce": "strofy VIII–XVII", "kto": ["Karol Wielki", "Blankandryn", "Roland", "Ganelon", "Naim"], "gdzie": "obóz Karola", "opis": "Posłowie przekazują propozycję Marsyla, a w radzie Karola Roland przestrzega przed podstępem i Ganelon nakłania do przyjęcia warunków."},
+    {"nr": 4, "miejsce": "strofy XX–XXV", "kto": ["Roland", "Ganelon", "Karol Wielki"], "gdzie": "obóz Karola", "opis": "Roland wskazuje Ganelona jako posła do Marsyla, a oburzony ojczym grozi mu zemstą i upuszcza otrzymaną rękawicę."},
+    {"nr": 5, "miejsce": "strofy XXVIII–XXXI", "kto": ["Ganelon", "Blankandryn"], "gdzie": "droga do Saragossy", "opis": "Ganelon i Blankandryn w drodze zobowiązują się wspólnie doprowadzić do śmierci Rolanda."},
+    {"nr": 6, "miejsce": "strofy XLIII–XLVI", "kto": ["Ganelon", "Marsyl"], "gdzie": "Saragossa", "opis": "Ganelon radzi Marsylowi zaatakować tylną straż w górach i przysięga, że wyda Rolanda."},
+    {"nr": 7, "miejsce": "strofy LIV–LV", "kto": ["Ganelon", "Karol Wielki"], "gdzie": "obóz Karola i droga ku Francji", "opis": "Ganelon wraca z kluczami, darami i zakładnikami, a Karol uznaje wyprawę za zakończoną i rusza ku Francji."},
+    {"nr": 8, "miejsce": "strofy LVIII–LXIV", "kto": ["Karol Wielki", "Ganelon", "Roland", "Oliwier", "Turpin"], "gdzie": "przesmyki w drodze do Francji", "opis": "Na wniosek Ganelona Roland obejmuje dowództwo tylnej straży, do której przyłączają się Oliwier, Turpin i inni rycerze."},
+    {"nr": 9, "miejsce": "strofy LXXXII–LXXXVII", "kto": ["Oliwier", "Roland", "wojsko Marsyla"], "gdzie": "Ronsewal", "opis": "Oliwier dostrzega przewagę przeciwnika i prosi Rolanda, aby wezwał Karola dźwiękiem rogu, lecz Roland odmawia ze względu na honor."},
+    {"nr": 10, "miejsce": "strofy LXXXVIII–XCII", "kto": ["Roland", "Oliwier", "Turpin", "Frankowie"], "gdzie": "Ronsewal", "opis": "Roland zagrzewa swoich ludzi do boju, a Turpin udziela im rozgrzeszenia, zanim obie armie się zetrą."},
+    {"nr": 11, "miejsce": "strofy CIV–CX", "kto": ["Roland", "Oliwier", "Turpin", "tylna straż"], "gdzie": "Ronsewal", "opis": "Roland walczy Durendalem, a Oliwier i Turpin wspierają go w odparciu kolejnych natarć."},
+    {"nr": 12, "miejsce": "strofy CXIII–CXXVIII", "kto": ["Marsyl", "Roland", "Oliwier", "Frankowie"], "gdzie": "Ronsewal", "opis": "Marsyl przybywa z następnym wojskiem, a Roland widzi rosnącą liczbę poległych wśród własnych ludzi."},
+    {"nr": 13, "miejsce": "strofy CXXVIII–CXXXIV", "kto": ["Roland", "Oliwier", "Turpin", "Karol Wielki"], "gdzie": "Ronsewal i droga głównego wojska", "opis": "Gdy Roland chce wezwać pomoc, Oliwier wypomina mu wcześniejszą odmowę, lecz za radą Turpina Roland dmie w róg z taką siłą, że pęka mu skroń."},
+    {"nr": 14, "miejsce": "strofy CXXXIV–CXXXVIII", "kto": ["Karol Wielki", "Ganelon", "Naim"], "gdzie": "droga głównego wojska", "opis": "Karol słyszy róg, a mimo zaprzeczeń Ganelona zawraca z wojskiem i każe zatrzymać posła."},
+    {"nr": 15, "miejsce": "strofy CXLII–CXLIII", "kto": ["Roland", "Marsyl"], "gdzie": "Ronsewal", "opis": "Roland odcina Marsylowi prawą dłoń, a ranny król ucieka z pola walki."},
+    {"nr": 16, "miejsce": "strofy CXLV–CLI", "kto": ["Oliwier", "Marganis", "Roland"], "gdzie": "Ronsewal", "opis": "Śmiertelnie ranny Oliwier omyłkowo uderza Rolanda, otrzymuje jego przebaczenie i umiera po modlitwie."},
+    {"nr": 17, "miejsce": "strofy CLV–CLXVII", "kto": ["Turpin", "Roland", "polegli rycerze"], "gdzie": "Ronsewal", "opis": "Ranny Turpin błogosławi poległych, których przynosi Roland, i sam umiera po próbie przyniesienia wody towarzyszowi."},
+    {"nr": 18, "miejsce": "strofy CLXX–CLXXIII", "kto": ["Roland"], "gdzie": "Ronsewal, przy skale", "opis": "Roland odpiera próbę zabrania swego miecza i bez skutku próbuje rozbić Durendala o skałę."},
+    {"nr": 19, "miejsce": "strofy CLXXIV–CLXXVI", "kto": ["Roland", "święty Gabriel", "aniołowie"], "gdzie": "Ronsewal, pagórek pod sosną", "opis": "Umierający Roland kładzie pod sobą róg i miecz, zwraca się ku Hiszpanii, żałuje za grzechy i oddaje Bogu rękawicę, którą przyjmuje Gabriel."},
+    {"nr": 20, "miejsce": "strofy CLXXVII–CLXXXI", "kto": ["Karol Wielki", "Naim", "Frankowie", "uciekający wojownicy Marsyla"], "gdzie": "Ronsewal i brzegi Ebro", "opis": "Karol zastaje pole pełne zabitych i rusza w pościg, a zatrzymanie słońca pozwala jego wojsku dogonić uciekających nad Ebro."},
+    {"nr": 21, "miejsce": "strofy CLXXXVIII–CCII", "kto": ["Baligant", "Marsyl"], "gdzie": "Ebro i Saragossa", "opis": "Przybywa emir Baligant, któremu ranny Marsyl przekazuje Saragossę i swoje ziemie."},
+    {"nr": 22, "miejsce": "strofy CCV–CCXIII", "kto": ["Karol Wielki", "Roland", "Oliwier", "Turpin", "Godfryd"], "gdzie": "Ronsewal", "opis": "Karol odnajduje ciało Rolanda i zarządza pogrzeb poległych, a ciała Rolanda, Oliwiera i Turpina zachowuje do przewiezienia."},
+    {"nr": 23, "miejsce": "strofy CCXIV–CCXXXVIII", "kto": ["Karol Wielki", "Baligant", "posłowie", "rycerze"], "gdzie": "okolice Ronsewal", "opis": "Posłowie Baliganta zapowiadają bitwę, a obaj władcy szykują wojska do starcia."},
+    {"nr": 24, "miejsce": "strofy CCLIX–CCLXIV", "kto": ["Karol Wielki", "Baligant", "święty Gabriel"], "gdzie": "pole bitwy", "opis": "Ranny Karol odzyskuje siły po słowach Gabriela, zabija Baliganta i wojska emira ustępują."},
+    {"nr": 25, "miejsce": "strofy CCLXV–CCLXVII", "kto": ["Karol Wielki", "Bramimonda", "Frankowie"], "gdzie": "Saragossa, Bordeaux i Blaye", "opis": "Karol zdobywa Saragossę, zabiera Bramimondę do Francji i grzebie w Blaye Rolanda, Oliwiera oraz Turpina."},
+    {"nr": 26, "miejsce": "strofy CCLXVIII–CCLXIX", "kto": ["Karol Wielki", "Oda", "Roland"], "gdzie": "Akwizgran, pałac i klasztor", "opis": "Oda umiera po otrzymaniu wiadomości o śmierci Rolanda, a Karol poleca ją godnie pochować."},
+    {"nr": 27, "miejsce": "strofy CCLXX–CCLXXIX", "kto": ["Karol Wielki", "Ganelon", "Tiery", "Pinabel", "baronowie"], "gdzie": "Akwizgran, sąd", "opis": "Karol stawia Ganelona przed sądem, a sprzeczne stanowiska Tiery’ego i Pinabela prowadzą do pojedynku."},
+    {"nr": 28, "miejsce": "strofy CCLXXX–CCLXXXIX", "kto": ["Tiery", "Pinabel", "Ganelon", "Karol Wielki"], "gdzie": "Akwizgran i pole pod miastem", "opis": "Tiery zabija Pinabela, po czym Ganelon zostaje stracony, a jego krewni, którzy ręczyli za Pinabela, zostają powieszeni."},
+    {"nr": 29, "miejsce": "strofa CCXC", "kto": ["Bramimonda", "Karol Wielki", "biskupi"], "gdzie": "Akwizgran", "opis": "Bramimonda przyjmuje chrzest i otrzymuje imię Julianna."},
+    {"nr": 30, "miejsce": "strofa CCXCI", "kto": ["Karol Wielki", "święty Gabriel", "król Wiwian"], "gdzie": "Akwizgran, komnata Karola", "opis": "Gabriel nakazuje Karolowi ruszyć na pomoc oblężonemu Wiwianowi, a cesarz płacze i skarży się na trudy swego życia."}
+  ],
+  "postacie": [
+    {"imie": "Roland", "odmiany": ["Roland", "Rolanda", "Rolandowi", "Rolandem", "Rolandzie", "hrabia Roland"], "rola": "dowódca tylnej straży, właściciel miecza Durendala i rogu", "relacje": "siostrzeniec Karola, pasierb Ganelona, druh Oliwiera, narzeczony Ody", "miejsca": ["strofy XX–XXV", "strofy LXXXII–LXXXVIII", "strofy CLXXIV–CLXXVI"]},
+    {"imie": "Karol Wielki", "odmiany": ["Karol", "Karola", "Karolowi", "Karolem", "Karola Wielkiego", "cesarz Karol"], "rola": "władca Franków, prowadzi podboje i odpowiada na klęskę tylnej straży", "relacje": "wuj i senior Rolanda, przeciwnik Marsyla i Baliganta", "miejsca": ["strofy I–II", "strofy CLXXVII–CLXXXI", "strofa CCXCI"]},
+    {"imie": "Oliwier", "odmiany": ["Oliwier", "Oliwiera", "Oliwierowi", "Oliwierem", "Oliwierze"], "rola": "rycerz tylnej straży, ocenia liczebność przeciwnika i nawołuje do wezwania pomocy", "relacje": "przyjaciel Rolanda, śmiertelnie raniony przez Marganisa", "miejsca": ["strofy LXXXII–LXXXVII", "strofy CXLV–CLI"]},
+    {"imie": "Ganelon", "odmiany": ["Ganelon", "Ganelona", "Ganelonowi", "Ganelonem", "Ganelonie"], "rola": "poseł Karola, spiskuje przeciw Rolandowi i zostaje skazany", "relacje": "ojczym Rolanda, sprzymierza się z Marsylem i Blankandrynem", "miejsca": ["strofy XX–XXV", "strofy XLIII–XLVI", "strofy CCLXX–CCLXXXIX"]},
+    {"imie": "Turpin", "odmiany": ["Turpin", "Turpina", "Turpinowi", "Turpinem", "arcybiskup Turpin"], "rola": "arcybiskup i walczący członek tylnej straży", "relacje": "towarzyszy Rolandowi i Oliwierowi, udziela rozgrzeszenia Frankom", "miejsca": ["strofy LXXXVIII–XCII", "strofy CLV–CLXVII"]},
+    {"imie": "Marsyl", "odmiany": ["Marsyl", "Marsyla", "Marsylowi", "Marsylem", "król Marsyl"], "rola": "władca Saragossy, organizuje zasadzkę i walczy w Ronsewal", "relacje": "słucha rady Blankandryna, zawiera układ z Ganelonem, przekazuje ziemie Baligantowi", "miejsca": ["strofy II–VII", "strofy XLIII–XLVI", "strofa CCII"]},
+    {"imie": "Blankandryn", "odmiany": ["Blankandryn", "Blankandryna", "Blankandrynowi", "Blankandrynem"], "rola": "doradca króla Saragossy, przewodzi poselstwu", "relacje": "służy Marsylowi i porozumiewa się z Ganelonem", "miejsca": ["strofy III–IX", "strofy XXVIII–XXXI"]},
+    {"imie": "Baligant", "odmiany": ["Baligant", "Baliganta", "Baligantowi", "Baligantem", "emir Baligant"], "rola": "emir przybywający na pomoc Marsylowi", "relacje": "przejmuje ziemie Marsyla, ginie z ręki Karola", "miejsca": ["strofy CLXXXVIII–CCII", "strofy CCLIX–CCLXIV"]},
+    {"imie": "Bramimonda", "odmiany": ["Bramimonda", "Bramimondy", "Bramimondę", "Bramimondą", "Julianna"], "rola": "królowa Saragossy, trafia do Francji i przyjmuje tam chrzest", "relacje": "żona Marsyla, branka Karola", "miejsca": ["strofy CCLXV–CCLXVII", "strofa CCXC"]},
+    {"imie": "Oda", "odmiany": ["Oda", "Ody", "Odę", "Odą"], "rola": "umiera po wiadomości o wyniku bitwy", "relacje": "narzeczona Rolanda, odrzuca propozycję małżeństwa z synem Karola", "miejsca": ["strofy CCLXVIII–CCLXIX"]},
+    {"imie": "Tiery", "odmiany": ["Tiery", "Tiery’ego", "Tiery’emu", "Tierym"], "rola": "baron popierający oskarżenie Ganelona", "relacje": "walczy z Pinabelem w pojedynku sądowym", "miejsca": ["strofy CCLXXVII–CCLXXXVII"]},
+    {"imie": "Święty Gabriel", "odmiany": ["Gabriel", "Gabriela", "Gabrielowi", "Gabrielem", "święty Gabriel"], "rola": "anioł przyjmujący rękawicę Rolanda i przekazujący nakazy Karolowi", "relacje": "towarzyszy umierającemu Rolandowi, wspiera Karola w pojedynku i wraca w finale", "miejsca": ["strofa CLXXVI", "strofy CCLXI–CCLXII", "strofa CCXCI"]}
+  ],
+  "motywy": [
+    {"motyw": "honor rycerski i roztropność", "przyklad": "Oliwier chce zawczasu sprowadzić pomoc, lecz Roland uważa wezwanie za ujmę na honorze. Po stratach Oliwier wypomina mu wcześniejszą decyzję.", "miejsce": "strofy LXXXII–LXXXVIII i CXXVIII–CXXXIII"},
+    {"motyw": "wierność seniorowi", "przyklad": "Roland nakłania rycerzy do zniesienia wszelkich trudów w służbie Karolowi.", "miejsce": "strofa LXXXVIII", "cytat": "Dla swego pana godzi się ścierpieć wielkie niedole"},
+    {"motyw": "zdrada i kara", "przyklad": "Ganelon przysięga, że wyda Rolanda, a wynik pojedynku sądowego otwiera drogę do skazania go za zdradę.", "miejsce": "strofy XLIII–XLVI i CCLXXXVI–CCLXXXIX"},
+    {"motyw": "przyjaźń i przebaczenie", "przyklad": "Oślepiony przez ranę Oliwier bierze Rolanda za wroga i uderza go. Roland wybacza druhowi, a po jego śmierci go opłakuje.", "miejsce": "strofy CXLIX–CLI"},
+    {"motyw": "śmierć chrześcijańskiego rycerza", "przyklad": "Roland układa pod sobą miecz i róg, prosi o przebaczenie i ofiarowuje rękawicę. Gabriel przyjmuje ten gest, a aniołowie unoszą duszę rycerza.", "miejsce": "strofy CLXXIV–CLXXVI"},
+    {"motyw": "miecz i róg w opowieści o Rolandzie", "przyklad": "Dźwięk rogu dociera do Karola, a przed śmiercią Roland próbuje bez skutku rozbić Durendala, aby nie utracić nad nim pieczy.", "miejsce": "strofy CXXXIV i CLXX–CLXXIV"},
+    {"motyw": "boska pomoc i obowiązek władcy", "przyklad": "Słońce zatrzymuje się podczas pościgu Karola, ale w ostatniej scenie Gabriel wzywa zmęczonego cesarza do kolejnej wyprawy.", "miejsce": "strofy CLXXIX–CLXXX i CCXCI"},
+    {"motyw": "żałoba i pochówek", "przyklad": "Karol opłakuje siostrzeńca, zarządza pogrzeb poległych, a Rolanda i jego dwóch towarzyszy grzebie po powrocie do Francji.", "miejsce": "strofy CCV–CCXIII i CCLXVII–CCLXIX"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/piesn-o-rolandzie/", "rodzaj": "utwór", "co": "Tekst TXT z API Wolnych Lektur w przekładzie Tadeusza Boya-Żeleńskiego. Sprawdzono strofy od poselstwa Marsyla po ostatnie wezwanie Gabriela oraz dosłowną zgodność cytatu."}
+  ],
+  "do_weryfikacji": [
+    "Katalog podaje fragmenty bez zamkniętej listy miejsc w tekście. Plan obejmuje całą pieśń w numeracji Wolnych Lektur."
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "id": "kronika-polska",
+  "wydarzenia": [],
+  "postacie": [
+    {
+      "imie": "Popiel",
+      "odmiany": [
+        "Popiela",
+        "Popielowi",
+        "Popielem",
+        "Koszysko"
+      ],
+      "rola": "książę w Gnieźnie, który wyprawia ucztę dla swoich synów i odpędza dwóch obcych gości",
+      "relacje": "ojciec dwóch synów, poprzednik rodu Piastów, wyparty przez Siemowita",
+      "miejsca": [
+        "Gniezno"
+      ]
+    },
+    {
+      "imie": "Piast",
+      "odmiany": [
+        "Piasta",
+        "Piastowi",
+        "Piastem",
+        "Chościska"
+      ],
+      "rola": "ubogi oracz (kmieć), który gościnnie przyjmuje dwóch pielgrzymów i zostaje protoplastą dynastii",
+      "relacje": "syn Chościska, mąż Rzepki, ojciec Siemowita",
+      "miejsca": [
+        "Gniezno"
+      ]
+    },
+    {
+      "imie": "Rzepka",
+      "odmiany": [
+        "Rzepki",
+        "Rzepce",
+        "Rzepką"
+      ],
+      "rola": "żona Piasta, współgospodyni, która przyjmuje gości",
+      "relacje": "żona Piasta",
+      "miejsca": [
+        "Gniezno"
+      ]
+    },
+    {
+      "imie": "Siemowit",
+      "odmiany": [
+        "Siemowita",
+        "Siemowitowi",
+        "Siemowitem"
+      ],
+      "rola": "syn Piasta, wybrany księciem Polski; usuwa Popiela",
+      "relacje": "syn Piasta, ojciec Lestka",
+      "miejsca": [
+        "Gniezno"
+      ]
+    },
+    {
+      "imie": "Mieszko I",
+      "odmiany": [
+        "Mieszka",
+        "Mieszkowi",
+        "Mieszkiem",
+        "Mieszku"
+      ],
+      "rola": "pierwszy z imieniem Mieszko, urodzony niewidomy, który przejrzał w siódmym roku życia; przyjmuje chrzest dzięki Dąbrówce",
+      "relacje": "syn Siemomysła, mąż Dąbrówki, ojciec Bolesława Chrobrego",
+      "miejsca": [
+        "Polska"
+      ]
+    },
+    {
+      "imie": "Dąbrówka",
+      "odmiany": [
+        "Dąbrówki",
+        "Dąbrówce",
+        "Dąbrówką"
+      ],
+      "rola": "czeska księżniczka chrześcijańska; wychodzi za Mieszka pod warunkiem przyjęcia przez niego wiary",
+      "relacje": "żona Mieszka I, matka Bolesława",
+      "miejsca": [
+        "Czechy",
+        "Polska"
+      ]
+    },
+    {
+      "imie": "Bolesław Chrobry",
+      "odmiany": [
+        "Bolesława Chrobrego",
+        "Bolesławowi",
+        "Bolesławem",
+        "Chrobry"
+      ],
+      "rola": "pierwszy Bolesław, potężny władca, który przyjmuje cesarza Ottona, zakłada kościoły i prowadzi wojny",
+      "relacje": "syn Mieszka I i Dąbrówki",
+      "miejsca": [
+        "Polska",
+        "Praga",
+        "Ruś"
+      ]
+    },
+    {
+      "imie": "Otto (cesarz)",
+      "odmiany": [
+        "Ottona",
+        "Ottonowi",
+        "Ottonem",
+        "cesarz",
+        "cesarza"
+      ],
+      "rola": "cesarz rzymski, który przybywa do grobu św. Wojciecha i podziwia świetność dworu Bolesława",
+      "relacje": "gość Bolesława Chrobrego",
+      "miejsca": [
+        "Gniezno (grób św. Wojciecha)"
+      ]
+    },
+    {
+      "imie": "Bolesław Krzywousty (trzeci)",
+      "odmiany": [
+        "Bolesława trzeciego",
+        "Bolesławowi",
+        "Bolesławem"
+      ],
+      "rola": "bohater księgi wtórej i trzeciej: wojny z Pomorzanami, Zbigniewem i Czechami; wyprawy kołobrzeska i inne",
+      "relacje": "syn Władysława Hermana, brat przyrodni Zbigniewa",
+      "miejsca": [
+        "Polska",
+        "Pomorze"
+      ]
+    },
+    {
+      "imie": "Zbigniew",
+      "odmiany": [
+        "Zbigniewa",
+        "Zbigniewowi",
+        "Zbigniewem"
+      ],
+      "rola": "starszy brat Bolesława, przeciwnik, który wchodzi w zmowy z wrogami",
+      "relacje": "brat przyrodni Bolesława",
+      "miejsca": [
+        "Polska"
+      ]
+    }
+  ],
+  "motywy": [
+    {
+      "motyw": "gościnność nagrodzona przez Boga",
+      "przyklad": "Biedny oracz Piast przyjmuje dwóch obcych, którzy zostali odpędzeni z uczty Popiela; cudownie rośnie jedzenie, a ich syn Siemowit zostaje księciem.",
+      "miejsce": "Księga I, rozdz. 1–3"
+    },
+    {
+      "motyw": "pokora i prostota wywyższone, pycha ukarana",
+      "przyklad": "Popiel wyprawia ucztę i odpędza gości, a potem ginie w drewnianej wieży z zębów myszy, podczas gdy rodzina Piasta obejmuje władzę.",
+      "miejsce": "Księga I, rozdz. 1–3"
+    },
+    {
+      "motyw": "cud przejrzenia Mieszka i zapowiedź losu Polski",
+      "przyklad": "W siódme urodziny niewidomy Mieszko odzyskuje wzrok, a starszyzna tłumaczy, że to oznacza, iż Polska, dotąd „ślepa”, będzie wywyższona.",
+      "miejsce": "Księga I, rozdz. 4"
+    },
+    {
+      "motyw": "chrzest Polski przez małżeństwo z chrześcijanką",
+      "przyklad": "Dąbrówka godzi się na ślub dopiero, gdy Mieszko zrezygnuje z wielożeństwa i przyjmie chrzest.",
+      "miejsce": "Księga I, rozdz. 5"
+    },
+    {
+      "motyw": "wielkość i splendor władcy (Bolesław Chrobry)",
+      "przyklad": "Cesarz Otto, zobaczywszy dwór Bolesława, w którym złoto jest pospolite jak srebro, zdumiewa się jego bogactwem.",
+      "miejsce": "Księga I, rozdz. 6–8"
+    },
+    {
+      "motyw": "władca jako rycerz i obrońca wiary",
+      "przyklad": "Bolesław zakłada kościoły, ustanawia biskupów, a w rozdziałach księgi wtórej Krzywousty prowadzi wyprawy przeciw Pomorzanom.",
+      "miejsce": "Księga I, rozdz. 6, 11; Księga II"
+    },
+    {
+      "motyw": "wychowanie młodego rycerza (Krzywousty)",
+      "przyklad": "Autor opisuje dzieciństwo Bolesława III: zabija dzika, potem niedźwiedzia, a jako pacholę wyrusza na wyprawy.",
+      "miejsce": "Księga II, rozdz. 9–13"
+    },
+    {
+      "motyw": "zdrada i spory rodzinne o władzę",
+      "przyklad": "Zbigniew wchodzi w zmowy z wrogami przeciw Bolesławowi, a po przymierzu następuje „zdrada”.",
+      "miejsce": "Księga II, rozdz. 24; Księga III, rozdz. 32"
+    }
+  ],
+  "utwory": [
+    {
+      "tytul": "Księga I, rozdz. 1–3: Popiel, Piast, Siemowit",
+      "miejsce": "Księga I, rozdz. 1–3",
+      "opis": "Legenda o początku dynastii: uczta Popiela, goście przyjęci przez ubogiego oracza Piasta i Rzepkę, rośnie jedzenie, postrzyżyny Siemowita, a Popiel ginie z rąk myszy."
+    },
+    {
+      "tytul": "Księga I, rozdz. 4: O ślepocie Mieszka",
+      "miejsce": "Księga I, rozdz. 4",
+      "opis": "Mieszko I rodzi się niewidomy, w siódmym roku życia przejrzał; starszyzna widzi w tym zapowiedź wielkości Polski."
+    },
+    {
+      "tytul": "Księga I, rozdz. 5: Mieszko i Dąbrówka",
+      "miejsce": "Księga I, rozdz. 5",
+      "opis": "Mieszko, pogański wielożeńca, chce poślubić czeską księżniczkę Dąbrówkę; ona żąda, by przyjął chrzest, i ostatecznie chrzest Mieszka otwiera Polsce światło wiary."
+    },
+    {
+      "tytul": "Księga I, rozdz. 6–16: Bolesław Chrobry",
+      "miejsce": "Księga I, rozdz. 6–16",
+      "opis": "Panegiryczny opis panowania pierwszego Bolesława: podboje (Morawy, Czechy, Węgry, Sasi, Pomorzanie), wizyta cesarza Ottona u grobu św. Wojciecha, urządzenie kościołów, wystawność dworu i żałosny zgon."
+    },
+    {
+      "tytul": "Księga I, rozdz. 17–31: następcy Chrobrego",
+      "miejsce": "Księga I, rozdz. 17–31",
+      "opis": "Mieszko II, Kazimierz Odnowiciel (odzyskuje królestwo po wygnaniu), Bolesław Szczodry (wojny, hojność, wygnanie na Węgry), Mieszko trzeci i przygotowanie narodzin Bolesława III."
+    },
+    {
+      "tytul": "Księga II: narodziny i młodość Bolesława Krzywoustego",
+      "miejsce": "Księga II",
+      "opis": "Narodziny Bolesława, wojny z Pomorzanami, bunt Zbigniewa, dzieciństwo i pasowanie na rycerza, wojny z Morawami i Węgrami, wyprawa kołobrzeska."
+    },
+    {
+      "tytul": "Księga III: wojny Bolesława Krzywoustego",
+      "miejsce": "Księga III",
+      "opis": "Dalsze wyprawy na Pomorze, zdobycie Bytomia, przymierze i zdrada Zbigniewa; autor pisze w przedsłowiu, że jego księga ma być podstawą dla późniejszych, głębszych opracowań."
+    }
+  ],
+  "zrodla": [
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/gall-anonim-kronika-polska/",
+      "rodzaj": "utwór",
+      "co": "Pobrany tekst (tłum. Zygmunt Komarnicki); przeczytane rozdziały I, 1–6 w całości oraz spisy rozdziałów ksiąg I–III; streszczenia pozostałych rozdziałów oparte na tytułach."
+    }
+  ],
+  "do_weryfikacji": [
+    "Katalog podaje „Fragmenty” bez wykazu; lista fragmentów wymaganych na maturze nie została sprawdzona w źródle CKE.",
+    "Rozdziały I, 7–31 oraz księgi II–III przeczytane tylko na poziomie tytułów rozdziałów; opisy ogólne.",
+    "Brak cytatów, bo autorem polskiego przekładu jest Zygmunt Komarnicki i nie sprawdzono statusu praw do przekładu.",
+    "Zjazd gnieźnieński i pozostałe wydarzenia historyczne wspomniane w kronice nie zostały zweryfikowane w osobnym opracowaniu."
+  ]
+}

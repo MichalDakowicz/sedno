@@ -1,0 +1,42 @@
+{
+ "id": "wiersze-baczynskiego",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "wojna i stracone pokolenie",
+   "przyklad": "Mówiący opisuje chłopca, któremu wojna odebrała sny i dzieciństwo, a w końcu prowadzi go z bronią w noc.",
+   "miejsce": "Elegia o… [chłopcu polskim]",
+   "cytat": "Oddzielili cię, syneczku, od snów, co jak motyl drżą"
+  },
+  {
+   "motyw": "śmierć młodego żołnierza",
+   "przyklad": "Ostatnia strofa pokazuje chłopca, który przed śmiercią żegna ziemię; pytanie o kulę lub pęknięte serce zostawia wątpliwość.",
+   "miejsce": "Elegia o… [chłopcu polskim]",
+   "cytat": "Zanim padłeś, jeszcze ziemię przeżegnałeś ręką."
+  },
+  {
+   "motyw": "rozstanie z dzieciństwem",
+   "przyklad": "Pierwsze strofy opisują, jak dzieciństwo i sny chłopca zastąpiły krajobrazy pożóg i drzewa pełne wisielców.",
+   "miejsce": "Elegia o… [chłopcu polskim]"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Elegia o… [chłopcu polskim]",
+   "miejsce": "cały wiersz; data pod tekstem: 20 marca 1944",
+   "opis": "Elegia, w której mówiący zwraca się do „synka” zniszczonego przez wojnę: oddzielono go od snów, jego świat ozdobiono obrazami krwi i szubienic, a on wychodzi „z czarną bronią w noc”. Końcowa strofa pyta, czy padł od kuli, czy pękło mu serce. Wiersz mówi o straconym pokoleniu."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/baczynski-elegia-o-chlopcu-polskim/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst; cytaty i data sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Baczyński zmarł w 1944 r. (utwór w domenie publicznej); inne wiersze z wyboru (np. „Pokolenie”, „Niebo złote ci otworzę…”) nie zostały sprawdzone ani opisane.",
+  "Wybór CKE wierszy Baczyńskiego nie został sprawdzony; poza przykładem z katalogu nie ustalono listy."
+ ]
+}

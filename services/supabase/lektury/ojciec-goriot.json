@@ -1,0 +1,473 @@
+{
+ "id": "ojciec-goriot",
+ "wydarzenia": [
+  {
+   "nr": 1,
+   "miejsce": "początek powieści (ok. 0% tekstu)",
+   "kto": [
+    "pani Vauquer"
+   ],
+   "gdzie": "Paryż, ulica Neuve-Sainte-Geneviève, pensjonat Vauquer",
+   "opis": "Narrator opisuje pensjonat pani Vauquer w 1819 r., jego mieszkańców i panujące w nim ubóstwo."
+  },
+  {
+   "nr": 2,
+   "miejsce": "pierwsze rozdziały (ok. 1–3%)",
+   "kto": [
+    "Goriot",
+    "pani Vauquer"
+   ],
+   "gdzie": "pensjonat Vauquer",
+   "opis": "Ojciec Goriot, dawny kupiec, wprowadza się jako zamożny lokator, a z czasem przenosi się do coraz tańszych pokoi; mieszkańcy zaczynają go podejrzewać o ciemne sprawy."
+  },
+  {
+   "nr": 3,
+   "miejsce": "pierwsze rozdziały (ok. 3%)",
+   "kto": [
+    "Rastignac"
+   ],
+   "gdzie": "pensjonat Vauquer",
+   "opis": "Student prawa Eugeniusz de Rastignac, biedny szlachcic z prowincji, wraca do pensjonatu z balu u pani de Restaud."
+  },
+  {
+   "nr": 4,
+   "miejsce": "ok. 6–10% tekstu",
+   "kto": [
+    "Goriot",
+    "Rastignac",
+    "Vautrin",
+    "Anastazja de Restaud"
+   ],
+   "gdzie": "pensjonat Vauquer",
+   "opis": "Rastignac dostrzega, że Goriot ma do czynienia z eleganckimi damami; Vautrin przechwytuje list adresowany do Anastazji de Restaud."
+  },
+  {
+   "nr": 5,
+   "miejsce": "ok. 10–19% tekstu",
+   "kto": [
+    "Rastignac",
+    "Anastazja de Restaud",
+    "Goriot"
+   ],
+   "gdzie": "salon de Restaudów",
+   "opis": "Rastignac odwiedza Anastazję de Restaud i doznaje upokorzenia, gdy w rozmowie wymienia nazwisko Goriota."
+  },
+  {
+   "nr": 6,
+   "miejsce": "ok. 19–25% tekstu",
+   "kto": [
+    "Rastignac",
+    "wicehrabina de Beauséant"
+   ],
+   "gdzie": "salon wicehrabiny de Beauséant",
+   "opis": "Wicehrabina przyjmuje Rastignaca, kuzynkę z rodziny, i zdradza, że Goriot jest ojcem pani de Restaud i pani de Nucingen; radzi mu, jak postępować w towarzystwie."
+  },
+  {
+   "nr": 7,
+   "miejsce": "ok. 26% tekstu",
+   "kto": [
+    "Rastignac"
+   ],
+   "gdzie": "pokój Rastignaca",
+   "opis": "Rastignac pisze do rodziny z prośbą o pieniądze na wejście w świat; matka i siostry sprzedają swoje klejnoty."
+  },
+  {
+   "nr": 8,
+   "miejsce": "ok. 27% tekstu",
+   "kto": [
+    "Goriot"
+   ],
+   "gdzie": "pensjonat Vauquer",
+   "opis": "Narrator wyjaśnia, że Goriot po śmierci żony poświęcił majątek dwóm córkom, a one wyszły za bogatych mężów i odsunęły się od niego."
+  },
+  {
+   "nr": 9,
+   "miejsce": "ok. 30% tekstu",
+   "kto": [
+    "Vautrin",
+    "Rastignac"
+   ],
+   "gdzie": "pensjonat Vauquer, rozmowa w ogrodzie",
+   "opis": "Vautrin proponuje Rastignacowi układ: ma uwieść Victorine Taillefer, a on pozbędzie się jej brata, by dziewczyna odziedziczyła majątek; Rastignac odrzuca ofertę."
+  },
+  {
+   "nr": 10,
+   "miejsce": "ok. 35% tekstu",
+   "kto": [
+    "Rastignac",
+    "Delfina de Nucingen"
+   ],
+   "gdzie": "Teatr Włoski",
+   "opis": "Rastignac poznaje Delfinę de Nucingen, drugą córkę Goriota."
+  },
+  {
+   "nr": 11,
+   "miejsce": "ok. 38–45% tekstu",
+   "kto": [
+    "Goriot",
+    "Rastignac",
+    "Delfina"
+   ],
+   "gdzie": "mieszkanie Delfiny i pensjonat",
+   "opis": "Rastignac zbliża się do Delfiny, a Goriot cieszy się, że ma w nim przyjaciela i powiernika córki."
+  },
+  {
+   "nr": 12,
+   "miejsce": "ok. 48% tekstu",
+   "kto": [
+    "Gondureau",
+    "Michonneau",
+    "Poiret"
+   ],
+   "gdzie": "pensjonat Vauquer",
+   "opis": "Agent policji Gondureau zleca pannie Michonneau i Poiretowi rozpoznanie Vautrina, którego policja szuka jako zbiegłego galernika Collina."
+  },
+  {
+   "nr": 13,
+   "miejsce": "ok. 56–63% tekstu",
+   "kto": [
+    "Vautrin",
+    "Rastignac",
+    "Victorine",
+    "Taillefer"
+   ],
+   "gdzie": "pensjonat Vauquer",
+   "opis": "Vautrin realizuje swój plan: młody Taillefer ginie w pojedynku z hrabią Franchessinim, a Victorine staje się dziedziczką."
+  },
+  {
+   "nr": 14,
+   "miejsce": "ok. 64–65% tekstu",
+   "kto": [
+    "Vautrin (Collin)",
+    "Michonneau",
+    "Gondureau"
+   ],
+   "gdzie": "pensjonat Vauquer",
+   "opis": "Policja aresztuje Vautrina, który zostaje zdemaskowany jako galernik Jacques Collin; pada pytanie „Kto mnie zdradził?”."
+  },
+  {
+   "nr": 15,
+   "miejsce": "ok. 65–70% tekstu",
+   "kto": [
+    "Rastignac",
+    "Goriot",
+    "Delfina"
+   ],
+   "gdzie": "pensjonat Vauquer i paryskie salony",
+   "opis": "Po aresztowaniu Vautrina Rastignac dalej wiąże się z Delfiną, a Goriot pomaga im znaleźć mieszkanie."
+  },
+  {
+   "nr": 16,
+   "miejsce": "ok. 71–79% tekstu",
+   "kto": [
+    "Delfina",
+    "Goriot",
+    "Nucingen",
+    "Anastazja"
+   ],
+   "gdzie": "dom Delfiny i pensjonat",
+   "opis": "Córki przychodzą do Goriota po pieniądze i wsparcie w sporach majątkowych z mężami; Goriot oddaje im resztę oszczędności."
+  },
+  {
+   "nr": 17,
+   "miejsce": "ok. 87% tekstu",
+   "kto": [
+    "Rastignac"
+   ],
+   "gdzie": "Paryż",
+   "opis": "Rastignac widzi trzy wielkie wyrazy społeczeństwa: Posłuszeństwo, Walkę i Bunt, Rodzinę, Świat i Vautrina, i nie wybiera jednej drogi."
+  },
+  {
+   "nr": 18,
+   "miejsce": "ok. 88–90% tekstu",
+   "kto": [
+    "Rastignac",
+    "wicehrabina de Beauséant"
+   ],
+   "gdzie": "salon de Beauséant",
+   "opis": "Wicehrabina de Beauséant wydaje ostatni bal przed wyjazdem z Paryża, a Rastignac żegna się z nią."
+  },
+  {
+   "nr": 19,
+   "miejsce": "ok. 90–98% tekstu",
+   "kto": [
+    "Goriot",
+    "Rastignac",
+    "Bianchon"
+   ],
+   "gdzie": "pensjonat Vauquer",
+   "opis": "Goriot ciężko choruje; Rastignac i Bianchon opiekują się nim, a córki nie przychodzą."
+  },
+  {
+   "nr": 20,
+   "miejsce": "ok. 98–99% tekstu",
+   "kto": [
+    "Goriot",
+    "Anastazja",
+    "Delfina",
+    "Rastignac"
+   ],
+   "gdzie": "pokój Goriota",
+   "opis": "Goriot umiera, wołając córki; Anastazja przychodzi w chwili jego śmierci."
+  },
+  {
+   "nr": 21,
+   "miejsce": "ok. 99–100% tekstu",
+   "kto": [
+    "Rastignac",
+    "Krzysztof",
+    "Bianchon"
+   ],
+   "gdzie": "pensjonat; kościół Saint-Étienne-du-Mont; cmentarz Père-Lachaise",
+   "opis": "Pogrzeb Goriota jest skromny; na pogrzebie są tylko Rastignac i sługa Krzysztof, a w orszaku jadą puste powozy rodzin córek."
+  },
+  {
+   "nr": 22,
+   "miejsce": "zakończenie powieści (ok. 100% tekstu)",
+   "kto": [
+    "Rastignac"
+   ],
+   "gdzie": "cmentarz Père-Lachaise",
+   "opis": "Rastignac patrzy z cmentarza na Paryż i rzuca mu wyzwanie, po czym idzie na obiad do Delfiny."
+  }
+ ],
+ "postacie": [
+  {
+   "imie": "Eugeniusz de Rastignac",
+   "odmiany": [
+    "Rastignac",
+    "Rastignaca",
+    "Rastignacowi",
+    "Rastignakiem",
+    "Eugeniusz",
+    "Eugeniusza",
+    "Eugeniuszowi",
+    "student"
+   ],
+   "rola": "młody szlachcic z prowincji, student prawa w Paryżu, ambitny",
+   "relacje": "kuzyn wicehrabiny de Beauséant, kochanek Delfiny, opiekun Goriota, przeciwnik pokus Vautrina",
+   "miejsca": [
+    "pensjonat Vauquer",
+    "salon de Beauséant",
+    "cmentarz Père-Lachaise"
+   ]
+  },
+  {
+   "imie": "ojciec Goriot",
+   "odmiany": [
+    "Goriot",
+    "Goriota",
+    "Goriotowi",
+    "Goriotem",
+    "ojciec Goriot",
+    "ojca Goriota"
+   ],
+   "rola": "emerytowany kupiec, który poświęcił majątek córkom",
+   "relacje": "ojciec Anastazji de Restaud i Delfiny de Nucingen, lokator pani Vauquer",
+   "miejsca": [
+    "pensjonat Vauquer"
+   ]
+  },
+  {
+   "imie": "Vautrin (Collin)",
+   "odmiany": [
+    "Vautrin",
+    "Vautrina",
+    "Vautrinowi",
+    "Vautrinem",
+    "Collin",
+    "Collina"
+   ],
+   "rola": "zbiegły galernik ukrywający się w pensjonacie, cynik uwodzący Rastignaca perspektywą szybkiego awansu",
+   "relacje": "przeciwnik moralny Rastignaca, zdemaskowany przez policję",
+   "miejsca": [
+    "pensjonat Vauquer"
+   ]
+  },
+  {
+   "imie": "pani Vauquer",
+   "odmiany": [
+    "pani Vauquer",
+    "pani Vauquer",
+    "Vauquer"
+   ],
+   "rola": "właścicielka pensjonatu, skąpa i drobnomieszczańska",
+   "relacje": "gospodyni mieszkańców, początkowo zainteresowana Goriotem",
+   "miejsca": [
+    "pensjonat Vauquer"
+   ]
+  },
+  {
+   "imie": "Delfina de Nucingen",
+   "odmiany": [
+    "Delfina",
+    "Delfiny",
+    "Delfinie",
+    "Delfinę",
+    "pani de Nucingen"
+   ],
+   "rola": "młodsza córka Goriota, żona bankiera",
+   "relacje": "żona barona de Nucingen, kochanka Rastignaca, siostra Anastazji",
+   "miejsca": [
+    "Teatr Włoski",
+    "dom Delfiny"
+   ]
+  },
+  {
+   "imie": "Anastazja de Restaud",
+   "odmiany": [
+    "Anastazja",
+    "Anastazji",
+    "Anastazję",
+    "pani de Restaud",
+    "hrabina de Restaud"
+   ],
+   "rola": "starsza córka Goriota, żona hrabiego",
+   "relacje": "żona hrabiego de Restaud, siostra Delfiny",
+   "miejsca": [
+    "salon de Restaudów"
+   ]
+  },
+  {
+   "imie": "wicehrabina de Beauséant",
+   "odmiany": [
+    "wicehrabina de Beauséant",
+    "pani de Beauséant",
+    "wicehrabiny",
+    "wicehrabinie"
+   ],
+   "rola": "arystokratka, kuzynka Rastignaca, jego protektorka w świecie",
+   "relacje": "krewna Rastignaca, wprowadza go do salonów",
+   "miejsca": [
+    "salon de Beauséant"
+   ]
+  },
+  {
+   "imie": "Bianchon",
+   "odmiany": [
+    "Bianchon",
+    "Bianchona",
+    "Bianchonowi",
+    "Bianchonem"
+   ],
+   "rola": "student medycyny, przyjaciel Rastignaca",
+   "relacje": "mieszkaniec pensjonatu, lekarz przy łożu Goriota",
+   "miejsca": [
+    "pensjonat Vauquer"
+   ]
+  },
+  {
+   "imie": "Victorine Taillefer",
+   "odmiany": [
+    "Victorine",
+    "Victorine Taillefer",
+    "Wiktoryna",
+    "Wiktoryny"
+   ],
+   "rola": "córka bogatego Taillefera, wydziedziczona, mieszkanka pensjonatu",
+   "relacje": "obiekt planów Vautrina, po śmierci brata dziedziczka majątku",
+   "miejsca": [
+    "pensjonat Vauquer"
+   ]
+  },
+  {
+   "imie": "panna Michonneau i Poiret",
+   "odmiany": [
+    "Michonneau",
+    "Michonneau",
+    "Poiret",
+    "Poireta",
+    "Poiretowi"
+   ],
+   "rola": "mieszkańcy pensjonatu, współpracują z policją",
+   "relacje": "donosiciele, którzy przyczyniają się do aresztowania Vautrina",
+   "miejsca": [
+    "pensjonat Vauquer"
+   ]
+  },
+  {
+   "imie": "Sylwia",
+   "odmiany": [
+    "Sylwia",
+    "Sylwii",
+    "Sylwię"
+   ],
+   "rola": "kucharka w pensjonacie",
+   "relacje": "służąca pani Vauquer",
+   "miejsca": [
+    "pensjonat Vauquer"
+   ]
+  },
+  {
+   "imie": "Krzysztof",
+   "odmiany": [
+    "Krzysztof",
+    "Krzysztofa",
+    "Krzysztofowi"
+   ],
+   "rola": "sługa pensjonatu, pomaga w pogrzebie Goriota",
+   "relacje": "jedyna osoba oprócz Rastignaca na pogrzebie",
+   "miejsca": [
+    "cmentarz Père-Lachaise"
+   ]
+  }
+ ],
+ "motywy": [
+  {
+   "motyw": "pieniądz i ambicja",
+   "przyklad": "Rastignac pisze do rodziny o pieniądze, bo bez nich nie wejdzie do salonów; Vautrin proponuje mu drogę na skróty przez małżeństwo i zbrodnię.",
+   "miejsce": "ok. 26–30% tekstu"
+  },
+  {
+   "motyw": "miłość ojcowska i niewdzięczność dzieci",
+   "przyklad": "Goriot oddaje córkom cały majątek, a one nie przychodzą do niego w chorobie; jedna pojawia się dopiero w chwili jego śmierci.",
+   "miejsce": "ok. 71–99% tekstu"
+  },
+  {
+   "motyw": "wejście w świat (młody bohater)",
+   "przyklad": "Rastignac, student z prowincji, uczy się reguł paryskich salonów od wicehrabiny de Beauséant i od Vautrina.",
+   "miejsce": "ok. 19–30% tekstu"
+  },
+  {
+   "motyw": "pokusa demoralizacji",
+   "przyklad": "Vautrin rozkłada przed Rastignakiem cyniczną filozofię sukcesu, oferując mu układ z morderstwem w tle.",
+   "miejsce": "ok. 30% tekstu"
+  },
+  {
+   "motyw": "pensjonat jako obraz społeczeństwa",
+   "przyklad": "Narrator opisuje pensjonat Vauquer jako społeczeństwo w miniaturze: biednych lokatorów, galernika, studentów.",
+   "miejsce": "pierwsze rozdziały (ok. 0–3%)"
+  },
+  {
+   "motyw": "pogrzeb jako obraz hipokryzji",
+   "przyklad": "Goriota pochowano skromnie; w orszaku jadą puste powozy rodzin córek.",
+   "miejsce": "ok. 99–100% tekstu"
+  },
+  {
+   "motyw": "wyzwanie rzucone światu",
+   "przyklad": "Rastignac patrzy z cmentarza na Paryż i mówi: „Teraz my się spróbujemy!”",
+   "miejsce": "zakończenie powieści (ok. 100% tekstu)",
+   "cytat": "Teraz my się spróbujemy!"
+  },
+  {
+   "motyw": "zdemaskowanie",
+   "przyklad": "Aresztowanie Vautrina odsłania, że pod maską dobroduszności był zbiegłym galernikiem Collinem.",
+   "miejsce": "ok. 64–65% tekstu",
+   "cytat": "Kto mnie zdradził?"
+  }
+ ],
+ "utwory": [],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/ojciec-goriot/",
+   "rodzaj": "utwór",
+   "co": "Tłumaczenie Amelii Bortnowskiej (1881): przebieg fabuły, imiona postaci i cytaty sprawdzone (m.in. finał, aresztowanie Vautrina, pogrzeb)."
+  }
+ ],
+ "do_weryfikacji": [
+  "Wydanie z Wolnych Lektur (tłum. Bortnowska, 1881) nie ma podziału na rozdziały; miejsca podano jako przybliżone położenie w tekście (w % długości), co może się różnić w innych wydaniach.",
+  "Imiona w starym tłumaczeniu (Eugeniusz, Wiktoryna, Naścia) różnią się od współczesnych (Eugene, Wiktoryna/Victorine, Anastazja); odmiany podano w obu wariantach.",
+  "Kilka epizodów (ok. 38–45% i 65–70%) opisano na podstawie wyrywkowej lektury i znajomości fabuły; szczegóły scen z mieszkaniem Delfiny nie zostały sprawdzone dosłownie.",
+  "Strukturę powieści w oryginale (tytuły czterech części) i datę powstania (1834) podano z ostatniej linii tekstu („Sache, we wrześniu 1834”), reszty nie sprawdzono."
+ ]
+}

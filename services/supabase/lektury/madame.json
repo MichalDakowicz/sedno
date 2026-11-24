@@ -1,0 +1,126 @@
+{
+  "id": "madame",
+  "wydarzenia": [
+    {
+      "nr": 1,
+      "miejsce": "początek powieści",
+      "kto": [
+        "narrator (uczeń klasy maturalnej)"
+      ],
+      "gdzie": "Warszawa, renomowane liceum",
+      "opis": "Narrator, uczeń klasy maturalnej, uważa, że urodził się za późno, bo ciekawe czasy i wybitne jednostki należą do przeszłości."
+    },
+    {
+      "nr": 2,
+      "miejsce": "tło rodzinne",
+      "kto": [
+        "narrator",
+        "rodzice",
+        "Konstanty Monteń"
+      ],
+      "gdzie": "Polska Ludowa",
+      "opis": "Narrator pochodzi z inteligenckiej rodziny sprzeciwiającej się ustrojowi: w domu słucha się Wolnej Europy, a przyjaciel rodziców Konstanty Monteń prostuje zafałszowane w podręcznikach wątki historii."
+    },
+    {
+      "nr": 3,
+      "miejsce": "wątek główny",
+      "kto": [
+        "narrator",
+        "Madame"
+      ],
+      "gdzie": "liceum",
+      "opis": "Narrator zauroczony wyniosłą nauczycielką (zwaną Madame) prowadzi śledztwo w sprawie jej tajemnic; ta fascynacja okazuje się początkiem jego przemiany."
+    }
+  ],
+  "postacie": [
+    {
+      "imie": "narrator (bohater bez imienia)",
+      "odmiany": [
+        "narratora",
+        "narratorowi",
+        "narratorem",
+        "bohatera",
+        "bohaterowi"
+      ],
+      "rola": "uczeń klasy maturalnej, inteligentny, oczytany i krytyczny wobec rzeczywistości PRL; poszukuje sensu i zakochuje się w nauczycielce",
+      "relacje": "uczeń Madame, syn inteligenckiej rodziny",
+      "miejsca": [
+        "Warszawa",
+        "liceum"
+      ]
+    },
+    {
+      "imie": "Madame",
+      "odmiany": [
+        "Madame",
+        "Madame'ie",
+        "nauczycielki",
+        "nauczycielką"
+      ],
+      "rola": "wyniosła nauczycielka (według ZPE), obiekt fascynacji bohatera i tajemnicy, którą bohater próbuje rozwikłać",
+      "relacje": "nauczycielka narratora",
+      "miejsca": [
+        "liceum"
+      ]
+    },
+    {
+      "imie": "Konstanty Monteń",
+      "odmiany": [
+        "Montenia",
+        "Monteniowi",
+        "Monteniem"
+      ],
+      "rola": "przyjaciel rodziców narratora, który wyjaśnia mu zafałszowaną historię",
+      "relacje": "przyjaciel rodziców",
+      "miejsca": [
+        "dom narratora"
+      ]
+    }
+  ],
+  "motywy": [
+    {
+      "motyw": "poczucie spóźnienia i bezsensu istnienia",
+      "przyklad": "Narrator czuje, że urodził się „za późno”, i szuka ukojenia dla poczucia bezsensu i młodzieńczej neurozy.",
+      "miejsce": "początek powieści"
+    },
+    {
+      "motyw": "metamorfoza i wejście w dorosłość",
+      "przyklad": "Śledztwo wokół Madame staje się podróżą w głąb siebie, której celem jest odpowiedź na pytanie „kim jestem?”.",
+      "miejsce": "wątek główny"
+    },
+    {
+      "motyw": "PRL a inteligencka rodzina",
+      "przyklad": "Rodzice kształtują zainteresowania syna (lekcje francuskiego, fortepian, ambitne lektury) i słuchają Wolnej Europy; Monteń prostuje zakłamane wątki historii.",
+      "miejsce": "opis tła rodzinnego"
+    },
+    {
+      "motyw": "miłość jako motor poznania",
+      "przyklad": "Zauroczenie starszą nauczycielką wykracza poza fascynację erotyczną; według interpretacji ZPE to wysublimowane, intelektualne podniety.",
+      "miejsce": "wątek główny"
+    },
+    {
+      "motyw": "nostalgia i wychodzenie z młodzieńczej nostalgii (interpretacja krytyczna)",
+      "przyklad": "Przemysław Czapliński widzi w powieści narracyjną prezentację sposobów wychodzenia z młodzieńczej nostalgii, jak w „Kronice wypadków miłosnych” Konwickiego (wg ZPE).",
+      "miejsce": "interpretacja krytyczna"
+    },
+    {
+      "motyw": "wina za młodość straconą",
+      "przyklad": "Tomasz Burek zauważa, że narrator winą za stracone lata obarcza świat i komunę, a nie siebie (wg ZPE).",
+      "miejsce": "interpretacja krytyczna"
+    }
+  ],
+  "utwory": [],
+  "zrodla": [
+    {
+      "url": "https://zpe.gov.pl/a/przeczytaj/DKVbL11Ml",
+      "rodzaj": "opracowanie",
+      "co": "Przeczytany materiał ZPE o metamorfozie bohatera Madame: opis bohatera i tła, interpretacje Tomasza Burka i Przemysława Czaplińskiego, informacje o autorze."
+    }
+  ],
+  "do_weryfikacji": [
+    "Przebieg fabuły (zwłaszcza tajemnica Madame, rola Becketta, wydarzenia maturalne i zakończenie) nie został sprawdzony w czytanych źródłach; powyższe zdarzenia to tylko to, co opisuje ZPE.",
+    "Imię i nazwisko Madame oraz wydarzenia poza początkiem powieści nie zostały sprawdzone.",
+    "Powieść Antoniego Libery (ur. 1949) jest chroniona prawem autorskim, więc nie podaje się cytatów; zdanie otwierające powieści sparafrazowano według ZPE.",
+    "Miejsca podane są ogólnikowo (brak podziału na rozdziały w czytanym źródle)."
+  ]
+}

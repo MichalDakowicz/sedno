@@ -1,0 +1,103 @@
+{
+ "id": "sonety-krymskie",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "tęsknota za ojczyzną",
+   "przyklad": "Na stepie, w ciszy, mówiący mówi, że usłyszałby głos z Litwy.",
+   "miejsce": "Stepy akermańskie",
+   "cytat": "Że słyszałbym głos z Litwy. — Jedźmy, nikt nie woła!"
+  },
+  {
+   "motyw": "obraz stepu jako oceanu",
+   "przyklad": "Wóz nurza się w zieloności i „brodzi jak łódka” po fali traw; step to „suchy przestwór oceanu”.",
+   "miejsce": "Stepy akermańskie",
+   "cytat": "Wpłynąłem na suchego przestwór oceanu,"
+  },
+  {
+   "motyw": "cisza stepu i wrażliwość zmysłów",
+   "przyklad": "Mówiący słyszy żurawie, motyla na trawie i węża dotykającego ziela.",
+   "miejsce": "Stepy akermańskie",
+   "cytat": "Słyszę, kędy się motyl kołysa na trawie,"
+  },
+  {
+   "motyw": "burza i bohater wobec śmierci",
+   "przyklad": "Podczas sztormu jeden podróżny siedzi w milczeniu i myśli o tym, kto jest szczęśliwy w obliczu śmierci.",
+   "miejsce": "Burza",
+   "cytat": "Jeden podróżny siedział w milczeniu na stronie"
+  },
+  {
+   "motyw": "samotność bohatera",
+   "przyklad": "W Burzy bohater milczy, nie modli się i nie ma z kim się żegnać; można odczytać to jako obraz wygnańca.",
+   "miejsce": "Burza",
+   "cytat": "I pomyślił: szczęśliwy, kto siły postrada,"
+  },
+  {
+   "motyw": "potęga przyrody i orient",
+   "przyklad": "Czatyrdah jest „wielkim” szczytem, wobec którego człowiek jest mały; góra słucha tylko Boga.",
+   "miejsce": "Czatyrdah",
+   "cytat": "Słuchasz tylko, co mówi Bóg do przyrodzenia."
+  },
+  {
+   "motyw": "poeta wobec namiętności",
+   "przyklad": "W Ajudahu fale i namiętności serca porównane są do żywiołu, a pieśni poety zostają na wieki.",
+   "miejsce": "Ajudah",
+   "cytat": "Lubię poglądać wsparty na Judahu skale,"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Stepy akermańskie",
+   "miejsce": "Sonety krymskie",
+   "opis": "Sonet o podróży wozem po stepie: ocean traw, noc, brak drogi. Mówiący słucha ciszy stepu (żurawie, motyl, wąż) i mówi, że usłyszałby głos z Litwy. Jeden z najczęściej przywoływanych sonetów o tęsknocie za ojczyzną."
+  },
+  {
+   "tytul": "Burza",
+   "miejsce": "Sonety krymskie",
+   "opis": "Sonet o burzy na morzu. Okręt traci żagle i ster, załoga jest przerażona, a jeden z podróżnych siedzi w milczeniu i zauważa, że szczęśliwy ten, kto siły straci albo umie się modlić lub ma z kim się pożegnać. Można czytać jako obraz samotności bohatera."
+  },
+  {
+   "tytul": "Czatyrdah",
+   "miejsce": "Sonety krymskie",
+   "opis": "Sonet, w którym Mirza zwraca się do góry Czatyrdah jak do „padyszacha” gór. Góra jest nieruchoma i głucha na ludzkie sprawy, słucha tylko Boga mówiącego do przyrody. Orientalna stylizacja, hymn do natury."
+  },
+  {
+   "tytul": "Ajudah",
+   "miejsce": "Sonety krymskie",
+   "opis": "Sonet o morskich falach u Judahu skały; fale porównane są do wojska wielorybów. W tercecie narrator zwraca się do poety: namiętność wzburza serce, ale poeta, gdy podniesie bardon, ją uciszy i zostawi nieśmiertelne pieśni."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/sonety-krymskie/",
+   "rodzaj": "utwór",
+   "co": "Spis sonetów cyklu (Stepy akermańskie, Burza, Czatyrdah, Ajudah i inne)."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/sonety-krymskie-stepy-akermanskie/",
+   "rodzaj": "utwór",
+   "co": "Tekst sonetu."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/sonety-krymskie-burza/",
+   "rodzaj": "utwór",
+   "co": "Tekst sonetu."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/sonety-krymskie-czatyrdah/",
+   "rodzaj": "utwór",
+   "co": "Tekst sonetu."
+  },
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/sonety-krymskie-ajudah/",
+   "rodzaj": "utwór",
+   "co": "Tekst sonetu."
+  }
+ ],
+ "do_weryfikacji": [
+  "Rok wydania cyklu (1826) i okoliczności podróży Mickiewicza na Krym nie zostały sprawdzone w źródle w tej sesji — do weryfikacji.",
+  "Katalog wymienia „wybrane sonety oraz inne wiersze” (przykłady: Stepy akermańskie, Burza, Czatyrdah); wybór CKE poza tymi trzema nie został sprawdzony. Ajudah dodano jako dodatkowy przykład.",
+  "„Inne wiersze Mickiewicza” (poza cyklem) wymienione w katalogu nie zostały tu opracowane (Oda do młodości i ballady mają osobne pliki)."
+ ]
+}

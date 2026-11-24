@@ -1,0 +1,54 @@
+{
+ "id": "oda-do-mlodosci",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "młodość jako siła zmieniająca świat",
+   "przyklad": "Mówiący prosi młodość o skrzydła, by wznieść się nad „martwy świat”, a w dalszych strofach wzywa młodych do wspólnego działania.",
+   "miejsce": "Oda do młodości, strofa I",
+   "cytat": "Młodości! dodaj mi skrzydła!"
+  },
+  {
+   "motyw": "krytyka bierności i egoizmu",
+   "przyklad": "Przeciwieństwo młodzieńczego zapału stanowi obraz „płaza w skorupie” i „samolubów”, którzy żyją i giną samotnie, bez śladu.",
+   "miejsce": "Oda do młodości, strofa o płazie",
+   "cytat": "Bez serc, bez ducha, — to szkieletów ludy!"
+  },
+  {
+   "motyw": "wspólnota i przyjaźń",
+   "przyklad": "Wspólnota młodych przyjaciół ma działać razem i być silna jednością.",
+   "miejsce": "Oda do młodości, strofa o przyjaciołach",
+   "cytat": "Razem, młodzi przyjaciele!"
+  },
+  {
+   "motyw": "nadzieja na wolność",
+   "przyklad": "Zakończenie zapowiada światło, które rozproszy przesądy, i „zbawienia słońce”; można odczytać to jako zapowiedź wolności i odnowy świata.",
+   "miejsce": "Oda do młodości, końcowa strofa",
+   "cytat": "Witaj jutrzenko swobody"
+  },
+  {
+   "motyw": "walka o świat i poświęcenie",
+   "przyklad": "Strofa o szczęśliwym, który „padł wśród zawodu”, mówi, że śmierć w walce otwiera innym drogę do sławy.",
+   "miejsce": "Oda do młodości, strofa o przyjaciołach"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Oda do młodości",
+   "miejsce": "całość",
+   "opis": "Manifest pokoleniowy młodych romantyków. Osoba mówiąca prosi młodość o skrzydła, odrzuca „szkieletów ludy”, wzywa do wspólnego działania i przyjaźni oraz zapowiada przemianę świata przez siłę młodych. Zakończenie mówi o „jutrzence swobody”."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/oda-do-mlodosci/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst; cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Okoliczności powstania (Filomaci, 1820) i powszechnie przyjęte znaczenie utworu jako hymnu młodych romantyków nie były sprawdzane w źródle — do weryfikacji.",
+  "Numeracja strof w danych jest robocza i wynika z układu tekstu w Wolnych Lekturach."
+ ]
+}

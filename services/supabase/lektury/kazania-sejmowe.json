@@ -1,0 +1,110 @@
+{
+  "id": "kazania-sejmowe",
+  "wydarzenia": [],
+  "postacie": [],
+  "motywy": [
+    {
+      "motyw": "ojczyzna jako matka",
+      "przyklad": "W kazaniu wtórym Skarga nazywa Rzeczpospolitą matką, która dała wiarę, króla, wolność, dostatek i pokój, i wylicza posłom, ile jej zawdzięczają; od niej mają miłość i obowiązek służby.",
+      "miejsce": "Kazanie wtóre",
+      "cytat": "matką wam jest, a nie macochą"
+    },
+    {
+      "motyw": "miłość ojczyzny i gotowość do ofiary",
+      "przyklad": "Skarga podaje przykłady biblijne i antyczne (Mojżesz, Dawid, Neemiasz, Zorobabel, Judyt, Hester, Regulus), którzy dla dobra wspólnego poświęcali majątek i życie.",
+      "miejsce": "Kazanie wtóre"
+    },
+    {
+      "motyw": "okręt Rzeczypospolitej – dobro wspólne ponad prywatą",
+      "przyklad": "Skarga porównuje państwo do okrętu: głupi człowiek na tonącym statku pilnuje własnych tłumoków zamiast ratować okręt, tak jak posłowie pilnują prywatnych korzyści.",
+      "miejsce": "Kazanie wtóre",
+      "cytat": "Gdy okręt tonie, a wiatry go przewracają, głupi tłomoczki i skrzynki swoje opatruje"
+    },
+    {
+      "motyw": "niezgoda domowa zabija państwo",
+      "przyklad": "W kazaniu trzecim Skarga przekonuje, że niezgoda gubi królestwo szybciej niż wróg zewnętrzny, i porównuje ją do jabłka gnijącego od środka.",
+      "miejsce": "Kazanie trzecie",
+      "cytat": "Jabłko gdy z wierzchu się psować pocznie, wykroić się zgniłość może"
+    },
+    {
+      "motyw": "fałszywa wolność szlachecka (swowola)",
+      "przyklad": "Skarga zarzuca szlachcie, że płaszczem „złotej wolności” kryje nieposłuszeństwo i bezprawie, w którym mocniejszy uciska słabszego.",
+      "miejsce": "Kazanie pierwsze (początek Sejmu)",
+      "cytat": "O piękna wolności, w której wszytki swowolności i niekarności panują"
+    },
+    {
+      "motyw": "religia jako fundament państwa",
+      "przyklad": "Kazania czwarte i piąte twierdzą, że herezja osłabia państwo, a wiara katolicka umacnia zgodę i trwałość królestw (stanowisko autora, kontrreformacja).",
+      "miejsce": "Kazanie czwarte i piąte"
+    },
+    {
+      "motyw": "silna, ale ograniczona prawem władza królewska",
+      "przyklad": "Kazanie szóste mówi, że król jest „głową” państwa, a jego osłabienie to choroba Rzeczypospolitej; Skarga odróżnia monarchię prawną od tyranii tureckiej czy moskiewskiej.",
+      "miejsce": "Kazanie szóste"
+    },
+    {
+      "motyw": "niesprawiedliwe prawo i brak kary za grzechy",
+      "przyklad": "Kazanie siódme krytykuje prawa uciskające ubogich, a ósme gromi zbytek, bluźnierstwa i niekaranie grzechów jawnych, grożąc upadkiem królestwa.",
+      "miejsce": "Kazanie siódme i ósme"
+    },
+    {
+      "motyw": "proroctwo upadku – groźba kary Bożej",
+      "przyklad": "W kazaniu ósmym Skarga przypomina upadki Galii, Afryki i Konstantynopola i zapowiada, że jedna z trzech rodzajów „pogróżek” nie ominie Polski, jeśli się nie poprawi.",
+      "miejsce": "Kazanie ósme (zakończenie)"
+    }
+  ],
+  "utwory": [
+    {
+      "tytul": "Kazanie pierwsze: Na początku Sejmu",
+      "miejsce": "Kazanie pierwsze",
+      "opis": "Wprowadzenie wygłoszone przy mszy sejmowej: Skarga prosi o mądrość od Boga dla obradujących posłów i zapowiada zestaw „chorób” Rzeczypospolitej, które trzeba leczyć; krytykuje fałszywą wolność szlachecką."
+    },
+    {
+      "tytul": "Kazanie wtóre: O miłości ku ojczyźnie i o pierwszej chorobie Rzeczypospolitej",
+      "miejsce": "Kazanie wtóre",
+      "opis": "Pierwsza choroba to brak miłości ojczyzny. Skarga ukazuje ojczyznę jako matkę, wylicza jej dobrodziejstwa i podaje przykłady poświęcenia dla dobra wspólnego, a na końcu wzywa panów do służby narodowi mimo braku nagrody. Fragment wskazany w katalogu jako przykład."
+    },
+    {
+      "tytul": "Kazanie trzecie: O drugiej chorobie Rzeczypospolitej, która jest z niezgody domowej",
+      "miejsce": "Kazanie trzecie",
+      "opis": "Druga choroba to niezgoda domowa. Skarga argumentuje, że wspólny król, prawo i ojczyzna powinny łączyć wszystkie narody Korony, a rozdarcie jest groźniejsze niż najazd zewnętrzny."
+    },
+    {
+      "tytul": "Kazanie czwarte: O trzeciej chorobie Rzeczypospolitej – naruszeniu religii katolickiej przez zarazę heretycką",
+      "miejsce": "Kazanie czwarte",
+      "opis": "Trzecia choroba to herezja, według autora niszcząca jedność wiary i państwa; Skarga odwołuje się do Biblii i przykładów starożytnych o związku religii z trwałością państw."
+    },
+    {
+      "tytul": "Kazanie piąte: Jako katolicka wiara policyj i królestw szczęśliwie dochowywa, a heretyctwo je obala",
+      "miejsce": "Kazanie piąte",
+      "opis": "Rozwinięcie poprzedniego: wiara katolicka według Skargi zaprawia ludzi do jedności i zgody, a herezja prowadzi do rozbicia państw."
+    },
+    {
+      "tytul": "Kazanie szóste: O monarchiej i królestwie, czyli o czwartej chorobie Rzeczypospolitej (osłabienie władzy królewskiej)",
+      "miejsce": "Kazanie szóste",
+      "opis": "Czwarta choroba to osłabienie władzy króla; Skarga porównuje króla do głowy w ciele państwa i odróżnia monarchię praworządną od tyranii (Turcja, Tatarzy, Moskwa)."
+    },
+    {
+      "tytul": "Kazanie siódme: O prawach niesprawiedliwych, czyli o piątej chorobie Rzeczypospolitej",
+      "miejsce": "Kazanie siódme",
+      "opis": "Piąta choroba to złe prawa i statuty, które uciskają ubogich; Skarga mówi, że prawo ma być światłem wskazującym drogę i grożącym karą."
+    },
+    {
+      "tytul": "Kazanie ósme: O szóstej chorobie Rzeczypospolitej – jawnych grzechach i niekarności",
+      "miejsce": "Kazanie ósme",
+      "opis": "Szósta choroba to jawne grzechy (bluźnierstwa, zbytek, niesprawiedliwość) i brak kary; Skarga opisuje trzy rodzaje „pogróżek” Bożych i ostrzega, że jedna z nich dotknie Rzeczypospolitą, jeśli się nie poprawi."
+    }
+  ],
+  "zrodla": [
+    {
+      "url": "https://wolnelektury.pl/katalog/lektura/skarga-kazania-sejmowe/",
+      "rodzaj": "utwór",
+      "co": "Pobrany cały tekst (domena publiczna). Kazanie wtóre przeczytane w całości, pozostałe kazania ze sprawdzeniem tytułów, mott i wybranych akapitów; cytaty sprawdzone w tekście."
+    }
+  ],
+  "do_weryfikacji": [
+    "Streszczenia kazań 1 i 3–8 oparte na tytułach, mottach i wybranych akapitach, nie na pełnej lekturze; szczegóły argumentacji do sprawdzenia.",
+    "Numeracja i tytuły kazań według pobranego tekstu; katalog wymienia jako przykład Kazanie wtóre, ale lista kazań wymaganych na maturze nie została sprawdzona w źródle CKE.",
+    "Kontekst historyczny (kontrreformacja, ok. 1597) to wiedza ogólna, niesprawdzona w tym źródle."
+  ]
+}

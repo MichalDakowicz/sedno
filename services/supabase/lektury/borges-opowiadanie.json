@@ -1,0 +1,30 @@
+{
+  "id": "borges-opowiadanie",
+  "wydarzenia": [],
+  "postacie": [
+    { "imie": "Yu Tsun", "odmiany": ["Yu Tsuna", "Yu Tsunowi", "Yu Tsunem"], "rola": "chiński szpieg działający dla Niemiec, narrator zeznania", "relacje": "ścigany przez Maddena, potomek Ts’ui Pêna, zabija Alberta", "miejsca": ["Ogród o rozwidlających się ścieżkach, zeznanie"] },
+    { "imie": "Stephen Albert", "odmiany": ["Stephena Alberta", "Stephenowi Albertowi", "Stephenem Albertem"], "rola": "sinolog, odczytuje zasadę budowy powieści Ts’ui Pêna", "relacje": "przyjmuje Yu Tsuna i ginie z jego ręki", "miejsca": ["Ogród o rozwidlających się ścieżkach, spotkanie u Alberta"] },
+    { "imie": "Richard Madden", "odmiany": ["Richarda Maddena", "Richardowi Maddenowi", "Richardem Maddenem"], "rola": "kapitan ścigający szpiega", "relacje": "aresztuje Yu Tsuna po zabójstwie Alberta", "miejsca": ["Ogród o rozwidlających się ścieżkach, pościg i finał"] },
+    { "imie": "Ts’ui Pên", "odmiany": ["Ts’ui Pêna", "Ts’ui Pênowi", "Ts’ui Pênem", "Tsui Pen"], "rola": "przodek Yu Tsuna, twórca powieści uważanej za chaotyczną", "relacje": "jego projekt bada Stephen Albert", "miejsca": ["Ogród o rozwidlających się ścieżkach, rozmowa o rękopisie"] }
+  ],
+  "motywy": [
+    { "motyw": "historia i fikcyjny dokument", "przyklad": "Wzmianka o opisie brytyjskiej ofensywy wprowadza zeznanie Yu Tsuna, którego początkowych stron brakuje.", "miejsce": "Ogród o rozwidlających się ścieżkach, rama" },
+    { "motyw": "labirynt przestrzenny", "przyklad": "Yu Tsun idzie do domu Alberta według wskazówki, aby na rozdrożach skręcać w lewo, co przypomina mu sposób poruszania się po labiryncie.", "miejsce": "Ogród o rozwidlających się ścieżkach, droga do Alberta" },
+    { "motyw": "księga jako labirynt", "przyklad": "Albert wyjaśnia Yu Tsunowi, że rzekomo zaginiony labirynt i niespójna powieść jego przodka są tym samym dziełem.", "miejsce": "Ogród o rozwidlających się ścieżkach, rozmowa o rękopisie" },
+    { "motyw": "rozwidlenia czasu", "przyklad": "Albert wskazuje, że powieść Ts’ui Pêna dopuszcza równoczesne rozwijanie się różnych wyników jednej decyzji.", "miejsce": "Ogród o rozwidlających się ścieżkach, rozmowa o rękopisie" },
+    { "motyw": "znak i jego odczytanie", "przyklad": "Wieść o śmierci sinologa pozwala dowództwu odczytać nazwę Albert jako cel wojskowy, gdyż miasto i uczony noszą tę samą nazwę.", "miejsce": "Ogród o rozwidlających się ścieżkach, finał" },
+    { "motyw": "koszt dokonanej decyzji", "przyklad": "Madden aresztuje Yu Tsuna, a narrator kończy zeznanie świadomością, że przekazał informację kosztem życia życzliwego mu człowieka.", "miejsce": "Ogród o rozwidlających się ścieżkach, finał" }
+  ],
+  "utwory": [
+    { "tytul": "Ogród o rozwidlających się ścieżkach", "miejsce": "całe opowiadanie, Fikcje", "opis": "Zeznanie szpiega łączy pościg i zabójstwo z rozmową o powieści, która przedstawia rozgałęziające się możliwości czasu; tytuł wybrano za katalogiem." }
+  ],
+  "zrodla": [
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE dopuszcza dowolne wybrane opowiadanie Borgesa jako lekturę w zakresie rozszerzonym." },
+    { "url": "https://www.borges.pitt.edu/sites/default/files/1808.pdf", "rodzaj": "opracowanie", "co": "Artykuł w Variaciones Borges omawia konstrukcję labiryntu, postacie i powieść Ts’ui Pêna." },
+    { "url": "https://lehman.edu/media/Ciberletras/documents/ISSUE-1.pdf", "rodzaj": "opracowanie", "co": "Ciberletras nr 1, omówienie pościgu, spotkania Alberta z Yu Tsunem, planu przekazania nazwy miasta i rozgałęzień czasu." },
+    { "url": "https://web.mit.edu/uricchio/Public/television/documentary/Borges_GardenOfForkingPaths.pdf", "rodzaj": "utwór", "co": "Przekład dostępny w materiałach dydaktycznych MIT; sprawdzono ramę, drogę do domu Alberta i finał zeznania." }
+  ],
+  "do_weryfikacji": [
+    "Informator CKE nie wskazuje konkretnego tytułu; Ogród o rozwidlających się ścieżkach wybrano za przykładem w katalogu."
+  ]
+}

@@ -1,0 +1,41 @@
+{
+ "id": "wiersze-pawlikowskiej",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "miłość jako oddychanie",
+   "przyklad": "Brak ukochanego porównany do braku powietrza: mówiąca jest tylko trochę bledsza i bardziej milcząca.",
+   "miejsce": "Miłość",
+   "cytat": "lecz widać można żyć bez powietrza!"
+  },
+  {
+   "motyw": "autoironia i dystans",
+   "przyklad": "Wiersz używa lekkiego, ironicznego tonu zamiast patosu.",
+   "miejsce": "Miłość"
+  },
+  {
+   "motyw": "miniatura liryczna",
+   "przyklad": "Całość mieści się w czterech wersach, co jest cechą charakterystyczną twórczości autorki.",
+   "miejsce": "Miłość"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Miłość",
+   "miejsce": "cały wiersz (cztery wersy, zbiór „Pocałunki”)",
+   "opis": "Czterowersowy miniaturowy wiersz, w którym mówiąca zauważa, że od miesiąca nie widziała ukochanego, i konstatuje z ironią, że widać można żyć bez powietrza. Krótka forma i autoironia przedstawiają miłość jako konieczność jak oddychanie."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/pawlikowska-jasnorzewska-milosc/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst; cytat sprawdzony. Wolne Lektury podają wiersz w zbiorze „Pocałunki”."
+  }
+ ],
+ "do_weryfikacji": [
+  "Autorka zmarła w 1945 r. (domena publiczna). Wybór wierszy CKE poza przykładem z katalogu nie został sprawdzony.",
+  "Opis cech twórczości (miniatura, autoironia) wynika z lektury tego jednego wiersza; wymaga potwierdzenia w opracowaniu."
+ ]
+}

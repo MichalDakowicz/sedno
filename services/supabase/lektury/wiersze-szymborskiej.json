@@ -1,0 +1,46 @@
+{
+ "id": "wiersze-szymborskiej",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "przemijanie i jednorazowość życia",
+   "przyklad": "Wiersz podkreśla przemijalność życia i jednorazowość chwil (według ZPE).",
+   "miejsce": "Nic dwa razy"
+  },
+  {
+   "motyw": "nawiązanie do Heraklita",
+   "przyklad": "ZPE wiąże wiersz z myślą Heraklita „panta rhei”.",
+   "miejsce": "Nic dwa razy"
+  },
+  {
+   "motyw": "popularyzacja poezji",
+   "przyklad": "Materiały ZPE zestawiają wiersz z piosenką zespołu Maanam o tym samym tytule.",
+   "miejsce": "Nic dwa razy"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Nic dwa razy",
+   "miejsce": "wiersz o przemijaniu",
+   "opis": "Według ZPE wiersz nawiązuje do filozofii Heraklita z Efezu („panta rhei”) i podkreśla przemijalność ludzkiego życia. Materiały ZPE zestawiają go z piosenką zespołu Maanam o tym samym tytule."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://zpe.gov.pl/a/nic-dwa-razy-o-poezji-wislawy-szymborskiej/DbyoJxpeR",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE „Nic dwa razy. O poezji Wisławy Szymborskiej”; zestawienie z piosenką Maanam."
+  },
+  {
+   "url": "https://zpe.gov.pl/a/w-swiecie-zofii---cudowna-podroz-w-glab-samej-siebie/D17AxS6bn",
+   "rodzaj": "opracowanie",
+   "co": "Materiał ZPE z odwołaniem do filozofii Heraklita."
+  }
+ ],
+ "do_weryfikacji": [
+  "Utwory autora są chronione prawem autorskim (zmarł w 2012 r.), więc nie podano tekstu ani cytatów; opis opiera się na materiałach ZPE (wyniki wyszukiwania i streszczenia stron, nie pełne lektury).",
+  "Wybór wierszy w wymaganiach CKE poza przykładem z katalogu nie został sprawdzony; nie opracowano innych utworów.",
+  "Opis wiersza bardzo ogólny — ze względu na prawa autorskie i brak pełnych stron nie sprawdzono konkretnych obrazów i zwrotek."
+ ]
+}

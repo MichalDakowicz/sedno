@@ -1,0 +1,53 @@
+{
+ "id": "fortepian-szopena",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "sztuka i doskonałość",
+   "przyklad": "Gra Chopina porównana do doskonałości „peryklejskiej”, a artysta do postaci wydobywanej z marmuru przez dłuto geniuszu.",
+   "miejsce": "Fortepian Szopena, rozdz. III–IV"
+  },
+  {
+   "motyw": "Polska i jej los",
+   "przyklad": "W grze Chopina mówiący widzi Polskę „przemienionych kołodziejów”; później scena zniszczenia fortepianu odnosi się do niszczenia kultury narodowej.",
+   "miejsce": "Fortepian Szopena, rozdz. V; IX–X"
+  },
+  {
+   "motyw": "zniszczenie dzieła przez przemoc",
+   "przyklad": "Rozdział IX opisuje, jak żołnierze wyrzucają fortepian, który „runął” na bruk; można odczytać to jako obraz klęski polskiej kultury w czasie represji.",
+   "miejsce": "Fortepian Szopena, rozdz. IX",
+   "cytat": "Ideał — sięgnął bruku"
+  },
+  {
+   "motyw": "niespełnienie i „brak”",
+   "przyklad": "Rozdział VII mówi, że doskonałość ma swoje przekleństwo, bo ludzkość żyje w niedostatku i woli „rozpoczynać”.",
+   "miejsce": "Fortepian Szopena, rozdz. VII"
+  },
+  {
+   "motyw": "wspomnienie i pożegnanie artysty",
+   "przyklad": "Początek utworu to powrót myślą do ostatnich dni Chopina: „byłem u Ciebie w te dni przedostatnie”.",
+   "miejsce": "Fortepian Szopena, rozdz. I–II",
+   "cytat": "Byłem u Ciebie w te dni przedostatnie"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Fortepian Szopena",
+   "miejsce": "cały utwór (rozdziały I–X i zakończenie)",
+   "opis": "Dziesięcioczęściowy wiersz-poemat Norwida o Chopinie. Mówiący wspomina ostatnie dni muzyka, opisuje prostotę i doskonałość jego gry, widzi w niej polskość, a potem relacjonuje scenę zniszczenia fortepianu w Warszawie: żołnierze wyrzucają instrument z gmachu na bruk. Wiersz kończy się zdaniem, że ideał sięgnął bruku."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/fortepian-chopina/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst (Wolne Lektury, tytuł „Fortepian Chopina”): podział na rozdziały, obrazy, cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "Datę powstania (1863?) i historyczne tło zniszczenia fortepianu Chopina w Warszawie (wrzesień 1863?) podano z pamięci i bez sprawdzania w źródle — do weryfikacji w opracowaniu.",
+  "Wolne Lektury podają tytuł „Fortepian Chopina”, a katalog „Fortepian Szopena”; pisownia „Szopen” zgodna z podstawą programową.",
+  "Interpretacje (Polska, zmaganie ideału z rzeczywistością) są odczytaniem tekstu, nie danymi z opracowania."
+ ]
+}

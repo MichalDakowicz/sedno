@@ -1,0 +1,52 @@
+{
+  "id": "skapiec",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "akt I, sc. 1", "kto": ["Walery", "Eliza"], "gdzie": "dom Harpagona w Paryżu", "opis": "Walery pociesza Elizę, z którą jest potajemnie związany, gdy ta martwi się o ich wspólną przyszłość i o gniew ojca."},
+    {"nr": 2, "miejsce": "akt I, sc. 2", "kto": ["Kleant", "Eliza"], "gdzie": "dom Harpagona", "opis": "Kleant zwierza się siostrze z uczucia do Marianny i prosi o pomoc w rozmowie z ojcem."},
+    {"nr": 3, "miejsce": "akt I, sc. 3", "kto": ["Harpagon", "Strzałka"], "gdzie": "dom Harpagona", "opis": "Harpagon wypędza służącego Strzałkę, żądając, by zniknął mu z oczu."},
+    {"nr": 4, "miejsce": "akt I, sc. 5", "kto": ["Harpagon", "Eliza", "Kleant"], "gdzie": "dom Harpagona, ogród", "opis": "Harpagon zastanawia się, czy dobrze zrobił, zakopując w ogrodzie dziesięć tysięcy złotych, a potem zapowiada dzieciom małżeństwa: sam chce poślubić Mariannę, Kleantowi wskazuje wdowę, a Elizie starego Anzelma."},
+    {"nr": 5, "miejsce": "akt I, sc. 7", "kto": ["Walery", "Harpagon", "Eliza"], "gdzie": "dom Harpagona", "opis": "Harpagon wybiera Walerego na rozjemcę w sporze z Elizą o małżeństwo bez posagu; Walery lawiruje, by nie zdradzić się z uczuciem do Elizy."},
+    {"nr": 6, "miejsce": "akt II, sc. 1–3", "kto": ["Kleant", "Strzałka", "Simon", "Harpagon"], "gdzie": "dom Harpagona", "opis": "Kleant załatwia pożyczkę przez faktora Simona; okazuje się, że pożyczkodawcą jest jego własny ojciec Harpagon, i wybucha awantura."},
+    {"nr": 7, "miejsce": "akt II, sc. 4–6", "kto": ["Frozyna", "Harpagon", "Strzałka"], "gdzie": "dom Harpagona", "opis": "Pośredniczka Frozyna przychodzi w sprawie małżeństwa Harpagona z Marianną i próbuje skłonić go do wydatków na przyjęcie."},
+    {"nr": 8, "miejsce": "akt III, sc. 1–5", "kto": ["Harpagon", "Kleant", "Eliza", "Walery", "Jakub", "Pani Claude", "Szczygiełek", "Ździebełko"], "gdzie": "dom Harpagona", "opis": "Harpagon rozdziela domownikom obowiązki przed wieczornym przyjęciem, przy okazji oszczędzając na jedzeniu i służbie; Jakub, kucharz i woźnica, wyraża swoje zdanie o skąpstwie pana."},
+    {"nr": 9, "miejsce": "akt III, sc. 7–12", "kto": ["Marianna", "Frozyna", "Harpagon", "Eliza", "Kleant"], "gdzie": "dom Harpagona", "opis": "Marianna przychodzi na spotkanie z Harpagonem; Kleant i Eliza występują wobec niej w rolach gospodarzy, a Kleant daje jej pierścień ofiarowany przez Harpagona jako swój."},
+    {"nr": 10, "miejsce": "akt III, sc. 13–15", "kto": ["Harpagon", "Szczygiełek", "Walery"], "gdzie": "dom Harpagona", "opis": "Służący przerywa przyjęcie, a Harpagon każe Walerowi pilnować wszystkiego i ratować, co się da."},
+    {"nr": 11, "miejsce": "akt IV, sc. 1–5", "kto": ["Kleant", "Marianna", "Eliza", "Frozyna", "Harpagon", "Jakub"], "gdzie": "dom Harpagona", "opis": "Kleant i Marianna wyznają sobie miłość, ale Harpagon ich podsłuchuje; wynika z tego kłótnia ojca z synem, a Kleant prosi o przebaczenie za chwilę uniesienia."},
+    {"nr": 12, "miejsce": "akt IV, sc. 6", "kto": ["Strzałka", "Kleant"], "gdzie": "dom Harpagona, ogród", "opis": "Strzałka wychodzi z ogrodu ze szkatułką Harpagona i zawiadamia o tym Kleanta."},
+    {"nr": 13, "miejsce": "akt IV, sc. 7", "kto": ["Harpagon"], "gdzie": "dom Harpagona", "opis": "Harpagon wpada bez kapelusza i krzyczy, że go okradziono."},
+    {"nr": 14, "miejsce": "akt V, sc. 1–3", "kto": ["Harpagon", "Komisarz", "Jakub", "Walery"], "gdzie": "dom Harpagona", "opis": "Komisarz prowadzi śledztwo; Jakub, mszcząc się, oskarża Walerego, a Harpagon żąda od Walerego przyznania się do kradzieży."},
+    {"nr": 15, "miejsce": "akt V, sc. 4–5", "kto": ["Harpagon", "Eliza", "Marianna", "Walery", "Anzelm"], "gdzie": "dom Harpagona", "opis": "Harpagon wyrzuca córce, że hańbi ojca, a w scenie pojawia się Anzelm i pyta o przyczynę jego wzburzenia."},
+    {"nr": 16, "miejsce": "akt V, sc. 6", "kto": ["Kleant", "Harpagon", "Anzelm", "Marianna", "Walery"], "gdzie": "dom Harpagona", "opis": "Kleant oferuje zwrot szkatułki w zamian za zgodę na małżeństwo z Marianną; okazuje się, że Walery i Marianna są dziećmi Anzelma, który zobowiązuje się opłacić wesela. Harpagon zgadza się pod warunkiem nowego ubrania na wesele."}
+  ],
+  "postacie": [
+    {"imie": "Harpagon", "odmiany": ["Harpagon", "Harpagona", "Harpagonowi", "Harpagonem"], "rola": "skąpy bogacz, ojciec Kleanta i Elizy, zalotnik Marianny", "relacje": "ojciec Kleanta i Elizy; rywal syna o Mariannę", "miejsca": ["akt I, sc. 3", "akt IV, sc. 7", "akt V, sc. 6"]},
+    {"imie": "Kleant", "odmiany": ["Kleant", "Kleanta", "Kleantowi", "Kleantem"], "rola": "syn Harpagona, zakochany w Mariannie", "relacje": "syn Harpagona; brat Elizy", "miejsca": ["akt I, sc. 2", "akt IV, sc. 1", "akt V, sc. 6"]},
+    {"imie": "Eliza", "odmiany": ["Eliza", "Elizy", "Elizie", "Elizę", "Elizą"], "rola": "córka Harpagona, potajemnie związana z Walerym", "relacje": "córka Harpagona; ukochana Walerego", "miejsca": ["akt I, sc. 1", "akt V, sc. 4"]},
+    {"imie": "Walery", "odmiany": ["Walery", "Walerego", "Walerem", "Walerym"], "rola": "młodzieniec w domu Harpagona, w istocie syn Anzelma", "relacje": "ukochany Elizy; brat Marianny", "miejsca": ["akt I, sc. 1", "akt V, sc. 3"]},
+    {"imie": "Marianna", "odmiany": ["Marianna", "Marianny", "Mariannie", "Mariannę", "Marianną"], "rola": "młoda dziewczyna, ukochana Kleanta, kandydatka Harpagona na żonę", "relacje": "córka Anzelma", "miejsca": ["akt III, sc. 9", "akt V, sc. 6"]},
+    {"imie": "Anzelm", "odmiany": ["Anzelm", "Anzelma", "Anzelmowi", "Anzelmem"], "rola": "ojciec Walerego i Marianny, zamożny bogacz", "relacje": "przybywa w finale i spłaca wesela", "miejsca": ["akt V, sc. 5", "akt V, sc. 6"]},
+    {"imie": "Frozyna", "odmiany": ["Frozyna", "Frozyny", "Frozynie", "Frozyną"], "rola": "pośredniczka w małżeństwach", "relacje": "związana z Marianną i Harpagonem", "miejsca": ["akt II, sc. 4", "akt III, sc. 8"]},
+    {"imie": "Jakub", "odmiany": ["Jakub", "Jakuba", "Jakubowi", "Jakubem"], "rola": "kucharz i woźnica Harpagona", "relacje": "sługa Harpagona; oskarża Walerego", "miejsca": ["akt III, sc. 1", "akt V, sc. 2"]},
+    {"imie": "Strzałka", "odmiany": ["Strzałka", "Strzałki", "Strzałce", "Strzałką"], "rola": "służący Kleanta, wynosi szkatułkę z ogrodu", "relacje": "pomocnik Kleanta", "miejsca": ["akt I, sc. 3", "akt IV, sc. 6"]},
+    {"imie": "Simon", "odmiany": ["Simon", "Simona", "Simonowi"], "rola": "faktor załatwiający pożyczki", "relacje": "pośredniczy w pożyczce Kleanta", "miejsca": ["akt II, sc. 2"]},
+    {"imie": "Komisarz", "odmiany": ["Komisarz", "Komisarza", "Komisarzowi"], "rola": "prowadzi śledztwo w sprawie kradzieży", "relacje": "przesłuchuje domowników", "miejsca": ["akt V, sc. 1", "akt V, sc. 6"]}
+  ],
+  "motywy": [
+    {"motyw": "skąpstwo i chciwość", "przyklad": "Harpagon zakopuje pieniądze w ogrodzie, szczędzi na jedzeniu i służbie, a córkę chce wydać za bogacza bez posagu.", "miejsce": "akt I, sc. 5; akt I, sc. 7", "cytat": "Bez posagu!"},
+    {"motyw": "pieniądz ważniejszy od rodziny", "przyklad": "Po kradzieży szkatułki Harpagon biegnie z krzykiem bez kapelusza i oskarża wszystkich dookoła.", "miejsce": "akt IV, sc. 7", "cytat": "Złodziej! Złodziej! Rozbójnik! Morderca! Ratunku!"},
+    {"motyw": "konflikt ojca z dziećmi", "przyklad": "Harpagon chce poślubić Mariannę, którą kocha jego syn Kleant, i podsłuchuje ich rozmowę.", "miejsce": "akt IV, sc. 2–5"},
+    {"motyw": "lichwa i pożyczki", "przyklad": "Kleant pożycza pieniądze przez faktora Simona i odkrywa, że pożyczkodawcą jest jego ojciec.", "miejsce": "akt II, sc. 2–3"},
+    {"motyw": "miłość młodych przeciw woli rodzica", "przyklad": "Kleant i Marianna oraz Walery i Eliza wzajemnie sobie ufają i szukają sposobu na zgodę ojca.", "miejsce": "akt I, sc. 1–2; akt IV, sc. 1"},
+    {"motyw": "zbieg okoliczności w finale komedii", "przyklad": "Anzelm okazuje się ojcem Walerego i Marianny, co rozwiązuje wszystkie intrygi.", "miejsce": "akt V, sc. 6"},
+    {"motyw": "pozory i fałszywa gościnność", "przyklad": "Harpagon każe służbie podawać skromne dania na przyjęciu, żeby oszczędzić na kosztach.", "miejsce": "akt III, sc. 1–2"}
+  ],
+  "utwory": [],
+  "zrodla": [
+    {"url": "https://wolnelektury.pl/katalog/lektura/skapiec/", "rodzaj": "utwór", "co": "Pobrany tekst komedii w przekładzie Boya-Żeleńskiego; podział na akty i sceny według Wolnych Lektur; sprawdzono listę scen z osobami, scenę 5 i 7 aktu I, fragmenty aktu IV sc. 6–7 oraz zakończenie aktu V."}
+  ],
+  "do_weryfikacji": [
+    "Treść scen oparto na liście osób w scenach, didaskaliach i znajomości fabuły; sceny nieprzeczytane w całości: akt II sc. 4–6, akt III sc. 6–15, akt IV sc. 1–5, akt V sc. 1–5.",
+    "Plany małżeństw Harpagona dla dzieci (akt I sc. 5–6) i pierścień Harpagona w akcie III sc. 11–12 podano z pamięci fabuły; nie sprawdzono w tekście.",
+    "Szczegóły aktu V sc. 4–5 (oskarżenie Walerego przez Jakuba, tajemnica Walerego, historia Anzelma i jego rodziny) nie zostały przeczytane w całości."
+  ]
+}

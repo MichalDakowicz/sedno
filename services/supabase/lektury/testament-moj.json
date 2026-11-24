@@ -1,0 +1,58 @@
+{
+ "id": "testament-moj",
+ "wydarzenia": [],
+ "postacie": [],
+ "motywy": [
+  {
+   "motyw": "misja poety i służba ojczyźnie",
+   "przyklad": "Mówiący prosi, by powiedzieć, że oddał ojczyźnie młode lata; siedział na maszcie, gdy okręt walczył, i poszedł pod wodę, gdy okręt tonął.",
+   "miejsce": "Testament mój, strofa III",
+   "cytat": "A póki okręt walczył, siedziałem na maszcie"
+  },
+  {
+   "motyw": "odejście i samotność twórcy",
+   "przyklad": "Mówiący mówi, że nie zostawił dziedzica dla swojej lutni ani imienia, a jego imię przejdzie jak błyskawica.",
+   "miejsce": "Testament mój, strofa II"
+  },
+  {
+   "motyw": "testament duchowy i apel do żywych",
+   "przyklad": "Żywi mają nie tracić nadziei, nieść oświatę i ginąć, gdy trzeba, jak kamienie rzucane na szaniec.",
+   "miejsce": "Testament mój, strofa VII",
+   "cytat": "I przed narodem niosą oświaty kaganiec"
+  },
+  {
+   "motyw": "wspólnota z towarzyszami",
+   "przyklad": "Pierwszy wers wspomina wspólne życie, cierpienia i łzy z odbiorcami.",
+   "miejsce": "Testament mój, strofa I",
+   "cytat": "Żyłem z wami, cierpiałem i płakałem z wami"
+  },
+  {
+   "motyw": "siła, która trwa po śmierci",
+   "przyklad": "Ostatnia strofa mówi o „sile fatalnej”, która po śmierci poety będzie „gniotła” żywych, aż zmieni ich w aniołów; można odczytać to jako wiarę w trwały wpływ poezji.",
+   "miejsce": "Testament mój, strofa X"
+  }
+ ],
+ "utwory": [
+  {
+   "tytul": "Testament mój",
+   "miejsce": "całość",
+   "opis": "Wiersz-pożegnanie Juliusza Słowackiego, w którym mówiący żegna się z towarzyszami, mówi o służbie dla ojczyzny, o samotności poety i pozostawia nakaz nadziei i oświaty. Używa obrazów okrętu, maszcie i kamieni rzuconych na szaniec."
+  },
+  {
+   "tytul": "Smutno mi, Boże",
+   "miejsce": "wybrany drugi wiersz (przykład z podstawy)",
+   "opis": "Wiersz o samotności i tęsknocie osoby mówiącej, która czuje się obca na obczyźnie. Tekstu tego wiersza nie sprawdzano w tej sesji, bo Wolne Lektury w danych katalogu wskazują wyłącznie „Testament mój”."
+  }
+ ],
+ "zrodla": [
+  {
+   "url": "https://wolnelektury.pl/katalog/lektura/testament-moj/",
+   "rodzaj": "utwór",
+   "co": "Pełny tekst Testamentu mego; cytaty sprawdzone."
+  }
+ ],
+ "do_weryfikacji": [
+  "„Smutno mi, Boże” — tekstu i faktów (data, miejsce, adresat) nie sprawdzano w tej sesji; katalog wymienia go tylko jako przykład drugiego wiersza.",
+  "Numeracja strof robocza (od początku tekstu w Wolnych Lekturach)."
+ ]
+}

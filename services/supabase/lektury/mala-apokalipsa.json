@@ -1,0 +1,51 @@
+{
+  "id": "mala-apokalipsa",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "początek, przebudzenie", "kto": ["pisarz"], "gdzie": "mieszkanie pisarza w Warszawie", "opis": "Pisarz budzi się w ponury poranek i rozmyśla nad własnym życiem i zbliżającym się końcem." },
+    { "nr": 2, "miejsce": "początek, wizyta Rysia i Huberta", "kto": ["pisarz", "Rysio", "Hubert"], "gdzie": "mieszkanie pisarza", "opis": "Rysio i Hubert przychodzą do pisarza, którego wyznaczono do dokonania publicznego samospalenia w proteście politycznym." },
+    { "nr": 3, "miejsce": "wędrówka, bar mleczny", "kto": ["pisarz", "Edek"], "gdzie": "bar mleczny w Warszawie", "opis": "Pisarz rozmawia z cenzorem Edkiem o cenzurze i roli Związku Sowieckiego w kraju." },
+    { "nr": 4, "miejsce": "wędrówka, pierwsze spotkanie z kobietami", "kto": ["pisarz", "Nadieżda", "Halina"], "gdzie": "ulica Wiślana w Warszawie", "opis": "Pisarz spotyka Halinę i Nadieżdę, które zajmują się przygotowaniami do zaplanowanego protestu." },
+    { "nr": 5, "miejsce": "wędrówka, spotkanie z Sacherem", "kto": ["pisarz", "Sacher"], "gdzie": "Warszawa", "opis": "Na drodze pisarza pojawia się Sacher, dawny członek Biura Politycznego." },
+    { "nr": 6, "miejsce": "wędrówka, spotkanie z Tadziem", "kto": ["pisarz", "Tadzio"], "gdzie": "Warszawa", "opis": "Tadzio przyłącza się do pisarza i przedstawia się jako miłośnik jego twórczości." },
+    { "nr": 7, "miejsce": "wędrówka, kino Wołga", "kto": ["pisarz", "Hubert"], "gdzie": "kino Wołga", "opis": "W kinie Wołga pisarz widzi, jak karetka zabiera Huberta." },
+    { "nr": 8, "miejsce": "wędrówka, rozmowa z reżyserem", "kto": ["pisarz", "Bułat"], "gdzie": "Warszawa", "opis": "Pisarz rozmawia z Bułatem, reżyserem filmu Transfuzja." },
+    { "nr": 9, "miejsce": "wędrówka, Paradyż", "kto": ["pisarz", "Żorż"], "gdzie": "restauracja Paradyż", "opis": "W restauracji Paradyż Żorż brutalnie przesłuchuje pisarza." },
+    { "nr": 10, "miejsce": "wędrówka, spotkanie z Kobiałką", "kto": ["pisarz", "towarzysz Kobiałka"], "gdzie": "Warszawa", "opis": "Pisarz spotyka Kobiałkę, który czeka na przewiezienie do szpitala psychiatrycznego." },
+    { "nr": 11, "miejsce": "wędrówka, rozmowa z Cabanem", "kto": ["pisarz", "Caban"], "gdzie": "Warszawa", "opis": "Pisarz rozmawia z opozycjonistą Cabanem." },
+    { "nr": 12, "miejsce": "wędrówka, ponowne spotkanie z Nadieżdą", "kto": ["pisarz", "Nadieżda"], "gdzie": "opuszczony budynek", "opis": "Pisarz ponownie spotyka Nadieżdę i zbliża się z nią w opuszczonym budynku." },
+    { "nr": 13, "miejsce": "wędrówka, odwiedziny w szpitalu", "kto": ["pisarz", "Hubert"], "gdzie": "szpital", "opis": "Pisarz odwiedza w szpitalu umierającego Huberta." },
+    { "nr": 14, "miejsce": "wędrówka, ogródki działkowe", "kto": ["pisarz", "dawne partnerki"], "gdzie": "warszawskie ogródki działkowe", "opis": "W ogródkach działkowych pisarz spotyka kobiety, z którymi był kiedyś związany." },
+    { "nr": 15, "miejsce": "wędrówka, wizyta u Jana", "kto": ["pisarz", "Jan"], "gdzie": "mieszkanie Jana", "opis": "Pisarz odwiedza dawnego przyjaciela Jana, który próbuje odebrać sobie życie." },
+    { "nr": 16, "miejsce": "zakończenie", "kto": ["pisarz"], "gdzie": "okolice Pałacu Kultury i Nauki", "opis": "Pisarz dociera do miejsca planowanego protestu, a powieść urywa się na jego prośbie o siłę, przed ukazaniem samego czynu." }
+  ],
+  "postacie": [
+    { "imie": "pisarz", "odmiany": ["pisarza", "pisarzowi", "pisarzem", "narrator", "narratora"], "rola": "bezimienny narrator, przemierza Warszawę w dniu planowanego protestu", "relacje": "znajomy Rysia, Huberta i Jana, zbliża się do Nadieżdy", "miejsca": ["początek", "wędrówka", "zakończenie"] },
+    { "imie": "Rysio", "odmiany": ["Rysia", "Rysiowi", "Rysiem"], "rola": "opozycjonista oznajmiający pisarzowi decyzję o proteście", "relacje": "przychodzi do pisarza razem z Hubertem", "miejsca": ["początek, wizyta Rysia i Huberta"] },
+    { "imie": "Hubert", "odmiany": ["Huberta", "Hubertowi", "Hubertem"], "rola": "opozycjonista, po spotkaniu w mieszkaniu pisarza trafia do szpitala", "relacje": "przyjaciel pisarza i współpracownik Rysia", "miejsca": ["początek, wizyta Rysia i Huberta", "wędrówka, kino Wołga", "wędrówka, odwiedziny w szpitalu"] },
+    { "imie": "Nadieżda", "odmiany": ["Nadieżdy", "Nadieżdzie", "Nadieżdę", "Nadieżdą"], "rola": "uczestniczy w przygotowaniach opozycji do protestu", "relacje": "współpracuje z Haliną i nawiązuje romans z pisarzem", "miejsca": ["wędrówka, pierwsze spotkanie z kobietami", "wędrówka, ponowne spotkanie z Nadieżdą"] },
+    { "imie": "Halina", "odmiany": ["Haliny", "Halinie", "Halinę", "Haliną"], "rola": "uczestniczka spotkania organizacyjnego", "relacje": "towarzyszy Nadieżdzie podczas spotkania z pisarzem", "miejsca": ["wędrówka, pierwsze spotkanie z kobietami"] },
+    { "imie": "Tadzio", "odmiany": ["Tadzia", "Tadziowi", "Tadziem"], "rola": "współpracownik aparatu bezpieczeństwa utrzymujący, że podziwia twórczość pisarza", "relacje": "towarzyszy pisarzowi na części drogi", "miejsca": ["wędrówka, spotkanie z Tadziem"] },
+    { "imie": "Edek", "odmiany": ["Edka", "Edkowi", "Edkiem"], "rola": "cenzor spotkany w barze mlecznym", "relacje": "rozmawia z pisarzem o cenzurze", "miejsca": ["wędrówka, bar mleczny"] },
+    { "imie": "Jan", "odmiany": ["Jana", "Janowi", "Janem"], "rola": "dawny autorytet pisarza, którego bohater zastaje w kryzysie", "relacje": "przyjaciel pisarza z przeszłości", "miejsca": ["wędrówka, wizyta u Jana"] },
+    { "imie": "Żorż", "odmiany": ["Żorża", "Żorżowi", "Żorżem"], "rola": "prowadzi brutalne przesłuchanie pisarza", "relacje": "przeciwnik pisarza w epizodzie w restauracji", "miejsca": ["wędrówka, Paradyż"] }
+  ],
+  "motywy": [
+    { "motyw": "ofiara i przymus", "przyklad": "Opozycjoniści przynoszą pisarzowi decyzję, według której to on ma dokonać protestu. Scenę można odczytać jako pytanie o granice osobistego wyboru.", "miejsce": "początek, wizyta Rysia i Huberta" },
+    { "motyw": "cenzura", "przyklad": "Rozmowa z Edkiem sprowadza zasady kontrolowania publikacji do codziennej rozmowy w barze.", "miejsce": "wędrówka, bar mleczny" },
+    { "motyw": "pozory zaufania", "przyklad": "Tadzio deklaruje podziw dla pisarza, chociaż jest związany z aparatem bezpieczeństwa.", "miejsce": "wędrówka, spotkanie z Tadziem" },
+    { "motyw": "przemoc systemu", "przyklad": "W restauracji Żorż przesłuchuje pisarza, a przestrzeń publiczna staje się miejscem nacisku ze strony funkcjonariuszy.", "miejsce": "wędrówka, Paradyż" },
+    { "motyw": "miłość w obliczu śmierci", "przyklad": "W drodze na miejsce protestu pisarz zbliża się do Nadieżdy w opuszczonym budynku.", "miejsce": "wędrówka, ponowne spotkanie z Nadieżdą" },
+    { "motyw": "utrata autorytetu", "przyklad": "Spotkanie z Janem, dawnym wzorem pisarza, przynosi obraz człowieka pogrążonego w rozpaczy.", "miejsce": "wędrówka, wizyta u Jana" },
+    { "motyw": "wędrówka i aluzje pasyjne", "przyklad": "Kolejne postoje w drodze na plac można odczytać jako nawiązanie do stacji Drogi Krzyżowej, a końcowy apel bohatera podkreśla trud podjęcia ofiary.", "miejsce": "wędrówka i zakończenie" }
+  ],
+  "utwory": [],
+  "zrodla": [
+    { "url": "https://zpe.gov.pl/watek/LPDHCLV14X/64/a/dowiedz-sie/DOKEUJ5SF", "rodzaj": "opracowanie", "co": "Ekspozycja, postać narratora, założenie protestu i końcowe słowa powieści." },
+    { "url": "https://zpe.gov.pl/watek/LPDHCLV14X/64/a/cwiczenia/D6D1CBTGJ", "rodzaj": "opracowanie", "co": "Uporządkowane etapy wędrówki, relacje z Nadieżdą, Tadziem i Janem oraz aluzje pasyjne." },
+    { "url": "https://zpe.gov.pl/a/dowiedz-sie/DF86R1DBA", "rodzaj": "opracowanie", "co": "Symbolika apokalipsy, przestrzeni Warszawy i planowanej ofiary." }
+  ],
+  "do_weryfikacji": [
+    "W materiale ZPE występuje forma Tadzio Piórko; dokładne nazwisko Tadzia wymaga potwierdzenia w wydaniu powieści.",
+    "Położenie niektórych epizodów opisano przez nazwy scen; szczegółowe odsyłacze do stron zależą od wydania."
+  ]
+}
