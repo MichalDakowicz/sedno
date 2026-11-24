@@ -1,0 +1,53 @@
+{
+  "id": "gloria-victis",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "początek noweli (rama: wiatr i las)", "kto": ["wiatr", "las"], "gdzie": "Polesie litewskie, Kanał Królewski", "opis": "Wiatr przylatuje letnim wieczorem na Polesie i wita się z lasem; w lesie, na polanie, dostrzega usypaną mogiłę z małym krzyżykiem." },
+    { "nr": 2, "miejsce": "rama: rozmowa wiatru z drzewami", "kto": ["wiatr", "dąb", "brzoza", "świerk", "róża dzika", "dzwonki liliowe"], "gdzie": "polana w lesie", "opis": "Drzewa mówią, że to mogiła bezimiennych bohaterów, a róża od pół wieku rzuca na nią płatki, dzwonki liliowe „dzwonią pacierz żałobny”; wiatr prosi, by mu opowiedziano jej dzieje." },
+    { "nr": 3, "miejsce": "opowieść dębu: obóz", "kto": ["Romuald Traugutt", "oddział powstańców"], "gdzie": "polana w lesie, maj 1863", "opis": "W maju na polanę przychodzi kilkuset młodych powstańców w czapkach czworokątnych, rozkładają obóz i śpiewają hymn; dowodzi nimi Romuald Traugutt, który opuścił żonę i dzieci dla sprawy narodu." },
+    { "nr": 4, "miejsce": "opowieść dębu: bohater Tarłowski", "kto": ["mały Tarłowski (Maryś)", "Jagmin", "Anielka"], "gdzie": "polana w lesie; pobliskie miasteczko", "opis": "Dąb opowiada o „małym Tarłowskim”, młodym przyrodniku, który przybył w te strony, by uczyć ludzi, razem z młodszą siostrą Anielką; dowódcą jazdy jest silny, wysoki Jagmin." },
+    { "nr": 5, "miejsce": "opowieść dębu: przyjaźń trojga", "kto": ["Tarłowski", "Anielka", "Jagmin"], "gdzie": "miasteczko i las obok", "opis": "Jagmin zaprzyjaźnia się z rodzeństwem i zakochuje w Anielce; ostatecznie zawiadamia, że za dziesięć dni zbiórka w Dziatkowiczach, skąd idą za Kanał Królewski do lasów horeckich." },
+    { "nr": 6, "miejsce": "opowieść dębu: rozstanie", "kto": ["Tarłowski", "Anielka", "Jagmin"], "gdzie": "las pod miasteczkiem; ogródek", "opis": "Anielka płacze, ale mówi bratu „Idź, Marysiu, idź!”; wieczorem prosi Jagmina, by miał opiekę nad bratem, a on przyrzeka być mu przyjacielem i bratem." },
+    { "nr": 7, "miejsce": "opowieść dębu: życie obozu", "kto": ["oddział", "Traugutt", "Tarłowski"], "gdzie": "polana w lesie", "opis": "Oddział odbywa potyczki i wraca na polanę zwycięski; Traugutt dziękuje żołnierzom za karność i odwagę." },
+    { "nr": 8, "miejsce": "opowieść dębu: wyróżnienie Tarłowskiego", "kto": ["Traugutt", "Tarłowski", "Jagmin"], "gdzie": "polana w lesie", "opis": "Po bitwie Traugutt przed szeregiem dziękuje Tarłowskiemu, który uratował mu życie, i nazywa go dzielnym rycerzem Umęczonej; Jagmin szepcze mu o Anielce." },
+    { "nr": 9, "miejsce": "opowieść brzozy: Tarłowski w obozie", "kto": ["Tarłowski", "towarzysze"], "gdzie": "polana w lesie", "opis": "Brzoza opowiada, że Tarłowski w wolnych chwilach zbiera rośliny i owady i opowiada o nich towarzyszom; jest zamyślony, choć nie okazuje radości z wyróżnienia." },
+    { "nr": 10, "miejsce": "opowieść brzozy: nocna rozmowa", "kto": ["Tarłowski", "Jagmin"], "gdzie": "polana w lesie", "opis": "Nocą dwaj przyjaciele rozmawiają o przyszłości świata bez wojen; Tarłowski cytuje starożytnego poetę (Horacego) o ludzkiej wściekłości, a Jagmin mówi, że dopóki jest krzywda, walka jest powinnością." },
+    { "nr": 11, "miejsce": "opowieść dębu: dzień bitwy", "kto": ["Kalikst", "Radowicki", "Traugutt", "oddział"], "gdzie": "polana w lesie", "opis": "Do obozu przybywa goniec Kalikst z wieścią, że ogromne wojsko rosyjskie otacza las; Traugutt ogłasza bitwę pod hasłem „W imię Boga i ojczyzny!”." },
+    { "nr": 12, "miejsce": "opowieść dębu: list od Anielki", "kto": ["Kalikst", "Tarłowski", "Jagmin"], "gdzie": "polana w lesie", "opis": "Kalikst oddaje Tarłowskiemu zwinięty karteczkowy list od siostry; oddział wychodzi z obozu na bitwę." },
+    { "nr": 13, "miejsce": "opowieść dębu: bitwa w lesie", "kto": ["powstańcy", "wojsko rosyjskie", "Tarłowski"], "gdzie": "las i polana", "opis": "Powstańcy z zasadzek ostrzeliwują nadciągające wojska; wielogodzinna bitwa; Tarłowski strzela z klęczek, aż kula trafia go w ramię i wynoszą go do namiotu z rannymi." },
+    { "nr": 14, "miejsce": "opowieść dębu: zabicie rannych", "kto": ["oddział jazdy rosyjskiej", "Jagmin", "Tarłowski"], "gdzie": "polana, namiot dla rannych", "opis": "Rosyjska jazda dopada namiotu z rannymi; Jagmin ze swoim oddziałem rusza z pomocą, ale zastaje tylko zabitych; Tarłowski wzniesiony na ostrzach pik rzuca mu zakrwawioną chustę i woła „Jagmin! Siostrze!”, a Jagmin znika w zamieszaniu." },
+    { "nr": 15, "miejsce": "zakończenie opowieści: Anielka przy mogile", "kto": ["Anielka"], "gdzie": "polana, mogiła", "opis": "Po wielu latach, jesienią, przychodzi na mogiłę Anielka, upada na zioła i stawia mały krzyżyk; potem odchodzi i nigdy nie wraca." },
+    { "nr": 16, "miejsce": "zakończenie (rama)", "kto": ["wiatr"], "gdzie": "polana w lesie, cały świat", "opis": "Lata mijają, a strumień czasu szemrze „Vae victis!”; wiatr wstaje nad mogiłą i woła na cały świat „Gloria victis!”." }
+  ],
+  "postacie": [
+    { "imie": "Romuald Traugutt", "odmiany": ["Traugutta", "Trauguttowi", "Trauguttem", "wódz", "wodza", "naczelnik", "naczelnika"], "rola": "dowódca oddziału powstańczego, który przychodzi do lasu z hufcem młodych ochotników", "relacje": "wódz Jagmina i Tarłowskiego; Tarłowski ratuje mu życie", "miejsca": ["polana w lesie"] },
+    { "imie": "Tarłowski (Maryś)", "odmiany": ["Tarłowskiego", "Tarłowskiemu", "Tarłowskim", "Marysia", "Marysiu", "Marysiem", "mały"], "rola": "młody, wątły przyrodnik-powstaniec, który ginie na pikach w namiocie dla rannych", "relacje": "brat Anielki, przyjaciel Jagmina", "miejsca": ["miasteczko", "polana w lesie"] },
+    { "imie": "Anielka (panna Aniela)", "odmiany": ["Anielki", "Anielce", "Anielkę", "Anielką", "Aniela", "Anieli", "siostra"], "rola": "siostra Tarłowskiego, zostaje poza obozem, po latach odwiedza mogiłę brata", "relacje": "siostra Tarłowskiego, ukochana Jagmina (według tekstu)", "miejsca": ["miasteczko", "mogiła na polanie"] },
+    { "imie": "Jagmin", "odmiany": ["Jagmina", "Jagminowi", "Jagminem", "dowódca jazdy", "dowódcę jazdy"], "rola": "dowódca jazdy w oddziale Traugutta, przyjaciel Tarłowskiego", "relacje": "przyjaciel Tarłowskiego, adorator Anielki", "miejsca": ["polana w lesie"] },
+    { "imie": "Kalikst (Kaliś)", "odmiany": ["Kaliksta", "Kalikstowi", "Kaliś", "Kalisia", "posłaniec"], "rola": "goniec poczty obywatelskiej, który przynosi ostrzeżenie przed wojskiem rosyjskim", "relacje": "kolega szkolny Radowickiego", "miejsca": ["polana w lesie"] },
+    { "imie": "Radowicki", "odmiany": ["Radowickiego", "Radowickiemu", "Radowickim", "adiutant"], "rola": "adiutant Traugutta", "relacje": "kolega szkolny Kaliksta", "miejsca": ["polana w lesie"] },
+    { "imie": "wiatr prędki", "odmiany": ["wiatru", "wiatrowi", "wiatrem", "wiatrze"], "rola": "narrator ramowy, który zbiera dzieje ludzi i głosi „Gloria victis”", "relacje": "rozmówca drzew", "miejsca": ["Polesie litewskie"] },
+    { "imie": "dąb, brzoza, świerk", "odmiany": ["dębu", "brzozy", "świerka", "dęby", "drzewa"], "rola": "drzewa-świadkowie, opowiadają wiatrowi dzieje mogiły", "relacje": "przyjaciele wiatru", "miejsca": ["las nad Kanałem Królewskim"] }
+  ],
+  "motywy": [
+    { "motyw": "hołd dla bezimiennych bohaterów powstania", "przyklad": "Drzewa mówią wiatrowi, że mogiła nie ma imion, tylko mały krzyżyk, a świerk wymienia bohaterów „wieńczonych i niewieńczonych”.", "miejsce": "rama noweli: początek", "cytat": "są na ziemi bohaterzy wieńczeni i nie wieńczeni" },
+    { "motyw": "ofiara młodości i dobrowolne poświęcenie", "przyklad": "Dąb opowiada o młodych ochotnikach, którzy „nie niewolnikami byli”, lecz dobrowolnymi ofiarnikami, i ginął w maju, w pełni wiosny.", "miejsce": "opowieść dębu: obóz", "cytat": "" },
+    { "motyw": "wojna a człowieczeństwo (pacyfizm bohatera)", "przyklad": "Tarłowski, przyrodnik, w nocnej rozmowie z Jagminem marzy o świecie bez wojen i mówi o „kropli wściekłości lwiej” wlanej człowiekowi; mimo to walczy.", "miejsce": "opowieść brzozy: nocna rozmowa", "cytat": "Dopóki gwałt, dopóty święty przeciwko gwałtowi gniew!" },
+    { "motyw": "obowiązek walki wbrew nadziei", "przyklad": "Hasło obozu brzmi „Z nadzieją czy przeciw nadziei!”; Jagmin mówi, że „teraz walka to powinność”.", "miejsce": "opowieść brzozy; opowieść dębu: dzień bitwy", "cytat": "Z nadzieją czy przeciw nadziei!" },
+    { "motyw": "przyjaźń i braterstwo broni", "przyklad": "Jagmin przyrzeka Anielce, że będzie bratem jej bratu, a w ostatniej chwili Tarłowski rzuca mu zakrwawioną chustę „Siostrze!”.", "miejsce": "opowieść dębu: rozstanie; zabicie rannych", "cytat": "Jagmin! Siostrze!" },
+    { "motyw": "miłość do natury", "przyklad": "Tarłowski w obozie zbiera zioła i owady i opowiada o nich towarzyszom, co daje im ukojenie.", "miejsce": "opowieść brzozy: Tarłowski w obozie", "cytat": "" },
+    { "motyw": "okrucieństwo wojny wobec rannych", "przyklad": "Rosyjska jazda wpada do namiotu z rannymi, zabija ich i lekarzy, a Tarłowskiego unosi na pikach.", "miejsce": "opowieść dębu: zabicie rannych", "cytat": "" },
+    { "motyw": "pamięć i zwycięstwo moralne klęski (gloria victis)", "przyklad": "Mimo klęski wiatr wstaje nad mogiłą i obwieszcza całemu światu „Gloria victis!”, choć czas szemrze „Vae victis!”.", "miejsce": "zakończenie noweli", "cytat": "Gloria victis!" },
+    { "motyw": "rola kobiet w powstaniu (poczta, żałoba)", "przyklad": "Anielka zostaje poza obozem, pisze list do brata, a po latach przychodzi na mogiłę ze skromnym krzyżykiem.", "miejsce": "opowieść dębu: list od Anielki; zakończenie opowieści", "cytat": "" },
+    { "motyw": "porównanie powstańców do bohaterów antyku", "przyklad": "Narrator porównuje Traugutta do Leonidasa pod Termopilami: obaj idą na pewną śmierć.", "miejsce": "opowieść dębu: obóz", "cytat": "" }
+  ],
+  "utwory": [],
+  "zrodla": [
+    { "url": "https://wolnelektury.pl/katalog/lektura/gloria-victis-gloria-victis/", "rodzaj": "utwór", "co": "Przeczytana cała nowela z Wolnych Lektur (domena publiczna); sprawdzony przebieg zdarzeń i cytaty." }
+  ],
+  "do_weryfikacji": [
+    "Tekst nie nazywa konkretnej bitwy ani oddziału; identyfikacja z historycznymi wydarzeniami 1863 r. niesprawdzona.",
+    "Nowela nie dzieli się na rozdziały; miejsca opisane według warstwy narracji (rama, opowieść dębu, opowieść brzozy).",
+    "Związek Jagmina i Anielki to w tekście sugestia (pocałunki w dłonie, „Siostrze!”), nie jednoznaczna deklaracja.",
+    "Romuald Traugutt jest postacią historyczną; szczegóły jego życia i funkcji w 1863 r. nie były sprawdzane w osobnym źródle."
+  ]
+}

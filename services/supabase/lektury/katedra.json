@@ -1,0 +1,31 @@
+{
+  "id": "katedra",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "początek opowiadania", "kto": ["ksiądz Pierre Lavone"], "gdzie": "planetoida (rój Izmiraidy)", "opis": "Narrator, ksiądz Pierre Lavone, przybywa na planetoidę, na której znajduje się tytułowa Katedra, żeby zbadać doniesienia o cudach doświadczanych przez pielgrzymów przy grobie zmarłego astronauty." },
+    { "nr": 2, "miejsce": "przebieg śledztwa", "kto": ["Pierre Lavone", "jeden z bohaterów"], "gdzie": "planetoida", "opis": "Podczas pisania raportu Lavone napotyka zagadkę Katedry i planetoid, których budowa i oddziaływania przekraczają możliwości ludzkiej nauki; jeden z bohaterów sugeruje mu, że planetoidy mogą być wytworem obcej cywilizacji." },
+    { "nr": 3, "miejsce": "dalsza część opowiadania", "kto": ["Pierre Lavone"], "gdzie": "planetoida", "opis": "Wypadek, któremu Lavone ulega w toku dociekań, zmusza go do pozostania na planetoidzie i splata jego los z zagadką Katedry." }
+  ],
+  "postacie": [
+    { "imie": "Pierre Lavone", "odmiany": ["Lavone'a", "Lavone'owi", "Lavone'em", "Lavone", "ksiądz Lavone", "księdza Lavone'a"], "rola": "ksiądz i narrator, który bada rzekome cuda przy grobie astronauty i zagadkę Katedry", "relacje": "bada sprawę pielgrzymów i obserwuje Katedrę", "miejsca": ["planetoida"] },
+    { "imie": "Izmir Predú", "odmiany": ["Izmira Predú", "Izmirowi Predú", "Izmirem Predú"], "rola": "astronauta, który poświęcił życie, by ocalić załogę statku awaryjnie lądującego na planetoidzie; wokół jego grobu powstaje kult", "relacje": "bohater kultu pielgrzymów; od niego nazwano rój Izmiraidą", "miejsca": ["planetoida (grób)"] },
+    { "imie": "pielgrzymi", "odmiany": ["pielgrzymów", "pielgrzymom"], "rola": "ludzie przybywający do grobu Izmira i do Katedry w poszukiwaniu doświadczenia religijnego", "relacje": "bohaterowie zbiorowi, kult Izmira", "miejsca": ["planetoida"] }
+  ],
+  "motywy": [
+    { "motyw": "spotkanie człowieka z obcością i granice poznania", "przyklad": "Właściwości budowy planetoid i oddziaływania w ich roju przekraczają możliwości ludzkiej nauki, a jeden z bohaterów podejrzewa udział obcej cywilizacji.", "miejsce": "przebieg śledztwa Lavone'a", "cytat": "" },
+    { "motyw": "sacrum i religia w świecie zaawansowanej technologii", "przyklad": "Przy grobie astronauty miały dziać się cuda, a ksiądz Lavone jedzie sprawdzić, czy to naprawdę cuda; Katedra przyciąga ludzi szukających doświadczenia mistycznego.", "miejsce": "początek opowiadania", "cytat": "" },
+    { "motyw": "niewyrażalność tego, co obce, w języku", "przyklad": "Narrator opisuje Katedrę przez zaprzeczenia: nie budynek, nie rzeźba, nie dzieło człowieka ani natury; autor zmaga się z ograniczeniami języka.", "miejsce": "opis Katedry w opowiadaniu (wg ZPE: s. 404–406 wydania zbioru)", "cytat": "" },
+    { "motyw": "dzieło bez autora (acheiropoieta)", "przyklad": "Narrator pyta o twórcę Katedry: programiści żywokrystu zakreślili tylko warunki brzegowe, więc autorem może być przypadek, Bóg albo nikt.", "miejsce": "rozmyślania narratora o twórcy Katedry (wg ZPE: s. 439–440)", "cytat": "" },
+    { "motyw": "piękno i wzniosłość, a nie ładność", "przyklad": "Katedra jest dla narratora piękna, ale niepokojąca; porównuje jej oddziaływanie do kosmosu, który wywołuje doświadczenie mistyczne.", "miejsce": "rozmyślania narratora o pięknie Katedry", "cytat": "" },
+    { "motyw": "nawiązanie do Gaudiego i architektury sakralnej", "przyklad": "Autor zadedykował opowiadanie pamięci Antonio Gaudiego; czytelnik widzi pokrewieństwo Katedry z Sagrada Familia.", "miejsce": "dedykacja opowiadania", "cytat": "" }
+  ],
+  "utwory": [],
+  "zrodla": [
+    { "url": "https://zpe.gov.pl/a/przeczytaj/DCBwp313K", "rodzaj": "opracowanie", "co": "Przeczytany materiał ZPE o Katedrze: streszczenie sytuacji wyjściowej, opis Katedry, dwa cytowane fragmenty (s. 404–406 i 439–440), słowniczek, informacje o dedykacji i filmie Bagińskiego." }
+  ],
+  "do_weryfikacji": [
+    "Zakończenie opowiadania (co dzieje się z Lavone'em i Katedrą) nie zostało sprawdzone w czytanych źródłach.",
+    "Nie sprawdzono pełnego tekstu opowiadania; Dukaj żyje (ur. 1974), tekst jest chroniony prawem autorskim, więc nie podaje się cytatów.",
+    "Kolejność wydarzeń (nr 2 i 3) podana według opisu ZPE, nie według lektury całości.",
+    "Film animowany Tomasza Bagińskiego (2002), nominowany do Oscara, jest tylko luźno związany z opowiadaniem (wg ZPE)."
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "szewcy",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "akt I", "kto": ["Sajetan Tempe", "Józek", "Jędrek"], "gdzie": "warsztat szewski", "opis": "Sajetan i czeladnicy pracują przy butach, rozmawiając o swojej pozycji i możliwości rewolucji." },
+    { "nr": 2, "miejsce": "akt I", "kto": ["Robert Scurvy", "Sajetan Tempe", "czeladnicy"], "gdzie": "warsztat szewski", "opis": "Scurvy przychodzi do warsztatu z żółtymi kwiatami i wdaje się w rozmowę z szewcami." },
+    { "nr": 3, "miejsce": "akt I", "kto": ["Księżna Irina", "Fierdusieńko", "Robert Scurvy", "szewcy"], "gdzie": "warsztat szewski", "opis": "Księżna rozdaje obecnym żółte kwiaty, a Fierdusieńko przynosi jej wazon na resztę bukietu." },
+    { "nr": 4, "miejsce": "akt I", "kto": ["Robert Scurvy", "Księżna Irina", "Sajetan Tempe"], "gdzie": "warsztat szewski", "opis": "Scurvy i szewcy prowadzą z Księżną spór o pożądanie, władzę i przyszłość kultury." },
+    { "nr": 5, "miejsce": "akt I", "kto": ["Robert Scurvy", "Dziarscy Chłopcy", "Józef Tempe", "szewcy"], "gdzie": "warsztat szewski", "opis": "Scurvy pojawia się w czerwonym mundurze z Dziarskimi Chłopcami, którym przewodzi syn Sajetana." },
+    { "nr": 6, "miejsce": "akt I", "kto": ["Robert Scurvy", "Sajetan Tempe", "Dziarscy Chłopcy"], "gdzie": "warsztat szewski", "opis": "Scurvy oznajmia, że został ministrem sprawiedliwości, po czym Dziarscy Chłopcy przystępują do zatrzymania obecnych." },
+    { "nr": 7, "miejsce": "akt II", "kto": ["Sajetan Tempe", "Józek", "Jędrek"], "gdzie": "więzienie, sala przymusowej bezrobotności", "opis": "Uwięzieni szewcy widzą po drugiej stronie balasek urządzony warsztat, do którego nie mają dostępu." },
+    { "nr": 8, "miejsce": "akt II", "kto": ["Robert Scurvy", "szewcy"], "gdzie": "więzienie, sala przymusowej bezrobotności", "opis": "Scurvy wchodzi na katedrę w więziennej sali i rozmawia z więźniami o władzy i pracy." },
+    { "nr": 9, "miejsce": "akt II", "kto": ["Robert Scurvy", "Księżna Irina", "strażnicy"], "gdzie": "więzienie, sala przymusowej bezrobotności", "opis": "Na żądanie Scurvy’ego strażnicy wprowadzają Księżną w stroju więziennym na stronę z warsztatem." },
+    { "nr": 10, "miejsce": "akt II", "kto": ["Robert Scurvy", "Księżna Irina", "szewcy"], "gdzie": "więzienie, sala przymusowej bezrobotności", "opis": "Księżna może przebywać przy narzędziach, chociaż nie chce szyć, a szewcy coraz dotkliwiej odczuwają odebranie im pracy." },
+    { "nr": 11, "miejsce": "akt II", "kto": ["Sajetan Tempe", "Józek", "Jędrek"], "gdzie": "więzienie, przy balaskach", "opis": "Szewcy rozbijają przegrodę w sali i natychmiast zabierają się do szycia butów." },
+    { "nr": 12, "miejsce": "akt II", "kto": ["Robert Scurvy", "Księżna Irina", "szewcy"], "gdzie": "więzienie, sala przymusowej bezrobotności", "opis": "Scurvy wydostaje Księżną z części przeznaczonej dla więźniów, po czym obserwuje z nią zapał szewców." },
+    { "nr": 13, "miejsce": "akt II", "kto": ["Sajetan Tempe", "Józef Tempe", "czeladnicy", "pachołkowie"], "gdzie": "więzienie, warsztat", "opis": "Pachołkowie rzucają się na szewców, ale przyłączają się do pracy, a Sajetan pracuje razem z synem." },
+    { "nr": 14, "miejsce": "akt III", "kto": ["Sajetan Tempe", "czeladnicy", "Robert Scurvy"], "gdzie": "dawny warsztat, teraz siedziba szewców", "opis": "Szewcy występują jako zwycięzcy w urządzonym na nowo warsztacie, a Scurvy jest trzymany na łańcuchu." },
+    { "nr": 15, "miejsce": "akt III", "kto": ["Księżna Irina", "Robert Scurvy"], "gdzie": "dawny warsztat", "opis": "Księżna daje Scurvy’emu proszki, a on kładzie głowę na jej kolanach." },
+    { "nr": 16, "miejsce": "akt III", "kto": ["chłopi", "Chochoł", "czeladnicy", "Sajetan Tempe"], "gdzie": "dawny warsztat", "opis": "Chłopi przychodzą z Chochołem, a czeladnicy odrzucają ich wystąpienie i jego symbole." },
+    { "nr": 17, "miejsce": "akt III", "kto": ["Józek", "Sajetan Tempe", "Jędrek", "Księżna Irina"], "gdzie": "dawny warsztat", "opis": "Józek uderza Sajetana w głowę siekierą, a obecni układają rannego, żeby mógł się jeszcze wypowiedzieć." },
+    { "nr": 18, "miejsce": "akt III", "kto": ["Fierdusieńko", "Hiper-Robociarz"], "gdzie": "dawny warsztat", "opis": "Do dawnego warsztatu przybywają Fierdusieńko i Hiper-Robociarz z miedzianym termosem." },
+    { "nr": 19, "miejsce": "akt III", "kto": ["Hiper-Robociarz", "Robert Scurvy", "szewcy"], "gdzie": "dawny warsztat", "opis": "Hiper-Robociarz przedstawia się jako Oleander Puzyrkiewicz, dawniej skazany przez Scurvy’ego na dożywocie." },
+    { "nr": 20, "miejsce": "akt III", "kto": ["Gnębon Puczymorda", "Hiper-Robociarz", "szewcy"], "gdzie": "dawny warsztat", "opis": "Gnębon Puczymorda wchodzi w stroju szlacheckim, a Hiper-Robociarz każe mu usiąść obok Sajetana." },
+    { "nr": 21, "miejsce": "akt III", "kto": ["Księżna Irina", "Fierdusieńko", "czeladnicy", "Gnębon Puczymorda"], "gdzie": "dawny warsztat", "opis": "Księżna przywdziewa przyniesiony kostium, a czeladnicy i Gnębon pełzną w jej stronę." },
+    { "nr": 22, "miejsce": "akt III", "kto": ["Chochoł", "Bubek", "Księżna Irina", "czeladnicy"], "gdzie": "dawny warsztat", "opis": "Chochoł podchodzi do piedestału i po opadnięciu stroju ukazuje się jako Bubek we fraku." },
+    { "nr": 23, "miejsce": "akt III", "kto": ["Księżna Irina", "Sajetan Tempe", "Robert Scurvy"], "gdzie": "dawny warsztat", "opis": "Ranny Sajetan podnosi się i jeszcze przemawia, a na Księżną zostaje z góry spuszczona druciana klatka." },
+    { "nr": 24, "miejsce": "akt III", "kto": ["Robert Scurvy", "Księżna Irina"], "gdzie": "dawny warsztat", "opis": "Scurvy wyje i umiera na łańcuchu." },
+    { "nr": 25, "miejsce": "akt III", "kto": ["towarzysz X", "towarzysz Abramowski", "Hiper-Robociarz", "Księżna Irina"], "gdzie": "dawny warsztat", "opis": "Dwaj dygnitarze przechodzą obok leżących postaci, a Hiper-Robociarz na polecenie towarzysza X zakrywa klatkę Księżnej." },
+    { "nr": 26, "miejsce": "akt III", "kto": ["towarzysz X", "towarzysz Abramowski", "Głos Straszliwy"], "gdzie": "dawny warsztat", "opis": "Dygnitarze rozmawiają o swoich decyzjach, po czym spada żelazna kurtyna i Głos Straszliwy komentuje zakończenie aktu." }
+  ],
+  "postacie": [
+    { "imie": "Sajetan Tempe", "odmiany": ["Sajetana", "Sajetanowi", "Sajetanem", "Tempemu"], "rola": "majster szewski i uczestnik przewrotu szewców", "relacje": "ojciec Józefa, przełożony Józka i Jędrka, uderzony siekierą przez Józka", "miejsca": ["akt I", "akt II", "akt III"] },
+    { "imie": "Józek", "odmiany": ["Józka", "Józkowi", "Józkiem", "I Czeladnik", "pierwszego czeladnika"], "rola": "pierwszy czeladnik, po przewrocie wymierza Sajetanowi cios", "relacje": "uczeń Sajetana i towarzysz Jędrka", "miejsca": ["akt I", "akt II", "akt III"] },
+    { "imie": "Jędrek", "odmiany": ["Jędrka", "Jędrkowi", "Jędrkiem", "II Czeladnik", "drugiego czeladnika"], "rola": "drugi czeladnik, uczestnik przewrotu", "relacje": "pracuje z Sajetanem i Józkiem", "miejsca": ["akt I", "akt II", "akt III"] },
+    { "imie": "Robert Scurvy", "odmiany": ["Scurvy’ego", "Scurvy’emu", "Scurvym", "Roberta Scurvy’ego"], "rola": "prokurator i minister po pierwszym przewrocie, po kolejnym umiera na łańcuchu", "relacje": "pragnie Księżnej, więzi szewców", "miejsca": ["akt I", "akt II", "akt III"] },
+    { "imie": "Księżna Irina", "odmiany": ["Księżnej", "Księżną", "Iriny", "Irinę", "Zbereźnicka-Podberezka", "Zbereźnickiej-Podberezki"], "rola": "arystokratka oddziałująca na kolejne grupy bohaterów, trafia do klatki", "relacje": "obiekt pożądania Scurvy’ego, pani Fierdusieńki", "miejsca": ["akt I", "akt II", "akt III"] },
+    { "imie": "Józef Tempe", "odmiany": ["Józefa Tempego", "Józefowi Tempemu", "Józefem", "Józio", "Józia"], "rola": "wchodzi z Dziarskimi Chłopcami, a w więzieniu zaczyna pracować z szewcami", "relacje": "syn Sajetana, odrębna postać od Józka", "miejsca": ["akt I", "akt II"] },
+    { "imie": "Fierdusieńko", "odmiany": ["Fierdusieńki", "Fierdusieńce", "Fierdusieńkę", "Fierdusieńką"], "rola": "lokaj wnoszący wazon, kostium i płachtę", "relacje": "służy Księżnej", "miejsca": ["akt I", "akt III"] },
+    { "imie": "Gnębon Puczymorda", "odmiany": ["Gnębona Puczymordy", "Gnębonowi", "Puczymordą", "Puczymordę"], "rola": "związany z Dziarskimi Chłopcami, wraca na scenę w stroju szlacheckim", "relacje": "w finale pada pod wpływem Księżnej razem z czeladnikami", "miejsca": ["akt III"] },
+    { "imie": "Hiper-Robociarz", "odmiany": ["Hiper-Robociarza", "Hiper-Robociarzowi", "Hiper-Robociarzem", "Oleander Puzyrkiewicz", "Oleandra Puzyrkiewicza"], "rola": "były więzień występujący z miedzianym termosem i uczestniczący w ostatnim przejęciu władzy", "relacje": "przychodzi z dygnitarzami i wykonuje polecenie towarzysza X", "miejsca": ["akt III"] },
+    { "imie": "towarzysz X", "odmiany": ["towarzysza X", "towarzyszowi X", "towarzyszem X"], "rola": "jeden z dygnitarzy pojawiających się w finale", "relacje": "rozmawia z Abramowskim i wydaje polecenie Hiper-Robociarzowi", "miejsca": ["akt III"] },
+    { "imie": "towarzysz Abramowski", "odmiany": ["Abramowskiego", "Abramowskiemu", "Abramowskim"], "rola": "dygnitarz rozmawiający o decyzjach nowej władzy", "relacje": "rozmówca towarzysza X", "miejsca": ["akt III"] }
+  ],
+  "motywy": [
+    { "motyw": "rewolucja i wymiana władzy", "przyklad": "Scurvy wchodzi z Dziarskimi Chłopcami, potem szewcy przełamują więzienny porządek, a w finale działania przejmują dygnitarze.", "miejsce": "akt I–III" },
+    { "motyw": "praca przymusowa i przymus bezczynności", "przyklad": "Sajetan narzeka na szycie dla uprzywilejowanych, a w więzieniu szewcy z zapałem rzucają się do pracy, gdy rozbiją przegrodę.", "miejsce": "akt I–II" },
+    { "motyw": "praca jako cel sam w sobie", "przyklad": "W więzieniu po sforsowaniu przejścia jeden z czeladników podporządkowuje pracy inne potrzeby.", "miejsce": "akt II", "cytat": "Praca sama w sobie — oto jest cel najwyższy" },
+    { "motyw": "kryzys jednostki i kult automatyzmu", "przyklad": "Abramowski pod koniec rozmowy z towarzyszem X żałuje, że sami nie mogą stać się automatami.", "miejsce": "akt III", "cytat": "Szkoda tylko, że my sami nie możemy być automatami." },
+    { "motyw": "uprzedmiotowienie i pożądanie", "przyklad": "Scurvy, dawny minister, zachowuje się przy Księżnej jak pies i umiera na łańcuchu.", "miejsce": "akt III" },
+    { "motyw": "groteska władzy", "przyklad": "Józek rani Sajetana złotą siekierą, a obecni umożliwiają rannemu wygłoszenie mowy.", "miejsce": "akt III" },
+    { "motyw": "nawiązanie do Wesela", "przyklad": "Chłopi przyprowadzają Chochoła, lecz strój spada z postaci, odsłaniając Bubka w wieczorowym ubraniu.", "miejsce": "akt III" },
+    { "motyw": "teatr i przerwanie iluzji", "przyklad": "Po opadnięciu żelaznej kurtyny Głos Straszliwy mówi o samym kończeniu trzeciego aktu.", "miejsce": "akt III" }
+  ],
+  "utwory": [],
+  "zrodla": [
+    { "url": "https://wolnelektury.pl/katalog/lektura/szewcy/", "rodzaj": "utwór", "co": "Tekst TXT w domenie publicznej; sprawdzono spis postaci, przebieg trzech aktów, didaskalia zakończenia i cytaty." }
+  ],
+  "do_weryfikacji": []
+}

@@ -1,0 +1,61 @@
+{
+  "id": "proces-kafki",
+  "wydarzenia": [
+    { "nr": 1, "miejsce": "rozdz. 1", "kto": ["Josef K.", "Franz", "Willem"], "gdzie": "pensjonat pani Grubach", "opis": "Rankiem w dniu trzydziestych urodzin Józefa K. dwaj strażnicy oznajmiają mu, że jest aresztowany." },
+    { "nr": 2, "miejsce": "rozdz. 1", "kto": ["Josef K.", "nadzorca", "pracownicy banku"], "gdzie": "pensjonat, pokój panny Bürstner", "opis": "Nadzorca nie podaje przyczyny aresztowania, pozwala jednak K. iść do banku w towarzystwie trzech pracowników." },
+    { "nr": 3, "miejsce": "rozdz. 1", "kto": ["Josef K.", "pani Grubach", "panna Bürstner"], "gdzie": "pensjonat pani Grubach", "opis": "Wieczorem K. rozmawia z gospodynią, po czym odtwarza pannie Bürstner scenę porannej rozmowy z nadzorcą." },
+    { "nr": 4, "miejsce": "rozdz. 2", "kto": ["Josef K."], "gdzie": "bank", "opis": "K. telefonicznie dowiaduje się, że w niedzielę ma stawić się na pierwszym przesłuchaniu." },
+    { "nr": 5, "miejsce": "rozdz. 2", "kto": ["Josef K.", "sędzia śledczy"], "gdzie": "kamienica, sala przesłuchań", "opis": "K. odnajduje salę w kamienicy, a sędzia śledczy uznaje go za malarza pokojowego." },
+    { "nr": 6, "miejsce": "rozdz. 2", "kto": ["Josef K.", "sędzia śledczy", "publiczność"], "gdzie": "kamienica, sala przesłuchań", "opis": "K. publicznie krytykuje sposób prowadzenia sprawy, dostrzega oznaki związku z sądem po obu stronach sali i wychodzi." },
+    { "nr": 7, "miejsce": "rozdz. 3", "kto": ["Josef K.", "żona woźnego", "student"], "gdzie": "kamienica, sala przesłuchań", "opis": "K. wraca w następną niedzielę i rozmawia z żoną woźnego, którą student zabiera do sędziego śledczego." },
+    { "nr": 8, "miejsce": "rozdz. 3", "kto": ["Josef K.", "woźny sądowy", "pracownicy kancelarii"], "gdzie": "poddasze kamienicy", "opis": "Woźny pokazuje K. kancelarie sądu, gdzie K. źle się czuje i potrzebuje pomocy, żeby wyjść." },
+    { "nr": 9, "miejsce": "rozdz. 4", "kto": ["Josef K.", "panna Montag", "panna Bürstner"], "gdzie": "pensjonat pani Grubach", "opis": "Panna Montag, która przenosi się do pokoju panny Bürstner, przekazuje K., że jej przyjaciółka nie zamierza odbyć z nim rozmowy." },
+    { "nr": 10, "miejsce": "rozdz. 5", "kto": ["Josef K.", "Franz", "Willem", "siepacz"], "gdzie": "schowek w banku", "opis": "K. zastaje w bankowym schowku siepacza i dwóch strażników, których karze się po skardze oskarżonego na ich zachowanie." },
+    { "nr": 11, "miejsce": "rozdz. 5", "kto": ["Josef K.", "Franz", "Willem", "siepacz"], "gdzie": "schowek w banku", "opis": "K. następnego dnia otwiera ten sam schowek i zastaje w nim tę samą scenę." },
+    { "nr": 12, "miejsce": "rozdz. 6", "kto": ["Josef K.", "wuj Karl", "adwokat Huld"], "gdzie": "dom adwokata", "opis": "Wuj przyjeżdża zaniepokojony procesem i prowadzi K. do chorego adwokata Hulda." },
+    { "nr": 13, "miejsce": "rozdz. 6", "kto": ["Josef K.", "Leni", "wuj Karl"], "gdzie": "dom adwokata", "opis": "K. opuszcza rozmowę z adwokatem, żeby spotkać się z Leni, za co wuj go później gani." },
+    { "nr": 14, "miejsce": "rozdz. 7", "kto": ["Josef K.", "adwokat Huld"], "gdzie": "dom adwokata i bank", "opis": "K. rozważa rezygnację z usług Hulda i przygotowanie własnego pisma, które wymagałoby przejrzenia jego życia." },
+    { "nr": 15, "miejsce": "rozdz. 7", "kto": ["Josef K.", "fabrykant"], "gdzie": "bank", "opis": "Fabrykant podpowiada K., żeby zwrócił się do malarza sądowego Titorellego." },
+    { "nr": 16, "miejsce": "rozdz. 7", "kto": ["Josef K.", "Titorelli"], "gdzie": "pracownia Titorellego", "opis": "Titorelli omawia trzy możliwe drogi w procesie, z których rzeczywiste uniewinnienie zna tylko z opowieści." },
+    { "nr": 17, "miejsce": "rozdz. 7", "kto": ["Josef K.", "Titorelli"], "gdzie": "pracownia Titorellego i kancelarie", "opis": "K. kupuje od malarza obrazy i odkrywa, że tylne drzwi pracowni prowadzą do kancelarii sądowych." },
+    { "nr": 18, "miejsce": "rozdz. 8", "kto": ["Josef K.", "Leni", "kupiec Block"], "gdzie": "dom adwokata", "opis": "K. spotyka kupca Blocka, który od lat jest oskarżonym i poza Huldem potajemnie korzysta z pomocy innych adwokatów." },
+    { "nr": 19, "miejsce": "rozdz. 8", "kto": ["Josef K.", "adwokat Huld", "kupiec Block"], "gdzie": "dom adwokata", "opis": "K. zawiadamia Hulda, że zamierza wypowiedzieć mu pełnomocnictwo, a Huld pokazuje mu, jak traktuje uległego Blocka." },
+    { "nr": 20, "miejsce": "rozdz. 9", "kto": ["Josef K.", "włoski klient banku"], "gdzie": "katedra", "opis": "K. przychodzi do katedry na spotkanie z włoskim klientem banku, który się nie pojawia." },
+    { "nr": 21, "miejsce": "rozdz. 9", "kto": ["Josef K.", "kapelan więzienny"], "gdzie": "katedra", "opis": "Kapelan wzywa K. po nazwisku, mówi mu o procesie i opowiada przypowieść o człowieku, który czeka przed wejściem do prawa." },
+    { "nr": 22, "miejsce": "rozdz. 9", "kto": ["Josef K.", "kapelan więzienny"], "gdzie": "katedra", "opis": "K. i kapelan rozważają, czy odźwierny zwiódł człowieka ze wsi, a kapelan przedstawia sprzeczne wykładnie przypowieści." },
+    { "nr": 23, "miejsce": "rozdz. 10", "kto": ["Josef K.", "dwaj mężczyźni"], "gdzie": "mieszkanie K. i ulice miasta", "opis": "W przeddzień trzydziestych pierwszych urodzin K. przychodzą po niego dwaj mężczyźni i wyprowadzają go z miasta." },
+    { "nr": 24, "miejsce": "rozdz. 10", "kto": ["Josef K.", "dwaj mężczyźni"], "gdzie": "opuszczony kamieniołom", "opis": "Dwaj mężczyźni opierają K. o kamień, a on dostrzega w pobliskim domu osobę wychylającą się z okna." },
+    { "nr": 25, "miejsce": "rozdz. 10", "kto": ["Josef K.", "dwaj mężczyźni"], "gdzie": "opuszczony kamieniołom", "opis": "Jeden z mężczyzn przytrzymuje K., drugi wbija mu nóż w serce, a ostatnie słowa K. wyrażają poniżenie." }
+  ],
+  "postacie": [
+    { "imie": "Josef K.", "odmiany": ["Josefa K.", "Josefowi K.", "Josefem K.", "Józef K.", "Józefa K.", "Józefowi K.", "Józefem K.", "K."], "rola": "urzędnik bankowy poddany procesowi bez ujawnienia zarzutu", "relacje": "lokator pani Grubach, klient Hulda, rozmówca Titorellego i kapelana", "miejsca": ["rozdz. 1–10"] },
+    { "imie": "panna Bürstner", "odmiany": ["panny Bürstner", "pannie Bürstner", "pannę Bürstner", "panną Bürstner"], "rola": "lokatorka, w której pokoju nadzorca rozmawia z K.", "relacje": "sąsiadka K. i przyjaciółka panny Montag", "miejsca": ["rozdz. 1", "rozdz. 4"] },
+    { "imie": "pani Grubach", "odmiany": ["panią Grubach", "gospodyni", "gospodynię"], "rola": "prowadzi pensjonat, w którym zaczyna się proces K.", "relacje": "gospodyni K. i panny Bürstner", "miejsca": ["rozdz. 1", "rozdz. 4"] },
+    { "imie": "Franz", "odmiany": ["Franza", "Franzowi", "Franzem"], "rola": "jeden ze strażników z porannego aresztowania", "relacje": "towarzyszy Willemowi i zostaje z nim ukarany", "miejsca": ["rozdz. 1", "rozdz. 5"] },
+    { "imie": "Willem", "odmiany": ["Willema", "Willemowi", "Willemem"], "rola": "strażnik uczestniczący w aresztowaniu", "relacje": "towarzysz Franza w pensjonacie i w bankowym schowku", "miejsca": ["rozdz. 1", "rozdz. 5"] },
+    { "imie": "wuj Karl", "odmiany": ["wuja Karla", "wujowi Karlowi", "wujem Karlem", "wuja Karola", "wujowi Karolowi", "wujem Karolem"], "rola": "krewny, który próbuje zorganizować pomoc prawną dla K.", "relacje": "wuj K. i znajomy Hulda", "miejsca": ["rozdz. 6"] },
+    { "imie": "adwokat Huld", "odmiany": ["Hulda", "Huldowi", "Huldem", "adwokata Hulda"], "rola": "adwokat prowadzący sprawy oskarżonych", "relacje": "opiekuje się nim Leni, przyjmuje K. za sprawą wuja i reprezentuje Blocka", "miejsca": ["rozdz. 6–8"] },
+    { "imie": "Leni", "odmiany": ["opiekunka adwokata", "opiekunki adwokata", "opiekunkę adwokata"], "rola": "opiekunka chorego Hulda", "relacje": "zbliża się do K. i zna Blocka z domu Hulda", "miejsca": ["rozdz. 6", "rozdz. 8"] },
+    { "imie": "Titorelli", "odmiany": ["Titorellego", "Titorellemu", "Titorellim", "malarz sądowy"], "rola": "malarz związany z sądem i znający praktykę postępowania", "relacje": "fabrykant kieruje do niego K.", "miejsca": ["rozdz. 7"] },
+    { "imie": "kupiec Block", "odmiany": ["Blocka", "Blockowi", "Blockiem", "kupca Blocka"], "rola": "oskarżony od lat, zależny od pomocy adwokatów", "relacje": "klient Hulda i przykład, który obserwuje K.", "miejsca": ["rozdz. 8"] },
+    { "imie": "kapelan więzienny", "odmiany": ["kapelana więziennego", "kapelanem więziennym", "ksiądz", "księdza"], "rola": "duchowny związany z sądem, opowiada przypowieść o wejściu do prawa", "relacje": "rozmówca K. w katedrze", "miejsca": ["rozdz. 9"] }
+  ],
+  "motywy": [
+    { "motyw": "wina i niejawny zarzut", "przyklad": "K. dowiaduje się, że jest aresztowany, ale rozmowa z nadzorcą nie ujawnia zarzutu.", "miejsce": "rozdz. 1" },
+    { "motyw": "biurokracja w zwykłych miejscach", "przyklad": "Kancelarie zajmują poddasze kamienicy, a jedno z przejść do nich prowadzi z pracowni malarza.", "miejsce": "rozdz. 3 i 7" },
+    { "motyw": "bezradność oskarżonego", "przyklad": "Titorelli opisuje pozorne uniewinnienie i przewlekanie sprawy, ale nie może wskazać znanego sobie przypadku rzeczywistego uniewinnienia.", "miejsce": "rozdz. 7" },
+    { "motyw": "upokorzenie i zależność", "przyklad": "Block przy K. zachowuje się ulegle wobec adwokata, od którego oczekuje wiadomości o własnej sprawie.", "miejsce": "rozdz. 8" },
+    { "motyw": "prawo i dostęp do prawa", "przyklad": "Człowiek ze wsi czeka przez lata przed odźwiernym, a przed śmiercią dowiaduje się, że wejście było dla niego.", "miejsce": "rozdz. 9" },
+    { "motyw": "niejednoznaczność wykładni", "przyklad": "K. uważa, że odźwierny zwiódł człowieka ze wsi, lecz kapelan podaje także inne odczytania jego zachowania.", "miejsce": "rozdz. 9" },
+    { "motyw": "samotność i wstyd", "przyklad": "K. widzi człowieka w oknie tuż przed śmiercią, ale nie otrzymuje od niego pomocy, a finał wiąże jego śmierć ze wstydem.", "miejsce": "rozdz. 10" }
+  ],
+  "utwory": [],
+  "zrodla": [
+    { "url": "https://wolnelektury.pl/katalog/lektura/kafka-proces/", "rodzaj": "utwór", "co": "TXT przekładu Katarzyny Łakomik na Licencji Wolnej Sztuki 1.3; sprawdzono kolejność dziesięciu rozdziałów, sceny sądowe, przypowieść i finał." },
+    { "url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE wskazuje fragmenty powieści w zakresie rozszerzonym." }
+  ],
+  "do_weryfikacji": [
+    "Informator nie wskazuje zamkniętego zestawu fragmentów; przebieg fabuły opisano według pełnego tekstu w wydaniu Wolnych Lektur.",
+    "Przekład Katarzyny Łakomik ma odrębną licencję i zachowuje oryginalną pisownię imion, m.in. Josef i Karl."
+  ]
+}
