@@ -24,12 +24,20 @@ export function WsparcieNota() {
   );
 }
 
+/**
+ * Przedmiot z adresu: segment ścieżki (/przedmiot/polski), wartość parametru (?przedmiot=polski) albo początek
+ * id arkusza (/arkusze/polski-podstawowy-2024-…). Samo wystąpienie napisu w adresie nie wystarcza („wos”, „historia”).
+ */
+function przedmiotZAdresu(pathname: string, search: string): PrzedmiotId | undefined {
+  const czesci = [...pathname.split("/"), ...new URLSearchParams(search).values()];
+  return PRZEDMIOTY.find((p) => czesci.some((c) => c === p.id || c.startsWith(`${p.id}-`)))?.id;
+}
+
 // Przedmiot notatki z rozmowy: ten, przy którym uczeń jest (adres strony), inaczej pierwszy z profilu.
 function usePrzedmiotRozmowy(): PrzedmiotId | null {
   const { pathname, search } = useLocation();
   const profil = useProfil();
-  const zAdresu = PRZEDMIOTY.find((p) => `${pathname}${search}`.includes(p.id))?.id;
-  return zAdresu ?? profil?.subjects?.[0]?.id ?? null;
+  return przedmiotZAdresu(pathname, search) ?? profil?.subjects?.[0]?.id ?? null;
 }
 
 export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
