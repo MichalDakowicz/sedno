@@ -117,7 +117,10 @@ export async function kadruj(doc, fragmenty, { katalog, prefiks, poprawki = {}, 
 
       if (bezRysunkow || f.rysunek || poprawka === null || (poprawka && poprawka.strona !== c.strona)) continue;
       const rysunek = poprawka ? { ramka: poprawka.ramka } : tabelaWyboru ? null : znajdzRysunek(s, c, tusz, zRysunkiem.has(f.nr) ? 20 : MIN_RYSUNEK.wys);
-      if (rysunek) f.rysunek = await zapiszWycinek(s, rysunek.ramka, katalog, prefiks, `${f.nr}-rysunek.png`);
+      if (rysunek) {
+        f.rysunek = await zapiszWycinek(s, rysunek.ramka, katalog, prefiks, `${f.nr}-rysunek.png`);
+        f.figury = [{ ramka: rysunek.ramka, obraz: f.rysunek, strona: c.strona }];
+      }
     }
   }
 }
@@ -252,6 +255,7 @@ export async function osadzObrazy(zadania, katalog) {
   };
   for (const z of zadania) {
     await osadz(z.rysunek);
+    for (const q of z.pytania) await osadz(q.rysowanie?.obraz);
     for (const b of z.bloki) {
       await osadz(b.obraz);
       for (const o of b.obrazy ?? []) await osadz(o.obraz); // komórki tabel z informatyki
@@ -267,7 +271,7 @@ const POLECENIE = /^(Dokończ zdanie|Oceń prawdziwość|Uzupełnij|Wybierz|Wpis
 // zadaniu z prawdziwego arkusza i żeby pasował klucz wersji A.
 const PROG_PODOBIENSTWA = 0.8;
 
-function powodKadru(f, d, tekstPdf) {
+export function powodKadru(f, d, tekstPdf) {
   if (d.obiekty) return "osadzony obiekt w DOCX";
   if (d.bloki.some((b) => b.typ === "miejsceRysunku") && !f.rysunek) return "rysunek bez wycinka z PDF";
   const a = normalizuj(tekstPdf);
