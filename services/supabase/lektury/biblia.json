@@ -1,0 +1,76 @@
+{
+  "id": "biblia",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "Rdz 1,1–2,4a", "kto": ["Bóg"], "gdzie": "początek świata", "opis": "Bóg stwarza świat i istoty żywe, w tym ludzi, a siódmy dzień przeznacza na odpoczynek."},
+    {"nr": 2, "miejsce": "Rdz 2,4b–25", "kto": ["Bóg", "Adam", "Ewa"], "gdzie": "ogród Eden", "opis": "W drugim opisie stworzenia Bóg lepi człowieka z ziemi, umieszcza go w ogrodzie i tworzy kobietę z jego żebra."},
+    {"nr": 3, "miejsce": "Rdz 3,1–24", "kto": ["Ewa", "Adam", "Wąż", "Bóg"], "gdzie": "ogród Eden", "opis": "Ewa i Adam po rozmowie kobiety z wężem jedzą zakazany owoc i zostają wygnani z ogrodu."},
+    {"nr": 4, "miejsce": "Rdz 4,1–16", "kto": ["Kain", "Abel", "Bóg"], "gdzie": "pole", "opis": "Kain zabija Abla po tym, jak Bóg przyjmuje ofiarę brata, i zostaje skazany na tułaczkę."},
+    {"nr": 5, "miejsce": "Rdz 6,9–8,19", "kto": ["Noe", "Bóg"], "gdzie": "arka i ziemia zalana przez wody", "opis": "Noe na polecenie Boga buduje arkę, w której jego rodzina i zabrane zwierzęta przeżywają potop."},
+    {"nr": 6, "miejsce": "Rdz 9,8–17", "kto": ["Bóg", "Noe"], "gdzie": "ziemia po potopie", "opis": "Bóg zawiera przymierze z Noem, jego potomkami i zwierzętami, a jego znakiem ustanawia tęczę."},
+    {"nr": 7, "miejsce": "Rdz 11,1–9", "kto": ["Budowniczowie Babel", "Bóg"], "gdzie": "równina Szinear", "opis": "Budowa miasta i wieży ustaje, gdy Bóg miesza ludziom języki i rozprasza ich po ziemi."},
+    {"nr": 8, "miejsce": "Rdz 22,1–19", "kto": ["Abraham", "Izaak", "Anioł Pański", "Bóg"], "gdzie": "kraj Moria", "opis": "Abraham gotów złożyć Izaaka w ofierze zostaje powstrzymany przez anioła i składa w ofierze barana."},
+    {"nr": 9, "miejsce": "Hi 1,6–22", "kto": ["Bóg", "Szatan", "Hiob"], "gdzie": "zgromadzenie przed Bogiem i ziemia Us", "opis": "Bóg pozwala szatanowi wystawić Hioba na próbę, a ten traci dobytek i dzieci."},
+    {"nr": 10, "miejsce": "Hi 2,1–13", "kto": ["Bóg", "Szatan", "Hiob", "Żona Hioba"], "gdzie": "ziemia Us", "opis": "Hiob zachowuje wierność Bogu także wtedy, gdy dotyka go choroba i żona nakłania go do porzucenia tej postawy."},
+    {"nr": 11, "miejsce": "Hi 3–27", "kto": ["Hiob", "Przyjaciele Hioba"], "gdzie": "ziemia Us", "opis": "Hiob przeklina dzień swojego urodzenia i w sporze z przyjaciółmi broni własnej niewinności."},
+    {"nr": 12, "miejsce": "Hi 38,1–42,6", "kto": ["Bóg", "Hiob"], "gdzie": "przemowa z burzy", "opis": "Bóg przywołuje w odpowiedzi dzieło stworzenia, a Hiob przyznaje, że mówił o tym, czego nie rozumiał."},
+    {"nr": 13, "miejsce": "Hi 42,7–17", "kto": ["Bóg", "Hiob", "Przyjaciele Hioba"], "gdzie": "ziemia Us", "opis": "Po modlitwie Hioba za przyjaciół Bóg przywraca mu pomyślność, a Hiob doczekuje się kolejnych dzieci i umiera w podeszłym wieku."},
+    {"nr": 14, "miejsce": "Ps 22,2–32", "kto": ["Psalmista", "Bóg"], "gdzie": "modlitwa lamentacyjna", "opis": "Psalmista przechodzi od skargi na opuszczenie i prośby o ratunek do zapowiedzi publicznej pochwały Boga."},
+    {"nr": 15, "miejsce": "Ps 23,1–6", "kto": ["Psalmista", "Bóg"], "gdzie": "obrazy pastwiska, ciemnej doliny i stołu", "opis": "Psalmista wyraża ufność w Bożą opiekę za pomocą obrazów pasterza i gospodarza."},
+    {"nr": 16, "miejsce": "Ps 51,3–19", "kto": ["Psalmista", "Bóg"], "gdzie": "modlitwa pokutna", "opis": "Psalmista uznaje swoją winę i prosi Boga o przebaczenie oraz wewnętrzną odnowę."},
+    {"nr": 17, "miejsce": "Koh 1,2–11", "kto": ["Kohelet"], "gdzie": "świat przyrody i kolejne pokolenia", "opis": "Kohelet zestawia przemijanie pokoleń z powtarzalnością zjawisk przyrody i pyta o pożytek z ludzkiego trudu."},
+    {"nr": 18, "miejsce": "Koh 2,1–11", "kto": ["Kohelet"], "gdzie": "domy, ogrody i winnice mówiącego", "opis": "Kohelet wymienia własne przedsięwzięcia i przyjemności, a następnie ocenia ich nietrwałą wartość."},
+    {"nr": 19, "miejsce": "Koh 3,1–15", "kto": ["Kohelet"], "gdzie": "porządek ludzkiego życia", "opis": "Kohelet układa ludzkie doświadczenia w pary przeciwieństw, przypisuje każdemu własny czas i przypomina o możliwości cieszenia się pracą."},
+    {"nr": 20, "miejsce": "Koh 12,1–14", "kto": ["Kohelet", "Głos epilogu"], "gdzie": "obrazy starości i śmierci", "opis": "Wezwanie do pamięci o Stwórcy w młodości prowadzi do obrazów starości i śmierci, po których epilog przypomina o Bożym sądzie."},
+    {"nr": 21, "miejsce": "Ap 1,9–20", "kto": ["Jan", "Chrystus"], "gdzie": "wyspa Patmos", "opis": "Jan ogląda postać wśród siedmiu świeczników i otrzymuje polecenie zapisania widzenia dla siedmiu Kościołów."},
+    {"nr": 22, "miejsce": "Ap 5,1–6,8", "kto": ["Jan", "Baranek", "Czterej jeźdźcy"], "gdzie": "widzenie niebieskiego tronu i ziemi", "opis": "Baranek bierze księgę z ręki Zasiadającego na tronie, a otwarcie pierwszych czterech pieczęci przywołuje kolejnych jeźdźców."},
+    {"nr": 23, "miejsce": "Ap 20,11–15", "kto": ["Jan", "Bóg", "Zmarli"], "gdzie": "widzenie przed białym tronem", "opis": "Jan widzi sąd nad zmarłymi rozstrzygany według zapisanych w księgach czynów."},
+    {"nr": 24, "miejsce": "Ap 21,1–5", "kto": ["Jan", "Bóg"], "gdzie": "nowe niebo i nowa ziemia", "opis": "Jan widzi Nowe Jeruzalem zstępujące z nieba i słyszy zapowiedź życia z Bogiem bez śmierci i żałoby."},
+    {"nr": 25, "miejsce": "Ap 22,6–21", "kto": ["Jan", "Jezus Chrystus", "Anioł"], "gdzie": "zakończenie objawienia", "opis": "Księgę zamykają zapowiedź rychłego przyjścia Jezusa, odpowiedź wyrażająca oczekiwanie i życzenie łaski."}
+  ],
+  "postacie": [
+    {"imie": "Bóg", "odmiany": ["Boga", "Bogu", "Bogiem", "o Bogu", "Pan", "Pana", "Stwórca"], "rola": "Stwórca w Księdze Rodzaju, rozmówca Hioba i adresat psalmów, którego obecność pośród ludzi zapowiada Apokalipsa.", "relacje": "Zawiera przymierze z Noem i odpowiada Hiobowi.", "miejsca": ["Rdz 1–3", "Rdz 9,8–17", "Hi 38–42", "Ps 23", "Ap 21,1–5"]},
+    {"imie": "Adam", "odmiany": ["Adama", "Adamowi", "Adamem", "Adamie"], "rola": "Pierwszy mężczyzna w opowieści o Edenie.", "relacje": "Razem z Ewą przekracza zakaz Boga i opuszcza ogród.", "miejsca": ["Rdz 2–3"]},
+    {"imie": "Ewa", "odmiany": ["Ewy", "Ewie", "Ewę", "Ewą"], "rola": "Pierwsza kobieta w opowieści o Edenie.", "relacje": "Rozmawia z wężem, daje Adamowi owoc i jest matką Kaina i Abla.", "miejsca": ["Rdz 2–4"]},
+    {"imie": "Kain", "odmiany": ["Kaina", "Kainowi", "Kainem", "Kainie"], "rola": "Rolnik i sprawca bratobójstwa.", "relacje": "Zabija Abla i odpowiada przed Bogiem za jego śmierć.", "miejsca": ["Rdz 4,1–16"]},
+    {"imie": "Abel", "odmiany": ["Abla", "Ablowi", "Ablem", "Ablu"], "rola": "Pasterz, którego ofiarę przyjmuje Bóg.", "relacje": "Syn Adama i Ewy, ginie z ręki swojego brata Kaina.", "miejsca": ["Rdz 4,1–10"]},
+    {"imie": "Noe", "odmiany": ["Noego", "Noemu", "Noem"], "rola": "Budowniczy arki, który przeżywa potop.", "relacje": "Otrzymuje od Boga polecenie budowy arki i jest stroną przymierza po potopie.", "miejsca": ["Rdz 6–9"]},
+    {"imie": "Abraham", "odmiany": ["Abram", "Abrama", "Abrahama", "Abrahamowi", "Abrahamem", "Abrahamie"], "rola": "Patriarcha, którego Bóg wystawia na próbę w kraju Moria.", "relacje": "Jest ojcem Izaaka, którego ma złożyć w ofierze.", "miejsca": ["Rdz 12,1–9", "Rdz 22,1–19"]},
+    {"imie": "Izaak", "odmiany": ["Izaaka", "Izaakowi", "Izaakiem", "Izaaku"], "rola": "Syn Abrahama i Sary, przeznaczony na ofiarę w kraju Moria.", "relacje": "Ojciec zabiera go ze sobą, a Anioł Pański powstrzymuje Abrahama przed złożeniem ofiary z syna.", "miejsca": ["Rdz 21,1–7", "Rdz 22,1–19"]},
+    {"imie": "Hiob", "odmiany": ["Hioba", "Hiobowi", "Hiobem", "Hiobie"], "rola": "Sprawiedliwy człowiek z ziemi Us pozbawiony dzieci, dobytku i zdrowia.", "relacje": "Spiera się z przyjaciółmi i zwraca się do Boga, a w finale modli się za przyjaciół.", "miejsca": ["Hi 1–3", "Hi 4–27", "Hi 38–42"]},
+    {"imie": "Przyjaciele Hioba", "odmiany": ["przyjaciół Hioba", "przyjaciołom Hioba", "Elifaz", "Elifaza", "Bildad", "Bildada", "Sofar", "Sofara"], "rola": "Elifaz, Bildad i Sofar przychodzą, by współczuć Hiobowi, a potem zabierają głos w sporze.", "relacje": "Wyjaśniają jego nieszczęście w kategoriach winy i kary, a Bóg gani ich w zakończeniu.", "miejsca": ["Hi 2,11–13", "Hi 4–27", "Hi 42,7–9"]},
+    {"imie": "Psalmista", "odmiany": ["psalmisty", "psalmiście", "psalmistę", "psalmistą", "podmiot psalmu"], "rola": "Głos modlitwy w Księdze Psalmów.", "relacje": "Zwraca się do Boga ze skargą, prośbą, wyznaniem ufności albo pochwałą, zależnie od psalmu.", "miejsca": ["Ps 22", "Ps 23", "Ps 51"]},
+    {"imie": "Kohelet", "odmiany": ["Koheleta", "Koheletowi", "Koheletem", "Kohelecie", "Eklezjastes"], "rola": "Głos mędrca, który w księdze przedstawia się jako król w Jeruzalem z rodu Dawida.", "relacje": "Poddaje ocenie swoje doświadczenie i zwraca się do słuchaczy z radami dotyczącymi życia.", "miejsca": ["Koh 1,1–11", "Koh 2,1–11", "Koh 3,1–15", "Koh 12,1–8"]},
+    {"imie": "Jan z Patmos", "odmiany": ["Jana z Patmos", "Janowi z Patmos", "Janem z Patmos", "Jan"], "rola": "Pierwszoosobowy świadek wizji w Apokalipsie.", "relacje": "Otrzymuje polecenie zapisania wizji dla siedmiu Kościołów.", "miejsca": ["Ap 1,9–20", "Ap 21–22"]},
+    {"imie": "Baranek", "odmiany": ["Baranka", "Barankowi", "Barankiem", "Baranku", "Chrystus"], "rola": "Symboliczna postać Chrystusa w wizjach Apokalipsy.", "relacje": "Bierze księgę od Zasiadającego na tronie i otwiera pieczęcie.", "miejsca": ["Ap 5,1–14", "Ap 6,1–8", "Ap 22,1–5"]}
+  ],
+  "motywy": [
+    {"motyw": "Stworzenie i odnowienie świata", "przyklad": "Księga Rodzaju otwiera się stworzeniem nieba i ziemi. W wizji Jana po przeminięciu dawnego świata pojawiają się nowe niebo, nowa ziemia i miasto.", "miejsce": "Rdz 1,1–2,4a / Ap 21,1–5"},
+    {"motyw": "Utracony raj", "przyklad": "Pierwsi ludzie otrzymują ogród jako miejsce życia, a po zerwaniu zakazanego owocu zostają pozbawieni dostępu do drzewa życia.", "miejsce": "Rdz 2,8–17 / Rdz 3,1–24"},
+    {"motyw": "Bratobójstwo i odpowiedzialność", "przyklad": "Po zabójstwie Abla Bóg pyta Kaina o brata i skazuje sprawcę na tułaczkę.", "miejsce": "Rdz 4,3–16"},
+    {"motyw": "Próba wiary", "przyklad": "Abraham podejmuje drogę do ziemi Moria na polecenie Boga. W innej księdze Hiob zachowuje wierność po utracie dzieci, dobytku i zdrowia.", "miejsce": "Rdz 22,1–19 / Hi 1–2"},
+    {"motyw": "Niezawinione cierpienie", "przyklad": "Hiob cierpi mimo prawości opisanej na początku księgi. W finale Bóg gani przyjaciół, którzy próbowali wyjaśnić jego los, odwołując się do winy.", "miejsce": "Hi 1–2 / Hi 42,7–9"},
+    {"motyw": "Skarga i ufność w modlitwie", "przyklad": "Głos Psalmu 22 żali się na opuszczenie i domaga ratunku. W Psalmie 23 przejście przez ciemną dolinę obrazuje możliwość zachowania ufności w niebezpieczeństwie.", "miejsce": "Ps 22,2–32 / Ps 23,1–6"},
+    {"motyw": "Vanitas i przemijanie", "przyklad": "Kohelet pokazuje, że przemijają kolejne pokolenia, i za nietrwałe uznaje pożytki z gromadzenia dóbr oraz poszukiwania przyjemności.", "miejsce": "Koh 1,2–11 / Koh 2,1–11"},
+    {"motyw": "Czas ludzkiego życia", "przyklad": "Narodziny i śmierć, płacz i śmiech oraz wojna i pokój tworzą w wypowiedzi Koheleta pary składające się na porządek ludzkiego doświadczenia.", "miejsce": "Koh 3,1–15"},
+    {"motyw": "Sąd i odpowiedzialność za czyny", "przyklad": "Epilog Księgi Koheleta zapowiada rozliczenie wszystkich czynów. W wizji Jana zmarli stają przed tronem i zostają osądzeni według czynów zapisanych w księgach.", "miejsce": "Koh 12,13–14 / Ap 20,11–15"},
+    {"motyw": "Drzewo życia", "przyklad": "Po wygnaniu ludzi droga do drzewa życia w Edenie zostaje zamknięta. W Nowym Jeruzalem drzewo życia rodzi owoce, a liście służą do uzdrowienia narodów.", "miejsce": "Rdz 3,22–24 / Ap 22,1–5"}
+  ],
+  "utwory": [
+    {"tytul": "Księga Rodzaju", "miejsce": "Rdz", "opis": "Opowieści o początkach świata i ludzkości, a następnie o dziejach patriarchów."},
+    {"tytul": "Księga Hioba", "miejsce": "Hi", "opis": "Opowieść o próbie Hioba połączona z poetyckimi sporami o cierpienie sprawiedliwego."},
+    {"tytul": "Księga Psalmów", "miejsce": "Ps", "opis": "Zbiór pieśni i modlitw, w tym skarg, dziękczynień, wyznań ufności i próśb o przebaczenie."},
+    {"tytul": "Księga Koheleta", "miejsce": "Koh", "opis": "Rozważania mądrościowe o czasie, przemijaniu i granicach ludzkiego poznania."},
+    {"tytul": "Apokalipsa św. Jana", "miejsce": "Ap", "opis": "Listy do siedmiu Kościołów i wizje, w których pojawiają się sąd nad zmarłymi i Nowe Jeruzalem."}
+  ],
+  "zrodla": [
+    {"url": "https://biblia.deon.pl/rozdzial.php?id=1", "rodzaj": "utwór", "co": "Biblia Tysiąclecia, Księga Rodzaju, początek księgi z nawigacją do kolejnych rozdziałów, stworzenie, Eden, bratobójstwo, potop, Babel i próba Abrahama."},
+    {"url": "https://biblia.deon.pl/rozdzial.php?id=431", "rodzaj": "utwór", "co": "Biblia Tysiąclecia, Księga Hioba, początek księgi z nawigacją do kolejnych rozdziałów, próba, spór, odpowiedź z burzy i finał."},
+    {"url": "https://biblia.deon.pl/rozdzial.php?id=855", "rodzaj": "utwór", "co": "Biblia Tysiąclecia, Księga Psalmów, Psalm 22 i nawigacja do Psalmów 23 i 51."},
+    {"url": "https://biblia.deon.pl/rozdzial.php?id=570", "rodzaj": "utwór", "co": "Biblia Tysiąclecia, Księga Koheleta, początek księgi z nawigacją do kolejnych rozdziałów, marność, czas i epilog."},
+    {"url": "https://biblia.deon.pl/rozdzial.php?id=406", "rodzaj": "utwór", "co": "Biblia Tysiąclecia, Apokalipsa św. Jana, początek księgi z nawigacją do kolejnych rozdziałów, widzenia Jana, sąd, Nowe Jeruzalem i zakończenie."},
+    {"url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Informator CKE o maturze z języka polskiego na poziomie podstawowym, pięć wymienionych ksiąg i zasada odwoływania się do Biblii w wypracowaniu."}
+  ],
+  "do_weryfikacji": [
+    "Katalog wymienia pięć ksiąg, a informator CKE nie wskazuje przy tym zamkniętego wykazu wersetów. Wpis opisuje wybór fragmentów z tych ksiąg."
+  ]
+}

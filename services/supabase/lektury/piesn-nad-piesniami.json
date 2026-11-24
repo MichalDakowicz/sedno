@@ -1,0 +1,59 @@
+{
+  "id": "piesn-nad-piesniami",
+  "wydarzenia": [
+    {"nr": 1, "miejsce": "Pnp 1,2–8", "kto": ["Oblubienica", "Oblubieniec", "Córki jerozolimskie", "Chór"], "gdzie": "winnice i szałasy pasterzy przywołane w dialogu", "opis": "Oblubienica wspomina pilnowanie winnic i pyta ukochanego, gdzie może go znaleźć przy stadach."},
+    {"nr": 2, "miejsce": "Pnp 1,9–2,7", "kto": ["Oblubienica", "Oblubieniec", "Córki jerozolimskie"], "gdzie": "sceny bliskości", "opis": "Ukochani opisują się nawzajem za pomocą obrazów związanych z przyrodą i wonnościami, a oblubieniec zwraca się do córek jerozolimskich z prośbą o uszanowanie odpoczynku ukochanej."},
+    {"nr": 3, "miejsce": "Pnp 2,8–14", "kto": ["Oblubienica", "Oblubieniec"], "gdzie": "za murem domu, wiosenny krajobraz", "opis": "Oblubienica widzi powracającego ukochanego za oknem, a on zaprasza ją do wyjścia i opisuje oznaki wiosny."},
+    {"nr": 4, "miejsce": "Pnp 2,15–17", "kto": ["Oblubienica", "Chór", "Oblubieniec"], "gdzie": "kwitnące winnice i góry Beter przywołane w pieśni", "opis": "Po obrazie lisów zagrażających winnicom oblubienica mówi o więzi z ukochanym i zwraca się do niego."},
+    {"nr": 5, "miejsce": "Pnp 3,1–5", "kto": ["Oblubienica", "Oblubieniec", "Strażnicy miasta"], "gdzie": "nocne ulice miasta", "opis": "Oblubienica pyta strażników o ukochanego, znajduje go po ich minięciu i chce zabrać go do domu matki."},
+    {"nr": 6, "miejsce": "Pnp 3,6–11", "kto": ["Chór", "Salomon", "Córki jerozolimskie"], "gdzie": "okolice miasta", "opis": "Chór opisuje lektykę Salomona otoczoną przez wojowników i wzywa córki jerozolimskie, aby zobaczyły króla w dniu zaślubin."},
+    {"nr": 7, "miejsce": "Pnp 4,1–15", "kto": ["Oblubieniec", "Oblubienica"], "gdzie": "wypowiedź z obrazami gór, roślin i źródła", "opis": "Oblubieniec chwali urodę ukochanej i porównuje ją do ogrodu z wonnymi roślinami."},
+    {"nr": 8, "miejsce": "Pnp 4,16–5,1", "kto": ["Oblubienica", "Oblubieniec"], "gdzie": "ogród w obrazach pieśni", "opis": "Oblubienica zaprasza ukochanego do ogrodu, a on odpowiada opisem wejścia do niego i korzystania z jego darów."},
+    {"nr": 9, "miejsce": "Pnp 5,2–6", "kto": ["Oblubienica", "Oblubieniec"], "gdzie": "próg domu oblubienicy nocą", "opis": "Oblubieniec puka do drzwi, a kiedy oblubienica po chwili otwiera, jego już tam nie ma."},
+    {"nr": 10, "miejsce": "Pnp 5,7–9", "kto": ["Oblubienica", "Strażnicy miasta", "Córki jerozolimskie", "Chór"], "gdzie": "nocne ulice i mury miasta", "opis": "Strażnicy biją szukającą ukochanego kobietę i zabierają jej płaszcz, a ona prosi córki jerozolimskie o przekazanie mu wiadomości."},
+    {"nr": 11, "miejsce": "Pnp 5,9–6,3", "kto": ["Oblubienica", "Chór"], "gdzie": "dialog przywołujący wygląd ukochanego i jego ogród", "opis": "Na pytania chóru oblubienica odpowiada opisem urody ukochanego i wskazuje jego ogród jako miejsce, do którego się udał."},
+    {"nr": 12, "miejsce": "Pnp 6,4–10", "kto": ["Oblubieniec", "Oblubienica", "Chór"], "gdzie": "obrazy Jeruzalem, Tirsy i nieba", "opis": "Oblubieniec wyróżnia ukochaną spośród innych kobiet, a chór wysławia jej piękno obrazami zorzy, księżyca i słońca."},
+    {"nr": 13, "miejsce": "Pnp 6,11–7,10", "kto": ["Oblubienica", "Oblubieniec", "Chór"], "gdzie": "ogród orzechowy i scena z chórami", "opis": "Oblubienica mówi o zejściu do ogrodu, po czym chóry i oblubieniec opisują jej piękno."},
+    {"nr": 14, "miejsce": "Pnp 7,11–14", "kto": ["Oblubienica", "Oblubieniec"], "gdzie": "pola, wioski i winnice przywołane w zaproszeniu", "opis": "Oblubienica proponuje ukochanemu wspólne wyjście poza miasto i odwiedzenie winnic o świcie."},
+    {"nr": 15, "miejsce": "Pnp 8,5–7", "kto": ["Oblubienica", "Oblubieniec", "Chór"], "gdzie": "obraz wyjścia z pustyni i wspomnienie jabłoni", "opis": "Chór dostrzega kobietę wspartą na ukochanym, a ona wyraża pragnienie trwałej więzi i mówi o sile miłości."},
+    {"nr": 16, "miejsce": "Pnp 8,8–12", "kto": ["Bracia", "Oblubienica", "Oblubieniec", "Salomon"], "gdzie": "obrazy muru, bramy i winnic", "opis": "Po wymianie zdań braci i oblubienicy o siostrze oraz jej dojrzałości pojawia się zestawienie winnicy Salomona z winnicą oblubieńca."},
+    {"nr": 17, "miejsce": "Pnp 8,13–14", "kto": ["Oblubieniec", "Oblubienica"], "gdzie": "ogród i góry przywołane w końcowym dialogu", "opis": "Oblubieniec prosi, by usłyszeć głos ukochanej, a ta kończy pieśń wezwaniem do biegu i porównaniem go do gazeli lub młodego jelenia."}
+  ],
+  "postacie": [
+    {"imie": "Oblubienica", "odmiany": ["oblubienicy", "oblubienicę", "oblubienicą", "Szulamitka", "Szulamitki", "Szulamitkę", "Szulamitko"], "rola": "Główny kobiecy głos poematu, nazwany Szulamitką w wypowiedzi chóru.", "relacje": "Szuka oblubieńca, odpowiada na jego pochwały i zwraca się do córek jerozolimskich.", "miejsca": ["Pnp 1,2–8", "Pnp 3,1–5", "Pnp 5,2–16", "Pnp 7,1–14", "Pnp 8,5–14"]},
+    {"imie": "Oblubieniec", "odmiany": ["oblubieńca", "oblubieńcowi", "oblubieńcem", "oblubieńcu", "ukochany"], "rola": "Główny męski głos poematu, który wyraża zachwyt nad ukochaną i zwraca się do niej z zaproszeniami.", "relacje": "Jest poszukiwany przez oblubienicę i odpowiada na jej słowa o wzajemnej bliskości.", "miejsca": ["Pnp 2,8–14", "Pnp 4,1–5,1", "Pnp 5,2–6", "Pnp 8,13–14"]},
+    {"imie": "Córki jerozolimskie", "odmiany": ["córek jerozolimskich", "córkom jerozolimskim", "córkami jerozolimskimi", "córki Syjonu"], "rola": "Zbiorowe adresatki wypowiedzi, określane także jako córki Syjonu w obrazie zaślubin Salomona.", "relacje": "Oblubienica powierza im wiadomość dla ukochanego, a oblubieniec zwraca się do nich w powracającym wezwaniu dotyczącym ukochanej.", "miejsca": ["Pnp 2,7", "Pnp 3,5.11", "Pnp 5,8", "Pnp 8,4"]},
+    {"imie": "Chór", "odmiany": ["chóru", "chórowi", "chórem", "chóry", "chórów"], "rola": "Głos zbiorowy, który zadaje pytania, komentuje obrazy i dołącza do pochwały piękna.", "relacje": "Rozmawia z oblubienicą o ukochanym i opisuje jej wygląd obok wypowiedzi oblubieńca.", "miejsca": ["Pnp 3,6–11", "Pnp 5,9", "Pnp 6,1.10", "Pnp 7,1–6", "Pnp 8,5"]},
+    {"imie": "Strażnicy miasta", "odmiany": ["strażników miasta", "strażnikom miasta", "strażnikami miasta", "strażnicy murów"], "rola": "Postacie napotkane podczas obu nocnych poszukiwań.", "relacje": "Za pierwszym razem oblubienica pyta ich o ukochanego, a przy drugim spotkaniu strażnicy ją ranią i zabierają płaszcz.", "miejsca": ["Pnp 3,1–4", "Pnp 5,6–7"]},
+    {"imie": "Bracia", "odmiany": ["braci", "braciom", "braćmi", "bracia oblubienicy"], "rola": "Rodzinny głos w końcowej części księgi, odrębny od wypowiedzi dwojga ukochanych.", "relacje": "Rozważają, jak postąpić w sprawie siostry, która odpowiada obrazem własnej dojrzałości.", "miejsca": ["Pnp 8,8–12"]},
+    {"imie": "Salomon", "odmiany": ["Salomona", "Salomonowi", "Salomonem", "Salomonie"], "rola": "Król wymieniony w nagłówku księgi, w obrazie królewskich zaślubin oraz we wzmiance o winnicy w Baal-Hamon.", "relacje": "Chór zwraca ku niemu uwagę córek jerozolimskich w dniu jego zaślubin.", "miejsca": ["Pnp 1,1", "Pnp 3,6–11", "Pnp 8,11–12"]}
+  ],
+  "motywy": [
+    {"motyw": "Miłość wzajemna", "przyklad": "Oblubienica opisuje związek jako wzajemną przynależność, kiedy mówi o ukochanym pasącym stado wśród lilii.", "miejsce": "Pnp 2,16–17 / Pnp 6,1–3"},
+    {"motyw": "Tęsknota i poszukiwanie", "przyklad": "Podczas pierwszego nocnego szukania kobieta odnajduje ukochanego. Podczas drugiego wychodzi za późno, nie znajduje go i spotyka się z przemocą strażników.", "miejsce": "Pnp 3,1–5 / Pnp 5,2–8"},
+    {"motyw": "Piękno ukochanej i ukochanego", "przyklad": "Ukochany opisuje wygląd kobiety, porównując jej włosy do stada kóz na górach. Ona w odpowiedzi na pytanie chóru przedstawia wygląd ukochanego między innymi poprzez obrazy marmuru, złota i cedrów.", "miejsce": "Pnp 4,1–7 / Pnp 5,9–16"},
+    {"motyw": "Wiosna i odnowienie bliskości", "przyklad": "Ukochany wzywa kobietę do wyjścia, przywołując ustępującą zimę oraz kwitnienie roślin. Wiosnę można odczytać jako obraz czasu sprzyjającego spotkaniu.", "miejsce": "Pnp 2,8–14"},
+    {"motyw": "Ogród i intymność", "przyklad": "Oblubieniec porównuje ukochaną do zamkniętego ogrodu, a ona odpowiada zaproszeniem do niego. Ogród można odczytać jako obraz bliskości dwojga ludzi.", "miejsce": "Pnp 4,12–5,1"},
+    {"motyw": "Miłość wobec śmierci i bogactwa", "przyklad": "Oblubienica porównuje siłę miłości z potęgą śmierci, przedstawia ją jako ogień odporny na wodę i odrzuca możliwość kupienia jej.", "miejsce": "Pnp 8,6–7"},
+    {"motyw": "Alegoryczne odczytanie miłości", "przyklad": "Sceny szukania i spotkania ukochanych odczytywano w tradycji żydowskiej jako obraz więzi Boga z Izraelem, a w chrześcijańskiej jako obraz więzi Chrystusa z Kościołem.", "miejsce": "Pnp 3,1–5 / Pnp 4,12–5,1"}
+  ],
+  "utwory": [
+    {"tytul": "Pieśń pierwsza", "miejsce": "Pnp 1,2–2,7", "opis": "Oblubienica szuka ukochanego, a oboje wyrażają zachwyt i bliskość."},
+    {"tytul": "Pieśń druga", "miejsce": "Pnp 2,8–3,5", "opis": "Ukochany przychodzi wraz z wiosną, po czym oblubienica opowiada o nocnym szukaniu i spotkaniu."},
+    {"tytul": "Pieśń trzecia", "miejsce": "Pnp 3,6–5,1", "opis": "Obraz zaślubin Salomona prowadzi do pochwały oblubienicy i do zaproszenia do ogrodu."},
+    {"tytul": "Pieśń czwarta", "miejsce": "Pnp 5,2–6,10", "opis": "Zniknięcie ukochanego, poszukiwanie oraz pochwały wyglądu obojga."},
+    {"tytul": "Pieśń piąta", "miejsce": "Pnp 6,11–8,4", "opis": "Chóralna i indywidualna pochwała urody oblubienicy oraz jej zaproszenie do winnic."},
+    {"tytul": "Pieśń szósta", "miejsce": "Pnp 8,5–14", "opis": "Obraz potęgi miłości, wypowiedzi o rodzinie i winnicach oraz ostatnia wymiana słów ukochanych."}
+  ],
+  "zrodla": [
+    {"url": "https://biblia.deon.pl/ksiega.php?id=26", "rodzaj": "utwór", "co": "Biblia Tysiąclecia, rozdziały 1–8 dostępne z nawigacji księgi, numeracja wersetów i redakcyjny podział na sześć pieśni."},
+    {"url": "https://biblia.deon.pl/ksiega.php?id=26&wstep=1", "rodzaj": "opracowanie", "co": "Wstęp i objaśnienia do Biblii Tysiąclecia, problem gatunku, tradycja odczytań alegorycznych i warianty interpretacji."},
+    {"url": "https://zpe.gov.pl/a/przeczytaj/DVtT6Q7JV", "rodzaj": "opracowanie", "co": "Materiał o poetyce pieśni, miłości oblubieńczej i jej odczytaniach religijnych."},
+    {"url": "https://zpe.gov.pl/podstawa-programowa/szkola-ponadpodstawowa/jezyk-polski", "rodzaj": "opracowanie", "co": "Wykaz ZPE wymieniający Pieśń nad Pieśniami w pozycji Biblia."},
+    {"url": "https://eli.gov.pl/api/acts/DU/2024/1019/text/O/D20241019.pdf", "rodzaj": "opracowanie", "co": "Rozporządzenie z 28 czerwca 2024 r., wykaz nazwanych ksiąg biblijnych dla poziomu podstawowego."},
+    {"url": "https://bip.cke.gov.pl/attachments/download/10092", "rodzaj": "opracowanie", "co": "Wykaz ksiąg w informatorze CKE oraz zasada dopuszczająca odwołanie do każdej księgi biblijnej w wypracowaniu."}
+  ],
+  "do_weryfikacji": [
+    "Status imiennie wskazanej części Biblii wymaga potwierdzenia dla właściwego rocznika: wykaz ZPE wymienia Pieśń nad Pieśniami, a rozporządzenie z 2024 r. i informator CKE pomijają ją w wyliczeniu ksiąg. CKE dopuszcza odwołanie do każdej księgi biblijnej w wypracowaniu."
+  ]
+}
