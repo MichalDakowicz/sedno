@@ -4,6 +4,22 @@ Stan na 2 listopada 2026, koniec pierwszej sesji planowania; sekcja 0 z 16 listo
 
 Dokumentacja wizualna (GitHub Pages z `docs/`): 139 stron w 16 rozdziałach. Poniżej to, co zostało.
 
+## 000. Wszystkie matury, rysowanie, lektury, czat (24 listopada 2026, PR #93–#96)
+
+Zrobione: 361 arkuszy CKE dla 12 przedmiotów (formuła 2015 i 2023, termin główny i próbne CKE), lista arkuszy z grupami terminów, rysowanie na rysunkach z oceną przez Pestkę, czat na cały ekran, katalog 114 lektur z opracowaniami, planami wydarzeń, postaciami i motywami (113 utworów) oraz tekstami Wolnych Lektur (63 utwory). Lektury przeszły 7 rund testów na stagingu; ostatnia bez fałszu podanego pewnie.
+
+Otwarte:
+
+- **Terminy dodatkowy i poprawkowy:** CKE i OKE nie publikują arkuszy z kluczami (tylko OKE Łomża 2012/2014 bez kluczy). Grupy w liście zostają puste.
+- **Lektury, plan rozdziału:** składa go serwer z punktów Sedno i dosłownych cytatów, więc bywa „cytatowy”; „Popraw ten plan” zwraca ten sam plan.
+- **Lektury, karty:** część kart obejmuje szersze zdanie niż potwierdza źródło (epilog „Innego świata”, kilka punktów „Zbrodni i kary”, letarg Wokulskiego z kartą t. II rozdz. 14 zamiast 16). Kontrola zgodności karty i zdania jest leksykalna.
+- **Lektury, utwory chronione:** źródłem jest opracowanie (ZPE), nie tekst; słabo potwierdza szczegóły.
+- **Lektury, do weryfikacji:** opisy „Pani Bovary”, „Martwych dusz”, „Klubu Pickwicka” z pamięci modelu i krótkiego streszczenia; pięć ksiąg biblijnych bez porównania z tekstem; niektóre utwory w tekstach WL bez podziału na rozdziały („Nie-Boska komedia”, „Noc listopadowa”, „Gloria victis”); w „Dziadach cz. III” na WL brak „Ustępu”. Wpisy `do_weryfikacji` w `services/supabase/lektury/*.json`.
+- **Lektury, koszt:** pytania o lektury idą na poziom `wazne` (Sonnet); porównać z `lekkie` (Haiku) na tych samych pytaniach (`SEDNO_TIER_LEKTUR`).
+- **Rysowanie:** niesprawdzone na prawdziwym dotyku i rysiku; gumka, kolory i ponów tylko w kodzie; ocena AI sensownego wykresu niesprawdzona.
+- **Czat:** pytania do decyzji: przycisk „Zatrzymaj odpowiedź”, grupowanie rozmów (dziś, wczoraj, starsze), pole nad klawiaturą na telefonie (`interactive-widget`).
+- **Staging:** klucze AI konta testowego są w `private.ai_credential_kopia_20261123` na `sedno-dev` (konto idzie trasą serwera).
+
 ## 00. Poprawki od kolegi (gałąź `poprawki-od-kolegi`, 20 listopada 2026)
 
 Zrobione: domyślna trasa AI serwera dla kont bez własnego klucza (limit 200 rozmów na 24 h i sufit 4096 tokenów na kluczu serwera), ponawianie błędów dostawcy na serwerze, czyste polecenia w rundach („Przeczytaj tekst. ).”), wyjaśnienie skróconej rundy, komunikat o niedziałającym nagraniu CKE we wszystkich odtwarzaczach.
