@@ -11,6 +11,8 @@ export const POMINIETO = "Pominięto fragment odpowiedzi, którego nie da się p
 
 const GRUPA_ID = /\[\s*((?:(?:[WPMUF]\d{1,4}|S:[a-z]+|K|OW)\s*[,;]?\s*)+)\]/g;
 const TOKEN = /[WPMUF]\d{1,4}|S:[a-z]+|K|OW/g;
+const POCZATEK_ID = new RegExp(`^(?:${GRUPA_ID.source}\\s*)+`);
+const ZDANIA = new Intl.Segmenter("pl", { granularity: "sentence" });
 const AKCJA = /^\[\[akcja:(?:krok|przyklad|sprawdz)\]\]$/;
 const ZNACZNIK_PRIORYTETU = /\[\[\s*priorytet\s*:[^\]]*\]\]/gi;
 // Model potrafi napisać, że dopisał priorytet, choć o to nie proszono.
@@ -26,6 +28,23 @@ const przytnij = (t: string, n: number) => t.length <= n ? t : t.slice(0, n - 1)
 /** Cytaty w cudzysłowie „…” (min. 4 słowa i 18 znaków) muszą występować w materiałach albo w pytaniu ucznia. */
 function cytatyNiepotwierdzone(linia: string, wzorzec: string): boolean {
   return [...linia.matchAll(/„([^”]{18,400})”/g)].some((m) => slowa(m[1]) >= 4 && !wzorzec.includes(normalizuj(m[1])));
+}
+
+function zdaniaWiersza(linia: string): string[] {
+  // Numer listy i skróty lokalizacji nie kończą zdania. Zamiana kropki zachowuje indeksy.
+  const maska = linia.replace(/^(\s*\d+)\.(?= )|\b(t|rozdz|cz|ks|sc|w)\.(?= )/g, "$1$2_")
+    .replace(/„[^”]*”/g, (cytat) => cytat.replace(/[.!?…]/g, "_"));
+  const zdania: string[] = [];
+  for (const { index, segment } of ZDANIA.segment(maska)) {
+    let zdanie = linia.slice(index, index + segment.length);
+    const odsylacze = POCZATEK_ID.exec(zdanie)?.[0];
+    if (odsylacze && zdania.length) {
+      zdania[zdania.length - 1] += odsylacze;
+      zdanie = zdanie.slice(odsylacze.length);
+    }
+    if (zdanie) zdania.push(zdanie);
+  }
+  return zdania;
 }
 
 export class ProcesorOdpowiedzi {
@@ -80,46 +99,43 @@ export class ProcesorOdpowiedzi {
     if (!bezPriorytetu.trim()) return "";
     if (!this.opcje.zapisPriorytetu && OBIETNICA_PRIORYTETU.test(bezPriorytetu)) return "";
 
-    let ogolna = false;
-    const trafione: Material[] = [];
-    const tekstBezId = bezPriorytetu.replace(GRUPA_ID, (grupa) => {
-      for (const id of grupa.match(TOKEN) ?? []) {
-        if (id === "OW") ogolna = true;
-        else {
-          const m = this.mapa.get(id);
-          if (m && !trafione.includes(m)) trafione.push(m);
-        }
-      }
-      return "\u0000";
-    });
     if (cytatyNiepotwierdzone(bezPriorytetu, this.wzorzec)) {
       this.pominieto = true;
       return "";
     }
-    // Znaczniki wstawiamy w miejsce grup identyfikatorów, nieznane identyfikatory znikają.
-    let i = 0;
-    const grupy = [...bezPriorytetu.matchAll(GRUPA_ID)];
-    const tekst = tekstBezId.replace(/\u0000/g, () => {
-      const g = grupy[i++];
-      return (g?.[1].match(TOKEN) ?? []).map((id) => {
+    return this.emituj(zdaniaWiersza(bezPriorytetu).map((zdanie) => this.zdanie(zdanie)).join("").trimEnd());
+  }
+
+  private zdanie(surowe: string): string {
+    const odstep = /\s*$/.exec(surowe)![0];
+    const zdanie = surowe.trimEnd();
+    let maId = false;
+    let ogolna = false;
+    const tekst = zdanie.replace(GRUPA_ID, (_, grupa: string) => {
+      return (grupa.match(TOKEN) ?? []).map((id) => {
+        if (id === "OW") ogolna = true;
         const m = this.mapa.get(id);
-        const numer = m?.zrodlo && this.zarejestruj(m, bezPriorytetu);
+        if (m) maId = true;
+        const numer = m?.zrodlo && this.zarejestruj(m, zdanie);
         return numer ? `[[zrodlo:${numer}]]` : "";
       }).join("");
-    }).replace(/[ \t]{2,}/g, " ").replace(/[ \t]+([.,;:!?…])/g, "$1").replace(/[ \t]+(?=\[\[zrodlo)/g, " ").trimEnd();
+    });
 
-    const bezZnacznikow = tekst.replace(/\[\[[^\]]*\]\]/g, "").trim();
+    const wyczyszczony = (maId ? tekst.replaceAll(ETYKIETA_OGOLNA, "") : tekst)
+      .replace(/[ \t]{2,}/g, " ").replace(/[ \t]+([.,;:!?…])/g, "$1").trimEnd();
+    const bezZnacznikow = wyczyszczony.replace(/\[\[[^\]]*\]\]/g, "").trim();
     const zwolniona = /[:?]$/.test(bezZnacznikow) || /^#{1,6}\s/.test(bezZnacznikow) || slowa(bezZnacznikow.replace(/^[-*\d.\s]+/, "")) < 5 ||
       PRZYZNANIE_BRAKU.test(bezZnacznikow);
-    const dopisek = (!trafione.length || ogolna) && !zwolniona ? ` ${ETYKIETA_OGOLNA}` : "";
-    return this.emituj(`${tekst}${dopisek}`);
+    const dopisek = !maId && (ogolna ? !PRZYZNANIE_BRAKU.test(bezZnacznikow) : !zwolniona) && bezZnacznikow ? ` ${ETYKIETA_OGOLNA}` : "";
+    return `${wyczyszczony}${dopisek}${odstep}`;
   }
 
   /** Numer źródła w odpowiedzi (od 1); to samo miejsce w utworze ma jeden numer. */
   private zarejestruj(m: Material, linia: string): number {
     const z = m.zrodlo!;
     const klucz = `${m.rodzaj === "karta" ? "k" : ""}|${z.url}|${z.miejsce ?? z.sekcja ?? ""}`;
-    const opis = linia.replace(GRUPA_ID, "").replace(/\[\[[^\]]*\]\]/g, "").replace(/\s+/g, " ").replace(/\s+([.,;:!?…])/g, "$1").trim();
+    const opis = linia.replace(GRUPA_ID, "").replaceAll(ETYKIETA_OGOLNA, "").replace(/\[\[[^\]]*\]\]/g, "")
+      .replace(/\s+/g, " ").replace(/\s+([.,;:!?…])/g, "$1").trim();
     let zapis = this.zrodlaOdp.find((x) => x.klucz === klucz);
     if (!zapis) {
       const cytat = [...linia.matchAll(/„([^”]{8,380})”/g)].map((x) => x[1]).find((c) => normalizuj(m.tekst).includes(normalizuj(c)));
