@@ -23,3 +23,9 @@
   border-top: 1px solid var(--line);
   background: var(--surface);
 }
+
+/* Szeroki ekran z kształtem nawigacji (components/sterKsztaltu.ts): rozmowa leży na tle strony, obok kolumny historii wylanej z nava. */
+:global(html[data-ksztalt="pelny"]) .page {
+  border-top: 0;
+  background: transparent;
+}

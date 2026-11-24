@@ -155,6 +155,7 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
           </header>
           <aside
             className={styles.historiaPanel}
+            data-ksztalt="historia"
             id={listaId}
             aria-label="Historia rozmów"
             onKeyDown={(e) => { if (lista && e.key === "Escape") zamknijHistorie(); }}
