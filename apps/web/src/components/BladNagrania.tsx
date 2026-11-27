@@ -32,10 +32,14 @@ export function useBladNagrania(audio: RefObject<HTMLAudioElement | null>) {
       wyczysc();
       setBlad(true);
     };
+    // „Wczytaj jeszcze raz” woła load(): nowe ładowanie liczy czas od nowa, jak przy pierwszym wejściu.
+    const naStart = () => {
+      if (!limit && a.preload !== "none" && a.readyState < 1) limit = window.setTimeout(() => setBlad(true), LIMIT_MS);
+    };
     // Z preload metadata nagranie rusza ładować od razu, więc zawieszony serwer zgłaszamy bez klikania „Odtwórz”.
     if (a.preload !== "none" && a.readyState < 1) limit = window.setTimeout(() => setBlad(true), LIMIT_MS);
     const zdarzenia: [string, () => void][] = [
-      ["play", czekaj], ["waiting", czekaj],
+      ["play", czekaj], ["waiting", czekaj], ["loadstart", naStart],
       ["loadedmetadata", wyczysc], ["progress", naPostep], ["loadeddata", naPostep], ["timeupdate", wyczysc], ["canplay", wyczysc], ["pause", wyczysc], ["ended", wyczysc],
       ["playing", naGra],
       ["error", naBlad],

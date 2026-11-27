@@ -32,10 +32,10 @@ _Set 2026-11-23 · status: active_
 - [ ] Full-screen chat has a new, deliberate layout (Sonnet design pass, before/after screenshots) · proof:
 
 ### Feels
-- [ ] Subject tabs and groups work by keyboard and screen reader; chat input, history and scroll behave on phone and desktop · proof:
+- [ ] Subject tabs and groups work by keyboard and screen reader; chat input, history and scroll behave on phone and desktop · proof: 2026-11-27 code only (not run in a browser): pill groups named, arrow keys/Home/End with roving tabindex, count read as „N arkuszy”, session sections labelled; chat: stop button, history grouped by day, `interactive-widget=resizes-content`
 
 ### Holds up
-- [ ] Audit has no blocker or major findings; no CKE files or data in the repo · proof:
+- [ ] Audit has no blocker or major findings; no CKE files or data in the repo · proof: 2026-11-27 no CKE PDF/MP3/zip tracked, `data/` ignored, tracked JSON only page/frame coordinates; full audit not run
 
 ### Shipped
 - [x] `npm run typecheck`, `npm run build` green; branches + PRs; tested on staging (Terra and Haiku alternating); `NASTEPNE.md`, `services/arkusze/README.md` and Brief updated; production only on the user's yes · proof: main after merges: typecheck, build, 96 Deno tests; PRs #93 #95 #96 merged; production deployed (migrations 0031–0043, sheets, WL texts, Firebase)

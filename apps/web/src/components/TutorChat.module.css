@@ -136,6 +136,16 @@
   border-top: 1px solid var(--line);
 }
 
+/* Nagłówek grupy (Dziś, Wczoraj, Starsze): linia przed grupą, bez drugiej linii między nagłówkiem a pierwszą rozmową. */
+.rozmowyLista :global(li.label) {
+  padding-top: var(--s-4);
+  padding-bottom: var(--s-1);
+}
+
+.rozmowyLista :global(li.label) + li {
+  border-top: 0;
+}
+
 .rozmowyLista button {
   width: 100%;
   display: flex;
