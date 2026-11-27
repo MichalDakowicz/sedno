@@ -162,15 +162,18 @@ Deno.test("jedna karta dla strony opracowania zachowuje dowody wyłącznie dla w
   const odpowiedz = p.dodaj(
     "Więźniowie pracują przy wyrębie lasu [W1].\n\nNarrator opisuje niedożywienie więźniów [W2].\n\n" +
     "Narrator opisuje niedożywienie więźniów w 1947 roku [W2].\n\n" +
-    "Narrator opisuje niedożywienie więźniów i ucieka łodzią [W2].\n\n" +
-    "Narrator nie opisuje niedożywienia więźniów [W2].",
+    "Narrator ucieka łodzią z obozu razem z Kostylewem [W2].\n\n" +
+    "Narrator nie opisuje niedożywienia więźniów [W2].\n\n" +
+    "Więźniowie w obozie są stale niedożywieni, o czym narrator pisze wprost [W2].",
   ) + p.zakoncz();
   assertEquals(odpowiedz.split("\n\n"), [
     "Więźniowie pracują przy wyrębie lasu [[zrodlo:1]].",
     "Narrator opisuje niedożywienie więźniów [[zrodlo:1]].",
     "Narrator opisuje niedożywienie więźniów w 1947 roku. " + ETYKIETA_OGOLNA,
-    "Narrator opisuje niedożywienie więźniów i ucieka łodzią. " + ETYKIETA_OGOLNA,
+    "Narrator ucieka łodzią z obozu razem z Kostylewem. " + ETYKIETA_OGOLNA,
     "Narrator nie opisuje niedożywienia więźniów. " + ETYKIETA_OGOLNA,
+    // Parafraza własnymi słowami zachowuje źródło.
+    "Więźniowie w obozie są stale niedożywieni, o czym narrator pisze wprost [[zrodlo:1]].",
   ]);
   assertEquals(p.zrodla().length, 1);
   const [karta] = p.zrodla();
@@ -178,6 +181,7 @@ Deno.test("jedna karta dla strony opracowania zachowuje dowody wyłącznie dla w
   assertStringIncludes(karta.dowod!, materialy[1].tekst);
   assert(!karta.twierdzenie?.includes("1947"));
   assert(!karta.twierdzenie?.includes("ucieka"));
+  assertStringIncludes(karta.twierdzenie!, "stale niedożywieni");
   assert(!karta.twierdzenie?.includes("nie opisuje"));
 });
 
@@ -214,4 +218,32 @@ Deno.test("odsyłacz do fragmentu tekstu wymaga zgodnego miejsca albo słów z f
   // Wymyślona scena z prawdziwym identyfikatorem: bez zgodnego miejsca i bez wspólnych słów nie dostaje karty źródła.
   assertEquals(przetworz("Wokulski toczy pojedynek z baronem na dziedzińcu zamku [F2].").zrodla, 0);
   assertEquals(przetworz("W t. I, rozdz. 5 Wokulski zabija Rzeckiego [F2].").zrodla, 0);
+});
+
+Deno.test("interpretacja własnymi słowami i zaznaczona niepewność nie dostają etykiety, konkret bez źródła dostaje", () => {
+  const p = new ProcesorOdpowiedzi([
+    wydarzenie("W3", "t. II, rozdz. 14", "W pociągu do Krakowa Wokulski wysiada w Skierniewicach i rzuca się pod pociąg, a ratuje go dróżnik Wysocki."),
+  ], { pytanie: "", zapisPriorytetu: false });
+  const odpowiedz = p.dodaj([
+    "Ta scena pokazuje, jak bardzo bohater jest rozdarty między marzeniem a rzeczywistością.",
+    "Wokulski kupuje kamienicę Łęckich.",
+    "Prawdopodobnie Wokulski kupuje też weksle Łęckiego, ale sprawdź to w tekście.",
+    "Na stacji w Skierniewicach bohater wyskakuje z wagonu i kładzie się na torach, skąd wyciąga go dróżnik [W3].",
+  ].join("\n\n")) + p.zakoncz();
+  assertEquals(odpowiedz.split("\n\n"), [
+    "Ta scena pokazuje, jak bardzo bohater jest rozdarty między marzeniem a rzeczywistością.",
+    "Wokulski kupuje kamienicę Łęckich. " + ETYKIETA_OGOLNA,
+    "Prawdopodobnie Wokulski kupuje też weksle Łęckiego, ale sprawdź to w tekście.",
+    "Na stacji w Skierniewicach bohater wyskakuje z wagonu i kładzie się na torach, skąd wyciąga go dróżnik [[zrodlo:1]].",
+  ]);
+});
+
+Deno.test("zdanie przeczące materiałowi traci źródło mimo wspólnych słów", () => {
+  const m = wydarzenie("W22", "epilog", "Rozmówca prosi narratora o zrozumienie, ale narrator odmawia podania mu ręki.");
+  const p = new ProcesorOdpowiedzi([m], { pytanie: "", zapisPriorytetu: false });
+  const odpowiedz = p.dodaj("Na koniec narrator podaje rozmówcy rękę [W22].\n\nNarrator nie podaje rozmówcy ręki [W22].") + p.zakoncz();
+  assertEquals(odpowiedz.split("\n\n"), [
+    "Na koniec narrator podaje rozmówcy rękę. " + ETYKIETA_OGOLNA,
+    "Narrator nie podaje rozmówcy ręki [[zrodlo:1]].",
+  ]);
 });

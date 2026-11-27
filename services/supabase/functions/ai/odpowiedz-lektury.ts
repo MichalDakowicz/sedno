@@ -1,5 +1,5 @@
 // Obróbka odpowiedzi modelu o lekturze po stronie serwera: identyfikatory materiałów → źródła,
-// etykieta „z ogólnej wiedzy” przy wszystkim, co nie ma oparcia w materiałach Sedno, kontrola cytatów,
+// etykieta „z ogólnej wiedzy” przy konkretach bez oparcia w materiałach Sedno, kontrola cytatów,
 // blokada zapisu priorytetu bez prośby ucznia.
 import type { ZrodloPestki } from "../_shared/pestka-odpowiedz.ts";
 import { normalizuj } from "./lektury.ts";
@@ -38,7 +38,8 @@ const ZNACZNIK_PRIORYTETU = /\[\[\s*priorytet\s*:[^\]]*\]\]/gi;
 // Model potrafi napisać, że dopisał priorytet, choć o to nie proszono.
 const OBIETNICA_PRIORYTETU = /\b(?:dodał|dopisał|zapisał|ustawił)(?:am|em|o)\b[^.!?\n]{0,80}\bpriorytet|\bdo (?:twoich|Twoich) priorytet/i;
 // Zdanie, w którym Pestka uczciwie mówi o braku materiału, nie wymaga etykiety.
-const PRZYZNANIE_BRAKU = /\bSedno\b[^.\n]{0,60}\b(?:nie ma|brak|ma tylko)|\bnie ma (?:tego |tej |go )?w (?:materiałach|opracowaniu)|z ogólnej wiedzy|\bnie wiem\b|\bnie jestem pewn/i;
+// Tak samo zdanie, w którym model sam zaznacza niepewność.
+const PRZYZNANIE_BRAKU = /\bSedno\b[^.\n]{0,60}\b(?:nie ma|brak|ma tylko)|\bnie ma (?:tego |tej |go )?w (?:materiałach|opracowaniu)|z ogólnej wiedzy|\bnie wiem\b|\bnie jestem pewn|\bnie mam pewności|\bprawdopodobnie\b|\bo ile pamiętam\b|\bsprawdź (?:to |go |ją )?w tekście|\bwarto (?:to )?sprawdzić/i;
 const POLECENIE = /^(?:(?:teraz|na koniec|najpierw|potem|prosze|mozesz|jesli chcesz) )*(?:sprobuj|napisz|zastanow sie|przypomnij sobie|dopisz|wybierz|podaj|wypisz|porownaj|przeczytaj|sprawdz|wskaz|uzasadnij|zapisz|zacytuj|wyjasnij|omow|uzupelnij|rozwaz|zrob|powiedz|zaproponuj|zacznij|zobacz|opisz|odpowiedz|znajdz|zwroc uwage)\b/;
 const PORADA = /^(?:mozesz|w (?:rozprawce|wypracowaniu|argumentacji)|jak (?:to |go |ja )?(?:wyjasnic|ujac|wykorzystac|napisac|sformulowac|uzasadnic|zaczac|rozwinac))\b/;
 const NAGLOWEK_PORAD = /^(?:wskazowki|propozycja argumentu|mozesz|jak (?:to |go |ja )?(?:wyjasnic|ujac|wykorzystac|napisac|sformulowac|uzasadnic|zaczac|rozwinac)|w (?:rozprawce|wypracowaniu|argumentacji))\b/;
@@ -47,7 +48,7 @@ const POMIJANE_SLOWA = new Set(
   "albo bardzo bohater bohaterka czesc dlaczego dlatego dzieki gdzie jest jestes jeszcze jednak kazdy kiedy ktore ktora ktory ktorym lektura miejsce natomiast omawia opis opisuje oraz potem powiesc prawda przed przez przy przyklad raz razem rozdz rozdzial scena takze tego teraz tylko tutaj utwor wedlug wydarzenie wlasnie wtedy zostal zatem swoje swoja swoje swoich temat dzieje chodzi stanowi pojawia osoba imie relacje poznajemy nastepnie".split(" "),
 );
 
-export type OpcjeProcesora = { pytanie: string; zapisPriorytetu: boolean; wstep?: string; bezEtykiety?: boolean };
+export type OpcjeProcesora = { pytanie: string; zapisPriorytetu: boolean; wstep?: string };
 
 const slowa = (t: string) => t.split(/\s+/).filter(Boolean).length;
 const przytnij = (t: string, n: number) => t.length <= n ? t : t.slice(0, n - 1).replace(/\s+\S*$/, "");
@@ -82,9 +83,40 @@ function zdaniaZOdsylaczami(tekst: string): string[] {
   return zdania;
 }
 
+// Cztery litery wystarczą, żeby odmiana („spotyka” / „spotkał”, „Paryż” / „Paryżu”) nie rozrywała parafrazy.
 function rdzenie(tekst: string): Set<string> {
   return new Set(normalizuj(tekst).split(" ").filter((s) =>
-    /^[a-z]{4,}$/.test(s) && !POMIJANE_SLOWA.has(s)).map((s) => s.slice(0, 5)));
+    /^[a-z]{4,}$/.test(s) && !POMIJANE_SLOWA.has(s)).map((s) => s.slice(0, 4)));
+}
+
+const PRZECZENIE = /^(?:nie|nigdy|bez|odmawia\w*|odmowi\w*)$/;
+
+/** Rdzenie słów, którym materiał zaprzecza („nie podaje ręki”, „odmawia podania ręki”). */
+function zaprzeczone(tekst: string): Set<string> {
+  const slowa = normalizuj(tekst).split(" ");
+  const wynik = new Set<string>();
+  slowa.forEach((s, i) => {
+    if (!PRZECZENIE.test(s)) return;
+    for (const n of slowa.slice(i + 1, i + 4)) if (/^[a-z]{4,}$/.test(n) && !POMIJANE_SLOWA.has(n)) wynik.add(n.slice(0, 4));
+  });
+  return wynik;
+}
+
+const WIELKA = /\p{Lu}\p{Ll}{2,}/gu;
+
+/** Nazwy własne z materiałów (wyrazy wielką literą poza początkiem zdania, imiona postaci). */
+function nazwyZMaterialow(materialy: Material[]): Set<string> {
+  const nazwy = new Set<string>();
+  const dodaj = (wyraz: string) => { const n = normalizuj(wyraz); if (n.length >= 3) nazwy.add(n.slice(0, 4)); };
+  for (const m of materialy) {
+    for (const x of m.tekst.matchAll(WIELKA)) {
+      const przed = m.tekst.slice(Math.max(0, x.index! - 40), x.index).trimEnd();
+      if (przed && !/[.!?…]$/.test(przed)) dodaj(x[0]);
+    }
+    for (const n of m.nazwyPostaci ?? []) for (const x of n.matchAll(WIELKA)) dodaj(x[0]);
+    if (m.zrodlo?.tytul) for (const x of m.zrodlo.tytul.matchAll(WIELKA)) dodaj(x[0]);
+  }
+  return nazwy;
 }
 
 type MiejsceZdania = ReturnType<typeof miejscaWZdaniu>[number];
@@ -106,18 +138,24 @@ function materialWspieraZdanie(m: Material, zdanie: string, szukane: MiejsceZdan
     if (!szukane.some((miejsce) => materialWskazuje(m, miejsce))) return false;
     if (m.zrodlo?.rodzaj === "utwór") return true;
   }
+  // Parafraza własnymi słowami jest w porządku: wystarczy, że zdanie wyraźnie dotyczy tego samego co materiał.
+  // Odrzucamy tylko zdania prawie bez wspólnej treści oraz liczby (daty, numery), których materiał nie podaje.
   const slowaZdania = rdzenie(zdanie);
   const wspolne = [...slowaZdania].filter((s) => slowaZrodla.has(s)).length;
+  const liczbyZrodla = new Set(m.tekst.match(/\b\d+\b/g));
+  const liczbyZdania = zdanie.replace(PUNKT, "").match(/\b\d+\b/g) ?? [];
+  if (!liczbyZdania.every((n) => liczbyZrodla.has(n) || szukane.length > 0)) return false;
+  // Zdanie twierdzące o czymś, czemu materiał zaprzecza, odwraca jego sens mimo wspólnych słów.
+  const zaprzeczoneWZrodle = zaprzeczone(m.tekst);
+  const zdanieZPrzeczeniem = normalizuj(zdanie).split(" ").some((s) => PRZECZENIE.test(s));
+  if (!zdanieZPrzeczeniem && [...slowaZdania].some((s) => zaprzeczoneWZrodle.has(s))) return false;
   if (m.zrodlo?.rodzaj === "opracowanie") {
-    const liczbyZrodla = new Set(m.tekst.match(/\b\d+\b/g));
-    const liczbyZdania = zdanie.replace(PUNKT, "").match(/\b\d+\b/g) ?? [];
+    // Zaprzeczenie, którego nie ma w opracowaniu, odwraca sens materiału.
     const przeczenie = /\b(?:nie|nigdy|bez)\b/gi;
     const przeczeniaZrodla = new Set(normalizuj(m.tekst).match(przeczenie) ?? []);
-    const przeczeniaZdania = normalizuj(zdanie).match(przeczenie) ?? [];
-    return wspolne >= 2 && wspolne === slowaZdania.size &&
-      liczbyZdania.every((n) => liczbyZrodla.has(n)) && przeczeniaZdania.every((s) => przeczeniaZrodla.has(s));
+    if (!(normalizuj(zdanie).match(przeczenie) ?? []).every((s) => przeczeniaZrodla.has(s))) return false;
   }
-  return wspolne >= Math.max(2, Math.ceil(slowaZdania.size / 4));
+  return wspolne >= Math.min(2, slowaZdania.size) && wspolne >= Math.ceil(slowaZdania.size / 5);
 }
 
 function naprawKoncowke(tekst: string): string {
@@ -143,10 +181,12 @@ export class ProcesorOdpowiedzi {
   private readonly zrodlaOdp: { klucz: string; zrodlo: ZrodloPestki; wiersze: string[]; dowody: string[] }[] = [];
   private readonly mapa: Map<string, Material>;
   private readonly wzorzec: string;
+  private readonly nazwy: Set<string>;
 
   constructor(materialy: Material[], private readonly opcje: OpcjeProcesora) {
     this.mapa = new Map(materialy.map((m) => [m.id, m]));
     this.wzorzec = normalizuj([...materialy.map((m) => m.tekst), opcje.pytanie].join(" \n "));
+    this.nazwy = nazwyZMaterialow(materialy);
   }
 
   /** Źródła cytowane w wyemitowanej odpowiedzi; indeks + 1 to numer w znaczniku [[zrodlo:N]]. */
@@ -245,6 +285,8 @@ export class ProcesorOdpowiedzi {
     });
     if (usunietoCytat) surowy = surowy.split("\n").filter((w) => w.trim()).join("\n");
     let maId = false;
+    let odrzucono = false;
+    const ogolna = [...surowy.matchAll(GRUPA_ID)].some((g) => g[1].match(TOKEN)?.includes("OW"));
     const tekst = zdaniaZOdsylaczami(surowy).map((zdanie) => {
       const bezId = bezOdsylaczy(zdanie);
       const miejsca = miejscaWZdaniu(bezId.replace(CYTAT, ""));
@@ -264,6 +306,7 @@ export class ProcesorOdpowiedzi {
         const numer = m.zrodlo && this.zarejestruj(m, zdanie);
         return numer ? `[[zrodlo:${numer}]]` : "";
       }).join(""));
+      if (usunieto) odrzucono = true;
       return usunieto ? naprawKoncowke(wynik) : wynik;
     }).join("");
 
@@ -278,10 +321,21 @@ export class ProcesorOdpowiedzi {
     const poczatek = normalizuj(bezZnacznikow.replace(PUNKT, ""));
     const poleceniaLubPytania = PORADA.test(poczatek) || zdaniaZOdsylaczami(bezZnacznikow).every((s) =>
       s.trimEnd().endsWith("?") || POLECENIE.test(normalizuj(s.replace(PUNKT, ""))));
-    const zwolniony = this.opcje.bezEtykiety || naglowek || cytat || sameCytaty || listaPorad ||
+    const zwolniony = naglowek || cytat || sameCytaty || listaPorad ||
       /^(?:\*\*.+\*\*|__.+__)$/.test(bezZnacznikow) || /:$/.test(bezZnacznikow) || poleceniaLubPytania || PRZYZNANIE_BRAKU.test(bezZnacznikow);
-    const dopisek = !maId && !zwolniony ? ` ${ETYKIETA_OGOLNA}` : "";
+    // Etykieta tylko przy konkretach bez oparcia: miejsce, cytat, liczba, nazwa z utworu, odrzucony odsyłacz albo [OW].
+    // Interpretacja i wnioski pisane własnymi słowami zostają bez dopisku.
+    const konkret = odrzucono || ogolna || this.konkret(bezZnacznikow);
+    const dopisek = !maId && !zwolniony && konkret ? ` ${ETYKIETA_OGOLNA}` : "";
     return wyczyszczony.replace(PUNKT, "").trim() ? this.emituj(`${wyczyszczony}${dopisek}`) : "";
+  }
+
+  private konkret(tekst: string): boolean {
+    // Bez materiałów (lektura spoza katalogu) każde twierdzenie o utworze jest z ogólnej wiedzy.
+    if (!this.mapa.size) return true;
+    const tresc = tekst.replace(PUNKT, "");
+    if (/[„“«"]/.test(tresc) || /\d|\b[IVXLC]{2,}\b/.test(tresc) || miejscaWZdaniu(tresc).length) return true;
+    return [...tresc.matchAll(WIELKA)].some((x) => this.nazwy.has(normalizuj(x[0]).slice(0, 4)));
   }
 
   /** Numer źródła w odpowiedzi (od 1); to samo miejsce w utworze ma jeden numer. */
