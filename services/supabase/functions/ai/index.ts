@@ -8,7 +8,7 @@
 // stream=true  → text/event-stream: data: {"type":"text","delta":...} ... data: {"type":"done",...}
 
 import { limitDzienny, logAiUsage, resolveAi, zapasowa } from "../_shared/ai-route.ts";
-import { ograniczTokeny, SEDNO } from "../_shared/ai-default.ts";
+import { mocnaTrasa, ograniczTokeny, SEDNO } from "../_shared/ai-default.ts";
 import { readJsonObject } from "../_shared/http.ts";
 import { LlmError, type Message } from "../_shared/llm.ts";
 import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
@@ -89,7 +89,7 @@ async function handle(req: Request): Promise<Response> {
 
   const resolvedRoute = await resolveAi(user, tier, override);
   if (resolvedRoute instanceof Response) return resolvedRoute;
-  const route = resolvedRoute;
+  const route = mocnaTrasa(resolvedRoute, task);
   const limited = await limitDzienny(user, route);
   if (limited) return limited;
   const limitNarzedzia = requested === undefined ? undefined : Math.min(requested, 8192);
