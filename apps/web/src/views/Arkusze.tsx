@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { rozgrzejArkusz, useListaArkuszy } from "../arkusze/dane";
@@ -28,6 +28,22 @@ import styles from "./Arkusze.module.css";
 const POZIOMY: Poziom[] = ["podstawowy", "rozszerzony", "dwujezyczny"];
 const NAZWY: Record<Poziom, string> = { podstawowy: "Podstawowy", rozszerzony: "Rozszerzony", dwujezyczny: "Dwujęzyczny" };
 const FORMULY = ["2023", "2015"] as const;
+
+/** Strzałki Lewo/Prawo (i Home/End) przenoszą fokus między pigułkami grupy; Enter i Spacja aktywują natywnie. */
+function ruchStrzalkami(e: KeyboardEvent<HTMLElement>) {
+  // Lista „Inne przedmioty” w tej samej grupie zachowuje własne strzałki.
+  if (!(e.target instanceof HTMLButtonElement)) return;
+  const przyciski = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>("button.pigulka"));
+  const i = przyciski.indexOf(e.target);
+  if (i < 0) return;
+  const n = przyciski.length;
+  const cel = e.key === "ArrowRight" ? (i + 1) % n : e.key === "ArrowLeft" ? (i - 1 + n) % n : e.key === "Home" ? 0 : e.key === "End" ? n - 1 : -1;
+  if (cel < 0) return;
+  e.preventDefault();
+  przyciski[cel].focus();
+}
+
+const liczbaArkuszy = (n: number) => (n === 1 ? "1 arkusz" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? `${n} arkusze` : `${n} arkuszy`);
 
 const idPrzedmiotu = (a: ArkuszWpis): Przedmiot => a.przedmiot ?? "angielski";
 const nazwaKrotka = (id: Przedmiot) => opisPrzedmiotu(id)?.nazwa ?? id;
@@ -78,9 +94,9 @@ export function Arkusze() {
 
       {dane && (
         <div className={styles.filtry}>
-          <Pigulki role="group" aria-label="Przedmiot">
+          <Pigulki role="group" aria-label="Przedmiot" onKeyDown={ruchStrzalkami}>
             {glowne.map((id) => (
-              <button key={id} type="button" className="pigulka" onClick={() => wybierzPrzedmiot(id)} aria-pressed={przedmiot === id}>
+              <button key={id} type="button" className="pigulka" onClick={() => wybierzPrzedmiot(id)} aria-pressed={przedmiot === id} tabIndex={id === (glowne.includes(przedmiot) ? przedmiot : glowne[0]) ? 0 : -1}>
                 {nazwaKrotka(id)}
               </button>
             ))}
@@ -103,22 +119,22 @@ export function Arkusze() {
           {(poziomy.length > 1 || formuly.length > 1) && (
             <div className={styles.opcje}>
               {poziomy.length > 1 && (
-                <Pigulki role="group" aria-label="Poziom">
+                <Pigulki role="group" aria-label="Poziom matury" onKeyDown={ruchStrzalkami}>
                   {poziomy.map((p) => (
-                    <button key={p} type="button" className="pigulka" onClick={() => setPoziom(p)} aria-pressed={poziom === p}>
+                    <button key={p} type="button" className="pigulka" onClick={() => setPoziom(p)} aria-pressed={poziom === p} tabIndex={poziom === p ? 0 : -1} aria-label={`${NAZWY[p]}, ${liczbaArkuszy(zPrzedmiotu!.filter((a) => a.poziom === p).length)}`}>
                       {NAZWY[p]}
-                      <span className={styles.levelCount}>{zPrzedmiotu!.filter((a) => a.poziom === p).length}</span>
+                      <span className={styles.levelCount} aria-hidden="true">{zPrzedmiotu!.filter((a) => a.poziom === p).length}</span>
                     </button>
                   ))}
                 </Pigulki>
               )}
 
               {formuly.length > 1 && (
-                <Pigulki role="group" aria-label="Formuła matury">
+                <Pigulki role="group" aria-label="Formuła matury" onKeyDown={ruchStrzalkami}>
                   {formuly.map((f) => (
-                    <button key={f} type="button" className="pigulka" onClick={() => setFormula(f)} aria-pressed={formula === f}>
+                    <button key={f} type="button" className="pigulka" onClick={() => setFormula(f)} aria-pressed={formula === f} tabIndex={formula === f ? 0 : -1} aria-label={`Formuła ${f}, ${liczbaArkuszy(naPoziomie.filter((a) => formulaArkusza(a) === f).length)}`}>
                       Formuła {f}
-                      <span className={styles.levelCount}>{naPoziomie.filter((a) => formulaArkusza(a) === f).length}</span>
+                      <span className={styles.levelCount} aria-hidden="true">{naPoziomie.filter((a) => formulaArkusza(a) === f).length}</span>
                     </button>
                   ))}
                 </Pigulki>
@@ -141,7 +157,7 @@ export function Arkusze() {
       {blad && <BrakDanych blad={blad} />}
 
       {terminy.length > 0 && (
-        <div className={styles.grupy}>
+        <div className={styles.grupy} role="group" aria-label={`Arkusze, formuła ${formula}`}>
           {terminy.map((g) => (
             <section key={`${formula}-${g.termin}`} className={`${styles.group} wejscie`} aria-labelledby={`termin-${g.termin}`}>
               <header className={styles.groupHead}>
