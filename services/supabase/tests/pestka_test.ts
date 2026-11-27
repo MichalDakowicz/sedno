@@ -83,6 +83,9 @@ const przez = (m: Material[], tekst: string, pytanie = "", zapisPriorytetu = fal
   const wynik = p.dodaj(tekst.endsWith("\n") ? tekst : `${tekst}\n`) + p.zakoncz();
   return { wynik: wynik.trimEnd(), zrodla: p.zrodla() };
 };
+/** Plan, jaki mógłby napisać model: punkt z miejscem, opis wydarzenia i jego identyfikator. */
+const planModelu = (m: Material[]) => m.filter((w) => w.rodzaj === "wydarzenie").map((w, i) =>
+  `${i + 1}. **${w.miejsce}** — ${w.tekst.slice(`${w.miejsce}: `.length).replace(/ \(kto:[^)]*\)$/, "")} [${w.id}]`).join("\n") + "\n";
 
 Deno.test("bezpośrednie pytania z matematyki, informatyki i angielskiego nie wywołują wyszukiwania", async () => {
   for (const content of ["Co to jest pochodna?", "Co oznacza GROUP BY?", "Kiedy używam Past Simple?"]) {
@@ -176,18 +179,24 @@ Deno.test("kim jest Wokulski: postacie i sekcja bohaterów, identyfikatory w pro
   assertEquals(zrodla[0].url, T1);
 });
 
-Deno.test("plan wydarzeń składa serwer: kolejność, miejsce w tekście, link do rozdziału", async () => {
+Deno.test("plan wydarzeń pisze model z materiałów, a jego odsyłacze dają źródła z miejscem i linkiem", async () => {
   const { krok, wywolania } = await czat("Podaj plan wydarzeń Lalki");
   assertEquals(wywolania.elementy[0].p_kolejnosc, true);
-  assert(krok.gotowa && krok.procesor);
-  const tekst = krok.procesor.dodaj(`${krok.gotowa}\n`) + krok.procesor.zakoncz();
-  assertStringIncludes(tekst, "Plan wydarzeń „Lalka”");
-  const [, pusty, ...punkty] = tekst.trimEnd().split("\n");
-  assertEquals(pusty, "");
-  assertEquals(punkty.map((line) => /^(\d+)\. \*\*(t\. \w+, rozdz\. \d+)\*\*/.exec(line)?.slice(1)), [
-    ["1", "t. I, rozdz. 1"], ["2", "t. II, rozdz. 3"], ["3", "t. II, rozdz. 14"],
-  ]);
-  assertStringIncludes(punkty[2], "Wokulski wysiada w Skierniewicach");
+  // Serwer nie składa planu: model dostaje wydarzenia jako lekturę i pisze plan sam.
+  assertEquals(krok.gotowa, undefined);
+  assert(krok.procesor);
+  assertEquals(krok.materialy.filter((m) => m.rodzaj === "wydarzenie").map((m) => m.id), ["W1", "W2", "W3"]);
+  assertStringIncludes(system(krok), "[W3] t. II, rozdz. 14: Wokulski wysiada w Skierniewicach");
+  assertStringIncludes(system(krok), "Plan wydarzeń napisz sam");
+  assertStringIncludes(system(krok), "własnymi słowami");
+  const odpowiedzModelu = [
+    "1. **t. I, rozdz. 1** — Kupcy w jadłodajni plotkują o wyjeździe Wokulskiego do Bułgarii [W1].",
+    "2. **t. II, rozdz. 3** — W Paryżu Wokulski poznaje profesora Geista [W2].",
+    "3. **t. II, rozdz. 14** — W Skierniewicach Wokulski wysiada z pociągu i rzuca się pod nadjeżdżający skład [W3].",
+  ].join("\n");
+  const tekst = krok.procesor.dodaj(`${odpowiedzModelu}\n`) + krok.procesor.zakoncz();
+  assertStringIncludes(tekst, "plotkują o wyjeździe Wokulskiego");
+  assertEquals(tekst.match(/\[\[zrodlo:\d\]\]/g), ["[[zrodlo:1]]", "[[zrodlo:2]]", "[[zrodlo:3]]"]);
   assert(!tekst.includes(ETYKIETA_OGOLNA));
   const zrodla = krok.procesor.zrodla();
   assertEquals(zrodla.map((z) => z.miejsce), ["t. I, rozdz. 1", "t. II, rozdz. 3", "t. II, rozdz. 14"]);
@@ -228,24 +237,26 @@ Deno.test("Sonia, Marmieładow i Rodion trafiają do właściwej postaci z histo
   const krok = await przygotujCzat([...historia, { role: "user", content: "Kim jest Alfred?" }], { tryb: "czat" }, dostepZ({ wiersze }).dostep);
   assertStringIncludes(krok.gotowa!, "Sedno nie ma opisu tej postaci");
   assertStringIncludes(krok.gotowa!, "Zbrodnia i kara");
-  assert(!przez(krok.materialy, krok.gotowa!).wynik.includes(ETYKIETA_OGOLNA));
+  assert(!przez(krok.materialy, planModelu(krok.materialy)).wynik.includes(ETYKIETA_OGOLNA));
 });
 
-Deno.test("plan zawęża się do miejsca wskazanego w pytaniu", async () => {
+Deno.test("plan zawęża materiały do miejsca wskazanego w pytaniu", async () => {
   const { krok } = await czat("Plan wydarzeń Lalki: tom II rozdział 14");
-  assertEquals(krok.gotowa?.split("\n").filter((w) => /^\d+\. /.test(w)).length, 1);
+  assertEquals(krok.gotowa, undefined);
   assertEquals(krok.materialy.filter((x) => x.rodzaj === "wydarzenie").map((w) => w.id), ["W3"]);
   const rzymski = await czat("Plan wydarzeń Lalki, rozdział XIV");
-  assertStringIncludes(rzymski.krok.gotowa!, "1. **t. II, rozdz. 14**");
+  assertStringIncludes(system(rzymski.krok), "[W3] t. II, rozdz. 14");
+  assert(!system(rzymski.krok).includes("[W2]"));
   const brak = await czat("Plan wydarzeń Lalki, rozdział 99");
-  assertEquals(brak.krok.gotowa, "Sedno nie ma punktów planu dla wskazanego miejsca.");
+  assertEquals(brak.krok.gotowa, undefined);
+  assertStringIncludes(system(brak.krok), "nie układaj punktów z pamięci");
 });
 
 Deno.test("plan bez elementów korzysta z numerowanej notatki, bez zmyślonych kotwic", async () => {
   const notatka = "1. [Akt I, scena VIII](https://wolnelektury.pl/katalog/lektura/zemsta/#s6) Ludzie Cześnika przerywają naprawę muru.\n2. [Akt IV] Cześnik i Rejent się godzą.";
   const { krok } = await czat("Podaj plan wydarzeń Zemsty", { wiersze: [], sekcje: [sekcjaRow("wydarzenia", notatka, "zemsta")] });
-  assert(krok.gotowa);
-  assertStringIncludes(krok.gotowa, "1. **Akt I, scena VIII** — Ludzie Cześnika");
+  assertEquals(krok.gotowa, undefined);
+  assertStringIncludes(system(krok), "[W1] Akt I, scena VIII: Ludzie Cześnika przerywają naprawę muru.");
   assertEquals(krok.materialy.find((m) => m.id === "W1")?.zrodlo?.url, "https://wolnelektury.pl/katalog/lektura/zemsta/");
 });
 
@@ -354,7 +365,7 @@ Deno.test("pytania o przyczynę sprowadzają sekcje trafne i obie sekcje fabular
     const { krok } = await czat(pytanie, { sekcje, wiersze: [] });
     assertEquals(krok.materialy.filter((m) => m.sekcja).map((m) => m.sekcja), ["motywy", "geneza", "streszczenie", "bohaterowie", "wydarzenia"]);
     assertStringIncludes(system(krok), `[S:wydarzenia] ${wydarzenie}`);
-    assertStringIncludes(system(krok), "nigdy im nie przeczyj");
+    assertStringIncludes(system(krok), "nie przeczyj materiałom");
     const odp = przez(krok.materialy, "Papkin pisze testament, ponieważ podejrzewa, że Rejent go otruł [S:wydarzenia].");
     assertEquals(odp.zrodla[0].id, "S:wydarzenia");
     assert(!odp.wynik.includes(ETYKIETA_OGOLNA));
@@ -431,9 +442,9 @@ Deno.test("plan bez tytułu dziedziczy utwór, a zwykłe pytanie i nowy utwór t
   assertEquals(rozpoznajPytanieCzatu(messages, {}).utwor?.id, "lalka");
   assert(rozpoznajPytanieCzatu(messages, {}).lektura);
   const krok = await przygotujCzat(messages, { tryb: "czat" }, dostepZ().dostep);
-  assertStringIncludes(krok.gotowa!, "1. **t. II, rozdz. 14**");
-  assertStringIncludes(krok.gotowa!, "Sedno ma tylko jeden punkt planu");
-  assert(!krok.gotowa?.includes("rozdz. 3"));
+  assertEquals(krok.gotowa, undefined);
+  assertEquals(krok.materialy.filter((m) => m.rodzaj === "wydarzenie").map((m) => m.id), ["W3"]);
+  assert(!system(krok).includes("rozdz. 3:"));
   assertEquals(rozpoznajPytanieCzatu(rozmowa("Co to jest pochodna?"), {}).utwor, undefined);
   assertEquals(rozpoznajPytanieCzatu(rozmowa("Jak napisać akt notarialny?"), {}).lektura, false);
   assertEquals(rozpoznajPytanieCzatu(rozmowa("Plan wydarzeń Zemsty"), {}).utwor?.id, "zemsta");
@@ -445,7 +456,7 @@ Deno.test("plan bez tytułu dziedziczy utwór, a zwykłe pytanie i nowy utwór t
   assertEquals(rozpoznajPytanieCzatu(messages, { chronOdpowiedz: true }).lektura, false);
 });
 
-Deno.test("plan rozdziału i jego weryfikacja zachowują tekst, miejsca i kolejność bez modelu", async () => {
+Deno.test("plan rozdziału: model dostaje tekst rozdziału, a jego punkty dostają źródła z tego rozdziału", async () => {
   let wywolania = 0;
   const plik = new URL("./fixtures/lalka-tom-ii-rozdz-14.txt", import.meta.url);
   const tekst = (await Deno.readTextFile(plik)).trim().split(/\r?\n\r?\n/);
@@ -468,47 +479,80 @@ Deno.test("plan rozdziału i jego weryfikacja zachowują tekst, miejsca i kolejn
   });
   const krok = await przygotujCzat(rozmowa, { tryb: "czat" }, dostep);
   assertEquals(wywolania, 1);
-  assert(krok.gotowa);
-  const cytaty = tekst.filter((_, i) => i !== 3);
-  for (const zdanie of cytaty) assertStringIncludes(krok.gotowa, `„${zdanie}” [F`);
-  const odp = przez(krok.materialy, krok.gotowa);
+  // Tekst rozdziału trafia do modelu jako lektura; plan pisze model, nie serwer.
+  assertEquals(krok.gotowa, undefined);
+  for (const zdanie of tekst) assertStringIncludes(system(krok), zdanie);
+  assertStringIncludes(system(krok), "[W32] t. II, rozdz. 14");
+  assert(!/całonocn|całą noc/i.test(system(krok)));
+  const planModelu = [
+    "1. **t. II, rozdz. 14** — Starski zjawia się na peronie dopiero po drugim dzwonku [F150].",
+    "2. **t. II, rozdz. 14** — Po rozmowie Izabeli ze Starskim Wokulski wysiada w Skierniewicach [W32].",
+    "3. **t. II, rozdz. 14** — Wokulski upada na szyny, a ratuje go dróżnik Wysocki [W32].",
+    "4. **t. II, rozdz. 14** — Wokulski podnosi się z ziemi i idzie w stronę stacji [F154].",
+  ].join("\n");
+  const odp = przez(krok.materialy, planModelu);
   const punkty = odp.wynik.split("\n").filter((w) => /^\d+\./.test(w));
-  assert(punkty.length >= 3 && punkty.length <= 6);
+  assertEquals(punkty.length, 4);
   for (const wiersz of punkty) {
     const karta = wiersz.match(/\[\[zrodlo:(\d+)\]\]/);
-    assert(karta);
+    assert(karta, wiersz);
     assertEquals(odp.zrodla[Number(karta[1]) - 1].url, XIV);
   }
-  assertEquals(odp.zrodla.map((z) => z.id), ["F150", "F151", "F152", "W32", "F154"]);
-  assertEquals(odp.zrodla.filter((z) => z.id?.startsWith("F")).map((z) => z.dowod), cytaty);
-  assert(!/całonocn|całą noc/i.test(odp.wynik));
+  assertEquals(odp.zrodla.map((z) => z.id), ["F150", "W32", "F154"]);
   assert(!odp.wynik.includes(ETYKIETA_OGOLNA));
 
   const poPlanie: Message[] = [...rozmowa, { role: "assistant", content: odp.wynik }];
-  const pytanieOPlan: Message = { role: "user", content: "Czy te rozdziały w planie są pewne?" };
-  const sprawdzenie = await przygotujCzat([...poPlanie, pytanieOPlan], { tryb: "czat" }, dostep);
-  const wychodzi = sprawdzenie.procesor!.dodaj(sprawdzenie.gotowa! + "\n") + sprawdzenie.procesor!.zakoncz();
-  assertStringIncludes(wychodzi, "Punkt 1** — dosłowny cytat z tekstu, t. II, rozdz. 14");
-  assertStringIncludes(wychodzi, "Punkt 4** — wydarzenie z materiałów Sedno, t. II, rozdz. 14");
-  assert(!/Maruszewicz|Starski|Skierniewic|W32|całonocn|z ogólnej wiedzy/i.test(wychodzi));
+  const sprawdzenie = await przygotujCzat([...poPlanie, { role: "user", content: "Czy te rozdziały w planie są pewne?" }], { tryb: "czat" }, dostep);
+  assertEquals(sprawdzenie.gotowa, undefined);
+  assertStringIncludes(system(sprawdzenie), "Oceń tylko pewność");
+  assertStringIncludes(system(sprawdzenie), "[W32] t. II, rozdz. 14");
+});
 
-  const zmieniony = await przygotujCzat([
-    ...rozmowa, { role: "assistant", content: odp.wynik.replace(tekst[0], "Starski nie zdążył na pociąg.") }, pytanieOPlan,
-  ], { tryb: "czat" }, dostep);
-  assertStringIncludes(zmieniony.gotowa!, "Punkt 1** — Sedno nie ma zgodnego punktu");
-  assert(!zmieniony.gotowa!.includes("nie zdążył"));
+Deno.test("prośba o poprawę planu daje modelowi te same materiały i polecenie napisania planu od nowa", async () => {
+  const { dostep } = dostepZ();
+  const planPoprzedni = "1. **t. I, rozdz. 1** — Kupcy rozmawiają o Wokulskim. [1]\n2. **t. II, rozdz. 3** — Wokulski jedzie do Paryża. [2]";
+  const historia: Message[] = [
+    { role: "user", content: "Podaj plan wydarzeń Lalki" },
+    { role: "assistant", content: planPoprzedni },
+  ];
+  for (const prosba of ["Popraw ten plan.", "Napisz to od nowa, prostszymi słowami.", "Wyjaśnij to inaczej"]) {
+    const messages: Message[] = [...historia, { role: "user", content: prosba }];
+    const rozpoznane = rozpoznajPytanieCzatu(messages, {});
+    assert(rozpoznane.popraw, prosba);
+    assert(rozpoznane.lektura, prosba);
+    assertEquals(rozpoznane.pytanieMaterialu, "Podaj plan wydarzeń Lalki");
+    const krok = await przygotujCzat(messages, { tryb: "czat" }, dostep);
+    // Bez gotowej odpowiedzi serwera: nie da się odesłać tego samego planu, odpowiedź pisze model.
+    assertEquals(krok.gotowa, undefined, prosba);
+    assert(krok.procesor);
+    assertStringIncludes(system(krok), "Napisz ją od nowa");
+    assertStringIncludes(system(krok), "Nie kopiuj poprzedniej wersji");
+    assertStringIncludes(system(krok), "[W3] t. II, rozdz. 14");
+    // Model widzi poprzedni plan w historii (bez numerków źródeł) i ostatnią prośbę ucznia.
+    assertEquals(krok.messages.find((m) => m.role === "assistant")?.content, planPoprzedni.replace(/ \[\d\]/g, ""));
+    assertEquals(krok.messages.at(-1)?.content, prosba);
+  }
+  // Zwykłe pytanie po planie nie jest prośbą o poprawę.
+  assert(!rozpoznajPytanieCzatu([...historia, { role: "user", content: "Kim jest Wokulski?" }], {}).popraw);
+  // Prośba o poprawę po odpowiedzi spoza lektur nie ciągnie materiałów.
+  assert(!rozpoznajPytanieCzatu([
+    { role: "user", content: "Co to jest pochodna?" }, { role: "assistant", content: "To granica ilorazu różnicowego." },
+    { role: "user", content: "Popraw to, prostszymi słowami." },
+  ], {}).lektura);
+});
 
-  const poprawiony = await przygotujCzat([
-    ...poPlanie, pytanieOPlan, { role: "assistant", content: wychodzi },
-    { role: "user", content: "Popraw ten plan." },
-  ], { tryb: "czat" }, dostep);
-  assertEquals(poprawiony.gotowa, krok.gotowa);
-  const sprawdzPoprawiony = await przygotujCzat([
-    ...poPlanie, { role: "user", content: "Sprawdź i popraw ten plan." },
-    { role: "assistant", content: przez(poprawiony.materialy, poprawiony.gotowa!).wynik },
-    { role: "user", content: "Na pewno?" },
-  ], { tryb: "czat" }, dostep);
-  assertStringIncludes(sprawdzPoprawiony.gotowa!, "Punkt 4** — wydarzenie z materiałów Sedno");
+Deno.test("prośba o prostsze wyjaśnienie zwykłej odpowiedzi o lekturze wraca do jej pytania", async () => {
+  const messages: Message[] = [
+    { role: "user", content: "Kim jest Wokulski?" },
+    { role: "assistant", content: "Wokulski to kupiec z Warszawy [1]." },
+    { role: "user", content: "Wytłumacz prościej" },
+  ];
+  const { dostep, wywolania } = dostepZ();
+  const krok = await przygotujCzat(messages, { tryb: "czat" }, dostep);
+  assertEquals(wywolania.elementy[0].p_pytanie, "Kim jest Wokulski?");
+  assertEquals(wywolania.elementy[0].p_rodzaje, ["postac"]);
+  assertStringIncludes(system(krok), "Napisz ją od nowa");
+  assertStringIncludes(system(krok), "[P1] Stanisław Wokulski.");
 });
 
 Deno.test("sprawdzenie planu nie tworzy nowej listy, gdy w rozmowie nie ma planu", async () => {
@@ -517,15 +561,15 @@ Deno.test("sprawdzenie planu nie tworzy nowej listy, gdy w rozmowie nie ma planu
   assertEquals(wywolania.elementy, []);
 });
 
-Deno.test("plan z wieloma wydarzeniami w rozdziale ma sześć punktów i nie pobiera fragmentów", async () => {
+Deno.test("plan z wieloma wydarzeniami w rozdziale nie pobiera fragmentów i oddaje modelowi wszystkie wydarzenia", async () => {
   let wywolania = 0;
   const { krok } = await czat("Plan wydarzeń Lalki, tom II, rozdział 14", {
     wiersze: Array.from({ length: 8 }, (_, i) => wyd(i + 1, "t. II, rozdz. 14", "Zdarzenie w rozdziale.", XIV)),
     fragmentyMiejsca: () => { wywolania++; return Promise.resolve([]); },
   });
   assertEquals(wywolania, 0);
-  assertEquals(krok.gotowa!.split("\n").filter((w) => /^\d+\./.test(w)).length, 6);
-  assertStringIncludes(krok.gotowa!, "6. **t. II, rozdz. 14**");
+  assertEquals(krok.gotowa, undefined);
+  assertEquals(krok.materialy.filter((m) => m.rodzaj === "wydarzenie").length, 8);
 });
 
 Deno.test("karty wskazują właściwy tom, a miejsce bez kotwicy jest osobnym tekstem", async () => {
@@ -576,8 +620,8 @@ Deno.test("karta zachowuje osobny odsyłacz do każdej sceny albo części", asy
         return Promise.resolve(klucze.map((miejsce, i) => ({ miejsce, url: url[i] })));
       },
     });
-    assertStringIncludes(krok.gotowa!, miejsce);
-    const odp = przez(krok.materialy, krok.gotowa!);
+    assertStringIncludes(system(krok), miejsce);
+    const odp = przez(krok.materialy, planModelu(krok.materialy));
     const meta = odczytajOdpowiedzPestki(JSON.parse(JSON.stringify(metadaneCzatu(odp.wynik, odp.zrodla, false))));
     assertEquals(meta?.zrodla[0]?.url, url[0]);
     assertEquals(meta?.zrodla[0]?.miejsce, napisy[0]);
@@ -604,7 +648,7 @@ Deno.test("karty Chłopów rozwijają listy, a zakresy prowadzą do pierwszego r
         return Promise.resolve(miejsca.map((miejsce, i) => ({ miejsce, url: url + (i ? "#s10" : "#s8") })));
       },
     });
-    const [karta] = przez(krok.materialy, krok.gotowa!).zrodla;
+    const [karta] = przez(krok.materialy, planModelu(krok.materialy)).zrodla;
     assertEquals(karta.url, url + "#s8");
     assertEquals(karta.miejsca, [{ miejsce: miejsca[0], url: url + "#s8" }, { miejsce: miejsca[1], url: url + "#s10" }]);
   }
@@ -614,7 +658,7 @@ Deno.test("karty Chłopów rozwijają listy, a zakresy prowadzą do pierwszego r
     const { krok } = await czat("Podaj plan wydarzeń Chłopów", {
       wiersze: [wiersz("wydarzenie", 1, miejsce, { miejsce, opis: "Opis wydarzenia." }, cel, "chlopi")],
     });
-    const [karta] = przez(krok.materialy, krok.gotowa!).zrodla;
+    const [karta] = przez(krok.materialy, planModelu(krok.materialy)).zrodla;
     assertEquals([karta.miejsca, karta.url], [undefined, cel]);
     assertEquals(opisKartyZrodla(karta), { link: `Chłopi · ${miejsce}, od początku ${nr}`, miejsce: undefined });
   }
@@ -633,7 +677,7 @@ Deno.test("odpowiedź o Innym świecie raz wyjaśnia dostępność tekstu i zwra
     ],
   });
   const p = krok.procesor!;
-  const tekst = p.dodaj(krok.gotowa!) + p.zakoncz();
+  const tekst = p.dodaj(planModelu(krok.materialy)) + p.zakoncz();
   const wstep = "Sedno nie ma tekstu tego utworu i opiera się na opracowaniu.";
   assert(tekst.startsWith(wstep + "\n\n"));
   assertEquals(tekst.split(wstep).length, 2);

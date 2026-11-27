@@ -154,8 +154,9 @@ Funkcje `pestka_lektury_elementy`, `pestka_lektury_fragmenty`, `pestka_lektury_f
 
 | Typ pytania | Materiały |
 | --- | --- |
-| plan wydarzeń | numerowana lista wydarzeń w kolejności fabuły, zawężona do miejsca z pytania. Dla rozdziału lub sceny serwer zwraca najwyżej sześć punktów. Gdy ma mniej niż trzy wydarzenia, dobiera krótkie dosłowne cytaty z tego miejsca z kartami `[F…]` i wstawia wydarzenia Sedno według dopasowania do tekstu, zachowując kolejność numerów wydarzeń. Jeśli punktów nadal jest mniej niż trzy, podaje ich liczbę. |
-| sprawdzenie i poprawa planu | serwer porównuje numerowane punkty poprzedniej odpowiedzi z materiałami dotyczącymi tego samego miejsca i podaje typ źródła oraz lokalizację zgodnych punktów. Prośba o poprawę uruchamia ponownie serwerowy plan. Przy weryfikacji innej odpowiedzi model ma ocenić wyłącznie pewność wskazanego twierdzenia. |
+| plan wydarzeń | wydarzenia w kolejności fabuły, zawężone do miejsca z pytania. Dla rozdziału lub sceny z mniej niż trzema wydarzeniami dochodzą fragmenty tekstu z tego miejsca (`[F…]`). Plan pisze model własnymi słowami na podstawie tych materiałów; serwer go nie składa. Gdy materiały nie obejmują wskazanego miejsca, model dostaje polecenie, żeby to powiedzieć zamiast układać punkty z pamięci. |
+| poprawa odpowiedzi („popraw”, „od nowa”, „prościej”, „prostszymi słowami”, „wyjaśnij inaczej”) | po odpowiedzi o lekturze serwer zbiera materiały dla pytania, na które ona odpowiadała (chyba że prośba wskazuje nowe miejsce), i dodaje polecenie napisania odpowiedzi od nowa, bez kopiowania poprzedniej wersji. Odpowiedź pisze model. |
+| sprawdzenie odpowiedzi lub planu | model dostaje materiały poprzedniego pytania i polecenie oceny wyłącznie pewności wskazanego twierdzenia. Prośba o sprawdzenie planu bez planu w rozmowie daje komunikat „Wklej plan, który mam sprawdzić.” |
 | streszczenie | sekcja streszczenia, do 25 wydarzeń (60 przy „szczegółowo”), sekcja bohaterów; „bez spoilerów” daje tylko dwa pierwsze zdania |
 | zakończenie, finał | do pięciu końcowych wydarzeń w kolejności fabuły oraz sekcja streszczenia |
 | kim jest …, bohater, relacje | dopasowanie imienia, nazwiska i członów z `odmiany` w obrębie rozpoznanej lektury, także z historii. Do opisu dołączają wydarzenia z miejsc związanych z postacią. Przy braku opisu Pestka podaje tylko dane karty lektury. |
@@ -165,25 +166,31 @@ Funkcje `pestka_lektury_elementy`, `pestka_lektury_fragmenty`, `pestka_lektury_f
 | każde inne, w tym „czy …?” i „dlaczego …?” | trzy najtrafniejsze sekcje opracowania, uzupełnione o wydarzenia i bohaterów, do 8 elementów oraz 2 fragmenty (gdy utwór ma tekst) |
 
 Do kontekstu modelu trafia najwyżej około 18 tys. znaków materiałów (około 6 tys. tokenów), w tym zawsze karta.
-Wycinek używany przez serwer do planu ma do 2200 znaków, a w odpowiedzi modelu do 1400.
+Wycinek tekstu do planu rozdziału ma do 2200 znaków, a w pozostałych odpowiedziach do 1400.
 
 ### Kontrakt odpowiedzi czatu o lekturze
 
-Model cytuje materiały identyfikatorami w nawiasach kwadratowych (`[W12]`, `[P3][W14]`, `[S:geneza]`, `[K]`), a znacznik
-`[OW]` oznacza wiedzę spoza materiałów. Strumień buforuje akapit lub punkt listy:
+Materiały są dla modelu lekturą: odpowiada własnymi słowami, a konkretne fakty wzięte z materiałów (wydarzenie, kto co
+zrobił, miejsce, cytat) oznacza identyfikatorami w nawiasach kwadratowych (`[W12]`, `[P3][W14]`, `[S:geneza]`, `[K]`).
+Szczegół spoza materiałów model ma podać jako niepewny („prawdopodobnie”, „sprawdź w tekście”) albo oznaczyć `[OW]`.
+Strumień buforuje akapit lub punkt listy:
 
 - identyfikator z materiałów zamienia się na znacznik `[[zrodlo:N]]` (N to numer pozycji w `zrodla`, od 1). Serwer
   ujednolica też gołe identyfikatory i dopiski miejsca w znaczniku, np. `W32` i `[F13, akt 2, sc. 2]`.
   Identyfikator nieznany znika. Serwer porządkuje interpunkcję przy usuwanych znacznikach, usuwa myślniki między odsyłaczami
   i scala sąsiednie powtórzenia;
 - serwer sprawdza każde zdanie z identyfikatorem elementu. Każde wymienione miejsce musi mieć pokrycie w przypisach
-  tego zdania. Przy braku miejsca serwer wymaga wspólnych rdzeni słów (co najmniej dwóch i co najmniej jednej czwartej
-  znaczących słów zdania). Przy linku do opracowania serwer sprawdza wszystkie znaczące rdzenie, liczby i przeczenia
-  w zdaniu także przy zgodnym miejscu;
+  tego zdania. Parafraza jest dozwolona: serwer wymaga tylko wspólnej treści (co najmniej dwóch wspólnych
+  czteroliterowych rdzeni i co najmniej jednej piątej znaczących słów zdania), nazwisk po „z/ze” obecnych w materiale,
+  liczb obecnych w materiale (poza numerami miejsc) i zgodnej polaryzacji: zdanie twierdzące o czymś, czemu materiał
+  zaprzecza („odmawia podania ręki”), traci źródło. Przy linku do opracowania zaprzeczenie w zdaniu musi też być w materiale;
 - w odpowiedzi opartej wyłącznie na opracowaniach utworu bez tekstu w Sedno informacja o tym pojawia się raz,
   na początku odpowiedzi;
-- akapit lub punkt listy bez znanego identyfikatora może dostać jeden dopisek `(z ogólnej wiedzy, sprawdź w tekście)`.
-  Dopisek pomija nagłówki, cytaty, polecenia, pytania do ucznia, listy wskazówek do rozprawki oraz przyznanie braku materiału;
+- akapit lub punkt listy z konkretem bez potwierdzonego identyfikatora dostaje jeden dopisek `(z ogólnej wiedzy, sprawdź
+  w tekście)`. Konkret to miejsce w utworze, cytat, liczba, nazwa własna występująca w materiałach, odrzucony identyfikator
+  albo `[OW]`; bez materiałów każdy akapit o utworze jest konkretem. Interpretacja własnymi słowami zostaje bez dopisku.
+  Dopisek pomija też nagłówki, cytaty, polecenia, pytania do ucznia, listy wskazówek do rozprawki, przyznanie braku materiału
+  i zdania, w których model sam zaznacza niepewność („prawdopodobnie”, „sprawdź w tekście”);
 - cytat w cudzysłowie „…” (min. 4 słowa) musi występować w materiałach albo w pytaniu ucznia. W innym przypadku
   serwer usuwa cytat razem z jego odsyłaczami i informuje o tym na końcu odpowiedzi;
 - bez żadnego wiersza z odpowiedzi serwer zwraca: „Sedno nie ma materiału, który rozstrzyga to pytanie. …”;
