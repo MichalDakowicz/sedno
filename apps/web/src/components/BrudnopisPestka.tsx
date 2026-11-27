@@ -22,7 +22,7 @@ export function komunikatPestki(kod: string) {
 
 const BEZ_PONOWIENIA = new Set(["no_provider", "bad_credential", "image_not_supported", "not_signed_in", "bad_base_url", "daily_limit"]);
 
-export type FazaPestki = "pole" | "mysli" | "pisze" | "dymek" | "kiwa";
+export type FazaPestki = "pole" | "mysli" | "pisze" | "dymek" | "kiwa" | "spi";
 export type DymekPestki = {
   tekst?: string;
   odczyt?: string | null;
@@ -203,7 +203,7 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
 
   // W trakcie myślenia (i pisania figur ze strumienia) dymek może już mieć początek wskazówki: wtedy Pestka mówi.
   const pisanaWskazowka = (faza === "mysli" || faza === "pisze") && !!dymek?.tekst;
-  const stanAwatara = pisanaWskazowka || faza === "pisze" ? "talking" : faza === "mysli" ? "thinking" : "idle";
+  const stanAwatara = pisanaWskazowka || faza === "pisze" ? "talking" : faza === "mysli" ? "thinking" : faza === "spi" ? "sen" : "idle";
   const pole_ = faza === "pole" && (
     <form ref={(el) => void (dymekRef.current = el)} className={klasaDymka} style={stylDymka} onSubmit={wyslij}>
       <label htmlFor={idPola} className="visually-hidden">Pytanie do Pestki</label>

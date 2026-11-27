@@ -33,6 +33,8 @@ export type OdpowiedzPestki = {
   obrotBryly?: number;
   pominietoElementy?: boolean;
   stanProwadzenia?: "czekam" | "krok" | "blad";
+  /** Uczeń utknął po wskazówce: Pestka pokazuje i tłumaczy jeden krok, także dopiskami. */
+  pokazKrok?: boolean;
   ramkaBledu?: Ramka;
   obszarBledu?: ObszarBledu;
 };
