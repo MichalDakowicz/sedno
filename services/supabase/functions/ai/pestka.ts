@@ -374,13 +374,13 @@ export async function weryfikuj(tekst: string, temat: string, d: Dostep, tryb: T
   if (!cel) return { sprawdzenie: brakPotwierdzenia(), zrodla: [] };
   const utwor = utworPytania(cel.tytul, true);
   const hasla = cel.fakt.split(/\s+/u);
-  // Do bazy idzie krótki fakt, a nie dłuższy dosłowny wycinek pracy.
+  // Do bazy idzie krótki fakt, a nie dłuższy dosłowny wycinek pracy; uczeń widzi fakt w całości.
   const fakt = hasla.slice(0, 16).join(" ");
   const materialy = utwor
     ? (await zbierzMaterialy(d, fakt, utwor, cel.potwierdzCytat ? "cytat" : "szczegol", { fraza: cel.cytat ?? null }).catch(() => undefined))?.materialy
       .filter((m) => m.rodzaj !== "karta" && m.zrodlo) ?? []
     : [];
-  return materialy.length ? await porownaj(tekst, temat, { ...cel, fakt }, materialy, d, tryb) : { sprawdzenie: brakPotwierdzenia(cel), zrodla: [] };
+  return materialy.length ? await porownaj(tekst, temat, cel, materialy, d, tryb) : { sprawdzenie: brakPotwierdzenia(cel), zrodla: [] };
 }
 
 export function odpowiedzWeryfikacji(wynik: WynikWeryfikacji, karta: boolean) {

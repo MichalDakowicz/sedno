@@ -48,7 +48,8 @@ export function policzBledy(a: Arkusz, p: Postep): { bledne: number; bezOdpowied
 }
 
 /** Luna (zadania lekkie) wystarcza do zadań każdego przedmiotu; sol (ważne) tylko do wypracowań. */
-export const poziomAI = (d: DoOmowienia): Tier => (d.wypracowanie ? "wazne" : "lekkie");
+// Omówienie liczy i podaje przykłady: na lżejszym modelu zdarzały się przykłady sprzeczne z warunkami zadania.
+export const poziomAI = (_d: DoOmowienia): Tier => "wazne";
 
 const tex = (t: string) => t.replace(/\\\((.+?)\\\)/g, (_, w: string) => `$${w}$`);
 
@@ -195,7 +196,7 @@ export async function zrobPrzyklad(a: Arkusz, d: DoOmowienia, p: Postep): Promis
       },
       { role: "user", content: tekstZadania(d.zadanie, p) },
     ];
-    const zad = json<Przyklad>((await askAi({ tier: "lekkie", task: "omowienie-przyklad", messages: tworz })).text);
+    const zad = json<Przyklad>((await askAi({ tier: "wazne", task: "omowienie-przyklad", messages: tworz })).text);
     if (!zad?.tresc || !zad.opcje?.[zad.poprawna]) continue;
     const opcje = Object.entries(zad.opcje)
       .map(([l, t]) => `${l}. ${t}`)
@@ -204,7 +205,7 @@ export async function zrobPrzyklad(a: Arkusz, d: DoOmowienia, p: Postep): Promis
       { role: "system", content: 'Rozwiąż zadanie. Odpowiadasz wyłącznie JSON-em: {"odpowiedz": "litera"}.' },
       { role: "user", content: `${zad.tresc}\n${opcje}` },
     ];
-    const r = json<{ odpowiedz: string }>((await askAi({ tier: "lekkie", task: "omowienie-sprawdzenie", messages: rozwiaz })).text);
+    const r = json<{ odpowiedz: string }>((await askAi({ tier: "wazne", task: "omowienie-sprawdzenie", messages: rozwiaz })).text);
     if (r?.odpowiedz?.trim().toUpperCase() === zad.poprawna.trim().toUpperCase()) return zad;
   }
   return null;
