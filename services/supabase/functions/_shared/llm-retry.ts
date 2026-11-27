@@ -60,8 +60,8 @@ export async function* streamRetry<R extends Route>(route: R, req: Request, o: R
   let started = false;
   const run = async function* (r: R): AsyncGenerator<RetryEvent<R>> {
     for await (const ev of chatStream(r.p, { ...req, reasoningEffort: r.reasoningEffort }, o.fetchImpl)) {
-      // Rozumowanie nic nie pokazuje odbiorcy, więc po samym nim wciąż można ponowić.
-      if (ev.type !== "reasoning") started = true;
+      // Rozumowanie i znak wyszukiwania nie pokazują odbiorcy treści, więc po nich wciąż można ponowić.
+      if (ev.type !== "reasoning" && ev.type !== "search") started = true;
       yield ev.type === "done" ? { ...ev, route: r } : ev;
     }
   };

@@ -73,7 +73,8 @@ export interface ChatResult {
   webSources?: WebSource[];
 }
 
-export type StreamEvent = { type: "text" | "reasoning"; delta: string } | { type: "done"; result: ChatResult };
+/** search: model zaczął szukać w sieci (natywne API Anthropic); bez treści, tylko znak dla odbiorcy. */
+export type StreamEvent = { type: "text" | "reasoning"; delta: string } | { type: "search" } | { type: "done"; result: ChatResult };
 
 export class LlmError extends Error {
   readonly status: number;
