@@ -25,11 +25,10 @@ export function isAnthropic(p: Provider): boolean {
   }
 }
 
-/** Modele z narzędziem web_search_20260209; Haiku go nie dostaje. */
+/** Modele z narzędziem web_search_20260209 (dynamiczne filtrowanie od modeli 4.6; Haiku 5.x jest na liście obsługiwanych). */
 export function supportsWebSearch(model: string): boolean {
   const m = model.toLowerCase();
-  if (m.includes("haiku")) return false;
-  return /claude-(?:sonnet-5|sonnet-4-6|opus-4-[6-9]|opus-5|fable|mythos)/.test(m);
+  return /claude-(?:sonnet-5|sonnet-4-6|opus-4-[6-9]|opus-5|haiku-5|fable|mythos)/.test(m);
 }
 
 export function webSearchOn(req: ChatRequest, model: string, env: Env = denoEnv): boolean {

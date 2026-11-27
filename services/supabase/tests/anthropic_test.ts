@@ -5,7 +5,7 @@ import { chatRetry } from "../functions/_shared/llm-retry.ts";
 import { opisKartyZrodla, zrodlaZSieci } from "../functions/_shared/pestka-odpowiedz.ts";
 
 const sonnet = { baseUrl: "https://api.anthropic.com/v1", key: "sk-tajny", model: "claude-sonnet-5-5" };
-const haiku = { ...sonnet, model: "claude-haiku-5-5" };
+const haiku = { ...sonnet, model: "claude-haiku-4-5" };
 const req = { messages: [{ role: "system" as const, content: "Jesteś Pestką." }, { role: "user" as const, content: "Kto wygrał wczoraj?" }] };
 
 const usage = (input: number, output: number) => ({
@@ -87,7 +87,8 @@ Deno.test("Wyszukiwanie w sieci: Haiku bez narzędzia, przełącznik SEDNO_AI_WE
   assert.equal(requestParams(sonnet, { ...req, webSearch: false }, env()).tools, undefined);
   assert.deepEqual(requestParams(sonnet, req, env("1")).tools, [{ type: "web_search_20260209", name: "web_search" }]);
   for (const m of ["claude-sonnet-5", "claude-opus-4-6", "claude-opus-5-5", "claude-fable-5-2"]) assert.ok(supportsWebSearch(m), m);
-  for (const m of ["claude-haiku-5-5", "claude-haiku-4-5", "claude-sonnet-4-5", "gpt-5"]) assert.ok(!supportsWebSearch(m), m);
+  for (const m of ["claude-haiku-4-5", "claude-sonnet-4-5", "gpt-5"]) assert.ok(!supportsWebSearch(m), m);
+  assert.ok(supportsWebSearch("claude-haiku-5-5"));
 });
 
 Deno.test("Wysiłek none przechodzi na low, mały limit tokenów dostaje zapas na myślenie", () => {
