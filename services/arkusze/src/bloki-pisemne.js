@@ -68,7 +68,8 @@ export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { p
       if (PRZEDMIOTY_Z_WZORAMI.has(przedmiot)) {
         for (const [nr, w] of wzoryWielowierszowe(linie).entries()) {
           const dol = Math.max(c.dol, w.linie.at(-1).y - 5);
-          const gora = Math.min(c.gora, w.linie[0].y + 13);
+          // Pierwsza linia z ułamkiem ma licznik wciągnięty z linii wyżej (ulamkiWLinii): kadr musi go objąć.
+          const gora = Math.min(c.gora, w.linie[0].y + (w.linie[0].t.tekst.includes("\\frac") ? 24 : 13));
           if (gora <= dol || figury.some((r) => r[0] <= w.lewa && r[2] >= w.prawa && r[1] <= dol && r[3] >= gora)) continue;
           const ramka = [Math.max(0, w.lewa - 4), dol, Math.min(s.canvas.width / SKALA, w.prawa + 5), gora];
           await kadrujWzor(ramka, w.linie, "wzor-" + nr, "wielowierszowy wzór PDF");
