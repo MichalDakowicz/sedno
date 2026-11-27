@@ -91,7 +91,7 @@ async function test(user: string, provider: string, secret: CryptoKey): Promise<
   }
 
   try {
-    const out = await chat({ baseUrl, key, model: data.model }, { messages: [{ role: "user", content: "Odpowiedz jednym słowem: ok" }], maxTokens: 256, signal: AbortSignal.timeout(60_000) });
+    const out = await chat({ baseUrl, key, model: data.model }, { messages: [{ role: "user", content: "Odpowiedz jednym słowem: ok" }], maxTokens: 256, signal: AbortSignal.timeout(60_000), webSearch: false });
     return reply(200, { ok: true, reply: (out.text || out.reasoning).trim().slice(0, 80) });
   } catch (e) {
     if (e instanceof LlmError) return reply(200, { ok: false, status: e.status, detail: e.detail });

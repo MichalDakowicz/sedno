@@ -1,0 +1,8 @@
+{
+  "name": "@sedno/supabase",
+  "private": true,
+  "description": "Zależności npm funkcji Supabase, żeby deno test/check z katalogu głównego znalazł je w node_modules.",
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.8.0"
+  }
+}

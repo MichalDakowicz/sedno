@@ -17,7 +17,7 @@ import {
   metadaneCzatu, odpowiedzWeryfikacji, ostatniePytanie, przygotujCzat, prosbaPestki, prosiOZapisPriorytetu, rozpoznajPytanieCzatu, weryfikuj,
 } from "./pestka.ts";
 import { FiltrCzatu } from "./odpowiedz-lektury.ts";
-import type { OdpowiedzPestki } from "../_shared/pestka-odpowiedz.ts";
+import { type OdpowiedzPestki, zrodlaZSieci } from "../_shared/pestka-odpowiedz.ts";
 import type { SzukajRozmow } from "./pamiec.ts";
 import type { SzukajBaza, SzukajElementy, SzukajFragmenty, SzukajFragmentyMiejsca, SzukajKotwic } from "./material-lektury.ts";
 
@@ -106,7 +106,8 @@ async function handle(req: Request): Promise<Response> {
   if (body.stream !== true) {
     try {
       const signal = AbortSignal.any([req.signal, AbortSignal.timeout(120_000)]);
-      const out = await chatRetry(route, { messages, maxTokens, temperature, signal }, { fallback });
+      // Zwykłe zapytania zwracają tekst czytany przez kod (np. JSON), bez miejsca na źródła: bez wyszukiwania.
+      const out = await chatRetry(route, { messages, maxTokens, temperature, signal, webSearch: false }, { fallback });
       const { provider, model } = out.route;
       await logAiUsage({ ...base, provider, model, ok: true, status: 200, prompt_tokens: out.usage?.promptTokens, completion_tokens: out.usage?.completionTokens, duration_ms: Date.now() - started });
       return reply(200, { text: out.text, provider, model, usage: out.usage });
@@ -144,7 +145,7 @@ async function handle(req: Request): Promise<Response> {
       // Sprawdzenie lektury to dwa wywołania modelu; limit dzienny liczy każde z nich, a wynik pierwszego jest już w ai_usage.
       if (await limitDzienny(user, route)) throw new LlmError(429, "daily_limit");
       const start = Date.now();
-      const out = await chatRetry(route, { messages, maxTokens: ograniczTokeny(2700), signal }, { fallback });
+      const out = await chatRetry(route, { messages, maxTokens: ograniczTokeny(2700), signal, webSearch: false }, { fallback });
       await logAiUsage({
         ...base, task: "pestka-weryfikacja-lektury", provider: out.route.provider, model: out.route.model,
         ok: true, status: 200, prompt_tokens: out.usage?.promptTokens, completion_tokens: out.usage?.completionTokens,
@@ -180,7 +181,9 @@ async function handle(req: Request): Promise<Response> {
     // Zapis priorytetu tylko na wyraźną prośbę ucznia; obietnice zapisu bez prośby też znikają.
     const filtr = pestka?.tryb === "czat" && !procesor ? new FiltrCzatu(prosiOZapisPriorytetu(ostatniePytanie(messages))) : undefined;
     let wyslano = "";
-    for await (const ev of streamRetry(route, { messages: czat?.messages ?? messages, maxTokens, temperature, signal }, { fallback })) {
+    // W sieci szuka tylko czat Pestki: tylko on pokazuje uczniowi źródła odpowiedzi.
+    const webSearch = pestka?.tryb === "czat";
+    for await (const ev of streamRetry(route, { messages: czat?.messages ?? messages, maxTokens, temperature, signal, webSearch }, { fallback })) {
       if (ev.type === "text" && (procesor || filtr)) {
         const delta = procesor ? procesor.dodaj(ev.delta) : filtr!.dodaj(ev.delta);
         wyslano += delta;
@@ -191,7 +194,7 @@ async function handle(req: Request): Promise<Response> {
         const reszta = procesor ? procesor.zakoncz() : filtr?.zakoncz() ?? "";
         wyslano += reszta;
         if (reszta) yield { type: "text" as const, delta: reszta };
-        metadane = metadaneCzatu(wyslano, procesor?.zrodla() ?? [], pestka.maProbe === true);
+        metadane = metadaneCzatu(wyslano, [...(procesor?.zrodla() ?? []), ...zrodlaZSieci(ev.result.webSources)], pestka.maProbe === true);
       }
       yield ev;
     }
