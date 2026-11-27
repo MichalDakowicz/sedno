@@ -12,7 +12,8 @@ export type MiejsceZrodla = { miejsce: string; url: string };
 export type ZrodloPestki = {
   url: string;
   tytul: string;
-  rodzaj: "utwór" | "opracowanie";
+  /** internet: strona znaleziona przez wyszukiwanie w sieci (miejsce to wtedy nazwa serwisu). */
+  rodzaj: "utwór" | "opracowanie" | "internet";
   sekcja?: string;
   idSekcji?: string;
   miejsce?: string;
@@ -44,7 +45,7 @@ export function opisKartyZrodla(z: ZrodloPestki): { link: string; miejsce?: stri
   const poczatekZakresu = trafiaWMiejsce ? /\b(\d+|[IVXLC]+)\s*[–—-]\s*(?:\d+|[IVXLC]+)\b/.exec(z.miejsce ?? "")?.[1] : undefined;
   const sekcja = poczatekZakresu ? `${z.miejsce}, od początku ${poczatekZakresu}`
     : trafiaWMiejsce || z.sekcja !== z.miejsce ? z.sekcja : undefined;
-  const link = [z.tytul, z.rodzaj === "opracowanie" && "źródło opracowania", sekcja].filter(Boolean).join(" · ");
+  const link = [z.tytul, z.rodzaj === "opracowanie" && "źródło opracowania", z.rodzaj === "internet" && "strona w sieci", sekcja].filter(Boolean).join(" · ");
   return { link, miejsce: trafiaWMiejsce ? undefined : z.miejsce };
 }
 
@@ -77,7 +78,7 @@ export function zrodloPestki(raw: unknown): ZrodloPestki | undefined {
   }) : [];
   const url = miejsca[0]?.url ?? adresZrodla(dane.url);
   const tytul = napisPestki(dane.tytul, 240);
-  if (!url || !tytul || (dane.rodzaj !== "utwór" && dane.rodzaj !== "opracowanie")) return;
+  if (!url || !tytul || (dane.rodzaj !== "utwór" && dane.rodzaj !== "opracowanie" && dane.rodzaj !== "internet")) return;
   const sekcja = napisPestki(dane.sekcja, 200);
   const idSekcji = napisPestki(dane.idSekcji, 160);
   const miejsce = miejsca[0]?.miejsce ?? napisPestki(dane.miejsce, 240);
@@ -91,6 +92,20 @@ export function zrodloPestki(raw: unknown): ZrodloPestki | undefined {
     ...(miejsce && { miejsce }), ...(miejsca.length && { miejsca }), ...(twierdzenie && { twierdzenie }), ...(dowod && { dowod }),
     ...(/^(?:[WPMUF]\d{1,4}|S:[a-z]+|K)$/.test(id) && { id }), ...(typ && { typ }),
   };
+}
+
+/** Strony z wyszukiwania w sieci jako źródła odpowiedzi; adresy przechodzą tę samą kontrolę co pozostałe źródła. */
+export function zrodlaZSieci(strony: readonly { url: string; title: string }[] | undefined): ZrodloPestki[] {
+  return (strony ?? []).flatMap((s) => {
+    let miejsce = "";
+    try {
+      miejsce = new URL(s.url).hostname.replace(/^www\./, "");
+    } catch {
+      return [];
+    }
+    const z = zrodloPestki({ url: s.url, tytul: s.title.slice(0, 240), rodzaj: "internet", miejsce });
+    return z ? [z] : [];
+  });
 }
 
 export function sprawdzeniePestki(raw: unknown): SprawdzenieLektury | undefined {

@@ -83,7 +83,8 @@ function zapytania(user: string, sygnal: AbortSignal): Zapytaj {
     const started = Date.now();
     let wynik;
     try {
-      wynik = await chatRetry(route, { messages, maxTokens: route.provider === SEDNO ? ograniczTokeny(limit) : limit, signal: sygnal }, { fallback: zapasowa(user, tier, route), fetchImpl: pobierzOdpowiedz });
+      // Odpowiedź to JSON czytany przez kod, więc bez wyszukiwania w sieci.
+      wynik = await chatRetry(route, { messages, maxTokens: route.provider === SEDNO ? ograniczTokeny(limit) : limit, signal: sygnal, webSearch: false },{ fallback: zapasowa(user, tier, route), fetchImpl: pobierzOdpowiedz });
     } catch (e) {
       await logAiUsage({ ...base, ok: false, status: e instanceof LlmError ? e.status : 0, duration_ms: Date.now() - started });
       if (obraz && e instanceof LlmError &&
@@ -443,8 +444,8 @@ async function strumienBrudnopisu(body: Obiekt, user: string, przerwanie: AbortS
         let usage;
         let uzyta = route;
         const zdarzenia = streamRetry(route, {
-          messages: wiadomosci(z.instrukcja, z.dane, z.obraz), maxTokens: route.provider === SEDNO ? ograniczTokeny(z.limit) : z.limit, signal: sygnal,
-        }, { fallback: zapasowa(user, "wazne", route), fetchImpl: pobierzOdpowiedz });
+          messages: wiadomosci(z.instrukcja, z.dane, z.obraz), maxTokens: route.provider === SEDNO ? ograniczTokeny(z.limit) : z.limit, signal: sygnal, webSearch: false,
+        },{ fallback: zapasowa(user, "wazne", route), fetchImpl: pobierzOdpowiedz });
         for await (const ev of zdarzenia) {
           if (ev.type === "done") {
             tekstModelu = ev.result.text;

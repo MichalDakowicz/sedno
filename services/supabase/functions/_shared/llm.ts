@@ -1,6 +1,8 @@
 // OpenAI-compatible chat adapter: one code path for Gemini, OpenRouter, Groq and Ollama (they
 // all speak /chat/completions with a base URL, a key and a model). Supports tool calls and
 // streaming. A key never appears in an error: provider messages are redacted and shortened.
+// Routes to api.anthropic.com go through the native Messages API instead (llm-anthropic.ts).
+import { chatAnthropic, chatStreamAnthropic, isAnthropic } from "./llm-anthropic.ts";
 
 export type ImagePart = { type: "image_url"; image_url: { url: string } };
 type ContentPart = { type: "text"; text: string } | ImagePart;
@@ -49,7 +51,15 @@ export interface ChatRequest {
   temperature?: number;
   /** reasoning_effort modeli z rozumowaniem (none, low, medium, high, xhigh); bez tego model myśli domyślnie. */
   reasoningEffort?: string;
+  /** Wyszukiwanie w sieci (tylko natywna trasa Anthropic, domyślnie włączone); false wyłącza je dla tego zapytania. */
+  webSearch?: boolean;
   signal?: AbortSignal;
+}
+
+/** Strona z wyszukiwania w sieci, na którą powołuje się odpowiedź. */
+export interface WebSource {
+  url: string;
+  title: string;
 }
 
 export interface ChatResult {
@@ -59,6 +69,8 @@ export interface ChatResult {
   toolCalls: ToolCall[];
   finishReason: string | null;
   usage: { promptTokens: number; completionTokens: number } | null;
+  /** Tylko gdy model szukał w sieci. */
+  webSources?: WebSource[];
 }
 
 export type StreamEvent = { type: "text" | "reasoning"; delta: string } | { type: "done"; result: ChatResult };
@@ -161,6 +173,7 @@ function reasoningOf(message: { reasoning?: unknown; reasoning_content?: unknown
 
 /** One complete answer. Throws LlmError when the provider refuses. */
 export async function chat(p: Provider, req: ChatRequest, fetchImpl: Fetch = fetch): Promise<ChatResult> {
+  if (isAnthropic(p)) return chatAnthropic(p, req, fetchImpl);
   const res = await pobierz(fetchImpl, `${p.baseUrl}/chat/completions`, requestInit(p, req, false));
   if (!res.ok) throw await failure(res, p.key);
   const data = await res.json().catch((e) => {
@@ -184,6 +197,7 @@ export async function chat(p: Provider, req: ChatRequest, fetchImpl: Fetch = fet
 
 /** The answer as it is written; ends with a "done" event holding the whole result. */
 export async function* chatStream(p: Provider, req: ChatRequest, fetchImpl: Fetch = fetch): AsyncGenerator<StreamEvent> {
+  if (isAnthropic(p)) return yield* chatStreamAnthropic(p, req, fetchImpl);
   const res = await pobierz(fetchImpl, `${p.baseUrl}/chat/completions`, requestInit(p, req, true));
   if (!res.ok) throw await failure(res, p.key);
   if (!res.body) throw new LlmError(502, "empty stream");
