@@ -27,11 +27,14 @@ export function egzamin(przedmiotId: PrzedmiotId, poziom: Poziom): Egzamin {
   return { przedmiotId, poziom, data: data ?? POCZATEK_MATURY, znana: !!data };
 }
 
+const OBOWIAZKOWE = new Set<PrzedmiotId>(["polski", "matematyka"]);
+
 /** Egzaminy ucznia od najwcześniejszego; opcjonalnie tylko z jednego przedmiotu. */
 export function egzaminyUcznia(moje: MojPrzedmiot[], tylko?: PrzedmiotId): Egzamin[] {
   return zgrupuj(moje)
     .filter((m) => !tylko || m.id === tylko)
-    .flatMap((m) => m.poziomy.map((l) => egzamin(m.id, l)))
+    // Polski i matematykę na poziomie podstawowym zdaje każdy, także ten, kto wybrał w aplikacji tylko rozszerzenie.
+    .flatMap((m) => [...new Set<Poziom>([...(OBOWIAZKOWE.has(m.id) ? (["podstawowy"] as const) : []), ...m.poziomy])].map((l) => egzamin(m.id, l)))
     // Przedmioty bez daty (data to tylko początek sesji) na końcu, żeby nie udawały pierwszego egzaminu.
     .sort((a, b) => Number(b.znana) - Number(a.znana) || a.data.localeCompare(b.data));
 }

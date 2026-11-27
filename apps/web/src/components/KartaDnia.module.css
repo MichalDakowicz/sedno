@@ -52,9 +52,3 @@
   text-align: center;
 }
 
-@media (max-width: 640px) {
-  .akcje,
-  .akcje :global(.btn) {
-    width: 100%;
-  }
-}
