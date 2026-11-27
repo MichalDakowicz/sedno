@@ -23,6 +23,27 @@ Deno.test("Prowadzenie na żywo nie dopisuje na tablicy kształtów, bryły ani 
   assert.ok(wynik.ramkaBledu);
 });
 
+Deno.test("Prowadzenie zachowuje dopiski tylko przy pokazKrok po wcześniejszej wskazówce", () => {
+  const dwa = { ...odpowiedz, pokazKrok: true, dopiski: [...odpowiedz.dopiski, ...odpowiedz.dopiski, ...odpowiedz.dopiski] };
+  const wynik = wynikBrudnopisu(dwa, { prowadzenie: true, obraz: undefined, poprzedniaWskazowka: true });
+  assert.equal(wynik.pokazKrok, true);
+  assert.equal(wynik.dopiski.length, 2);
+  assert.deepEqual(wynik.ksztalty, []);
+  assert.equal(wynik.bryla, null);
+});
+
+Deno.test("Prowadzenie odrzuca dopiski przy pokazKrok bez wcześniejszej wskazówki", () => {
+  const wynik = wynikBrudnopisu({ ...odpowiedz, pokazKrok: true }, { prowadzenie: true, obraz: undefined, poprzedniaWskazowka: false });
+  assert.deepEqual(wynik.dopiski, []);
+  assert.equal(wynik.pokazKrok, false);
+});
+
+Deno.test("Prowadzenie odrzuca dopiski bez pokazKrok mimo wcześniejszej wskazówki", () => {
+  const wynik = wynikBrudnopisu(odpowiedz, { prowadzenie: true, obraz: undefined, poprzedniaWskazowka: true });
+  assert.deepEqual(wynik.dopiski, []);
+  assert.equal(wynik.pokazKrok, false);
+});
+
 Deno.test("Zwykłe omówienie brudnopisu zachowuje kształty i dopiski", () => {
   const wynik = wynikBrudnopisu({ ...odpowiedz, stanProwadzenia: undefined }, { prowadzenie: false, obraz: undefined });
   assert.equal(wynik.ksztalty.length, 1);
