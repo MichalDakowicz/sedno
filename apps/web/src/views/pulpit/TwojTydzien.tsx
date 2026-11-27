@@ -84,7 +84,7 @@ export function TwojTydzien({ zakres, aktywny }: KontekstPulpitu) {
   const dzisWPlanie = !!p && iDzis >= 0 && p.weekdays.includes(iDzis + 1) && !dni.has(dzis);
   const najblizszy = p ? tydzien.findIndex((d, i) => d > dzis && p.weekdays.includes(i + 1)) : -1;
   const podsumowanie = [
-    zostalo === null ? "" : zostalo <= 0 ? "Cel tygodnia zrobiony." : `Do celu ${zostalo === 1 ? "został 1 dzień" : `zostały ${zostalo} dni`}.`,
+    zostalo === null ? "" : zostalo <= 0 ? "Cel tygodnia zrobiony." : `Do celu tygodnia ${zostalo === 1 ? "brakuje 1 dnia nauki" : `brakuje ${zostalo} dni nauki`}.`,
     zostalo !== null && zostalo > 0 ? (dzisWPlanie ? "Dziś jest dzień nauki w twoim planie." : najblizszy >= 0 ? `Najbliższy dzień w planie: ${DNI_PELNE[najblizszy]}.` : "") : "",
     minuty ? `W tym tygodniu ${minuty.teraz} min nauki${minutyPlan && celDni ? ` z ${minutyPlan * celDni} zaplanowanych` : ""}.` : "",
   ].filter(Boolean).join(" ");

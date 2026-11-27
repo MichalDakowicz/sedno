@@ -17,8 +17,11 @@ export function domyslnaTrasa(tier: string, env: Env = denoEnv): DefaultRoute | 
   return { provider: SEDNO, model, reasoningEffort: env(`SEDNO_AI_EFFORT_${suffix}`) || undefined, p: { baseUrl, key, model } };
 }
 
-/** Zadania na najmocniejszym modelu: tablica matematyczna i wypracowania z polskiego. */
-export const ZADANIA_MOCNE = new Set(["nauka-omow-brudnopis", "nauka-prowadz-brudnopis", "omowienie-wypracowania-polski", "pestka-sprawdz-lekture"]);
+/**
+ * Zadania na najmocniejszym modelu: omówienie tablicy na prośbę ucznia i wypracowania z polskiego. Prowadzenie na żywo
+ * (nauka-prowadz-brudnopis) zostaje na szybszym modelu: Opus z obrazem tablicy odpowiadał po ok. 20 s.
+ */
+export const ZADANIA_MOCNE = new Set(["nauka-omow-brudnopis", "omowienie-wypracowania-polski", "pestka-sprawdz-lekture"]);
 
 /**
  * Trasa serwera z najmocniejszym modelem (SEDNO_AI_MODEL_MOCNE, przy Anthropic domyślnie Opus) dla zadań z ZADANIA_MOCNE.
