@@ -14,7 +14,8 @@ export interface RetryOptions<R extends Route = Route> {
 export type Answered<R> = ChatResult & { route: R };
 export type RetryEvent<R> = Exclude<StreamEvent, { type: "done" }> | { type: "done"; result: ChatResult; route: R };
 
-const RETRY_STATUS = new Set([0, 429, 500, 502, 503, 504]);
+// 529: przeciążenie API Anthropic.
+const RETRY_STATUS = new Set([0, 429, 500, 502, 503, 504, 529]);
 
 // Ponawiamy tylko prawdziwe odpowiedzi HTTP dostawcy i błędy sieci (status 0, patrz llm.ts); błędy zrobione przez nasz kod kosztowałyby kolejną generację.
 function retryable(e: unknown, signal?: AbortSignal): boolean {

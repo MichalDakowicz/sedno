@@ -7,7 +7,7 @@ Backend Sedno: samodzielnie hostowany Supabase na serwerze domowym, publicznie p
 - `migrations/` – schemat bazy. Wgrywane po kolei, każda raz (`private.schema_migrations`).
 - `functions/` – Edge Functions:
   - `ai-klucz` – zapis (szyfrowanie AES-GCM) i test klucza AI konta,
-  - `ai` – bramka AI: wybiera dostawcę konta dla poziomu `wazne` / `lekkie`, woła go (OpenAI-compatible, także streaming) i loguje zużycie,
+  - `ai` – bramka AI: wybiera dostawcę konta dla poziomu `wazne` / `lekkie`, woła go (OpenAI-compatible, a `api.anthropic.com` natywnym Messages API; także streaming) i loguje zużycie,
   - `nauka-ai` – Pestka w formatach nauki, odczyt zdjęcia i dane do wizualizacji,
   - `_shared/` – adapter czatu, szyfrowanie, ochrona przed SSRF, wspólne funkcje kont.
 - `deploy.sh` – wgrywa migracje i funkcje przez ssh.
@@ -24,7 +24,7 @@ Migracje nauki od 0020:
 | `0022_historia_nauki` | Dzienne migawki opanowania, dziennik dni z arkuszem (trigger na `sheet_progress`), RPC `nauka_historia` i `nauka_aktywnosc`. |
 | `0023_krotka_diagnoza` | Sesja `diagnoza` (1–3 zadania z kilku umiejętności, umiejętność na zadaniu), stan diagnozy w bazie, RPC `nauka_diagnoza`, `nauka_diagnoza_start`, `nauka_diagnoza_oznacz`; koniec sesji zapisuje migawkę opanowania. |
 
-Testy funkcji (`tests/*_test.ts`): `deno test services/supabase/tests`.
+Testy funkcji (`tests/*_test.ts`): `deno test services/supabase/tests` (po `npm install` w katalogu głównym, żeby SDK Anthropic było w `node_modules`).
 
 ## Schemat
 
@@ -59,6 +59,8 @@ const { text } = await askAi({ tier: "lekkie", task: "podpowiedz", messages: [{ 
 Projekt `~/supabase-hosting/projects/sedno` (port API 8007, podsieć Dockera `172.16.77.0/24`). Ustawienia Sedno w `docker-compose.sedno.yml` i `.env` (Google OAuth, `LLM_KEY_SECRET`, `LLM_PRIVATE_ORIGINS`). Proxy do Ollamy: `~/sedno-ollama` (nginx na `172.16.77.1:11435` i `172.16.78.1:11435`, widoczny tylko z sieci Dockera `sedno` i `sedno-dev`). Staging: projekt `~/supabase-hosting/projects/sedno-dev` (port 8008, podsieć `172.16.78.0/24`, `docker-compose.sedno-dev.yml`).
 
 Domyślna trasa Pestki dla kont bez własnego klucza (ustawienia w `.env` / `docker-compose.sedno.yml` projektu, obok `LLM_KEY_SECRET`): `SEDNO_AI_KEY` (klucz dostawcy), `SEDNO_AI_BASE_URL` (adres zgodny z OpenAI; bez niego `https://api.openai.com/v1`), `SEDNO_AI_MODEL_WAZNE` (model do zadań ważnych), `SEDNO_AI_MODEL_LEKKIE` (model do zadań lekkich), opcjonalnie `SEDNO_AI_EFFORT_WAZNE` i `SEDNO_AI_EFFORT_LEKKIE` (`reasoning_effort`). Wystarczy model jednego poziomu: drugi poziom używa go (razem z jego `SEDNO_AI_EFFORT_*`). Bez klucza albo bez żadnego modelu konto bez własnego dostawcy dostaje `no_provider`. Własny klucz konta ma zawsze pierwszeństwo: trasa serwera tylko dla konta bez żadnego klucza, a zapas po błędach nie przechodzi między kluczem konta a kluczem serwera. Limity klucza serwera: `SEDNO_AI_MAX_TOKENS` (sufit długości odpowiedzi, domyślnie 4096: brudnopis potrzebuje do 3400) i `SEDNO_AI_LIMIT_DZIENNY` (rozmów na konto w ostatnich 24 h liczonych z `ai_usage`, domyślnie 200; po przekroczeniu `429 daily_limit`). W `ai_usage` dostawca wpisuje się jako `sedno` (nazwa zarezerwowana w `ai-klucz`), a przy zapasowym poziomie wpisuje się trasa, która naprawdę odpowiedziała. Błędy dostawcy (prawdziwe odpowiedzi 429, 5xx i błąd sieci) bramka ponawia raz, potem próbuje modelu drugiego poziomu; błędów własnych (pusta odpowiedź, urwany strumień) nie ponawia. Status `{ status: true }` ma osobny limit `ai-status` i wymaga obu poziomów.
+
+Trasa z adresem `https://api.anthropic.com/...` (serwera albo własny klucz konta) idzie przez natywne Messages API (`_shared/llm-anthropic.ts`, SDK `npm:@anthropic-ai/sdk` w wersji przypiętej w `services/supabase/package.json`); pozostali dostawcy dalej przez `/chat/completions`. Natywnie: instrukcje `system` idą osobno, powitanie Pestki na początku historii trafia do instrukcji, poziom myślenia (`SEDNO_AI_EFFORT_*`, ustawienie konta) jako `output_config.effort` (`none` → `low`), bez `temperature`, `thinking` i wymuszonego `tool_choice` (Sonnet 5.5 odrzuca je kodem 400), `max_tokens` co najmniej 1024 (myślenie się w nim mieści). Czat Pestki (`pestka.tryb = "czat"`) dostaje narzędzie serwera `web_search_20260209` bez limitu użyć, tylko na modelach, które je mają (Sonnet 5/5.5, Opus 4.6+, Fable; nie Haiku); `SEDNO_AI_WEB_SEARCH=0` je wyłącza. Zapytania, których wynik czyta kod (zwykłe `/ai` bez strumienia, sprawdzenie lektury, `nauka-ai`, test klucza), szukają bez sieci. `stop_reason: "pause_turn"` jest wznawiany (do 5 razy) z treścią asystenta, tokeny z wszystkich tur sumują się w `ai_usage`. Strony cytowane w odpowiedzi (albo, bez cytowań, pierwsze znalezione) trafiają do `pestka.zrodla` w zdarzeniu `done` jako źródła rodzaju `internet` (aplikacja podpisuje je „strona w sieci” z nazwą serwisu; tylko adresy https). Błąd wyszukiwania (obiekt zamiast listy wyników) jest pomijany, model sam o nim pisze. 529 (przeciążenie Anthropic) jest ponawiane jak 5xx.
 
 Google OAuth: projekt Google Cloud `sedno-514016`, klient „Sedno web”, redirect `https://sedno-api.dakowicz.xyz/auth/v1/callback`. Aplikacja jest w trybie testowym: logować się mogą tylko konta dodane jako test users.
 
