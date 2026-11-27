@@ -10,6 +10,14 @@ import { useTutor } from "./TutorContext";
 import styles from "./TutorChat.module.css";
 import { MAPA_WIEDZY_WLACZONA } from "../nauka/wiedza";
 
+/** Grupa dnia w historii rozmów: kalendarzowo, nie w dobach od zapisu. */
+function grupaDnia(iso: string): "Dziś" | "Wczoraj" | "Starsze" {
+  const d = new Date(iso);
+  const teraz = new Date();
+  const dni = Math.round((new Date(teraz.getFullYear(), teraz.getMonth(), teraz.getDate()).getTime() - new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()) / 86_400_000);
+  return dni <= 0 ? "Dziś" : dni === 1 ? "Wczoraj" : "Starsze";
+}
+
 const kiedy = (iso: string) => {
   const dni = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
   return dni <= 0 ? "dziś" : dni === 1 ? "wczoraj" : `${dni} dni temu`;
@@ -24,12 +32,20 @@ export function WsparcieNota() {
   );
 }
 
+/**
+ * Przedmiot z adresu: segment ścieżki (/przedmiot/polski), wartość parametru (?przedmiot=polski) albo początek
+ * id arkusza (/arkusze/polski-podstawowy-2024-…). Samo wystąpienie napisu w adresie nie wystarcza („wos”, „historia”).
+ */
+function przedmiotZAdresu(pathname: string, search: string): PrzedmiotId | undefined {
+  const czesci = [...pathname.split("/"), ...new URLSearchParams(search).values()];
+  return PRZEDMIOTY.find((p) => czesci.some((c) => c === p.id || c.startsWith(`${p.id}-`)))?.id;
+}
+
 // Przedmiot notatki z rozmowy: ten, przy którym uczeń jest (adres strony), inaczej pierwszy z profilu.
 function usePrzedmiotRozmowy(): PrzedmiotId | null {
   const { pathname, search } = useLocation();
   const profil = useProfil();
-  const zAdresu = PRZEDMIOTY.find((p) => `${pathname}${search}`.includes(p.id))?.id;
-  return zAdresu ?? profil?.subjects?.[0]?.id ?? null;
+  return przedmiotZAdresu(pathname, search) ?? profil?.subjects?.[0]?.id ?? null;
 }
 
 export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
@@ -38,7 +54,7 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
   zamknijPelny?: () => void;
 }) {
   const {
-    messages, state, send, wykonajAkcje, ponow, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa,
+    messages, state, send, wykonajAkcje, ponow, zatrzymaj, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa,
     nowaRozmowa, otworzRozmowe, aiGotowe, tematRozmowy, szkicWiadomosci, ustawSzkicWiadomosci,
   } = useTutor();
   const przedmiotNotatki = usePrzedmiotRozmowy();
@@ -97,24 +113,31 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
 
   const historia = (
     <ul className={styles.rozmowyLista}>
-      {widoczneRozmowy.map((r) => (
-        <li key={r.id}>
-          <button
-            type="button"
-            disabled={zajeta}
-            title={powod}
-            aria-current={r.id === biezacaRozmowa ? "true" : undefined}
-            onClick={() => {
-              sledziKoniec.current = true;
-              otworzRozmowe(r.id);
-              zamknijHistorie();
-            }}
-          >
-            <span>{r.tytul}</span>
-            <span className="small muted">{kiedy(r.kiedy)}</span>
-          </button>
-        </li>
-      ))}
+      {(["Dziś", "Wczoraj", "Starsze"] as const).map((grupa) => {
+        const wGrupie = widoczneRozmowy.filter((r) => grupaDnia(r.kiedy) === grupa);
+        if (!wGrupie.length) return null;
+        return [
+          <li key={grupa} className="label" role="presentation">{grupa}</li>,
+          ...wGrupie.map((r) => (
+            <li key={r.id}>
+              <button
+                type="button"
+                disabled={zajeta}
+                title={powod}
+                aria-current={r.id === biezacaRozmowa ? "true" : undefined}
+                onClick={() => {
+                  sledziKoniec.current = true;
+                  otworzRozmowe(r.id);
+                  zamknijHistorie();
+                }}
+              >
+                <span>{r.tytul}</span>
+                <span className="small muted">{kiedy(r.kiedy)}</span>
+              </button>
+            </li>
+          )),
+        ];
+      })}
     </ul>
   );
 
@@ -311,6 +334,11 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
               disabled={aiGotowe === false}
               autoComplete="off"
             />
+          )}
+          {zajeta && aiGotowe !== false && (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={zatrzymaj}>
+              Zatrzymaj odpowiedź
+            </button>
           )}
           <button type="submit" className="btn btn-primary" disabled={!szkicWiadomosci.trim() || zajeta || aiGotowe === false} aria-label="Wyślij">
             <ArrowUp size={20} aria-hidden="true" />

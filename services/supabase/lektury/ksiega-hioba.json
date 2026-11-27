@@ -53,7 +53,7 @@
         "Hiob"
       ],
       "gdzie": "ziemia Us",
-      "opis": "Młody Elihu przemawia po przyjaciołach Hioba, wskazując na pouczający sens cierpienia."
+      "opis": "Młody Elihu, rozgniewany na Hioba i jego przyjaciół, przemawia po nich i mówi, że przez cierpienie Bóg odwodzi człowieka od grzechu."
     },
     {
       "nr": 6,
@@ -63,7 +63,7 @@
         "Hiob"
       ],
       "gdzie": "burza",
-      "opis": "Bóg odpowiada Hiobowi z burzy, pytając go o tajemnice stworzenia, i nie tłumaczy mu przyczyn cierpienia."
+      "opis": "Pan odpowiada Hiobowi z wichru, pytając go o tajemnice stworzenia, i nie tłumaczy mu przyczyn cierpienia."
     },
     {
       "nr": 7,
@@ -74,7 +74,7 @@
         "przyjaciele"
       ],
       "gdzie": "ziemia Us",
-      "opis": "Hiob uznaje wielkość Boga, a Bóg go przywraca: odzyskuje zdrowie, majątek i dzieci, a przyjaciele zostają skarceni."
+      "opis": "Hiob uznaje wielkość Boga, Bóg gani trzech przyjaciół, a po modlitwie Hioba za nich przywraca mu pomyślność: Hiob otrzymuje podwójny majątek i ma nowych siedmiu synów i trzy córki."
     }
   ],
   "postacie": [
@@ -102,7 +102,7 @@
         "Bogu",
         "Pan"
       ],
-      "rola": "dopuszcza próbę Hioba i odpowiada mu z burzy",
+      "rola": "dopuszcza próbę Hioba i odpowiada mu z wichru",
       "relacje": "rozmawia z Szatanem i z Hiobem",
       "miejsca": [
         "Hi 1",
@@ -170,12 +170,12 @@
     },
     {
       "motyw": "tajemnica Bożego planu",
-      "przyklad": "Bóg, odpowiadając z burzy, pyta o stworzenie świata i nie podaje przyczyny cierpienia.",
+      "przyklad": "Bóg, odpowiadając z wichru, pyta o stworzenie świata i nie podaje przyczyny cierpienia.",
       "miejsce": "Hi 38–41"
     },
     {
       "motyw": "pokora i zaufanie wobec Boga",
-      "przyklad": "Hiob uznaje wielkość Boga i zostaje przywrócony do dawnej pozycji.",
+      "przyklad": "Hiob uznaje wielkość Boga, a Bóg przywraca go do dawnego stanu i błogosławi mu bardziej niż wcześniej.",
       "miejsce": "Hi 42"
     },
     {
@@ -187,16 +187,14 @@
   "utwory": [],
   "zrodla": [
     {
-      "url": "https://biblia.deon.pl/",
+      "url": "https://biblia.deon.pl/rozdzial.php?id=431",
       "rodzaj": "utwór",
-      "co": "Biblia Tysiąclecia, tekst do sprawdzenia opisanych fragmentów"
+      "co": "Biblia Tysiąclecia, Hi 1–42 (kolejne rozdziały pod id=431–472): prolog, siedem dni milczenia przyjaciół (2,11–13), dialogi do rozdz. 27, Elihu (32–37), mowy Pana z wichru (38–41) i epilog (42); opisy porównane z tekstem."
     }
   ],
   "do_weryfikacji": [
-    "Plik nie był sprawdzany w żadnym źródle online ani w wydaniu Biblii; powstał z ogólnej znajomości Księgi Hioba i wymaga weryfikacji (np. w Biblii Tysiąclecia).",
     "Cytatów nie podano, bo tekst współczesnych polskich wydań Biblii jest objęty prawem autorskim.",
     "Zakres „fragmentów” Księgi Hioba wymaganych na maturze nie jest ustalony w katalogu; w danych ujęto przebieg całej księgi.",
-    "Podział na rozdziały mów (Hi 4–27, Hi 32–37) jest przybliżony.",
-    "Opis nie został porównany z tekstem Biblii przy zapisie; sprawdzić rozdziały i wersety."
+    "Numeracja rozdziałów i wersetów według Biblii Tysiąclecia (biblia.deon.pl); w innych przekładach może się różnić."
   ]
 }

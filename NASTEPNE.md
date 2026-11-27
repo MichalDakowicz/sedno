@@ -12,12 +12,12 @@ Otwarte:
 
 - **Terminy dodatkowy i poprawkowy:** CKE i OKE nie publikują arkuszy z kluczami (tylko OKE Łomża 2012/2014 bez kluczy). Grupy w liście zostają puste.
 - **Lektury, plan rozdziału:** składa go serwer z punktów Sedno i dosłownych cytatów, więc bywa „cytatowy”; „Popraw ten plan” zwraca ten sam plan.
-- **Lektury, karty:** część kart obejmuje szersze zdanie niż potwierdza źródło (epilog „Innego świata”, kilka punktów „Zbrodni i kary”, letarg Wokulskiego z kartą t. II rozdz. 14 zamiast 16). Kontrola zgodności karty i zdania jest leksykalna.
+- **Lektury, karty (poprawione 27 listopada, migracja 0044):** epilog „Innego świata”, motyw z letargiem Wokulskiego (teraz t. II rozdz. 16), punkt „Zbrodni i kary” sprawdzone z tekstem i źródłami; liczba ofiar w epilogu „Innego świata” zostaje do weryfikacji (ZPE i Wikipedia się różnią). Wcześniej: część kart obejmuje szersze zdanie niż potwierdza źródło (epilog „Innego świata”, kilka punktów „Zbrodni i kary”, letarg Wokulskiego z kartą t. II rozdz. 14 zamiast 16). Kontrola zgodności karty i zdania jest leksykalna.
 - **Lektury, utwory chronione:** źródłem jest opracowanie (ZPE), nie tekst; słabo potwierdza szczegóły.
-- **Lektury, do weryfikacji:** opisy „Pani Bovary”, „Martwych dusz”, „Klubu Pickwicka” z pamięci modelu i krótkiego streszczenia; pięć ksiąg biblijnych bez porównania z tekstem; niektóre utwory w tekstach WL bez podziału na rozdziały („Nie-Boska komedia”, „Noc listopadowa”, „Gloria victis”); w „Dziadach cz. III” na WL brak „Ustępu”. Wpisy `do_weryfikacji` w `services/supabase/lektury/*.json`.
-- **Lektury, koszt:** pytania o lektury idą na poziom `wazne` (Sonnet); porównać z `lekkie` (Haiku) na tych samych pytaniach (`SEDNO_TIER_LEKTUR`).
+- **Lektury, do weryfikacji:** 27 listopada „Pani Bovary”, „Martwe dusze”, „Klub Pickwicka” sprawdzone z pełnymi przekładami z Wikiźródeł (miejsca i szczegóły poprawione), pięć ksiąg biblijnych z Biblią Tysiąclecia; zostają: brak cytatów dla tych trzech powieści (brak w Wolnych Lekturach) i zakres fragmentów CKE. niektóre utwory w tekstach WL bez podziału na rozdziały („Nie-Boska komedia”, „Noc listopadowa”, „Gloria victis”); w „Dziadach cz. III” na WL brak „Ustępu”. Wpisy `do_weryfikacji` w `services/supabase/lektury/*.json`.
+- **Lektury, model:** porównanie 24 listopada: Haiku trzyma się kart (plan rozdziału, cytaty, Papkin, Geist), ale w przeglądach bez kart dopowiada szczegóły i podał pewnie fałsz (Sonia „w częściach I, IV i epilogu”, „Inny świat” ~25 punktów bez źródeł). Zostaje Sonnet (`wazne`). Do rozważenia: Haiku tylko dla pytań o cytat i plan, jeśli router je rozróżni.
 - **Rysowanie:** niesprawdzone na prawdziwym dotyku i rysiku; gumka, kolory i ponów tylko w kodzie; ocena AI sensownego wykresu niesprawdzona.
-- **Czat:** pytania do decyzji: przycisk „Zatrzymaj odpowiedź”, grupowanie rozmów (dziś, wczoraj, starsze), pole nad klawiaturą na telefonie (`interactive-widget`).
+- ~~**Czat:**~~ zrobione 27 listopada: przycisk „Zatrzymaj odpowiedź” (częściowy tekst zostaje), historia rozmów w grupach Dziś, Wczoraj, Starsze, `interactive-widget=resizes-content` w viewport. Sprawdzone tylko typami i buildem, nie na ekranie.
 - **Staging:** klucze AI konta testowego są w `private.ai_credential_kopia_20261123` na `sedno-dev` (konto idzie trasą serwera).
 
 ## 00. Poprawki od kolegi (gałąź `poprawki-od-kolegi`, 20 listopada 2026)
@@ -30,12 +30,12 @@ Otwarte:
 
 - **Limit dzienny:** do decyzji właściciela, czy 200 i tekst „Wróć jutro” zostają (okno to ostatnie 24 h).
 - **Skrócona runda** sprawdzona tylko w kodzie: tester nie trafił serii 4 dobrych po błędzie (jedyny otwarty warunek celu).
-- **Runda na 375 px wychodzi poza ekran** (opcje i odtwarzacz do x≈400). Było przed tą gałęzią.
+- **Runda na 375 px wychodzi poza ekran** (opcje i odtwarzacz do x≈400). 27 listopada: siatka kafli odpowiedzi z kolumną `minmax(0, 1fr)`, reszta zabezpieczeń była już w CSS; nie sprawdzone na ekranie (brak sesji w podglądzie).
 - **Pestka w docku** na stagingu (qwen3:8b) dała odpowiedź z pustymi angielskimi przykładami („Struktura: .”), choć to samo pytanie wprost przez API ma przykłady. Do sprawdzenia, czy to model, czy wyświetlanie.
-- **Parser:** w angielskim podstawowym 2023 zad. 5, tekst A, zdania z dwóch kolumn są poprzeplatane.
+- **Parser:** poprawione 27 listopada (`rozplecKolumny` w `services/arkusze/src/arkusz.js`): angielski 2023 zad. 5 czyta się kolumnami, przy okazji lepsze 2024 zad. 5, 2025 rozszerzony zad. 3, 2026 zad. 5. **Do wgrania na serwerze:** `npm run importuj -- angielski` i `npm run wgraj -- angielski`.
 - **Limit dzienny** liczy wiersze `ai_usage` po zakończeniu, więc równoległe zapytania mogą go trochę przekroczyć (przerwane wywołania liczy już dokładniej).
-- Drobne z audytu: przy starcie aplikacji `refreshAiReady` (`ai.ts:97`) może zrobić jedno zbędne drugie zapytanie o gotowość, gdy dwa widoki proszą naraz (flaga `potem`); strumień w `llm.ts:245` nie ma osłony `Array.isArray` dla `delta.tool_calls`.
-- Komunikat o zawieszonym nagraniu pojawia się dopiero po „Odtwórz”, nie przy samym wczytywaniu metadanych.
+- ~~Drobne z audytu~~ (`refreshAiReady` z jednym zapytaniem w locie, osłona `Array.isArray` w strumieniu `llm.ts`): sprawdzone 27 listopada, już w kodzie.
+- ~~Komunikat o zawieszonym nagraniu~~ pojawia się już przy wczytywaniu metadanych (`BladNagrania.tsx`); od 27 listopada „Wczytaj jeszcze raz” też liczy czas od nowa.
 
 ## 0a. Gałąź `pestka-z-twarza` (PR 74, stan na 19 listopada 2026)
 

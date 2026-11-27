@@ -7,40 +7,40 @@
    "kto": [
     "Karol Bovary"
    ],
-   "gdzie": "szkoła w Rouen",
-   "opis": "Karol Bovary, nieśmiały uczeń z prowincji, zaczyna naukę i później zostaje lekarzem, wyuczonym tylko skromnie."
+   "gdzie": "kolegium w Rouen; Tostes",
+   "opis": "Karol Bovary, nieśmiały uczeń z prowincji, trafia do kolegium w Rouen, a po oblanym za pierwszym razem egzaminie zostaje lekarzem w Tostes."
   },
   {
    "nr": 2,
-   "miejsce": "cz. I, rozdz. 2–3",
+   "miejsce": "cz. I, rozdz. 1",
    "kto": [
     "Karol",
     "Heloiza Dubuc",
     "matka Karola"
    ],
    "gdzie": "Tostes",
-   "opis": "Matka żeni Karola z bogatą wdową Heloizą Dubuc; małżeństwo jest nieudane."
+   "opis": "Matka żeni Karola ze starszą od niego wdową Heloizą Dubuc, którą uważa za zamożną; małżeństwo jest nieudane."
   },
   {
    "nr": 3,
-   "miejsce": "cz. I, rozdz. 2–3",
+   "miejsce": "cz. I, rozdz. 2",
    "kto": [
     "Karol",
     "Emma Rouault",
     "pan Rouault"
    ],
    "gdzie": "gospodarstwo Bertaux",
-   "opis": "Karol leczy ojca Emmy i zaczyna odwiedzać dom Rouaultów, zafascynowany Emmą."
+   "opis": "Karol nastawia złamaną nogę ojca Emmy i zaczyna odwiedzać gospodarstwo Rouaultów, zafascynowany Emmą."
   },
   {
    "nr": 4,
-   "miejsce": "cz. I, rozdz. 3",
+   "miejsce": "cz. I, rozdz. 2–3",
    "kto": [
     "Karol",
     "Heloiza"
    ],
    "gdzie": "Tostes",
-   "opis": "Heloiza umiera, a Karol, owdowiawszy, oświadcza się Emmie i zostaje przyjęty."
+   "opis": "Heloiza, która straciła większość majątku przez nieuczciwego notariusza, umiera nagle, a owdowiały Karol oświadcza się Emmie i zostaje przyjęty."
   },
   {
    "nr": 5,
@@ -81,7 +81,7 @@
     "Karol"
    ],
    "gdzie": "Tostes; Yonville",
-   "opis": "Emma popada w apatię i chorobę, więc Karol przenosi praktykę do Yonville-l'Abbaye."
+   "opis": "Emma popada w apatię i chorobę nerwową, więc Karol po czterech latach opuszcza Tostes i przenosi praktykę do Yonville-l’Abbaye."
   },
   {
    "nr": 9,
@@ -108,7 +108,7 @@
   },
   {
    "nr": 11,
-   "miejsce": "cz. II, rozdz. 6–7",
+   "miejsce": "cz. II, rozdz. 6",
    "kto": [
     "Leon",
     "Emma"
@@ -138,7 +138,7 @@
   },
   {
    "nr": 14,
-   "miejsce": "cz. II, rozdz. 11–13",
+   "miejsce": "cz. II, rozdz. 11",
    "kto": [
     "Karol",
     "Homais",
@@ -166,28 +166,28 @@
     "Leon"
    ],
    "gdzie": "Rouen",
-   "opis": "Karol zabiera Emmę do teatru w Rouen na operę „Łucja z Lammermooru”, gdzie Emma spotyka Leona."
+   "opis": "Za radą Homais Karol zabiera Emmę do teatru w Rouen na operę „Łucja z Lammermooru”, gdzie Emma spotyka Leona."
   },
   {
    "nr": 17,
-   "miejsce": "cz. III, rozdz. 1–3",
+   "miejsce": "cz. III, rozdz. 1–5",
    "kto": [
     "Emma",
     "Leon"
    ],
    "gdzie": "Rouen",
-   "opis": "Emma i Leon rozpoczynają romans, a Emma wyjeżdża co tydzień do Rouen pod pretekstem lekcji muzyki."
+   "opis": "Emma i Leon rozpoczynają romans, a Emma jeździ co czwartek do Rouen pod pretekstem lekcji gry na fortepianie."
   },
   {
    "nr": 18,
-   "miejsce": "cz. III, rozdz. 3–5",
+   "miejsce": "cz. III, rozdz. 2–6",
    "kto": [
     "Emma",
     "Lheureux",
     "Karol"
    ],
    "gdzie": "Yonville; Rouen",
-   "opis": "Emma wydaje coraz więcej na luksusowe towary od Lheureux i zaciąga długi, a Karol podpisuje dokumenty, nie rozumiejąc ich."
+   "opis": "Lheureux namawia Emmę do uzyskania pełnomocnictwa męża w sprawach majątkowych, a Emma kupuje u niego coraz więcej na kredyt i zaciąga długi na weksle."
   },
   {
    "nr": 19,
@@ -218,7 +218,7 @@
     "Justin"
    ],
    "gdzie": "apteka Homais",
-   "opis": "Zrozpaczona Emma dostaje się do apteki i połyka arszenik."
+   "opis": "Zrozpaczona Emma wchodzi do apteki Homais, żąda od Justyna klucza do składziku, sama go otwiera i na oczach chłopca połyka arszenik."
   },
   {
    "nr": 22,
@@ -234,13 +234,13 @@
   },
   {
    "nr": 23,
-   "miejsce": "cz. III, rozdz. 9–10",
+   "miejsce": "cz. III, rozdz. 9–11",
    "kto": [
     "Karol",
     "Berta"
    ],
    "gdzie": "Yonville",
-   "opis": "Po śmierci Emmy Karol popada w żałobę, spłaca długi, a potem znajduje listy od Rodolphe'a i Leona."
+   "opis": "Po śmierci Emmy Karol pogrąża się w żałobie i próbuje spłacać jej długi, a potem znajduje list Rodolphe’a i listy Leona."
   },
   {
    "nr": 24,
@@ -251,7 +251,7 @@
     "Homais"
    ],
    "gdzie": "Yonville",
-   "opis": "Karol umiera, a Berta trafia do biednej ciotki i do pracy w fabryce; Homais otrzymuje Order Legii Honorowej."
+   "opis": "Karol umiera w ogrodzie, Berta trafia do babki, a po jej śmierci do ubogiej ciotki, która posyła ją do przędzalni bawełny; Homais otrzymuje krzyż Legii Honorowej."
   }
  ],
  "postacie": [
@@ -269,9 +269,9 @@
    "rola": "bohaterka tytułowa, romantyczka, córka rolnika, marzy o wielkiej miłości i wystawnym życiu",
    "relacje": "żona Karola, kochanka Rodolphe'a i Leona, matka Berty, dłużniczka Lheureux",
    "miejsca": [
-    "cz. I",
-    "cz. II",
-    "cz. III"
+    "cz. I, rozdz. 2",
+    "cz. II, rozdz. 9",
+    "cz. III, rozdz. 8"
    ]
   },
   {
@@ -286,9 +286,9 @@
    "rola": "mąż Emmy, prowincjonalny lekarz, prosty i łatwowierny",
    "relacje": "pierwszy mąż Heloizy, potem Emmy; ojciec Berty",
    "miejsca": [
-    "cz. I",
-    "cz. II",
-    "cz. III"
+    "cz. I, rozdz. 1",
+    "cz. II, rozdz. 11",
+    "cz. III, rozdz. 11"
    ]
   },
   {
@@ -299,12 +299,14 @@
     "Rudolf",
     "Rudolfa",
     "Boulanger",
-    "Boulangera"
+    "Boulangera",
+    "Rudolfem"
    ],
    "rola": "ziemianin, chłodny uwodziciel, kochanek Emmy",
    "relacje": "porzuca Emmę listem",
    "miejsca": [
-    "cz. II"
+    "cz. II, rozdz. 7–13",
+    "cz. III, rozdz. 8"
    ]
   },
   {
@@ -319,8 +321,8 @@
    "rola": "młody praktykant notarialny, romantyczny wielbiciel Emmy",
    "relacje": "najpierw platoniczny wielbiciel, potem kochanek",
    "miejsca": [
-    "cz. II",
-    "cz. III"
+    "cz. II, rozdz. 2–6",
+    "cz. III, rozdz. 1–7"
    ]
   },
   {
@@ -335,8 +337,8 @@
    "rola": "aptekarz w Yonville, pewny siebie racjonalista i zwolennik postępu",
    "relacje": "sąsiad i doradca Bovarych",
    "miejsca": [
-    "cz. II",
-    "cz. III"
+    "cz. II, rozdz. 1",
+    "cz. III, rozdz. 11"
    ]
   },
   {
@@ -348,8 +350,8 @@
    "rola": "kupiec i lichwiarz, sprzedaje Emmie towary na kredyt",
    "relacje": "wierzyciel Emmy",
    "miejsca": [
-    "cz. II",
-    "cz. III"
+    "cz. II, rozdz. 5",
+    "cz. III, rozdz. 5–7"
    ]
   },
   {
@@ -362,7 +364,7 @@
    "rola": "pierwsza żona Karola, starsza i zazdrosna",
    "relacje": "żona Karola do swojej śmierci",
    "miejsca": [
-    "cz. I"
+    "cz. I, rozdz. 1–2"
    ]
   },
   {
@@ -376,8 +378,8 @@
    "rola": "córka Emmy i Karola",
    "relacje": "dziecko zaniedbywane przez Emmę",
    "miejsca": [
-    "cz. II",
-    "cz. III"
+    "cz. II, rozdz. 3",
+    "cz. III, rozdz. 11"
    ]
   },
   {
@@ -390,21 +392,24 @@
    "rola": "stajenny z końską stopą, operowany przez Karola",
    "relacje": "ofiara nieudanej operacji",
    "miejsca": [
-    "cz. II"
+    "cz. II, rozdz. 11"
    ]
   },
   {
-   "imie": "Justin",
+   "imie": "Justyn (Justin)",
    "odmiany": [
+    "Justyn",
+    "Justyna",
+    "Justynowi",
+    "Justynem",
     "Justin",
-    "Justina",
-    "Justinowi"
+    "Justina"
    ],
-   "rola": "pomocnik aptekarza, który zna miejsce przechowywania arszeniku",
+   "rola": "pomocnik aptekarza; w aptece Emma żąda od niego klucza do składziku z arszenikiem",
    "relacje": "uczeń Homais, wielbi Emmę",
    "miejsca": [
-    "cz. II",
-    "cz. III"
+    "cz. II, rozdz. 3",
+    "cz. III, rozdz. 8"
    ]
   },
   {
@@ -412,12 +417,15 @@
    "odmiany": [
     "markiz",
     "markiza",
-    "d'Andervilliers"
+    "margrabia",
+    "margrabiego",
+    "d'Andervilliers",
+    "d'Audervillers"
    ],
-   "rola": "gospodarz balu w La Vaubyessard",
+   "rola": "gospodarz balu w La Vaubyessard (w przekładzie z 1878 r. margrabia d’Audervillers, zamek Vaubeyssard)",
    "relacje": "arystokrata, którego bal wpływa na Emmę",
    "miejsca": [
-    "cz. I"
+    "cz. I, rozdz. 8"
    ]
   }
  ],
@@ -435,17 +443,17 @@
   {
    "motyw": "zdrada małżeńska",
    "przyklad": "Emma ma romans z Rodolphe'em, a potem z Leonem, i okłamuje męża.",
-   "miejsce": "cz. II, rozdz. 9–12; cz. III, rozdz. 1–3"
+   "miejsce": "cz. II, rozdz. 9–12 i cz. III, rozdz. 1–5"
   },
   {
    "motyw": "zadłużenie i konsumpcjonizm",
    "przyklad": "Emma kupuje coraz więcej u Lheureux, aż zadłuża rodzinę.",
-   "miejsce": "cz. III, rozdz. 3–7"
+   "miejsce": "cz. III, rozdz. 2–7"
   },
   {
    "motyw": "obojętność ludzi wobec cierpienia",
-   "przyklad": "Rodolphe i Leon odmawiają jej pomocy, a Homais pozostaje spokojny po jej śmierci.",
-   "miejsce": "cz. III, rozdz. 7–8"
+   "przyklad": "Leon i Rodolphe odmawiają Emmie pomocy, a w noc po jej śmierci obaj spokojnie śpią, Rodolphe w swoim zamku, Leon w Rouen.",
+   "miejsce": "cz. III, rozdz. 7–10"
   },
   {
    "motyw": "samobójstwo",
@@ -454,7 +462,7 @@
   },
   {
    "motyw": "krytyka mieszczaństwa i prowincji",
-   "przyklad": "Wiejskie zgromadzenie rolnicze i apteka Homais pokazują ograniczoną, pewną siebie społeczność.",
+   "przyklad": "Zgromadzenie rolnicze w Yonville i pewny siebie aptekarz Homais pokazują ograniczoną, zadowoloną z siebie społeczność.",
    "miejsce": "cz. II, rozdz. 8"
   },
   {
@@ -466,15 +474,19 @@
  "utwory": [],
  "zrodla": [
   {
+   "url": "https://pl.wikisource.org/wiki/Pani_Bovary/całość",
+   "rodzaj": "utwór",
+   "co": "Przekład Ludwiki Kaczyńskiej (Warszawa 1878), pełny tekst: podział na trzy części (9, 15 i 11 rozdziałów) i przypisanie wydarzeń do rozdziałów sprawdzone w tym wydaniu."
+  },
+  {
    "url": "https://pl.wikipedia.org/wiki/Pani_Bovary",
    "rodzaj": "opracowanie",
-   "co": "Streszczenie fabuły i data pierwszego wydania (1857): kolejność wydarzeń porównana z moją znajomością powieści; bez kopiowania sformułowań."
+   "co": "Streszczenie fabuły i data pierwszego wydania (1857)."
   }
  ],
  "do_weryfikacji": [
-  "Tekst powieści nie był czytany (Project Gutenberg był niedostępny w czasie pracy; polskie przekłady z Wolnych Lektur nie istnieją pod tym adresem); fabuła i numeracja rozdziałów opierają się na znajomości powieści i ogólnym streszczeniu — zakresy rozdziałów należy sprawdzić w wydaniu.",
-  "Imiona w polskich przekładach różnią się (Rudolf/Rodolphe, Heloiza/Héloïse); podano warianty.",
-  "Podział utworu na trzy części (I: 9, II: 15, III: 11 rozdziałów) podany z pamięci i nie został potwierdzony w tekście.",
-  "Brak cytatów, bo nie sprawdzono dosłownego tekstu żadnego przekładu."
+  "Numeracja rozdziałów według przekładu z 1878 roku w Wikiźródłach (Wolne Lektury nie mają tej powieści); podział na części i rozdziały odpowiada oryginałowi, ale inne przekłady mogą inaczej zapisywać imiona.",
+  "Imiona w polskich przekładach różnią się (Rudolf/Rodolphe, Justyn/Justin, Heloiza/Héloïse, margrabia/markiz); podano warianty.",
+  "Brak cytatów: przekład z 1878 roku jest w domenie publicznej, ale utwór nie ma wpisu Wolnych Lektur w katalogu, więc walidator nie dopuszcza cytatu."
  ]
 }

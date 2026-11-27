@@ -61,6 +61,8 @@ type TutorValue = {
   sprawdzOdwolanie: (fragment: string, temat?: string) => boolean;
   /** Po błędzie modelu wysyła jeszcze raz ostatnie pytanie ucznia, bez dopisywania nowej wiadomości. */
   ponow: () => void;
+  /** Przerywa trwającą odpowiedź; to, co Pestka zdążyła napisać, zostaje. */
+  zatrzymaj: () => void;
   /** Pytanie z wyszukiwania: zaczyna nową rozmowę i od razu w niej pyta. Nic nie robi, gdy AI nie jest gotowe albo Pestka odpowiada. */
   zapytajWNowej: (text: string) => void;
   /** true: AI podpięte, false: brak, undefined: jeszcze sprawdzamy. */
@@ -182,6 +184,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
   const [guide, setGuide] = useState<Guide | null>(null);
   const [summon, setSummon] = useState<Summon | null>(null);
   const nextId = useRef(1000);
+  const przerwanie = useRef<AbortController | null>(null);
   const history = useRef<Message[]>([]);
   history.current = messages;
   const stanRef = useRef(state);
@@ -257,6 +260,8 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       setMessages((m) => (first ? [...m, { id, from: "tutor", text, ...pola }] : m.map((x) => (x.id === id ? { ...x, text, ...pola } : x))));
     };
     let text = "";
+    const kontroler = new AbortController();
+    przerwanie.current = kontroler;
     try {
       const wynik = await streamAi(
         {
@@ -280,6 +285,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
           if (!started) setState("talking");
           write(weryfikacja ? text : wytnijPriorytety(bezEmoji(pokazTekstCzatu(text))).widoczny);
         },
+        kontroler.signal,
       );
       text = wynik.text;
       const numery = wynik.pestka?.zrodla.flatMap((z) => z.twierdzenie?.match(/^\[(\d+)\]/)?.[1] ?? []) ?? [];
@@ -301,10 +307,14 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
         }
       }
     } catch (e) {
-      write(aiErrorText(e instanceof AiError ? e.code : "server_error"), { blad: true });
+      // Przerwanie przez ucznia to nie błąd: zostaje częściowy tekst, bez komunikatu.
+      if (!kontroler.signal.aborted) write(aiErrorText(e instanceof AiError ? e.code : "server_error"), { blad: true });
     }
+    if (przerwanie.current === kontroler) przerwanie.current = null;
     setState("idle");
   }, [przedmioty, krotko]);
+
+  const zatrzymaj = useCallback(() => przerwanie.current?.abort(), []);
 
   const cofnijPriorytet = useCallback((idWiadomosci: number, idPriorytetu: string) => {
     usunPriorytet(idPriorytetu);
@@ -486,6 +496,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       wykonajAkcje,
       sprawdzOdwolanie,
       ponow,
+      zatrzymaj,
       zapytajWNowej,
       aiGotowe: aiStan,
       cofnijPriorytet,
@@ -504,7 +515,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       summonAt,
       spi,
     }),
-    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, szkicWiadomosci, send, wykonajAkcje, sprawdzOdwolanie, ponow, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
+    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, szkicWiadomosci, send, wykonajAkcje, sprawdzOdwolanie, ponow, zatrzymaj, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
   );
 
   return <TutorContext.Provider value={value}>{children}</TutorContext.Provider>;

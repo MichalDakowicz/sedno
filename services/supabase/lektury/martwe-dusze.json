@@ -29,8 +29,8 @@
     "Cziczikow",
     "Koroboczka"
    ],
-   "gdzie": "majątek Korobiczki",
-   "opis": "Skąpa i nieufna Korobiczka niepewnie sprzedaje martwe dusze, obawiając się, że straci okazję."
+   "gdzie": "majątek Koroboczki",
+   "opis": "Koroboczka, u której Cziczikow nocuje po zabłądzeniu, długo się waha i boi się, że straci na nieznanym towarze, ale w końcu sprzedaje martwe dusze."
   },
   {
    "nr": 4,
@@ -40,7 +40,7 @@
     "Nozdriow"
    ],
    "gdzie": "karczma i majątek Nozdriowa",
-   "opis": "Nozdriow, awanturnik i hazardzista, odmawia sprzedaży i próbuje wciągnąć gościa w grę, kończąc awanturą."
+   "opis": "Nozdriow, awanturnik i karciarz, nie chce po prostu sprzedać martwych dusz, próbuje wciągnąć gościa w grę o nie, a spotkanie kończy się awanturą."
   },
   {
    "nr": 5,
@@ -60,7 +60,7 @@
     "Pluszkin"
    ],
    "gdzie": "majątek Pluszkina",
-   "opis": "Cziczikow odwiedza Pluszkina, skąpca żyjącego w ruinie, który chętnie oddaje martwe dusze."
+   "opis": "Cziczikow odwiedza Pluszkina, skąpca żyjącego wśród ruin, i kupuje od niego tanio ponad dwieście dusz, zmarłych i zbiegłych."
   },
   {
    "nr": 7,
@@ -71,7 +71,7 @@
     "przewodniczący izby"
    ],
    "gdzie": "izba cywilna",
-   "opis": "Cziczikow załatwia formalności (akty kupna) w izbie cywilnej przy pomocy łapówek i znajomości."
+   "opis": "Cziczikow sporządza akty kupna w izbie cywilnej; urzędnik Iwan Antonowicz daje do zrozumienia, że oczekuje zapłaty, a sprawę przyspiesza przychylny prezes izby."
   },
   {
    "nr": 8,
@@ -82,7 +82,7 @@
     "gubernator"
    ],
    "gdzie": "bal u gubernatora",
-   "opis": "Na balu Cziczikow zwraca uwagę córki gubernatora, ale Nozdriow publicznie zdradza, że kupuje martwe dusze."
+   "opis": "Na balu u gubernatora Cziczikow zajmuje się szesnastoletnią córką gubernatora, a pijany Nozdriow przy wszystkich mówi, że Cziczikow skupuje martwe dusze."
   },
   {
    "nr": 9,
@@ -91,16 +91,17 @@
     "mieszkańcy miasta"
    ],
    "gdzie": "miasto N.",
-   "opis": "W mieście krążą plotki: że Cziczikow chce porwać córkę gubernatora, że jest fałszerzem lub przebranym Napoleonem."
+   "opis": "W mieście krążą plotki: że Cziczikow chce porwać córkę gubernatora, że jest fałszerzem pieniędzy, a nawet przebranym Napoleonem."
   },
   {
    "nr": 10,
    "miejsce": "t. I, rozdz. 10",
    "kto": [
-    "prokurator"
+    "prokurator",
+    "urzędnicy miasta N."
    ],
    "gdzie": "miasto N.",
-   "opis": "Strach przed rewizją i plotki prowadzą do śmierci prokuratora."
+   "opis": "Plotki i strach przed nowym generał-gubernatorem tak przerażają prokuratora, że po powrocie do domu nagle umiera."
   },
   {
    "nr": 11,
@@ -109,7 +110,7 @@
     "Cziczikow"
    ],
    "gdzie": "miasto N.; droga",
-   "opis": "Cziczikow opuszcza miasto, a narrator opowiada jego biografię: dążenie do majątku przez oszustwa i drobne intrygi."
+   "opis": "Cziczikow opuszcza miasto, a narrator opowiada jego biografię, służbę m.in. w komorze celnej i plan zastawienia skupionych dusz jak żywych."
   }
  ],
  "postacie": [
@@ -142,17 +143,20 @@
    ]
   },
   {
-   "imie": "Korobiczka",
+   "imie": "Koroboczka",
    "odmiany": [
+    "Koroboczka",
+    "Koroboczki",
+    "Koroboczce",
+    "Koroboczkę",
     "Korobiczka",
-    "Korobiczki",
-    "Korobiczce",
-    "Korobiczkę"
+    "Korobiczki"
    ],
    "rola": "wdowa-ziemianka, skąpa i nieufna",
-   "relacje": "jedna z sprzedających",
+   "relacje": "sprzedaje Cziczikowowi dusze, a potem jedzie do miasta sprawdzić, czy nie sprzedała za tanio",
    "miejsca": [
-    "t. I, rozdz. 3"
+    "t. I, rozdz. 3",
+    "t. I, rozdz. 8"
    ]
   },
   {
@@ -161,13 +165,16 @@
     "Nozdriow",
     "Nozdriowa",
     "Nozdriowowi",
-    "Nozdriowem"
+    "Nozdriowem",
+    "Nozdrew",
+    "Nozdrewa",
+    "Nozdrewem"
    ],
    "rola": "awanturnik, kłamca i hazardzista",
    "relacje": "kolega Cziczikowa, który zdradza jego plany",
    "miejsca": [
     "t. I, rozdz. 4",
-    "rozdz. 8"
+    "t. I, rozdz. 8"
    ]
   },
   {
@@ -182,7 +189,7 @@
    "relacje": "targuje się i sprzedaje martwe dusze",
    "miejsca": [
     "t. I, rozdz. 5",
-    "rozdz. 7"
+    "t. I, rozdz. 7"
    ]
   },
   {
@@ -191,10 +198,12 @@
     "Pluszkin",
     "Pluszkina",
     "Pluszkinowi",
-    "Pluszkinem"
+    "Pluszkinem",
+    "Pliuszkin",
+    "Pliuszkina"
    ],
    "rola": "skąpiec żyjący w ruinie majątku",
-   "relacje": "ostatni z odwiedzanych właścicieli",
+   "relacje": "ostatni z odwiedzanych właścicieli, sprzedaje dusze zmarłe i zbiegłe",
    "miejsca": [
     "t. I, rozdz. 6"
    ]
@@ -217,7 +226,9 @@
    "odmiany": [
     "Piotruszka",
     "Piotruszki",
-    "Piotruszce"
+    "Piotruszce",
+    "Piotrek",
+    "Piotrka"
    ],
    "rola": "lokaj Cziczikowa",
    "relacje": "sługa bohatera",
@@ -242,22 +253,22 @@
  "motywy": [
   {
    "motyw": "oszustwo i obłuda",
-   "przyklad": "Cziczikow skupuje martwe dusze, by zastawić je w banku i wzbogacić się, sprawiając wrażenie uczciwego obywatela.",
+   "przyklad": "Cziczikow skupuje martwe dusze, by zastawić je jak żywych chłopów, sprawiając przy tym wrażenie uczciwego i ujmującego obywatela.",
    "miejsce": "t. I, rozdz. 1–11"
   },
   {
    "motyw": "galeria typów ludzkich",
-   "przyklad": "Maniłow, Korobiczka, Nozdriow, Sobakiewicz i Pluszkin pokazują różne wady: marzycielstwo, skąpstwo, bezwstyd, chciwość.",
+   "przyklad": "Maniłow, Koroboczka, Nozdriow, Sobakiewicz i Pluszkin pokazują różne wady: marzycielstwo, małostkowość, awanturnictwo, chciwość i skąpstwo.",
    "miejsce": "t. I, rozdz. 2–6"
   },
   {
    "motyw": "krytyka biurokracji i łapówkarstwa",
-   "przyklad": "Załatwienie aktów kupna w izbie cywilnej wymaga łapówek i znajomości.",
+   "przyklad": "Przy akcie kupna urzędnik daje do zrozumienia, że oczekuje zapłaty, a sprawę przyspiesza znajomość z prezesem izby.",
    "miejsce": "t. I, rozdz. 7"
   },
   {
    "motyw": "plotka i opinia publiczna",
-   "przyklad": "Na balu wybucha plotka, że Cziczikow jest fałszerzem, Napoleonem lub porywaczem; w mieście narasta histeria.",
+   "przyklad": "Po wystąpieniu Nozdriowa na balu w mieście rośnie plotka, że Cziczikow jest fałszerzem, Napoleonem lub porywaczem córki gubernatora.",
    "miejsce": "t. I, rozdz. 8–10"
   },
   {
@@ -274,15 +285,20 @@
  "utwory": [],
  "zrodla": [
   {
+   "url": "https://pl.wikisource.org/wiki/Martwe_dusze/Całość",
+   "rodzaj": "utwór",
+   "co": "Przekład Zygmunta Wielhorskiego (Poznań 1876), pełny tekst tomu I w 11 rozdziałach: wizyty u ziemian, izba cywilna, bal, plotki, śmierć prokuratora i biografia Cziczikowa sprawdzone w tym wydaniu."
+  },
+  {
    "url": "https://pl.wikipedia.org/wiki/Martwe_dusze",
    "rodzaj": "opracowanie",
    "co": "Zarys fabuły (przyjazd Cziczikowa do miasta N., cel zakupu martwych dusz, plotka o porwaniu córki gubernatora) i fakt, że powieść jest niedokończona."
   }
  ],
  "do_weryfikacji": [
-  "Tekst powieści nie był czytany (Project Gutenberg niedostępny, brak polskiego tekstu); fabuła i numeracja rozdziałów tomu I opierają się na znajomości powieści i krótkim streszczeniu.",
+  "Numeracja rozdziałów według przekładu z 1876 roku w Wikiźródłach (Wolne Lektury nie mają tej powieści); tom I liczy 11 rozdziałów jak w oryginale.",
   "Powieść jest niedokończona (zachowany tom I, fragmenty II); wymagane fragmenty w CKE nie zostały sprawdzone.",
-  "Pisownia imion zależy od przekładu (Cziczikow/Czyczykow, Maniłow, Pliuszkin); podano warianty.",
-  "Brak cytatów, bo nie sprawdzono dosłownego tekstu."
+  "Pisownia imion zależy od przekładu (Cziczikow/Czyczykow, Nozdriow/Nozdrew, Pluszkin/Pliuszkin, Piotruszka/Piotrek); podano warianty.",
+  "Brak cytatów: przekład z 1876 roku jest w domenie publicznej, ale utwór nie ma wpisu Wolnych Lektur w katalogu, więc walidator nie dopuszcza cytatu."
  ]
 }

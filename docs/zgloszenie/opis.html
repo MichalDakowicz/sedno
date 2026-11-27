@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sedno – opis funkcjonalności</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="druk.css">
+</head>
+<body class="druk">
+<main>
+  <h1>Sedno <span class="akcent">· nauka do matury z Pestką</span></h1>
+  <p class="sub">Aplikacja, która mówi uczniowi, co ćwiczyć dziś, i uczy na prawdziwych arkuszach CKE z tutorem AI. https://trafwsedno.web.app</p>
+
+  <section>
+    <h2>Problem i pomysł</h2>
+    <p>Uczeń przed maturą ma setki arkuszy i nie wie, od czego zacząć ani co mu ucieka. Sedno prowadzi go w pętli: <b>diagnoza → plan na dziś → ćwiczenie → rozbiór → powtórki</b>, a postęp widać jako ogród, w którym każda umiejętność rośnie od pestki do drzewka. Przez cały czas obok jest Pestka, tutor AI, który pyta, naprowadza i tłumaczy, ale nie podaje gotowych odpowiedzi.</p>
+  </section>
+
+  <section class="dwie">
+    <div>
+      <h2>Co robi uczeń</h2>
+      <ul>
+        <li><b>Plan na dziś:</b> jedna propozycja z powodem („wybrałam, bo…”) i kolejne kroki: dokończ rundę, powtórki, nowa runda.</li>
+        <li><b>Arkusze CKE:</b> 361 arkuszy z 12 przedmiotów z kluczem, nagraniami, czasem przy zadaniach i wynikiem względem progu i celu.</li>
+        <li><b>Szybkie rundy:</b> 5-minutowe zestawy zadań z jednej umiejętności, rozbiór z wynikiem i wzrostem rośliny.</li>
+        <li><b>Mapa umiejętności:</b> gotowość z każdego przedmiotu i ogród działów, w których widać, co słabe.</li>
+        <li><b>Informatyka:</b> warsztat Python i SQL w przeglądarce na plikach z arkusza.</li>
+        <li><b>Powtórki:</b> błędy i umiejętności, które zaczynają uciekać z pamięci, wracają w odpowiednim czasie.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Gdzie pracuje AI</h2>
+      <ul>
+        <li><b>Rozmowa z Pestką</b> o temacie, z pamięcią celów i priorytetów ucznia.</li>
+        <li><b>Omówienie błędów</b> po arkuszu: pytania naprowadzające i zadanie podobne na sprawdzenie.</li>
+        <li><b>Tablica matematyczna:</b> Pestka czyta szkic ucznia, dopisuje i rysuje kolejny krok, prowadzi na żywo.</li>
+        <li><b>Ocena wypracowań i wypowiedzi</b> według kryteriów CKE, pisanie krok po kroku.</li>
+        <li><b>Zdjęcie z kartki:</b> odczyt rozwiązania z papieru i jego omówienie.</li>
+        <li><b>Lektury:</b> odpowiedzi o 114 lekturach z cytatami ze źródeł, bez zmyślania.</li>
+        <li><b>Rozmowa z pytaniami</b> i <b>Naucz Kolegę</b>: uczeń tłumaczy zasadę, AI ocenia zrozumienie.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Jak to zrobiliśmy</h2>
+    <p>React i TypeScript w przeglądarce (także na telefonie, jasny i ciemny motyw), backend Supabase (PostgreSQL, uwierzytelnianie, funkcje serwera). Modele językowe woła tylko serwer: aplikacja nie zawiera kluczy, ma limity i loguje zużycie. Opanowanie umiejętności liczymy z odpowiedzi ucznia (średnia krocząca z zanikiem pamięci), a powtórki planujemy z tego zaniku. Przy trudnej wiadomości ucznia Pestka zawsze pokazuje telefon zaufania 116&nbsp;111.</p>
+  </section>
+
+  <p class="stopka">Kod źródłowy, instrukcja kompilacji i uruchomienia: github.com/MichalDakowicz/sedno (README). Instrukcja korzystania: plik „Sedno – instrukcja korzystania”.</p>
+</main>
+</body>
+</html>
