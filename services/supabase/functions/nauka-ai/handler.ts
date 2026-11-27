@@ -375,10 +375,10 @@ function zadanieBrudnopisu(body: Obiekt, strumien: boolean) {
       ...(prowadzenie ? [
         'To prowadzenie na żywo. Obraz przedstawia pracę ucznia i ewentualnie rysunek z zadania. Pole zmiana oznacza obszar nowego lub zmienionego zapisu na przesłanym obrazie. Oceń przede wszystkim ten fragment w kontekście wcześniejszego rozumowania.',
         'Dodaj stanProwadzenia: "czekam" dla nieczytelnego, niepełnego lub powtórzonego kroku, "krok" dla czytelnego postępu, "blad" dla wyraźnego błędu w nowym kroku. Nie powtarzaj poprzedniej wskazówki, jeśli zapis nie wnosi nic istotnego.',
-        'Pole zapisUcznia zawiera nowy tekst wpisany w edytorze, jeśli jest dostępny. Czytelne pytanie o kolejny krok lub prośba o szkic na tablicy wymagają odpowiedzi w stanie "krok", także bez obliczeń. Na prośbę o rysunek zwróć odpowiedni kształt lub bryłę z zadania. Jeżeli szkic ułatwi odróżnienie przekątnej ściany od przekątnej bryły, możesz dorysować bryłę z właściwym odcinkiem także bez pytania.',
-        'Dla "czekam" zwróć {"stanProwadzenia":"czekam"}. W pozostałych stanach napisz maksymalnie dwie krótkie linie wskazówki kierujące do jednego następnego kroku (do 180 znaków). Jeśli uczeń skończył poprawnie, krótko to potwierdź. Nie zdradzaj wyniku ani dalszych kroków.',
+        'Pole zapisUcznia zawiera nowy tekst wpisany w edytorze, jeśli jest dostępny. Czytelne pytanie o kolejny krok wymaga odpowiedzi w stanie "krok", także bez obliczeń, ale tylko w polu wskazowka.',
+        'Dla "czekam" zwróć {"stanProwadzenia":"czekam"}. Dla "krok" napisz w polu wskazowka jedno krótkie zdanie potwierdzenia (do 120 znaków), np. że krok jest poprawny i dlaczego. Nie podawaj następnego kroku, wyniku ani przekształcenia, uczeń ma dojść do tego sam. Dla "blad" napisz w polu wskazowka jedno lub dwa krótkie zdania (do 180 znaków), które mówią, w którym wierszu lub na czym się zatrzymać i jakiego rodzaju to błąd, bez podawania poprawnej wersji.',
         'Dla "blad" ramkaBledu to opcjonalnie [[lewo,góra],[prawo,dół]] we współrzędnych od 0 do 1 na przesłanym obrazie, licząc od jego lewego górnego narożnika. Obejmij wyłącznie czytelny błędny fragment powiązany z ostatnią zmianą. Jeśli miejsca nie da się wskazać, pomiń ramkę. Nigdy nie oznaczaj treści zadania ani poprawnych wcześniejszych wierszy.',
-        'Kształty, bryła i dopiski trafią automatycznie na tablicę obok pracy ucznia. Dodaj je tylko, jeśli pomagają w tym jednym kroku. Wystarczą do 4 kształtów, 2 krótkich dopisków lub jedna bryła. Nie dubluj wskazówki w dopiskach.',
+        'W prowadzeniu na żywo nigdy nie pisz na tablicy: nie przepisuj zapisu ucznia, nie podawaj rozwiązania ani kolejnego kroku. Mimo wcześniejszych zasad zawsze zwracaj "ksztalty":[], "dopiski":[] i "bryla":null. Pomoc idzie wyłącznie przez wskazowka i ramkaBledu.',
       ] : []),
       // Kolejność pól pozwala pokazać wskazówkę i rysunek, zanim model skończy pisać.
       ...(strumien ? ["Zapisz pola obiektu w kolejności: stanProwadzenia, wskazowka, ksztalty, bryla, dopiski, ramkaBledu, odczyt."] : []),
@@ -392,14 +392,15 @@ function zadanieBrudnopisu(body: Obiekt, strumien: boolean) {
 
 type ZadanieBrudnopisu = ReturnType<typeof zadanieBrudnopisu>;
 
-function wynikBrudnopisu(wynik: Obiekt, { prowadzenie, obraz }: ZadanieBrudnopisu) {
+export function wynikBrudnopisu(wynik: Obiekt, { prowadzenie, obraz }: Pick<ZadanieBrudnopisu, "prowadzenie" | "obraz">) {
   const stanProwadzenia = prowadzenie ? wymagajWyniku(wybierz(wynik.stanProwadzenia, STANY_PROWADZENIA)) : undefined;
   if (stanProwadzenia === "czekam") return { stanProwadzenia, odczyt: null, wskazowka: "", ksztalty: [], bryla: null, dopiski: [] };
   const odczyt = obraz ? tekst(wynik.odczyt, 1100) : null;
   const wskazowka = wymagajWyniku(tekst(wynik.wskazowka, prowadzenie ? 360 : 1300));
-  const ksztalty = elementyBrudnopisu(wynik.ksztalty, prowadzenie ? 4 : 8, ksztaltBrudnopisu);
-  const dopiski = elementyBrudnopisu(wynik.dopiski, prowadzenie ? 2 : 3, dopisekBrudnopisu);
-  const { bryla, pominieto } = brylaBrudnopisu(wynik.bryla);
+  // Prowadzenie tylko potwierdza krok albo wskazuje miejsce błędu: rozwiązania ani następnego kroku nie dopisuje na tablicy.
+  const ksztalty = elementyBrudnopisu(prowadzenie ? [] : wynik.ksztalty, 8, ksztaltBrudnopisu);
+  const dopiski = elementyBrudnopisu(prowadzenie ? [] : wynik.dopiski, 3, dopisekBrudnopisu);
+  const { bryla, pominieto } = prowadzenie ? { bryla: null, pominieto: false } : brylaBrudnopisu(wynik.bryla);
   return {
     odczyt, wskazowka, ksztalty: ksztalty.elementy, dopiski: dopiski.elementy, bryla, stanProwadzenia,
     ramkaBledu: stanProwadzenia === "blad" ? ramkaBrudnopisu(wynik.ramkaBledu) : undefined,
@@ -429,7 +430,8 @@ async function strumienBrudnopisu(body: Obiekt, user: string, przerwanie: AbortS
     zalogowano = true;
     await logAiUsage({ ...base, ...pola, duration_ms: Date.now() - started });
   };
-  const limity = { ksztalty: z.prowadzenie ? 4 : 8, dopiski: z.prowadzenie ? 2 : 3 };
+  // Prowadzenie nic nie rysuje na tablicy, więc figury i dopiski ze strumienia nie idą do klienta.
+  const limity = { ksztalty: z.prowadzenie ? 0 : 8, dopiski: z.prowadzenie ? 0 : 3 };
   const enc = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({
