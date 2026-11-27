@@ -22,7 +22,7 @@ const KONIEC_WYPOWIEDZI = /^(CZYSTOPIS|FINAL COPY)$/;
 const MAKS_ODSTEP = 30;
 function blisko(blok, l) {
   const a = blok?.ostatnia;
-  if (!a || a.strona !== l.strona) return false;
+  if (!a || a.strona !== l.strona || l.przerwa) return false;
   const odstep = a.y - l.y;
   return blok.odstep ? odstep <= blok.odstep * 1.5 : odstep < MAKS_ODSTEP;
 }
@@ -60,7 +60,82 @@ function przygotujLinie(strony) {
       wynik.push({ ...l, seg, x: seg[0].x, s: seg.map((g) => g.s).join(" "), poczatekLuki });
     }
   }
-  return rozwinKolumny(wynik);
+  return rozwinKolumny(rozplecKolumny(wynik));
+}
+
+// Dwie kolumny tekstu bez nagłówków (np. dymki obok siebie w tekście A z maja 2023
+// albo dymek obok akapitu): linie obu kolumn mają przesunięte linie bazowe, więc
+// nie trafiają do jednego wiersza, tylko przeplatają się co kilka punktów.
+// Sygnałem są dwie kolejne linie bliżej siebie niż zwykły odstęp wierszy
+// i rozłączne w poziomie. Wokół takiej pary zbieramy sąsiednie linie leżące
+// w całości po jednej stronie i wypisujemy lewą kolumnę, potem prawą.
+const BLISKIE_LINIE = 10;
+const PRZERWA_MIEDZY_KOLUMNAMI = 12;
+
+function koniecLinii(l) {
+  return Math.max(...(l.czesci ?? []).map((c) => c.x + c.w), l.x);
+}
+
+// Linia złożona z kilku segmentów jako osobne linie, każda z własnymi kawałkami.
+function liniePoSegmentach(l) {
+  if (l.seg.length === 1) return [l];
+  return l.seg.map((g, k) => {
+    const nast = l.seg[k + 1]?.x ?? Infinity;
+    const czesci = (l.czesci ?? []).filter((c) => c.x >= g.x - 0.5 && c.x < nast - 0.5);
+    return { ...l, seg: [g], x: g.x, s: g.s, czesci };
+  });
+}
+
+function rozplecKolumny(linie) {
+  // Tylko zwykły tekst: etykiety pytań, opcje i źródła zostają na miejscu.
+  const tekstowa = (l) => !NAGLOWEK_ZADANIA.test(l.s) && !OPCJA.test(l.s) && !ZRODLO.test(l.s)
+    && !/^\d+\.[1-9]\d?\.?(\s|$)/.test(l.s); // etykieta „6.1.”, ale nie data „16.04.”
+  const prosta = (l) => l && l.seg.length === 1 && tekstowa(l) && /[\p{L}\d]{2}/u.test(l.s);
+  const wynik = [];
+  for (let i = 0; i < linie.length; i++) {
+    const a = linie[i];
+    const b = linie[i + 1];
+    const para = prosta(a) && prosta(b) && a.strona === b.strona && a.y - b.y < BLISKIE_LINIE;
+    const [lewa, prawa] = para ? (a.x < b.x ? [a, b] : [b, a]) : [];
+    if (!para || prawa.x - koniecLinii(lewa) < PRZERWA_MIEDZY_KOLUMNAMI) {
+      wynik.push(a);
+      continue;
+    }
+    // Lewa kolumna kończy się przed początkiem prawej, prawa zaczyna się za końcem lewej
+    // linii z pary; linie łamane do pełnej szerokości lewej kolumny też się mieszczą.
+    const margines = PRZERWA_MIEDZY_KOLUMNAMI / 2;
+    const kolumna = (l) => (koniecLinii(l) < prawa.x - margines ? 0 : l.x > koniecLinii(lewa) + margines ? 1 : -1);
+    // Wiersz z segmentami po obu stronach (np. „16.04. | year was really hot…”) dzielimy na kolumny.
+    const pasuje = (l, sasiad) => l.strona === sasiad.strona && Math.abs(sasiad.y - l.y) < MAKS_ODSTEP
+      && l.seg.length <= 2 && tekstowa(l) && liniePoSegmentach(l).every((c) => tekstowa(c) && kolumna(c) >= 0);
+    let od = i;
+    let zostaje = wynik.length;
+    while (od > 0 && wynik[zostaje - 1] === linie[od - 1] && pasuje(linie[od - 1], linie[od])) {
+      od--;
+      zostaje--;
+    }
+    let po = i + 1;
+    while (po + 1 < linie.length && pasuje(linie[po + 1], linie[po])) po++;
+    // Linia tuż za granicą bloku (bliżej niż zwykły odstęp) znaczy, że blok jest częścią
+    // czegoś większego, np. tabeli z etykietą pytania; wtedy niczego nie przestawiamy.
+    const tuzObok = (l, sasiad) => l && l.strona === sasiad.strona && Math.abs(sasiad.y - l.y) < BLISKIE_LINIE;
+    if (tuzObok(linie[od - 1], linie[od]) || tuzObok(linie[po + 1], linie[po])) {
+      wynik.push(a);
+      continue;
+    }
+    wynik.length = zostaje;
+    const kolumny = [[], []];
+    for (const l of linie.slice(od, po + 1)) for (const c of liniePoSegmentach(l)) kolumny[kolumna(c)].push(c);
+    for (const k of kolumny) {
+      // Dymki mają tekst wyśrodkowany, więc wcięcie nie oznacza tu nowego akapitu;
+      // akapity rozdziela tylko odstęp w pionie (i `przerwa` na początku kolumny).
+      const x = Math.min(...k.map((l) => l.x));
+      k.forEach((l, n) => wynik.push({ ...l, x, przerwa: n === 0 }));
+    }
+    if (linie[po + 1]) linie[po + 1] = { ...linie[po + 1], przerwa: true };
+    i = po;
+  }
+  return wynik;
 }
 
 // Tekst w kolumnach (np. ulotka z nagłówkami „WHAT WE EXPECT | WHAT YOU WILL LEARN”).

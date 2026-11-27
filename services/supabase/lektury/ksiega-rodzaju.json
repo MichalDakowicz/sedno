@@ -31,7 +31,7 @@
         "Bóg"
       ],
       "gdzie": "ogród Eden",
-      "opis": "Wąż nakłania Ewę do zerwania owocu z zakazanego drzewa poznania dobra i zła; Adam i Ewa jedzą, tracą niewinność i zostają wygnani z raju."
+      "opis": "Wąż nakłania Ewę do zerwania owocu z zakazanego drzewa poznania dobra i zła; Adam i Ewa jedzą, poznają, że są nadzy, i zostają wygnani z ogrodu Eden."
     },
     {
       "nr": 4,
@@ -42,7 +42,7 @@
         "Bóg"
       ],
       "gdzie": "okolice Edenu",
-      "opis": "Kain, rolnik, zabija z zazdrości brata Abla, pasterza, którego ofiara została przyjęta; Bóg skazuje Kaina na tułaczkę i oznacza go znakiem."
+      "opis": "Kain, rolnik, rozgniewany tym, że Bóg wejrzał na ofiarę Abla, a na jego nie, zabija brata pasterza; Bóg skazuje Kaina na tułaczkę i daje mu znamię chroniące go przed zabiciem."
     },
     {
       "nr": 5,
@@ -107,7 +107,7 @@
         "Bóg"
       ],
       "gdzie": "góra Moria",
-      "opis": "Bóg wystawia Abrahama na próbę, każąc mu złożyć w ofierze Izaaka; w ostatniej chwili anioł zatrzymuje jego rękę, a zamiast chłopca Abraham składa w ofierze barana."
+      "opis": "Bóg wystawia Abrahama na próbę, każąc mu złożyć w ofierze Izaaka; w ostatniej chwili anioł Pana go powstrzymuje, a zamiast syna Abraham składa w ofierze barana."
     },
     {
       "nr": 11,
@@ -325,7 +325,7 @@
     },
     {
       "motyw": "bratobójstwo i zazdrość",
-      "przyklad": "Kain zabija Abla, bo Bóg przyjął jego ofiarę, a nie ofiarę Kaina.",
+      "przyklad": "Kain zabija Abla, rozgniewany tym, że Bóg wejrzał na ofiarę brata, a na jego nie.",
       "miejsce": "Rdz 4,1–16"
     },
     {
@@ -357,16 +357,14 @@
   "utwory": [],
   "zrodla": [
     {
-      "url": "https://biblia.deon.pl/",
+      "url": "https://biblia.deon.pl/rozdzial.php?id=1",
       "rodzaj": "utwór",
-      "co": "Biblia Tysiąclecia, tekst do sprawdzenia opisanych fragmentów"
+      "co": "Biblia Tysiąclecia, Rdz 1–50 (kolejne rozdziały pod id=1–50): stworzenie, Eden, Kain i Abel, potop, Babel, Abraham, Jakub (Jabbok w 32,23–33), Józef; opisy porównane z tekstem."
     }
   ],
   "do_weryfikacji": [
-    "Plik nie był sprawdzany w żadnym źródle online ani w wydaniu Biblii; powstał z ogólnej znajomości Księgi Rodzaju i wymaga weryfikacji (np. w Biblii Tysiąclecia).",
     "Cytatów nie podano, bo tekst współczesnych polskich wydań Biblii jest objęty prawem autorskim.",
     "Zakres „fragmentów” Księgi Rodzaju wymaganych na maturze nie jest ustalony w katalogu; w danych podano najczęściej omawiane epizody.",
-    "Numery wersetów (np. Rdz 2,4a) przyjęto z konwencji spotykanej w opracowaniach; mogą różnić się między wydaniami.",
-    "Opis nie został porównany z tekstem Biblii przy zapisie; sprawdzić rozdziały i wersety."
+    "Numeracja rozdziałów i wersetów według Biblii Tysiąclecia (biblia.deon.pl); w innych przekładach może się różnić."
   ]
 }

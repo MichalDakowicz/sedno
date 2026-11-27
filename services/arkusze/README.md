@@ -44,7 +44,7 @@ Czerwiec 2020 w katalogu był terminem głównym przesuniętym z maja.
 
 | Przedmiot | Treść i klucz |
 | --- | --- |
-| Angielski | Istniejący parser bloków, luk i słuchania. W nowych sesjach uzupełniamy brakujące odpowiedzi opisowe tekstem i stroną zasad. |
+| Angielski | Istniejący parser bloków, luk i słuchania. W nowych sesjach uzupełniamy brakujące odpowiedzi opisowe tekstem i stroną zasad. Dwie kolumny tekstu bez nagłówków (dymki, podpis obok wiadomości) rozpoznajemy po liniach przeplatających się co kilka punktów i składamy kolumna po kolumnie. |
 | Matematyka | Cztery istniejące arkusze podstawowe Formuły 2023 używają dotychczasowego składania DOCX z PDF. Pozostałe poziomy i sesje używają parsera wspólnego z równaniami DOCX, gdy treść pasuje do wersji standardowej. Starsze klucze zamknięte mogą mieć odpowiedzi w jednym wierszu tabeli. |
 | Informatyka | Zachowana ścieżka czterech arkuszy głównych Formuły 2023. Pozostałe arkusze używają wspólnego parsera, z pseudokodem jako kod i plikami przypisanymi do zadań. W Formule 2015 część praktyczna może być osobnym zeszytem. |
 | Polski | Parser wspólny plus wykrywanie testu i wypracowania, również przy dwóch tematach w jednym zadaniu. Wypracowanie ma jedno pole otwarte i kryteria CKE, a osobny zeszyt zachowuje drukowaną punktację. |

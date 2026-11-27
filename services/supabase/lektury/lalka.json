@@ -63,12 +63,13 @@
     {"motyw": "idealizm polityczny i wierność przeszłości", "przyklad": "Rzecki wierzy w powrót Napoleonidów, a w pamiętniku sam siebie nazywa starym głupcem.", "miejsce": "t. II, rozdz. 10", "cytat": "Ty wyobrażasz sobie, że Napoleonidzi wrócą na tron"},
     {"motyw": "pamiętnik starego subiekta jako drugi punkt widzenia", "przyklad": "Rzecki prowadzi osobne rozdziały pamiętnika (t. I, rozdz. 3, 10, 20; t. II, rozdz. 1, 8, 9, 10, 15, 17), w których ocenia Wokulskiego i politykę.", "miejsce": "t. I, rozdz. 3"},
     {"motyw": "nauka i postęp", "przyklad": "Ochocki marzy o maszynach latających, a Wokulski w Paryżu rozmawia z Geistem o jego metalu.", "miejsce": "t. I, rozdz. 12"},
-    {"motyw": "samotność i rozpacz", "przyklad": "Po rozmowie Izabeli ze Starskim w pociągu Wokulski rzuca się pod pociąg w Skierniewicach i popada w letarg.", "miejsce": "t. II, rozdz. 14"},
+    {"motyw": "samotność i rozpacz", "przyklad": "Po rozmowie Izabeli ze Starskim w pociągu Wokulski wysiada w Skierniewicach i rzuca się pod pociąg, a z torów ściąga go dróżnik Wysocki.", "miejsce": "t. II, rozdz. 14"},
+    {"motyw": "apatia po klęsce", "przyklad": "Po powrocie ze Skierniewic do Warszawy Wokulski popada w letarg, a po kilku dniach rozchodzi się wieść, że nagle wyjechał.", "miejsce": "t. II, rozdz. 16"},
     {"motyw": "niejasny los bohatera", "przyklad": "Wokulski wyjeżdża do Moskwy, zostawia testament, a powieść nie rozstrzyga, co się z nim stało.", "miejsce": "t. II, rozdz. 18"}
   ],
   "zrodla": [
     {"url": "https://wolnelektury.pl/katalog/lektura/lalka-tom-pierwszy/", "rodzaj": "utwór", "co": "Lalka, tom pierwszy (Wolne Lektury): podział na rozdziały jak w tym wydaniu"},
-    {"url": "https://wolnelektury.pl/katalog/lektura/lalka-tom-drugi/", "rodzaj": "utwór", "co": "Lalka, tom drugi (Wolne Lektury): podział na rozdziały jak w tym wydaniu"}
+    {"url": "https://wolnelektury.pl/katalog/lektura/lalka-tom-drugi/", "rodzaj": "utwór", "co": "Lalka, tom drugi (Wolne Lektury): podział na rozdziały jak w tym wydaniu; próba samobójcza i ratunek przez dróżnika Wysockiego w rozdz. 14 „Tempus fugit, aeternitas manet”, letarg w rozdz. 16 „Dusza w letargu”"}
   ],
   "do_weryfikacji": [
     "Podział na rozdziały odnosi się do wydania Wolnych Lektur (dwa tomy); inne wydania numerują rozdziały inaczej.",

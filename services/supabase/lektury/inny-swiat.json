@@ -21,8 +21,8 @@
     {"nr": 18, "miejsce": "cz. II, Męka za wiarę", "kto": ["Gustaw Herling-Grudziński", "polscy więźniowie"], "gdzie": "Jercewo", "opis": "Narrator podejmuje głodówkę, aby zaprotestować przeciw dalszemu przetrzymywaniu polskich więźniów w łagrze."},
     {"nr": 19, "miejsce": "cz. II, Trupiarnia", "kto": ["Gustaw Herling-Grudziński", "wycieńczeni więźniowie"], "gdzie": "Jercewo, barak dla niezdolnych do pracy", "opis": "Narrator trafia do baraku zajmowanego przez więźniów wyniszczonych głodem i pracą."},
     {"nr": 20, "miejsce": "cz. II, Ural 1942", "kto": ["Gustaw Herling-Grudziński"], "gdzie": "Jercewo, droga do polskiego wojska i wyjazd z ZSRR", "opis": "Po zwolnieniu z obozu narrator dociera do polskiego wojska i opuszcza Związek Sowiecki."},
-    {"nr": 21, "miejsce": "epilog", "kto": ["Gustaw Herling-Grudziński", "dawny współwięzień"], "gdzie": "Rzym", "opis": "Były więzień wyjawia narratorowi, że jego fałszywe zeznanie w obozie doprowadziło do śmierci czterech ludzi."},
-    {"nr": 22, "miejsce": "epilog", "kto": ["Gustaw Herling-Grudziński", "dawny współwięzień"], "gdzie": "Rzym", "opis": "Rozmówca chce usłyszeć, że narrator rozumie jego decyzję, ale narrator pozostaje milczący."}
+    {"nr": 21, "miejsce": "epilog", "kto": ["Gustaw Herling-Grudziński", "dawny współwięzień"], "gdzie": "Rzym, pod koniec wojny", "opis": "Były więzień wyznaje narratorowi, że w obozie, ratując własne życie, złożył fałszywe zeznania przeciw kilku Niemcom, którzy zostali straceni."},
+    {"nr": 22, "miejsce": "epilog", "kto": ["Gustaw Herling-Grudziński", "dawny współwięzień"], "gdzie": "Rzym", "opis": "Rozmówca przychodzi, by usłyszeć od narratora słowo „rozumiem”, ale narrator nie potrafi go wypowiedzieć i odmawia podania mu ręki."}
   ],
   "postacie": [
     {"imie": "Gustaw Herling-Grudziński", "odmiany": ["Gustaw", "Gustawa", "Herling-Grudziński", "Herlinga-Grudzińskiego", "Herlingiem-Grudzińskim"], "rola": "autor, narrator i bohater, więzień sowiecki", "relacje": "współwięzień Kostylewa i Natalii Lwowny, rozmówca byłego więźnia w Rzymie", "miejsca": ["cz. I, Witebsk – Leningrad – Wołogda", "cz. II, Męka za wiarę", "epilog"]},
@@ -31,7 +31,7 @@
     {"imie": "Marusia", "odmiany": ["Marusia", "Marusi", "Marusię", "Marusią"], "rola": "więźniarka, doświadcza przemocy ze strony urków", "relacje": "jej los przedstawia narrator w rozdziale o nocnych napaściach", "miejsca": ["cz. I, Nocne łowy"]},
     {"imie": "Kowal", "odmiany": ["Kowal", "Kowala", "Kowalowi", "Kowalem"], "rola": "urak stojący na czele grupy atakującej Marusię", "relacje": "napastnik Marusi, współwięzień narratora", "miejsca": ["cz. I, Nocne łowy"]},
     {"imie": "Rusto Karinen", "odmiany": ["Rusto", "Rusta", "Rustowi", "Rustem", "Karinen", "Karinena", "Karinenem"], "rola": "fiński więzień, podejmuje próbę ucieczki", "relacje": "narrator przytacza jego doświadczenie", "miejsca": ["cz. I, Wychodnoj dień"]},
-    {"imie": "Dawny współwięzień z epilogu", "odmiany": ["współwięzień", "współwięźnia", "współwięźniem", "Jewriej", "Jewrieja"], "rola": "były więzień, przyznaje, że obciążył niewinnych ludzi", "relacje": "szuka zrozumienia u narratora, który również przeżył obóz", "miejsca": ["epilog"]}
+    {"imie": "Dawny współwięzień z epilogu", "odmiany": ["współwięzień", "współwięźnia", "współwięźniem", "Jewriej", "Jewrieja"], "rola": "były więzień, przyznaje, że fałszywymi zeznaniami w obozie wydał na śmierć kilku Niemców", "relacje": "szuka zrozumienia u narratora, który również przeżył obóz", "miejsca": ["epilog"]}
   ],
   "motywy": [
     {"motyw": "praca przymusowa i głód", "przyklad": "Wielkość racji zależy od wykonania normy. Więzień osłabiony głodem ma mniej sił do pracy potrzebnej, by dostać więcej jedzenia.", "miejsce": "cz. I, Praca – Dzień po dniu"},
@@ -41,7 +41,7 @@
     {"motyw": "rodzina i krucha więź ze światem poza łagrem", "przyklad": "Dom widzeń umożliwia więźniom spotkanie z bliskimi po długim rozdzieleniu, pod warunkiem uzyskania zgody władz.", "miejsce": "cz. I, Dom Swidanij"},
     {"motyw": "lektura i język opisu niewoli", "przyklad": "Rozmowy o Dostojewskim prowadzą narratora i Natalię do porównania doświadczeń dawnej katorgi z własnym uwięzieniem.", "miejsce": "cz. II, Zapiski z martwego domu"},
     {"motyw": "walka o wolność", "przyklad": "Gustaw podejmuje głodówkę, gdy nadal jest więziony mimo nadziei związanej ze zwolnieniem Polaków.", "miejsce": "cz. II, Męka za wiarę"},
-    {"motyw": "granice moralnego osądu", "przyklad": "Były więzień prosi o zrozumienie swego fałszywego zeznania. Milczenie narratora można odczytać jako odmowę zaakceptowania czynu wymuszonego przez warunki obozu.", "miejsce": "epilog"}
+    {"motyw": "granice moralnego osądu", "przyklad": "Były więzień szuka u narratora zrozumienia dla fałszywych zeznań złożonych w obozie. Narrator nie potrafi powiedzieć „rozumiem”, co można odczytać jako odmowę usprawiedliwienia czynu, nawet wymuszonego przez warunki obozu.", "miejsce": "epilog"}
   ],
   "utwory": [],
   "zrodla": [
@@ -50,10 +50,12 @@
     {"url": "https://zpe.gov.pl/watek/LPFHDLRM4G/318/a/cwiczenia/D6ESU6QNP", "rodzaj": "utwór", "co": "Fragment rozdziału Ręka w ogniu oraz ćwiczenia o lekturach Kostylewa, jego buncie i próbie ucieczki Karinena."},
     {"url": "https://www.8los.pl/wp-content/uploads/2025/11/inny-swiat-2019.pdf", "rodzaj": "opracowanie", "co": "Materiał liceum z fragmentami tekstu: zasady widzeń, obozowy szpital i rządy urków."},
     {"url": "https://bazhum.muzhp.pl/media/files/Postscriptum/Postscriptum-r2006-t-n2%2852%29/Postscriptum-r2006-t-n2%2852%29-s93-108/Postscriptum-r2006-t-n2%2852%29-s93-108.pdf", "rodzaj": "opracowanie", "co": "Odniesienia do Dostojewskiego oraz sposób, w jaki Natalia Lwowna mówi o niewoli."},
-    {"url": "https://zpe.gov.pl/a/sprawdz-sie/DWPH8jNuW", "rodzaj": "opracowanie", "co": "Losy Karinena i Marusi, protest głodowy oraz wyznanie byłego więźnia z epilogu."},
-    {"url": "https://zpe.gov.pl/a/przeczytaj/DYOHC1uNy", "rodzaj": "opracowanie", "co": "Rozmowa w Rzymie, los czterech ludzi i reakcja narratora."}
+    {"url": "https://zpe.gov.pl/a/sprawdz-sie/DWPH8jNuW", "rodzaj": "opracowanie", "co": "Losy Marusi, protest głodowy oraz epilog: Jewriej chce usłyszeć „rozumiem” po fałszywych zeznaniach przeciw kilku Niemcom, którzy zostali straceni."},
+    {"url": "https://zpe.gov.pl/a/przeczytaj/DYOHC1uNy", "rodzaj": "opracowanie", "co": "Epilog: spotkanie w Rzymie pod koniec wojny, rozmówca szuka zrozumienia, narrator odmawia podania ręki i nie potrafi powiedzieć „rozumiem”."},
+    {"url": "https://pl.wikipedia.org/wiki/Inny_świat_(książka)", "rodzaj": "opracowanie", "co": "Epilog: spotkanie w Rzymie z Żydem, który opowiada o fałszywym donosie na Niemców i nie znajduje zrozumienia; śmierć Kostylewa po oblaniu się wrzątkiem."}
   ],
   "do_weryfikacji": [
+    "Liczba Niemców, przeciw którym rozmówca z epilogu złożył zeznania, różni się w źródłach (ZPE: cztery osoby, Wikipedia: trzech Niemców); do sprawdzenia w wydaniu książkowym.",
     "Katalog podaje fragmenty bez zamkniętej listy miejsc w tekście.",
     "Pełny przebieg losów Gorcewa, Pamfiłowa i dalsze okoliczności śmierci Kostylewa wymagają sprawdzenia w wydaniu książkowym."
   ]

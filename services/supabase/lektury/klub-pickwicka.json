@@ -11,49 +11,56 @@
     "Winkle"
    ],
    "gdzie": "Londyn",
-   "opis": "Pan Pickwick, założyciel klubu, zapowiada „badania” i podróże po kraju razem z trzema przyjaciółmi."
+   "opis": "Klub postanawia, że pan Pickwick i trzej przyjaciele jako oddział korespondujący będą podróżować na własny koszt i przysyłać klubowi sprawozdania ze swoich spostrzeżeń."
   },
   {
    "nr": 2,
-   "miejsce": "rozdz. 2–3",
+   "miejsce": "rozdz. 2",
    "kto": [
     "Pickwick",
+    "Tupman",
+    "Winkle",
     "Jingle"
    ],
-   "gdzie": "Rochester",
-   "opis": "W podróży poznają oszusta Alfreda Jingle'a, który wkrótce wyłudza od nich gościnność."
+   "gdzie": "Londyn i Rochester",
+   "opis": "W podróży pickwickiści poznają gadatliwego nieznajomego w zielonym fraku (później znanego jako Jingle), który bawi ich przy winie i idzie z Tupmanem na bal w potajemnie pożyczonym fraku Winkle’a."
   },
   {
    "nr": 3,
-   "miejsce": "rozdz. 4–9",
+   "miejsce": "rozdz. 4–8",
    "kto": [
     "Pickwick",
     "Wardle",
     "Jingle",
-    "Rachel Wardle"
+    "Rachela Wardle"
    ],
    "gdzie": "Dingley Dell",
-   "opis": "Pickwickiści odwiedzają ziemianina Wardle'a, a Jingle zalecał się do jego siostry Rachel."
+   "opis": "Pickwickiści goszczą u ziemianina Wardle’a w Dingley Dell, a Jingle zaleca się do jego siostry Racheli."
   },
   {
    "nr": 4,
-   "miejsce": "rozdz. 10",
+   "miejsce": "rozdz. 9–10",
    "kto": [
+    "Jingle",
+    "Rachela Wardle",
+    "Wardle",
     "Pickwick",
+    "Perker",
     "Sam Weller"
    ],
-   "gdzie": "Londyn, zajazd Biały Jeleń",
-   "opis": "Pickwick zatrudnia sprytnego Sama Wellera jako sługę."
+   "gdzie": "Londyn, oberża „Pod Białym Jeleniem”",
+   "opis": "Jingle ucieka z Rachelą do Londynu, a Wardle i Pickwick odnajdują ich w oberży, gdzie czyścibutem jest Sam Weller, i za pośrednictwem adwokata Perkera odkupują rezygnację Jingle’a przekazem pieniężnym."
   },
   {
    "nr": 5,
    "miejsce": "rozdz. 12",
    "kto": [
     "Pickwick",
-    "pani Bardell"
+    "pani Bardell",
+    "Sam Weller"
    ],
-   "gdzie": "Londyn",
-   "opis": "Pani Bardell, gospodyni Pickwicka, błędnie bierze jego słowa za oświadczyny."
+   "gdzie": "Londyn, mieszkanie Pickwicka",
+   "opis": "Pani Bardell bierze słowa Pickwicka o przyjęciu sługi za oświadczyny i mdleje mu w objęciach, a Pickwick przyjmuje Sama Wellera na służbę."
   },
   {
    "nr": 6,
@@ -61,32 +68,36 @@
    "kto": [
     "Pickwick",
     "Winkle",
-    "Tupman"
+    "Tupman",
+    "Snodgrass"
    ],
    "gdzie": "Eatanswill",
-   "opis": "Pickwickiści trafiają na hałaśliwe wybory w Eatanswill i bawią się komicznymi pomyłkami."
+   "opis": "Pickwickiści trafiają na hałaśliwe wybory w Eatanswill."
   },
   {
    "nr": 7,
-   "miejsce": "rozdz. 20–23",
+   "miejsce": "rozdz. 22–25",
    "kto": [
     "Pickwick",
+    "Sam Weller",
     "Jingle",
-    "Job Trotter"
+    "Hiob Trotter",
+    "Nupkins"
    ],
    "gdzie": "Ipswich",
-   "opis": "W Ipswich Pickwick pomyłkowo wchodzi do sypialni obcej damy; ściga Jingle'a."
+   "opis": "W Ipswich Pickwick przez pomyłkę wchodzi nocą do sypialni damy w żółtych papilotach, a potem w domu sędziego Nupkinsa demaskuje Jingle’a, podającego się za kapitana Fitz-Marshalla."
   },
   {
    "nr": 8,
-   "miejsce": "ok. rozdz. 26–32",
+   "miejsce": "rozdz. 28–30",
    "kto": [
     "Pickwick",
-    "Weller",
-    "Winkle"
+    "Wardle",
+    "Trundle",
+    "Izabela Wardle"
    ],
-   "gdzie": "różne miejscowości",
-   "opis": "Kolejne przygody w podróży: spotkania z oszustami, bale, polowania."
+   "gdzie": "Dingley Dell",
+   "opis": "Pickwickiści spędzają Boże Narodzenie w Dingley Dell, gdzie odbywa się ślub Izabeli Wardle z Trundle’em."
   },
   {
    "nr": 9,
@@ -96,40 +107,43 @@
     "pani Bardell",
     "Buzfuz"
    ],
-   "gdzie": "sąd w Guildhall",
-   "opis": "Odbywa się proces „Bardell przeciw Pickwickowi” o złamanie obietnicy małżeństwa; Pickwick przegrywa."
+   "gdzie": "sąd w Londynie",
+   "opis": "Odbywa się proces „Bardell przeciw Pickwickowi” o naruszenie obietnicy małżeństwa; adwokat Buzfuz żąda wysokiego odszkodowania, a Pickwick przegrywa."
   },
   {
    "nr": 10,
-   "miejsce": "ok. rozdz. 40–45",
+   "miejsce": "rozdz. 40–45",
    "kto": [
     "Pickwick",
-    "Weller",
-    "Jingle"
+    "Sam Weller",
+    "Jingle",
+    "Hiob Trotter"
    ],
-   "gdzie": "więzienie Fleet",
-   "opis": "Pickwick odmawia zapłaty odszkodowania i trafia do więzienia dla dłużników; tam spotyka Jingle'a i Trottera."
+   "gdzie": "więzienie Fleet (w przekładzie: więzienie Floty)",
+   "opis": "Pickwick odmawia zapłaty odszkodowania i trafia do więzienia dla dłużników, gdzie spotyka zrujnowanego Jingle’a i Trottera i wspiera ich pieniędzmi."
   },
   {
    "nr": 11,
-   "miejsce": "ok. rozdz. 46–55",
+   "miejsce": "rozdz. 46–47",
    "kto": [
     "Pickwick",
     "pani Bardell",
-    "Jingle"
+    "Perker"
    ],
-   "gdzie": "Londyn",
-   "opis": "Pickwick pomaga Jingle'owi i Trotterowi, a pani Bardell zostaje aresztowana za długi i uwolniona dzięki jego wstawiennictwu."
+   "gdzie": "Londyn, więzienie Fleet",
+   "opis": "Pani Bardell trafia do więzienia za koszty procesu, a Pickwick za namową Perkera płaci te koszty, uwalniając ją i siebie."
   },
   {
    "nr": 12,
    "miejsce": "rozdz. 57",
    "kto": [
     "Pickwick",
-    "przyjaciele"
+    "Snodgrass",
+    "Emilia Wardle",
+    "Sam Weller"
    ],
-   "gdzie": "Londyn",
-   "opis": "Powieść kończy się kilkoma ślubami, a Pickwick osiada w spokojnej willi i rozwiązuje klub."
+   "gdzie": "Londyn i Dulwich",
+   "opis": "Snodgrass poślubia Emilię Wardle, Pickwick osiada w kupionym domu w Dulwich, a klub Pickwicka zostaje rozwiązany."
   }
  ],
  "postacie": [
@@ -146,8 +160,9 @@
    "relacje": "pan Sama Wellera, ofiara pani Bardell",
    "miejsca": [
     "rozdz. 1",
-    "34",
-    "40–45"
+    "rozdz. 34",
+    "rozdz. 40–47",
+    "rozdz. 57"
    ]
   },
   {
@@ -160,46 +175,51 @@
     "Sam"
    ],
    "rola": "sprytny sługa Pickwicka, mówi potocznym językiem",
-   "relacje": "lojalny sługa i towarzysz",
+   "relacje": "poznany jako czyściciel butów w oberży „Pod Białym Jeleniem”, od rozdz. 12 lojalny sługa i towarzysz Pickwicka",
    "miejsca": [
     "rozdz. 10",
-    "34",
-    "40–45"
+    "rozdz. 12",
+    "rozdz. 40–47"
    ]
   },
   {
    "imie": "Alfred Jingle",
    "odmiany": [
     "Jingle",
-    "Jingle'a",
-    "Jingle'owi",
-    "Jingle'm"
+    "Jingle’a",
+    "Jingle’owi",
+    "Jingle’em",
+    "Jingle'a"
    ],
    "rola": "wędrowny oszust, elokwentny łgarz",
-   "relacje": "wróg Pickwicka, towarzyszy mu Job Trotter",
+   "relacje": "oszust, który zwodzi pickwickistów; w więzieniu Fleet przyjmuje pomoc Pickwicka; towarzyszy mu Hiob Trotter",
    "miejsca": [
     "rozdz. 2",
-    "20–23",
-    "40–45"
+    "rozdz. 7–10",
+    "rozdz. 22–25",
+    "rozdz. 42–47"
    ]
   },
   {
-   "imie": "Job Trotter",
+   "imie": "Hiob (Job) Trotter",
    "odmiany": [
     "Trotter",
     "Trottera",
-    "Trotterowi"
+    "Trotterowi",
+    "Hiob",
+    "Hioba"
    ],
    "rola": "sługa Jingle'a",
    "relacje": "wspólnik oszusta",
    "miejsca": [
-    "rozdz. 20–23"
+    "rozdz. 16",
+    "rozdz. 23–25",
+    "rozdz. 45"
    ]
   },
   {
    "imie": "pani Bardell",
    "odmiany": [
-    "Bardell",
     "Bardell",
     "pani Bardell"
    ],
@@ -207,7 +227,8 @@
    "relacje": "oskarża Pickwicka o złamanie obietnicy małżeństwa",
    "miejsca": [
     "rozdz. 12",
-    "34"
+    "rozdz. 34",
+    "rozdz. 46"
    ]
   },
   {
@@ -221,7 +242,8 @@
    "relacje": "przyjaciel Pickwicka",
    "miejsca": [
     "rozdz. 1",
-    "13–15"
+    "rozdz. 2",
+    "rozdz. 8"
    ]
   },
   {
@@ -235,7 +257,8 @@
    "relacje": "przyjaciel Pickwicka",
    "miejsca": [
     "rozdz. 1",
-    "13–15"
+    "rozdz. 2",
+    "rozdz. 38–39"
    ]
   },
   {
@@ -248,7 +271,8 @@
    "rola": "członek klubu, poeta amator",
    "relacje": "przyjaciel Pickwicka",
    "miejsca": [
-    "rozdz. 1"
+    "rozdz. 1",
+    "rozdz. 57"
    ]
   },
   {
@@ -261,7 +285,9 @@
    "rola": "ziemianin z Dingley Dell, gościnny gospodarz",
    "relacje": "gospodarz pickwickistów",
    "miejsca": [
-    "rozdz. 4–9"
+    "rozdz. 4–10",
+    "rozdz. 28",
+    "rozdz. 57"
    ]
   }
  ],
@@ -269,36 +295,41 @@
   {
    "motyw": "podróż i kolejne przygody",
    "przyklad": "Powieść ma budowę epizodyczną: Pickwick i przyjaciele odwiedzają kolejne miejsca i wpadają w komiczne kłopoty.",
-   "miejsce": "rozdz. 1–32"
+   "miejsce": "rozdz. 1–30"
   },
   {
    "motyw": "humor sytuacyjny",
    "przyklad": "Błędne zrozumienie słów Pickwicka przez panią Bardell prowadzi do procesu.",
-   "miejsce": "rozdz. 12; 34"
+   "miejsce": "rozdz. 12 i 34"
   },
   {
    "motyw": "krytyka sądownictwa",
-   "przyklad": "Proces Bardell przeciw Pickwickowi ukazuje, jak przesadna retoryka prawników wpływa na wynik.",
+   "przyklad": "W procesie Bardell przeciw Pickwickowi adwokat Buzfuz przedstawia niewinne zdarzenia jako dowody winy i żąda wysokiego odszkodowania.",
    "miejsce": "rozdz. 34"
   },
   {
    "motyw": "więzienie dla dłużników i niesprawiedliwość społeczna",
-   "przyklad": "W więzieniu Fleet Pickwick widzi los biedaków i oszustów, co zmienia ton powieści.",
-   "miejsce": "rozdz. 40–45"
+   "przyklad": "W więzieniu dla dłużników Pickwick widzi nędzę więźniów, w tym zrujnowanego Jingle’a, co zmienia ton powieści.",
+   "miejsce": "rozdz. 40–47"
   },
   {
    "motyw": "dobroć i naiwność bohatera",
-   "przyklad": "Pickwick, mimo wielu oszustw, pomaga nawet tym, którzy go skrzywdzili.",
-   "miejsce": "rozdz. 46–55"
+   "przyklad": "Pickwick wspiera w więzieniu Jingle’a, który wcześniej go oszukał, a później opłaca jego wyjazd z kraju.",
+   "miejsce": "rozdz. 45 i 53"
   },
   {
    "motyw": "typy społeczne Anglii XIX w.",
    "przyklad": "Eatanswill, Ipswich i Dingley Dell pokazują wiejskie życie, wybory, zajazdy.",
-   "miejsce": "rozdz. 4–23"
+   "miejsce": "rozdz. 4–25"
   }
  ],
  "utwory": [],
  "zrodla": [
+  {
+   "url": "https://pl.wikisource.org/wiki/Klub_Pickwicka/całość",
+   "rodzaj": "utwór",
+   "co": "Anonimowy przekład (Warszawa 1936), pełny tekst w 57 rozdziałach: przypisanie epizodów (Jingle, Sam Weller, pani Bardell, Ipswich, proces, więzienie, zakończenie w Dulwich) sprawdzone w tym wydaniu."
+  },
   {
    "url": "https://pl.wikipedia.org/wiki/Klub_Pickwicka",
    "rodzaj": "opracowanie",
@@ -306,9 +337,8 @@
   }
  ],
  "do_weryfikacji": [
-  "Tekst powieści nie był czytany (Project Gutenberg niedostępny w czasie pracy, polskiego tekstu nie znaleziono w Wolnych Lekturach); fabuła i numeracja rozdziałów (57 rozdziałów w oryginale) pochodzą z pamięci i NIE zostały zweryfikowane — wiele zakresów to przybliżenia („ok.”).",
-  "Opisy kilku epizodów (Eatanswill, Ipswich, Fleet) są ogólne; szczegóły scen wymagają sprawdzenia w wydaniu lub polskim przekładzie.",
-  "Nazwy w przekładach polskich różnią się (np. Pickwick, Weller, Jingle) — podano warianty.",
-  "Brak cytatów, bo nie sprawdzono dosłownego tekstu."
+  "Numeracja rozdziałów według przekładu z 1936 roku w Wikiźródłach (Wolne Lektury nie mają tej powieści); 57 rozdziałów jak w oryginale.",
+  "Nazwy w przekładach polskich różnią się (np. Hiob/Job Trotter, więzienie Floty/Fleet); podano warianty.",
+  "Brak cytatów: utwór nie ma wpisu Wolnych Lektur w katalogu, a prawa do anonimowego przekładu z 1936 roku nie zostały ustalone."
  ]
 }

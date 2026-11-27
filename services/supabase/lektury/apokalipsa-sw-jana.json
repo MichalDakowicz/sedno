@@ -9,7 +9,7 @@
         "Chrystus"
       ],
       "gdzie": "wyspa Patmos",
-      "opis": "Jan na wyspie Patmos otrzymuje widzenie Chrystusa i polecenie zapisania tego, co zobaczy."
+      "opis": "Jan na wyspie Patmos widzi postać podobną do Syna Człowieczego i otrzymuje polecenie zapisania widzenia dla siedmiu Kościołów."
     },
     {
       "nr": 2,
@@ -40,7 +40,7 @@
         "czterej jeźdźcy"
       ],
       "gdzie": "niebo i ziemia",
-      "opis": "Baranek zrywa kolejne pieczęcie, wypuszczając czterech jeźdźców (m.in. wojnę, głód, śmierć); siódma pieczęć otwiera siedem trąb."
+      "opis": "Baranek zrywa kolejne pieczęcie; pierwsze cztery przywołują jeźdźców na koniach (czwarty nazywa się Śmierć), a po otwarciu siódmej pieczęci siedmiu aniołów otrzymuje trąby."
     },
     {
       "nr": 5,
@@ -219,16 +219,19 @@
   "utwory": [],
   "zrodla": [
     {
-      "url": "https://biblia.deon.pl/",
+      "url": "https://biblia.deon.pl/rozdzial.php?id=406",
       "rodzaj": "utwór",
-      "co": "Biblia Tysiąclecia, tekst do sprawdzenia opisanych fragmentów"
+      "co": "Biblia Tysiąclecia, Ap 1 (Patmos, siedem Kościołów)."
+    },
+    {
+      "url": "https://biblia.deon.pl/rozdzial.php?id=1090",
+      "rodzaj": "utwór",
+      "co": "Biblia Tysiąclecia, Ap 2–22 (kolejne rozdziały pod id=1090–1110): listy, tron i Baranek, pieczęcie, trąby, Niewiasta i Smok, Bestia z morza, czasze, Babilon, tysiąc lat, Nowe Jeruzalem; opisy porównane z tekstem."
     }
   ],
   "do_weryfikacji": [
-    "Plik nie był sprawdzany w żadnym źródle online ani w wydaniu Biblii; powstał z ogólnej znajomości Apokalipsy św. Jana i wymaga weryfikacji (np. w Biblii Tysiąclecia).",
     "Cytatów nie podano, bo tekst współczesnych polskich wydań Biblii jest objęty prawem autorskim.",
     "Zakres „fragmentów” Apokalipsy wymaganych na maturze nie jest ustalony w katalogu; w danych ujęto najczęściej omawiane wątki.",
-    "Zakresy rozdziałów w wydarzeniach (np. Ap 8–11, Ap 16–19) podano w przybliżeniu.",
-    "Opis nie został porównany z tekstem Biblii przy zapisie; sprawdzić rozdziały i wersety."
+    "Numeracja rozdziałów i wersetów według Biblii Tysiąclecia (biblia.deon.pl); w innych przekładach może się różnić."
   ]
 }
