@@ -33,6 +33,9 @@ export type DymekPestki = {
   zetrzyj?: () => void;
 };
 
+// Model czasem sam zaczyna odczyt od „Widzę”, a dymek ma już ten podpis.
+const bezWidze = (odczyt: string) => odczyt.replace(/^\s*widz[eę]\s*[:,-]?\s*/i, "");
+
 const AWATAR = 40;
 const MARGINES = 4;
 const ODSTEP_DYMKA = 8;
@@ -235,7 +238,7 @@ export function PestkaNaTablicy({ api, faza, punkt, skok, dymek, onPytanie, onZa
       <button type="button" className={styles.dymekZamknij} aria-label="Zamknij dymek Pestki" onClick={onZamknij}>
         <X size={16} aria-hidden="true" />
       </button>
-      {dymek.odczyt && <p className="small muted">Widzę: <TekstMat tekst={wzoryDoWyswietlenia(dymek.odczyt)} /></p>}
+      {dymek.odczyt && <p className="small muted">Widzę: <TekstMat tekst={wzoryDoWyswietlenia(bezWidze(dymek.odczyt))} /></p>}
       {dymek.tekst && <p><TekstMat tekst={wzoryDoWyswietlenia(dymek.tekst)} /></p>}
       {dymek.blad && <p>{komunikatPestki(dymek.blad)}</p>}
       {dymek.uwaga && <p className="small muted">{dymek.uwaga}</p>}
@@ -328,7 +331,7 @@ export function HistoriaPestki({ id, wpisy, onZetrzyj, onBryla, onZamknij }: {
           <li key={w.id}>
             <p className="small muted">{w.prowadzenie ? "Krok po kroku" : w.pytanie ? "Ty: " + w.pytanie : "Spójrz na szkic"}</p>
             {w.blad && <p>{komunikatPestki(w.blad)}</p>}
-            {w.dane?.odczyt && <p className="small muted">Widzę: <TekstMat tekst={wzoryDoWyswietlenia(w.dane.odczyt)} /></p>}
+            {w.dane?.odczyt && <p className="small muted">Widzę: <TekstMat tekst={wzoryDoWyswietlenia(bezWidze(w.dane.odczyt))} /></p>}
             {w.dane && <p><TekstMat tekst={wzoryDoWyswietlenia(w.dane.wskazowka)} /></p>}
             {w.dane?.dopiski.map((d, i) => d.typ === "kod"
               ? <pre key={i} className={styles.pestkaKod}>{d.tekst}</pre>
