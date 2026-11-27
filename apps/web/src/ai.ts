@@ -41,7 +41,7 @@ export async function askAi(r: AiRequest): Promise<AiAnswer> {
 }
 
 /** Odpowiedź kawałkami; onText dostaje kolejne fragmenty tekstu. */
-export async function streamAi(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal): Promise<AiAnswer> {
+export async function streamAi(r: AiRequest, onText: (delta: string) => void, signal?: AbortSignal, onSearch?: () => void): Promise<AiAnswer> {
   const res = await fetch(`${functionsUrl}/ai`, { method: "POST", headers: await headers(), body: body(r, true), signal });
   if (!res.ok || !res.body) {
     const data = await res.json().catch(() => ({}));
@@ -63,6 +63,8 @@ export async function streamAi(r: AiRequest, onText: (delta: string) => void, si
       if (ev.type === "text") {
         text += ev.delta;
         onText(ev.delta);
+      } else if (ev.type === "search") {
+        onSearch?.();
       } else if (ev.type === "done") {
         return { text: typeof ev.text === "string" ? ev.text : text, provider: ev.provider, model: ev.model, pestka: odczytajOdpowiedzPestki(ev.pestka) };
       } else if (ev.type === "error") {
