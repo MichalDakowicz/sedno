@@ -4,8 +4,10 @@ import { plotno, tekstKomorki, tekstLinii } from "./tresc-pdf.js";
 const SYMBOL_MAT = /[\u{1d400}-\u{1d7ff}=+−×·√∑∫≥≤±→^]/u;
 const ZWYKLE_SLOWO = /\p{L}{4,}/u;
 
+// Polecenia LaTeX-a z ulamkiWLinii („\frac”) to nie słowa: bez tego linia z ułamkiem wypadała z wysokiego wzoru
+// (granica z symbolem Newtona w liczniku) i do kadru trafiał tylko jego kawałek.
 function liniaWzoru(l) {
-  return !ZWYKLE_SLOWO.test(l.t.tekst.replace(/\b(?:lim|cos|sin|log|tg|ctg)\b/g, ""))
+  return !ZWYKLE_SLOWO.test(l.t.tekst.replace(/\\[a-zA-Z]+/g, "").replace(/\b(?:lim|cos|sin|log|tg|ctg)\b/g, ""))
     && !/^[\s.…_–-]+$/.test(l.t.tekst);
 }
 
