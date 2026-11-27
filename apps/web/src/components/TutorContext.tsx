@@ -268,7 +268,8 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     try {
       const wynik = await streamAi(
         {
-          tier: "lekkie",
+          // Czat tłumaczy zadania i lektury: lżejszy model mylił się w rachunkach i cytatach.
+          tier: "wazne",
           task: weryfikacja ? "pestka-sprawdz-lekture" : "pestka-czat",
           pestka: opcje.pestka ?? ((!wsparcie || szkolnePytanie(ostatniaUcznia)) && !k?.sokratejski ? {
             tryb: "czat", przedmiot: k?.przedmiot ?? opcje.przedmiot,
