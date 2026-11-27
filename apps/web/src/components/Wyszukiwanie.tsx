@@ -139,6 +139,7 @@ function Okno({ zamknij }: { zamknij: () => void }) {
   // Słowa każdej pozycji liczymy raz tutaj, nie przy każdym znaku.
   const indeks = useMemo<Wynik[]>(() => {
     const moje = new Set<string>(profil?.subjects.map((s) => s.id));
+    const mojePoziomy = new Set<string>(profil?.subjects.map((s) => `${s.id}:${s.poziom}`));
     const sheety = (arkusze ?? []).map<Wynik>((a) => {
       const nazwa = przedmiot(a.przedmiot)?.nazwa ?? a.przedmiot;
       const tytul = `${nazwa} ${nazwaPoziomu[a.poziom]}, ${a.termin === "probny" ? "próbna " : ""}${a.sesja} ${a.rok}${a.czesc ? `, ${a.czesc.toLowerCase()}` : ""}`;
@@ -148,7 +149,8 @@ function Okno({ zamknij }: { zamknij: () => void }) {
         tytul,
         slowa: slowaTekstu(`${tytul} ${a.symbol} arkusz`),
         sciezka: `/arkusze/${a.id}`,
-        premia: moje.has(a.przedmiot) ? 0.5 : 0,
+        // Arkusz z poziomu konta przed innymi poziomami tego przedmiotu ("angielski 2025" to podstawowy, nie dwujęzyczny).
+        premia: mojePoziomy.has(`${a.przedmiot}:${a.poziom}`) ? 1 : moje.has(a.przedmiot) ? 0.5 : 0,
       };
     });
     // Rozmowy: tytuł i własne wiadomości ucznia, skrócone.

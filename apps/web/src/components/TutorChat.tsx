@@ -54,7 +54,7 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
   zamknijPelny?: () => void;
 }) {
   const {
-    messages, state, send, wykonajAkcje, ponow, zatrzymaj, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa,
+    messages, state, szuka, send, wykonajAkcje, ponow, zatrzymaj, cofnijPriorytet, suggestions, rozmowy, biezacaRozmowa,
     nowaRozmowa, otworzRozmowe, aiGotowe, tematRozmowy, szkicWiadomosci, ustawSzkicWiadomosci,
   } = useTutor();
   const przedmiotNotatki = usePrzedmiotRozmowy();
@@ -277,10 +277,11 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
                 </p>
               ),
             )}
-            {state === "thinking" && (
+            {(state === "thinking" || szuka) && (
               <div className={styles.tutorRow}>
                 <TutorAvatar size={28} state="thinking" />
-                <span className={styles.typing} aria-label="Pestka pisze">
+                <span className={styles.typing} aria-label={szuka ? undefined : "Pestka pisze"}>
+                  {szuka && <span className="small muted">Szukam w sieci</span>}
                   <i />
                   <i />
                   <i />

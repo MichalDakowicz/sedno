@@ -33,6 +33,8 @@ html {
   -webkit-text-size-adjust: 100%;
   /* Natywny pasek strony ukryty: rysuje go ScrollBar jako nakładkę, więc nie zabiera szerokości. */
   scrollbar-width: none;
+  /* Strona nigdy nie przewija się w bok (DESIGN.md, 375 px); poziomo przewijają się tylko paski z własnym overflow. */
+  overflow-x: clip;
 }
 
 html::-webkit-scrollbar {
@@ -246,7 +248,8 @@ textarea {
 }
 
 .btn-sm {
-  min-height: 40px;
+  /* Cel dotyku min. 44 px (DESIGN.md). */
+  min-height: 44px;
   padding: 8px 16px;
   font-size: var(--t-sm);
 }

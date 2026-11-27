@@ -220,6 +220,11 @@ async function handle(req: Request): Promise<Response> {
             send({ type: "text", delta: ev.delta });
             return;
           }
+          // Znak wyszukiwania podtrzymuje też połączenie, gdy model długo szuka i nic nie pisze.
+          if (ev.type === "search") {
+            send({ type: "search" });
+            return;
+          }
           if (ev.type !== "done") continue;
           const { usage } = ev.result;
           const { provider, model } = ev.route;

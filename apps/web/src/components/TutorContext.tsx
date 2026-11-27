@@ -46,6 +46,8 @@ type TutorValue = {
   nowaRozmowa: () => void;
   otworzRozmowe: (id: string) => void;
   state: AvatarState;
+  /** Pestka szuka w sieci i jeszcze nic z tego nie napisała. */
+  szuka: boolean;
   isOpen: boolean;
   /** Z kontekstem (albo z kontekstem strony) innym niż w bieżącej rozmowie zaczyna nową rozmowę o tym zadaniu. */
   open: (kontekst?: KontekstPestki | null) => void;
@@ -179,6 +181,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     return zapis ? zapis.wiadomosci.map((m, i) => ({ ...m, id: i })) : [{ id: 0, from: "tutor", text: greeting }];
   });
   const [state, setState] = useState<AvatarState>("idle");
+  const [szuka, setSzuka] = useState(false);
   const [isOpen, setOpen] = useState(false);
   const [szkicWiadomosci, ustawSzkicWiadomosci] = useState("");
   const [guide, setGuide] = useState<Guide | null>(null);
@@ -282,10 +285,12 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
         },
         (delta) => {
           text += delta;
+          setSzuka(false);
           if (!started) setState("talking");
           write(weryfikacja ? text : wytnijPriorytety(bezEmoji(pokazTekstCzatu(text))).widoczny);
         },
         kontroler.signal,
+        () => setSzuka(true),
       );
       text = wynik.text;
       const numery = wynik.pestka?.zrodla.flatMap((z) => z.twierdzenie?.match(/^\[(\d+)\]/)?.[1] ?? []) ?? [];
@@ -311,6 +316,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       if (!kontroler.signal.aborted) write(aiErrorText(e instanceof AiError ? e.code : "server_error"), { blad: true });
     }
     if (przerwanie.current === kontroler) przerwanie.current = null;
+    setSzuka(false);
     setState("idle");
   }, [przedmioty, krotko]);
 
@@ -485,6 +491,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       nowaRozmowa,
       otworzRozmowe,
       state,
+      szuka,
       isOpen,
       open,
       ustawKontekst,
@@ -515,7 +522,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
       summonAt,
       spi,
     }),
-    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, isOpen, open, ustawKontekst, tematRozmowy, szkicWiadomosci, send, wykonajAkcje, sprawdzOdwolanie, ponow, zatrzymaj, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
+    [spi, messages, rozmowy, biezacaRozmowa, nowaRozmowa, otworzRozmowe, state, szuka, isOpen, open, ustawKontekst, tematRozmowy, szkicWiadomosci, send, wykonajAkcje, sprawdzOdwolanie, ponow, zatrzymaj, zapytajWNowej, aiStan, cofnijPriorytet, guide, summon, showHints, startTour, next, dismiss, summonAt],
   );
 
   return <TutorContext.Provider value={value}>{children}</TutorContext.Provider>;

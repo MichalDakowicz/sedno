@@ -231,6 +231,7 @@ export async function* chatStreamAnthropic(p: Provider, req: ChatRequest, fetchI
     try {
       const stream = c.messages.stream(params, { signal });
       for await (const ev of stream) {
+        if (ev.type === "content_block_start" && ev.content_block.type === "server_tool_use") yield { type: "search" };
         if (ev.type !== "content_block_delta") continue;
         if (ev.delta.type === "text_delta" && ev.delta.text) yield { type: "text", delta: ev.delta.text };
         else if (ev.delta.type === "thinking_delta" && ev.delta.thinking) yield { type: "reasoning", delta: ev.delta.thinking };
