@@ -513,7 +513,9 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
         sprzatnij();
         setPestka((s) => (s?.faza === "pisze" || s?.faza === "mysli" ? null : s));
       },
-      async pokaz(dane) {
+      async pokaz(odpowiedz) {
+        // Prowadzenie niczego nie dopisuje na tablicy, nawet gdyby serwer to przysłał.
+        const dane = { ...odpowiedz, ksztalty: [], dopiski: [], bryla: null };
         await kolejka;
         if (!zapis.aktualny()) {
           sprzatnij();
@@ -597,17 +599,28 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
     }
   }
 
-  // Prowadzenie: Pestka myśli przy ostatniej kresce, a gdy nie ma nic do powiedzenia („czekam”), znika bez słowa.
+  // Prowadzenie: Pestka myśli przy ostatniej kresce, a gdy nie ma nic do powiedzenia („czekam”), drzemie obok pracy.
+  // Znika dopiero po wyłączeniu prowadzenia.
   useEffect(() => {
     if (prowadzenie.stan === "czyta") {
-      setPestka((p) => (!p || p.faza === "kiwa" || (p.faza === "dymek" && !p.dymek?.blad) ? { faza: "mysli", punkt: punktPrzyKresce(), skok: 0, prowadzenie: true } : p));
-    } else if (prowadzenie.stan === "czeka") {
-      setPestka((p) => (p?.faza === "mysli" && p.prowadzenie ? null : p));
+      setPestka((p) => (!p || p.faza === "spi" || p.faza === "kiwa" || (p.faza === "dymek" && !p.dymek?.blad) ? { faza: "mysli", punkt: punktPrzyKresce(), skok: 0, prowadzenie: true } : p));
     } else if (typeof prowadzenie.stan === "object") {
       bladPestki(prowadzenie.stan.blad, () => prowadzenie.wlacz());
+    } else if (prowadzenie.stan === "wylaczone") {
+      setPestka((p) => (p?.faza === "spi" ? null : p));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prowadzenie.stan]);
+
+  // Zależne też od samej Pestki: po zamknięciu dymka, pola pytania albo kiwnięcia wraca do drzemki (lub myślenia).
+  useEffect(() => {
+    if (prowadzenie.stan === "czeka" && (!pestka || (pestka.faza === "mysli" && pestka.prowadzenie))) {
+      setPestka({ faza: "spi", punkt: punktPrzyKresce(), skok: 0, prowadzenie: true });
+    } else if (prowadzenie.stan === "czyta" && !pestka) {
+      setPestka({ faza: "mysli", punkt: punktPrzyKresce(), skok: 0, prowadzenie: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prowadzenie.stan, pestka]);
 
   function przelaczProwadzenie() {
     if (prowadzi) {
@@ -926,7 +939,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             flushSync(() => api.current?.refresh());
             // Uczeń wraca do pisania: dymek Pestki znika, żeby niczego nie zasłaniać.
             const wPestce = (e.target as Element).closest(`.${styles.pestkaNaTablicy}, .${styles.dokTablicy}`);
-            if (!wPestce && pestka && pestka.faza !== "mysli" && pestka.faza !== "pisze") zamknijPestke();
+            if (!wPestce && pestka && pestka.faza !== "mysli" && pestka.faza !== "pisze" && pestka.faza !== "spi") zamknijPestke();
           }}
         >
         <Excalidraw
