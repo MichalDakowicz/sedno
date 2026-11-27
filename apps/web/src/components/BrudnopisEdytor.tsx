@@ -342,6 +342,9 @@ async function wczytajRysunek(plik: string, rysunek: Obraz): Promise<BinaryFileD
   }
 }
 
+// Tyle ciszy na tablicy po wskazówce o błędzie uznajemy za utknięcie ucznia.
+const BEZRUCHU_PO_WSKAZOWCE_MS = 40_000;
+
 export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pelny, onPelny, onZamknij, wPanelu, duzyRysunek, dodatkoweRysunki = [], pokazDodatkowe = true, opcjeZWycinka, poleceniePestki }: Props) {
   const [startowaGrubosc] = useState(zapamietanaGrubosc);
   const ciemny = useCiemny();
@@ -363,12 +366,22 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   const konto = sesja ? sesja.user.id : null;
   const prowadzenie = useProwadzeniePestki({ api, konto, plik, polecenie: poleceniePestki, czyBazowy, pokaz: pokazProwadzenie });
   const prowadzi = prowadzenie.stan === "czeka" || prowadzenie.stan === "czyta";
+  const bezruchu = useRef<number | null>(null);
+  const zapytajRef = useRef(zapytaj);
+  zapytajRef.current = zapytaj;
+  const prowadziRef = useRef(prowadzi);
+  prowadziRef.current = prowadzi;
+  const anulujBezruch = () => {
+    if (bezruchu.current !== null) window.clearTimeout(bezruchu.current);
+    bezruchu.current = null;
+  };
   const dopiszDoHistorii = (wpis: Omit<WpisHistorii, "id">) => setHistoria((h) => [...h, { ...wpis, id: (h.at(-1)?.id ?? 0) + 1 }]);
 
   useEffect(() => {
     if (!poleceniePestki) setPestka(null);
   }, [poleceniePestki]);
   useEffect(() => () => {
+    anulujBezruch();
     pisaniePestki.current?.abort();
     zapytanie.current?.abort();
     zapytanie.current = null;
@@ -514,8 +527,8 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
         setPestka((s) => (s?.faza === "pisze" || s?.faza === "mysli" ? null : s));
       },
       async pokaz(odpowiedz) {
-        // Prowadzenie niczego nie dopisuje na tablicy, nawet gdyby serwer to przysłał.
-        const dane = { ...odpowiedz, ksztalty: [], dopiski: [], bryla: null };
+        // Prowadzenie dopisuje na tablicy tylko przy pokazaniu kroku uczniowi, który utknął (serwer to rozstrzyga).
+        const dane = { ...odpowiedz, ksztalty: [], dopiski: odpowiedz.pokazKrok === true ? odpowiedz.dopiski : [], bryla: null };
         await kolejka;
         if (!zapis.aktualny()) {
           sprzatnij();
@@ -527,6 +540,15 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
         if (zywy && !gotowe) sprzatnij();
         const ok = await pokazNaTablicy(dane, zapis, false, zywy && gotowe ? { elementy: zywy.elementy, ...gotowe } : undefined);
         if (!ok) sprzatnij();
+        anulujBezruch();
+        // Cisza po samej wskazówce o błędzie to też utknięcie: po chwili Pestka sama pokaże i wyjaśni ten krok (raz na wskazówkę).
+        if (ok && dane.stanProwadzenia === "blad" && !dane.pokazKrok) {
+          bezruchu.current = window.setTimeout(() => {
+            bezruchu.current = null;
+            if (!prowadziRef.current || zapytanie.current || pisaniePestki.current) return;
+            void zapytajRef.current("Utknąłem przy tym kroku. Pokaż, jak go zrobić, i wytłumacz dlaczego.");
+          }, BEZRUCHU_PO_WSKAZOWCE_MS);
+        }
         return ok;
       },
     };
@@ -578,17 +600,17 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
         : undefined;
       const uwaga = pozaWidokiem && dopisane.length ? "Zapisałam obok, poza widokiem." : dane.pominietoElementy ? "Część zapisu ma błędny format. Poproś mnie o osobny rysunek lub dopisek." : undefined;
       if (bezDymka) setPestka(null);
-      else if (krok === "krok" && !pokaz) {
+      else if (krok === "krok" && !pokaz && !dane.pokazKrok) {
         setPestka((p) => ({ faza: "kiwa", punkt: dopisane.length ? obok : punktPrzyKresce(), skok: (p?.skok ?? 0) + 1 }));
         window.setTimeout(() => setPestka((p) => (p?.faza === "kiwa" ? null : p)), 1600);
       } else {
         setPestka((p) => ({
           faza: "dymek", punkt: obok, skok: (p?.skok ?? 0) + 1,
           dymek: {
-            tekst: krok === "krok" ? undefined : dane.wskazowka,
+            tekst: krok === "krok" && !dane.pokazKrok ? undefined : dane.wskazowka,
             odczyt: krok ? null : dane.odczyt,
             uwaga, pokaz,
-            zetrzyj: dopisane.length && !krok ? zetrzyjDopiski : undefined,
+            zetrzyj: dopisane.length && (!krok || dane.pokazKrok) ? zetrzyjDopiski : undefined,
           },
         }));
       }
@@ -624,6 +646,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
 
   function przelaczProwadzenie() {
     if (prowadzi) {
+      anulujBezruch();
       prowadzenie.zatrzymaj();
       setPestka((p) => (p?.prowadzenie ? null : p));
       return;
@@ -973,6 +996,7 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             }
             if (h === wersja.current) return;
             wersja.current = h;
+            anulujBezruch();
             if (czeka.current) window.clearTimeout(czeka.current.timer);
             czeka.current = {
               elementy: els,

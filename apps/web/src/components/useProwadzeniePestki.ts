@@ -123,7 +123,8 @@ export function useProwadzeniePestki({
       s.sprawdzone = new Map(elementy.map((e) => [e.id, e.versionNonce]));
       if (odpowiedz.stanProwadzenia === "czekam" || (odpowiedz.wskazowka === s.wskazowka && !odpowiedz.obszarBledu)) return await zywy.porzuc();
       if (await zywy.pokaz(odpowiedz)) {
-        s.wskazowka = odpowiedz.wskazowka;
+        // Serwer pokazuje krok, gdy uczeń utknął po wskazówce o błędzie; potwierdzenie albo pokazany krok tego nie liczą.
+        s.wskazowka = odpowiedz.stanProwadzenia === "blad" && !odpowiedz.pokazKrok ? odpowiedz.wskazowka : undefined;
       }
     } catch (e) {
       await zywy.porzuc();
