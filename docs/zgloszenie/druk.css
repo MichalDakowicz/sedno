@@ -1,0 +1,121 @@
+/* Dokumenty zgłoszenia (opis, instrukcja): czytelne na ekranie i drukowane do PDF na A4.
+   Kolory jak w aplikacji (packages/ui/src/tokens.css, jasny motyw); bez style.css rozdziałów, który dokłada
+   numerację sekcji, pasek boczny i tło panelu. */
+:root {
+  --bg: #fff9f6;
+  --text: #0f151d;
+  --muted: #424951;
+  --line: #ece4df;
+  --accent: #ff7448;
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@page {
+  size: A4;
+  margin: 14mm 15mm;
+}
+
+body.druk {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.druk main {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+}
+
+.druk h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.druk h1 .akcent {
+  color: var(--accent);
+}
+
+.druk .sub {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.druk h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.druk section {
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.druk p,
+.druk ul,
+.druk ol {
+  margin: 0;
+}
+
+.druk ul,
+.druk ol {
+  padding-left: 20px;
+}
+
+.druk li + li {
+  margin-top: 3px;
+}
+
+.druk b {
+  font-weight: 600;
+}
+
+.druk .dwie {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.druk .stopka {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.druk a {
+  color: inherit;
+}
+
+@media (max-width: 640px) {
+  .druk .dwie {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  body.druk {
+    background: #fff;
+    font-size: 10pt;
+  }
+
+  .druk main {
+    max-width: none;
+    padding: 0;
+  }
+
+  .druk h1 {
+    font-size: 24pt;
+  }
+
+  .druk section {
+    break-inside: avoid;
+  }
+}
