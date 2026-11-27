@@ -13,7 +13,7 @@ import { AiError } from "../ai";
 import { currentUserId, useSession } from "../auth";
 import { adresObrazu, type Obraz } from "../arkusze/typy";
 import { HistoriaPestki, PestkaNaTablicy, type DymekPestki, type FazaPestki, type WpisHistorii } from "./BrudnopisPestka";
-import { omowTablice, type OdpowiedzPestki, type Punkt } from "./brudnopisPestkaApi";
+import { bezZapisowPestki, omowTablice, type OdpowiedzPestki, type Punkt } from "./brudnopisPestkaApi";
 import {
   BLAD, dolozNaZywo, ostatniaKreska, pokazZapisPestki, przygotujZapisPestki, usunNaZywo, zapisNaZywo, zapiszDopiskiPestki, zetrzyjDopiskiPestki,
   type PozycjaZapisu,
@@ -656,6 +656,8 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
   }
 
   const wersja = useRef<number | null>(null);
+  // Wersja samej pracy ucznia: ramka i dopiski Pestki nie przerywają odliczania ciszy po wskazówce.
+  const wersjaUcznia = useRef<number | null>(null);
   const wczytana = useRef(false);
   const czeka = useRef<{ timer: number; elementy: readonly ExcalidrawElement[] } | null>(null);
   const zapisz = useRef(onZapisz);
@@ -996,7 +998,9 @@ export default function BrudnopisEdytor({ plik, rysunek, elementy, onZapisz, pel
             }
             if (h === wersja.current) return;
             wersja.current = h;
-            anulujBezruch();
+            const hUcznia = hashElementsVersion(bezZapisowPestki(els));
+            if (hUcznia !== wersjaUcznia.current) anulujBezruch();
+            wersjaUcznia.current = hUcznia;
             if (czeka.current) window.clearTimeout(czeka.current.timer);
             czeka.current = {
               elementy: els,
