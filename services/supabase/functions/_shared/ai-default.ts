@@ -17,6 +17,19 @@ export function domyslnaTrasa(tier: string, env: Env = denoEnv): DefaultRoute | 
   return { provider: SEDNO, model, reasoningEffort: env(`SEDNO_AI_EFFORT_${suffix}`) || undefined, p: { baseUrl, key, model } };
 }
 
+/** Zadania na najmocniejszym modelu: tablica matematyczna i wypracowania z polskiego. */
+export const ZADANIA_MOCNE = new Set(["nauka-omow-brudnopis", "nauka-prowadz-brudnopis", "omowienie-wypracowania-polski", "pestka-sprawdz-lekture"]);
+
+/**
+ * Trasa serwera z najmocniejszym modelem (SEDNO_AI_MODEL_MOCNE, przy Anthropic domyślnie Opus) dla zadań z ZADANIA_MOCNE.
+ * Własny klucz konta i inne zadania zostają bez zmian.
+ */
+export function mocnaTrasa<R extends { provider: string; model: string; p: Provider }>(route: R, task: string | null | undefined, env: Env = denoEnv): R {
+  if (!task || !ZADANIA_MOCNE.has(task) || route.provider !== SEDNO) return route;
+  const model = env("SEDNO_AI_MODEL_MOCNE") || (new URL(route.p.baseUrl).hostname.endsWith("anthropic.com") ? "claude-opus-5-5" : "");
+  return model ? { ...route, model, p: { ...route.p, model } } : route;
+}
+
 const dodatnia = (raw: string | undefined, domyslnie: number) => (Number(raw) >= 1 ? Math.floor(Number(raw)) : domyslnie);
 
 /** Klucz serwera nie jest darmowym modelem ogólnego użytku: sufit długości odpowiedzi, także gdy klient go nie podał. */

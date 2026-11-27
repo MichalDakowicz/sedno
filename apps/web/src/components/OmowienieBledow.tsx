@@ -215,7 +215,7 @@ export function OmowienieBledow({
     let tekst = "";
     const pisz = (t: string) => setRozmowa([...historia, { od: "tutor", tekst: t }]);
     try {
-      await streamAi({ tier: poziomAI(d), task: d.wypracowanie ? "omowienie-wypracowania" : "omowienie-bledu", messages: wiadomosci }, (delta) => {
+      await streamAi({ tier: poziomAI(d), task: d.wypracowanie ? (arkusz.przedmiot === "polski" ? "omowienie-wypracowania-polski" : "omowienie-wypracowania") : "omowienie-bledu", messages: wiadomosci }, (delta) => {
         tekst += delta;
         pisz(bezEmoji(tekst));
       });

@@ -1,6 +1,6 @@
 import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
 import { limitDzienny, logAiUsage, resolveAi, zapasowa } from "../_shared/ai-route.ts";
-import { ograniczTokeny, SEDNO } from "../_shared/ai-default.ts";
+import { mocnaTrasa, ograniczTokeny, SEDNO } from "../_shared/ai-default.ts";
 import { readJsonObject } from "../_shared/http.ts";
 import { type ImagePart, LlmError, type Message } from "../_shared/llm.ts";
 import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
@@ -77,7 +77,7 @@ function wiadomosci(instrukcja: string, dane: Obiekt, obraz?: ImagePart): Messag
 
 function zapytania(user: string, sygnal: AbortSignal): Zapytaj {
   return async (task, tier, instrukcja, dane, limit = 1600, obraz) => {
-    const route = await trasa(user, tier);
+    const route = mocnaTrasa(await trasa(user, tier), task);
     const messages = wiadomosci(instrukcja, dane, obraz);
     const base = { user_id: user, tier, task, provider: route.provider, model: route.model };
     const started = Date.now();
@@ -418,7 +418,7 @@ async function omowBrudnopis(body: Obiekt, zapytaj: Zapytaj) {
 // Błędy wejścia, limitu i braku dostawcy wracają jak dotąd zwykłym JSON-em, zanim strumień ruszy.
 async function strumienBrudnopisu(body: Obiekt, user: string, przerwanie: AbortSignal): Promise<Response> {
   const z = zadanieBrudnopisu(body, true);
-  const route = await trasa(user, "wazne");
+  const route = mocnaTrasa(await trasa(user, "wazne"), z.task);
   const cancel = new AbortController();
   const sygnal = AbortSignal.any([przerwanie, cancel.signal, AbortSignal.timeout(55_000)]);
   const base = { user_id: user, tier: "wazne", task: z.task, provider: route.provider, model: route.model };
