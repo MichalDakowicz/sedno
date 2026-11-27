@@ -74,16 +74,14 @@
   ],
   "zrodla": [
     {
-      "url": "https://biblia.deon.pl/",
+      "url": "https://biblia.deon.pl/rozdzial.php?id=570",
       "rodzaj": "utwór",
-      "co": "Biblia Tysiąclecia, tekst do sprawdzenia opisanych fragmentów"
+      "co": "Biblia Tysiąclecia, Koh 1–12 (kolejne rozdziały pod id=570–581): marność (1,2), doświadczenia Koheleta (1,12–2,26), czas na wszystko (3,1–8), wspólny los (3,19), radość życia (2,24; 9,7–10), pamięć o Stwórcy (12,1) i epilog (12,13–14); opisy porównane z tekstem."
     }
   ],
   "do_weryfikacji": [
-    "Plik nie był sprawdzany w żadnym źródle online ani w wydaniu Biblii; powstał z ogólnej znajomości Księgi Koheleta i wymaga weryfikacji (np. w Biblii Tysiąclecia).",
     "Cytatów nie podano, bo tekst współczesnych polskich wydań Biblii jest objęty prawem autorskim.",
     "Zakres „fragmentów” Księgi Koheleta wymaganych na maturze nie jest ustalony w katalogu; wybrano najczęściej omawiane fragmenty.",
-    "Numery wersetów podano według typowej numeracji; mogą różnić się o jeden werset między wydaniami.",
-    "Opis nie został porównany z tekstem Biblii przy zapisie; sprawdzić rozdziały i wersety."
+    "Numeracja rozdziałów i wersetów według Biblii Tysiąclecia (biblia.deon.pl); w innych przekładach może się różnić."
   ]
 }

@@ -39,7 +39,7 @@
   "motywy": [
     {
       "motyw": "Bóg jako pasterz",
-      "przyklad": "W Psalmie 23 psalmista porównuje Boga do pasterza, który prowadzi go na zielone pastwiska i nad wodę spokojną.",
+      "przyklad": "W Psalmie 23 psalmista porównuje Boga do pasterza, który pozwala mu leżeć na zielonych pastwiskach i prowadzi go nad wody, gdzie może odpocząć.",
       "miejsce": "Ps 23"
     },
     {
@@ -87,16 +87,23 @@
   ],
   "zrodla": [
     {
-      "url": "https://biblia.deon.pl/",
+      "url": "https://biblia.deon.pl/rozdzial.php?id=855",
       "rodzaj": "utwór",
-      "co": "Biblia Tysiąclecia, tekst do sprawdzenia opisanych fragmentów"
+      "co": "Biblia Tysiąclecia, Psalm 22 (numeracja hebrajska): skarga na opuszczenie i przejście do pochwały."
+    },
+    {
+      "url": "https://biblia.deon.pl/rozdzial.php?id=856",
+      "rodzaj": "utwór",
+      "co": "Biblia Tysiąclecia, Psalm 23: pasterz, ciemna dolina, zastawiony stół."
+    },
+    {
+      "url": "https://biblia.deon.pl/rozdzial.php?id=963",
+      "rodzaj": "utwór",
+      "co": "Biblia Tysiąclecia, Psalm 130: wołanie z głębokości, przebaczenie, oczekiwanie bardziej niż strażnicy świtu."
     }
   ],
   "do_weryfikacji": [
-    "Plik nie był sprawdzany w żadnym źródle online ani w wydaniu Biblii; powstał z ogólnej znajomości psalmów i wymaga weryfikacji (np. w Biblii Tysiąclecia).",
     "Cytatów nie podano, bo tekst współczesnych polskich wydań Biblii jest objęty prawem autorskim.",
-    "Katalog wymienia numery 22, 23 i 130 w numeracji hebrajskiej; czy matura obejmuje też inne psalmy, nie zostało ustalone.",
-    "Szczegółowe opisy motywów (m.in. porównanie do straży czekającej na świt) podano z pamięci; należy sprawdzić w tekście.",
-    "Opis nie został porównany z tekstem Biblii przy zapisie; sprawdzić rozdziały i wersety."
+    "Katalog wymienia numery 22, 23 i 130 w numeracji hebrajskiej; czy matura obejmuje też inne psalmy, nie zostało ustalone."
   ]
 }

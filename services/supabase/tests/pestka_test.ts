@@ -654,7 +654,7 @@ Deno.test("epilog Innego świata ma stronę opisującą epilog, a karta zostaje 
       zrodlo_url: "https://zpe.gov.pl/a/sprawdz-sie/Dly3K3ja7", zrodlo_rodzaj: "opracowanie",
     }],
   });
-  const zgodne = "Rozmówca chce usłyszeć, że narrator rozumie jego decyzję, ale narrator pozostaje milczący.";
+  const zgodne = "Rozmówca przychodzi, by usłyszeć od narratora słowo „rozumiem”, ale narrator nie potrafi go wypowiedzieć.";
   assertEquals(krok.materialy.find((m) => m.id === "W22")?.zrodlo?.url, epilog);
   assertEquals(krok.materialy.find((m) => m.id === "W20")?.zrodlo, undefined);
   const p = krok.procesor!;
