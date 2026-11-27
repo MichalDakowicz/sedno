@@ -168,7 +168,7 @@ async function handle(req: Request): Promise<Response> {
     }
     const czat = pestka?.tryb === "czat" ? await przygotujCzat(messages, pestka, dostep) : undefined;
     const procesor = czat?.procesor;
-    // Gotowa odpowiedź serwera, np. plan albo sprawdzenie jego punktów.
+    // Krótki komunikat serwera bez modelu, np. brak opisu postaci w materiałach.
     if (czat?.gotowa !== undefined && procesor) {
       const tekst = procesor.dodaj(`${czat.gotowa}\n`) + procesor.zakoncz();
       metadane = metadaneCzatu(tekst, procesor.zrodla(), pestka?.tryb === "czat" && pestka.maProbe === true);
