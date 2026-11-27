@@ -42,14 +42,15 @@ export function OdpowiedzPestki({ tekst, dane, zajeta, wykonaj }: {
             : <button key={akcja} type="button" className={styles.chip} disabled={zajeta} onClick={() => wykonaj(akcja)}>{AKCJE[akcja]}</button>)}
         </div>
       )}
-      {!!odpowiedz?.zrodla.length && (
+      {/* Źródła pokazuje przycisk „Pokaż źródło”; zawsze widoczna lista sprawiała, że przycisk nic nie zmieniał. */}
+      {otwarte && !!odpowiedz?.zrodla.length && (
         <ul className={styles.zrodla} id={id}>
           {odpowiedz.zrodla.map((z, i) => {
             const cele = z.miejsca?.map((m) => ({ ...z, ...m, sekcja: m.miejsce })) ?? [z];
             return (
               <li key={i}>
-                {otwarte && z.twierdzenie && <p>{z.twierdzenie}</p>}
-                {otwarte && z.dowod && <p>„{z.dowod}”</p>}
+                {z.twierdzenie && <p>{z.twierdzenie}</p>}
+                {z.dowod && <p>„{z.dowod}”</p>}
                 {cele.map((cel, j) => {
                   const opis = opisKartyZrodla(cel);
                   return (
