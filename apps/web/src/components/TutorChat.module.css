@@ -577,22 +577,3 @@
   }
 }
 
-/* Szeroki ekran z kształtem nawigacji (sterKsztaltu.ts): historia to kolumna wylana z nava przy lewej krawędzi
-   (tło rysuje warstwa kształtu), a rozmowa leży na tle strony. Kolumna siatki zostaje jako miejsce na nią. */
-:global(html[data-ksztalt="pelny"]) .chat[data-pelny] {
-  grid-template-columns: var(--ksztalt-szer-historii) minmax(0, 1fr);
-  background: transparent;
-}
-
-:global(html[data-ksztalt="pelny"]) .historiaPanel {
-  position: fixed;
-  z-index: 31;
-  top: var(--ksztalt-dol-paska);
-  left: 0;
-  bottom: 0;
-  width: var(--ksztalt-szer-historii);
-  padding-bottom: env(safe-area-inset-bottom);
-  border: 0;
-  background: transparent;
-  mask-image: linear-gradient(to bottom, #000 calc(var(--wylew) - 15%), transparent var(--wylew));
-}

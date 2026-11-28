@@ -16,7 +16,7 @@ import { nazwaFormatuNauki } from "../../nauka/api";
 import { coDzisBezRund, MINUTY_RUNDY, useDzisAngielski, usePolecenieDnia } from "../../nauka/dzis";
 import { KartaDnia } from "../../components/KartaDnia";
 import { SekcjaPowtorek } from "./Powtorki";
-import { PlanDnia } from "./PlanDnia";
+import { DzisPrzedmiotu, PlanDnia } from "./PlanDnia";
 import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
 import { BladNauki, formatRundy, WyborPoziomuNauki } from "./NaukaPowtorki";
@@ -93,14 +93,13 @@ export function Nauka() {
 
   const bezRund = coDzisBezRund[wybranyPrzedmiot];
   const akcjaBezRund = bezRund?.akcja;
-  const maArkusze = wybranyPrzedmiot !== "polski";
 
   // Wszystkie inne sposoby nauki w jednej liście wierszy, każdy z jednym zdaniem „kiedy”: bez kafli, pól i zwijania.
   const sposoby: { id: string; to: string; nazwa: string; kiedy: string; ikona: ReactNode }[] = [
     ...(aiGotowe !== false ? [{ id: "temat", to: "/tutor", nazwa: "Zapytaj Pestkę", kiedy: "Nie rozumiesz tematu i chcesz go omówić.", ikona: <MessagesSquare size={18} aria-hidden="true" /> }] : []),
-    ...(maArkusze ? [{ id: "arkusz", to: `/arkusze?przedmiot=${wybranyPrzedmiot}`, nazwa: "Rozwiąż arkusz", kiedy: "Chcesz sprawdzić się na całej maturze.", ikona: <FileText size={18} aria-hidden="true" /> }] : []),
+    ...([{ id: "arkusz", to: `/arkusze?przedmiot=${wybranyPrzedmiot}`, nazwa: "Rozwiąż arkusz", kiedy: "Chcesz sprawdzić się na całej maturze.", ikona: <FileText size={18} aria-hidden="true" /> }]),
     ...(angielski ? [{ id: "pisanie", to: `/nauka/pisanie?poziom=${poziom}`, nazwa: "Napisz wypowiedź", kiedy: "Ćwiczysz pisanie krok po kroku, z uwagami Pestki.", ikona: <PenLine size={18} aria-hidden="true" /> }] : []),
-    ...(wybranyPrzedmiot === "polski" ? [{ id: "wypracowanie", to: "/nauka/wypracowanie", nazwa: "Ćwicz wypracowanie", kiedy: "Napisz szkic i sprawdź odwołanie do lektury.", ikona: <PenLine size={18} aria-hidden="true" /> }] : []),
+    ...(wybranyPrzedmiot === "polski" ? [{ id: "wypracowanie", to: "/nauka/wypracowanie", nazwa: "Ćwicz wypracowanie", kiedy: "Temat od Pestki, plan, pisanie i ocena jak na maturze.", ikona: <PenLine size={18} aria-hidden="true" /> }] : []),
     ...(angielski && aiGotowe !== false ? [{ id: "sokratejski", to: `/nauka/sokratejski?poziom=${poziom}${umiejetnosc ? `&umiejetnosc=${umiejetnosc.skill_id}` : ""}`, nazwa: "Rozmowa z pytaniami", kiedy: "Chcesz zrozumieć, nie tylko trafić.", ikona: <CircleHelp size={18} aria-hidden="true" /> }] : []),
     ...(wybranyPrzedmiot === "matematyka" || wybranyPrzedmiot === "informatyka" ? [{ id: "zdjecie", to: "/nauka/zdjecie", nazwa: "Zdjęcie z kartki", kiedy: "Rozwiązujesz na papierze i chcesz omówienia.", ikona: <Camera size={18} aria-hidden="true" /> }] : []),
     { id: "uczen-uczy", to: "/nauka/uczen-uczy", nazwa: "Naucz Kolegę", kiedy: "Chcesz sprawdzić, czy naprawdę rozumiesz zasadę.", ikona: <GraduationCap size={18} aria-hidden="true" /> },
@@ -175,9 +174,9 @@ export function Nauka() {
         </article>
       ) : bezRund && akcjaBezRund ? (
         // Przedmioty bez rund dostają tę samą kartę co angielski i pulpit, żeby zakładki nie różniły się wyglądem.
-        <div className={s.dzis}>
-          <KartaDnia dzis={{ rodzaj: "polecenie", przedmiot: wybranyPrzedmiot, tytul: akcjaBezRund.etykieta, powod: bezRund.tekst, akcja: { do: akcjaBezRund.do, etykieta: "Zacznij" }, minuty: null, ikona: akcjaBezRund.do === "/tutor" ? "rozmowa" : "runda" }} />
-        </div>
+        // Kartę i „Potem” wybiera Pestka z planu tego przedmiotu; stała karta to zapas.
+        <DzisPrzedmiotu przedmiot={wybranyPrzedmiot} poziom={poziom} className={s.dzis}
+          zapas={{ rodzaj: "polecenie", przedmiot: wybranyPrzedmiot, tytul: akcjaBezRund.etykieta, powod: bezRund.tekst, akcja: { do: akcjaBezRund.do, etykieta: "Zacznij" }, minuty: null, ikona: akcjaBezRund.do === "/tutor" ? "rozmowa" : "runda" }} />
       ) : null}
 
       {/* Pod kartą jeden plan: angielski „Potem” (zaczęta runda, powtórki, polecenie), inne przedmioty zadania do poprawy z arkuszy. */}

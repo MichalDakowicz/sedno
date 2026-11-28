@@ -402,6 +402,20 @@
   color: var(--muted);
 }
 
+/* Panel obok tekstu (plan wypracowania): na szerokim ekranie stoi z prawej i jedzie przy przewijaniu pod paskiem. */
+
+@media (min-width: 1000px) {
+  .editor:not(.focus):has(> .obok) {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+
+  .editor:not(.focus) > .obok {
+    position: sticky;
+    top: calc(var(--s-8) + var(--s-7));
+    order: 0;
+  }
+}
+
 /* Tryb skupienia: edytor na cały ekran */
 
 .focus {

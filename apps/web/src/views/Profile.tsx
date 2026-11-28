@@ -46,7 +46,7 @@ export function Profile() {
 
       <section id="przedmioty" ref={przedmiotyRef} style={{ display: "grid", gap: "var(--s-4)", justifyItems: "start", paddingTop: "var(--s-4)", borderTop: "1px solid var(--line)" }}>
         <h2 className="h2" data-tutor-about="Pulpit, propozycje i ja dopasowujemy się do tych przedmiotów.">Przedmioty maturalne</h2>
-        {profil && <WyborPrzedmiotow value={profil.subjects} onChange={(v) => void zmien(v)} />}
+        {profil && <WyborPrzedmiotow bezKrawedzi value={profil.subjects} onChange={(v) => void zmien(v)} />}
         {blad && (
           <p className="small" role="alert">
             {blad}

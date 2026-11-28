@@ -5,7 +5,9 @@ import { functionsUrl, supabase } from "./supabase";
 import { odczytajOdpowiedzPestki, type OdpowiedzPestki } from "../../../services/supabase/functions/_shared/pestka-odpowiedz";
 
 export type Tier = "wazne" | "lekkie";
-export type AiMessage = { role: "system" | "user" | "assistant"; content: string };
+/** Część wiadomości: tekst albo obraz (data URL jpeg, png lub webp; serwer sprawdza typ i rozmiar). */
+export type AiContentPart = { type: "text"; text: string } | { type: "image_url"; image_url: { url: string } };
+export type AiMessage = { role: "system" | "user" | "assistant"; content: string | AiContentPart[] };
 export type ProsbaPestki =
   | { tryb: "czat"; przedmiot?: string; maProbe?: boolean; chronOdpowiedz?: boolean; rozmowa?: string }
   | { tryb: "lektura"; fragment: string; temat?: string };

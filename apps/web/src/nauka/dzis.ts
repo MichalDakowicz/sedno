@@ -1,7 +1,8 @@
 // Jedna propozycja dnia dla pulpitu, Nauki i Powtórek: wszystkie trzy miejsca pokazują to samo, z jednym czasem.
 // Kolejność: niedokończona runda → diagnoza zakończona dziś (najsłabsza umiejętność) → niedokończony arkusz →
 // powtórka na dziś → obszar zadeklarowany jako słaby, dopóki dane go nie potwierdzą ani nie obalą → polecenie z
-// nauka_polec → nowy arkusz. Powód mówi o celu i czasie z quizu celów, gdy uczeń je podał.
+// nauka_polec → nowy arkusz. Powód mówi o celu i czasie z quizu celów, gdy uczeń je podał. To zapas i jeden z
+// kandydatów: kartę i „Potem” wybiera Pestka z pamięci o uczniu (nauka/wyborPestki.ts).
 // Rundy są tylko z angielskiego; inne przedmioty dostają propozycję z arkuszy (konto/wyniki.ts).
 import { nazwaSesji, type ArkuszWpis, type Poziom } from "../arkusze/typy";
 import { brakArkuszy, naPoziomie, nazwaPoziomu, przedmiot, type PrzedmiotId } from "../konto/przedmioty";
@@ -11,6 +12,7 @@ import { adresPowtorek, adresRundy, adresStartu } from "./adresy";
 import { nazwaFormatuNauki, type Powtorka } from "./api";
 import { useOtwarteRundy, usePoziomNauki, useZapytanie } from "./stan";
 import { celPrzedmiotu, minutyDziennie, useUczenie } from "../konto/profilUcznia";
+import { usePlanDnia } from "./wyborPestki";
 
 const dzienWarszawa = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Warsaw" });
 import { zapytania } from "./zapytania";
@@ -48,8 +50,8 @@ export const coDzisBezRund: Partial<Record<PrzedmiotId, { tekst: string; akcja: 
     akcja: { do: "/nauka/zadania?przedmiot=informatyka", etykieta: "Zadania z informatyki" },
   },
   polski: {
-    tekst: "Arkuszy i rund z polskiego jeszcze nie ma. Możesz z Pestką omówić lekturę albo plan wypracowania.",
-    akcja: { do: "/tutor", etykieta: "Porozmawiaj z Pestką" },
+    tekst: "Prawdziwe arkusze CKE z polskiego, a wypracowanie piszesz krok po kroku z Pestką.",
+    akcja: { do: "/arkusze?przedmiot=polski", etykieta: "Arkusze z polskiego" },
   },
 };
 
@@ -118,7 +120,17 @@ export type Sposob = "szybka-runda" | "napraw-blad" | "arkusze" | "uczen-uczy" |
  * Propozycja dnia. co: propozycja z arkuszy (pulpit), angielski: czy pytać o rundy, powtórki i polecenie.
  * Bez odpowiedzi z Nauki (błąd sieci) zostaje propozycja z arkuszy.
  */
-export function useDzis({ co, angielski }: { co?: Propozycja; angielski: boolean }): { stan: "ladowanie" | "gotowe"; dzis: PropozycjaDnia | null } {
+export function useDzis(we: WejscieDnia): { stan: "ladowanie" | "gotowe"; dzis: PropozycjaDnia | null } {
+  // Wybór robi Pestka z kandydatów (nauka/wyborPestki.ts); bez niej zostaje propozycja z reguł niżej.
+  const { stan, dzis } = usePlanDnia(we);
+  return { stan, dzis };
+}
+
+/** zakres: przedmiot wybrany na pulpicie albo w Nauce; null to „Wszystkie”. */
+export type WejscieDnia = { co?: Propozycja; angielski: boolean; zakres?: PrzedmiotId | null };
+
+/** Propozycja z samych reguł: zapas, gdy Pestka nie wybrała, i jeden z kandydatów dla niej. */
+export function useDzisZRegul({ co, angielski }: { co?: Propozycja; angielski: boolean }): { stan: "ladowanie" | "gotowe"; dzis: PropozycjaDnia | null } {
   const [poziom] = usePoziomNauki();
   const rundy = useOtwarteRundy(angielski);
   const powtorki = useZapytanie(angielski ? zapytania.powtorki(poziom) : null);
@@ -239,5 +251,14 @@ export function useDzisAngielski(poziom: Poziom): { stan: "ladowanie" | "gotowe"
   const angielskie = wyniki?.podsumowania.filter((p) => p.przedmiot.id === "angielski") ?? [];
   const podsumowanie = angielskie.find((p) => p.przedmiot.poziom === poziom) ?? angielskie[0];
   const co = podsumowanie && wyniki ? propozycja(podsumowanie, wyniki.wiersze) : undefined;
-  return { ...useDzis({ co, angielski: true }), podsumowanie };
+  return { ...useDzis({ co, angielski: true, zakres: "angielski" }), podsumowanie };
+}
+
+/** Propozycja z arkuszy angielskiego na danym poziomie (ta sama co w useDzisAngielski), do „Potem” w Nauce. */
+export function useCoAngielski(poziom: Poziom): Propozycja | undefined {
+  const profil = useProfil();
+  const wyniki = useWynikiKonta(profil?.subjects ?? []);
+  const angielskie = wyniki?.podsumowania.filter((p) => p.przedmiot.id === "angielski") ?? [];
+  const podsumowanie = angielskie.find((p) => p.przedmiot.poziom === poziom) ?? angielskie[0];
+  return podsumowanie && wyniki ? propozycja(podsumowanie, wyniki.wiersze) : undefined;
 }

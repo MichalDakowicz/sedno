@@ -30,7 +30,7 @@ export function gdziePatrzy(sciezka: string, temat: string | null) {
   return MIEJSCA.find(([poczatek]) => sciezka.startsWith(poczatek))?.[1] ?? "obok ciebie";
 }
 
-// Panel rozmowy z Pestką wylewany z nava (sterKsztaltu.ts). Otwiera się kliknięciem w wędrującego avatara albo z jego dymka.
+// Panel rozmowy z Pestką wjeżdżający z prawej (sterKsztaltu.ts). Otwiera się kliknięciem w wędrującego avatara albo z jego dymka.
 // Na szerokim ekranie stoi obok strony, która dalej działa; na węższym ją przykrywa i reszta jest nieaktywna.
 export function TutorDock() {
   const { isOpen, close, messages, state, tematRozmowy } = useTutor();
@@ -89,8 +89,8 @@ export function TutorDock() {
     }
   }, [isOpen, messages, state, naPelnyEkran]);
 
-  // Fokus na zamknięciu (nie uruchamia klawiatury telefonu). Gdy panel przykrywa stronę, reszta poza kształtem
-  // nawigacji jest nieaktywna, więc fokus nie ucieka pod zasłonę.
+  // Fokus na zamknięciu (nie uruchamia klawiatury telefonu). Gdy panel przykrywa stronę, reszta poza navem
+  // jest nieaktywna, więc fokus nie ucieka pod zasłonę.
   useEffect(() => {
     const el = panel.current;
     if (!isOpen || !pokazany || !el) return;

@@ -71,8 +71,10 @@ function skladniki(punkty) {
     } else grupy.push({ cz: [c], x: c.x, xp: c.x + c.w, y: c.y });
   }
   return grupy.flatMap((g) => {
-    const { tekst, formaty } = tekstLinii(g.cz);
-    if (!/^[\d\p{L}\s().,√+−×·]+$/u.test(tekst) || !tekst || ZWYKLE_SLOWO.test(tekst) || g.xp - g.x > 65) return [];
+    const { tekst, formaty } = tekstLinii(oznaczIndeksy(g.cz));
+    // Indeksy (v_max, F_n) nie liczą się jako słowo: „vmax” nie jest zwykłym tekstem.
+    const podstawa = [...formaty].reverse().reduce((t, [od, koniec, f]) => (f === "sub" || f === "sup" ? t.slice(0, od) + t.slice(koniec) : t), tekst);
+    if (!/^[\d\p{L}\s().,√+−×·\ue000]+$/u.test(tekst) || !tekst || ZWYKLE_SLOWO.test(podstawa) || g.xp - g.x > 65) return [];
     let tex = tekst;
     for (const [od, koniec, f] of [...formaty].reverse()) {
       const indeks = tex.slice(od, koniec);
@@ -80,9 +82,26 @@ function skladniki(punkty) {
         tex = tex.slice(0, od) + (f === "sub" ? "_" : "^") + "{" + indeks + "}" + tex.slice(koniec);
       }
     }
-    tex = tex.replaceAll("−", "-").replaceAll("·", "\\cdot ").replaceAll("×", "\\times ")
+    tex = tex.replaceAll("−", "-").replaceAll("·", "\\cdot ").replaceAll("×", "\\times ").replaceAll("\ue000", "\\,")
       .replace(/√([A-Za-z0-9]+)/g, "\\sqrt{$1}");
-    return tex.includes("√") ? [] : [{ ...g, srodek: (g.x + g.xp) / 2, tex, zapis: tekstKomorki({ tekst, formaty }) }];
+    return tex.includes("√") ? [] : [{ ...g, srodek: (g.x + g.xp) / 2, tex, zapis: tekstKomorki({ tekst: tekst.replaceAll("\ue000", ""), formaty }) }];
+  });
+}
+
+// Indeks w liczniku albo mianowniku bywa tylko o kilka procent mniejszy od podstawy (F_n w fontach
+// matematycznych), więc tekstLinii go nie widzi: pomniejszamy kawałki leżące niżej lub wyżej od podstawy.
+// Przerwa między kolejnymi kawałkami indeksu (n max) to cienka spacja, w TeX-u „\,” (znacznik U+E000).
+function oznaczIndeksy(czesci) {
+  const maxH = Math.max(...czesci.map((c) => c.h || 0));
+  const podstawy = czesci.filter((c) => (c.h || 0) >= 0.97 * maxH);
+  if (!podstawy.length || podstawy.length === czesci.length) return czesci;
+  const y = podstawy.map((c) => c.y).sort((a, b) => a - b)[Math.floor(podstawy.length / 2)];
+  let poprzedni;
+  return czesci.map((c) => {
+    const indeks = (c.h || 0) < 0.97 * maxH && Math.abs(c.y - y) >= 1.5;
+    const przerwa = poprzedni?.indeks && indeks && c.x - (poprzedni.c.x + poprzedni.c.w) > 1.2;
+    poprzedni = { c, indeks };
+    return indeks ? { ...c, h: c.h * 0.7, s: (przerwa ? "\ue000" : "") + c.s } : c;
   });
 }
 

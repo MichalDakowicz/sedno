@@ -82,6 +82,8 @@ export type Uczenie = {
   dni?: number;
   /** Quiz celów: zrobiony albo pominięty (data ISO); bez tego pulpit zaprasza do quizu. */
   quiz?: { stan: "zrobiony" | "pominiety"; kiedy: string };
+  /** Notatka Pestki o uczniu z podpisem skrótu, z którego powstała (konto/pamiecUcznia.ts). */
+  pamiec?: { notatka: string; podpis: string; kiedy: string };
 };
 
 /** Obszary matury z angielskiego: te same id i nazwy w ogrodzie, w quizie celów i w kontekście Pestki. */
@@ -156,6 +158,10 @@ function poprawne(v: unknown): Uczenie {
   if (typeof o.dni === "number" && o.dni >= 1 && o.dni <= 7) w.dni = Math.round(o.dni);
   const q = o.quiz as Uczenie["quiz"] | undefined;
   if (q && (q.stan === "zrobiony" || q.stan === "pominiety") && typeof q.kiedy === "string") w.quiz = { stan: q.stan, kiedy: q.kiedy.slice(0, 40) };
+  const pm = o.pamiec as Uczenie["pamiec"] | undefined;
+  // Limit długości trzyma profil w 8 kB kolumny learning (migracja 0007).
+  if (pm && typeof pm.notatka === "string" && pm.notatka.trim() && typeof pm.podpis === "string" && typeof pm.kiedy === "string")
+    w.pamiec = { notatka: pm.notatka.slice(0, 700), podpis: pm.podpis.slice(0, 20), kiedy: pm.kiedy.slice(0, 40) };
   if (Array.isArray(o.usuniete)) {
     const u = o.usuniete
       .filter((x): x is string => typeof x === "string")

@@ -12,7 +12,7 @@ import { useUstawienia } from "../konto/ustawienia";
 import { propozycja, useWynikiKonta, type Podsumowanie } from "../konto/wyniki";
 import { WSZYSTKIE, useUklad } from "../konto/ukladPulpitu";
 import { Ladowanie } from "../components/Ladowanie";
-import { Dzis } from "./pulpit/Dzis";
+import { Dzis, wejsciePulpitu } from "./pulpit/Dzis";
 import { useDiagnoza, useTrybDiagnozy, zaproszenieDoDiagnozy } from "../nauka/diagnoza";
 import { adresDiagnozy } from "../nauka/adresy";
 import { usePoziomNauki } from "../nauka/stan";
@@ -193,7 +193,7 @@ export function Dashboard() {
       )}
 
       {/* „Potem” pod kartą i gotowością, na całą szerokość: w lewej kolumnie wydłużał ją i rozbijał równowagę z prawą. */}
-      {dane && zakres.some((z) => z.przedmiot.id === "angielski") && <PlanDnia poziom={zakres.find((z) => z.przedmiot.id === "angielski")!.przedmiot.poziom} />}
+      {dane && <PlanDnia poziom={zakres.find((z) => z.przedmiot.id === "angielski")?.przedmiot.poziom ?? poziomNauki} pulpit={wejsciePulpitu(kontekst)} />}
 
       {dane && moje.length > 0 && (obok || !co) && <GotowoscPrzedmiotow zakres={zakres} />}
 

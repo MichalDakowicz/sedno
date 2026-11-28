@@ -1,0 +1,304 @@
+/* Strona ma szerokość pisania (tekst i plan obok), a temat, plan i ocena stoją w kolumnie do czytania. */
+.waski {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-5);
+  width: 100%;
+  max-width: 780px;
+}
+
+.kroki {
+  justify-self: start;
+  max-width: 100%;
+}
+
+.nrKroku {
+  font-variant-numeric: tabular-nums;
+  color: var(--subtle);
+}
+
+.kroki [aria-pressed="true"] .nrKroku {
+  color: inherit;
+}
+
+/* Kolejny krok wchodzi kryciem z lekkim podjazdem. */
+.krok {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-5);
+  animation: krok var(--ruch-wolny) var(--ruch-krzywa);
+}
+
+.krok:focus {
+  outline: none;
+}
+
+@keyframes krok {
+  from {
+    opacity: 0;
+    transform: translateY(var(--s-3));
+  }
+}
+
+.tematKarta {
+  display: grid;
+  gap: var(--s-4);
+  min-height: 12rem;
+  align-content: start;
+}
+
+.tematKarta :global(.kicker) {
+  color: var(--primary-text);
+}
+
+.tematTresc {
+  display: grid;
+  gap: var(--s-4);
+  animation: krok var(--ruch-wolny) var(--ruch-sprezyna);
+}
+
+.tematTekst {
+  max-width: 24ch;
+  text-wrap: balance;
+}
+
+.wymogi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wymogi li {
+  padding: var(--s-1) var(--s-3);
+  border-radius: var(--r-pill);
+  background: var(--bg);
+  font-size: var(--t-sm);
+  color: var(--muted);
+}
+
+.pytanie {
+  display: grid;
+  gap: var(--s-3);
+  padding-inline-start: var(--s-3);
+  border-inline-start: 2px solid var(--primary);
+}
+
+.wybory {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+
+.pole {
+  display: grid;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.pole :global(.select) {
+  width: 100%;
+}
+
+.tematMaly {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-1) var(--s-3);
+  font-size: var(--t-md);
+}
+
+.dodaj {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Plan obok tekstu */
+
+.panel {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.panelGlowa {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.panelTytul {
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
+.panelGlowa :global(.link) {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.zwin {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  margin: calc(-1 * var(--s-2)) 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.zwin svg {
+  transition: transform var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.zwin[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+
+.tytulSzeroki {
+  display: none;
+}
+
+.panel[data-zwiniety] .zwijane {
+  display: none;
+}
+
+/* Na szerokim ekranie plan stoi obok tekstu i zawsze jest rozwinięty (tak samo w trybie skupienia). */
+@media (min-width: 1000px) {
+  .zwin {
+    display: none;
+  }
+
+  .tytulSzeroki {
+    display: inline;
+  }
+
+  .panel[data-zwiniety] .zwijane {
+    display: grid;
+  }
+}
+
+.planLista {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-sm);
+  line-height: 1.5;
+}
+
+.planLista > * {
+  display: grid;
+  gap: var(--s-1);
+  padding: var(--s-2) 0;
+}
+
+.planLista > * + * {
+  border-top: 1px solid var(--line);
+}
+
+.planLista dd,
+.planLista p {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.doPoprawy {
+  display: grid;
+  gap: var(--s-2);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
+}
+
+.doPoprawy .panelTytul {
+  color: var(--primary-text);
+}
+
+/* Ocena */
+
+.wynik {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-1) var(--s-3);
+}
+
+.punkty {
+  font-size: calc(clamp(48px, 8vw, 64px) * var(--skala-tekstu, 1));
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+.szacunek {
+  flex-basis: 100%;
+}
+
+.kryteria li {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+
+.kryteria li[data-gotowe] {
+  animation: krok var(--ruch-zwykly) var(--ruch-krzywa);
+}
+
+.kryterium {
+  display: grid;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+.punktyKryterium {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.poprawki {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.poprawki li {
+  display: grid;
+  gap: var(--s-1);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.poprawki p {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .wybory {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Na telefonie cztery kroki mieszczą się w jednym rzędzie bez numerów. */
+@media (max-width: 480px) {
+  .nrKroku {
+    display: none;
+  }
+}

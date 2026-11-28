@@ -20,6 +20,14 @@
   border-bottom: 1px solid var(--line);
 }
 
+.bezKrawedzi .row:first-child {
+  border-top: 0;
+}
+
+.bezKrawedzi .row:last-child {
+  border-bottom: 0;
+}
+
 /* Stała szerokość nazwy: poziomy we wszystkich wierszach zaczynają się w tej samej kolumnie. */
 .toggle {
   flex: 0 0 190px;

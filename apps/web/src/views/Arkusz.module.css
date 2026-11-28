@@ -829,18 +829,46 @@
   border-radius: var(--r-pill);
 }
 
+.longAnswer {
+  display: block;
+  width: 100%;
+  min-height: 7.5em;
+  field-sizing: content;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.longAnswer::placeholder {
+  color: var(--subtle);
+}
+
+.longAnswer:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
 .inlineGap input:focus,
 .blockGap input:focus {
   outline: none;
   border-color: var(--primary);
 }
 
-[data-werdykt="dobrze"] input {
+[data-werdykt="dobrze"] input,
+[data-werdykt="dobrze"] .longAnswer {
   border-color: var(--success);
 }
 
 [data-werdykt="zle"] input,
-[data-werdykt="pusto"] input {
+[data-werdykt="pusto"] input,
+[data-werdykt="zle"] .longAnswer,
+[data-werdykt="pusto"] .longAnswer {
   border-color: var(--danger);
 }
 

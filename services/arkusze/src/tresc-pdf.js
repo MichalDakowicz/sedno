@@ -33,21 +33,45 @@ function symbol(z, naPoczatku) {
   return naPoczatku ? "•" : "�";
 }
 
-/** Tekst linii z surowych kawałków i zakresy krojów: [od, do, "b" | "i" | "m" | "sup" | "sub"]. */
-export function tekstLinii(czesci) {
+const STRZALKA = String.fromCharCode(0x20d7);
+const SAMA_STRZALKA = new RegExp("^" + STRZALKA + "+$");
+const ZNAKI_ZASTEPCZE = new RegExp("^[" + String.fromCharCode(0x1200) + "-" + String.fromCharCode(0x137f) + "]+$");
+const wektorTex = (litery) => (litery.length > 1 ? `\\(\\overrightarrow{${litery}}\\)` : `\\(\\vec{${litery}}\\)`);
+
+/**
+ * Tekst linii z surowych kawałków i zakresy krojów: [od, do, "b" | "i" | "m" | "sup" | "sub"].
+ * wektory: litery ze strzałką wektora jako TeX; tylko tam, gdzie tekst przechodzi przez KaTeX.
+ */
+export function tekstLinii(czesci, { wektory = false } = {}) {
   let tekst = "";
   const formaty = [];
   let koniec = null;
   let poprzedni;
   // Linia bazowa: położenie kawałków pełnej wielkości. Drobniejszy kawałek wyżej to wykładnik (m³, 2¹⁰⁰),
   // niżej to indeks (s₁, (2011)₃).
-  const maxH = Math.max(...czesci.map((c) => c.h || 0));
+  // Wysoki znak operatora („=” większy od liter) nie może robić z reszty linii indeksów.
+  const wysokosci = czesci.filter((c) => /[\p{L}\p{N}]/u.test(c.s)).map((c) => c.h || 0);
+  const maxH = Math.max(...(wysokosci.length ? wysokosci : czesci.map((c) => c.h || 0)));
   const pelne = czesci.filter((c) => (c.h || 0) >= 0.85 * maxH && c.y !== undefined).map((c) => c.y).sort((a, b) => a - b);
   const bazowa = pelne.length ? pelne[Math.floor(pelne.length / 2)] : undefined;
   for (const c of czesci) {
     let s = c.s;
     if (c.f === "s") s = [...s].map((z, i) => symbol(z, i === 0 && !tekst)).join("");
     s = s.normalize("NFKC");
+    // Szeroka strzałka wektora z fontu matematycznego to dwa znaki zastępcze (U+12xx) i strzałka U+20D7
+    // w osobnych kawałkach (przy wektorze z dwóch liter strzałka bywa powtórzona). W TeX-u zostaje jeden
+    // \vec (dla dwóch liter, np. AB, \overrightarrow), w zwykłym tekście jedna strzałka.
+    if (ZNAKI_ZASTEPCZE.test(s)) continue;
+    if (SAMA_STRZALKA.test(s)) {
+      if (!tekst || tekst.endsWith(STRZALKA) || tekst.endsWith("\\)")) continue;
+      const przed = tekst.length;
+      const litery = wektory && tekst.match(/[A-Z]{2}$|\p{L}$/u)?.[0];
+      tekst = litery ? tekst.slice(0, -litery.length) + wektorTex(litery) : tekst + STRZALKA;
+      for (const f of formaty) if (f[1] === przed) f[1] = tekst.length;
+      continue;
+    }
+    s = s.replace(new RegExp(STRZALKA + "+", "g"), STRZALKA);
+    if (wektory) s = s.replace(new RegExp("([A-Z]{2}|\\p{L})" + STRZALKA, "gu"), (_, l) => wektorTex(l));
     if (!s) continue;
     const drobny = bazowa !== undefined && c.h && c.h < 0.8 * maxH && s.trim();
     // Indeks dolny bywa prawie na linii bazowej (podstawa systemu: 101112₃), więc drobny znak nie wyżej niż ona to indeks.
@@ -367,12 +391,14 @@ export function akapity(linie) {
     // Akapit z punktorem, literą opcji albo opisem pola ma wcięcie wiszące: kolejne linie
     // zaczynają się dalej niż pierwsza i nadal do niego należą.
     const wiszace = akt?.wiszace !== undefined && l.x >= akt.wiszace - 4;
+    // ciagDalszy: kolejny wiersz podpisu w swojej kolumnie (rozdzielKolumny), często wyśrodkowany.
     const nowy =
       !akt ||
-      poprz.y - l.y > 1.45 * ODSTEP_LINII ||
-      znacznik ||
-      poprz.prawa < 400 ||
-      (Math.abs(l.x - poprz.x) > 12 && !wiszace);
+      !l.ciagDalszy && (
+        poprz.y - l.y > 1.45 * ODSTEP_LINII ||
+        znacznik ||
+        poprz.prawa < 400 ||
+        (Math.abs(l.x - poprz.x) > 12 && !wiszace));
     if (nowy) {
       akt = { typ: "akapit", tekst: l.t.tekst, formaty: [...l.t.formaty] };
       if (znacznik) akt.wiszace = l.x + 6;
@@ -571,7 +597,8 @@ function zbudujTabele(pasy, czesci, { x0, yPdf, odpowiedzi }) {
   const rozrzut = Math.max(...szerokosci) - Math.min(...szerokosci);
   const niepelnyOstatni = odpowiedzi && wynik.length > 2 && puste < 0.25 && szerokosci.size === 2
     && new Set(wynik.slice(0, -1).map((w) => w.reduce((n, k) => n + k.zakres, 0))).size === 1;
-  if (puste > (odpowiedzi ? 0.8 : 0.6) || rozrzut > 1 && !niepelnyOstatni || Math.max(...wynik.map((w) => w.length)) < 2) return null;
+  // Jeden wiersz prawie bez tekstu to ramka znaczka albo zdjęcia, nie tabela odpowiedzi.
+  if (puste > (odpowiedzi ? 0.8 : 0.6) || odpowiedzi && wynik.length === 1 && puste > 0.5 || rozrzut > 1 && !niepelnyOstatni || Math.max(...wynik.map((w) => w.length)) < 2) return null;
 
   // Nagłówek: początkowe wiersze bez pustych komórek i bez przełączników P / F, pogrubione albo
   // opisowe nad wierszem z liczbami.

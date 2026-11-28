@@ -2,6 +2,8 @@ import { useId, useState } from "react";
 import {
   AKCJE, odczytajOdpowiedzPestki, opisKartyZrodla, zatwierdzPowierzchnie, type AkcjaPestki,
 } from "../../../../services/supabase/functions/_shared/pestka-odpowiedz";
+import { rozdzielUi } from "../../../../services/supabase/functions/_shared/pestka-ui";
+import { ElementyPestki } from "./ElementyPestki";
 import { Markdown } from "./Markdown";
 import styles from "./TutorChat.module.css";
 
@@ -14,6 +16,8 @@ export function OdpowiedzPestki({ tekst, dane, zajeta, wykonaj }: {
   const [otwarte, ustawOtwarte] = useState(false);
   const id = useId();
   const odpowiedz = odczytajOdpowiedzPestki(dane);
+  // Blok sedno-ui to elementy interaktywne; w trakcie strumienia niedokończony blok jest ukryty.
+  const { tekst: czysty, elementy } = rozdzielUi(tekst);
   const karta = odpowiedz && zatwierdzPowierzchnie(odpowiedz);
   const przyciskZrodla = (
     <button type="button" className={styles.chip} aria-expanded={otwarte} aria-controls={id} onClick={() => ustawOtwarte((o) => !o)}>
@@ -34,7 +38,8 @@ export function OdpowiedzPestki({ tekst, dane, zajeta, wykonaj }: {
             return element.component === "Button" ? <div key={element.id}>{przyciskZrodla}</div> : null;
           })}
         </section>
-      ) : <Markdown className={styles.tutorText}>{tekst}</Markdown>}
+      ) : <Markdown className={styles.tutorText}>{czysty}</Markdown>}
+      <ElementyPestki elementy={elementy} />
       {!!odpowiedz?.akcje.length && (
         <div className={styles.akcje}>
           {odpowiedz.akcje.map((akcja) => akcja === "zrodlo"
@@ -42,14 +47,15 @@ export function OdpowiedzPestki({ tekst, dane, zajeta, wykonaj }: {
             : <button key={akcja} type="button" className={styles.chip} disabled={zajeta} onClick={() => wykonaj(akcja)}>{AKCJE[akcja]}</button>)}
         </div>
       )}
-      {!!odpowiedz?.zrodla.length && (
+      {/* Źródła pokazuje przycisk „Pokaż źródło”; zawsze widoczna lista sprawiała, że przycisk nic nie zmieniał. */}
+      {otwarte && !!odpowiedz?.zrodla.length && (
         <ul className={styles.zrodla} id={id}>
           {odpowiedz.zrodla.map((z, i) => {
             const cele = z.miejsca?.map((m) => ({ ...z, ...m, sekcja: m.miejsce })) ?? [z];
             return (
               <li key={i}>
-                {otwarte && z.twierdzenie && <p>{z.twierdzenie}</p>}
-                {otwarte && z.dowod && <p>„{z.dowod}”</p>}
+                {z.twierdzenie && <p>{z.twierdzenie}</p>}
+                {z.dowod && <p>„{z.dowod}”</p>}
                 {cele.map((cel, j) => {
                   const opis = opisKartyZrodla(cel);
                   return (

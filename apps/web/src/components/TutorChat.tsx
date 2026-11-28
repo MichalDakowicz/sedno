@@ -1,5 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent } from "react";
-import { ArrowLeft, ArrowUp, MessageSquare, Plus } from "lucide-react";
+import { ArrowLeft, ArrowUp, MessageSquare, Plus, Square } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useProfil } from "../auth";
 import { PRZEDMIOTY, type PrzedmiotId } from "../konto/przedmioty";
@@ -58,6 +58,9 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
     nowaRozmowa, otworzRozmowe, aiGotowe, tematRozmowy, szkicWiadomosci, ustawSzkicWiadomosci,
   } = useTutor();
   const przedmiotNotatki = usePrzedmiotRozmowy();
+  // Przedmiot rozmowy tylko ze strony, na której uczeń jest: pierwszy przedmiot z profilu przypinał czat do niego.
+  const { pathname, search } = useLocation();
+  const przedmiotStrony = przedmiotZAdresu(pathname, search);
   const [lista, setLista] = useState(false);
   const listaId = useId();
   const poleId = useId();
@@ -101,7 +104,7 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
   function wyslij(tekst: string) {
     if (!tekst.trim() || zajeta || aiGotowe === false) return;
     rozpocznijOdpowiedz();
-    send(tekst, przedmiotNotatki ?? undefined);
+    send(tekst, przedmiotStrony);
   }
 
   function submit(e: FormEvent) {
@@ -235,7 +238,7 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
                     <OdpowiedzPestki tekst={m.text} dane={m.pestka} zajeta={zajeta}
                       wykonaj={(akcja) => {
                         rozpocznijOdpowiedz();
-                        wykonajAkcje(akcja, m.id, przedmiotNotatki ?? undefined);
+                        wykonajAkcje(akcja, m.id, przedmiotStrony);
                       }} />
                     {m.zapisane?.map((p) => (
                       <p key={p.id} className={styles.zapisano}>
@@ -336,14 +339,16 @@ export function TutorChat({ pelny = false, poWyslaniu, zamknijPelny }: {
               autoComplete="off"
             />
           )}
-          {zajeta && aiGotowe !== false && (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={zatrzymaj}>
-              Zatrzymaj odpowiedź
+          {/* W trakcie odpowiedzi przycisk wysyłania zatrzymuje ją: osobny przycisk tekstowy nie mieścił się obok pola. */}
+          {zajeta && aiGotowe !== false ? (
+            <button type="button" className="btn btn-primary" onClick={zatrzymaj} aria-label="Zatrzymaj odpowiedź" title="Zatrzymaj odpowiedź">
+              <Square size={16} fill="currentColor" aria-hidden="true" />
+            </button>
+          ) : (
+            <button type="submit" className="btn btn-primary" disabled={!szkicWiadomosci.trim() || zajeta || aiGotowe === false} aria-label="Wyślij">
+              <ArrowUp size={20} aria-hidden="true" />
             </button>
           )}
-          <button type="submit" className="btn btn-primary" disabled={!szkicWiadomosci.trim() || zajeta || aiGotowe === false} aria-label="Wyślij">
-            <ArrowUp size={20} aria-hidden="true" />
-          </button>
         </form>
       </div>
     </div>

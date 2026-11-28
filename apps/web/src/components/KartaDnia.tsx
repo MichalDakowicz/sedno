@@ -16,7 +16,7 @@ export function KartaDnia({ dzis, zPrzedmiotem = false, tytulRef, poboczna, chil
   const Ikona = IKONY[dzis.ikona];
   const akcja = dzis.akcja;
   return (
-    <article className={s.karta} aria-labelledby="dzis-tytul" data-tutor-about="To moja propozycja na dziś. Najpierw dokończenie zaczętego, potem powtórka, potem ćwiczenie z mapy umiejętności, na końcu nowy arkusz.">
+    <article className={s.karta} aria-labelledby="dzis-tytul" data-tutor="dzis" data-tutor-about="To moja propozycja na dziś. Najpierw dokończenie zaczętego, potem powtórka, potem ćwiczenie z mapy umiejętności, na końcu nowy arkusz.">
       <div className={s.glowa}>
         <span className="kicker">
           <TutorAvatar size={22} /> Dziś warto
@@ -31,7 +31,7 @@ export function KartaDnia({ dzis, zPrzedmiotem = false, tytulRef, poboczna, chil
       <h2 id="dzis-tytul" className="h1" tabIndex={tytulRef ? -1 : undefined} ref={tytulRef}>
         {dzis.tytul}
       </h2>
-      <p className={s.powod}>{dzis.powod}</p>
+      <p className={s.powod} data-tutor="dzis-powod">{dzis.powod}</p>
       <div className={s.akcje}>
         <Link to={akcja.do} className="btn btn-primary" data-tutor="today-cta">
           <Ikona size={18} aria-hidden="true" />
