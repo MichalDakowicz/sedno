@@ -1699,11 +1699,15 @@ function ZdanieZLuka({ tekst, luka, bezOpcji, formaty }: { tekst: string; luka: 
             ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
           }}
         />
-      ) : arkusz.przedmiot === "informatyka" ? (
-        // Informatyka: zwykłe pole (liczba w innym systemie, wynik), bez klawiatury matematycznej.
+      ) : arkusz.przedmiot !== "matematyka" && arkusz.przedmiot !== "fizyka" && arkusz.przedmiot !== "chemia" ? (
+        // Poza naukami z wzorami zwykłe pole, bez klawiatury matematycznej. „Uzasadnienie:” i podobne dostają duże pole.
+        arkusz.przedmiot !== "informatyka" && /(uzasadnienie|wyja[sś]nienie|opis|komentarz|interpretacja)s*:?s*$/i.test(przed.trim()) ? (
+          <textarea className={styles.longAnswer} value={czesci[czesc] ?? ""} readOnly={sprawdzone(p.nr)} autoComplete="off" onChange={(e) => zapisz(e.target.value)} placeholder="Twoja odpowiedź" aria-label={`Odpowiedź ${p.nr}, część ${czesc + 1}`} />
+        ) : (
         <span className={styles.inlineGap}>
           <input type="text" value={czesci[czesc] ?? ""} size={Math.max(12, (czesci[czesc] ?? "").length + 2)} readOnly={sprawdzone(p.nr)} autoComplete="off" spellCheck={false} onChange={(e) => zapisz(e.target.value)} aria-label={`Odpowiedź ${p.nr}, część ${czesc + 1}`} />
         </span>
+        )
       ) : ile === 1 && (p.oczekiwane?.length || p.akceptowane?.length) ? (
         // Odpowiedź porównywana z kluczem jako tekst: zwykłe pole w luce.
         <LukaTekst pytanie={p} bezNumeru />
@@ -2282,6 +2286,7 @@ function PrawdaFalszKomorka({ wybrana, poprawna, gotowe, onWybor, etykieta }: { 
           role="radio"
           aria-checked={wybrana === litera}
           className={styles.tfOption}
+          data-litera={litera}
           data-stan={stanCzesci(wybrana, poprawna, litera, gotowe)}
           disabled={gotowe}
           onClick={() => onWybor(wybrana === litera ? "" : litera)}
@@ -3225,6 +3230,28 @@ function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   );
 }
 
+// Odpowiedź słowna (wyjaśnij, opisz, uzasadnij) dostaje duże pole, wynik liczbowy albo pojedyncze słowo zostaje w wąskim.
+const CZASOWNIK_OPISU = /(wyja[sś]nij|uzasadnij|opisz|por[oó]wnaj|zinterpretuj|przedstaw|wyt[lł]umacz|scharakteryzuj|om[oó]w|sformu[lł]uj|odnie[sś] si[eę]|podaj przyczyn|podaj skutk)/i;
+// Poza naukami ścisłymi „napisz” i „określ” też oznaczają odpowiedź zdaniem.
+const CZASOWNIK_HUMANISTYCZNY = /(napisz|okre[sś]l)/i;
+const NAUKI_SCISLE = new Set<string>(["matematyka", "informatyka", "fizyka", "chemia"]);
+function wymagaOpisu(p: PytanieOtwarte, polecenie: string, przedmiot: string) {
+  if (p.kod || p.wynik) return false;
+  const tekst = `${p.tresc} ${polecenie}`.normalize("NFC");
+  if (CZASOWNIK_OPISU.test(tekst)) return true;
+  if (!NAUKI_SCISLE.has(przedmiot) && CZASOWNIK_HUMANISTYCZNY.test(tekst)) return true;
+  if (NAUKI_SCISLE.has(przedmiot) || p.punkty < 2) return false;
+  // Dwa punkty i więcej bez krótkiego klucza: odpowiedź zwykle ma być zdaniem.
+  return !p.oczekiwane?.length || p.oczekiwane.some((o) => o.trim().split(/\s+/).length > 3);
+}
+
+// Polecenie stoi zwykle w akapicie tuż nad pytaniem (a nie w jego treści), więc czytamy dwa bloki przed nim.
+function poleceniePrzed(z: Zadanie | undefined, nr: string) {
+  if (!z) return "";
+  const i = z.bloki.findIndex((b) => b.typ === "pytanie" && b.nr === nr);
+  return [...z.polecenie, ...z.bloki.slice(Math.max(0, i - 2), Math.max(0, i)).map((b) => (b.typ === "akapit" || b.typ === "naglowek" ? b.tekst : ""))].join(" ");
+}
+
 function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: PytanieOtwarte; blok?: boolean; bezNumeru?: boolean; placeholder?: string }) {
   const { arkusz, postep, ustaw, sprawdzone } = useCtx();
   const gotowe = sprawdzone(p.nr);
@@ -3260,6 +3287,20 @@ function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: Pyta
           spellCheck={false}
           onChange={(e) => ustaw(p.nr, e.target.value)}
           placeholder={p.wynik ? "wynik: wpisz albo wstaw z programu" : "odpowiedź, algorytm albo zapytanie"}
+          aria-label={`Odpowiedź ${p.nr}`}
+        />
+      </span>
+    );
+  if (blok && wymagaOpisu(p, poleceniePrzed(zadanieP, p.nr), arkusz.przedmiot))
+    return (
+      <span className={styles.blockGap} data-werdykt={w}>
+        <textarea
+          className={styles.longAnswer}
+          value={wartosc}
+          readOnly={gotowe}
+          autoComplete="off"
+          onChange={(e) => ustaw(p.nr, e.target.value)}
+          placeholder="Twoja odpowiedź"
           aria-label={`Odpowiedź ${p.nr}`}
         />
       </span>
@@ -3341,13 +3382,14 @@ function PoleKodu({ p, rodzaj, wartosc, tylkoOdczyt }: { p: PytanieOtwarte; rodz
 }
 
 function WypowiedzWidok({ pytanie: p, pisanie }: { pytanie: Wypowiedz; pisanie: Pisanie }) {
-  const { postep, ustaw, sprawdzone } = useCtx();
+  const { arkusz, postep, ustaw, sprawdzone } = useCtx();
   const klucz = (pole: string) => `${p.nr}:${pole}`;
   const temat = Number(postep.odpowiedzi[klucz("temat")]) || null;
   const odhaczone = (postep.odpowiedzi[klucz("lista")] ?? "").split(",").filter(Boolean).map(Number);
   return (
     <div className={styles.essay}>
       <Wypracowanie
+        jezyk={arkusz.przedmiot === "polski" ? "pl" : undefined}
         tekst={postep.odpowiedzi[p.nr] ?? ""}
         poczatek={p.poczatek}
         tematy={pisanie.tematy}
