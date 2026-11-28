@@ -1,25 +1,30 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FunctionsHttpError } from "@supabase/supabase-js";
-import { Check, ChevronRight, Circle, CircleHelp, Send, X } from "lucide-react";
+import { Check, ChevronRight, Circle, CircleHelp, RefreshCw, Send, X } from "lucide-react";
 import { TutorAvatar } from "../../components/TutorAvatar";
 import c from "../../components/TutorChat.module.css";
-import { AiError, aiErrorText } from "../../ai";
+import { AiError, aiErrorText, useAiReady } from "../../ai";
 import { supabase } from "../../supabase";
 import styles from "./UczenUczy.module.css";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
 import { SubjectIcon } from "../../components/icons";
 import { klasaPrzedmiotu, PasekPrzedmiotow } from "../../components/PasekPrzedmiotow";
-import { useProfil } from "../../auth";
+import { currentUserId, useProfil } from "../../auth";
+import { opisPamieci, useSkrotUcznia } from "../../konto/pamiecUcznia";
+import { opisArkuszyKonta } from "../../konto/wyniki";
 import { przedmiot, type PrzedmiotId } from "../../konto/przedmioty";
 
-type Scenariusz = { id: string; przedmiot: PrzedmiotId; jezyk: "pl" | "en"; tytul: string; polecenie: string; przyklad: string; podpowiedz: string; kryteria: string[] };
+// pelny: temat wygenerowany przez Pestkę. Runda odsyła go w całości, a serwer sprawdza go jeszcze raz.
+type Pelny = { przedmiot: PrzedmiotId; jezyk: "pl" | "en"; tytul: string; polecenie: string; przyklad: string; "reguła": string; kryteria: { blad: string; regula: string; przyklad: string } };
+type Scenariusz = { id: string; przedmiot: PrzedmiotId; jezyk: "pl" | "en"; tytul: string; polecenie: string; przyklad: string; podpowiedz: string; kryteria: string[]; pelny?: Pelny };
 type Status = "dobrze" | "do-poprawy" | "do-zrobienia" | "niepewne";
 type Ocena = { kolega: string; statusy: Record<string, Status>; zakoncz: boolean; omowienie: string | null };
 type Tura = { odpowiedz: string; ocena: Ocena };
 type Zadanie =
   | { action: "uczen-uczy-scenariusze" }
-  | { action: "uczen-uczy"; scenariusz: string; wypowiedzi: string[] };
+  | { action: "uczen-uczy-tematy-ai"; przedmiot: PrzedmiotId; poziom?: string; kontekst: string; wczesniej: string[] }
+  | { action: "uczen-uczy"; scenariusz: string | Pelny; wypowiedzi: string[] };
 
 const KRYTERIA: Record<string, string> = {
   blad: "Wskazanie błędu",
@@ -59,6 +64,78 @@ function komunikat(blad: unknown): string {
   return aiErrorText(blad.code);
 }
 
+// Tematy od Pestki leżą w pamięci przeglądarki na dany dzień i przedmiot, więc nie powstają przy każdym wejściu.
+const KLUCZ_TEMATOW = "sedno.uczenUczy.tematy";
+const dzienWarszawa = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Warsaw" });
+
+function zapamietaneTematy(user: string, klucz: string): Pelny[] | null {
+  try {
+    const v = JSON.parse(localStorage.getItem(KLUCZ_TEMATOW) ?? "null") as { kto?: string; wpisy?: Record<string, Pelny[]> } | null;
+    const t = v?.kto === user ? v.wpisy?.[klucz] : null;
+    return Array.isArray(t) && t.length ? t : null;
+  } catch { return null; }
+}
+
+function zapiszTematy(user: string, klucz: string, tematy: Pelny[]) {
+  try {
+    // Zostają tylko wpisy z dzisiaj.
+    const dzien = klucz.slice(0, 10);
+    const v = JSON.parse(localStorage.getItem(KLUCZ_TEMATOW) ?? "null") as { kto?: string; wpisy?: Record<string, Pelny[]> } | null;
+    const stare = v?.kto === user ? Object.entries(v.wpisy ?? {}).filter(([k]) => k.startsWith(dzien)) : [];
+    localStorage.setItem(KLUCZ_TEMATOW, JSON.stringify({ kto: user, wpisy: { ...Object.fromEntries(stare), [klucz]: tematy } }));
+  } catch { /* tematy działają do odświeżenia strony */ }
+}
+
+const doScenariusza = (p: Pelny, i: number): Scenariusz => ({
+  id: "ai:" + i + ":" + p.tytul, przedmiot: p.przedmiot, jezyk: p.jezyk, tytul: p.tytul, polecenie: p.polecenie, przyklad: p.przyklad,
+  podpowiedz: "", kryteria: Object.keys(p.kryteria), pelny: p,
+});
+
+// Tematy „Dla ciebie”: Pestka dobiera je do słabych stron ucznia. Bez danych, bez Pestki i przy błędzie hook zwraca pustą listę.
+function useTematyAi(przedmiotId: PrzedmiotId | undefined, poziom: string | undefined) {
+  const user = currentUserId();
+  const aiGotowe = useAiReady(user);
+  const skrot = useSkrotUcznia();
+  const [stan, ustawStan] = useState<{ klucz: string; tematy: Pelny[]; laduje: boolean }>({ klucz: "", tematy: [], laduje: false });
+  const [odswiez, ustawOdswiez] = useState(0);
+  const klucz = przedmiotId ? dzienWarszawa.format(new Date()) + ":" + przedmiotId : "";
+  const kontekst = [opisPamieci(), opisArkuszyKonta() && "Arkusze ucznia:\n" + opisArkuszyKonta()].filter(Boolean).join("\n").slice(0, 2400);
+  const jestKontekst = !!kontekst && !skrot?.pusty;
+  const gotowy = !!user && !!przedmiotId && aiGotowe === true && jestKontekst;
+
+  useEffect(() => {
+    if (!gotowy || !user || !przedmiotId) {
+      ustawStan({ klucz, tematy: [], laduje: false });
+      return;
+    }
+    const zapis = odswiez === 0 ? zapamietaneTematy(user, klucz) : null;
+    if (zapis) {
+      ustawStan({ klucz, tematy: zapis, laduje: false });
+      return;
+    }
+    const controller = new AbortController();
+    ustawStan((s) => ({ klucz, tematy: s.klucz === klucz ? s.tematy : [], laduje: true }));
+    const wczesniej = odswiez === 0 ? [] : (zapamietaneTematy(user, klucz) ?? []).map((t) => t.tytul).slice(0, 12);
+    void wywolaj<{ scenariusze: Pelny[] }>({ action: "uczen-uczy-tematy-ai", przedmiot: przedmiotId, poziom, kontekst, wczesniej }, controller.signal)
+      .then((wynik) => {
+        if (controller.signal.aborted) return;
+        if (!Array.isArray(wynik.scenariusze) || !wynik.scenariusze.length) throw new AiError("bad_model_response", 424);
+        zapiszTematy(user, klucz, wynik.scenariusze);
+        ustawStan({ klucz, tematy: wynik.scenariusze, laduje: false });
+      })
+      .catch(() => {
+        // Bez komunikatu: ekran zostaje ze stałymi tematami.
+        if (!controller.signal.aborted) ustawStan((s) => ({ klucz, tematy: s.klucz === klucz && odswiez > 0 ? s.tematy : [], laduje: false }));
+      });
+    return () => controller.abort();
+    // kontekst celowo nie odświeża tematów w ciągu dnia: liczy się wpis z pamięci albo „Nowe tematy”
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gotowy, klucz, odswiez, poziom, !!kontekst]);
+
+  const aktualne = stan.klucz === klucz ? stan : { tematy: [] as Pelny[], laduje: false };
+  return { tematy: aktualne.tematy, laduje: aktualne.laduje, odswiez: () => ustawOdswiez((n) => n + 1), dostepne: gotowy };
+}
+
 function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void }) {
   const [tury, ustawTury] = useState<Tura[]>([]);
   const [tekst, ustawTekst] = useState("");
@@ -96,7 +173,7 @@ function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void 
     try {
       const wynik = await wywolaj<Ocena>({
         action: "uczen-uczy",
-        scenariusz: scenariusz.id,
+        scenariusz: scenariusz.pelny ?? scenariusz.id,
         wypowiedzi: [...tury.map((tura) => tura.odpowiedz), odpowiedz],
       }, controller.signal);
       if (typeof wynik.kolega !== "string" || typeof wynik.zakoncz !== "boolean" ||
@@ -250,6 +327,11 @@ export function UczenUczy() {
   const dostepne = moje.length ? moje : zTematami;
   const wybrany = [params.get("przedmiot"), zapamietanyPrzedmiot(), dostepne[0]].find((id): id is PrzedmiotId => !!id && dostepne.includes(id as PrzedmiotId)) ?? dostepne[0];
   const tematy = (scenariusze ?? []).filter((s) => s.przedmiot === wybrany);
+  const poziomPrzedmiotu = profil?.subjects.find((p) => p.id === wybrany)?.poziom;
+  const ai = useTematyAi(scenariusze ? wybrany : undefined, poziomPrzedmiotu);
+  const podpowiedz = tematy[0]?.podpowiedz ?? "";
+  const dlaCiebie = ai.tematy.map((p, i) => ({ ...doScenariusza(p, i), podpowiedz }));
+  const pokazDlaCiebie = ai.laduje || dlaCiebie.length > 0;
 
   function ustawPrzedmiot(id: PrzedmiotId) {
     try { localStorage.setItem(KLUCZ_PRZEDMIOTU, id); } catch { /* wybór działa do odświeżenia */ }
@@ -293,15 +375,41 @@ export function UczenUczy() {
                   })}
                 </PasekPrzedmiotow>
               )}
-            <ul className={styles.tematy}>
-              {tematy.map((s) => (
-                <li key={s.id}>
-                  <button type="button" onClick={() => ustawScenariusz(s)}>
-                    {s.tytul}<ChevronRight size={18} aria-hidden="true" />
-                  </button>
-                </li>
-              ))}
-            </ul>
+              {pokazDlaCiebie && (
+                <div className={styles.grupa}>
+                  <div className={styles.grupaNaglowek}>
+                    <h3 className="h3">Dla ciebie</h3>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={ai.odswiez} disabled={ai.laduje}>
+                      <RefreshCw size={15} aria-hidden="true" /> Nowe tematy
+                    </button>
+                  </div>
+                  {ai.laduje && !dlaCiebie.length ? (
+                    <p role="status" className="muted small">Pestka dobiera tematy…</p>
+                  ) : (
+                    <ul className={styles.tematy} aria-busy={ai.laduje}>
+                      {dlaCiebie.map((s) => (
+                        <li key={s.id}>
+                          <button type="button" onClick={() => ustawScenariusz(s)}>
+                            {s.tytul}<ChevronRight size={18} aria-hidden="true" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+              <div className={styles.grupa}>
+                {pokazDlaCiebie && <h3 className="h3">Więcej tematów</h3>}
+                <ul className={styles.tematy}>
+                  {tematy.map((s) => (
+                    <li key={s.id}>
+                      <button type="button" onClick={() => ustawScenariusz(s)}>
+                        {s.tytul}<ChevronRight size={18} aria-hidden="true" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </>
           ) : <p className="muted">Brak dostępnych tematów.</p>}
         </section>

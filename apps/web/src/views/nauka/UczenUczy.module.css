@@ -210,3 +210,21 @@
   place-items: center;
   align-self: center;
 }
+
+/* Tematy od Pestki i stałe: dwie grupy jedna pod drugą, oddzielone odstępem i nagłówkiem, bez kart. */
+.grupa {
+  display: grid;
+  gap: var(--s-3);
+  width: 100%;
+}
+
+.grupa + .grupa {
+  margin-top: var(--s-4);
+}
+
+.grupaNaglowek {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}

@@ -16,7 +16,7 @@ import { nazwaFormatuNauki } from "../../nauka/api";
 import { coDzisBezRund, MINUTY_RUNDY, useDzisAngielski, usePolecenieDnia } from "../../nauka/dzis";
 import { KartaDnia } from "../../components/KartaDnia";
 import { SekcjaPowtorek } from "./Powtorki";
-import { DzisPrzedmiotu, PlanDnia } from "./PlanDnia";
+import { DzisPrzedmiotu, PlanDnia, useZajeteSciezki } from "./PlanDnia";
 import { usePoziomNauki, useZapytanie } from "../../nauka/stan";
 import { zapytania } from "../../nauka/zapytania";
 import { BladNauki, formatRundy, WyborPoziomuNauki } from "./NaukaPowtorki";
@@ -91,6 +91,7 @@ export function Nauka() {
     }, { replace: true });
   }
 
+  const zajete = useZajeteSciezki(wybranyPrzedmiot, poziom);
   const bezRund = coDzisBezRund[wybranyPrzedmiot];
   const akcjaBezRund = bezRund?.akcja;
 
@@ -187,7 +188,7 @@ export function Nauka() {
       <section className={s.sekcja} aria-labelledby="inne-sposoby">
         <h2 className="h2" id="inne-sposoby">Inne sposoby</h2>
         <ul className={`wiersze ${s.sposoby}`}>
-          {sposoby.map((x) => (
+          {sposoby.filter((x) => !zajete.has(x.to.split(/[?#]/)[0]!)).map((x) => (
             <li key={x.id}>
               <Link to={x.to} className="wiersz">
                 <span className={`wiersz-ikona ${s.ikona}`}>{x.ikona}</span>
