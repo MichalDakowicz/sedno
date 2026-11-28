@@ -1,6 +1,6 @@
 import { assert, assertEquals } from "jsr:@std/assert";
 import { SCENARIUSZE } from "../functions/nauka-ai/formaty.ts";
-import { LIMITY_SCENARIUSZA, MAKS_TEMATOW, odczytajScenariusz, odczytajTematy } from "../functions/nauka-ai/scenariusze.ts";
+import { LIMITY_SCENARIUSZA, MAKS_KONTEKSTU, MAKS_TEMATOW, odczytajKontekst, odczytajScenariusz, odczytajTematy } from "../functions/nauka-ai/scenariusze.ts";
 
 const dobry = {
   przedmiot: "matematyka",
@@ -93,4 +93,15 @@ Deno.test("tematy: zły element odpada pojedynczo, powtórzony tytuł też, jest
 Deno.test("tematy: nie-lista daje pustą listę", () => {
   assertEquals(odczytajTematy({ scenariusze: [dobry] }, "matematyka"), []);
   assertEquals(odczytajTematy(undefined, "polski"), []);
+});
+
+Deno.test("kontekst: brak pola to pusty tekst, a długość ma górną granicę", () => {
+  assertEquals(odczytajKontekst(undefined), "");
+  assertEquals(odczytajKontekst("  Fakty o uczniu  "), "Fakty o uczniu");
+  assertEquals(MAKS_KONTEKSTU, 4000);
+  assertEquals(odczytajKontekst("x".repeat(MAKS_KONTEKSTU))?.length, MAKS_KONTEKSTU);
+  assertEquals(odczytajKontekst("x".repeat(MAKS_KONTEKSTU + 1)), null);
+  assertEquals(odczytajKontekst(5), null);
+  assertEquals(odczytajKontekst("a\u0000b"), null);
+  assertEquals(odczytajKontekst("Linia 1\nLinia 2"), "Linia 1\nLinia 2");
 });

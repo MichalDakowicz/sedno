@@ -6,7 +6,7 @@ import { bezEmoji, pokazTekstCzatu, powtarzaTutora, priorytetDozwolony, rozmowa,
 import { dodajPriorytet, listaPelna, opisProfilu, usunPriorytet } from "../konto/profilUcznia";
 import { useUstawienia } from "../konto/ustawienia";
 import { opisArkuszyKonta } from "../konto/wyniki";
-import { opisPamieci } from "../konto/pamiecUcznia";
+import { opisPamieci, useSkrotUcznia } from "../konto/pamiecUcznia";
 import { glos } from "../pestka/glos";
 import { obrazyZadania } from "../pestka/obrazyZadania";
 import { AKCJE, type AkcjaPestki } from "../../../../services/supabase/functions/_shared/pestka-odpowiedz";
@@ -189,6 +189,8 @@ const noAi: string = glos.rozmowa.bezPolaczenia;
 /** przedmioty: opis przedmiotów konta do kontekstu rozmowy, np. „polski (podstawowy), angielski (rozszerzony)”. */
 export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { children: ReactNode; ai?: boolean | undefined; przedmioty?: string }) {
   const ai = aiStan === true;
+  // Skrót o uczniu liczy się w tle na każdej stronie z Pestką, żeby opisPamieci() miał świeże dane także na /tutor (hook ma cache, więc nie liczy dwa razy).
+  useSkrotUcznia();
   const { pestkaSama: sama, pestkaKrotko: krotko } = useUstawienia();
   const samaRef = useRef(sama);
   samaRef.current = sama;
