@@ -200,23 +200,30 @@ async function tematyAi(body: Obiekt, zapytaj: Zapytaj) {
     wczesniej.length > 12 || wczesniej.some((t) => tekst(t, 80) === null)) throw new BladApi(400, "bad_input");
   const stale = Object.values(SCENARIUSZE).filter((s) => s.przedmiot === przedmiot).map((s) => s.tytul);
   const jezyk = przedmiot === "angielski" ? "en" : "pl";
-  const wynik = await zapytaj(
+  // Model czasem odda za mało poprawnych tematów (zły JSON, przekroczone limity): jedna ponowna próba, potem błąd.
+  const pytanie = () => zapytaj(
     "nauka-uczen-uczy-tematy", "wazne",
     "Układasz tematy do ćwiczenia „Naucz Kolegę”: Kolega ma błędne rozumienie jednej zasady, a uczeń je prostuje i uzasadnia. " +
       "Zaproponuj " + MIN_TEMATOW + "–" + MAKS_TEMATOW + " różnych tematów z przedmiotu " + przedmiot + ", dobranych do słabych stron i poziomu ucznia z pola kontekst; gdy kontekst jest pusty, wybierz najczęstsze błędy maturalne. " +
       "Trzymaj się podstawy programowej matury: " + PODSTAWA_TEMATOW[przedmiot] + ". Nie powtarzaj tematów z pól stale i wczesniej. " +
       "Każdy temat to obiekt z polami: tytul (krótki, do 80 znaków), polecenie (sytuacja i zadanie Kolegi, do 300), przyklad (wypowiedź albo rozwiązanie Kolegi z konkretnym błędem, który uczeń ma znaleźć; do 500, błąd nie może być nazwany), " +
-      "reguła (poprawna zasada i poprawione rozwiązanie, do 700; uczeń zobaczy ją dopiero po rundzie), kryteria: {blad: co uczeń ma wskazać, regula: jak ma to uzasadnić, przyklad: jaki własny albo poprawiony przykład ma podać; każde do 200 znaków}. " +
+      "reguła (poprawna zasada i poprawione rozwiązanie, do 700; uczeń zobaczy ją dopiero po rundzie), kryteria: {blad: co uczeń ma wskazać, regula: jak ma to uzasadnić, przyklad: jaki własny albo poprawiony przykład ma podać; każde do 200 znaków, w trzeciej osobie o uczniu, np. „Uczeń wskazuje, że…”, „Uczeń uzasadnia…”, „Uczeń podaje…”}. " +
       (przedmiot === "angielski" ? "Polecenie i przyklad pisz po angielsku, resztę po polsku. " : "Wszystko pisz po polsku. ") +
       (przedmiot === "matematyka" || przedmiot === "informatyka" ? "Wzory zapisuj zwykłym tekstem i znakami Unicode (², √, ×), bez LaTeX-a; rachunki w przykladzie i regule muszą być poprawnie policzone. " : "") +
-      "Błąd w przykladzie ma być jeden, wyraźny i sprawdzalny. Pola przedmiot i jezyk pomiń. " +
+      "Błąd w przykladzie ma być jeden, wyraźny i sprawdzalny: cała wypowiedź Kolegi (wszystkie jego zdania i rachunki) jest spójna z jednym błędnym założeniem, a poza nim nie ma innych błędów ani wskazówek, że coś jest nie tak. Tytuł dokładnie nazywa temat przykładu i nie zdradza błędu. Sprawdź w myślach każdy rachunek i każde twierdzenie, zanim je zapiszesz. Pola przedmiot i jezyk pomiń. " +
       'Zwróć {"scenariusze": [{"tytul": "…", "polecenie": "…", "przyklad": "…", "reguła": "…", "kryteria": {"blad": "…", "regula": "…", "przyklad": "…"}}]}.',
     { przedmiot, jezyk, poziom, kontekst, stale, wczesniej },
-    3600,
+    4000,
   );
-  const scenariusze = odczytajTematy(wynik.scenariusze, przedmiot);
-  if (scenariusze.length < MIN_TEMATOW) throw new BladApi(424, "bad_model_response");
-  return { scenariusze };
+  for (let proba = 0; proba < 2; proba++) {
+    try {
+      const scenariusze = odczytajTematy((await pytanie()).scenariusze, przedmiot);
+      if (scenariusze.length >= MIN_TEMATOW) return { scenariusze };
+    } catch (e) {
+      if (!(e instanceof BladApi) || e.status !== 424) throw e;
+    }
+  }
+  throw new BladApi(424, "bad_model_response");
 }
 
 // Scenariusz to id ze stałej listy albo cały obiekt (temat wygenerowany przez Pestkę, odesłany przez klienta);

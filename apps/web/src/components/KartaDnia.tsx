@@ -1,14 +1,14 @@
 // Karta propozycji dnia (nauka/dzis.ts): ta sama na pulpicie, w Nauce i w Powtórkach.
 import type { ReactNode, Ref } from "react";
 import { Link } from "react-router-dom";
-import { FileText, MessagesSquare, Timer } from "lucide-react";
+import { FileText, GraduationCap, MessagesSquare, Timer } from "lucide-react";
 import { przedmiot } from "../konto/przedmioty";
 import type { PropozycjaDnia } from "../nauka/dzis";
 import { SubjectIcon } from "./icons";
 import { TutorAvatar } from "./TutorAvatar";
 import s from "./KartaDnia.module.css";
 
-const IKONY = { runda: Timer, arkusz: FileText, rozmowa: MessagesSquare };
+const IKONY = { runda: Timer, arkusz: FileText, rozmowa: MessagesSquare, czapka: GraduationCap };
 
 /** poboczna: przycisk obok głównego (np. „Wybierz inną umiejętność”); children: treść pod przyciskami w tej samej karcie. */
 export function KartaDnia({ dzis, zPrzedmiotem = false, tytulRef, poboczna, children }: { dzis: PropozycjaDnia; zPrzedmiotem?: boolean; tytulRef?: Ref<HTMLHeadingElement>; poboczna?: ReactNode; children?: ReactNode }) {

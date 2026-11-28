@@ -29,7 +29,7 @@ export type PropozycjaDnia = {
   akcja: { do: string; etykieta: string };
   /** Szacowany czas w minutach (null: nie wiadomo, np. rozmowa z Pestką). */
   minuty: number | null;
-  ikona: "runda" | "arkusz" | "rozmowa";
+  ikona: "runda" | "arkusz" | "rozmowa" | "czapka";
   /** Umiejętność z mapy, której dotyczy propozycja (znacznik „tu dziś” w ogrodzie). */
   skill_id?: string;
   /** Powtórka, którą pokazuje karta: Powtórki nie powtarzają jej na liście. */
