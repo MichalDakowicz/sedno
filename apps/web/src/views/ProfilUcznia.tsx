@@ -2,7 +2,9 @@
 // zmienia się od razu, a wybrana ponownie znika. Dane na koncie: konto/profilUcznia.ts.
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { useProfil } from "../auth";
+import { currentUserId, useProfil } from "../auth";
+import { useAiReady } from "../ai";
+import { napiszNotatke, useSkrotUcznia, useStanNotatki } from "../konto/pamiecUcznia";
 import { MAX_DLUGOSC, MAX_PRIORYTETOW, PYTANIA, dodajPriorytet, przytnijUsuniete, useBladProfilu, useProfilOdczytany, usunPriorytet, usunWniosek, ustawOdpowiedz, useUczenie, useWnioski, type Opcja } from "../konto/profilUcznia";
 import { zgrupuj } from "../konto/przedmioty";
 import { useWynikiKonta } from "../konto/wyniki";
@@ -81,6 +83,45 @@ function LiczbyUcznia({ wyniki }: { wyniki: NonNullable<ReturnType<typeof useWyn
   );
 }
 
+const kiedyZapisano = (iso: string) => {
+  const d = new Date(iso);
+  const godzina = d.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" });
+  return d.toDateString() === new Date().toDateString() ? `dziś, ${godzina}` : `${kiedy(iso)}, ${godzina}`;
+};
+
+/** Notatka Pestki z pamięci o uczniu (konto/pamiecUcznia.ts): pokazujemy zapisaną od razu, nową Pestka pisze w tle. */
+function PestkaOTobie() {
+  const u = useUczenie();
+  const skrot = useSkrotUcznia();
+  const { trwa, blad } = useStanNotatki();
+  const gotowa = useAiReady(currentUserId());
+  const notatka = u.pamiec;
+  if (gotowa === false && !notatka) return null;
+  const pusty = skrot?.pusty ?? false;
+  return (
+    <section className={s.sekcja} aria-labelledby="pu-pestka" aria-busy={trwa || undefined}>
+      <div className={s.naglowek}>
+        <h2 id="pu-pestka" className="h2" data-tutor-about="Piszę ją z twoich wyników, czasu przy zadaniach, powtórek i regularności. Korzystam z niej w rozmowach i przy propozycji dnia.">
+          Pestka o tobie
+        </h2>
+        {skrot && !pusty && gotowa && (
+          <button type="button" className={`link ${s.usun}`} onClick={() => void napiszNotatke(skrot, true)} disabled={trwa}>
+            Odśwież
+          </button>
+        )}
+      </div>
+      {notatka ? (
+        <p className={s.notatka}>{notatka.notatka}</p>
+      ) : (
+        <p className="muted">{pusty ? "Napiszę tu, co zauważę, gdy zrobisz pierwszą rundę albo arkusz." : "Zbieram, co o tobie wiem…"}</p>
+      )}
+      <p className="muted small" aria-live="polite">
+        {trwa ? "Piszę od nowa…" : blad ? "Nie udało się napisać notatki. Spróbuj za chwilę." : notatka ? `Zapisane ${kiedyZapisano(notatka.kiedy)}` : ""}
+      </p>
+    </section>
+  );
+}
+
 export function ProfilUcznia() {
   const profil = useProfil();
   const u = useUczenie();
@@ -115,6 +156,8 @@ export function ProfilUcznia() {
   return (
     <main className={`container ${s.strona}`}>
       <NaglowekStrony wstecz={{ do: "/profil", nazwa: "Profil" }} tytul="Profil ucznia" />
+
+      <PestkaOTobie />
 
       <section className={s.sekcja} aria-labelledby="pu-jak">
         <h2 id="pu-jak" className="h2">

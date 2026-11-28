@@ -62,7 +62,7 @@ export function opisArkuszyKonta(): string {
     .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
     .slice(0, 8)
     .map((w) => {
-      const nazwa = w.sheet_id.replace(/-/g, " ");
+      const nazwa = `${w.sheet_id.replace(/-/g, " ")} (id: ${w.sheet_id}, ${w.updated_at.slice(0, 10)})`;
       const wynik = w.data.wynik;
       if (wynik && wynik.mozliwe > 0) return `- ${nazwa}: sprawdzony, ${wynik.zdobyte}/${wynik.mozliwe} pkt (${Math.round((wynik.zdobyte / wynik.mozliwe) * 100)}%)`;
       return `- ${nazwa}: zaczęty, ${Object.keys(w.data.odpowiedzi ?? {}).length} odpowiedzi, jeszcze niesprawdzony`;
