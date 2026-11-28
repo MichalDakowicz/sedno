@@ -14,8 +14,8 @@ export type Scenariusz = {
   kryteria: { blad: string; regula: string; przyklad: string };
 };
 
-/** Górne granice długości pól (znaki); dolna to jeden znak po przycięciu. */
-export const LIMITY_SCENARIUSZA = { tytul: 80, polecenie: 300, przyklad: 500, reguła: 700, kryterium: 200 } as const;
+/** Górne granice długości pól (znaki); dolna to jeden znak po przycięciu. Prompt prosi o krótsze pola (80/300/500/700/200), a walidator zostawia zapas, żeby drobne przekroczenie nie odrzucało całego tematu. */
+export const LIMITY_SCENARIUSZA = { tytul: 100, polecenie: 400, przyklad: 700, reguła: 900, kryterium: 280 } as const;
 export const MAKS_TEMATOW = 4;
 export const MIN_TEMATOW = 2;
 
@@ -67,7 +67,9 @@ export function odczytajTematy(raw: unknown, przedmiot: PrzedmiotRundy): Scenari
   for (const x of raw) {
     // Model dostał przedmiot z żądania, więc przedmiot i język ustalamy sami, a obce pola (np. id) pomijamy.
     const o = obiekt(x);
+    // Modele często zapisują klucz bez polskiego znaku („regula”).
     const s = o && odczytajScenariusz({
+      ...(o["reguła"] === undefined && o.regula !== undefined ? { "reguła": o.regula } : {}),
       ...Object.fromEntries(Object.entries(o).filter(([k]) => POLA.has(k))),
       przedmiot, jezyk: przedmiot === "angielski" ? "en" : "pl",
     }, przedmiot);

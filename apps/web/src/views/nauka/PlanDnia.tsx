@@ -3,7 +3,7 @@
 // „co mam teraz robić” była jedna odpowiedź, a nie cztery listy z tymi samymi umiejętnościami.
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, FileText, MessagesSquare, RotateCcw, Sparkles, Timer } from "lucide-react";
+import { ChevronRight, FileText, GraduationCap, MessagesSquare, RotateCcw, Sparkles, Timer } from "lucide-react";
 import type { Poziom } from "../../arkusze/typy";
 import { adresRundy, adresStartu } from "../../nauka/adresy";
 import { MINUTY_RUNDY, useCoAngielski, usePolecenieDnia, type PropozycjaDnia, type WejscieDnia } from "../../nauka/dzis";
@@ -18,7 +18,7 @@ import s from "./PlanDnia.module.css";
 
 type Krok = { id: string; nazwa: string; opis: string; ikona: ReactNode } & ({ do: string } | { onClick: () => void });
 
-const IKONY = { runda: Timer, arkusz: FileText, rozmowa: MessagesSquare };
+const IKONY = { runda: Timer, arkusz: FileText, rozmowa: MessagesSquare, czapka: GraduationCap };
 
 /**
  * pulpit: te same dane co karta „Dziś warto” na pulpicie albo w Nauce przy innym przedmiocie (wtedy plan jest wspólny);
@@ -97,6 +97,22 @@ export function PlanDnia({ poziom, maly = false, pulpit }: { poziom: Poziom; mal
  * Nauka przy przedmiocie bez rund: karta dnia i „Potem” z planu Pestki dla tego przedmiotu, jak na pulpicie przedmiotu.
  * zapas: karta z coDzisBezRund, gdy planu nie ma (np. bez Pestki i bez arkuszy).
  */
+/**
+ * Ścieżki (bez query i hasha), które plan dnia już pokazuje: karta „Dziś warto” i „Potem”. „Inne sposoby” ich nie powtarzają.
+ * Porównanie po ścieżce, więc „Dokończ arkusz” (/arkusze/…) nie ukrywa „Rozwiąż arkusz” (/arkusze).
+ */
+export function useZajeteSciezki(przedmiot: PrzedmiotId, poziom: Poziom): Set<string> {
+  const profil = useProfil();
+  const wyniki = useWynikiKonta(profil?.subjects ?? []);
+  const coAngielski = useCoAngielski(poziom);
+  const propozycje = wyniki ? wyniki.podsumowania.filter((p) => p.przedmiot.id === przedmiot).map((p) => propozycja(p, wyniki.wiersze)) : [];
+  const co = propozycje.find((x) => x.rodzaj === "dokoncz") ?? propozycje.find((x) => x.rodzaj === "nowy") ?? propozycje[0];
+  const we: WejscieDnia = przedmiot === "angielski" ? { co: coAngielski, angielski: true, zakres: "angielski" } : { co, angielski: false, zakres: przedmiot };
+  const plan = usePlanDnia(we);
+  const adresy = [plan.dzis?.akcja.do, ...(plan.potem ?? []).map((k) => k.do)];
+  return new Set(adresy.flatMap((a) => (a ? [a.split(/[?#]/)[0]!] : [])));
+}
+
 export function DzisPrzedmiotu({ przedmiot, poziom, zapas, className }: { przedmiot: PrzedmiotId; poziom: Poziom; zapas: PropozycjaDnia; className?: string }) {
   const profil = useProfil();
   const wyniki = useWynikiKonta(profil?.subjects ?? []);

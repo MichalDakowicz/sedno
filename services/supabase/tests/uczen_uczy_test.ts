@@ -76,6 +76,13 @@ Deno.test("tematy: model dostaje przedmiot i język z żądania, obce pola odpad
   assertEquals(t[0]?.jezyk, "pl");
 });
 
+Deno.test("tematy: klucz reguły bez polskiego znaku też przechodzi", () => {
+  const { "reguła": r, ...reszta } = dobry;
+  const t = odczytajTematy([{ ...reszta, regula: r }], "matematyka");
+  assertEquals(t.length, 1);
+  assertEquals(t[0]?.["reguła"], r);
+});
+
 Deno.test("tematy: zły element odpada pojedynczo, powtórzony tytuł też, jest limit", () => {
   const inny = (i: number) => ({ ...dobry, tytul: `Temat ${i}` });
   const t = odczytajTematy([dobry, { ...dobry, kryteria: {} }, { ...dobry, tytul: dobry.tytul.toUpperCase() }, 7, null, inny(1), inny(2), inny(3), inny(4)], "matematyka");

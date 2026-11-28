@@ -168,7 +168,7 @@ function useKandydaci(regula: PropozycjaDnia | null, angielski: boolean, zakres:
       id: "uczen-uczy",
       nazwa: "Naucz Kolegę",
       fakty: "uczeń tłumaczy temat, a Pestka sprawdza zrozumienie; dobre po kilku poprawnych rundach albo przy wolnym tempie",
-      karta: { rodzaj: "polecenie", przedmiot: doNauczenia, tytul: "Naucz Kolegę", powod: "Na dziś wybrałam Naucz Kolegę.", akcja: { do: `/nauka/uczen-uczy?przedmiot=${doNauczenia}`, etykieta: "Naucz Kolegę" }, minuty: 10, ikona: "rozmowa" },
+      karta: { rodzaj: "polecenie", przedmiot: doNauczenia, tytul: "Naucz Kolegę", powod: "Na dziś wybrałam Naucz Kolegę.", akcja: { do: `/nauka/uczen-uczy?przedmiot=${doNauczenia}`, etykieta: "Naucz Kolegę" }, minuty: 10, ikona: "czapka" },
     });
 
   // Ten sam adres to ten sam krok: zostaje pierwszy. Propozycja z reguł przejmuje id kandydata o tym samym adresie.
