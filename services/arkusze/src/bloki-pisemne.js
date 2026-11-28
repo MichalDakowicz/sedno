@@ -1,6 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { zapiszWycinek } from "./matematyka.js";
 import { akapity, plotno, rodzaj, tabeleZSiatki, tekstLinii } from "./tresc-pdf.js";
+import { segmenty } from "./tekst.js";
 import { ulamkiWLinii, wzoryWielowierszowe } from "./wzory-pdf.js";
 
 const X0 = 48;
@@ -41,7 +42,7 @@ export async function trescZFragmentow(pdf, fragmenty, { katalog, prefiks }, { p
         !tabele.some((t) => k.y + (k.h || 10) * 0.3 < t.gora && k.y + (k.h || 10) * 0.3 > t.dol)) }))
         .filter((l) => l.czesci.length);
       const ulozone = PRZEDMIOTY_Z_WZORAMI.has(przedmiot) ? ulamkiWLinii(s, pozaTabelami) : pozaTabelami;
-      const linie = ulozone.map((l) => ({ ...l, x: l.czesci[0].x, t: tekstLinii(l.czesci) }));
+      const linie = ulozone.map((l) => ({ ...l, x: l.czesci[0].x, t: tekstLinii(l.czesci, { wektory: true }) }));
       for (const [nr, t] of tabele.entries()) {
         const obrazy = [];
         for (const { r, c: kol, ramka } of t.obrazy) {
@@ -118,7 +119,7 @@ function dodajAkapity(linie, dodaj, informatyka) {
     dodaj({ typ: "kod", tekst: kod.splice(0).map((l) => " ".repeat(Math.max(0, Math.round((l.x - lewa) / 7))) + l.t.tekst).join("\n") });
   };
   const zamknij = () => akapity(bufor.splice(0)).forEach(dodaj);
-  for (const l of linie) {
+  for (const l of rozdzielKolumny(linie)) {
     if (informatyka && rodzaj(l, l.x) === "kod") {
       zamknij();
       kod.push(l);
@@ -133,6 +134,43 @@ function dodajAkapity(linie, dodaj, informatyka) {
   }
   zamknijKod();
   zamknij();
+}
+
+// Podpisy pod figurami obok siebie (po jednym na kolumnę) mają wspólne wiersze, a dłuższy podpis zawija się
+// w swojej kolumnie (często wyśrodkowany). Gdy pod wierszem o kilku segmentach leży tylko ciąg dalszy jednej
+// z kolumn, składamy kolumny jedna po drugiej, żeby podpisy nie przeplatały się.
+function rozdzielKolumny(linie) {
+  const wynik = [];
+  for (let i = 0; i < linie.length; i++) {
+    const l = linie[i];
+    if (l.seg.length < 2 || l.seg.some((g) => g.s.length < 12)) {
+      wynik.push(l);
+      continue;
+    }
+    const kolumny = l.seg.map((g) => ({ x: g.x, wiersze: [] }));
+    kolumny.forEach((k, n) => {
+      const nastepna = kolumny[n + 1]?.x ?? Infinity;
+      const czesci = l.czesci.filter((c) => c.x >= k.x - 1 && c.x < nastepna - 1);
+      k.prawa = Math.max(...czesci.map((c) => c.x + c.w));
+      k.wiersze.push({ ...l, czesci, seg: segmenty(czesci), x: czesci[0].x, t: tekstLinii(czesci, { wektory: true }) });
+    });
+    let j = i + 1;
+    let poprz = l;
+    for (; j < linie.length; j++) {
+      const m = linie[j];
+      const k = m.seg.length === 1 && poprz.y - m.y <= 1.45 * 14.7 && kolumny.find((c) => m.x >= c.x - 3 && Math.max(...m.czesci.map((p) => p.x + p.w)) <= c.prawa + 3);
+      if (!k) break;
+      k.wiersze.push(m);
+      poprz = m;
+    }
+    if (j === i + 1) {
+      wynik.push(l);
+      continue;
+    }
+    for (const k of kolumny) k.wiersze.forEach((w, n) => wynik.push(n ? { ...w, ciagDalszy: true } : w));
+    i = j - 1;
+  }
+  return wynik;
 }
 
 // Rozpoznajemy tusz poza obwiedniami znaków i tabel. Ciasno przycinamy do grafiki,

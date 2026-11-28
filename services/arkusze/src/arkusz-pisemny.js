@@ -151,9 +151,9 @@ function krotkaOdpowiedz(tekst, polecenie) {
   return linie[0].split(/\s+(?:lub|albo|\/)\s+/i).map((o) => o.trim()).filter(Boolean);
 }
 
-function pytanie(f, k, tekst, esej) {
+function pytanie(f, k, tekst, esej, przedmiot) {
   const baza = { nr: f.nr, tresc: "", punkty: f.punkty, ...(k && { zasadyStrona: k.strona, zasady: k.zasady, rozwiazanie: k.rozwiazanie }) };
-  if (esej) return { ...baza, typ: "otwarte" };
+  if (esej) return { ...baza, typ: przedmiot === "polski" ? "wypowiedz" : "otwarte" };
   const odpowiedz = k?.rozwiazanie?.trim() || k?.kod || k?.odpowiedz || "";
   const kodZNawiasow = opcjeZNawiasow(f.bloki, k?.wybory);
   if (kodZNawiasow) return { ...baza, typ: "otwarte", kod: true, oczekiwane: [kodZNawiasow] };
@@ -290,10 +290,18 @@ export function zadaniaPisemne(fragmenty, stronyKlucza, wpis, metadane, docx, da
     if (f.nr.includes(".")) z.bloki.push({ typ: "naglowek", tekst: "Zadanie " + f.nr + "." + (f.punkty ? " (0–" + f.punkty + ")" : ""), strona });
     if (f.dopisek) z.bloki.push({ typ: "akapit", tekst: f.dopisek, strona });
     for (const b of f.bloki) if (b.typ === "akapit" && POLECENIE.test(b.tekst)) b.polecenie = true;
+    // Lista lektur przed tematami (polski rozszerzony) to materiał pomocniczy, nie treść zadania.
+    if (esej && wpis.przedmiot === "polski") {
+      const start = f.bloki.findIndex((b) => b.typ === "akapit" && poczatekWypracowania(b.tekst, wpis));
+      if (start > 5 && f.bloki.slice(0, start).some((b) => /lektur/i.test(b.tekst ?? ""))) {
+        z.lektury = f.bloki.splice(0, start);
+        z.strona = f.bloki[0].strona ?? z.strona;
+      }
+    }
     const tekst = f.bloki.map((b) => b.tekst ?? "").join(" ");
     const podpunkty = czyMaPodpunkty && fragmenty.filter((g) => g.zadanie === f.zadanie && g.nr.includes("."));
     if (podpunkty && f.punkty && podpunkty.reduce((s, g) => s + (g.punkty ?? klucz[g.nr]?.punkty ?? 0), 0) === f.punkty) f.punkty = undefined;
-    const q = f.punkty ? pytanie(f, k, tekst, esej) : null;
+    const q = f.punkty ? pytanie(f, k, tekst, esej, wpis.przedmiot) : null;
     z.bloki.push(...f.bloki);
     if (wpis.przedmiot === "informatyka") {
       for (const [plik] of tekst.matchAll(/[\w-]+\.(?:txt|csv)\b/g)) {
