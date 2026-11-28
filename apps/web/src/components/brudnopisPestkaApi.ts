@@ -104,11 +104,14 @@ function wspolrzedneObrazu(elementy: readonly ZywyElement[], zmienione: readonly
     const [[l, g], [p, s]] = ramka;
     if (![l, g, p, s].every(Number.isFinite) || l < 0 || g < 0 || p > 1 || s > 1 || p <= l || s <= g) return;
     const [x, y, xKoniec, yKoniec] = [lewo + l * szerokosc, gora + g * wysokosc, lewo + p * szerokosc, gora + s * wysokosc];
-    const przyDopisku = zmienione.some((element) => {
+    const trafione = zmienione.filter((element) => {
       const [ex, ey, ekx, eky] = getCommonBounds([element]);
       return ex - zapas < xKoniec && ekx + zapas > x && ey - zapas < yKoniec && eky + zapas > y;
     });
-    if (przyDopisku) return { x: x - 3, y: y - 3, width: xKoniec - x + 6, height: yKoniec - y + 6 };
+    if (!trafione.length) return;
+    // Model wskazuje miejsce na obrazie tylko z grubsza: ramka obejmuje dokładne granice zapisu ucznia, który trafiła.
+    const [ox, oy, okx, oky] = getCommonBounds(trafione);
+    return { x: ox - 12, y: oy - 12, width: okx - ox + 24, height: oky - oy + 24 };
   }
   return { zmiana, obszarBledu };
 }
