@@ -48,8 +48,8 @@ export const coDzisBezRund: Partial<Record<PrzedmiotId, { tekst: string; akcja: 
     akcja: { do: "/nauka/zadania?przedmiot=informatyka", etykieta: "Zadania z informatyki" },
   },
   polski: {
-    tekst: "Arkuszy i rund z polskiego jeszcze nie ma. Możesz z Pestką omówić lekturę albo plan wypracowania.",
-    akcja: { do: "/tutor", etykieta: "Porozmawiaj z Pestką" },
+    tekst: "Prawdziwe arkusze CKE z polskiego, a wypracowanie piszesz krok po kroku z Pestką.",
+    akcja: { do: "/arkusze?przedmiot=polski", etykieta: "Arkusze z polskiego" },
   },
 };
 

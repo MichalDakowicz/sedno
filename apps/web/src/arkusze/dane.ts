@@ -1,7 +1,7 @@
 // Arkusze leżą w Supabase (tabela sheets), widoczne tylko dla zalogowanych. Wgrywa je `npm run wgraj`.
 import { useEffect, useState } from "react";
 import { supabase } from "../supabase";
-import type { Arkusz, ArkuszWpis, Blok } from "./typy";
+import type { Arkusz, ArkuszWpis, Blok, Pytanie } from "./typy";
 import nakladka from "./nakladka.json";
 
 // Nakładka (npm run nakladka): numery stron PDF i czasy fragmentów nagrań, same liczby bez treści
@@ -24,6 +24,19 @@ export function zNakladka(a: Arkusz): Arkusz {
     return wynik;
   });
   return { ...a, zadania };
+}
+
+// Import nie rozpoznaje tematu wypracowania w polskim rozszerzonym: jedyne zadanie otwarte za 35–40 pkt to wypracowanie,
+// więc dostaje edytor wypowiedzi (i omówienie z Pestką) zamiast pola krótkiej odpowiedzi.
+function zWypracowaniem(a: Arkusz): Arkusz {
+  if (a.przedmiot !== "polski") return a;
+  return {
+    ...a,
+    zadania: a.zadania.map((z) => ({
+      ...z,
+      pytania: z.pytania.map((q): Pytanie => (q.typ === "otwarte" && (q.punkty ?? 0) >= 15 ? { ...q, typ: "wypowiedz" } : q)),
+    })),
+  };
 }
 
 type Stan<T> = { dane: T | null; blad: string | null; laduje: boolean };
@@ -111,7 +124,7 @@ function pobierzArkusz(id: string) {
     .maybeSingle()
     .then(({ data, error }) => {
       arkuszeWLocie.delete(id);
-      const arkusz = data ? zNakladka(data.data as Arkusz) : null;
+      const arkusz = data ? zWypracowaniem(zNakladka(data.data as Arkusz)) : null;
       if (arkusz) arkusze.set(`arkusz:${id}`, arkusz);
       return { data: arkusz, error };
     });
