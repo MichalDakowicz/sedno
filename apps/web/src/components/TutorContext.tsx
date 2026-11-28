@@ -5,6 +5,7 @@ import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA
 import { bezEmoji, pokazTekstCzatu, powtarzaTutora, priorytetDozwolony, rozmowa, szkolnePytanie, trudnaSprawa, wytnijPriorytety } from "../pestka";
 import { dodajPriorytet, listaPelna, opisProfilu, usunPriorytet } from "../konto/profilUcznia";
 import { useUstawienia } from "../konto/ustawienia";
+import { opisArkuszyKonta } from "../konto/wyniki";
 import { glos } from "../pestka/glos";
 import { AKCJE, type AkcjaPestki } from "../../../../services/supabase/functions/_shared/pestka-odpowiedz";
 
@@ -279,7 +280,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
           } : undefined),
           messages: rozmowa(
             { przedmiot: k?.przedmiot ?? opcje.przedmiot ?? (przedmioty ? `matura: ${przedmioty}` : "matura"), krotko,
-              tryb: k?.sokratejski ? "sokratejski" : "pomoc", czat: !weryfikacja, profil: opisProfilu(), listaPelna: listaPelna(),
+              tryb: k?.sokratejski ? "sokratejski" : "pomoc", czat: !weryfikacja, profil: opisProfilu(), listaPelna: listaPelna(), arkusze: opisArkuszyKonta(),
               zadanie: k?.opis },
             opcje.akcja ? [...historia.slice(0, -1), { od: "uczen", tekst: opcje.akcja }] : historia,
           ),
