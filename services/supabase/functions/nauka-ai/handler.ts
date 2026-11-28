@@ -4,9 +4,10 @@ import { mocnaTrasa, ograniczTokeny, SEDNO } from "../_shared/ai-default.ts";
 import { readJsonObject } from "../_shared/http.ts";
 import { type ImagePart, LlmError, type Message } from "../_shared/llm.ts";
 import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
-import { ETAPY, POZIOMY, publiczneScenariusze, RUNDY_PRZEDMIOTOW, SCENARIUSZE, STATUSY, UMIEJETNOSCI } from "./formaty.ts";
+import { ETAPY, POZIOMY, type PrzedmiotRundy, publiczneScenariusze, RUNDY_PRZEDMIOTOW, SCENARIUSZE, STATUSY, UMIEJETNOSCI } from "./formaty.ts";
 import { listaWariantow, ocenRozwiazanie, utworzWariant } from "./ocenianie.ts";
 import { BladApi, MAX_BODY, obiekt, type Obiekt, obrazWiadomosci, tekst, UUID, wybierz, type Zapytaj } from "./protokol.ts";
+import { MAKS_TEMATOW, MIN_TEMATOW, odczytajScenariusz, odczytajTematy } from "./scenariusze.ts";
 import { CzytnikObiektu } from "./strumien-json.ts";
 import { katalogWizualizacji, stanWizualizacji } from "./wizualizacje.ts";
 
@@ -182,14 +183,56 @@ async function krokPoKroku(body: Obiekt, zapytaj: Zapytaj) {
   return { etap, slowa, akapity, statusy: statusy(kryteria, wynik.statusy), pytanie: wymagajWyniku(tekst(wynik.pytanie, 500)) };
 }
 
+// Podstawa programowa matury (poziom podstawowy i rozszerzony) w skrócie, żeby tematy trzymały się wymagań, a nie wymysłów modelu.
+const PODSTAWA_TEMATOW: Record<PrzedmiotRundy, string> = {
+  angielski: "gramatyka i struktury (czasy, tryby warunkowe, strona bierna, mowa zależna, przedimki, przyimki, konstrukcje z czasownikami), słownictwo i kolokacje, spójność i forma wypowiedzi pisemnej (teza, akapit, łączniki, rejestr)",
+  matematyka: "równania i nierówności, funkcje (liniowa, kwadratowa, wykładnicza), ciągi, trygonometria, planimetria i stereometria, prawdopodobieństwo i statystyka, procenty, geometria analityczna, rachunek różniczkowy (rozszerzenie)",
+  polski: "pojęcia teoretycznoliterackie (środki stylistyczne, gatunki, rodzaje literackie, narracja), epoki i konteksty, interpretacja tekstu, argumentacja i teza w rozprawce, poprawność językowa, ortografia i interpunkcja",
+  informatyka: "algorytmy (sortowanie, wyszukiwanie, rekurencja, złożoność), zapis liczb w systemach pozycyjnych, bazy danych i SQL, arkusz kalkulacyjny, podstawy programowania, sieci i bezpieczeństwo",
+};
+
+async function tematyAi(body: Obiekt, zapytaj: Zapytaj) {
+  const przedmiot = klucz(body.przedmiot, RUNDY_PRZEDMIOTOW);
+  const poziom = body.poziom === undefined ? null : wybierz(body.poziom, POZIOMY);
+  const kontekst = body.kontekst === undefined ? "" : tekst(body.kontekst, 2500);
+  const wczesniej = body.wczesniej === undefined ? [] : body.wczesniej;
+  if (!przedmiot || (body.poziom !== undefined && !poziom) || kontekst === null || !Array.isArray(wczesniej) ||
+    wczesniej.length > 12 || wczesniej.some((t) => tekst(t, 80) === null)) throw new BladApi(400, "bad_input");
+  const stale = Object.values(SCENARIUSZE).filter((s) => s.przedmiot === przedmiot).map((s) => s.tytul);
+  const jezyk = przedmiot === "angielski" ? "en" : "pl";
+  const wynik = await zapytaj(
+    "nauka-uczen-uczy-tematy", "wazne",
+    "Układasz tematy do ćwiczenia „Naucz Kolegę”: Kolega ma błędne rozumienie jednej zasady, a uczeń je prostuje i uzasadnia. " +
+      "Zaproponuj " + MIN_TEMATOW + "–" + MAKS_TEMATOW + " różnych tematów z przedmiotu " + przedmiot + ", dobranych do słabych stron i poziomu ucznia z pola kontekst; gdy kontekst jest pusty, wybierz najczęstsze błędy maturalne. " +
+      "Trzymaj się podstawy programowej matury: " + PODSTAWA_TEMATOW[przedmiot] + ". Nie powtarzaj tematów z pól stale i wczesniej. " +
+      "Każdy temat to obiekt z polami: tytul (krótki, do 80 znaków), polecenie (sytuacja i zadanie Kolegi, do 300), przyklad (wypowiedź albo rozwiązanie Kolegi z konkretnym błędem, który uczeń ma znaleźć; do 500, błąd nie może być nazwany), " +
+      "reguła (poprawna zasada i poprawione rozwiązanie, do 700; uczeń zobaczy ją dopiero po rundzie), kryteria: {blad: co uczeń ma wskazać, regula: jak ma to uzasadnić, przyklad: jaki własny albo poprawiony przykład ma podać; każde do 200 znaków}. " +
+      (przedmiot === "angielski" ? "Polecenie i przyklad pisz po angielsku, resztę po polsku. " : "Wszystko pisz po polsku. ") +
+      (przedmiot === "matematyka" || przedmiot === "informatyka" ? "Wzory zapisuj zwykłym tekstem i znakami Unicode (², √, ×), bez LaTeX-a; rachunki w przykladzie i regule muszą być poprawnie policzone. " : "") +
+      "Błąd w przykladzie ma być jeden, wyraźny i sprawdzalny. Pola przedmiot i jezyk pomiń. " +
+      'Zwróć {"scenariusze": [{"tytul": "…", "polecenie": "…", "przyklad": "…", "reguła": "…", "kryteria": {"blad": "…", "regula": "…", "przyklad": "…"}}]}.',
+    { przedmiot, jezyk, poziom, kontekst, stale, wczesniej },
+    3600,
+  );
+  const scenariusze = odczytajTematy(wynik.scenariusze, przedmiot);
+  if (scenariusze.length < MIN_TEMATOW) throw new BladApi(424, "bad_model_response");
+  return { scenariusze };
+}
+
+// Scenariusz to id ze stałej listy albo cały obiekt (temat wygenerowany przez Pestkę, odesłany przez klienta);
+// obiekt przechodzi ten sam walidator co odpowiedź modelu, bo trafia do promptu Sędziego.
+function scenariuszRundy(raw: unknown) {
+  if (typeof raw === "string") return Object.hasOwn(SCENARIUSZE, raw) ? SCENARIUSZE[raw as keyof typeof SCENARIUSZE] : null;
+  return odczytajScenariusz(raw);
+}
+
 async function uczenUczy(body: Obiekt, zapytaj: Zapytaj) {
-  const identyfikator = klucz(body.scenariusz, SCENARIUSZE);
-  if (!identyfikator || !Array.isArray(body.wypowiedzi) || body.wypowiedzi.length < 1 || body.wypowiedzi.length > 6) {
+  const scenariusz = scenariuszRundy(body.scenariusz);
+  if (!scenariusz || !Array.isArray(body.wypowiedzi) || body.wypowiedzi.length < 1 || body.wypowiedzi.length > 6) {
     throw new BladApi(400, "bad_input");
   }
   const wypowiedzi = body.wypowiedzi.map((w) => tekst(w, 1500));
   if (wypowiedzi.some((w) => w === null)) throw new BladApi(400, "bad_input");
-  const scenariusz = SCENARIUSZE[identyfikator];
   const runda = RUNDY_PRZEDMIOTOW[scenariusz.przedmiot];
   const wynik = await zapytaj(
     "nauka-uczen-uczy-sedzia", "wazne",
@@ -575,6 +618,8 @@ export async function handle(req: Request): Promise<Response> {
         return reply(200, await krokPoKroku(body, zapytaj));
       case "uczen-uczy-scenariusze":
         return reply(200, { scenariusze: publiczneScenariusze() });
+      case "uczen-uczy-tematy-ai":
+        return reply(200, await tematyAi(body, zapytaj));
       case "uczen-uczy":
         return reply(200, await uczenUczy(body, zapytaj));
       case "odczytaj-zdjecie":
