@@ -82,7 +82,7 @@ export function PowtorkiNaDzis({ poziom }: { poziom: Podsumowanie["przedmiot"]["
 export function GotowoscPrzedmiotow({ zakres }: { zakres: Podsumowanie[] }) {
   if (!zakres.length) return null;
   return (
-    <section className={styles.section} aria-labelledby="gotowosc-title">
+    <section className={styles.section} aria-labelledby="gotowosc-title" data-tutor="gotowosc">
       <h2 id="gotowosc-title" className="h2">Gotowość do matury</h2>
       <ul className={`wiersze ${w.gotowoscLista}`}>
         {zakres.map((s) => s.przedmiot.id === "angielski"

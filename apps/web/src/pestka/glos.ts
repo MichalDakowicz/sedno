@@ -67,11 +67,23 @@ export const glos = {
     ogolny: ["Coś poszło nie tak po mojej stronie. Spróbujmy jeszcze raz."],
     nieZnaleziono: ["Nie znam tego adresu. Może się zgubił?", "Tu nic nie ma. Wróćmy tam, gdzie coś na ciebie czeka."],
   },
-  /** Przewodnik przy pierwszym wejściu na pulpit: trzy dymki. */
+  /** Przewodnik przy pierwszym wejściu na pulpit (TutorContext, przewodnikKroki): po pulpicie i po zakładkach. */
   przewodnik: {
-    powitanie: "Cześć, jestem Pestka. Będę obok przez całą naukę do matury.",
-    dzis: "To wybrałam na dziś. Krótko i tam, gdzie najwięcej zyskasz.",
-    wolanie: "Gdy coś będzie niejasne, kliknij mnie. Siedzę w rogu ekranu.",
+    powitanie: "Cześć, jestem Pestka. Oprowadzę cię po Sedno, a potem będę obok przez całą naukę do matury.",
+    przedmioty: "Tu przełączasz przedmiot. „Wszystkie” to pulpit ogólny, a wybrany przedmiot zawęża go do swoich danych.",
+    dzis: "„Dziś warto” to ćwiczenie, które wybrałam na dziś. Krótko i tam, gdzie najwięcej zyskasz.",
+    powod: "Pod tytułem piszę, dlaczego akurat to. Najpierw dokończenie zaczętego, potem powtórka, słabsze miejsce z mapy, na końcu nowy arkusz.",
+    potem: "„Potem” to kolejne kroki: dokończenie rundy, powtórka tego, co ucieka, nowe ćwiczenie.",
+    gotowosc: "Tu widać gotowość do matury z każdego przedmiotu. Pierścień pokazuje, jak ci idzie, a wiersz prowadzi do mapy przedmiotu.",
+    nauka: "Nauka to szybkie rundy, ok. 5 minut na jedną umiejętność. Niżej są inne sposoby ćwiczenia.",
+    arkusze: "Arkusze to prawdziwe arkusze CKE. Po sprawdzeniu pokażę klucz, a „Omów błędy z Pestką” przejdzie z tobą przez każdy błąd.",
+    mapa: "Mapa umiejętności to ogród: każda umiejętność to roślina, która rośnie, gdy ją ćwiczysz. Przywiędła znaczy: czas na powtórkę.",
+    szukaj: "Lupa szuka arkuszy, umiejętności i rozmów. Wpisz w nią też pytanie, a odpowiem.",
+    rozmowa: { komputer: "Gdy chcesz porozmawiać, kliknij mnie w rogu ekranu albo literę „o” w logo.", dotyk: "Gdy chcesz porozmawiać, dotknij mnie w rogu ekranu albo litery „o” w logo." },
+    przywolanie: {
+      komputer: "Kliknij prawym przyciskiem na cokolwiek, a przybiegnę to wyjaśnić. Spróbuj teraz.",
+      dotyk: "Przytrzymaj palec na czymkolwiek, a przybiegnę to wyjaśnić. Spróbuj teraz.",
+    },
   },
   /** Quiz celów (views/QuizCelow.tsx): jedno pytanie Pestki na ekran. */
   quiz: {

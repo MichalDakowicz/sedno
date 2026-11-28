@@ -114,6 +114,8 @@ function dokPoint(d: Dok): Point {
 // Czy element widać w pasie pod nawigacją: wskazówka na telefonie czeka na spoczynku, aż element wjedzie.
 function widac(el: HTMLElement) {
   const r = el.getBoundingClientRect();
+  // Elementy samego paska (przycisk menu, logo, lupa) leżą nad pasem, a dymek i tak dokuje się przy dolnej krawędzi.
+  if (el.closest('nav[aria-label="Główna"]')) return r.bottom > 0 && r.top < window.innerHeight;
   const b = band();
   const w = Math.min(r.bottom, b.bottom) - Math.max(r.top, b.top);
   return w >= Math.min(r.height / 2, AV);
@@ -514,17 +516,16 @@ export function TutorGuide() {
     window.setTimeout(dismiss, FADE_MS);
   }, [dismiss]);
 
-  // Prawy przycisk (na telefonie przytrzymanie) przywołuje Pestkę do kursora.
+  // Prawy przycisk albo, na dotyku, przytrzymanie palca (ok. 0,5 s, bez ruchu i przewijania) przywołuje Pestkę.
   // Pola tekstowe i zaznaczony tekst zostawiamy przeglądarce, żeby dało się kopiować i wklejać.
   useEffect(() => {
-    const onContext = (e: MouseEvent) => {
-      const t = e.target as HTMLElement;
-      if (isOpen || t.closest("input, textarea, select, [contenteditable='true']")) return;
-      if (String(window.getSelection() ?? "").trim()) return;
-      if (t.closest(`.${styles.guide}`)) return;
+    let dlugie = 0;
+    const przywolaj = (t: HTMLElement, x: number, y: number): boolean => {
+      if (isOpen || t.closest("input, textarea, select, [contenteditable='true']")) return false;
+      if (String(window.getSelection() ?? "").trim()) return false;
+      if (t.closest(`.${styles.guide}`)) return false;
       // Tablica (Excalidraw) ma własne menu i własny panel Pestki: dwa menu naraz tylko by przeszkadzały.
-      if (t.closest(".excalidraw")) return;
-      e.preventDefault();
+      if (t.closest(".excalidraw")) return false;
       const about = t.closest<HTMLElement>("[data-tutor-about]")?.dataset.tutorAbout ?? null;
       const zadanie = t.closest<HTMLElement>("[data-tutor-kontekst]");
       const kontekst = zadanie?.dataset.tutorKontekst
@@ -535,13 +536,65 @@ export function TutorGuide() {
           chronOdpowiedz: zadanie.dataset.tutorChron === "tak",
         }
         : null;
-      summonAt({ x: e.pageX, y: e.pageY, about, kontekst });
+      summonAt({ x, y, about, kontekst });
+      return true;
+    };
+    const onContext = (e: MouseEvent) => {
+      // Android po przytrzymaniu zgłasza jeszcze contextmenu: przywołanie już było albo zaraz będzie z timera.
+      clearTimeout(timer);
+      if (Date.now() - dlugie < 1000) {
+        e.preventDefault();
+        return;
+      }
+      dlugie = Date.now();
+      if (!przywolaj(e.target as HTMLElement, e.pageX, e.pageY)) dlugie = 0;
+      else e.preventDefault();
+    };
+
+    let timer = 0;
+    let start = { x: 0, y: 0 };
+    let polknijDotyk = false;
+    const anuluj = () => clearTimeout(timer);
+    const onTouchStart = (e: TouchEvent) => {
+      anuluj();
+      polknijDotyk = false;
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0]!;
+      const cel = e.target as HTMLElement;
+      start = { x: t.clientX, y: t.clientY };
+      timer = window.setTimeout(() => {
+        if (Date.now() - dlugie < 1000 || !przywolaj(cel, t.pageX, t.pageY)) return;
+        dlugie = Date.now();
+        // Puszczenie palca nie ma otworzyć linku ani zaznaczyć słowa pod nim.
+        polknijDotyk = true;
+        window.getSelection()?.removeAllRanges();
+      }, 500);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t && Math.hypot(t.clientX - start.x, t.clientY - start.y) > 10) anuluj();
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      anuluj();
+      if (polknijDotyk && e.cancelable) e.preventDefault();
+      polknijDotyk = false;
     };
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     document.addEventListener("contextmenu", onContext);
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: true });
+    document.addEventListener("touchend", onTouchEnd);
+    document.addEventListener("touchcancel", anuluj);
+    document.addEventListener("scroll", anuluj, { capture: true, passive: true });
     window.addEventListener("keydown", onKey);
     return () => {
+      anuluj();
       document.removeEventListener("contextmenu", onContext);
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("touchcancel", anuluj);
+      document.removeEventListener("scroll", anuluj, { capture: true });
       window.removeEventListener("keydown", onKey);
     };
   }, [isOpen, summonAt, close]);

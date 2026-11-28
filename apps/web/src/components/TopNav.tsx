@@ -12,9 +12,9 @@ import { rozgrzewajLink } from "../nauka/rozgrzewanie";
 
 const links = [
   { to: "/", label: "Pulpit", icon: LayoutGrid, end: true },
-  { to: "/nauka", label: "Nauka", icon: GraduationCap },
-  { to: "/arkusze", label: "Arkusze", icon: FileText },
-  { to: "/umiejetnosci", label: "Mapa umiejętności", icon: MapaIkona },
+  { to: "/nauka", label: "Nauka", icon: GraduationCap, tutor: "nav-nauka" },
+  { to: "/arkusze", label: "Arkusze", icon: FileText, tutor: "nav-arkusze" },
+  { to: "/umiejetnosci", label: "Mapa umiejętności", icon: MapaIkona, tutor: "nav-mapa" },
 ];
 
 const DODATKOWE = [
@@ -81,7 +81,7 @@ export function TopNav() {
   return (
     <div className={styles.wrap} data-ksztalt="wrap">
       <nav className={styles.nav} aria-label="Główna" data-ksztalt="nav">
-        <Link to="/" className={styles.logo} aria-label="Sedno, pulpit">
+        <Link to="/" className={styles.logo} aria-label="Sedno, pulpit" data-tutor="logo">
           <Znak />
         </Link>
 
@@ -90,11 +90,12 @@ export function TopNav() {
         <div className={styles.srodek}>
           <ul ref={linksRef} className={styles.links} data-tutor="nav-links">
             <Plywak jako="li" zalezy={location.pathname} />
-            {links.map(({ to, label, icon: Icon, end }) => (
+            {links.map(({ to, label, icon: Icon, end, tutor }) => (
               <li key={to}>
                 <NavLink
                   to={to}
                   end={end}
+                  data-tutor={tutor}
                   data-aktywny={aktywny(to, end)}
                   className={`${styles.link} ${aktywny(to, end) ? styles.active : ""}`}
                   aria-current={aktywny(to, end) ? "page" : undefined}
@@ -115,6 +116,7 @@ export function TopNav() {
             onClick={() => window.dispatchEvent(new Event(OTWORZ_SZUKAJ))}
             aria-label="Szukaj"
             aria-keyshortcuts="Control+K Meta+K"
+            data-tutor="nav-search"
             title="Szukaj (Ctrl+K)"
           >
             <Search size={22} aria-hidden="true" />
