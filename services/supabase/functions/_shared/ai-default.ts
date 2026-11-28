@@ -18,10 +18,11 @@ export function domyslnaTrasa(tier: string, env: Env = denoEnv): DefaultRoute | 
 }
 
 /**
- * Zadania na najmocniejszym modelu: omówienie tablicy na prośbę ucznia i wypracowania z polskiego. Prowadzenie na żywo
- * (nauka-prowadz-brudnopis) zostaje na szybszym modelu: Opus z obrazem tablicy odpowiadał po ok. 20 s.
+ * Zadania na najmocniejszym modelu: wypracowania z polskiego i sprawdzanie odwołań do lektur. Tablica (omówienie na prośbę
+ * ucznia nauka-omow-brudnopis i prowadzenie na żywo nauka-prowadz-brudnopis) zostaje na zwykłej trasie: Opus z obrazem
+ * tablicy odpowiadał po ok. 20 s.
  */
-export const ZADANIA_MOCNE = new Set(["nauka-omow-brudnopis", "omowienie-wypracowania-polski", "pestka-sprawdz-lekture"]);
+export const ZADANIA_MOCNE = new Set(["omowienie-wypracowania-polski", "pestka-sprawdz-lekture"]);
 
 /**
  * Trasa serwera z najmocniejszym modelem (SEDNO_AI_MODEL_MOCNE, przy Anthropic domyślnie Opus) dla zadań z ZADANIA_MOCNE.

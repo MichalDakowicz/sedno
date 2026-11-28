@@ -211,20 +211,27 @@
   align-self: center;
 }
 
-/* Tematy od Pestki i stałe: dwie grupy jedna pod drugą, oddzielone odstępem i nagłówkiem, bez kart. */
-.grupa {
-  display: grid;
-  gap: var(--s-3);
-  width: 100%;
+/* Szkielet listy tematów w czasie generowania: szare wiersze w miejscu przycisków. */
+.szkielet {
+  display: block;
+  min-height: 52px;
+  margin: 0;
+  background: linear-gradient(90deg, var(--line) 0%, transparent 50%, var(--line) 100%);
+  background-size: 200% 100%;
+  border-radius: var(--r-sm);
+  opacity: 0.55;
+  animation: szkielet-przesuw 1.6s linear infinite;
 }
 
-.grupa + .grupa {
-  margin-top: var(--s-4);
+@keyframes szkielet-przesuw {
+  to {
+    background-position: -200% 0;
+  }
 }
 
-.grupaNaglowek {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s-3);
+@media (prefers-reduced-motion: reduce) {
+  .szkielet {
+    animation: none;
+    background: var(--line);
+  }
 }

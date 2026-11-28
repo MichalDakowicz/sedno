@@ -9,7 +9,7 @@ import { currentUserId, useProfil, useSession } from "../auth";
 import { trescArkusza, useListaArkuszy } from "../arkusze/dane";
 import { norma, tempo } from "../arkusze/czasZadan";
 import { policzPytania } from "../arkusze/sprawdz";
-import type { Arkusz, ArkuszWpis, Poziom, Pytanie, Zadanie } from "../arkusze/typy";
+import { nazwaSesji, type Arkusz, type ArkuszWpis, type Poziom, type Pytanie, type Zadanie } from "../arkusze/typy";
 import type { AktywnoscNauki, HistoriaNauki, MapaNauki, PowtorkiNauki } from "../nauka/api";
 import { policzGotowosc } from "../nauka/gotowosc";
 import { wartoscNaDzien, przesunDzien } from "../nauka/historia";
@@ -41,11 +41,30 @@ export type FaktyPrzedmiotu = {
   tempo: { stosunek: number | null; wolnoZle: string[]; wolnoDobrze: string[]; pospiech: string[] } | null;
   /** Działy, w których błędne zadania się powtarzają (co najmniej dwa). */
   powtarzane: { nazwa: string; ile: number }[];
+  /** Wyniki kolejnych sprawdzonych arkuszy (od najstarszego, do 6) i kierunek zmiany. */
+  trend: { wyniki: number[]; kierunek: "rośnie" | "spada" | "stabilnie" } | null;
+};
+
+/** Zadanie z błędem do kontekstu Pestki: gdzie, o co pytano, co odpowiedział uczeń i jak jest poprawnie. */
+export type BladZadania = {
+  przedmiot: string;
+  dzial: string;
+  nr: string;
+  arkusz: string;
+  tresc: string;
+  odpowiedz: string;
+  poprawna: string;
+  /** Data (RRRR-MM-DD) ostatniego zapisu arkusza. */
+  kiedy: string;
 };
 
 export type SkrotUcznia = {
-  /** Zwięzłe linie po polsku: do notatki i rozmowy. */
+  /** Zwięzłe linie po polsku: do rozmowy i planu dnia (z ostatnimi błędami, przycięte do budżetu). */
   tekst: string;
+  /** To samo bez ostatnich błędów: z tego Pestka pisze notatkę, która ma opisywać nawyki, a nie pojedyncze zadania. */
+  tekstFaktow: string;
+  /** Ostatnie zadania z błędem ze wszystkich przedmiotów, od najnowszych (te, które zmieściły się w tekście). */
+  bledy: BladZadania[];
   /** Podpis z zaokrąglonych faktów: zmienia się tylko przy wyraźnej zmianie. */
   podpis: string;
   przedmioty: FaktyPrzedmiotu[];
@@ -70,10 +89,43 @@ type Wejscie = {
 const proc = (x: number) => Math.round(x * 100);
 // Podpis zaokrągla do 5 punktów procentowych, żeby drobne wahania nie wymuszały nowej notatki.
 const zgrubnie = (x: number | null) => (x === null ? "-" : String(Math.round(x * 20)));
-const MAX_ARKUSZY = 8;
+const MAX_ARKUSZY = 15;
 const MIN_CZAS_ZADANIA = 15_000;
+/** Ile pozycji mają listy w skrócie (najsłabsze, powtarzane, tempo). */
+const MAX_POZYCJI = 5;
+/** Ile ostatnich błędów trafia do skrótu i najwyżej ilu z jednego arkusza (żeby nie zdominował go jeden). */
+const MAX_BLEDOW = 6;
+const MAX_BLEDOW_Z_ARKUSZA = 3;
+/** Budżet znaków na fakty w skrócie; z notatką (do MAX_NOTATKI) cały opisPamieci mieści się w ok. 3500 znakach. */
+const BUDZET_FAKTOW = 2700;
+const BUDZET_OPISU = 3500;
 
 const sprawdzony = (w: Wiersz) => w.data.sprawdzony || (w.data.sprawdzoneZadania?.length ?? 0) > 0;
+
+/** Treść zadania do kontekstu: bez LaTeX-a i znaczników, jedna linia, ucięta do max znaków. */
+export function skroc(tekst: string, max: number): string {
+  const t = tekst
+    .replace(/\{\{[^}]*\}\}/g, "…")
+    .replace(/\\\(|\\\)|\\\[|\\\]|\$+/g, "")
+    .replace(/\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}/g, "($1)/($2)")
+    .replace(/\\(?:cdot|times)/g, "·")
+    .replace(/\\sqrt\{([^{}]*)\}/g, "√($1)")
+    .replace(/\\(?:left|right|displaystyle|mathrm|text|quad|,|;|!)/g, " ")
+    .replace(/\\[a-zA-Z]+/g, "")
+    .replace(/[{}]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return t.length > max ? `${t.slice(0, max - 1).trimEnd()}…` : t;
+}
+
+/** Kierunek zmiany wyników arkuszy: średnia dwóch ostatnich do średniej dwóch pierwszych, próg 8 punktów procentowych. */
+export function trendWynikow(wyniki: number[]): { wyniki: number[]; kierunek: "rośnie" | "spada" | "stabilnie" } | null {
+  if (wyniki.length < 2) return null;
+  const sr = (x: number[]) => x.reduce((s, v) => s + v, 0) / x.length;
+  const k = Math.min(2, Math.floor(wyniki.length / 2));
+  const zmiana = sr(wyniki.slice(-k)) - sr(wyniki.slice(0, k));
+  return { wyniki, kierunek: zmiana >= 8 ? "rośnie" : zmiana <= -8 ? "spada" : "stabilnie" };
+}
 
 function grupaPytania(przedmiotId: PrzedmiotId, z: Zadanie, q: Pytanie): string {
   if (przedmiotId === "angielski" && z.sluchanie) return "słuchanie";
@@ -81,14 +133,36 @@ function grupaPytania(przedmiotId: PrzedmiotId, z: Zadanie, q: Pytanie): string 
   return q.typ === "zamkniete" ? "zadania zamknięte" : "zadania otwarte";
 }
 
+/** Błąd w pytaniu sprawdzanym z kluczem (zamknięte albo otwarte z oczekiwaną odpowiedzią); wypowiedzi, rysunki i samoocena odpadają. */
+function bladZPytania(m: MojPrzedmiot, z: Zadanie, q: Pytanie, w: Wiersz, arkusz: ArkuszWpis | undefined, nazwyDzialow: Map<string, string>): BladZadania | null {
+  if (q.typ === "wypowiedz" || !arkusz) return null;
+  if (q.typ === "otwarte" && (q.rysowanie || (!q.oczekiwane?.length && !q.akceptowane?.length))) return null;
+  const odpowiedz = w.data.odpowiedzi[q.nr]?.trim();
+  if (!odpowiedz) return null;
+  const klucz = q.typ === "zamkniete" ? q.poprawna : q.oczekiwane?.[0] ?? q.akceptowane?.[0] ?? "";
+  const dzial = m.id === "angielski" ? null : dzialZadania(m.id, z);
+  const tresc = q.tresc?.trim() || [...z.polecenie, ...z.bloki.map((b) => (b.typ === "akapit" && b.polecenie ? b.tekst : ""))].join(" ");
+  return {
+    przedmiot: przedmiot(m.id)?.nazwa.toLowerCase() ?? m.id,
+    dzial: (dzial && nazwyDzialow.get(dzial)?.toLowerCase()) || (z.sluchanie ? "słuchanie" : grupaPytania(m.id, z, q)),
+    nr: q.nr,
+    arkusz: `${przedmiot(m.id)?.nazwa.toLowerCase() ?? m.id} ${nazwaPoziomu[m.poziom]}, ${nazwaSesji(arkusz)}`,
+    tresc: skroc(tresc, 150),
+    odpowiedz: skroc(odpowiedz, 80),
+    poprawna: skroc(klucz, 80),
+    kiedy: w.updated_at.slice(0, 10),
+  };
+}
+
 /** Punkty według części arkusza, tempo zadań i powtarzające się błędy z ostatnich sprawdzonych arkuszy przedmiotu. */
-async function arkuszePrzedmiotu(m: MojPrzedmiot, wiersze: Wiersz[], nazwyDzialow: Map<string, string>) {
+async function arkuszePrzedmiotu(m: MojPrzedmiot, wiersze: Wiersz[], nazwyDzialow: Map<string, string>, wgId: Map<string, ArkuszWpis>) {
   const tresci = await Promise.all(wiersze.map((w) => trescArkusza(w.sheet_id).catch(() => null)));
   const grupy = new Map<string, { z: number; m: number }>();
   const wolnoZle = new Set<string>();
   const wolnoDobrze = new Set<string>();
   const pospiech = new Set<string>();
   const bledy = new Map<string, number>();
+  const ostatnieBledy: BladZadania[] = [];
   let czas = 0;
   let limit = 0;
   let zadanZCzasem = 0;
@@ -96,11 +170,17 @@ async function arkuszePrzedmiotu(m: MojPrzedmiot, wiersze: Wiersz[], nazwyDzialo
     const a: Arkusz | null = tresci[i] ?? null;
     if (!a) return;
     const sprawdzone = new Set(w.data.sprawdzony ? a.zadania.map((z) => z.nr) : (w.data.sprawdzoneZadania ?? []));
+    let zArkusza = 0;
     for (const z of a.zadania) {
       if (!sprawdzone.has(z.nr) || !z.pytania.some((q) => w.data.odpowiedzi[q.nr]?.trim())) continue;
       for (const q of z.pytania) {
         const wq = policzPytania([q], w.data.odpowiedzi, w.data.samoocena);
         if (!wq.mozliwe) continue;
+        const blad = zArkusza < MAX_BLEDOW_Z_ARKUSZA && wq.zdobyte < wq.mozliwe ? bladZPytania(m, z, q, w, wgId.get(w.sheet_id), nazwyDzialow) : null;
+        if (blad) {
+          ostatnieBledy.push(blad);
+          zArkusza++;
+        }
         const klucz = grupaPytania(m.id, z, q);
         const g = grupy.get(klucz) ?? { z: 0, m: 0 };
         g.z += wq.zdobyte;
@@ -130,11 +210,12 @@ async function arkuszePrzedmiotu(m: MojPrzedmiot, wiersze: Wiersz[], nazwyDzialo
   // Strata liczy się tylko, gdy część wyraźnie odstaje od reszty (inaczej to po prostu największa część arkusza).
   const ogolem = [...grupy.values()].reduce((s, g) => ({ z: s.z + g.z, m: s.m + g.m }), { z: 0, m: 0 });
   const strata = grupy.size >= 2 ? zStrata.filter((x) => x.procent <= proc(ogolem.z / Math.max(1, ogolem.m)) - 5).sort((a, b) => b.stracone - a.stracone)[0] ?? null : null;
-  const lista = (s: Set<string>) => [...s].slice(0, 3);
+  const lista = (s: Set<string>) => [...s].slice(0, MAX_POZYCJI);
   return {
     strata,
     tempo: zadanZCzasem >= 3 || wolnoZle.size || wolnoDobrze.size || pospiech.size ? { stosunek: zadanZCzasem >= 3 ? czas / limit : null, wolnoZle: lista(wolnoZle), wolnoDobrze: lista(wolnoDobrze), pospiech: lista(pospiech) } : null,
-    powtarzane: [...bledy].filter(([, ile]) => ile >= 2).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([nazwa, ile]) => ({ nazwa, ile })),
+    powtarzane: [...bledy].filter(([, ile]) => ile >= 2).sort((a, b) => b[1] - a[1]).slice(0, MAX_POZYCJI).map(([nazwa, ile]) => ({ nazwa, ile })),
+    ostatnieBledy,
   };
 }
 
@@ -157,6 +238,7 @@ async function policzSkrot(we: Wejscie): Promise<SkrotUcznia> {
   const fakty: FaktyPrzedmiotu[] = [];
   const umiejetnosci = we.angielski ? ocenyAngielskiego(we.angielski.mapa, we.angielski.historia) : [];
   const wgId = new Map(we.lista.map((a) => [a.id, a]));
+  const ostatnieBledy: BladZadania[] = [];
   for (const m of we.przedmioty) {
     const nazwa = przedmiot(m.id)?.nazwa ?? m.id;
     const moje = we.wiersze
@@ -189,7 +271,9 @@ async function policzSkrot(we: Wejscie): Promise<SkrotUcznia> {
       }
     }
     const nazwyDzialow = new Map(szablonMapy(m.id).map((s) => [s.skill_id, s.name]));
-    const zArkuszy = moje.length ? await arkuszePrzedmiotu(m, moje.slice(0, MAX_ARKUSZY), nazwyDzialow) : { strata: null, tempo: null, powtarzane: [] };
+    const { ostatnieBledy: bledyPrzedmiotu, ...zArkuszy } = moje.length ? await arkuszePrzedmiotu(m, moje.slice(0, MAX_ARKUSZY), nazwyDzialow, wgId) : { strata: null, tempo: null, powtarzane: [], ostatnieBledy: [] };
+    ostatnieBledy.push(...bledyPrzedmiotu);
+    const trend = trendWynikow(zWynikiem.slice(0, 6).reverse().map((w) => proc(w.data.wynik!.zdobyte / w.data.wynik!.mozliwe)));
     const posortowane = [...oceny].sort((a, b) => a.procent - b.procent);
     fakty.push({
       id: m.id,
@@ -200,8 +284,9 @@ async function policzSkrot(we: Wejscie): Promise<SkrotUcznia> {
       gotowosc,
       wstepna,
       cel: celPrzedmiotu(we.u, m.id),
-      najslabsze: posortowane.filter((o) => o.procent < 70).slice(0, 2),
-      najmocniejsze: posortowane.filter((o) => o.procent >= 70).reverse().slice(0, 2),
+      najslabsze: posortowane.filter((o) => o.procent < 70).slice(0, MAX_POZYCJI),
+      najmocniejsze: posortowane.filter((o) => o.procent >= 70).reverse().slice(0, 3),
+      trend,
       ...zArkuszy,
     });
   }
@@ -232,6 +317,7 @@ async function policzSkrot(we: Wejscie): Promise<SkrotUcznia> {
     if (f.gotowosc !== null) czesci.push(`gotowość ${proc(f.gotowosc)}%${f.wstepna ? " (wstępna)" : ""}`);
     if (f.cel !== null) czesci.push(`cel ${proc(f.cel)}%`);
     if (f.arkuszy) czesci.push(`sprawdzone arkusze: ${f.arkuszy}${f.srednia !== null ? `, średnio ${f.srednia}%` : ""}`);
+    if (f.trend) czesci.push(`wyniki kolejnych arkuszy: ${f.trend.wyniki.map((x) => `${x}%`).join(", ")} (${f.trend.kierunek})`);
     if (f.najslabsze.length) czesci.push(`najsłabiej: ${f.najslabsze.map(ocena).join(", ")}`);
     if (f.najmocniejsze.length) czesci.push(`najmocniej: ${f.najmocniejsze.map(ocena).join(", ")}`);
     if (f.strata) czesci.push(`najwięcej punktów traci w: ${f.strata.nazwa} (${f.strata.procent}% pkt, ${f.strata.stracone} pkt straconych)`);
@@ -252,16 +338,23 @@ async function policzSkrot(we: Wejscie): Promise<SkrotUcznia> {
   if (minuty) linie.push(`- deklaruje ${minuty} min dziennie${we.u.dni ? `, ${we.u.dni} dni w tygodniu` : ""}`);
   if (we.u.priorytety?.length) linie.push(`- priorytety: ${we.u.priorytety.slice(0, 5).map((p) => `„${p.tekst}”`).join("; ")}`);
 
+  // Ostatnie błędy ze wszystkich przedmiotów, od najnowszych; przy przekroczeniu budżetu znikają najpierw najstarsze.
+  const bledy = ostatnieBledy.sort((a, b) => b.kiedy.localeCompare(a.kiedy)).slice(0, MAX_BLEDOW);
+  const tekstFaktow = linie.join("\n");
+  const liniaBledu = (b: BladZadania) => `  • ${b.przedmiot}, dział: ${b.dzial}, zad. ${b.nr} (${b.arkusz}, ${b.kiedy}): „${b.tresc}” uczeń: „${b.odpowiedz}”${b.poprawna ? `, poprawnie: „${b.poprawna}”` : ""}`;
+  const naBudzet = (n: number) => [tekstFaktow, ...(n ? ["- ostatnie błędy w zadaniach (od najnowszych):", ...bledy.slice(0, n).map(liniaBledu)] : [])].join("\n");
+  let ileBledow = bledy.length;
+  while (ileBledow > 0 && naBudzet(ileBledow).length > BUDZET_FAKTOW) ileBledow--;
   const pusty = !fakty.some((f) => f.arkuszy > 0 || f.gotowosc !== null) && !(aktywnosc && aktywnosc.dni28 > 0);
   const podpis = skrotTekstu([
-    ...fakty.map((f) => [f.id, f.poziom, zgrubnie(f.gotowosc), f.srednia === null ? "-" : Math.round(f.srednia / 5), f.arkuszy, f.cel ?? "-", f.najslabsze.map((o) => o.id).join("+"), f.strata?.nazwa ?? "-",
-      f.tempo ? [f.tempo.stosunek === null ? "-" : Math.round(f.tempo.stosunek * 4), f.tempo.wolnoZle.length, f.tempo.pospiech.length].join(".") : "-", f.powtarzane.map((p) => p.nazwa).join("+")].join(":")),
+    ...fakty.map((f) => [f.id, f.poziom, zgrubnie(f.gotowosc), f.srednia === null ? "-" : Math.round(f.srednia / 5), f.arkuszy, f.cel ?? "-", f.najslabsze.slice(0, 3).map((o) => o.id).join("+"), f.strata?.nazwa ?? "-",
+      f.tempo ? [f.tempo.stosunek === null ? "-" : Math.round(f.tempo.stosunek * 4), f.tempo.wolnoZle.length, f.tempo.pospiech.length].join(".") : "-", f.powtarzane.slice(0, 3).map((p) => p.nazwa).join("+"), f.trend ? `${f.trend.kierunek}${Math.round(f.trend.wyniki.at(-1)! / 10)}` : "-"].join(":")),
     spada.join("+"),
     Math.min(doPowtorki.length, 3),
     aktywnosc ? `${Math.min(aktywnosc.dni7, 4)}:${Math.round(aktywnosc.dni28 / 4)}` : "-",
     (we.u.priorytety ?? []).map((p) => p.id).join("+"),
   ].join("|"));
-  return { tekst: linie.join("\n"), podpis, przedmioty: fakty, umiejetnosci, doPowtorki, aktywnosc, pusty };
+  return { tekst: naBudzet(ileBledow), tekstFaktow, bledy: bledy.slice(0, ileBledow), podpis, przedmioty: fakty, umiejetnosci, doPowtorki, aktywnosc, pusty };
 }
 
 /** Krótki podpis tekstu (FNV-1a), do porównania, czy skrót się zmienił. */
@@ -414,7 +507,7 @@ export async function napiszNotatke(skrot: SkrotUcznia, wymus = false): Promise<
       temperature: 0.4,
       messages: [
         { role: "system", content: PROMPT_NOTATKI },
-        { role: "user", content: `Fakty o uczniu (stan na ${new Date().toLocaleDateString("pl-PL")}):\n${skrot.tekst}` },
+        { role: "user", content: `Fakty o uczniu (stan na ${new Date().toLocaleDateString("pl-PL")}):\n${skrot.tekstFaktow}` },
       ],
     };
     // Lekki model bywa niedostępny przy dłuższym wejściu: wtedy raz ważny.
@@ -457,7 +550,8 @@ export function opisPamieci(): string {
   if (!user) return "";
   const notatka = uczenie().pamiec?.notatka ?? "";
   const fakty = ostatni?.user === user ? (ostatni.skrot.pusty ? "" : ostatni.skrot.tekst) : tekstZDysku(user);
-  return [notatka && `Twoja notatka o uczniu: ${notatka}`, fakty && `Fakty z jego nauki w Sedno:\n${fakty}`].filter(Boolean).join("\n");
+  const opis = [notatka && `Twoja notatka o uczniu: ${notatka}`, fakty && `Fakty z jego nauki w Sedno:\n${fakty}`].filter(Boolean).join("\n");
+  return opis.length > BUDZET_OPISU ? opis.slice(0, opis.lastIndexOf("\n", BUDZET_OPISU)).trimEnd() : opis;
 }
 
 // ---- dopisek do propozycji dnia ----
