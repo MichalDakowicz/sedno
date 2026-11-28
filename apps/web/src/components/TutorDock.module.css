@@ -1,23 +1,19 @@
-/* Ramka panelu to dolna część kształtu nawigacji (sterKsztaltu.ts): pod przyklejonym navem przy prawej krawędzi.
-   Tło rysuje warstwa kształtu, a treść wylewa się razem z nim (maska --wylew). */
+/* Pływający panel przy prawej krawędzi, pod navem. Wjazd i wyjazd animuje sterKsztaltu.ts. */
 .panel {
   position: fixed;
   z-index: 31;
-  top: var(--ksztalt-dol-paska);
-  right: 0;
-  bottom: 0;
+  top: calc(var(--ksztalt-dol-paska) + var(--s-3));
+  right: 16px;
+  bottom: 16px;
   width: var(--ksztalt-szer-panelu);
   display: flex;
   flex-direction: column;
-  padding-bottom: env(safe-area-inset-bottom);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
   color: var(--fg);
+  overflow: hidden;
   outline: none;
-  mask-image: linear-gradient(to bottom, #000 calc(var(--wylew) - 15%), transparent var(--wylew));
-}
-
-/* Poza panelem i jego przejściem treść znika od razu, zanim panel zejdzie z drzewa. */
-:global(html:not([data-ksztalt-panel])) .panel {
-  visibility: hidden;
 }
 
 .header {
