@@ -108,7 +108,7 @@ function useTematyAi(przedmiotId: PrzedmiotId | undefined, poziom: string | unde
   const [wynik, ustawWynik] = useState<{ klucz: string; tematy: Pelny[]; stan: StanTematow }>({ klucz: "", tematy: [], stan: "laduje" });
   const [odswiez, ustawOdswiez] = useState(0);
   const klucz = przedmiotId ? dzienWarszawa.format(new Date()) + ":" + przedmiotId : "";
-  const kontekst = [opisPamieci(), opisArkuszyKonta() && "Arkusze ucznia:\n" + opisArkuszyKonta()].filter(Boolean).join("\n").slice(0, 2400);
+  const kontekst = [opisPamieci(), opisArkuszyKonta() && "Arkusze ucznia:\n" + opisArkuszyKonta()].filter(Boolean).join("\n").slice(0, 4000);
   const niedostepne = aiGotowe === false;
   const czeka = !user || !przedmiotId || aiGotowe === undefined || (skrot === null && !bezCzekania);
 

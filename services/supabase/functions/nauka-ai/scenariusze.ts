@@ -16,6 +16,15 @@ export type Scenariusz = {
 
 /** Górne granice długości pól (znaki); dolna to jeden znak po przycięciu. Prompt prosi o krótsze pola (80/300/500/700/200), a walidator zostawia zapas, żeby drobne przekroczenie nie odrzucało całego tematu. */
 export const LIMITY_SCENARIUSZA = { tytul: 100, polecenie: 400, przyklad: 700, reguła: 900, kryterium: 280 } as const;
+/** Kontekst ucznia z aplikacji (pamięć, fakty, ostatnie błędy, arkusze): opisPamieci() mieści się w ok. 3500 znakach, reszta to lista arkuszy. */
+export const MAKS_KONTEKSTU = 4000;
+
+/** Kontekst z żądania: brak pola to pusty tekst, a nie-tekst albo za długi tekst to null. */
+export function odczytajKontekst(raw: unknown): string | null {
+  if (raw === undefined) return "";
+  return typeof raw === "string" && raw.length <= MAKS_KONTEKSTU && ![...raw].some(zakazanyZnak) ? raw.trim() : null;
+}
+
 export const MAKS_TEMATOW = 4;
 export const MIN_TEMATOW = 2;
 

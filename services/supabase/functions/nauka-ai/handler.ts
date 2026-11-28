@@ -7,7 +7,7 @@ import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
 import { ETAPY, POZIOMY, type PrzedmiotRundy, publiczneScenariusze, RUNDY_PRZEDMIOTOW, SCENARIUSZE, STATUSY, UMIEJETNOSCI } from "./formaty.ts";
 import { listaWariantow, ocenRozwiazanie, utworzWariant } from "./ocenianie.ts";
 import { BladApi, MAX_BODY, obiekt, type Obiekt, obrazWiadomosci, tekst, UUID, wybierz, type Zapytaj } from "./protokol.ts";
-import { MAKS_TEMATOW, MIN_TEMATOW, odczytajScenariusz, odczytajTematy } from "./scenariusze.ts";
+import { MAKS_TEMATOW, MIN_TEMATOW, odczytajKontekst, odczytajScenariusz, odczytajTematy } from "./scenariusze.ts";
 import { CzytnikObiektu } from "./strumien-json.ts";
 import { katalogWizualizacji, stanWizualizacji } from "./wizualizacje.ts";
 
@@ -194,7 +194,7 @@ const PODSTAWA_TEMATOW: Record<PrzedmiotRundy, string> = {
 async function tematyAi(body: Obiekt, zapytaj: Zapytaj) {
   const przedmiot = klucz(body.przedmiot, RUNDY_PRZEDMIOTOW);
   const poziom = body.poziom === undefined ? null : wybierz(body.poziom, POZIOMY);
-  const kontekst = body.kontekst === undefined ? "" : tekst(body.kontekst, 2500);
+  const kontekst = odczytajKontekst(body.kontekst);
   const wczesniej = body.wczesniej === undefined ? [] : body.wczesniej;
   if (!przedmiot || (body.poziom !== undefined && !poziom) || kontekst === null || !Array.isArray(wczesniej) ||
     wczesniej.length > 12 || wczesniej.some((t) => tekst(t, 80) === null)) throw new BladApi(400, "bad_input");
@@ -210,7 +210,7 @@ async function tematyAi(body: Obiekt, zapytaj: Zapytaj) {
       "reguła (poprawna zasada i poprawione rozwiązanie, do 700; uczeń zobaczy ją dopiero po rundzie), kryteria: {blad: co uczeń ma wskazać, regula: jak ma to uzasadnić, przyklad: jaki własny albo poprawiony przykład ma podać; każde do 200 znaków, w trzeciej osobie o uczniu, np. „Uczeń wskazuje, że…”, „Uczeń uzasadnia…”, „Uczeń podaje…”}. " +
       (przedmiot === "angielski" ? "Polecenie i przyklad pisz po angielsku, resztę po polsku. " : "Wszystko pisz po polsku. ") +
       (przedmiot === "matematyka" || przedmiot === "informatyka" ? "Wzory zapisuj zwykłym tekstem i znakami Unicode (², √, ×), bez LaTeX-a; rachunki w przykladzie i regule muszą być poprawnie policzone. " : "") +
-      "Błąd w przykladzie ma być jeden, wyraźny i sprawdzalny: cała wypowiedź Kolegi (wszystkie jego zdania i rachunki) jest spójna z jednym błędnym założeniem, a poza nim nie ma innych błędów ani wskazówek, że coś jest nie tak. Tytuł dokładnie nazywa temat przykładu i nie zdradza błędu. Sprawdź w myślach każdy rachunek i każde twierdzenie, zanim je zapiszesz. Pola przedmiot i jezyk pomiń. " +
+      "Błąd w przykladzie ma być jeden, wyraźny i sprawdzalny: cała wypowiedź Kolegi (wszystkie jego zdania i rachunki) jest spójna z jednym błędnym założeniem, a poza nim nie ma innych błędów ani wskazówek, że coś jest nie tak. Tytuł dokładnie nazywa temat przykładu i nie zdradza błędu. Sprawdź w myślach każdy rachunek i każde twierdzenie, zanim je zapiszesz. Gdy w kontekście są „ostatnie błędy w zadaniach” z tego przedmiotu, przynajmniej jeden temat odtwarza dokładnie ten typ błędu ucznia (Kolega myli się tak samo jak uczeń), ale na innych liczbach i w innej treści; nie kopiuj treści zadania z arkusza ani odpowiedzi ucznia. Pola przedmiot i jezyk pomiń. " +
       'Zwróć {"scenariusze": [{"tytul": "…", "polecenie": "…", "przyklad": "…", "reguła": "…", "kryteria": {"blad": "…", "regula": "…", "przyklad": "…"}}]}.',
     { przedmiot, jezyk, poziom, kontekst, stale, wczesniej },
     4000,
