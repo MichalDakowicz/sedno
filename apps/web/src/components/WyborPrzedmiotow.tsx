@@ -10,7 +10,8 @@ import styles from "./WyborPrzedmiotow.module.css";
 const uporzadkuj = (v: MojPrzedmiot[]) =>
   PRZEDMIOTY.flatMap((p) => p.poziomy.filter((l) => v.some((x) => x.id === p.id && x.poziom === l)).map((poziom) => ({ id: p.id, poziom })));
 
-export function WyborPrzedmiotow({ value, onChange }: { value: MojPrzedmiot[]; onChange: (v: MojPrzedmiot[]) => void }) {
+/** bezKrawedzi: lista stoi między nagłówkiem a następną grupą, które mają własne linie, więc bez linii na górze i na dole. */
+export function WyborPrzedmiotow({ value, onChange, bezKrawedzi }: { value: MojPrzedmiot[]; onChange: (v: MojPrzedmiot[]) => void; bezKrawedzi?: boolean }) {
   const pelne = value.length >= MAX_WPISOW_PRZEDMIOTOW;
 
   function przelacz(id: MojPrzedmiot["id"], domyslny: Poziom) {
@@ -27,7 +28,7 @@ export function WyborPrzedmiotow({ value, onChange }: { value: MojPrzedmiot[]; o
   }
 
   return (
-    <ul className={styles.list}>
+    <ul className={bezKrawedzi ? `${styles.list} ${styles.bezKrawedzi}` : styles.list}>
       {PRZEDMIOTY.map((p) => {
         const wybrane = value.filter((x) => x.id === p.id).map((x) => x.poziom);
         const wybrany = wybrane.length > 0;

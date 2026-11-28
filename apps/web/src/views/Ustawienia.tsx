@@ -70,7 +70,7 @@ export function Ustawienia() {
 
       <section className={s.sekcja}>
         <h2 className="h2">Pulpit</h2>
-        <Link to="/uklad-pulpitu" className="link">Układ pulpitu <ArrowRight size={16} aria-hidden="true" /></Link>
+        <Link to="/uklad-pulpitu" className={`link ${s.odnosnik}`}>Układ pulpitu <ArrowRight size={16} aria-hidden="true" /></Link>
       </section>
 
       <section className={s.sekcja}>

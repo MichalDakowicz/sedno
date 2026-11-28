@@ -9,7 +9,7 @@
 }
 
 /* Sekcja tuż pod nagłówkiem nie dokłada drugiej linii. */
-.naglowek + * {
+.naglowek + :is(section, div, ul, ol, form, article, nav, aside, p, dl, table) {
   border-top: 0;
 }
 
