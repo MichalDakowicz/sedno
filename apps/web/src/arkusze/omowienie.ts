@@ -166,7 +166,7 @@ function przywrocLatex(v: unknown): unknown {
   return v;
 }
 
-function json<T>(tekst: string): T | null {
+export function json<T>(tekst: string): T | null {
   for (const kandydat of obiektyJson(tekst)) {
     for (const wersja of [kandydat, naprawUkosniki(kandydat)]) {
       try {
