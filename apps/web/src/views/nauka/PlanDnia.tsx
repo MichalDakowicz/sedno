@@ -45,7 +45,7 @@ export function PlanDnia({ poziom, maly = false }: { poziom: Poziom; maly?: bool
     </>
   );
   return (
-    <section className={maly ? s.maly : s.plan} aria-labelledby="plan-potem">
+    <section className={maly ? s.maly : s.plan} aria-labelledby="plan-potem" data-tutor={maly ? undefined : "potem"}>
       <h2 className={maly ? "label" : "h2"} id="plan-potem">Potem</h2>
       <ul className="wiersze">
         {kroki.slice(0, 3).map((k) => (

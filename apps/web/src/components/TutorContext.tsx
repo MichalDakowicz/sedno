@@ -5,6 +5,7 @@ import { idBiezacej, noweId, ustawBiezaca, wczytajRozmowy, zapiszRozmowe, ZMIANA
 import { bezEmoji, pokazTekstCzatu, powtarzaTutora, priorytetDozwolony, rozmowa, szkolnePytanie, trudnaSprawa, wytnijPriorytety } from "../pestka";
 import { dodajPriorytet, listaPelna, opisProfilu, usunPriorytet } from "../konto/profilUcznia";
 import { useUstawienia } from "../konto/ustawienia";
+import { opisArkuszyKonta } from "../konto/wyniki";
 import { glos } from "../pestka/glos";
 import { AKCJE, type AkcjaPestki } from "../../../../services/supabase/functions/_shared/pestka-odpowiedz";
 
@@ -151,13 +152,29 @@ export function resetTour() {
   markTourDone(false);
 }
 
-// Trzy dymki po diagnozie (albo przy pierwszym wejściu na pulpit): kim jestem, co wybrałam na dziś, jak mnie wołać.
-// Bez oprowadzania po interfejsie: menu i widgety mówią same za siebie.
-export const tourHints: Hint[] = [
-  { target: "hero", text: glos.przewodnik.powitanie },
-  { target: "today-cta", text: glos.przewodnik.dzis },
-  { target: "hero", text: glos.przewodnik.wolanie },
-];
+/** Telefon i tablet bez myszy: tam prawego przycisku nie ma, Pestkę przywołuje przytrzymanie. */
+export const dotykowy = () => typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches;
+
+// Przewodnik przy pierwszym wejściu na pulpit: od góry strony w dół, potem zakładki w pasku (na telefonie wszystkie
+// w przycisku menu) i wołanie Pestki. Krok, którego celu nie ma na stronie (np. „Potem” bez planu), pomija się sam.
+export function przewodnikKroki(dotyk: boolean): Hint[] {
+  const p = glos.przewodnik;
+  const tryb = dotyk ? "dotyk" : "komputer";
+  return [
+    { target: "hero", text: p.powitanie },
+    { target: "subjects", text: p.przedmioty },
+    { target: "dzis", text: p.dzis },
+    { target: "dzis-powod", text: p.powod },
+    { target: "potem", text: p.potem },
+    { target: "gotowosc", text: p.gotowosc },
+    { target: ["nav-nauka", "nav-menu"], text: p.nauka },
+    { target: ["nav-arkusze", "nav-menu"], text: p.arkusze },
+    { target: ["nav-mapa", "nav-menu"], text: p.mapa },
+    { target: "nav-search", text: p.szukaj },
+    { target: "logo", text: p.rozmowa[tryb] },
+    { target: "hero", text: p.przywolanie[tryb] },
+  ];
+}
 
 const shownHints = new Set<string>();
 
@@ -279,7 +296,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
           } : undefined),
           messages: rozmowa(
             { przedmiot: k?.przedmiot ?? opcje.przedmiot ?? (przedmioty ? `matura: ${przedmioty}` : "matura"), krotko,
-              tryb: k?.sokratejski ? "sokratejski" : "pomoc", czat: !weryfikacja, profil: opisProfilu(), listaPelna: listaPelna(),
+              tryb: k?.sokratejski ? "sokratejski" : "pomoc", czat: !weryfikacja, profil: opisProfilu(), listaPelna: listaPelna(), arkusze: opisArkuszyKonta(),
               zadanie: k?.opis },
             opcje.akcja ? [...historia.slice(0, -1), { od: "uczen", tekst: opcje.akcja }] : historia,
           ),
@@ -410,7 +427,7 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
 
   const startTour = useCallback(() => {
     setSummon(null);
-    setGuide({ key: "tour", kind: "tour", hints: tourHints, index: 0 });
+    setGuide({ key: "tour", kind: "tour", hints: przewodnikKroki(dotykowy()), index: 0 });
   }, []);
 
   const next = useCallback(() => {
@@ -440,6 +457,8 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
         setGuide({ ...guide, index: guide.index + 1 });
         return;
       }
+      // Przywołanie w trakcie przewodnika też go kończy, inaczej wracałby przy każdym wejściu na pulpit.
+      if (guide?.kind === "tour") markTourDone(true);
       setGuide(null);
       setSummon(s);
     },

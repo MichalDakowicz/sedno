@@ -1,11 +1,4 @@
-/* Front wylewania treści z nava (panel Pestki, historia rozmów): maska przesuwana w dół przez sterKsztaltu.ts. */
-@property --wylew {
-  syntax: "<percentage>";
-  inherits: false;
-  initial-value: 115%;
-}
-
-/* Pod przyklejonym navem (TopNav, z-index 30) i nad treścią strony. */
+/* Pod navem (TopNav, z-index 30) i nad treścią strony. */
 .zaslona {
   position: fixed;
   inset: 0;
@@ -13,42 +6,9 @@
   background: var(--scrim);
   opacity: 0;
   pointer-events: none;
+  transition: opacity var(--ruch-zwykly) var(--ruch-krzywa);
 }
 
 .zaslona[data-widoczna] {
   pointer-events: auto;
-}
-
-.scena {
-  position: fixed;
-  z-index: 28;
-  display: none;
-  overflow: hidden;
-  background: var(--surface);
-  box-shadow: var(--shadow-float);
-  pointer-events: none;
-}
-
-/* Jeden cień dla paska, panelu i rogów, żeby na stykach nie było szwów. Kolor z --scrim, bo ma wersję dla ciemnego motywu. */
-.warstwa {
-  position: fixed;
-  inset: 0;
-  z-index: 29;
-  display: none;
-  pointer-events: none;
-  filter: drop-shadow(0 8px 20px color-mix(in srgb, var(--scrim) 50%, transparent));
-}
-
-.warstwa[data-widoczna] {
-  display: block;
-}
-
-.tlo {
-  position: absolute;
-  background: var(--surface);
-}
-
-.wnek {
-  position: absolute;
-  transform: scale(0);
 }

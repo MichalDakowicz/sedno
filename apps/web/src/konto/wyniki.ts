@@ -50,6 +50,26 @@ function pobierzWiersze(user: string): Promise<Wiersz[] | null> {
   return obietnica;
 }
 
+/** Arkusze konta do kontekstu rozmowy Pestki: wynik sprawdzonych i postęp zaczętych, od ostatnio ruszanych. */
+export function opisArkuszyKonta(): string {
+  const user = currentUserId();
+  if (!user) return "";
+  if (zapamietane?.user !== user) {
+    void pobierzWiersze(user);
+    return "";
+  }
+  return [...zapamietane.wiersze]
+    .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+    .slice(0, 8)
+    .map((w) => {
+      const nazwa = w.sheet_id.replace(/-/g, " ");
+      const wynik = w.data.wynik;
+      if (wynik && wynik.mozliwe > 0) return `- ${nazwa}: sprawdzony, ${wynik.zdobyte}/${wynik.mozliwe} pkt (${Math.round((wynik.zdobyte / wynik.mozliwe) * 100)}%)`;
+      return `- ${nazwa}: zaczęty, ${Object.keys(w.data.odpowiedzi ?? {}).length} odpowiedzi, jeszcze niesprawdzony`;
+    })
+    .join("\n");
+}
+
 /** Rozgrzewanie: wiersze konta w tle, jeśli nie ma ich jeszcze w pamięci. */
 export function rozgrzejPostepyKonta() {
   const user = currentUserId();

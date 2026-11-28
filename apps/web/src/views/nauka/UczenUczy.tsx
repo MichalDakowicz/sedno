@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 import { Check, ChevronRight, Circle, CircleHelp, Send, X } from "lucide-react";
 import { TutorAvatar } from "../../components/TutorAvatar";
@@ -7,8 +8,12 @@ import { AiError, aiErrorText } from "../../ai";
 import { supabase } from "../../supabase";
 import styles from "./UczenUczy.module.css";
 import { NaglowekStrony } from "../../components/NaglowekStrony";
+import { SubjectIcon } from "../../components/icons";
+import { klasaPrzedmiotu, PasekPrzedmiotow } from "../../components/PasekPrzedmiotow";
+import { useProfil } from "../../auth";
+import { przedmiot, type PrzedmiotId } from "../../konto/przedmioty";
 
-type Scenariusz = { id: string; tytul: string; polecenie: string; przyklad: string; kryteria: string[] };
+type Scenariusz = { id: string; przedmiot: PrzedmiotId; jezyk: "pl" | "en"; tytul: string; polecenie: string; przyklad: string; podpowiedz: string; kryteria: string[] };
 type Status = "dobrze" | "do-poprawy" | "do-zrobienia" | "niepewne";
 type Ocena = { kolega: string; statusy: Record<string, Status>; zakoncz: boolean; omowienie: string | null };
 type Tura = { odpowiedz: string; ocena: Ocena };
@@ -27,6 +32,12 @@ const STATUS: Record<Status, string> = {
   "do-zrobienia": "Czeka",
   niepewne: "Do doprecyzowania",
 };
+
+// Ten sam klucz co w Nauce: temat otwiera się dla przedmiotu, który uczeń ma tam wybrany.
+const KLUCZ_PRZEDMIOTU = "sedno.nauka.przedmiot";
+function zapamietanyPrzedmiot(): string | null {
+  try { return localStorage.getItem(KLUCZ_PRZEDMIOTU); } catch { return null; }
+}
 
 async function wywolaj<T>(body: Zadanie, signal: AbortSignal): Promise<T> {
   const { data, error } = await supabase.functions.invoke<T>("nauka-ai", { body, signal });
@@ -127,7 +138,7 @@ function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void 
           <ol ref={lista} className={styles.wiadomosci} role="log" aria-label="Rozmowa z Kolegą">
             <li className={c.tutorRow}>
               <span className={styles.awatarKolegi} aria-hidden="true">K</span>
-              <p className={c.tutorText} lang="en"><span className="visually-hidden">Kolega: </span>{scenariusz.przyklad}</p>
+              <p className={c.tutorText} lang={scenariusz.jezyk}><span className="visually-hidden">Kolega: </span>{scenariusz.przyklad}</p>
             </li>
             {tury.map(({ odpowiedz, ocena: wynik }, i) => (
               <Fragment key={i}>
@@ -146,9 +157,10 @@ function Runda({ scenariusz, wroc }: { scenariusz: Scenariusz; wroc: () => void 
             </section>
           ) : (
             <form className={styles.kompozytor} onSubmit={wyslij}>
-              <label htmlFor="uczen-odpowiedz">Jak poprawisz przykład i dlaczego?</label>
+              <label htmlFor="uczen-odpowiedz">Co powiesz Koledze?</label>
               <textarea
                 id="uczen-odpowiedz"
+                placeholder={scenariusz.podpowiedz}
                 value={tekst}
                 onChange={(e) => {
                   ustawTekst(e.target.value);
@@ -216,6 +228,8 @@ export function UczenUczy() {
   const [blad, ustawBlad] = useState<string | null>(null);
   const [proba, ustawProbe] = useState(0);
   const lista = useRef<HTMLHeadingElement>(null);
+  const [params, ustawParams] = useSearchParams();
+  const profil = useProfil();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -230,6 +244,18 @@ export function UczenUczy() {
     return () => controller.abort();
   }, [proba]);
 
+  // Przedmioty ucznia, które mają tematy. Bez dopasowania (np. biologia) pokazujemy wszystkie, żeby nie było pusto.
+  const zTematami = [...new Set((scenariusze ?? []).map((s) => s.przedmiot))];
+  const moje = [...new Set((profil?.subjects ?? []).map((p) => p.id))].filter((id) => zTematami.includes(id));
+  const dostepne = moje.length ? moje : zTematami;
+  const wybrany = [params.get("przedmiot"), zapamietanyPrzedmiot(), dostepne[0]].find((id): id is PrzedmiotId => !!id && dostepne.includes(id as PrzedmiotId)) ?? dostepne[0];
+  const tematy = (scenariusze ?? []).filter((s) => s.przedmiot === wybrany);
+
+  function ustawPrzedmiot(id: PrzedmiotId) {
+    try { localStorage.setItem(KLUCZ_PRZEDMIOTU, id); } catch { /* wybór działa do odświeżenia */ }
+    ustawParams({ przedmiot: id }, { replace: true });
+  }
+
   function wroc() {
     ustawScenariusz(null);
     requestAnimationFrame(() => lista.current?.focus());
@@ -237,7 +263,7 @@ export function UczenUczy() {
 
   return (
     <main className={`container ${styles.strona}`}>
-      <NaglowekStrony wstecz={{ do: "/nauka", nazwa: "Nauka" }} tytul="Naucz Kolegę" lead="Popraw przykład Kolegi i wyjaśnij mu, dlaczego zmiana działa." />
+      <NaglowekStrony wstecz={{ do: "/nauka", nazwa: "Nauka" }} tytul="Naucz Kolegę" lead="Kolega się pomylił. Znajdź błąd i wytłumacz mu, jak jest naprawdę." />
       {scenariusz ? (
         <Runda scenariusz={scenariusz} wroc={wroc} />
       ) : (
@@ -254,8 +280,21 @@ export function UczenUczy() {
           ) : !scenariusze ? (
             <p role="status" className="muted">Pobieranie tematów…</p>
           ) : scenariusze.length ? (
+            <>
+              {dostepne.length > 1 && (
+                <PasekPrzedmiotow etykieta="Przedmiot" zalezy={wybrany}>
+                  {dostepne.map((id) => {
+                    const p = przedmiot(id)!;
+                    return (
+                      <button key={id} type="button" className={klasaPrzedmiotu(id === wybrany)} data-aktywny={id === wybrany} aria-pressed={id === wybrany} onClick={() => ustawPrzedmiot(id)}>
+                        <SubjectIcon subject={p} size="sm" /> {p.nazwa}
+                      </button>
+                    );
+                  })}
+                </PasekPrzedmiotow>
+              )}
             <ul className={styles.tematy}>
-              {scenariusze.map((s) => (
+              {tematy.map((s) => (
                 <li key={s.id}>
                   <button type="button" onClick={() => ustawScenariusz(s)}>
                     {s.tytul}<ChevronRight size={18} aria-hidden="true" />
@@ -263,6 +302,7 @@ export function UczenUczy() {
                 </li>
               ))}
             </ul>
+            </>
           ) : <p className="muted">Brak dostępnych tematów.</p>}
         </section>
       )}
