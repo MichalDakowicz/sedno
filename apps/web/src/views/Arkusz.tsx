@@ -1114,6 +1114,7 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
   const bloki = wszystkieBloki.filter((b) => strona === undefined || (b.strona ?? zadanie.strona) === strona);
   // Prawy przycisk na zadaniu: Pestka dostaje jego treść i odpowiedzi ucznia (klucz dopiero po sprawdzeniu).
   const kontekst = useMemo(() => kontekstZadania(zadanie, postep, gotowe), [zadanie, postep, gotowe]);
+  const zadanieBrudnopisu = useMemo(() => zRysunkiemZadania(zadanie, arkusz.przedmiot), [zadanie, arkusz.przedmiot]);
 
   return (
     <section
@@ -1186,12 +1187,13 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           ))}
         </div>
       )}
-      {ostatnia && arkusz.przedmiot === "matematyka" && (
+      {ostatnia && PRZEDMIOTY_Z_BRUDNOPISEM.has(arkusz.przedmiot) && (
         <Brudnopis
           plik={`${arkusz.id}-${zadanie.nr}`}
           zadanie={zadanie.nr}
-          rysunek={zadanie.rysunek}
+          rysunek={zadanieBrudnopisu.rysunek}
           poleceniePestki={postep.czas && !gotowe ? undefined : [
+            ...(arkusz.przedmiot === "matematyka" ? [] : [`Przedmiot: ${arkusz.przedmiot}`]),
             `Zadanie ${zadanie.nr}.`,
             ...zadanie.polecenie,
             ...wszystkieBloki.flatMap((b) => {
@@ -1216,7 +1218,7 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
           tresc={
             <Kompakt.Provider value={true}>
-              <TrescKompakt zadanie={zadanie} bloki={wszystkieBloki} />
+              <TrescKompakt zadanie={zadanieBrudnopisu} bloki={wszystkieBloki} />
             </Kompakt.Provider>
           }
           duzyRysunek={[...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie))}
@@ -2030,6 +2032,20 @@ function ElementyZGrupami({ elementy, grupy, zadanie, wskazowki }: { elementy: E
   );
 }
 
+// Brudnopis (tablica z Pestką) mają przedmioty z obliczeniami i rysunkami do zadań.
+const PRZEDMIOTY_Z_BRUDNOPISEM = new Set<string>(["matematyka", "fizyka", "chemia"]);
+const POLECENIE_RYSUNKU = /na rysunku|narysuj|dorysuj|konstrukcyjn|zaznacz na|na wykresie/i;
+
+// Importer przypisuje rysunek zadania tylko w matematyce. W fizyce i chemii bierzemy pierwszy rysunek zadania,
+// gdy polecenie odwołuje się do rysunku albo wykresu, żeby uczeń rysował na nim na tablicy.
+function zRysunkiemZadania(z: Zadanie, przedmiot: string): Zadanie {
+  if (z.rysunek || (przedmiot !== "fizyka" && przedmiot !== "chemia")) return z;
+  const blok = z.bloki.find((b) => b.typ === "rysunek");
+  if (blok?.typ !== "rysunek") return z;
+  const tekst = [...z.polecenie, ...z.bloki.map((b) => ("tekst" in b ? b.tekst : "")), ...z.pytania.map((q) => q.tresc)].join(" ").normalize("NFC");
+  return POLECENIE_RYSUNKU.test(tekst) ? { ...z, rysunek: blok.obraz } : z;
+}
+
 function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
   const { pytania, luki, lukiKadrow } = useCtx();
   const kompakt = useContext(Kompakt);
@@ -2161,14 +2177,14 @@ function TekstFormaty({ tekst, formaty }: { tekst: string; formaty: [number, num
   let poz = 0;
   for (const [od, do_, kroj] of [...formaty].sort((a, b) => a[0] - b[0])) {
     if (od < poz) continue;
-    if (od > poz) czesci.push(tekst.slice(poz, od));
-    const s = tekst.slice(od, do_);
+    if (od > poz) czesci.push(<TekstMat key={`t${poz}`} tekst={tekst.slice(poz, od)} />);
+    const s = <TekstMat tekst={tekst.slice(od, do_)} />;
     czesci.push(
       kroj === "b" ? <strong key={od}>{s}</strong> : kroj === "i" ? <em key={od}>{s}</em> : kroj === "sup" ? <sup key={od}>{s}</sup> : kroj === "sub" ? <sub key={od}>{s}</sub> : <code key={od} className={styles.inlineCode}>{s}</code>,
     );
     poz = do_;
   }
-  if (poz < tekst.length) czesci.push(tekst.slice(poz));
+  if (poz < tekst.length) czesci.push(<TekstMat key={`t${poz}`} tekst={tekst.slice(poz)} />);
   return <>{czesci}</>;
 }
 
@@ -2929,6 +2945,35 @@ function PrawdaFalszKod({ pytanie: p, stwierdzenia }: { pytanie: PytanieOtwarte;
 type WyborKodu = { przed: string; miedzy: string; litery: Opcja[]; cyfry: Opcja[]; ukryte: Set<Blok> };
 const NUMEROWANA = /^(\d)\.\s+([\s\S]+)$/;
 
+// Tabela „A./B. | spójnik | 1./2./3.” z arkusza CKE: pozycje i spójnik są rozbite na wiersze komórek.
+// Fragment bez litery albo cyfry dokleja się do poprzedniej pozycji, a gdy ta kończy się kropką, otwiera następną.
+function opcjeZKolumny(wiersze: string[][], kolumnaZnaku: number, kolumnaTekstu: number, znak: RegExp): Opcja[] {
+  const wynik: Opcja[] = [];
+  let zaczep = "";
+  for (const w of wiersze) {
+    const tekst = (w[kolumnaTekstu] ?? "").trim();
+    const m = (w[kolumnaZnaku] ?? "").trim().match(znak);
+    if (m) {
+      wynik.push({ litera: m[1], tresc: [zaczep, tekst].filter(Boolean).join(" ") });
+      zaczep = "";
+    } else if (tekst) {
+      const ostatnia = wynik[wynik.length - 1];
+      if (ostatnia && !/[.?!]$/.test(ostatnia.tresc)) ostatnia.tresc += ` ${tekst}`;
+      else zaczep = [zaczep, tekst].filter(Boolean).join(" ");
+    }
+  }
+  return wynik;
+}
+
+function wyborZTabeli(b: Blok): Pick<WyborKodu, "litery" | "cyfry" | "miedzy"> | null {
+  if (b.typ !== "tabelaTresci" || b.wiersze.some((w) => w.length < 5)) return null;
+  const litery = opcjeZKolumny(b.wiersze, 0, 1, /^([A-Z])\.$/);
+  const cyfry = opcjeZKolumny(b.wiersze, 3, 4, /^(\d)\.$/);
+  if (litery.length < 2 || cyfry.length < 2) return null;
+  const miedzy = b.wiersze.map((w) => w[2].trim()).filter(Boolean).join(" ");
+  return miedzy ? { litery, cyfry, miedzy } : null;
+}
+
 function kodyZWyborem(z: Zadanie): Map<string, WyborKodu> {
   const wynik = new Map<string, WyborKodu>();
   let sekcja: Blok[] = [];
@@ -2939,7 +2984,10 @@ function kodyZWyborem(z: Zadanie): Map<string, WyborKodu> {
     }
     const p = z.pytania.find((q) => q.nr === b.nr);
     const opcje = sekcja.find((x) => x.typ === "opcje");
-    if (p?.typ === "otwarte" && p.kod && p.oczekiwane?.every((k) => /^[A-Z]\d$/.test(k)) && opcje?.typ === "opcje") {
+    const tabela = sekcja.find((x) => wyborZTabeli(x));
+    if (p?.typ === "otwarte" && p.kod && tabela && p.oczekiwane?.every((k) => /^[A-Z]\d$/.test(k)))
+      wynik.set(p.nr, { przed: "", ...wyborZTabeli(tabela)!, ukryte: new Set<Blok>([tabela]) });
+    else if (p?.typ === "otwarte" && p.kod && p.oczekiwane?.every((k) => /^[A-Z]\d$/.test(k)) && opcje?.typ === "opcje") {
       const numerowane = sekcja.filter((x): x is Blok & { typ: "akapit"; tekst: string; polecenie?: boolean } => x.typ === "akapit" && !x.polecenie && NUMEROWANA.test(x.tekst));
       // Krótkie kawałki zdania: „Ten ciąg jest” przed pierwszą grupą, „oraz” przed drugą.
       const kawalki = sekcja.filter((x): x is Blok & { typ: "akapit"; tekst: string; polecenie?: boolean } => x.typ === "akapit" && !x.polecenie && !NUMEROWANA.test(x.tekst) && x.tekst.length <= 80);

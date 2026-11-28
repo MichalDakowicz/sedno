@@ -7,6 +7,7 @@ import { dodajPriorytet, listaPelna, opisProfilu, usunPriorytet } from "../konto
 import { useUstawienia } from "../konto/ustawienia";
 import { opisArkuszyKonta } from "../konto/wyniki";
 import { glos } from "../pestka/glos";
+import { obrazyZadania } from "../pestka/obrazyZadania";
 import { AKCJE, type AkcjaPestki } from "../../../../services/supabase/functions/_shared/pestka-odpowiedz";
 
 /** Priorytet, który Pestka zapisała w profilu ucznia z danej wypowiedzi (tylko na ekranie); cofniete: uczeń go cofnął. */
@@ -283,6 +284,8 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
     const kontroler = new AbortController();
     przerwanie.current = kontroler;
     try {
+      // Rysunki zadania z arkusza idą z ostatnią wiadomością ucznia, żeby Pestka widziała to samo co on.
+      const obrazy = zadanieArkusza && !weryfikacja ? await obrazyZadania(zadanieArkusza) : [];
       const wynik = await streamAi(
         {
           // Czat tłumaczy zadania i lektury: lżejszy model mylił się w rachunkach i cytatach.
@@ -297,8 +300,9 @@ export function TutorProvider({ children, ai: aiStan, przedmioty = "" }: { child
           messages: rozmowa(
             { przedmiot: k?.przedmiot ?? opcje.przedmiot ?? (przedmioty ? `matura: ${przedmioty}` : "matura"), krotko,
               tryb: k?.sokratejski ? "sokratejski" : "pomoc", czat: !weryfikacja, profil: opisProfilu(), listaPelna: listaPelna(), arkusze: opisArkuszyKonta(),
-              zadanie: k?.opis },
+              zadanie: k?.opis, obrazy: obrazy.length },
             opcje.akcja ? [...historia.slice(0, -1), { od: "uczen", tekst: opcje.akcja }] : historia,
+            obrazy,
           ),
         },
         (delta) => {

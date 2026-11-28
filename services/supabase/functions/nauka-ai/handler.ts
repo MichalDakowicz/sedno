@@ -338,10 +338,14 @@ function elementyBrudnopisu<T>(raw: unknown, limit: number, odczytaj: (item: unk
   return { elementy, pominieto: elementy.length !== raw.length };
 }
 
+const PRZEDMIOT_BRUDNOPISU = { matematyka: "matematyką", fizyka: "fizyką", chemia: "chemią" } as const;
+
 // Wejście omawiania brudnopisu: walidacja i zapytanie do modelu, wspólne dla zwykłej i strumieniowej odpowiedzi.
 function zadanieBrudnopisu(body: Obiekt, strumien: boolean) {
   const polecenie = tekst(body.polecenie, 3500);
   const pytanie = body.pytanie === undefined ? null : tekst(body.pytanie, 500);
+  // Przedmiot zadania aplikacja podaje w pierwszym wierszu polecenia („Przedmiot: fizyka”); bez niego to matematyka.
+  const przedmiot = (polecenie?.match(/^Przedmiot: (fizyka|chemia)\b/)?.[1] ?? "matematyka") as keyof typeof PRZEDMIOT_BRUDNOPISU;
   const obraz = obrazWiadomosci(body.obraz);
   if (body.obraz !== undefined && !obraz) throw new BladApi(400, "bad_image");
   if (!polecenie || (!pytanie && body.pytanie !== undefined) || (!obraz && !pytanie)) throw new BladApi(400, "bad_input");
@@ -357,10 +361,10 @@ function zadanieBrudnopisu(body: Obiekt, strumien: boolean) {
   return {
     task: prowadzenie ? "nauka-prowadz-brudnopis" : "nauka-omow-brudnopis",
     instrukcja: [
-      "Jesteś Pestką. Pomagasz uczniowi z matematyką, analizując jego brudnopis lub pytanie.",
+      `Jesteś Pestką. Pomagasz uczniowi z ${PRZEDMIOT_BRUDNOPISU[przedmiot]}, analizując jego brudnopis lub pytanie.`,
       "W polu odczyt opisz krótko, jakie obliczenia lub rysunek faktycznie widzisz. Użyj null, jeśli nie ma obrazu albo zapis jest nieczytelny.",
       "W polu wskazowka wskaż najwcześniejszy widoczny błąd i popraw ten krok. Gdy wszystko wygląda dobrze, wyjaśnij dlaczego i podaj następny krok.",
-      "Nie zgaduj znaków ani treści nieczytelnego pisma. Wskaż niepewność i poproś o doprecyzowanie. W całej odpowiedzi zapisuj matematykę prostym tekstem i znakami Unicode, np. −, √, ². Unikaj LaTeX-a i Markdownu.",
+      "Nie zgaduj znaków ani treści nieczytelnego pisma. Wskaż niepewność i poproś o doprecyzowanie. W całej odpowiedzi zapisuj wzory i obliczenia prostym tekstem i znakami Unicode, np. −, √, ². Unikaj LaTeX-a i Markdownu.",
       "Nie rozwiązuj całego zadania za ucznia. Odpowiedz wprost na pytanie o pojedynczy krok lub konstrukcję.",
       "Zaproponuj kształty tylko na prośbę lub gdy rzeczywiście objaśniają krok. Rysunek powstanie obok pracy ucznia, jako osobny schemat: narysuj w nim całą figurę razem z dodanym elementem i powiedz we wskazówce, że rysunek jest obok.",
       "Dorysowany element (wysokość, środkowa, przekątna, promień) ma końce dokładnie w punktach figury: policz je z jej wierzchołków, np. spodek wysokości na podstawie od [0.2,0.8] do [0.8,0.8] to [0.5,0.8].",

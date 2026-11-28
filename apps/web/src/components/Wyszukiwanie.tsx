@@ -1,4 +1,5 @@
 import { useDeferredValue, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { rozdzielUi } from "../../../../services/supabase/functions/_shared/pestka-ui";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, CornerDownLeft, FileText, GraduationCap, LayoutGrid, Map as MapaIkona, MessageCircle, Search, Sparkles, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -399,7 +400,7 @@ function OdpowiedzPestki({ pytanie, messages, mysli, otworz, wroc }: {
       <p className={styles.pytanie}>{pytanie}</p>
       <div className={styles.odpowiedzPestki} aria-live="polite" aria-busy={mysli}>
         <TutorAvatar size={28} state={mysli ? "thinking" : "idle"} />
-        {odpowiedz?.text ? <Markdown className={styles.tekstOdpowiedzi}>{odpowiedz.text}</Markdown>
+        {odpowiedz?.text ? <Markdown className={styles.tekstOdpowiedzi}>{rozdzielUi(odpowiedz.text).tekst}</Markdown>
           : <span className="muted small">{mysli ? "Pestka pisze…" : "Pestka nie odpowiedziała. Otwórz rozmowę i spróbuj ponownie."}</span>}
       </div>
       <div className={styles.akcjeOdpowiedzi}>

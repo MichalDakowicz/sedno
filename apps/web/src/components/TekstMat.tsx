@@ -27,7 +27,16 @@ export function wzorTekstem(tex: string) {
   return t.replace(/[{}]/g, "").replace(/\s+/g, " ").trim();
 }
 
-export function TekstMat({ tekst }: { tekst: string }) {
+// Litera z łączącą strzałką (U+20D7, wektor w fizyce) nie ma glifu w większości czcionek i wychodzi jako kwadrat,
+// więc idzie do KaTeX-a jako \vec.
+// Strzałka bez litery przed sobą (zostaje po tekstowej warstwie PDF) znika, zamiast pokazać kwadrat.
+const zWektorami = (tekst: string) =>
+  tekst
+    .replace(/([A-Za-zͰ-Ͽ\u{1d400}-\u{1d7ff}])[\sሀ-፿]*⃗/gu, (_, l: string) => `\\(\\vec{${l}}\\)`)
+    .replace(/[ሀ-፿]*⃗/g, "");
+
+export function TekstMat({ tekst: surowy }: { tekst: string }) {
+  const tekst = zWektorami(surowy);
   if (!maWzory(tekst)) return <>{tekst}</>;
   return (
     <Suspense fallback={tekst.replace(/\\\((.*?)\\\)/gs, (_, w: string) => wzorTekstem(w))}>

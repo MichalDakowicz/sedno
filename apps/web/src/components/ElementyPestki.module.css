@@ -1,0 +1,337 @@
+.elementy {
+  display: grid;
+  gap: var(--s-4);
+  margin-top: var(--s-3);
+}
+
+/* Elementy oddziela linia, nie karta. */
+.element {
+  display: grid;
+  gap: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
+  min-width: 0;
+}
+
+.tytul {
+  margin: 0;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.licznik {
+  font-size: var(--t-xs);
+  color: var(--subtle);
+}
+
+/* Przycisk i link w jednym stylu: jak chip w czacie. */
+.przycisk {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--fg);
+  font-size: var(--t-sm);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.przycisk:hover {
+  border-color: var(--primary);
+}
+
+.akcje {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+/* Quiz: kafle jak w szybkiej rundzie. */
+.quiz {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.pytanie {
+  font-weight: 600;
+}
+
+.kafle {
+  display: grid;
+  gap: var(--s-1);
+}
+
+.kafel {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  min-height: 48px;
+  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background-color var(--ruch-szybki) var(--ruch-krzywa), box-shadow var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.kafel:hover:not(:has(:disabled)):not([data-stan]) {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.kafel:has(input:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.kafel:has(:disabled) {
+  cursor: default;
+}
+
+.radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.litera {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
+.tekstKafla {
+  flex: 1;
+  min-width: 0;
+  align-self: center;
+}
+
+.tekstKafla :global(p) {
+  margin: 0;
+}
+
+.znak {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.kafel[data-stan="trafiona"] {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+}
+
+.kafel[data-stan="trafiona"] .litera {
+  background: var(--success-strong);
+  color: var(--primary-fg);
+}
+
+.kafel[data-stan="poprawna"] {
+  border: 1.5px dashed var(--success);
+}
+
+.kafel[data-stan="poprawna"] .litera,
+.kafel[data-stan="trafiona"] .znak,
+.kafel[data-stan="poprawna"] .znak {
+  color: var(--success);
+}
+
+.kafel[data-stan="bledna"] {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+}
+
+.kafel[data-stan="bledna"] .litera {
+  background: var(--danger);
+  color: var(--primary-fg);
+}
+
+.kafel[data-stan="bledna"] .znak {
+  color: var(--danger);
+}
+
+.wyjasnienie {
+  display: grid;
+  gap: var(--s-1);
+}
+
+.werdykt {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Kroki rozwiązania. */
+.kroki {
+  display: grid;
+  gap: var(--s-3);
+  justify-items: start;
+}
+
+.listaKrokow {
+  display: grid;
+  gap: var(--s-3);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.krok {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  min-width: 0;
+  animation: krok-wejscie var(--ruch-zwykly) var(--ruch-krzywa) both;
+}
+
+.krok > :last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.krok :global(p) {
+  margin: 0;
+}
+
+.numer {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
+@keyframes krok-wejscie {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* Fiszki. */
+.fiszki {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.fiszka {
+  display: grid;
+  align-content: center;
+  gap: var(--s-2);
+  min-height: 120px;
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--ruch-szybki) var(--ruch-krzywa), background-color var(--ruch-szybki) var(--ruch-krzywa);
+}
+
+.fiszka:hover {
+  border-color: var(--primary);
+}
+
+.fiszka[data-odwrocona] {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+}
+
+.fiszka :global(p) {
+  margin: 0;
+}
+
+.strona {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--subtle);
+}
+
+.fiszkiNawigacja {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+/* Wykresy. */
+.wykres {
+  display: grid;
+  gap: var(--s-2);
+  margin: 0;
+}
+
+.slupki {
+  display: grid;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slupek {
+  display: grid;
+  grid-template-columns: minmax(64px, 28%) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s-3);
+  font-size: var(--t-sm);
+}
+
+.etykieta {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+}
+
+.tor {
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+  overflow: hidden;
+}
+
+.wartosc {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--primary);
+}
+
+.liczba {
+  min-width: 3.2em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.osX {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--t-xs);
+  color: var(--subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .krok {
+    animation: none;
+  }
+}
