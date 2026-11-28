@@ -32,7 +32,7 @@ export function szablon(slug: string) {
 
 export const WDROZONE: Record<string, { to: string; tytul: string; opis: string }> = {
   nauka: { to: "/nauka", tytul: "Nauka", opis: "Wybierz umiejętność i format." },
-  "uczen-uczy": { to: "/nauka/uczen-uczy", tytul: "Naucz Kolegę", opis: "Wytłumacz Koledze, jak działa angielska reguła." },
+  "uczen-uczy": { to: "/nauka/uczen-uczy", tytul: "Naucz Kolegę", opis: "Wytłumacz Koledze, w czym się pomylił: z polskiego, matematyki, angielskiego albo informatyki." },
   "szybka-runda": { to: "/nauka/runda", tytul: "Szybka runda", opis: "Krótka runda jednej umiejętności." },
   rozbior: { to: "/nauka", tytul: "Rozbiór po rundzie", opis: "Po zakończeniu rundy zobacz wynik i zmianę opanowania." },
   umiejetnosci: { to: "/umiejetnosci", tytul: "Mapa umiejętności", opis: "Sprawdź opanowanie i przejrzyj dowody." },

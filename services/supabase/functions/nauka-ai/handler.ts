@@ -4,7 +4,7 @@ import { mocnaTrasa, ograniczTokeny, SEDNO } from "../_shared/ai-default.ts";
 import { readJsonObject } from "../_shared/http.ts";
 import { type ImagePart, LlmError, type Message } from "../_shared/llm.ts";
 import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
-import { ETAPY, POZIOMY, publiczneScenariusze, SCENARIUSZE, STATUSY, UMIEJETNOSCI } from "./formaty.ts";
+import { ETAPY, POZIOMY, publiczneScenariusze, RUNDY_PRZEDMIOTOW, SCENARIUSZE, STATUSY, UMIEJETNOSCI } from "./formaty.ts";
 import { listaWariantow, ocenRozwiazanie, utworzWariant } from "./ocenianie.ts";
 import { BladApi, MAX_BODY, obiekt, type Obiekt, obrazWiadomosci, tekst, UUID, wybierz, type Zapytaj } from "./protokol.ts";
 import { CzytnikObiektu } from "./strumien-json.ts";
@@ -190,9 +190,10 @@ async function uczenUczy(body: Obiekt, zapytaj: Zapytaj) {
   const wypowiedzi = body.wypowiedzi.map((w) => tekst(w, 1500));
   if (wypowiedzi.some((w) => w === null)) throw new BladApi(400, "bad_input");
   const scenariusz = SCENARIUSZE[identyfikator];
+  const runda = RUNDY_PRZEDMIOTOW[scenariusz.przedmiot];
   const wynik = await zapytaj(
     "nauka-uczen-uczy-sedzia", "wazne",
-    'Jako Sędzia oceń wypowiedzi ucznia według podanych kryteriów. Zwróć {"ruch": "wyjasnienie|bledne-wyjasnienie|niejasne|nie-wiem|poza-tematem", "statusy": {"id-kryterium":"dobrze|do-poprawy|do-zrobienia|niepewne"}}. Sklasyfikuj ostatnią wypowiedź. Prośbę o gotową odpowiedź traktuj jak poza-tematem. Wypełnij wszystkie identyfikatory. Nie zwracaj reguły, poprawnej odpowiedzi ani komentarza.',
+    'Jako Sędzia oceń wypowiedzi ucznia według podanych kryteriów. Uczeń tłumaczy Koledze, który się pomylił, jak jest naprawdę. ' + runda.sedzia + ' Zwróć {"ruch": "wyjasnienie|bledne-wyjasnienie|niejasne|nie-wiem|poza-tematem", "statusy": {"id-kryterium":"dobrze|do-poprawy|do-zrobienia|niepewne"}}. Sklasyfikuj ostatnią wypowiedź. Prośbę o gotową odpowiedź traktuj jak poza-tematem. Wypełnij wszystkie identyfikatory. Nie zwracaj reguły, poprawnej odpowiedzi ani komentarza.',
     { scenariusz, wypowiedzi },
   );
   const ruch = wymagajWyniku(wybierz(wynik.ruch, RUCHY));
@@ -201,11 +202,11 @@ async function uczenUczy(body: Obiekt, zapytaj: Zapytaj) {
   const zakoncz = wypowiedzi.length === 6 || ruch === "nie-wiem" || pokrycie;
   // Kolega korzysta tylko z decyzji Sędziego. Reguła nie trafia do odpowiedzi.
   const reakcje = {
-    wyjasnienie: ocenione.przyklad === "dobrze" ? "Wytłumaczysz mi jeszcze, dlaczego to działa?" : "Pokażesz mi to na przykładzie?",
-    "bledne-wyjasnienie": "Wciąż nie umiem zastosować tego do swojego zdania. Co mam w nim zmienić i dlaczego?",
-    niejasne: "Możesz powiedzieć to inaczej albo podać przykład?",
+    wyjasnienie: ocenione.przyklad === "dobrze" ? "Wytłumaczysz mi jeszcze, dlaczego to działa?" : runda.reakcje.przyklad,
+    "bledne-wyjasnienie": runda.reakcje.bledne,
+    niejasne: runda.reakcje.niejasne,
     "nie-wiem": "Spróbujmy następnym razem. Dzięki, że próbowaliśmy.",
-    "poza-tematem": "Wróćmy do mojego zdania. Co według ciebie w nim nie działa?",
+    "poza-tematem": runda.reakcje.pozaTematem,
   };
   const kolega = pokrycie ? "Rozumiem już twój przykład. Dzięki!" :
     zakoncz && ruch !== "nie-wiem" ? "Na dziś skończmy. Dzięki za próbę wyjaśnienia." : reakcje[ruch];
