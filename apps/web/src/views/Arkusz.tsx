@@ -1114,6 +1114,7 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
   const bloki = wszystkieBloki.filter((b) => strona === undefined || (b.strona ?? zadanie.strona) === strona);
   // Prawy przycisk na zadaniu: Pestka dostaje jego treść i odpowiedzi ucznia (klucz dopiero po sprawdzeniu).
   const kontekst = useMemo(() => kontekstZadania(zadanie, postep, gotowe), [zadanie, postep, gotowe]);
+  const zadanieBrudnopisu = useMemo(() => zRysunkiemZadania(zadanie, arkusz.przedmiot), [zadanie, arkusz.przedmiot]);
 
   return (
     <section
@@ -1186,12 +1187,13 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           ))}
         </div>
       )}
-      {ostatnia && arkusz.przedmiot === "matematyka" && (
+      {ostatnia && PRZEDMIOTY_Z_BRUDNOPISEM.has(arkusz.przedmiot) && (
         <Brudnopis
           plik={`${arkusz.id}-${zadanie.nr}`}
           zadanie={zadanie.nr}
-          rysunek={zadanie.rysunek}
+          rysunek={zadanieBrudnopisu.rysunek}
           poleceniePestki={postep.czas && !gotowe ? undefined : [
+            ...(arkusz.przedmiot === "matematyka" ? [] : [`Przedmiot: ${arkusz.przedmiot}`]),
             `Zadanie ${zadanie.nr}.`,
             ...zadanie.polecenie,
             ...wszystkieBloki.flatMap((b) => {
@@ -1216,7 +1218,7 @@ function ZadanieWidok({ zadanie, onPopraw, strona }: { zadanie: Zadanie; onPopra
           onZmiana={(zapis) => ustawBrudnopis(zadanie.nr, zapis)}
           tresc={
             <Kompakt.Provider value={true}>
-              <TrescKompakt zadanie={zadanie} bloki={wszystkieBloki} />
+              <TrescKompakt zadanie={zadanieBrudnopisu} bloki={wszystkieBloki} />
             </Kompakt.Provider>
           }
           duzyRysunek={[...luki.values()].some((l) => l.ile > 1 && zadanie.pytania.includes(l.pytanie))}
@@ -1699,11 +1701,15 @@ function ZdanieZLuka({ tekst, luka, bezOpcji, formaty }: { tekst: string; luka: 
             ustaw(p.nr, nowe.join("\n").replace(/\n+$/, ""));
           }}
         />
-      ) : arkusz.przedmiot === "informatyka" ? (
-        // Informatyka: zwykłe pole (liczba w innym systemie, wynik), bez klawiatury matematycznej.
+      ) : arkusz.przedmiot !== "matematyka" && arkusz.przedmiot !== "fizyka" && arkusz.przedmiot !== "chemia" ? (
+        // Poza naukami z wzorami zwykłe pole, bez klawiatury matematycznej. „Uzasadnienie:” i podobne dostają duże pole.
+        arkusz.przedmiot !== "informatyka" && /(uzasadnienie|wyja[sś]nienie|opis|komentarz|interpretacja)s*:?s*$/i.test(przed.trim()) ? (
+          <textarea className={styles.longAnswer} value={czesci[czesc] ?? ""} readOnly={sprawdzone(p.nr)} autoComplete="off" onChange={(e) => zapisz(e.target.value)} placeholder="Twoja odpowiedź" aria-label={`Odpowiedź ${p.nr}, część ${czesc + 1}`} />
+        ) : (
         <span className={styles.inlineGap}>
           <input type="text" value={czesci[czesc] ?? ""} size={Math.max(12, (czesci[czesc] ?? "").length + 2)} readOnly={sprawdzone(p.nr)} autoComplete="off" spellCheck={false} onChange={(e) => zapisz(e.target.value)} aria-label={`Odpowiedź ${p.nr}, część ${czesc + 1}`} />
         </span>
+        )
       ) : ile === 1 && (p.oczekiwane?.length || p.akceptowane?.length) ? (
         // Odpowiedź porównywana z kluczem jako tekst: zwykłe pole w luce.
         <LukaTekst pytanie={p} bezNumeru />
@@ -2026,6 +2032,20 @@ function ElementyZGrupami({ elementy, grupy, zadanie, wskazowki }: { elementy: E
   );
 }
 
+// Brudnopis (tablica z Pestką) mają przedmioty z obliczeniami i rysunkami do zadań.
+const PRZEDMIOTY_Z_BRUDNOPISEM = new Set<string>(["matematyka", "fizyka", "chemia"]);
+const POLECENIE_RYSUNKU = /na rysunku|narysuj|dorysuj|konstrukcyjn|zaznacz na|na wykresie/i;
+
+// Importer przypisuje rysunek zadania tylko w matematyce. W fizyce i chemii bierzemy pierwszy rysunek zadania,
+// gdy polecenie odwołuje się do rysunku albo wykresu, żeby uczeń rysował na nim na tablicy.
+function zRysunkiemZadania(z: Zadanie, przedmiot: string): Zadanie {
+  if (z.rysunek || (przedmiot !== "fizyka" && przedmiot !== "chemia")) return z;
+  const blok = z.bloki.find((b) => b.typ === "rysunek");
+  if (blok?.typ !== "rysunek") return z;
+  const tekst = [...z.polecenie, ...z.bloki.map((b) => ("tekst" in b ? b.tekst : "")), ...z.pytania.map((q) => q.tresc)].join(" ").normalize("NFC");
+  return POLECENIE_RYSUNKU.test(tekst) ? { ...z, rysunek: blok.obraz } : z;
+}
+
 function BlokWidok({ blok, zadanie }: { blok: Blok; zadanie: number }) {
   const { pytania, luki, lukiKadrow } = useCtx();
   const kompakt = useContext(Kompakt);
@@ -2157,14 +2177,14 @@ function TekstFormaty({ tekst, formaty }: { tekst: string; formaty: [number, num
   let poz = 0;
   for (const [od, do_, kroj] of [...formaty].sort((a, b) => a[0] - b[0])) {
     if (od < poz) continue;
-    if (od > poz) czesci.push(tekst.slice(poz, od));
-    const s = tekst.slice(od, do_);
+    if (od > poz) czesci.push(<TekstMat key={`t${poz}`} tekst={tekst.slice(poz, od)} />);
+    const s = <TekstMat tekst={tekst.slice(od, do_)} />;
     czesci.push(
       kroj === "b" ? <strong key={od}>{s}</strong> : kroj === "i" ? <em key={od}>{s}</em> : kroj === "sup" ? <sup key={od}>{s}</sup> : kroj === "sub" ? <sub key={od}>{s}</sub> : <code key={od} className={styles.inlineCode}>{s}</code>,
     );
     poz = do_;
   }
-  if (poz < tekst.length) czesci.push(tekst.slice(poz));
+  if (poz < tekst.length) czesci.push(<TekstMat key={`t${poz}`} tekst={tekst.slice(poz)} />);
   return <>{czesci}</>;
 }
 
@@ -2282,6 +2302,7 @@ function PrawdaFalszKomorka({ wybrana, poprawna, gotowe, onWybor, etykieta }: { 
           role="radio"
           aria-checked={wybrana === litera}
           className={styles.tfOption}
+          data-litera={litera}
           data-stan={stanCzesci(wybrana, poprawna, litera, gotowe)}
           disabled={gotowe}
           onClick={() => onWybor(wybrana === litera ? "" : litera)}
@@ -2924,6 +2945,35 @@ function PrawdaFalszKod({ pytanie: p, stwierdzenia }: { pytanie: PytanieOtwarte;
 type WyborKodu = { przed: string; miedzy: string; litery: Opcja[]; cyfry: Opcja[]; ukryte: Set<Blok> };
 const NUMEROWANA = /^(\d)\.\s+([\s\S]+)$/;
 
+// Tabela „A./B. | spójnik | 1./2./3.” z arkusza CKE: pozycje i spójnik są rozbite na wiersze komórek.
+// Fragment bez litery albo cyfry dokleja się do poprzedniej pozycji, a gdy ta kończy się kropką, otwiera następną.
+function opcjeZKolumny(wiersze: string[][], kolumnaZnaku: number, kolumnaTekstu: number, znak: RegExp): Opcja[] {
+  const wynik: Opcja[] = [];
+  let zaczep = "";
+  for (const w of wiersze) {
+    const tekst = (w[kolumnaTekstu] ?? "").trim();
+    const m = (w[kolumnaZnaku] ?? "").trim().match(znak);
+    if (m) {
+      wynik.push({ litera: m[1], tresc: [zaczep, tekst].filter(Boolean).join(" ") });
+      zaczep = "";
+    } else if (tekst) {
+      const ostatnia = wynik[wynik.length - 1];
+      if (ostatnia && !/[.?!]$/.test(ostatnia.tresc)) ostatnia.tresc += ` ${tekst}`;
+      else zaczep = [zaczep, tekst].filter(Boolean).join(" ");
+    }
+  }
+  return wynik;
+}
+
+function wyborZTabeli(b: Blok): Pick<WyborKodu, "litery" | "cyfry" | "miedzy"> | null {
+  if (b.typ !== "tabelaTresci" || b.wiersze.some((w) => w.length < 5)) return null;
+  const litery = opcjeZKolumny(b.wiersze, 0, 1, /^([A-Z])\.$/);
+  const cyfry = opcjeZKolumny(b.wiersze, 3, 4, /^(\d)\.$/);
+  if (litery.length < 2 || cyfry.length < 2) return null;
+  const miedzy = b.wiersze.map((w) => w[2].trim()).filter(Boolean).join(" ");
+  return miedzy ? { litery, cyfry, miedzy } : null;
+}
+
 function kodyZWyborem(z: Zadanie): Map<string, WyborKodu> {
   const wynik = new Map<string, WyborKodu>();
   let sekcja: Blok[] = [];
@@ -2934,7 +2984,10 @@ function kodyZWyborem(z: Zadanie): Map<string, WyborKodu> {
     }
     const p = z.pytania.find((q) => q.nr === b.nr);
     const opcje = sekcja.find((x) => x.typ === "opcje");
-    if (p?.typ === "otwarte" && p.kod && p.oczekiwane?.every((k) => /^[A-Z]\d$/.test(k)) && opcje?.typ === "opcje") {
+    const tabela = sekcja.find((x) => wyborZTabeli(x));
+    if (p?.typ === "otwarte" && p.kod && tabela && p.oczekiwane?.every((k) => /^[A-Z]\d$/.test(k)))
+      wynik.set(p.nr, { przed: "", ...wyborZTabeli(tabela)!, ukryte: new Set<Blok>([tabela]) });
+    else if (p?.typ === "otwarte" && p.kod && p.oczekiwane?.every((k) => /^[A-Z]\d$/.test(k)) && opcje?.typ === "opcje") {
       const numerowane = sekcja.filter((x): x is Blok & { typ: "akapit"; tekst: string; polecenie?: boolean } => x.typ === "akapit" && !x.polecenie && NUMEROWANA.test(x.tekst));
       // Krótkie kawałki zdania: „Ten ciąg jest” przed pierwszą grupą, „oraz” przed drugą.
       const kawalki = sekcja.filter((x): x is Blok & { typ: "akapit"; tekst: string; polecenie?: boolean } => x.typ === "akapit" && !x.polecenie && !NUMEROWANA.test(x.tekst) && x.tekst.length <= 80);
@@ -3225,6 +3278,28 @@ function LukaZdanie({ pytanie: p }: { pytanie: PytanieZamkniete }) {
   );
 }
 
+// Odpowiedź słowna (wyjaśnij, opisz, uzasadnij) dostaje duże pole, wynik liczbowy albo pojedyncze słowo zostaje w wąskim.
+const CZASOWNIK_OPISU = /(wyja[sś]nij|uzasadnij|opisz|por[oó]wnaj|zinterpretuj|przedstaw|wyt[lł]umacz|scharakteryzuj|om[oó]w|sformu[lł]uj|odnie[sś] si[eę]|podaj przyczyn|podaj skutk)/i;
+// Poza naukami ścisłymi „napisz” i „określ” też oznaczają odpowiedź zdaniem.
+const CZASOWNIK_HUMANISTYCZNY = /(napisz|okre[sś]l)/i;
+const NAUKI_SCISLE = new Set<string>(["matematyka", "informatyka", "fizyka", "chemia"]);
+function wymagaOpisu(p: PytanieOtwarte, polecenie: string, przedmiot: string) {
+  if (p.kod || p.wynik) return false;
+  const tekst = `${p.tresc} ${polecenie}`.normalize("NFC");
+  if (CZASOWNIK_OPISU.test(tekst)) return true;
+  if (!NAUKI_SCISLE.has(przedmiot) && CZASOWNIK_HUMANISTYCZNY.test(tekst)) return true;
+  if (NAUKI_SCISLE.has(przedmiot) || p.punkty < 2) return false;
+  // Dwa punkty i więcej bez krótkiego klucza: odpowiedź zwykle ma być zdaniem.
+  return !p.oczekiwane?.length || p.oczekiwane.some((o) => o.trim().split(/\s+/).length > 3);
+}
+
+// Polecenie stoi zwykle w akapicie tuż nad pytaniem (a nie w jego treści), więc czytamy dwa bloki przed nim.
+function poleceniePrzed(z: Zadanie | undefined, nr: string) {
+  if (!z) return "";
+  const i = z.bloki.findIndex((b) => b.typ === "pytanie" && b.nr === nr);
+  return [...z.polecenie, ...z.bloki.slice(Math.max(0, i - 2), Math.max(0, i)).map((b) => (b.typ === "akapit" || b.typ === "naglowek" ? b.tekst : ""))].join(" ");
+}
+
 function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: PytanieOtwarte; blok?: boolean; bezNumeru?: boolean; placeholder?: string }) {
   const { arkusz, postep, ustaw, sprawdzone } = useCtx();
   const gotowe = sprawdzone(p.nr);
@@ -3260,6 +3335,20 @@ function LukaTekst({ pytanie: p, blok, bezNumeru, placeholder }: { pytanie: Pyta
           spellCheck={false}
           onChange={(e) => ustaw(p.nr, e.target.value)}
           placeholder={p.wynik ? "wynik: wpisz albo wstaw z programu" : "odpowiedź, algorytm albo zapytanie"}
+          aria-label={`Odpowiedź ${p.nr}`}
+        />
+      </span>
+    );
+  if (blok && wymagaOpisu(p, poleceniePrzed(zadanieP, p.nr), arkusz.przedmiot))
+    return (
+      <span className={styles.blockGap} data-werdykt={w}>
+        <textarea
+          className={styles.longAnswer}
+          value={wartosc}
+          readOnly={gotowe}
+          autoComplete="off"
+          onChange={(e) => ustaw(p.nr, e.target.value)}
+          placeholder="Twoja odpowiedź"
           aria-label={`Odpowiedź ${p.nr}`}
         />
       </span>
@@ -3341,13 +3430,14 @@ function PoleKodu({ p, rodzaj, wartosc, tylkoOdczyt }: { p: PytanieOtwarte; rodz
 }
 
 function WypowiedzWidok({ pytanie: p, pisanie }: { pytanie: Wypowiedz; pisanie: Pisanie }) {
-  const { postep, ustaw, sprawdzone } = useCtx();
+  const { arkusz, postep, ustaw, sprawdzone } = useCtx();
   const klucz = (pole: string) => `${p.nr}:${pole}`;
   const temat = Number(postep.odpowiedzi[klucz("temat")]) || null;
   const odhaczone = (postep.odpowiedzi[klucz("lista")] ?? "").split(",").filter(Boolean).map(Number);
   return (
     <div className={styles.essay}>
       <Wypracowanie
+        jezyk={arkusz.przedmiot === "polski" ? "pl" : undefined}
         tekst={postep.odpowiedzi[p.nr] ?? ""}
         poczatek={p.poczatek}
         tematy={pisanie.tematy}

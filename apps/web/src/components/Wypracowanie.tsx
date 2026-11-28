@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Check, Maximize2, Minimize2 } from "lucide-react";
 import { liczSlowa } from "../arkusze/sprawdz";
 import styles from "./Wypracowanie.module.css";
@@ -12,11 +12,12 @@ type Props = {
   tematy: Temat[]; // dwa tematy do wyboru (rozszerzenie, dwujęzyczny) albo pusto
   punkty: string[]; // elementy treści z polecenia, gdy temat jest jeden
   polecenie?: string; // pokazywane w trybie skupienia, gdy nie ma tematów do wyboru
-  zakres: [number, number] | null;
+  zakres: [number, number] | null; // górna granica Infinity: tylko minimum (wypracowanie z polskiego)
   temat: number | null;
   odhaczone: number[];
   tylkoOdczyt: boolean;
   jezyk?: "pl" | "en";
+  obok?: ReactNode; // panel obok tekstu zamiast listy elementów treści, np. plan wypracowania
   onTekst: (t: string) => void;
   onTemat: (nr: number) => void;
   onOdhacz: (i: number) => void;
@@ -159,6 +160,8 @@ export function Wypracowanie(props: Props) {
           <Licznik slowa={slowa} zakres={zakres} akapity={akapity} />
         </div>
 
+        {props.obok && !lista.length && <aside className={`${styles.checklist} ${styles.obok}`} aria-label="Plan">{props.obok}</aside>}
+
         {lista.length > 0 && (
           <aside className={styles.checklist} aria-label="Elementy treści">
             <div className={styles.checkHead}>
@@ -222,23 +225,24 @@ function Polecenie({ wybrany, tematy, polecenie }: { wybrany?: Temat; tematy: Te
 
 function Licznik({ slowa, zakres, akapity }: { slowa: number; zakres: [number, number] | null; akapity: number }) {
   const [min, max] = zakres ?? [0, 0];
-  const skala = zakres ? max * 1.25 : 1;
+  const otwarty = !Number.isFinite(max);
+  const skala = !zakres ? 1 : otwarty ? min * 1.5 : max * 1.25;
   const stan = !zakres ? "brak" : slowa < min ? "malo" : slowa <= max ? "ok" : "duzo";
   const opis = !zakres
     ? null
     : stan === "malo"
       ? `jeszcze ${min - slowa} do minimum`
       : stan === "ok"
-        ? "długość w normie"
+        ? otwarty ? "minimum osiągnięte" : "długość w normie"
         : `${slowa - max} ponad zalecaną długość`;
   return (
     <div className={styles.counter} data-stan={stan}>
       <span className={styles.count}>
-        <strong>{slowa}</strong> {zakres ? `/ ${min}–${max} słów` : "słów"}
+        <strong>{slowa}</strong> {!zakres ? "słów" : otwarty ? `/ min. ${min} słów` : `/ ${min}–${max} słów`}
       </span>
       {zakres && (
         <span className={styles.meter} aria-hidden="true">
-          <span className={styles.range} style={{ left: `${(min / skala) * 100}%`, width: `${((max - min) / skala) * 100}%` }} />
+          <span className={styles.range} style={{ left: `${(min / skala) * 100}%`, width: `${((Math.min(max, skala) - min) / skala) * 100}%` }} />
           <span className={styles.fill} style={{ width: `${Math.min(slowa / skala, 1) * 100}%` }} />
         </span>
       )}

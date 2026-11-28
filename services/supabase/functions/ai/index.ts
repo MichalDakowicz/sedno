@@ -11,6 +11,7 @@ import { limitDzienny, logAiUsage, resolveAi, zapasowa } from "../_shared/ai-rou
 import { mocnaTrasa, ograniczTokeny, SEDNO } from "../_shared/ai-default.ts";
 import { readJsonObject } from "../_shared/http.ts";
 import { LlmError, type Message } from "../_shared/llm.ts";
+import { dolaczObrazy, odczytajWiadomosci } from "./wiadomosci.ts";
 import { chatRetry, streamRetry } from "../_shared/llm-retry.ts";
 import { admin, cors, reply, takeToken, userId } from "../_shared/konto.ts";
 import {
@@ -24,23 +25,12 @@ import type { SzukajBaza, SzukajElementy, SzukajFragmenty, SzukajFragmentyMiejsc
 // Osłona transportu dla całego żądania. Historię czatu ogranicza okno dostawcy.
 const MAX_BODY = 8 * 1024 * 1024;
 const TIERS = new Set(["wazne", "lekkie"]);
-const ROLES = new Set(["system", "user", "assistant"]);
 // Sufit długości odpowiedzi czatu Pestki, gdy klient poda własny max_tokens.
 const MAX_TOKENS_CZATU = 4096;
 
 // Poziom modelu dla pytań o lektury (rozpoznany utwór, pytanie o lekturę, sprawdzanie odwołań w wypracowaniu).
 // To jedyny przełącznik: SEDNO_TIER_LEKTUR=lekkie przywraca poziom wybrany przez aplikację.
 const TIER_LEKTUR: "wazne" | null = Deno.env.get("SEDNO_TIER_LEKTUR") === "lekkie" ? null : "wazne";
-
-function parseMessages(raw: unknown): Message[] | null {
-  if (!Array.isArray(raw) || raw.length < 1) return null;
-  const out: Message[] = [];
-  for (const m of raw) {
-    if (!m || typeof m !== "object" || !ROLES.has(m.role) || typeof m.content !== "string") return null;
-    out.push({ role: m.role, content: m.content });
-  }
-  return out;
-}
 
 async function handle(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
@@ -71,9 +61,9 @@ async function handle(req: Request): Promise<Response> {
 
   const requestedTier = typeof body.tier === "string" ? body.tier : "lekkie";
   if (!TIERS.has(requestedTier)) return reply(400, { error: "bad_tier" });
-  const parsedMessages = parseMessages(body.messages);
+  const parsedMessages = odczytajWiadomosci(body.messages);
   if (!parsedMessages) return reply(400, { error: "bad_messages" });
-  const messages = parsedMessages;
+  const { messages, obrazy } = parsedMessages;
   const pestka = prosbaPestki(body.pestka);
   if (body.pestka !== undefined && (!pestka || body.stream !== true)) return reply(400, { error: "bad_pestka_request" });
   const pytanieOLekturze = pestka?.tryb === "lektura" ||
@@ -107,7 +97,7 @@ async function handle(req: Request): Promise<Response> {
     try {
       const signal = AbortSignal.any([req.signal, AbortSignal.timeout(120_000)]);
       // Zwykłe zapytania zwracają tekst czytany przez kod (np. JSON), bez miejsca na źródła: bez wyszukiwania.
-      const out = await chatRetry(route, { messages, maxTokens, temperature, signal, webSearch: false }, { fallback });
+      const out = await chatRetry(route, { messages: dolaczObrazy(messages, obrazy), maxTokens, temperature, signal, webSearch: false }, { fallback });
       const { provider, model } = out.route;
       await logAiUsage({ ...base, provider, model, ok: true, status: 200, prompt_tokens: out.usage?.promptTokens, completion_tokens: out.usage?.completionTokens, duration_ms: Date.now() - started });
       return reply(200, { text: out.text, provider, model, usage: out.usage });
@@ -183,7 +173,7 @@ async function handle(req: Request): Promise<Response> {
     let wyslano = "";
     // W sieci szuka tylko czat Pestki: tylko on pokazuje uczniowi źródła odpowiedzi.
     const webSearch = pestka?.tryb === "czat";
-    for await (const ev of streamRetry(route, { messages: czat?.messages ?? messages, maxTokens, temperature, signal, webSearch }, { fallback })) {
+    for await (const ev of streamRetry(route, { messages: dolaczObrazy(czat?.messages ?? messages, obrazy), maxTokens, temperature, signal, webSearch }, { fallback })) {
       if (ev.type === "text" && (procesor || filtr)) {
         const delta = procesor ? procesor.dodaj(ev.delta) : filtr!.dodaj(ev.delta);
         wyslano += delta;
